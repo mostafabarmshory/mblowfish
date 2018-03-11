@@ -66,7 +66,7 @@ angular.module('mblowfish-core')
 
 		return {
 			replace : false,
-			templateUrl : 'views/directives/amd-datepicker.html',
+			templateUrl : 'views/directives/mb-datepicker.html',
 			restrict : 'E',
 			scope : {
 				minDate : '=mdMinDate',

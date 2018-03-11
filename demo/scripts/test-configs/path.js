@@ -31,7 +31,7 @@ angular.module('app') //
 
 	// add routes
 	$routeProvider //
-	.otherwise('/dashboard')
+	.otherwise('/test/preloading')
 	.when('/test/infinate-scrole', {
 		controller : 'InfinateItemsCtrl',
 		templateUrl : 'views/amd-test-infinate-scroll.html',

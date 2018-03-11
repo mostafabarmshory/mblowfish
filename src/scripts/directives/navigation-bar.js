@@ -26,7 +26,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-navigation-path
+ * @name mb-navigation-path
  * @description Display current navigation path of system
  * 
  * Navigation path is a menu which is updated by the $navigation service. This menu
@@ -35,12 +35,12 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.directive('amdNavigationBar' , function($menu) {
+.directive('mbNavigationBar' , function($menu) {
 
 	return {
 		restrict : 'E',
 		replace: false,
-		templateUrl: 'views/directives/amd-navigation-bar.html',
+		templateUrl: 'views/directives/mb-navigation-bar.html',
 		link: postLink
 	};
 

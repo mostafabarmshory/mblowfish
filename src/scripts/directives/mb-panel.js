@@ -51,12 +51,12 @@ angular.module('mblowfish-core')
  * </hljs>
  * 
  */
-.directive('amdPanel', function($navigator, $usr, $route, $window, $rootScope,
+.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
 		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
 
 
-	var bodyElementSelector = 'div#amd-panel-root-ready';
-	var placeholderElementSelector = 'div#amd-panel-root-ready-anchor';
+	var bodyElementSelector = 'div#mb-panel-root-ready';
+	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
 
 
 	// $view service
@@ -283,7 +283,7 @@ angular.module('mblowfish-core')
 	return {
 		restrict : 'E',
 		replace : true,
-		templateUrl : 'views/directives/amd-panel.html',
+		templateUrl : 'views/directives/mb-panel.html',
 		link : postLink
 	};
 });

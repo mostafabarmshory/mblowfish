@@ -26,20 +26,20 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-user-menu
+ * @name mb-user-menu
  * @restrict E
  * @description Display global user menu
  * 
  * Load current user action into the scope. It is used to show user menu
  * in several parts of the system.
  */
-.directive('amdUserMenu', function($menu, $app, $mdSidenav) {
+.directive('mbUserMenu', function($menu, $app, $mdSidenav) {
 	/**
 	 * Post link 
 	 */
 	function postLink($scope, $element, $attr) {
 		// maso, 2017: Get user menu
-		$scope.menu = $menu.menu('amd.user');
+		$scope.menu = $menu.menu('mb.user');
 		$scope.logout = $app.logout;
 		$scope.settings = function(){
 			return $mdSidenav('settings').toggle();
@@ -50,8 +50,8 @@ angular.module('mblowfish-core')
 		restrict: 'E',
 		replace: true,
 		scope: true,
-		templateUrl: 'views/directives/amd-user-menu.html',
+		templateUrl: 'views/directives/mb-user-menu.html',
 		link: postLink,
-		controller : 'AmdAccountCtrl'
+		controller : 'MbAccountCtrl'
 	};
 });

@@ -19,11 +19,11 @@
 		style="padding: 0px 8px 0px 8px;">
 		{{app.config.title}}
 	</strong>
-	<amd-navigation-bar
+	<mb-navigation-bar
 		hide
 		show-gt-sm
 		ng-show="app.setting.navigationPath">
-	</amd-navigation-bar>
+	</mb-navigation-bar>
 </div>
 <div
 	layout="row"
@@ -61,7 +61,7 @@
 <!-- 		<wb-icon>menu</wb-icon> -->
 <!-- 	</md-button> -->
 	
-	<amd-user-menu></amd-user-menu>
+	<mb-user-menu></mb-user-menu>
 	<md-button
 		ng-repeat="menu in userMenu.items | orderBy:['-priority']"
 		ng-show="menu.visible()"

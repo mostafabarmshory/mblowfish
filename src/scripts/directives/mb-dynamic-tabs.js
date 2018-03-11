@@ -26,14 +26,14 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-dynamic-tabs
+ * @name mb-dynamic-tabs
  * @description Display tabs dynamically
  * 
  * In some case, a dynamic tabs are required. This module add them dynamically.
  * 
  */
-.directive('amdDynamicTabs', function($wbUtil, $settings, $q, $rootScope, $compile, $controller) {
-	var CHILDREN_AUNCHOR = 'amd-dynamic-tabs-select-resource-children';
+.directive('mbDynamicTabs', function($wbUtil, $settings, $q, $rootScope, $compile, $controller) {
+	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
 
 
 	/**
@@ -112,7 +112,7 @@ angular.module('mblowfish-core')
 		scope: {
 			amdSection: '='
 		},
-		templateUrl: 'views/directives/amd-dynamic-tabs.html',
+		templateUrl: 'views/directives/mb-dynamic-tabs.html',
 		link: link,
 		controller : function($scope) {
 			// TODO: maso, 2017:

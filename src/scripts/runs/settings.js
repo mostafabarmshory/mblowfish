@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
 		id : 'local',
 		title : 'local',
 		description : 'manage dashboard locality and language.',
-		templateUrl : 'views/amd-configs/local.html',
+		templateUrl : 'views/preferences/md-local.html',
 		controller : 'settingsLocalCtrl',
 		icon : 'language',
 		tags : [ 'local', 'language' ],
@@ -41,7 +41,7 @@ angular.module('mblowfish-core')
 		id : 'brand',
 		title : 'Branding',
 		description : 'Manage application branding such as title, logo and descritpions.',
-		templateUrl : 'views/amd-configs/brand.html',
+		templateUrl : 'views/preferences/md-brand.html',
 		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
 		tags : [ 'brand' ],
@@ -49,17 +49,21 @@ angular.module('mblowfish-core')
 	.newConfig({
 		id : 'google-analytic',
 		title : 'Google Analytic',
-		templateUrl : 'views/amd-configs/google-analytic.html',
+		templateUrl : 'views/preferences/mb-google-analytic.html',
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
 		tags : [ 'analysis' ],
 	});
 	
 	// Settings
-	$settings//
-	.newSetting({
-		title: 'Settings',
-		templateUrl: 'views/amd-settings/general.html',
-		tags: ['theme', 'local']
+	$settings.newSetting({
+		title: 'Local',
+		templateUrl: 'views/settings/mb-local.html',
+		tags: ['local']
+	});
+	$settings.newSetting({
+		title: 'Theme',
+		templateUrl: 'views/settings/mb-theme.html',
+		tags: ['theme']
 	});
 });

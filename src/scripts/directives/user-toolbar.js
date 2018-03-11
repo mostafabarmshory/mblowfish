@@ -26,23 +26,23 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-user-toolbar
+ * @name mb-user-toolbar
  * @description User toolbar
  * 
  * Display tree menu
  * 
  */
-.directive('amdUserToolbar', function($animate) {
+.directive('mbUserToolbar', function($animate) {
 	return {
 		restrict: 'E',
 		replace: true,
 //		scope: {
 //			amdActions: '='
 //		},
-		templateUrl: 'views/directives/amd-user-toolbar.html',
+		templateUrl: 'views/directives/mb-user-toolbar.html',
 		link: function($scope, $element, $attr, $ctrl) {
 			// TODO: maso, 2017:
 		},
-		controller : 'AmdAccountCtrl'
+		controller : 'MbAccountCtrl'
 	};
 });

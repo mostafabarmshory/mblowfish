@@ -25,31 +25,38 @@ angular.module('mblowfish-core')
 /**
  * 
  */
-.config(function($routeProvider) {
+.config(function($routeProvider, $locationProvider) {
 	$routeProvider//
-	.otherwise('/dashboard')
-	/*
-	 * Dashboard
+	/**
+	 * @ngdoc ngRoute
+	 * @name /preferences
+	 * @description preferences pages
 	 */
-	.when('/dashboard', {
-		templateUrl : 'views/amd-dashboard.html',
-		controller : 'AmdDashboardCtrl',
-	})
-	
-	
-	/*
-	 * Settings
+	.when('/preferences', {
+		templateUrl : 'views/amh-preferences.html',
+		controller : 'MbPreferencesCtrl',
+		helpId: 'preferences',
+	}) //
+	/**
+	 * @ngdoc ngRoute
+	 * @name /preferences/:page
+	 * @description Preferences page
+	 * 
+	 * Display a preferences page to manage a part of settings. Here is list of
+	 * default pages:
+	 * 
+	 * - google-analytic
+	 * - brand
+	 * - update
+	 * - pageNotFound
 	 */
-	.when('/configs', {
-		templateUrl : 'views/amd-configs.html',
-		controller : 'AmdConfigsCtrl',
-		helpId: 'configs',
-	})//
-	.when('/configs/:configId', {
-		templateUrl : 'views/amd-config.html',
-		controller : 'AmdConfigCtrl',
+	.when('/preferences/:preferenceId', {
+		templateUrl : 'views/amh-preference.html',
+		controller : 'MbPreferenceCtrl',
 		helpId: function(currentState){
-			return 'configs-' + currentState.params['configId'];
+			return 'preference-' + currentState.params['preferenceId'];
 		}
-	});
+	}); //
+
+	$locationProvider.html5Mode(true);
 });

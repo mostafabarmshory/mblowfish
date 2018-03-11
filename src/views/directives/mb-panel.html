@@ -1,30 +1,30 @@
-<div id="amd-panel-root"
+<div id="mb-panel-root"
 	md-theme="{{app.setting.theme || 'default'}}" 
 	md-theme-watch
 	layout="column"
 	layout-fill>
 
-	<div id="amd-panel-root-ready"
+	<div id="mb-panel-root-ready"
 		ng-show="app.state.status === 'ready'"
-		ng-class="{'amd-rtl-direction': app.dir=='rtl', 'amd-ltr-direction': app.dir!='rtl'}"
+		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 		dir="{{app.dir}}"
 		layout="column"
 		layout-fill>
 		
-<!-- 		<amd-navigation-bar -->
+<!-- 		<mb-navigation-bar -->
 <!-- 			hide-gt-sm -->
 <!-- 			ng-show="app.setting.navigationPath"> -->
-<!-- 		</amd-navigation-bar> -->
+<!-- 		</mb-navigation-bar> -->
 		
 		<!-- Main body -->
 		<!-- System states and data will be displayed at this element. -->
-		<div id="amd-panel-root-ready-anchor"
+		<div id="mb-panel-root-ready-anchor"
 			layout="row"
 			flex>
 		    <md-whiteframe 
 		    	layout="row"
 		    	id="main"
-		    	class="md-whiteframe-24dp main amd-page-content" 
+		    	class="md-whiteframe-24dp main mb-page-content" 
 		    	ng-view 
 		    	flex>
 		    </md-whiteframe>
@@ -34,7 +34,7 @@
 	<div ng-if="app.state.status === 'loading'"
 		md-theme="{{app.setting.theme || 'default'}}" 
 		md-theme-watch
-		ng-class="{'amd-rtl-direction': app.dir=='rtl', 'amd-ltr-direction': app.dir!='rtl'}"
+		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 		dir="{{app.dir}}"
 		layout="column"
 		layout-align="center center"
@@ -55,7 +55,7 @@
 
 	<div ng-if="app.state.status === 'anonymous'"
 		md-theme-watch
-		ng-class="{'amd-rtl-direction': app.dir=='rtl', 'amd-ltr-direction': app.dir!='rtl'}"
+		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 		layout="row"
 		layout-aligne="none"
 		layout-align-gt-sm="center center"
@@ -66,7 +66,7 @@
 			flex="100"
 			flex-gt-sm="50"
 			layout="column"
-			amd-preloading="ctrl.state ==='working'">
+			mb-preloading="ctrl.state ==='working'">
 			<!-- Toolbar -->
 			<md-toolbar 
 				layout="row" 

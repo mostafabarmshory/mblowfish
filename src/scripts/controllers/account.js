@@ -25,15 +25,12 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdAccountCtrl
- * 
+ * @name MbAccountCtrl
  * @description Manages the current user.
- * 
- * 
  * 
  * Manages current user action
  */
-.controller('AmdAccountCtrl', function($scope, $app, $navigator) {
+.controller('MbAccountCtrl', function($scope, $app, $navigator) {
 
 	/*
 	 * Store controller state

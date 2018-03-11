@@ -21,14 +21,62 @@
  */
 'use strict';
 
+
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
- * @name AmdToolbarCtrl
- * @description Toolbar
+ * @ngdoc directive
+ * @name amd-tree
+ * @description Tree
+ * 
+ * Display tree menu
  * 
  */
-.controller('AmdToolbarMainCtrl', function($scope, $app) {
-	$scope.toolbarMenu = $app.getToolbarMenu();
+.directive('mbTree', function($animate, $rootScope) {
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			mbSection: '='
+		},
+		templateUrl: 'views/directives/mb-tree.html',
+		link: function(scope, element, attr) {
+			// TODO: maso, 2017:
+		},
+		controller : function($scope) {
+			// Current section
+			var openedSection = null;
+
+			/**
+			 * Checks if the section is visible
+			 */
+			function isVisible(section){
+				if(section.hidden){
+					return !$rootScope.$eval(section.hidden);
+				}
+				return true;
+			}
+
+			/**
+			 * Check if the opened section is the section.
+			 */
+			function isOpen(section) {
+				return openedSection === section;
+			}
+
+			/**
+			 * Toggle opened section
+			 * 
+			 * We just put the section in the tree openedSection and update all
+			 * UI.
+			 */
+			function toggle(section) {
+				openedSection = (openedSection === section) ? null : section;
+			}
+
+			$scope.isOpen = isOpen;
+			$scope.toggle = toggle;
+			$scope.isVisible = isVisible;
+		}
+	};
 });

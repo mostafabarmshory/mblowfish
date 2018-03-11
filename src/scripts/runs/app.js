@@ -30,13 +30,13 @@ angular.module('mblowfish-core')
 	.item({
 		priority : 15,
 		icon : 'settings',
-		label : 'Setting',
-		tooltip : 'Open setting panel',
+		label : 'Preferences',
+		tooltip : 'Open preferences panel',
 		visible : function(){
 			return $rootScope.app.user.owner;
 		},
 		active : function(){
-			return $navigator.openPage('/configs');
+			return $navigator.openPage('/preferences');
 		}
 	})
 	.item({ // help
@@ -60,8 +60,8 @@ angular.module('mblowfish-core')
 		id : 'dashboard',
 		title : 'Dashboard toolbar',
 		description : 'Main dashboard toolbar',
-		controller: 'AmdToolbarMainCtrl',
-		templateUrl : 'views/amd-toolbars/main.html',
+		controller: 'MbToolbarDashboardCtrl',
+		templateUrl : 'views/toolbars/mb-dashboard.html',
 	});
 	
 	$app.newSidenav({
@@ -69,7 +69,7 @@ angular.module('mblowfish-core')
 		title : 'Navigator',
 		description : 'Navigate all path and routs of the pandel',
 		controller: 'AmdNavigatorCtrl',
-		templateUrl : 'views/amd-sidenavs/navigator.html',
+		templateUrl : 'views/sidenavs/mb-navigator.html',
 		locked : true,
 		position : 'start',
 	});
@@ -78,7 +78,7 @@ angular.module('mblowfish-core')
 		title : 'Help',
 		description : 'System online help',
 		controller : 'AmdHelpCtrl',
-		templateUrl : 'views/amd-sidenavs/help.html',
+		templateUrl : 'views/sidenavs/mb-help.html',
 		locked : true,
 		visible : function() {
 			return $rootScope.showHelp;
@@ -90,7 +90,7 @@ angular.module('mblowfish-core')
 		title : 'Settings',
 		description : 'User settings',
 //		controller : 'AvaHelpCtrl',
-		templateUrl : 'views/amd-sidenavs/settings.html',
+		templateUrl : 'views/sidenavs/mb-settings.html',
 		locked : false,
 //		visible : function($scope) {
 //			return $scope.showHelp;
