@@ -7,9 +7,9 @@
         md-row-height="4:3"
         md-gutter-gt-md="16px" md-gutter-md="8px" md-gutter="4px">
       <md-grid-tile
-          ng-repeat="tile in settingsTiles"
+          ng-repeat="tile in preferencesTiles"
           ng-style="{'background': tile.color}"
-          ng-click="openSetting(tile)">
+          ng-click="openPreference(tile)">
           <md-grid-tile-header>
          	  <h3 style="text-align: center;font-weight: bold">{{tile.page.title}}</h3>
           </md-grid-tile-header>

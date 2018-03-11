@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Controller of configs
  * 
  */
-.controller('AmdConfigsCtrl', function($scope, $settings) {
+.controller('MbPreferencesCtrl', function($scope, $preferences) {
 
 	var COLORS = [ '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373',
 		'#ef5350', '#f44336', '#e53935', '#d32f2f', '#c62828',
@@ -94,14 +94,14 @@ angular.module('mblowfish-core')
 		}
 	}
 
-	function openSetting(tile) {
-		$settings.openConfig(tile.page);
+	function openPreference(tile) {
+		$preferences.openConfig(tile.page);
 	}
 
 	// Load settings
-	$settings.configs()//
+	$preferences.pages()//
 	.then(function(settings) {
-		$scope.settingsTiles = [];
+		$scope.preferencesTiles = [];
 		for (var i = 0; i < settings.items.length; i++) {
 			$scope.settingsTiles.push({
 				color : randomColor(),
@@ -112,5 +112,5 @@ angular.module('mblowfish-core')
 		}
 	});
 
-	$scope.openSetting = openSetting;
+	$scope.openPreference = openPreference;
 });

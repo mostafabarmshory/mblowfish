@@ -31,7 +31,6 @@ angular.module('mblowfish-core')
  */
 .service('$settings', function($q, $navigator) {
 	var _pages = [ ];
-	var _settings = [];
 
 	/**
 	 * List all pages
@@ -75,39 +74,12 @@ angular.module('mblowfish-core')
 		_pages.push(page);
 		return app;
 	}
-
-	/**
-	 * List all settings
-	 */
-	function settings(){
-		return  _settings;
-	}
-	
-	/**
-	 * Adding new setting page
-	 */
-	function newSetting(setting){
-		_settings.push(setting);
-		return this;
-	}
-	
-	/**
-	 * get a setting 
-	 */
-	function setting(){
-		// TODO: maso, 2017: support add and remove
-	}
 	
 	var app = {
-			configs : pages,
-			config: getPage,
-			openConfig : openPage,
+			pages : pages,
+			getPage: getPage,
+			openPage : openPage,
 			newPage: createPage,
-			newConfig: createPage,
-			// Settings
-			settings: settings,
-			setting: setting,
-			newSetting: newSetting
 	};
 	return app;
 });

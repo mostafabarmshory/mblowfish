@@ -25,10 +25,10 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($settings) {
+.run(function($settings, $preferences) {
 	// Pages
-	$settings
-	.newConfig({
+	$preferences
+	.newPage({
 		id : 'local',
 		title : 'local',
 		description : 'manage dashboard locality and language.',
@@ -37,7 +37,7 @@ angular.module('mblowfish-core')
 		icon : 'language',
 		tags : [ 'local', 'language' ],
 	})//
-	.newConfig({
+	.newPage({
 		id : 'brand',
 		title : 'Branding',
 		description : 'Manage application branding such as title, logo and descritpions.',
@@ -46,7 +46,7 @@ angular.module('mblowfish-core')
 		icon : 'copyright',
 		tags : [ 'brand' ],
 	})//
-	.newConfig({
+	.newPage({
 		id : 'google-analytic',
 		title : 'Google Analytic',
 		templateUrl : 'views/preferences/mb-google-analytic.html',
@@ -56,12 +56,12 @@ angular.module('mblowfish-core')
 	});
 	
 	// Settings
-	$settings.newSetting({
+	$settings.newPage({
 		title: 'Local',
 		templateUrl: 'views/settings/mb-local.html',
 		tags: ['local']
 	});
-	$settings.newSetting({
+	$settings.newPage({
 		title: 'Theme',
 		templateUrl: 'views/settings/mb-theme.html',
 		tags: ['theme']

@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Controller of a configs
  * 
  */
-.controller('AmdConfigCtrl', function($scope, $settings, $routeParams, $navigator) {
+.controller('MbPreferenceCtrl', function($scope, $settings, $routeParams, $navigator) {
 
 	$settings.config($routeParams['configId'])
 	.then(function(config) {

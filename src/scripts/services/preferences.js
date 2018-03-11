@@ -111,5 +111,6 @@ angular.module('mblowfish-core')
 		'open' : open,
 		'openPage' : open,
 		'createPage': createPage,
+		'newPage': createPage,
 	};
 });

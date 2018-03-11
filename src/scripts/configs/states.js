@@ -33,7 +33,7 @@ angular.module('mblowfish-core')
 	 * @description preferences pages
 	 */
 	.when('/preferences', {
-		templateUrl : 'views/amh-preferences.html',
+		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
 		helpId: 'preferences',
 	}) //
@@ -51,7 +51,7 @@ angular.module('mblowfish-core')
 	 * - pageNotFound
 	 */
 	.when('/preferences/:preferenceId', {
-		templateUrl : 'views/amh-preference.html',
+		templateUrl : 'views/mb-preference.html',
 		controller : 'MbPreferenceCtrl',
 		helpId: function(currentState){
 			return 'preference-' + currentState.params['preferenceId'];
