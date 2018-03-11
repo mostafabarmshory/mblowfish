@@ -1,0 +1,36 @@
+<div>
+	<md-button 
+		class="md-raised md-primary md-hue-1 md-button-toggle"
+		ng-click="toggle(amdSection)"
+		aria-controls="docs-menu-{{section.name}}"
+		aria-expanded="{{isOpen(amdSection)}}">
+		<div flex layout="row">
+			<wb-icon ng-if="amdSection.icon">{{amdSection.icon}}</wb-icon>
+	    	<span class="amd-toggle-title" translate>{{amdSection.title}}</span>
+		    <span flex></span>
+		    <span 
+		    	aria-hidden="true" 
+		    	class="md-toggle-icon"
+		        ng-class="{toggled : isOpen(amdSection)}">
+				<wb-icon>keyboard_arrow_up</wb-icon>
+		    </span>
+		</div>
+		<span 
+			class="md-visually-hidden">
+		    Toggle {{isOpen(amdSection)? expanded : collapsed}}
+		</span>
+	</md-button>
+	
+	<ul 
+		id="docs-menu-{{amdSection.title}}" 
+		class="amd-tree-toggle-list">
+		<li 
+			ng-repeat="section in amdSection.sections" 
+			ng-if="isVisible(section)">
+	        <amd-tree-link
+	        	amd-section="section" 
+	        	ng-if="section.type === 'link'">
+	        </amd-tree-link>
+		</li>
+	</ul>
+</div>

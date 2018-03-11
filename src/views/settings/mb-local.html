@@ -1,0 +1,97 @@
+<section 
+	class="demo-container md-whiteframe-z1 show-source" 
+	style=""
+	layout="column"
+	layout-padding>
+	<h3 translate>Theme</h3>
+	<md-divider></md-divider>
+	<md-input-container 
+		ng-controller="AmdThemesCtrl"
+		class="md-block">
+		<label translate>Theme</label>
+		<md-select 
+			ng-model="app.setting.theme">
+			<md-option 
+				ng-repeat="theme in themes"
+				value="{{theme.id}}" 
+				translate>{{theme.label}}</md-option>
+		</md-select>
+	</md-input-container>
+	<md-input-container class="md-block">
+		<md-switch 
+			class="md-primary" 
+			name="special" 
+			ng-model="app.setting.navigationPath" >
+				<sapn flex translate>Navigation path</sapn>
+			</md-switch>
+	</md-input-container>
+</section>
+<section 
+	class="demo-container md-whiteframe-z1 show-source" 
+	style=""
+	layout-padding>
+	<h3 translate>Local</h3>
+	<md-divider></md-divider>
+	<md-input-container class="md-block">
+		<label translate>Language&Local</label>
+		<md-select 
+			ng-model="app.setting.local">
+			<md-option 
+				value="fa" 
+				translate>Persian</md-option>
+			<md-option 
+				value="en" 
+				translate>English</md-option>
+		</md-select>
+	</md-input-container>
+	<md-input-container class="md-block">
+		<label translate>Direction</label>
+		<md-select 
+			ng-model="app.setting.dir" 
+			placeholder="Direction">
+			<md-option 
+				value="rtl" 
+				translate>Right to left</md-option>
+			<md-option 
+				value="ltr" 
+				translate>Left to right</md-option>
+		</md-select>
+	</md-input-container>
+	
+	<md-input-container class="md-block">
+		<label translate>Calendar</label>
+		<md-select 
+			ng-model="app.setting.calendar" 
+			placeholder="">
+			<md-option 
+				value="Gregorian"
+				translate>Gregorian</md-option>
+			<md-option 
+				value="Jalaali"
+				translate>Jalaali</md-option>
+		</md-select>
+	</md-input-container>
+	
+	<md-input-container class="md-block">
+		<label translate>Date format</label>
+		<md-select 
+			ng-model="app.setting.dateFormat" 
+			placeholder="">
+			<md-option 
+				value="jMM-jDD-jYYYY"
+				translate>
+				{{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}}
+			</md-option>
+			<md-option 
+				value="jYYYY-jMM-jDD"
+				translate>
+				{{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}}
+			</md-option>
+			<md-option 
+				value="jYYYY jMMMM jDD"
+				translate>
+				{{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}}
+			</md-option>
+		</md-select>
+	</md-input-container>
+</section>

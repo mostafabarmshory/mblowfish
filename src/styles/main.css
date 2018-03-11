@@ -1,0 +1,41 @@
+/*
+ * main area. it is main panel in center of panel.
+ * To customize style this panel dont change this css. Do your changes in your application. 
+ */
+.amd-page-content {
+	width: 100%;
+/* 	margin: 15px; */
+}
+
+/*
+ * Right to left direction
+ *
+ *  This class will be applied to elements with RTL direction. For example in the
+ * amd-panel this class is used to effect app.setting.dir into the entire elements.
+ */
+.amd-rtl-direction {
+	/* TODO: maso, 2017: update direction */
+	direction: rtl;
+	text-align: right;
+}
+
+/*
+ * Left to right direction
+ *
+ * This class will be applied to elements with LTR direction
+ *
+ * see: .amd-rtl-direction
+ */
+.amd-ltr-direction {
+	/* TODO: maso, 2017: update direction */
+	direction: ltr;
+	text-align: left;
+}
+
+
+
+.input-container input:-webkit-autofill ~ label {
+  color: #757575;
+  -webkit-transform: translate(-12%, -50%) scale(0.75);
+          transform: translate(-12%, -50%) scale(0.75);
+}

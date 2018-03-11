@@ -1,0 +1,17 @@
+<md-toolbar 
+	class="md-whiteframe-z2"
+	layout="column"
+	layout-align="start center">
+	<img 
+		width="128px"
+		height="128px"
+		ng-show="app.config.logo"
+		ng-src="{{app.config.logo}}"/>
+	<strong>{{app.config.title}}</strong>
+	<p style="text-align: center;">{{app.config.description}}</p>
+</md-toolbar>
+<md-content>
+	<mb-tree
+		mb-section="menuItems">
+	</bm-tree>
+</md-content>

@@ -1,0 +1,52 @@
+{
+  "name": "mblowfish-core",
+  "moduleName": "mblowfish-core",
+  "description": "Material blowfish is an application framework",
+  "homepage": "https://github.com/mblowfish/mblowfish-core",
+  "license": "MIT",
+  "version": "1.0.0",
+  "main": [
+    "dist/mblowfish-core.js",
+    "dist/mblowfish-core.css"
+  ],
+  "dependencies": {
+    "angular-animate": "^1.6.0",
+    "angular-cookies": "^1.6.0",
+    "angular-sanitize": "^1.6.0",
+    "angular-messages": "^1.6.0",
+    "angular-route": "^1.6.0",
+    "angular-nvd3": "^1.0.9",
+    "angular-pluf": "^1.1.7",
+    "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#^1.1.0",
+    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#^1.0.0",
+    "am-wb-common": "https://gitlab.com/am-wb/am-wb-common.git#^1.0.0",
+    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#^1.0.0",
+    "am-wb-seen-monitors": "https://gitlab.com/am-wb/am-wb-seen-monitors.git#^1.0.0",
+    "ngstorage": "^0.3.11",
+    "ngInfiniteScroll": "1.3.0",
+    "ng-appcache": "^2.0.1",
+    "lf-ng-md-file-input": "^1.4.8",
+    "angular-recaptcha": "^4.1.1",
+    "angular-file-saver": "^1.1.3",
+    "angular-material-persian-datepicker": "^1.2.0"
+  },
+  "resolutions": {
+    "angular": "^1.6.0"
+  },
+  "devDependencies": {
+    "angular-mocks": "^1.6.0"
+  },
+  "appPath": "src",
+  "2#backend": {
+    "host": "localhost",
+    "port": 9590
+  },
+  "1#backend": {
+    "host": "siteonclouds.com"
+  },
+  "backend": {
+    "#comment": "Gazmeh test machine",
+    "host": "192.69.216.109",
+    "port": 8083
+  }
+}

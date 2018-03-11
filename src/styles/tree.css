@@ -1,0 +1,125 @@
+/*
+ * Tree 
+ * 
+ * A tree is a tree view of action which is used in the side navbar. Users are
+ * free to use this item anywhere.
+ * 
+ */
+.amd-tree {
+	margin: 0;
+}
+
+.amd-tree, .amd-tree ul {
+	list-style: none;
+	padding: 0;
+}
+
+.amd-tree li {
+	margin: 0;
+}
+
+.amd-tree>li {
+	border-bottom: 1px solid;
+}
+
+.amd-tree>li:nth-child(1) {
+	border-top: none;
+}
+
+.md-whiteframe-glow-z1 {
+	box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 0px 2px 2px
+		rgba(0, 0, 0, 0.098), 0px 0px 5px 1px rgba(0, 0, 0, 0.084);
+}
+
+.amd-tree .md-button {
+	box-shadow: none !important;
+	border-radius: 0;
+	/*color: white;*/
+	cursor: pointer;
+	display: block;
+	align-items: inherit;
+	line-height: 40px;
+	margin: 0;
+	max-height: 40px;
+	overflow: hidden;
+	padding: 0px 16px;
+	text-align: inherit;
+	text-decoration: none;
+	white-space: normal;
+	width: 100%;
+}
+
+.amd-tree md-select {
+	/**
+     * Override md-select margins.
+     * With margins the menu will look incorrect and causes mobile list
+     * to not be scrollable.
+     */
+	margin: 0;
+	width: 100%;
+}
+
+.amd-tree md-select md-select-label {
+	justify-content: flex-end;
+	padding-top: 10px;
+}
+
+.amd-tree md-select md-select-label span {
+	margin-right: auto;
+	padding-left: 13px;
+}
+
+.amd-tree md-select .md-select-icon {
+	margin-right: 28px;
+}
+
+.amd-tree button.md-button::-moz-focus-inner {
+	padding: 0;
+}
+
+.amd-tree-heading {
+	display: block;
+	line-height: 32px;
+	margin: 0;
+	padding: 8px 16px 0;
+	text-align: left;
+	width: 100%;
+}
+
+.amd-tree-toggle-list {
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
+.amd-tree .amd-tree-toggle-list a.md-button {
+	display: block;
+	padding: 0 16px 0 32px;
+	text-transform: none;
+	text-rendering: optimizeLegibility;
+	font-weight: 500;
+}
+
+.md-button-toggle .md-toggle-icon {
+	display: block;
+	margin-left: auto;
+	speak: none;
+	vertical-align: middle;
+	transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);
+	transition: transform 0.3s ease-in-out;
+	-webkit-transition: -webkit-transform 0.3s ease-in-out;
+}
+
+.md-button-toggle .md-toggle-icon.toggled {
+	transform: rotate(0deg);
+	-webkit-transform: rotate(0deg);
+}
+
+.md-toggle-icon md-icon {
+	height: 40px;
+}
+
+.amd-toggle-title {
+	padding: 0px 5px 0px 5px;
+}

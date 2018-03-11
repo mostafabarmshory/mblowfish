@@ -1,0 +1,35 @@
+<ul 
+	class="mb-tree">
+    <li 
+    	mb-style-color="{'border-bottom-color': 'background.600'}" 
+    	ng-repeat="section in mbSection.sections | orderBy : 'priority'" 
+    	ng-if="isVisible(section)">
+        <mb-tree-heading
+        	mb-section="section"
+        	ng-if="$parent.section.type === 'heading'">
+        </mb-tree-heading>
+        <mb-tree-link
+        	mb-section="section" 
+        	ng-if="$parent.section.type === 'link'">
+        </mb-tree-link>
+        <mb-tree-toggle 
+        	mb-section="section" 
+        	ng-if="section.type === 'toggle'">
+        </mb-tree-toggle>
+<!--         <ul  -->
+<!--         	ng-if="section.children"> -->
+<!--             <li  -->
+<!--             	ng-repeat="child in section.children"  -->
+<!--             	ng-if="!child.hidden"> -->
+<!--                 <mb-tree-link  -->
+<!--                 	mb-section="child"  -->
+<!--                 	ng-if="child.type === link"> -->
+<!--                 </mb-tree-link> -->
+<!--                 <mb-tree-toggle  -->
+<!--                 	mb-section="child"  -->
+<!--                 	ng-if="child.type === toggle"> -->
+<!--                 </mb-tree-toggle> -->
+<!--             </li> -->
+<!--         </ul> -->
+    </li>
+</ul>

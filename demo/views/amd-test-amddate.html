@@ -1,0 +1,42 @@
+<md-content
+	layout="column"
+	layout-align="center none"
+	flex>
+	
+	<div>
+		<h1>amd-date filter</h1>
+		<p> add amddate filter to show the date</p>	
+		{{_date | amddate}}
+	</div> 
+
+	<div>
+		<h1>amd-datepicker</h1>
+		<p>Select date based on calender</p>	
+		<amd-datepicker
+			ng-model="_date">
+		</amd-datepicker>
+	</div> 
+
+	<div>
+		<h1>md-persian-datepicker </h1>
+		<p>The datepicker component from AngularJS Material tweaked to take
+			dates in the Persian (Jalaali) calendar system, using moment-jalaali.
+		</p>
+	
+		<md-persian-datepicker 
+			ng-model="_jdate">
+		</md-persian-datepicker> 
+	</div>
+	
+	<div>
+		<h1>md-datepicker</h1>
+		<p>md-datepicker is a component used to select a single date. For
+			information on how to configure internationalization for the date
+			picker, see $mdDateLocaleProvider.</p>
+	
+		<md-datepicker 
+			ng-model="_jdate"
+			md-placeholder="Enter date">
+		</md-datepicker>
+	</div>
+</md-content>

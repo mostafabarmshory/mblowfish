@@ -1,0 +1,26 @@
+<md-dialog ng-cloak>
+	<md-toolbar>
+		<div class="md-toolbar-tools">
+			<wb-icon>input</wb-icon>
+			<h2 translate>{{app.title}}</h2>
+			<span flex></span>
+			<md-button class="md-icon-button" ng-click="answer(config.model)">
+				<wb-icon aria-label="Close dialog">done</wb-icon>
+			</md-button>
+			<md-button class="md-icon-button" ng-click="cancel()">
+				<wb-icon aria-label="Close dialog">close</wb-icon>
+			</md-button>
+		</div>
+	</md-toolbar>
+	<md-dialog-content 
+		layout="column" 
+		layout-align="center stretch"
+		layout-padding 
+		flex>
+		<p translate>{{config.message}}</p>
+		<md-input-container class="md-block">
+			<label translate>Input value</label>
+			<input ng-model="config.model">
+		</md-input-container>
+	</md-dialog-content>
+</md-dialog>

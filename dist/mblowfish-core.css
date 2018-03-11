@@ -1,0 +1,293 @@
+[dir=ltr] md-list-item > ng-md-icon:first-child,
+[dir=ltr] md-list-item .md-list-item-inner > ng-md-icon:first-child{
+    -webkit-margin-end: 32px;
+    margin-right: 32px;
+}
+
+
+[dir=rtl] md-list-item > ng-md-icon:first-child,
+[dir=rtl] md-list-item .md-list-item-inner > ng-md-icon:first-child{
+    -webkit-margin-end: 32px;
+    margin-left: 32px;
+}
+[dir=rtl] md-menu-item > .md-button {
+    direction: rtl;
+    text-align: right;
+}
+[dir=ltr] md-menu-item > .md-button {
+    direction: ltr;
+    text-align: left;
+}
+/*
+*/
+
+.flexbox-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+/*
+ * in fullscreen mode in dialog, this css class in large screen, makes 
+ * dialog width about 60% of screen.
+ */
+@media ( min-width : 959px) {
+	md-dialog.md-dialog-fullscreen {
+		min-height: 20%;
+		min-width: 30%;
+		border-radius: 8px;
+	}
+}
+/*
+ *  This class is add to the domes where you are interested to adding
+ * infinate scroll.
+ */
+.amd-infinate-scroll {
+	overflow: auto;
+	overflow-x: auto;
+	overflow-y: auto;
+}
+/*
+ * main area. it is main panel in center of panel.
+ * To customize style this panel dont change this css. Do your changes in your application. 
+ */
+.amd-page-content {
+	width: 100%;
+/* 	margin: 15px; */
+}
+
+/*
+ * Right to left direction
+ *
+ *  This class will be applied to elements with RTL direction. For example in the
+ * amd-panel this class is used to effect app.setting.dir into the entire elements.
+ */
+.amd-rtl-direction {
+	/* TODO: maso, 2017: update direction */
+	direction: rtl;
+	text-align: right;
+}
+
+/*
+ * Left to right direction
+ *
+ * This class will be applied to elements with LTR direction
+ *
+ * see: .amd-rtl-direction
+ */
+.amd-ltr-direction {
+	/* TODO: maso, 2017: update direction */
+	direction: ltr;
+	text-align: left;
+}
+
+
+
+.input-container input:-webkit-autofill ~ label {
+  color: #757575;
+  -webkit-transform: translate(-12%, -50%) scale(0.75);
+          transform: translate(-12%, -50%) scale(0.75);
+}
+/*
+ *
+ */
+.amd-navigation-path-bar {
+	padding: 1px;
+	margin: 0px;
+	font-size: 12px;
+}
+
+/*
+ * Navigation item in navigation bar
+ */
+.amd-navigation-path-bar-item {
+	padding: 1px;
+	margin: 0px;
+	cursor: pointer;
+	line-height: normal;
+	min-height: 0px;
+	min-width: 0px;
+	text-transform: none;
+}
+/*
+ * Addin a preloader default box size
+ */
+.amd-preload-box {
+/* 	padding: 0px; */
+/* 	margin: 0px; */
+/* 	width: 100%; */
+/* 	height: 100%; */
+	min-height: 1px;
+	min-width: 1px;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+
+
+/*************************************************
+ * Style of all tables
+ *************************************************/
+table.amd-table {
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	table-layout: auto;
+	border-collapse: collapse;
+}
+
+table.amd-table caption {
+	font-size: 14px;
+	margin: 2px;
+}
+
+table.amd-table tr {
+	border-bottom: 1px solid #6a7475;
+}
+
+/*************************************************
+ * amd-table-description
+ *************************************************/
+table.amd-table-description tr td:first-child {
+	font-weight: bold;
+}
+/*
+ * Tree 
+ * 
+ * A tree is a tree view of action which is used in the side navbar. Users are
+ * free to use this item anywhere.
+ * 
+ */
+.amd-tree {
+	margin: 0;
+}
+
+.amd-tree, .amd-tree ul {
+	list-style: none;
+	padding: 0;
+}
+
+.amd-tree li {
+	margin: 0;
+}
+
+.amd-tree>li {
+	border-bottom: 1px solid;
+}
+
+.amd-tree>li:nth-child(1) {
+	border-top: none;
+}
+
+.md-whiteframe-glow-z1 {
+	box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.14), 0px 0px 2px 2px
+		rgba(0, 0, 0, 0.098), 0px 0px 5px 1px rgba(0, 0, 0, 0.084);
+}
+
+.amd-tree .md-button {
+	box-shadow: none !important;
+	border-radius: 0;
+	/*color: white;*/
+	cursor: pointer;
+	display: block;
+	align-items: inherit;
+	line-height: 40px;
+	margin: 0;
+	max-height: 40px;
+	overflow: hidden;
+	padding: 0px 16px;
+	text-align: inherit;
+	text-decoration: none;
+	white-space: normal;
+	width: 100%;
+}
+
+.amd-tree md-select {
+	/**
+     * Override md-select margins.
+     * With margins the menu will look incorrect and causes mobile list
+     * to not be scrollable.
+     */
+	margin: 0;
+	width: 100%;
+}
+
+.amd-tree md-select md-select-label {
+	justify-content: flex-end;
+	padding-top: 10px;
+}
+
+.amd-tree md-select md-select-label span {
+	margin-right: auto;
+	padding-left: 13px;
+}
+
+.amd-tree md-select .md-select-icon {
+	margin-right: 28px;
+}
+
+.amd-tree button.md-button::-moz-focus-inner {
+	padding: 0;
+}
+
+.amd-tree-heading {
+	display: block;
+	line-height: 32px;
+	margin: 0;
+	padding: 8px 16px 0;
+	text-align: left;
+	width: 100%;
+}
+
+.amd-tree-toggle-list {
+	overflow: hidden;
+	position: relative;
+	z-index: 1;
+}
+
+.amd-tree .amd-tree-toggle-list a.md-button {
+	display: block;
+	padding: 0 16px 0 32px;
+	text-transform: none;
+	text-rendering: optimizeLegibility;
+	font-weight: 500;
+}
+
+.md-button-toggle .md-toggle-icon {
+	display: block;
+	margin-left: auto;
+	speak: none;
+	vertical-align: middle;
+	transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);
+	transition: transform 0.3s ease-in-out;
+	-webkit-transition: -webkit-transform 0.3s ease-in-out;
+}
+
+.md-button-toggle .md-toggle-icon.toggled {
+	transform: rotate(0deg);
+	-webkit-transform: rotate(0deg);
+}
+
+.md-toggle-icon md-icon {
+	height: 40px;
+}
+
+.amd-toggle-title {
+	padding: 0px 5px 0px 5px;
+}
+/*
+ * User menu root
+ */
+.amd-user-menu {
+	
+}
+
+/*
+ * A button is used in user menu
+ */
+.amd-user-menu-button {
+	margin: 0px;
+	padding: 0px;
+}

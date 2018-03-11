@@ -1,0 +1,17 @@
+<div
+	class="amd-navigation-path-bar"
+	md-colors="{'background-color': 'primary'}"
+	layout="row">
+	<wb-icon 
+		style="margin: 1px;"
+		ng-if="pathMenu.items.length">navigation</wb-icon>
+	<md-button
+		data-ng-repeat="menu in pathMenu.items | orderBy:['-priority']"
+		ng-click="menu.active()"
+		class="amd-navigation-path-bar-item">
+		<md-tooltip ng-if="menu.tooltip">{{menu.tooltip}}</md-tooltip>
+		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
+		{{menu.title | translate}} 
+		<span ng-show="$index &lt; pathMenu.items.length - 1">&gt;</span>
+	</md-button>
+</div>
