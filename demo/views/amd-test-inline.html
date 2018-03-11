@@ -1,0 +1,96 @@
+<md-content
+	layout="column"
+	layout-align="center none"
+	flex>
+	<md-button class="md-raised md-accent" ng-click="toggleXEdit()">{{editable ? 'Disable' : 'Enable'}} Editing</md-button>
+	<am-wb-inline
+		ng-model="object.attr"
+		am-wb-inline-type="text"
+		am-wb-inline-label="Object attribute"
+		am-wb-inline-enable="editable"
+		am-wb-inline-on-save="onSave()">
+		<h1><wb-icon>link</wb-icon>{{ object.attr }}</h1>
+	</am-wb-inline>
+	<am-wb-inline 
+		ng-model="object.doc"
+		am-wb-inline-type="textarea"
+		am-wb-inline-label="Object description"
+		am-wb-inline-enable="editable"
+		am-wb-inline-on-save="onSave()">
+		{{ object.doc }}
+	</am-wb-inline>
+	<h2>HTML5 Types</h2>
+<!-- 	<div> -->
+		<am-wb-inline 
+		 	ng-model="myemail" 
+		 	am-wb-inline-type="email" 
+		 	am-wb-inline-enable="editable">
+		 	Email: {{ myemail || 'empty' }}
+		</am-wb-inline>
+<!-- 	  <div>Tel: <a href="#" editable-tel="user.tel" e-pattern="\d{3}-\d{2}-\d{2}" e-title="xxx-xx-xx">{{ user.tel || 'empty' }}</a></div> -->
+<!-- 	  <div>Number: <a href="#" editable-number="user.number" e-min="18">{{ user.number || 'empty' }}</a></div>   -->
+		<am-wb-inline 
+		 	ng-model="myrange" 
+		 	am-wb-inline-type="range" 
+		 	am-wb-inline-enable="editable">
+		 	Range: {{ range || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline 
+		 	ng-model="myurl" 
+		 	am-wb-inline-type="url" 
+		 	am-wb-inline-enable="editable">
+		 	URL: {{ myurl || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline 
+		 	ng-model="mysearch" 
+		 	am-wb-inline-type="search" 
+		 	am-wb-inline-enable="editable">
+		 	Search: {{ mysearch || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline 
+		 	ng-model="mycolor" 
+		 	am-wb-inline-type="color" 
+		 	am-wb-inline-enable="editable">
+		 	Color: {{ color || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline 
+		 	ng-model="mydate" 
+		 	am-wb-inline-type="date" 
+		 	am-wb-inline-enable="editable">
+		 	Date: {{ (mydate | date: "yyyy-MM-dd") || 'empty' }}
+		</am-wb-inline>
+<!-- 	  <div>Time: <a href="#" editable-time="user.time">{{ (user.time | date: "HH:mm") || 'empty' }}</a></div> -->
+		<am-wb-inline
+			ng-model="mymonth"
+			am-wb-inline-type="month"
+			am-wb-inline-enable="editable">
+			Month: {{ (mymonth | date: "yyyy-MM") || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline
+			ng-model="myweek"
+			am-wb-inline-type="week"
+			am-wb-inline-enable="editable">
+			Week: {{ (myweek | date: "yyyy-Www") || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline
+			ng-model="mypass"
+			am-wb-inline-type="password"
+			am-wb-inline-enable="editable">
+			Password: {{ mypass || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline
+			ng-model="mydatetime"
+			am-wb-inline-type="datetime"
+			am-wb-inline-enable="editable">
+			Date Time: {{ (mydatetime | date: "yyyy-MM-ddTHH:mm:ss") || 'empty' }}
+		</am-wb-inline>
+		<am-wb-inline
+			ng-model="myfile"
+			am-wb-inline-type="file"
+			am-wb-inline-enable="editable">
+			File: {{ myfile || 'empty' }}
+		</am-wb-inline>
+<!-- 	</div> -->
+	
+
+</md-content>

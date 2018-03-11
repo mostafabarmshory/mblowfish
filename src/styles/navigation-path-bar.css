@@ -1,0 +1,21 @@
+/*
+ *
+ */
+.amd-navigation-path-bar {
+	padding: 1px;
+	margin: 0px;
+	font-size: 12px;
+}
+
+/*
+ * Navigation item in navigation bar
+ */
+.amd-navigation-path-bar-item {
+	padding: 1px;
+	margin: 0px;
+	cursor: pointer;
+	line-height: normal;
+	min-height: 0px;
+	min-width: 0px;
+	text-transform: none;
+}

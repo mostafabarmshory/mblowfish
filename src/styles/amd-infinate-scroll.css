@@ -1,0 +1,9 @@
+/*
+ *  This class is add to the domes where you are interested to adding
+ * infinate scroll.
+ */
+.amd-infinate-scroll {
+	overflow: auto;
+	overflow-x: auto;
+	overflow-y: auto;
+}

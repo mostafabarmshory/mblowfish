@@ -1,0 +1,24 @@
+<md-content
+	layout="column"
+	flex>
+	<div>
+		<md-button ng-click="loading=!loading">
+			Toggle loading
+		</md-button>
+	</div>	
+	<div
+		amd-preloading="loading">
+		{{app.user.current.first_name}}
+		<div>
+			<md-input-container>
+			  <label>Title</label>
+			  <input ng-model="user.title">
+			</md-input-container>
+			
+			<md-input-container>
+			  <label>Email</label>
+			  <input ng-model="user.email" type="email">
+			</md-input-container>
+		</div>
+	</div>
+</md-content>

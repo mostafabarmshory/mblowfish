@@ -1,0 +1,35 @@
+<ul 
+	class="amd-tree">
+    <li 
+    	amd-style-color="{'border-bottom-color': 'background.600'}" 
+    	ng-repeat="section in amdSection.sections | orderBy : 'priority'" 
+    	ng-if="isVisible(section)">
+        <amd-tree-heading
+        	amd-section="section"
+        	ng-if="$parent.section.type === 'heading'">
+        </amd-tree-heading>
+        <amd-tree-link
+        	amd-section="section" 
+        	ng-if="$parent.section.type === 'link'">
+        </amd-tree-link>
+        <amd-tree-toggle 
+        	amd-section="section" 
+        	ng-if="section.type === 'toggle'">
+        </amd-tree-toggle>
+<!--         <ul  -->
+<!--         	ng-if="section.children"> -->
+<!--             <li  -->
+<!--             	ng-repeat="child in section.children"  -->
+<!--             	ng-if="!child.hidden"> -->
+<!--                 <amd-tree-link  -->
+<!--                 	amd-section="child"  -->
+<!--                 	ng-if="child.type === link"> -->
+<!--                 </amd-tree-link> -->
+<!--                 <amd-tree-toggle  -->
+<!--                 	amd-section="child"  -->
+<!--                 	ng-if="child.type === toggle"> -->
+<!--                 </amd-tree-toggle> -->
+<!--             </li> -->
+<!--         </ul> -->
+    </li>
+</ul>

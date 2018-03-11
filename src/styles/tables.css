@@ -1,0 +1,27 @@
+/*************************************************
+ * Style of all tables
+ *************************************************/
+table.amd-table {
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	table-layout: auto;
+	border-collapse: collapse;
+}
+
+table.amd-table caption {
+	font-size: 14px;
+	margin: 2px;
+}
+
+table.amd-table tr {
+	border-bottom: 1px solid #6a7475;
+}
+
+/*************************************************
+ * amd-table-description
+ *************************************************/
+table.amd-table-description tr td:first-child {
+	font-weight: bold;
+}

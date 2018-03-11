@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="no-js" data-ng-app="app">
+<head>
+<meta charset="utf-8">
+<title>Angular Material Dashboard</title>
+<meta name="description" content="Angular admin dashboard with material design">
+<meta name="author" content="flatlogic.com">
+<meta name="viewport" content="width=device-width">
+<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+<!--  Tells to crawler that do not index this page and do not follow its links -->
+<meta name="robots" content="noindex, nofollow">
+
+<!-- build:css({.tmp/serve,src}) styles/vendor.css -->
+<!-- bower:css -->
+<link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
+<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
+<link rel="stylesheet" href="bower_components/md-color-picker/dist/mdColorPicker.min.css" />
+<link rel="stylesheet" href="bower_components/angular-material-expansion-panel/dist/md-expansion-panel.css" />
+<link rel="stylesheet" href="bower_components/angular-material-icons/angular-material-icons.css" />
+<link rel="stylesheet" href="bower_components/pikaday/css/pikaday.css" />
+<link rel="stylesheet" href="bower_components/handsontable/dist/handsontable.css" />
+<link rel="stylesheet" href="bower_components/am-wb-core/dist/am-wb-core.css" />
+<link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
+<link rel="stylesheet" href="bower_components/am-wb-common/dist/am-wb-common.css" />
+<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
+<link rel="stylesheet" href="bower_components/am-wb-seen-core/dist/am-wb-seen-core.css" />
+<link rel="stylesheet" href="bower_components/am-wb-seen-monitors/dist/am-wb-seen-monitors.css" />
+<!-- endbower -->
+<!-- endbuild -->
+
+<!-- build:css({.tmp/serve,src}) styles/app.css -->
+<!-- injector:css -->
+<link rel="stylesheet" href="styles/amd-container.css">
+<link rel="stylesheet" href="styles/amd-infinate-scroll.css">
+<link rel="stylesheet" href="styles/amd-main.css">
+<link rel="stylesheet" href="styles/amd-preload.css">
+<link rel="stylesheet" href="styles/amd-tree.css">
+<link rel="stylesheet" href="styles/angular-material-icon.css">
+<link rel="stylesheet" href="styles/angular-material.css">
+<link rel="stylesheet" href="styles/dialogs.css">
+<link rel="stylesheet" href="styles/navigation-path-bar.css">
+<link rel="stylesheet" href="styles/tables.css">
+<link rel="stylesheet" href="styles/user-menu.css">
+<link rel="stylesheet" href="styles/test-preloader.css">
+<!-- endinjector -->
+<!-- endbuild -->
+
+</head>
+<body>
+	<!--[if lt IE 10]>
+      <p>You are using an <strong>outdated</strong> browser. Please
+        <a href="http://browsehappy.com/">upgrade your browser</a>
+        to improve your experience.</p>
+    <![endif]-->
+	<amd-panel>
+		<div class="amd-preloader">
+			Loading....
+		</div>
+	</amd-panel>
+
+	<!-- build:js(src) scripts/vendor.js -->
+	<!-- bower:js -->
+	<script src="bower_components/jquery/dist/jquery.js"></script>
+	<script src="bower_components/angular/angular.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.js"></script>
+	<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+	<script src="bower_components/angular-messages/angular-messages.js"></script>
+	<script src="bower_components/angular-route/angular-route.js"></script>
+	<script src="bower_components/d3/d3.js"></script>
+	<script src="bower_components/nvd3/build/nv.d3.js"></script>
+	<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
+	<script src="bower_components/moment-jalaali/build/moment-jalaali.js"></script>
+	<script src="bower_components/angular-pluf/dist/angular-pluf.js"></script>
+	<script src="bower_components/seen-core/dist/seen-core.js"></script>
+	<script src="bower_components/seen-tenant/dist/seen-tenant.js"></script>
+	<script src="bower_components/angular-aria/angular-aria.js"></script>
+	<script src="bower_components/angular-material/angular-material.js"></script>
+	<script src="bower_components/angular-translate/angular-translate.js"></script>
+	<script src="bower_components/tinycolor/tinycolor.js"></script>
+	<script src="bower_components/md-color-picker/dist/mdColorPicker.min.js"></script>
+	<script src="bower_components/tinymce/tinymce.js"></script>
+	<script src="bower_components/angular-ui-tinymce/src/tinymce.js"></script>
+	<script src="bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js"></script>
+	<script src="bower_components/angular-material-expansion-panel/dist/md-expansion-panel.js"></script>
+	<script src="bower_components/angular-material-icons/angular-material-icons.min.js"></script>
+	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
+	<script src="bower_components/numbro/numbro.js"></script>
+	<script src="bower_components/pikaday/pikaday.js"></script>
+	<script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
+	<script src="bower_components/handsontable/dist/handsontable.js"></script>
+	<script src="bower_components/ngHandsontable/dist/ngHandsontable.js"></script>
+	<script src="bower_components/am-wb-core/dist/am-wb-core.js"></script>
+	<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+	<script src="bower_components/am-wb-common/dist/am-wb-common.js"></script>
+	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
+	<script src="bower_components/angular-uuid/uuid.min.js"></script>
+	<script src="bower_components/am-wb-seen-core/dist/am-wb-seen-core.js"></script>
+	<script src="bower_components/am-wb-seen-monitors/dist/am-wb-seen-monitors.js"></script>
+	<script src="bower_components/ngstorage/ngStorage.js"></script>
+	<script src="bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js"></script>
+	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
+	<script src="bower_components/angular-recaptcha/release/angular-recaptcha.js"></script>
+	<script src="bower_components/blob-polyfill/Blob.js"></script>
+	<script src="bower_components/file-saver.js/FileSaver.js"></script>
+	<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
+	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
+	<!-- endbower -->
+	<!-- endbuild -->
+
+	<!-- build:js({.tmp,app}) scripts/scripts.js -->
+	<!-- injector:js -->
+	<script src="scripts/app.js"></script>
+	<script src="scripts/configs/icons.js"></script>
+	<script src="scripts/configs/local.js"></script>
+	<script src="scripts/configs/states.js"></script>
+	<script src="scripts/configs/theme.js"></script>
+	<script src="scripts/controllers/MainController.js"></script>
+	<script src="scripts/controllers/account.js"></script>
+	<script src="scripts/controllers/config.js"></script>
+	<script src="scripts/controllers/configs.js"></script>
+	<script src="scripts/controllers/dashboard.js"></script>
+	<script src="scripts/controllers/groups.js"></script>
+	<script src="scripts/controllers/help.js"></script>
+	<script src="scripts/controllers/messages.js"></script>
+	<script src="scripts/controllers/navigator-dialog.js"></script>
+	<script src="scripts/controllers/navigator.js"></script>
+	<script src="scripts/controllers/roles.js"></script>
+	<script src="scripts/controllers/settings-brand.js"></script>
+	<script src="scripts/controllers/settings-google-analytic.js"></script>
+	<script src="scripts/controllers/settings-local.js"></script>
+	<script src="scripts/controllers/themes.js"></script>
+	<script src="scripts/controllers/toolbar-main.js"></script>
+	<script src="scripts/controllers/users.js"></script>
+	<script src="scripts/directives/amd-datepicker.js"></script>
+	<script src="scripts/directives/amd-dynamic-tabs.js"></script>
+	<script src="scripts/directives/amd-infinateScroll.js"></script>
+	<script src="scripts/directives/amd-pagination-bar.js"></script>
+	<script src="scripts/directives/amd-panel.js"></script>
+	<script src="scripts/directives/amd-preloading.js"></script>
+	<script src="scripts/directives/amd-style-color.js"></script>
+	<script src="scripts/directives/amd-titled-block.js"></script>
+	<script src="scripts/directives/amd-tree-heading.js"></script>
+	<script src="scripts/directives/amd-tree-link.js"></script>
+	<script src="scripts/directives/amd-tree-toggle.js"></script>
+	<script src="scripts/directives/amd-tree.js"></script>
+	<script src="scripts/directives/config-page.js"></script>
+	<script src="scripts/directives/navigation-bar.js"></script>
+	<script src="scripts/directives/user-menu.js"></script>
+	<script src="scripts/directives/user-toolbar.js"></script>
+	<script src="scripts/filters/date.js"></script>
+	<script src="scripts/runs/alert.js"></script>
+	<script src="scripts/runs/app.js"></script>
+	<script src="scripts/runs/appcache.js"></script>
+	<script src="scripts/runs/google-analytics.js"></script>
+	<script src="scripts/runs/resources.js"></script>
+	<script src="scripts/runs/settings.js"></script>
+	<script src="scripts/runs/storage.js"></script>
+	<script src="scripts/services/app.js"></script>
+	<script src="scripts/services/export.js"></script>
+	<script src="scripts/services/help.js"></script>
+	<script src="scripts/services/navigator.js"></script>
+	<script src="scripts/services/notification.js"></script>
+	<script src="scripts/services/preferences.js"></script>
+	<script src="scripts/services/settings.js"></script>
+	<script src="scripts/test-app.js"></script>
+	<script src="scripts/test-configs/language.js"></script>
+	<script src="scripts/test-configs/path.js"></script>
+	<script src="scripts/test-configs/storage.js"></script>
+	<script src="scripts/test-controller/infinate-items.js"></script>
+	<script src="scripts/test-controller/inline.js"></script>
+	<script src="scripts/test-controller/my-demo.js"></script>
+	<script src="scripts/test-controller/navigator-dialogs.js"></script>
+	<script src="scripts/test-controller/navigator-hidden.js"></script>
+	<script src="scripts/test-controller/pagination-bar.js"></script>
+	<script src="scripts/test-controller/resources.js"></script>
+	<script src="scripts/test-controller/tables-class-test.js"></script>
+	<script src="scripts/test-controller/titled-block.js"></script>
+	<script src="scripts/test-runs/test-app.js"></script>
+	<!-- endinjector -->
+	<!-- endbuild -->
+</body>
+</html>
+
+

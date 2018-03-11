@@ -1,0 +1,28 @@
+<md-content
+	amd-infinate-scroll="nextPage()"
+	amd-preloading="ctrl.state === 'working'"
+	layout="column"
+	flex>
+	<amd-pagination-bar
+		amd-model="paginatorParameter"
+		amd-reload="reload"
+		amd-sort-keys="sortKeys"
+		amd-more-actions="moreActions">
+	</amd-pagination-bar>
+	
+	<md-list flex>
+		<md-list-item 
+			ng-repeat="object in ctrl.items"
+			class="md-3-line">
+			<wb-icon>setting</wb-icon>
+			<div 
+				class="md-list-item-text" 
+				layout="column">
+				<h3>{{object.title}}</h3>
+				<h4>{{object.subTitle}}</h4>
+				<p>{{object.description}}</p>
+			</div>
+		</md-list-item>
+	</md-list>
+</md-content>
+

@@ -1,0 +1,21 @@
+# NodeJS
+/node_modules
+/package-lock.json
+
+# bower
+/bower_components
+
+# Project
+#/dist
+/.tmp
+/.sass-cache
+/app/images/mde
+
+# Eclipse
+.settings
+
+# KDE
+.directory
+
+/doc/
+/coverage/
