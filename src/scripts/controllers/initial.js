@@ -66,7 +66,7 @@ angular.module('mblowfish-core')
 			id: 'welcome',
 			title: 'Welcome',
 			templateUrl : 'views/preferences/welcome-'+lang+'.html',
-			controller : 'AmhCurrentAccountCtrl',
+			controller : 'MbAccountCtrl',
 			description: 'Welcome. Please login to continue.',
 			icon: 'accessibility',
 			priority: 'first',

@@ -1,0 +1,70 @@
+<!-- صفحه خوش آمد گویی -->
+<md-content
+	layout="column"
+	layout-align="none"
+	layout-align-gt-sm="none center"
+	flex>
+	
+	<div flex="none" layout="column" layout-padding>
+		<h1 translate>Welcome</h1>
+		<p translate>
+			It is your site. You should determine some little settings before launch your site. 
+			After that your site is ready. These settings and some more could be set at future in settings section of your site.
+			If you are not login please login to change settings.
+		</p>
+	</div>
+	
+	<div flex="none" layout="column">
+		<!-- body -->
+		<form ng-show="app.user.anonymous" style="border: solid 1px" 
+			md-colors="{borderColor:'default-primary-100'}"
+			name="form"
+			ng-submit="login(credit)" 
+			layout="column" 
+			layout-padding>
+			<div layout-padding> 
+				<p><span md-colors="{color:'default-warn'}" translate>{{loginMessage}}</span></p>
+			</div>
+	        <md-input-container>
+	            <label translate>username or email</label>
+	            <input ng-model="credit.login" required type="text" >
+	        </md-input-container>
+	        <md-input-container>
+	            <label translate>password</label>
+	            <input ng-model="credit.password" required type="password">
+	        </md-input-container>
+<!-- 			<amh-captcha -->
+<!-- 			    ng-model="credit.g_recaptcha_response">Hi -->
+<!-- 			</amh-captcha> -->
+			<!-- XXX: maso, 2018: adding captcha -->
+			<div
+				ng-if="app.captcha.engine==='recaptcha'"
+			    vc-recaptcha
+			    ng-model="credit.g_recaptcha_response"
+			    theme="app.captcha.theme || 'light'"
+			    type="app.captcha.type || 'image'"
+			    key="app.captcha.recaptcha.key"
+			    lang="app.captcha.language || 'fa'">
+			</div>
+	        <input hide type="submit" />
+	        <div layout="column" layout-align="none"
+	        	layout-gt-xs="row" layout-align-gt-xs="center center"
+	        	layout-padding>
+	        	<md-button 
+	        		ng-disabled="form.$invalid"
+	        		flex-order="-1" 
+	        		flex-order-gt-xs="1" 
+	        		class="md-primary md-raised" 
+	        		ng-click="login(credit)">{{'login' | translate}}</md-button>
+	        </div>
+		</form>
+        <div layout-padding ng-show="!app.user.anonymous" 
+        	layout="column" layout-align="none center">
+        	<img
+		    	width="150px" height="150px" ng-show="!uploadAvatar"
+		    	ng-src="{{app.user.current.avatar}}" />
+		    <h3>{{app.user.current.login}}</h3>
+        	<p translate>continue to set some options and settings.</p>
+        </div>
+	</div>
+</md-content>
