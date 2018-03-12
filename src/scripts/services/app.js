@@ -618,6 +618,31 @@ angular.module('mblowfish-core') //
 		return $q.reject('Sidenav not found');
 	}
 	
+	
+	var _defaultToolbars = [];
+	
+	function setDefaultToolbars(defaultToolbars){
+		_defaultToolbars = defaultToolbars || [];
+		return this;
+	}
+	
+	function defaultToolbars(){
+		return _defaultToolbars;
+	}
+	
+	var _defaultSidenavs = [];
+	
+	function setDefaultSidenavs(defaultSidenavs){
+		_defaultSidenavs = defaultSidenavs || [];
+		return this;
+	}
+	
+	function defaultSidenavs(){
+		return _defaultSidenavs;
+	}
+	
+	
+	
 	$rootScope.app = app;
 
 	var apps = {};
@@ -645,11 +670,15 @@ angular.module('mblowfish-core') //
 	apps.toolbars = toolbars;
 	apps.newToolbar = newToolbar;
 	apps.toolbar = toolbar;
+	apps.setDefaultToolbars = setDefaultToolbars;
+	apps.defaultToolbars = defaultToolbars;
 	
 	// sidenav
 	apps.sidenavs = sidenavs;
 	apps.newSidenav = newSidenav;
 	apps.sidenav = sidenav;
+	apps.setDefaultSidenavs = setDefaultSidenavs;
+	apps.defaultSidenavs = defaultSidenavs;
 
 	apps.getToolbarMenu = getToolbarMenu;
 	apps.getScopeMenu = getScopeMenu;

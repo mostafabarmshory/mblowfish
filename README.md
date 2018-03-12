@@ -12,8 +12,8 @@
 
 ## Toolbars
 
-- mb-dashboard
-- mb-home
+- dashboard
+- home
 
 ## Sidenav
 

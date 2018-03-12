@@ -238,7 +238,8 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Sidenavs
-			var sdid = $route.current.sidenavs || ['navigator'];
+			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
+			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
 			if(angular.isArray(sdid)){
@@ -256,7 +257,7 @@ angular.module('mblowfish-core')
 				});
 			}
 			// Toolbars
-			var tids = $route.current.toolbars || ['dashboard'];
+			var tids = $route.current.toolbars || $app.defaultToolbars();
 			if(angular.isArray(tids)){
 				var ts = [];
 				var jobs = [];

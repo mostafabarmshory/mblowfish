@@ -26,5 +26,8 @@
 angular.module('app', [ 'mblowfish-core' ])//
 .run(function($app) {
 	// Load application
-	$app.start('demo');
+	$app
+		.setDefaultToolbars(['dashboard'])
+		.setDefaultSidenavs(['navigator'])
+		.start('demo');
 });
