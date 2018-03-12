@@ -26,14 +26,14 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-preloading
+ * @name mb-preloading
  * @description Show preloading of the module
  * 
  */
-.directive('amdPreloading', function($animate) {
-	var PRELOAD_CLASS = 'amd-preload';
-	var PRELOAD_CLASS_BOX = 'amd-preload-box';
-	var PRELOAD_IN_PROGRESS_CLASS = 'amd-preload-animate';
+.directive('mbPreloading', function($animate) {
+	var PRELOAD_CLASS = 'mb-preload';
+	var PRELOAD_CLASS_BOX = 'mb-preload-box';
+	var PRELOAD_IN_PROGRESS_CLASS = 'mb-preload-animate';
 
 	/*
 	 * Init element for preloading 
@@ -63,7 +63,7 @@ angular.module('mblowfish-core')
 	 */
 	function postLink(scope, element, attr) {
 		initPreloading(scope, element, attr);
-		scope.$watch(attr.amdPreloading, function(value) {
+		scope.$watch(attr.mbPreloading, function(value) {
 			if(!value){
 				removePreloading(scope, element, attr);
 			} else {
