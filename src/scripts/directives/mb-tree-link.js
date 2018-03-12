@@ -26,25 +26,48 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-tree-heading
- * @description Tree heading
+ * @name mb-tree-link
+ * @description Tree link
  * 
- * Display tree heading
+ * Display and link section item
  * 
  */
-.directive('amdTreeHeading', function($animate) {
+.directive('mbTreeLink', function($animate) {
 	return {
-        restrict: 'E',
-        replace: true,
-        scope: {
-            amdSection: '='
-        },
-		templateUrl: 'views/directives/amd-tree-heading.html',
+		restrict : 'E',
+//		replace: true,
+		scope: {
+			mbSection: '='
+		},
+		templateUrl: 'views/directives/mb-tree-link.html',
 		link: function(scope, element, attr) {
 			// TODO: maso, 2017:
 		},
-		controller : function($scope) {
-			// TODO: maso, 2017:
+		controller : function($scope, $navigator) {
+			/**
+			 * Check if page is selected.
+			 * 
+			 * Selection is implemented in the Tree, so if the item is not placed in
+			 * a tree the result is false.
+			 * 
+			 * @return the selection state of the page
+			 * @param page address for example /user/profile
+			 */
+			$scope.isSelected = function(section) {
+				return section && $navigator.isPageSelected(section.link);
+			};
+
+			/**
+			 * Run action of section
+			 */
+			$scope.focusSection = function(section) {
+//				$mdSidenav('left').close();
+//				ssSideNavSharedService.broadcast('_SIDENAV_CLICK_ITEM', item);
+				// XXX: maso, 2017: check action call
+				return $navigator.openPage(section.link);
+			};
+
+//			$scope.$state = $state;
 		}
 	};
 });

@@ -26,20 +26,20 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-tree-toggle
+ * @name mb-tree-toggle
  * @description Tree toggle
  * 
  * Display tree toggle
  * 
  */
-.directive('amdTreeToggle', function($timeout, $animateCss, $mdSidenav, $mdMedia, $rootScope) {
+.directive('mbTreeToggle', function($timeout, $animateCss, $mdSidenav, $mdMedia, $rootScope) {
 	return {
 		restrict: 'E',
 		replace: true,
 		scope: {
-			amdSection: '='
+			mbSection: '='
 		},
-		templateUrl: 'views/directives/amd-tree-toggle.html',
+		templateUrl: 'views/directives/mb-tree-toggle.html',
 		link: function($scope, $element, $attr, $ctrl) {
 			var _el_ul = $element.find('ul');
 
@@ -58,7 +58,7 @@ angular.module('mblowfish-core')
 			};
 
 			if (!_el_ul) {
-				return console.warn('amd-tree: `menuToggle` cannot find ul element');
+				return console.warn('mb-tree: `menuToggle` cannot find ul element');
 			}
 
 			
@@ -79,7 +79,7 @@ angular.module('mblowfish-core')
 			}
 
 			$scope.$watch(function() {
-				return $ctrl.isOpen($scope.amdSection);
+				return $ctrl.isOpen($scope.mbSection);
 			}, function(open) {
 				$timeout(function(){
 					toggleMenu(open);
