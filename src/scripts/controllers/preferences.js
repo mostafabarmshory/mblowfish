@@ -24,7 +24,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmhPreferencesCtrl
+ * @name MbPreferencesCtrl
  * @description Manages preferences page
  * 
  * In the preferences page, all configs of the system are displayed and
