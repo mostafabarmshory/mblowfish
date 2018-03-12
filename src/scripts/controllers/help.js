@@ -41,8 +41,8 @@ angular.module('mblowfish-core')
 		// TODO: maso, 2018: check if route is changed.
 		var currentState = $route.current;
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		if (currentState && currentState.config) {
-			var myId = currentState.config.helpId;
+		if (currentState) {
+			var myId = currentState.helpId;
 			if (angular.isFunction(myId)) {
 				myId = myId(currentState);
 			}
