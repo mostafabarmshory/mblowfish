@@ -29,6 +29,15 @@ angular.module('mblowfish-core')
 	$routeProvider//
 	/**
 	 * @ngdoc ngRoute
+	 * @name /initialization
+	 * @description Initial page
+	 */
+	.when('/initialization', {
+		templateUrl : 'views/mb-initial.html',
+		controller : 'MbInitialCtrl'
+	})
+	/**
+	 * @ngdoc ngRoute
 	 * @name /preferences
 	 * @description preferences pages
 	 */

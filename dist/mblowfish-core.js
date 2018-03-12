@@ -66,6 +66,7 @@ angular.module('mblowfish-core', [ //
 	'nvd3',//
 	'ng-appcache',//
 	'ngFileSaver',//
+	'mdSteppers',//
 	'angular-material-persian-datepicker'
 ]);
 
@@ -179,6 +180,15 @@ angular.module('mblowfish-core')
  */
 .config(function($routeProvider, $locationProvider) {
 	$routeProvider//
+	/**
+	 * @ngdoc ngRoute
+	 * @name /initialization
+	 * @description Initial page
+	 */
+	.when('/initialization', {
+		templateUrl : 'views/mb-initial.html',
+		controller : 'MbInitialCtrl'
+	})
 	/**
 	 * @ngdoc ngRoute
 	 * @name /preferences
@@ -944,6 +954,132 @@ angular.module('mblowfish-core')
 		return $route.current;
 	}, _loadHelpContent);
 });
+// TODO: should be moved to mblowfish-core
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc controller
+ * @name MbInitialCtrl
+ * @description Show initialization page
+ * 
+ * Display initialization page to set initial configuration of SPA.
+ * 
+ */
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $translate) {
+
+	function goToStep(index){
+		var stepper = $mdStepper('setting-stepper');
+		if(!$rootScope.app.user.owner){
+			stepper.error('You are not allowed');
+			return;
+		}
+		stepper.goto(index);
+	}
+
+	function nextStep(){
+		var stepper = $mdStepper('setting-stepper');
+		if(!$rootScope.app.user.owner){
+			stepper.error('You are not allowed');
+			return;
+		}
+		stepper.next();
+	}
+
+	function prevStep(){			
+		var stepper = $mdStepper('setting-stepper');
+		stepper.back();
+	}
+
+	function initialization(){
+		// Get language
+		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
+		
+		// Configure welcome page. It will be added as first page of setting stepper
+		var welcomePage = {
+			id: 'welcome',
+			title: 'Welcome',
+			templateUrl : 'views/preferences/welcome-'+lang+'.html',
+			controller : 'AmhCurrentAccountCtrl',
+			description: 'Welcome. Please login to continue.',
+			icon: 'accessibility',
+			priority: 'first',
+			required: true
+		};
+		var congratulatePage = {
+			id: 'congratulate',
+			templateUrl : 'views/preferences/congratulate-'+lang+'.html',
+			title: ':)',
+			description: 'Congratulation. Your site is ready.',
+			icon: 'favorite',
+			priority: 'last',
+			required: true
+		};
+		$preferences.newPage(welcomePage);
+		$preferences.newPage(congratulatePage);
+		// Load settings
+		$preferences.pages()//
+		.then(function(settingItems) {
+//			$scope.settings = settingItems.items;
+			$scope.settings = [];
+			settingItems.items.forEach(function(sItem){
+				if(sItem.required){
+					$scope.settings.push(sItem);
+				}
+			});
+			// add watch on setting stepper current step.
+			$scope.$watch(function(){
+				var stepper = $mdStepper('setting-stepper');
+				return stepper.currentStep;
+			}, function(val){
+				if(!$scope.settings || $scope.settings.length === 0){
+					return;
+				}
+				$scope.pageId = $scope.settings[val].id;
+			});
+		});
+	}
+
+	var callWatch = $scope.$watch(function(){
+		return $rootScope.app.initial;
+	}, function(val){
+		if(val){
+			initialization();
+		}else if(val === false){
+			// remove watch
+			callWatch();
+		}
+	});
+
+	$scope.settings = [];
+	$scope.nextStep = nextStep;
+	$scope.prevStep = prevStep;
+	$scope.goToStep = goToStep;
+
+});
+
 'use strict';
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3773,6 +3909,46 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
+.run(function($app, $rootScope, $navigator) {
+	
+	var callWatch = $rootScope.$watch(function(){
+		return $rootScope.app.initial;
+	}, function(val){
+		if(val){
+			$navigator.openPage('initialization');
+		}else if(val === false){
+			// remove watch
+			callWatch();
+		}
+	});
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+/**
+ * دریچه‌های محاوره‌ای
+ */
 .run(function($resource) {
 	$resource.newPage({
 		label: 'User id',
@@ -5466,6 +5642,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
     "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src={{app.user.current.avatar}}> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.active() translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate>{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout(); translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+  );
+
+
+  $templateCache.put('views/mb-initial.html',
+    "<md-content layout=column flex> <mb-preference-page amh-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href=\"/\" translate>go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
   );
 
 
