@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Display initialization page to set initial configuration of SPA.
  * 
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $translate) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
 
 	function goToStep(index){
 		var stepper = $mdStepper('setting-stepper');
@@ -58,14 +58,11 @@ angular.module('mblowfish-core')
 	}
 
 	function initialization(){
-		// Get language
-		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		
 		// Configure welcome page. It will be added as first page of setting stepper
 		var welcomePage = {
 			id: 'welcome',
 			title: 'Welcome',
-			templateUrl : 'views/preferences/welcome-'+lang+'.html',
+			templateUrl : 'views/preferences/welcome.html',
 			controller : 'MbAccountCtrl',
 			description: 'Welcome. Please login to continue.',
 			icon: 'accessibility',
@@ -74,7 +71,7 @@ angular.module('mblowfish-core')
 		};
 		var congratulatePage = {
 			id: 'congratulate',
-			templateUrl : 'views/preferences/congratulate-'+lang+'.html',
+			templateUrl : 'views/preferences/congratulate.html',
 			title: ':)',
 			description: 'Congratulation. Your site is ready.',
 			icon: 'favorite',

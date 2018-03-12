@@ -44,6 +44,8 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-brand.html',
 		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
+		priority: 2,
+		required: true,
 		tags : [ 'brand' ],
 	})//
 	.newPage({
