@@ -24,35 +24,46 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name MbPreferencesCtrl
- * @description Manages preferences page
+ * @name MbPreferenceCtrl
+ * @description Show a preference page
  * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
+ * Display preference view and load its controller.
  * 
  */
-.controller('MbPreferencesCtrl',function($scope, $preferences) {
+.controller('MbPreferenceCtrl', function($scope, $routeParams, $app, $http, $translate, $navigator, $settings) {
 
-	/**
-	 * Open tile
-	 */
-	function openSetting(tile) {
-		$preferences.openPage(tile.page);
+	function displayHelp(){
+		$scope.showHelp = !$scope.showHelp;
+		
+		//
+		var lang = $translate.use() === 'fa' ? 'fa' : 'en'; 
+		$http.get('resources/helps/preferences-'+$scope.preferenceId+'-'+lang+'.json')
+		.then(function(res){
+			$scope.helpData = res.data;
+		});
 	}
-
-	// Load settings
-	$preferences.pages()//
-	.then(function(settings) {
-		$scope.settingsTiles = [];
-		for (var i = 0; i < settings.items.length; i++) {
-			$scope.settingsTiles.push({
-				colspan : 2,
-				rowspan : 2,
-				page : settings.items[i]
-			});
-		}
+	
+	$settings.config($routeParams['configId'])
+	.then(function(config) {
+		$scope.config = config;
+	}, function() {
+		$navigator.openPage('configs');
 	});
-
-	$scope.openSetting = openSetting;
+	
+	/*
+	 * Add scope menu
+	 */
+	$app.scopeMenu($scope) //
+	.add({ // Help menu
+		priority : 15,
+		icon : 'help',
+		label : 'Help',
+		tooltip : 'Toggle preference help area.',
+		visible : function(){
+			return true;
+		},
+		action : displayHelp
+	});
+	
+	$scope.preferenceId = $routeParams.preferenceId;
 });
