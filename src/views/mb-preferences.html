@@ -8,7 +8,9 @@
         md-gutter-gt-md="16px" md-gutter-md="8px" md-gutter="4px">
       <md-grid-tile
           ng-repeat="tile in preferenceTiles"
-          ng-style="{'background': tile.color}"
+          md-colors="{backgroundColor: 'primary-300'}"
+          md-colspan-gt-sm="{{tile.colspan}}"
+          md-rowspan-gt-sm="{{tile.rowspan}}"
           ng-click="openPreference(tile)">
           <md-grid-tile-header>
          	  <h3 style="text-align: center;font-weight: bold">{{tile.page.title}}</h3>
