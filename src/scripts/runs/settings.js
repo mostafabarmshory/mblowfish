@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($settings, $preferences) {
+.run(function($options, $preferences) {
 	// Pages
 	$preferences
 	.newPage({
@@ -42,7 +42,7 @@ angular.module('mblowfish-core')
 		title : 'Branding',
 		description : 'Manage application branding such as title, logo and descritpions.',
 		templateUrl : 'views/preferences/mb-brand.html',
-		controller : 'settingsBrandCtrl',
+//		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
 		tags : [ 'brand' ],
 	})//
@@ -56,14 +56,14 @@ angular.module('mblowfish-core')
 	});
 	
 	// Settings
-	$settings.newPage({
+	$options.newPage({
 		title: 'Local',
-		templateUrl: 'views/settings/mb-local.html',
+		templateUrl: 'views/options/mb-local.html',
 		tags: ['local']
 	});
-	$settings.newPage({
+	$options.newPage({
 		title: 'Theme',
-		templateUrl: 'views/settings/mb-theme.html',
+		templateUrl: 'views/options/mb-theme.html',
 		tags: ['theme']
 	});
 });

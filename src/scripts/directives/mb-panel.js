@@ -59,21 +59,6 @@ angular.module('mblowfish-core')
 	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
 
 
-	// $view service
-//	function toggleRightSidebar() {
-//	toggleSidebar('right');
-//	}
-
-//	function toggleSidebar(id) {
-//	return $mdSidenav(id).toggle();
-//	}
-
-//	function toggleItemsList() {
-//	var pending = $mdBottomSheet.hide() || $q.when(true);
-//	pending.then(function() {
-//	toggleSidebar('left');
-//	});
-//	}
 
 	/*
 	 * Load page and create an element

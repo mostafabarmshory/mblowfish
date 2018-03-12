@@ -22,26 +22,57 @@
 'use strict';
 angular.module('mblowfish-core')
 
-
 /**
- * @ngdoc controller
- * @name settingsGoogleAnalyticCtrl
- * @description Dashboard
+ * @ngdoc service
+ * @name $$options
+ * @description User option manager
  * 
+ * Option is user configurations
  */
-.controller('settingsGoogleAnalyticCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
+.service('$options', function($q, $navigator) {
+	var _pages = [ ];
+
+	/**
+	 * List all pages
+	 */
+	function pages() {
+		return $q.when({
+			'items' : _pages
+		});
+	}
+	
+	/**
+	 * Gets a config page
+	 * 
+	 * @name config
+	 * @param {string} configId - Id of the config
+	 * @return {promiss<config>} return config
+	 */
+	function getPage(pageId){
+		var page = null;
+		for(var i = 0; i < _pages.length; i++){
+			if(_pages[i].id == pageId){
+				return $q.when(_pages[i]);
+			}
 		}
-	})//
-	.add({
-		title: 'Google analytic',
-		active: function(){
-			$navigator.openPage('/settings/google-analytic');
-		}
-	});
+		return $q.reject({
+			// TODO: maso, 2018: add reason
+		});
+	}
+
+
+	/**
+	 * Creates configuration/setting page.
+	 */
+	function createPage(page){
+		_pages.push(page);
+		return app;
+	}
+	
+	var app = {
+			pages : pages,
+			page: getPage,
+			newPage : createPage,
+	};
+	return app;
 });

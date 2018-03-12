@@ -23,63 +23,17 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
- * @name $settings
- * @description System setting manager
+ * @ngdoc controller
+ * @name MbSettingsCtrl
+ * @description Manages settings page
  * 
- * Setting is user configurations
+ * Manages settings pages.
+ * 
  */
-.service('$settings', function($q, $navigator) {
-	var _pages = [ ];
-
-	/**
-	 * List all pages
-	 */
-	function pages() {
-		return $q.when({
-			'items' : _pages
-		});
-	}
-	
-	/**
-	 * Gets a config page
-	 * 
-	 * @name config
-	 * @param {string} configId - Id of the config
-	 * @return {promiss<config>} return config
-	 */
-	function getPage(pageId){
-		var page = null;
-		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id == pageId){
-				return $q.when(_pages[i]);
-			}
-		}
-		return $q.reject({
-			// TODO: maso, 2018: add reason
-		});
-	}
-
-	/**
-	 * Open config/setting page
-	 */
-	function openPage(page){
-		return $navigator.openPage('/configs/'+page.id);
-	}
-
-	/**
-	 * Creates configuration/setting page.
-	 */
-	function createPage(page){
-		_pages.push(page);
-		return app;
-	}
-	
-	var app = {
-			pages : pages,
-			page: getPage,
-			newPage : createPage,
-			openPage : openPage,
-	};
-	return app;
+.controller('MbOptionsCtrl',function($scope, $options) {
+	// Load settings.
+	$options.pages()
+	.then(function(pages){
+		$scope.tabs = pages.items;
+	});
 });

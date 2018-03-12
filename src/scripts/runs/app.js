@@ -77,7 +77,7 @@ angular.module('mblowfish-core')
 		id : 'help',
 		title : 'Help',
 		description : 'System online help',
-		controller : 'AmdHelpCtrl',
+		controller : 'MbHelpCtrl',
 		templateUrl : 'views/sidenavs/mb-help.html',
 		locked : true,
 		visible : function() {
@@ -87,14 +87,11 @@ angular.module('mblowfish-core')
 	});
 	$app.newSidenav({
 		id : 'settings',
-		title : 'Settings',
-		description : 'User settings',
-//		controller : 'AvaHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-settings.html',
+		title : 'Options',
+		description : 'User options',
+		controller : 'MbOptionsCtrl',
+		templateUrl : 'views/sidenavs/mb-options.html',
 		locked : false,
-//		visible : function($scope) {
-//			return $scope.showHelp;
-//		},
 		position : 'end'
 	});
 });

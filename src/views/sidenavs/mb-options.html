@@ -6,9 +6,9 @@
    	TODO: add wiki path
 	See: htttp://gitlab.com/angular-material-dashboard/angular-material-dashboard/wiki			    	
 -->
-<amd-user-toolbar
-	amd-actions="userActions">
-</amd-user-toolbar>
+<mb-user-toolbar
+	mb-actions="userActions">
+</mb-user-toolbar>
 <!-- 
 	Settings
 	Adding settings as dynamic tabs into the sidenav so users can
@@ -16,6 +16,9 @@
 	TODO: add wiki path
 	See: htttp://gitlab.com/angular-material-dashboard/angular-material-dashboard/wiki
 -->
-<amd-dynamic-tabs
-	amd-tabs="settingTabs">
-</amd-dynamic-tabs>
+<md-content
+	layout-padding>
+	<mb-dynamic-tabs
+		mb-tabs="tabs">
+	</mb-dynamic-tabs>
+</md-content>

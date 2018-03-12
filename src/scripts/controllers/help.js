@@ -25,11 +25,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdHelpCtrl
+ * @name MbHelpCtrl
  * @description Help page controller
  * 
  */
-.controller('AmdHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
 	$rootScope.showHelp = false;
 
 
