@@ -44,6 +44,8 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-brand.html',
 //		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
+		priority: 2,
+		required: true,
 		tags : [ 'brand' ],
 	})//
 	.newPage({
@@ -53,6 +55,13 @@ angular.module('mblowfish-core')
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
 		tags : [ 'analysis' ],
+	})
+	.newPage({
+		id: 'update',
+		templateUrl : 'views/preferences/update.html',
+		title: 'Update application',
+		description: 'Settings of updating process and how to update the application.',
+		icon: 'autorenew'
 	});
 	
 	// Settings

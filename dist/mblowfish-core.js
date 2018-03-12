@@ -988,7 +988,7 @@ angular.module('mblowfish-core')
  * Display initialization page to set initial configuration of SPA.
  * 
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $translate) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
 
 	function goToStep(index){
 		var stepper = $mdStepper('setting-stepper');
@@ -1014,15 +1014,12 @@ angular.module('mblowfish-core')
 	}
 
 	function initialization(){
-		// Get language
-		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		
 		// Configure welcome page. It will be added as first page of setting stepper
 		var welcomePage = {
 			id: 'welcome',
 			title: 'Welcome',
-			templateUrl : 'views/preferences/welcome-'+lang+'.html',
-			controller : 'AmhCurrentAccountCtrl',
+			templateUrl : 'views/preferences/welcome.html',
+			controller : 'MbAccountCtrl',
 			description: 'Welcome. Please login to continue.',
 			icon: 'accessibility',
 			priority: 'first',
@@ -1030,7 +1027,7 @@ angular.module('mblowfish-core')
 		};
 		var congratulatePage = {
 			id: 'congratulate',
-			templateUrl : 'views/preferences/congratulate-'+lang+'.html',
+			templateUrl : 'views/preferences/congratulate.html',
 			title: ':)',
 			description: 'Congratulation. Your site is ready.',
 			icon: 'favorite',
@@ -4039,6 +4036,8 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-brand.html',
 		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
+		priority: 2,
+		required: true,
 		tags : [ 'brand' ],
 	})//
 	.newPage({
@@ -4048,6 +4047,13 @@ angular.module('mblowfish-core')
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
 		tags : [ 'analysis' ],
+	})
+	.newPage({
+		id: 'update',
+		templateUrl : 'views/preferences/update.html',
+		title: 'Update application',
+		description: 'Settings of updating process and how to update the application.',
+		icon: 'autorenew'
 	});
 	
 	// Settings
@@ -5646,7 +5652,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<md-content layout=column flex> <mb-preference-page amh-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href=\"/\" translate>go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
+    "<md-content layout=column flex> <mb-preference-page mb-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href=\"/\" translate>go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
   );
 
 
@@ -5665,6 +5671,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/preferences/congratulate.html',
+    " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Congratulate :)</h1> <p translate> Congratulate, your site is ready. You can start design your site. </p> </div> </md-content>"
+  );
+
+
   $templateCache.put('views/preferences/mb-brand.html',
     "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo value=app.config.logo> </wb-ui-setting-image> </div>"
   );
@@ -5677,6 +5688,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/mb-local.html',
     "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+  );
+
+
+  $templateCache.put('views/preferences/update.html',
+    "<md-switch class=md-secondary ng-model=app.config.update.hideMessage> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoCheck> <p translate>Check update automaticlly</p> </md-switch>"
+  );
+
+
+  $templateCache.put('views/preferences/welcome.html',
+    " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Welcome</h1> <p translate> It is your site. You should determine some little settings before launch your site. After that your site is ready. These settings and some more could be set at future in settings section of your site. If you are not login please login to change settings. </p> </div> <div flex=none layout=column>  <form ng-show=app.user.anonymous style=\"border: solid 1px\" md-colors=\"{borderColor:'default-primary-100'}\" name=form ng-submit=login(credit) layout=column layout-padding> <div layout-padding> <p><span md-colors=\"{color:'default-warn'}\" translate>{{loginMessage}}</span></p> </div> <md-input-container> <label translate>username or email</label> <input ng-model=credit.login required> </md-input-container> <md-input-container> <label translate>password</label> <input ng-model=credit.password required type=password> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-padding> <md-button ng-disabled=form.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button> </div> </form> <div layout-padding ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>continue to set some options and settings.</p> </div> </div> </md-content>"
   );
 
 
