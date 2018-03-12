@@ -25,77 +25,77 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-pagination-bar
- * @property {Object}    amd-model           -Data model
- * @property {function}  amd-reload          -Reload function
- * @property {Array}     amd-sort-keys       -Array
- * @property {Array}     amd-more-actions    -Array
- * @property {string}    amd-title           -String
- * @property {string}    amd-icon            -String
+ * @name mb-pagination-bar
+ * @property {Object}    mb-model           -Data model
+ * @property {function}  mb-reload          -Reload function
+ * @property {Array}     mb-sort-keys       -Array
+ * @property {Array}     mb-more-actions    -Array
+ * @property {string}    mb-title           -String
+ * @property {string}    mb-icon            -String
  * @description Pagination bar
  * 
  * Pagination parameters are a complex data structure and it is hard to manage
  * it. This is a toolbar to manage the pagination options.
  */
-.directive('amdPaginationBar', function() {
+.directive('mbPaginationBar', function() {
 
 	function postLink(scope, element, attr) {
 
 		var query = {
 			sortDesc: true,
-			sortBy: typeof scope.amdSortKeys === 'undefined' ? 'id' : scope.amdSortKeys[0],
+			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
 			searchTerm: null
 		};
 		/*
 		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی 
 		 */
 		function reload(){
-			if(!angular.isFunction(scope.amdReload)){
+			if(!angular.isFunction(scope.mbReload)){
 				return;
 			}
-			scope.amdReload(scope.amdModel);
+			scope.mbReload(scope.mbModel);
 		}
 		/**
 		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
 		 */
 		function exportData(){
-			if(!angular.isFunction(scope.amdExport)){
+			if(!angular.isFunction(scope.mbExport)){
 				return;
 			}
-			scope.amdExport(scope.amdModel);
+			scope.mbExport(scope.mbModel);
 		}
 
 		function searchQuery(searchText){
-			scope.amdModel.setQuery(searchText);
-			scope.amdReload();
+			scope.mbModel.setQuery(searchText);
+			scope.mbReload();
 		}
 
 		function init(){
 			// Checks sort key
-			if(scope.amdModel){
+			if(scope.mbModel){
 				// clear previous sorters
-				// TODO: replace it with scope.amdModel.clearSorters() 
-				scope.amdModel.sortMap = {};
-				scope.amdModel.filterMap = {};
-				scope.amdModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
-				scope.amdModel.setQuery(query.searchTerm);
+				// TODO: replace it with scope.mbModel.clearSorters() 
+				scope.mbModel.sortMap = {};
+				scope.mbModel.filterMap = {};
+				scope.mbModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
+				scope.mbModel.setQuery(query.searchTerm);
 			}
 		}
 
 		// configure scope:
 		scope.search = searchQuery;
 		scope.query=query;
-		if(angular.isFunction(scope.amdReload)){
+		if(angular.isFunction(scope.mbReload)){
 			scope.reload = reload;
 		}
-		if(angular.isFunction(scope.amdExport)){
+		if(angular.isFunction(scope.mbExport)){
 			scope.exportData = exportData;
 		}
-		if(typeof scope.amdEnableSearch === 'undefined'){
-			scope.amdEnableSearch = true;
+		if(typeof scope.mbEnableSearch === 'undefined'){
+			scope.mbEnableSearch = true;
 		}
 		
-		scope.$watch('amdModel', function(){
+		scope.$watch('mbModel', function(){
 			init();
 		});
 
@@ -109,36 +109,36 @@ angular.module('mblowfish-core')
 
 	return {
 		restrict : 'E',
-		templateUrl: 'views/directives/amd-pagination-bar.html',
+		templateUrl: 'views/directives/mb-pagination-bar.html',
 		scope : {
 			/*
 			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم. 
 			 */
-			amdModel : '=',
+			mbModel : '=',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
 			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
 			 */
-			amdReload : '=',
+			mbReload : '=',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
 			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
 			 */
-			amdExport : '=',
+			mbExport : '=',
 			/*
 			 * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
 			 * بشن.
 			 */
-			amdSortKeys: '=',
+			mbSortKeys: '=',
 			/*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
-			amdMoreActions: '=',
+			mbMoreActions: '=',
 
-			amdTitle: '@?',
-			amdIcon: '@?',
+			mbTitle: '@?',
+			mbIcon: '@?',
 
-			amdEnableSearch: '=?'
+			mbEnableSearch: '=?'
 		},
 		link : postLink
 	};

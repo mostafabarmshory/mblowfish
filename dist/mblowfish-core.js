@@ -1895,11 +1895,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-pagination-bar
+ * @name mb-pagination-bar
  * @property {Object}    amd-model           -Data model
  * @property {function}  amd-reload          -Reload function
  * @property {Array}     amd-sort-keys       -Array
- * @property {Array}     amd-more-actions    -Array
+ * @property {Array}     mb-more-actions    -Array
  * @property {string}    amd-title           -String
  * @property {string}    amd-icon            -String
  * @description Pagination bar
@@ -1979,7 +1979,7 @@ angular.module('mblowfish-core')
 
 	return {
 		restrict : 'E',
-		templateUrl: 'views/directives/amd-pagination-bar.html',
+		templateUrl: 'views/directives/mb-pagination-bar.html',
 		scope : {
 			/*
 			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم. 
