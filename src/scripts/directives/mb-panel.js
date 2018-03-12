@@ -190,7 +190,10 @@ angular.module('mblowfish-core')
 				var _anchor = $element //
 				.children(bodyElementSelector) //
 				.children(placeholderElementSelector);
-				// TODO: maso, 2018: sort
+				// maso, 2018: sort
+				_sidenaves.sort(function(a, b){
+					return (a.page.priority || 10) > (b.page.priority || 10);
+				});
 				for (var i = 0; i < _sidenaves.length; i++) {
 					var ep = _sidenaves[i];
 					if(ep.chached){
@@ -219,7 +222,7 @@ angular.module('mblowfish-core')
 				// Get Anchor
 				var _anchor = $element //
 				.children(bodyElementSelector);
-				// TODO: maso, 2018: sort
+				// maso, 2018: sort
 				_toolbars.sort(function(a, b){
 					return (a.page.priority || 10) > (b.page.priority || 10);
 				});
