@@ -37,22 +37,22 @@ angular.module('mblowfish-core')
 	/**
 	 * Open tile
 	 */
-	function openSetting(tile) {
+	function openPreference(tile) {
 		$preferences.openPage(tile.page);
 	}
 
 	// Load settings
 	$preferences.pages()//
-	.then(function(settings) {
-		$scope.settingsTiles = [];
-		for (var i = 0; i < settings.items.length; i++) {
-			$scope.settingsTiles.push({
+	.then(function(list) {
+		$scope.preferenceTiles = [];
+		for (var i = 0; i < list.items.length; i++) {
+			$scope.preferenceTiles.push({
 				colspan : 2,
 				rowspan : 2,
-				page : settings.items[i]
+				page : list.items[i]
 			});
 		}
 	});
 
-	$scope.openSetting = openSetting;
+	$scope.openPreference = openPreference;
 });
