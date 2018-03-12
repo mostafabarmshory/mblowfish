@@ -21,51 +21,20 @@
  */
 'use strict';
 
+angular.module('mblowfish-core')
 /**
- * @ngdoc menu
- * @name User
- * @description Global user menu
- * 
- * There are several registred menu in the $menu service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - amd.user : All action related to the current user
- * 
+ * دریچه‌های محاوره‌ای
  */
-/**
- * @ngdoc menu
- * @name Scope
- * @description Global scope menu
- * 
- * There are several registred menu in the $menu service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - amd.user : All action related to the current user
- * 
- */
-
-angular.module('mblowfish-core', [ //
-//	Angular
-	'ngMaterial', 
-	'ngAnimate', 
-	'ngCookies',
-	'ngSanitize', //
-	'ngRoute', //
-//	Seen
-	'seen-tenant',
-//	AM-WB
-	'am-wb-core', 
-	'am-wb-common', //
-	'am-wb-seen-core',
-	'am-wb-seen-monitors',
-//	Others
-	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'ngStorage', // https://github.com/gsklee/ngStorage
-	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'infinite-scroll', // https://github.com/sroze/ngInfiniteScroll
-	'nvd3',//
-	'ng-appcache',//
-	'ngFileSaver',//
-	'mdSteppers',//
-	'angular-material-persian-datepicker'
-]);
+.run(function($app, $rootScope, $navigator) {
+	
+	var callWatch = $rootScope.$watch(function(){
+		return $rootScope.app.initial;
+	}, function(val){
+		if(val){
+			$navigator.openPage('initialization');
+		}else if(val === false){
+			// remove watch
+			callWatch();
+		}
+	});
+});

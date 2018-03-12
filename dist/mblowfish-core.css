@@ -159,24 +159,24 @@ table.amd-table-description tr td:first-child {
  * free to use this item anywhere.
  * 
  */
-.amd-tree {
+.mb-tree {
 	margin: 0;
 }
 
-.amd-tree, .amd-tree ul {
+.mb-tree, .mb-tree ul {
 	list-style: none;
 	padding: 0;
 }
 
-.amd-tree li {
+.mb-tree li {
 	margin: 0;
 }
 
-.amd-tree>li {
+.mb-tree>li {
 	border-bottom: 1px solid;
 }
 
-.amd-tree>li:nth-child(1) {
+.mb-tree>li:nth-child(1) {
 	border-top: none;
 }
 
@@ -185,7 +185,7 @@ table.amd-table-description tr td:first-child {
 		rgba(0, 0, 0, 0.098), 0px 0px 5px 1px rgba(0, 0, 0, 0.084);
 }
 
-.amd-tree .md-button {
+.mb-tree .md-button {
 	box-shadow: none !important;
 	border-radius: 0;
 	/*color: white;*/
@@ -203,7 +203,7 @@ table.amd-table-description tr td:first-child {
 	width: 100%;
 }
 
-.amd-tree md-select {
+.mb-tree md-select {
 	/**
      * Override md-select margins.
      * With margins the menu will look incorrect and causes mobile list
@@ -213,25 +213,25 @@ table.amd-table-description tr td:first-child {
 	width: 100%;
 }
 
-.amd-tree md-select md-select-label {
+.mb-tree md-select md-select-label {
 	justify-content: flex-end;
 	padding-top: 10px;
 }
 
-.amd-tree md-select md-select-label span {
+.mb-tree md-select md-select-label span {
 	margin-right: auto;
 	padding-left: 13px;
 }
 
-.amd-tree md-select .md-select-icon {
+.mb-tree md-select .md-select-icon {
 	margin-right: 28px;
 }
 
-.amd-tree button.md-button::-moz-focus-inner {
+.mb-tree button.md-button::-moz-focus-inner {
 	padding: 0;
 }
 
-.amd-tree-heading {
+.mb-tree-heading {
 	display: block;
 	line-height: 32px;
 	margin: 0;
@@ -240,13 +240,13 @@ table.amd-table-description tr td:first-child {
 	width: 100%;
 }
 
-.amd-tree-toggle-list {
+.mb-tree-toggle-list {
 	overflow: hidden;
 	position: relative;
 	z-index: 1;
 }
 
-.amd-tree .amd-tree-toggle-list a.md-button {
+.mb-tree .mb-tree-toggle-list a.md-button {
 	display: block;
 	padding: 0 16px 0 32px;
 	text-transform: none;
@@ -274,7 +274,7 @@ table.amd-table-description tr td:first-child {
 	height: 40px;
 }
 
-.amd-toggle-title {
+.mb-toggle-title {
 	padding: 0px 5px 0px 5px;
 }
 /*
