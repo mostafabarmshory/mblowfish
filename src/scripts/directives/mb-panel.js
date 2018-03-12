@@ -166,9 +166,10 @@ angular.module('mblowfish-core')
 					return $q.when(_toolbars[i]);
 				}
 			}
-			return _loadPage($scope, page, 
-					'<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">', 
-			'</md-toolbar>')
+			
+			var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+			var postfix = page.raw ? '' : '</md-toolbar>';
+			return _loadPage($scope, page, prefix, postfix)
 			.then(function(pageElement) {
 				_toolbars.push(pageElement);
 			});
