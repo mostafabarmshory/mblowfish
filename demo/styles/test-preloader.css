@@ -1,7 +1,7 @@
 /*
  * Main page preloader
  */
-.amd-preloader {
+.mb-preloader {
 	left: 0px;
 	top: 0px;
 	width: 100%;
@@ -13,13 +13,13 @@
 /*
  * This class added into the element in preload state.
  */
-.amd-preload {
+.mb-preload {
 	background: #999999 url("../images/loader.gif") no-repeat center;
 }
 
 /*
  * This class added to elements in preload initialization
  */
-.amd-preload-animate {
+.mb-preload-animate {
 	transition: all linear 0.5s;
 }
