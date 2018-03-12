@@ -24,62 +24,62 @@
 angular.module('mblowfish-core')
 
 
-	/**
-	 * @ngdoc directive
-	 * @name amd-datepicker
-	 * @descritpion Date picker
-	 * 
-	 * Select a date based on local.
-	 * 
-	 */
-	.directive('amdDatepicker', function($mdUtil, $rootScope) {
+/**
+ * @ngdoc directive
+ * @name mb-datepicker
+ * @descritpion Date picker
+ * 
+ * Select a date based on local.
+ * 
+ */
+.directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-		// **********************************************************
-		// Private Methods
-		// **********************************************************
-		function postLink(scope, element, attr, ctrls) {
-			scope.app = $rootScope.app;
-			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+	// **********************************************************
+	// Private Methods
+	// **********************************************************
+	function postLink(scope, element, attr, ctrls) {
+		scope.app = $rootScope.app;
+		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-			function render() {
-				var date = moment //
-					.utc(ngModelCtrl.$modelValue) //
-					.local();
-				if (date.isValid()) {
-					scope.date = date;
-					return;
-				}
+		function render() {
+			var date = moment //
+			.utc(ngModelCtrl.$modelValue) //
+			.local();
+			if (date.isValid()) {
+				scope.date = date;
+				return;
+			}
 			// TODO: maso, 2018: handle invalid date
-			}
-
-			function setValue() {
-				var date = moment(scope.date) //
-					.utc() //
-					.format('YYYY-MM-DD HH:mm');
-				ngModelCtrl.$setViewValue(date);
-			}
-
-			ngModelCtrl.$render = render;
-			scope.$watch('date', setValue);
 		}
 
+		function setValue() {
+			var date = moment(scope.date) //
+			.utc() //
+			.format('YYYY-MM-DD HH:mm');
+			ngModelCtrl.$setViewValue(date);
+		}
 
-		return {
-			replace : false,
-			templateUrl : 'views/directives/mb-datepicker.html',
-			restrict : 'E',
-			scope : {
-				minDate : '=mdMinDate',
-				maxDate : '=mdMaxDate',
+		ngModelCtrl.$render = render;
+		scope.$watch('date', setValue);
+	}
+
+
+	return {
+		replace : false,
+		templateUrl : 'views/directives/mb-datepicker.html',
+		restrict : 'E',
+		scope : {
+			minDate : '=mdMinDate',
+			maxDate : '=mdMaxDate',
 			//		        placeholder: '@mdPlaceholder',
 			//		        currentView: '@mdCurrentView',
 			//		        dateFilter: '=mdDateFilter',
 			//		        isOpen: '=?mdIsOpen',
 			//		        debounceInterval: '=mdDebounceInterval',
 			//		        dateLocale: '=mdDateLocale'
-			},
-			require : [ 'ngModel' ],
-			priority : 210, // Run before ngAria
-			link : postLink
-		};
-	});
+		},
+		require : [ 'ngModel' ],
+		priority : 210, // Run before ngAria
+		link : postLink
+	};
+});

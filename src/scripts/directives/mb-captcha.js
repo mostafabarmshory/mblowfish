@@ -26,14 +26,14 @@
 angular.module('mblowfish-core')
 /**
  * @ngdoc directives
- * @name amh-captcha
+ * @name mb-captcha
  * @description Adding captcha value
  * 
  * In some case, user must send captcha to the server fro auth. This a directive
  * to enablie captcha
  * 
  */
-.directive("amhCaptcha", function() {
+.directive("mbCaptcha", function() {
 
 	/**
 	 * Adding preloader.
@@ -59,7 +59,7 @@ angular.module('mblowfish-core')
 				form.$setValidity('captcha', null);
 			}
 		}
-		
+
 
 		if(form && angular.isDefined(attrs.required)){
 			scope.$watch('required', validate);
@@ -78,7 +78,7 @@ angular.module('mblowfish-core')
 	return {
 		restrict : 'E',
 		require: ['?^^form'],
-		templateUrl: 'views/directives/amh-captcha.html',
+		templateUrl: 'views/directives/mb-captcha.html',
 		scope: {
 			response: '=?ngModel',
 		},

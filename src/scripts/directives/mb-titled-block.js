@@ -26,21 +26,21 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-titled-block
+ * @name mb-titled-block
  * @descritpion Title block
  * 
  * 
  */
-.directive('amdTitledBlock', function() {
+.directive('mbTitledBlock', function() {
 	return {
 		replace:true,
 		restrict: 'E',
 		transclude: true,
 		scope: {
-			amdTitle: '@?',
-			amdIcon: '@?',
-			amdProgress: '<?'
-	    },
-		templateUrl: 'views/directives/amd-titled-block.html'
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?'
+		},
+		templateUrl: 'views/directives/mb-titled-block.html'
 	};
 });
