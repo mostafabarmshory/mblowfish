@@ -1841,7 +1841,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-infinate-scroll
+ * @name mb-infinate-scroll
  * @description Infinet scroll 
  * 
  * 
@@ -1851,7 +1851,7 @@ angular.module('mblowfish-core')
     // FIXME: maso, 2017: tipo in diractive name (infinite)
     function postLink(scope, elem, attrs) {
 	// adding infinite scroll class
-	elem.addClass('amd-infinate-scroll');
+	elem.addClass('mb-infinate-scroll');
 	elem.on('scroll', function(evt) {
 	    var raw = elem[0];
 	    if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {

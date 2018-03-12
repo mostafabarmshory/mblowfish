@@ -25,29 +25,29 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-infinate-scroll
+ * @name mb-infinate-scroll
  * @description Infinet scroll 
  * 
  * 
  * Manage scroll of list 
  */
-.directive('amdInfinateScroll', function($parse) {
-    // FIXME: maso, 2017: tipo in diractive name (infinite)
-    function postLink(scope, elem, attrs) {
-	// adding infinite scroll class
-	elem.addClass('amd-infinate-scroll');
-	elem.on('scroll', function(evt) {
-	    var raw = elem[0];
-	    if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
-		$parse(attrs.amdInfinateScroll)(scope);
-	    }
-	});
-	// Call the callback for the first time:
-	$parse(attrs.amdInfinateScroll)(scope);
-    }
+.directive('mbInfinateScroll', function($parse) {
+	// FIXME: maso, 2017: tipo in diractive name (infinite)
+	function postLink(scope, elem, attrs) {
+		// adding infinite scroll class
+		elem.addClass('mb-infinate-scroll');
+		elem.on('scroll', function(evt) {
+			var raw = elem[0];
+			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
+				$parse(attrs.mbInfinateScroll)(scope);
+			}
+		});
+		// Call the callback for the first time:
+		$parse(attrs.mbInfinateScroll)(scope);
+	}
 
-    return {
-	restrict : 'A',
-	link : postLink
-    };
+	return {
+		restrict : 'A',
+		link : postLink
+	};
 });
