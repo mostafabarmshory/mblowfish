@@ -108,9 +108,7 @@ angular.module('mblowfish-core')
 	return  {
 		'pages' : pages,
 		'page': page,
-		'open' : open,
-		'openPage' : open,
-		'createPage': createPage,
 		'newPage': createPage,
+		'openPage' : open,
 	};
 });

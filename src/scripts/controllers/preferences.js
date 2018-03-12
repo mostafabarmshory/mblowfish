@@ -47,8 +47,8 @@ angular.module('mblowfish-core')
 		$scope.preferenceTiles = [];
 		for (var i = 0; i < list.items.length; i++) {
 			$scope.preferenceTiles.push({
-				colspan : 2,
-				rowspan : 2,
+				colspan : 1,
+				rowspan : 1,
 				page : list.items[i]
 			});
 		}

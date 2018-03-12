@@ -77,9 +77,9 @@ angular.module('mblowfish-core')
 	
 	var app = {
 			pages : pages,
-			getPage: getPage,
+			page: getPage,
+			newPage : createPage,
 			openPage : openPage,
-			newPage: createPage,
 	};
 	return app;
 });

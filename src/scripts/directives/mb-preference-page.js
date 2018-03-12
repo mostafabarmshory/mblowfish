@@ -26,17 +26,17 @@
 angular.module('mblowfish-core')
 /**
  * @ngdoc directives
- * @name amdConfigPage
- * @description Configuaration page 
+ * @name mb-preference-page
+ * @description Preference page 
  * 
- * Configuration page
+ * Preference page
  * 
  */
-.directive('amdConfigPage', function($compile, $controller, $settings, $widget, $rootScope) {
+.directive('mbPreferencePage', function($compile, $controller, $preferences, $widget, $rootScope) {
 
 
-	var bodyElementSelector = 'div#amd-config-body';
-	var placeholderElementSelector = 'div#amd-config-placeholder';
+	var bodyElementSelector = 'div#mb-preference-body';
+	var placeholderElementSelector = 'div#mb-preference-placeholder';
 	/**
 	 * 
 	 */
@@ -88,9 +88,9 @@ angular.module('mblowfish-core')
 		.children(bodyElementSelector) //
 		.children(placeholderElementSelector);
 		// TODO: maso, 2018: check auncher exist
-		scope.$watch('amdConfigId', function(id) {
+		scope.$watch('mbPreferenceId', function(id) {
 			if (!!id) {
-				$settings.config(id)
+				$preferences.page(id)
 				.then(function(page) {
 					loadPreference(scope, page, _anchor);
 				}, function() {
@@ -102,10 +102,10 @@ angular.module('mblowfish-core')
 
 	return {
 		restrict : 'E',
-		templateUrl : 'views/directives/amd-config-page.html',
+		templateUrl : 'views/directives/mb-preference-page.html',
 		replace : true,
 		scope : {
-			amdConfigId : '='
+			mbPreferenceId : '='
 		},
 		link : postLink
 	};
