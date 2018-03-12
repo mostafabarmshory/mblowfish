@@ -37,11 +37,11 @@
     "angular-mocks": "^1.6.0"
   },
   "appPath": "src",
-  "backend": {
+  "1#backend": {
     "host": "localhost",
     "port": 9590
   },
-  "1#backend": {
+  "backend": {
     "host": "siteonclouds.com"
   },
   "2#backend": {
