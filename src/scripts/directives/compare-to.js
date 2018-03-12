@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,39 +22,27 @@
  * SOFTWARE.
  */
 'use strict';
+
 angular.module('mblowfish-core')
-
 /**
- * @ngdoc controller
- * @name AmhPreferencesCtrl
- * @description Manages preferences page
- * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
- * 
+ * @ngdoc directives
+ * @name compare-to
+ * @description Compare two attrs.
  */
-.controller('MbPreferencesCtrl',function($scope, $preferences) {
+.directive('compareTo', function(){
+	return {
+		require: 'ngModel',
+		scope: {
+			otherModelValue: '=compareTo'
+		},
+		link: function(scope, element, attributes, ngModel){
+			ngModel.$validators.compareTo = function(modelValue) {
+				return modelValue === scope.otherModelValue;
+			};
 
-	/**
-	 * Open tile
-	 */
-	function openSetting(tile) {
-		$preferences.openPage(tile.page);
-	}
-
-	// Load settings
-	$preferences.pages()//
-	.then(function(settings) {
-		$scope.settingsTiles = [];
-		for (var i = 0; i < settings.items.length; i++) {
-			$scope.settingsTiles.push({
-				colspan : 2,
-				rowspan : 2,
-				page : settings.items[i]
+			scope.$watch('otherModelValue', function() {
+				ngModel.$validate();
 			});
 		}
-	});
-
-	$scope.openSetting = openSetting;
+	};
 });

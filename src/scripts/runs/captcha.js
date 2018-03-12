@@ -20,39 +20,23 @@
  * SOFTWARE.
  */
 'use strict';
-angular.module('mblowfish-core')
 
-/**
- * @ngdoc controller
- * @name AmhPreferencesCtrl
- * @description Manages preferences page
- * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
+angular.module('mblowfish-core')
+/*
  * 
  */
-.controller('MbPreferencesCtrl',function($scope, $preferences) {
-
-	/**
-	 * Open tile
-	 */
-	function openSetting(tile) {
-		$preferences.openPage(tile.page);
-	}
-
-	// Load settings
-	$preferences.pages()//
-	.then(function(settings) {
-		$scope.settingsTiles = [];
-		for (var i = 0; i < settings.items.length; i++) {
-			$scope.settingsTiles.push({
-				colspan : 2,
-				rowspan : 2,
-				page : settings.items[i]
+.run(function($rootScope, $saas) {
+	$rootScope.app.captcha ={};
+	$saas.setting('captcha.engine')
+	.then(function(setting){
+		$rootScope.app.captcha.engine = setting.value;
+		if(setting.value === 'recaptcha'){
+			$rootScope.app.captcha.recaptcha = {};
+			// maso,2018: get publick key form server
+			$saas.setting('captcha.engine.recaptcha.key')
+			.then(function(pk){
+				$rootScope.app.captcha.recaptcha.key = pk.value;
 			});
 		}
 	});
-
-	$scope.openSetting = openSetting;
 });
