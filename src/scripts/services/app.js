@@ -46,7 +46,7 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function($rootScope, $usr, $monitor, $menu, $q, $cms, $translate, $mdDateLocale) {
 
-	var APP_PREFIX = 'angular-material-dashbord-';
+	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
 	var app = {
 			state : {
@@ -133,7 +133,7 @@ angular.module('mblowfish-core') //
 	});
 	
 	/*
-	 * watch callender
+	 * watch calendar
 	 * 
 	 */
 	$rootScope.$watch(function(){
@@ -158,6 +158,12 @@ angular.module('mblowfish-core') //
 		return $q.when(app.config[key] || defaultValue);
 	}
 
+	function setConfig(key, value){
+		return $timeout(function() {
+			return app.config[key] = value;
+		}, 1);
+	}
+	
 	/**
 	 * تنظیم‌های نرم افزار را لود می‌کند.
 	 * 
@@ -168,8 +174,14 @@ angular.module('mblowfish-core') //
 		return $cms.content(APP_PREFIX + app.key) //
 		.then(function(content) {
 			app._acc = content;
+			app.initial = false;
 			_loadingLog('loading configuration', 'fetch configuration content');
 			return app._acc.value();
+		}, function(error) {
+			if(error.status && error.status == '404'){
+				app.initial = true;
+			}
+			return {};
 		}) //
 		.then(function(appConfig) {
 			app.config = appConfig;
@@ -490,6 +502,36 @@ angular.module('mblowfish-core') //
 	}
 
 	/**
+	 * Return menu related to the current user
+	 * 
+	 * @memberof $app
+	 * @return {Menu} of the user
+	 */
+	function userMenu(){
+		return $menu.menu('userMenu');
+	}
+	
+	/**
+	 * Get public menu
+	 * 
+	 * @memberof $app
+	 * @return {Menu} a menu of public usage
+	 */
+	function publicMenu(){
+		return $menu.menu('publicMenu');
+	}
+	
+	/**
+	 * Get location menu
+	 * 
+	 * @memberof $app
+	 * @return {Menu} a menu of locations
+	 */
+	function locationMenu(){
+		return $menu.menu('locationMenu');
+	}
+	
+	/**
 	 * Returns toolbar menu.
 	 * 
 	 * @returns promiss
@@ -593,6 +635,7 @@ angular.module('mblowfish-core') //
 
 	// Configuaration
 	apps.config = getApplicationConfig;
+	apps.setConfig = setConfig;
 	apps.loadConfig = loadApplicationConfig; // deprecated
 	apps.storeConfig = storeApplicationConfig; // deprecated
 	apps.setting = setting;
@@ -611,5 +654,10 @@ angular.module('mblowfish-core') //
 	apps.getToolbarMenu = getToolbarMenu;
 	apps.getScopeMenu = getScopeMenu;
 	apps.scopeMenu = scopeMenu;
+	
+	apps.publicMenu = publicMenu;
+	apps.userMenu = userMenu;
+	apps.locationMenu = locationMenu;
+	
 	return apps;
 });
