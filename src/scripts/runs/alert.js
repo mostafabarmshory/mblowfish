@@ -127,4 +127,12 @@ angular.module('mblowfish-core')
 		}
 		return $mdToast.show(toast);
 	};
+
+
+	// XXX: Hadi 1396-12-22: کد زیر توی amh بود.
+//	window.alert = $notification.alert;
+//	window.confirm = $notification.confirm;
+//	window.prompt = $notification.prompt;
+//	window.toast = $notification.toast;
+	
 });
