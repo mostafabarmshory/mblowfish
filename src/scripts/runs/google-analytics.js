@@ -22,19 +22,19 @@
 'use strict';
 
 angular.module('mblowfish-core')
-//
+
 .run(function($window, $rootScope, $location, $app) {
-    if ($window.ga) {
-	// initialise google analytics
-	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-	    if (!value) {
-		return;
-	    }
-	    $window.ga('create', value, 'auto');
-	    // track pageview on state change
-	    $rootScope.$on('$routeChangeStart', function(/* event */) {
-		$window.ga('send', 'pageview', $location.path());
-	    });
-	});
-    }
+	if ($window.ga) {
+		// initialize google analytics
+		$rootScope.$watch('app.config.googleAnalytic.property', function(value){
+			if (!value) {
+				return;
+			}
+			$window.ga('create', value, 'auto');
+			// track pageview on state change
+			$rootScope.$on('$routeChangeStart', function(/* event */) {
+				$window.ga('send', 'pageview', $location.path());
+			});
+		});
+	}
 });
