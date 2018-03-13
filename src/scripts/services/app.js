@@ -463,73 +463,6 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-
-	/**
-	 * Isolated menu of the scope
-	 * 
-	 * به صورت پیش فرض برای هر اسکوپ یک منو در نظر گرفته می‌شه که توی منوی
-	 * کاربری نمایش داده می‌شه.
-	 * 
-	 * این فراخوانی منوی معادل با اسکپ رو تعیین می‌کند.
-	 * 
-	 * در صورتی که اسکپ از بین بره، منوی معادل با اون هم خالی می‌شه.
-	 * 
-	 * @memberof $app
-	 * @param scope
-	 * @returns promiss
-	 */
-	function scopeMenu(scope) {
-		scope.$on('$destroy', function() {
-			$menu.menu('scopeMenu') //
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('scopeMenu', menu);
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
-
-	/**
-	 * Returns scope menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getScopeMenu() {
-		return $menu.menu('scopeMenu');
-	}
-
-	/**
-	 * Return menu related to the current user
-	 * 
-	 * @memberof $app
-	 * @return {Menu} of the user
-	 */
-	function userMenu(){
-		return $menu.menu('userMenu');
-	}
-	
-	/**
-	 * Get public menu
-	 * 
-	 * @memberof $app
-	 * @return {Menu} a menu of public usage
-	 */
-	function publicMenu(){
-		return $menu.menu('publicMenu');
-	}
-	
-	/**
-	 * Get location menu
-	 * 
-	 * @memberof $app
-	 * @return {Menu} a menu of locations
-	 */
-	function locationMenu(){
-		return $menu.menu('locationMenu');
-	}
 	
 	/**
 	 * Returns toolbar menu.
@@ -681,12 +614,8 @@ angular.module('mblowfish-core') //
 	apps.defaultSidenavs = defaultSidenavs;
 
 	apps.getToolbarMenu = getToolbarMenu;
-	apps.getScopeMenu = getScopeMenu;
-	apps.scopeMenu = scopeMenu;
-	
-	apps.publicMenu = publicMenu;
-	apps.userMenu = userMenu;
-	apps.locationMenu = locationMenu;
+//	apps.getScopeMenu = getScopeMenu;
+//	apps.scopeMenu = scopeMenu;
 	
 	return apps;
 });
