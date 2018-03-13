@@ -22,17 +22,35 @@
 'use strict';
 
 angular.module('mblowfish-core')
-	/**
-	 * دریچه‌های محاوره‌ای
-	 */
-	.run(function(appcache, $window) {
-		// Check update
-		appcache.checkUpdate() //
-			.then(function() {
-				appcache.swapCache();
-				return confirm('app.update.message')
-			}) //
-			.then(function() {
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function(appcache, $window, $app) {
+	// Check update
+//	appcache.checkUpdate() //
+//	.then(function() {
+//		appcache.swapCache();
+//		return confirm('app.update.message')
+//	}) //
+//	.then(function() {
+//		$window.location.reload();
+//	});
+	
+	appcache.checkUpdate()//
+	.then(function(){
+		appcache.swapCache()//
+		.then(function(){
+			return $app.config('update');
+		})//
+		.then(function(updateSetting){
+			if(updateSetting !== undefined && updateSetting.hideMessage){
 				$window.location.reload();
-			});
+			}else{
+				confirm('Application is updated. Reload for new version?')//
+				.then(function(){
+					$window.location.reload();
+				});
+			}
+		});
 	});
+});
