@@ -52,7 +52,7 @@ angular.module('mblowfish-core')
 	 */
 	function alert(message) {
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-alert.html',
+			templateUrl : 'views/dialogs/mb-alert.html',
 			config : {
 				message : message
 			}
@@ -81,7 +81,7 @@ angular.module('mblowfish-core')
 	function confirm(message) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-confirm.html',
+			templateUrl : 'views/dialogs/mb-confirm.html',
 			config : {
 				message : message
 			}
@@ -111,7 +111,7 @@ angular.module('mblowfish-core')
 	function prompt(text, defaultText) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-prompt.html',
+			templateUrl : 'views/dialogs/mb-prompt.html',
 			config : {
 				message : text,
 				model : defaultText
