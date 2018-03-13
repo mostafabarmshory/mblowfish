@@ -303,128 +303,6 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-
-/**
- * @ngdoc controller
- * @name MainController
- * @description Dashboard
- * 
- */
-.controller('MainController2',function($scope, $navigator, $mdSidenav, $mdBottomSheet, $log, $q,
-		$mdToast, $usr, $route, $location, $monitor, $rootScope,
-		$app) {
-
-	var vm = $scope;
-
-	vm.menuItems = [];
-	vm.selectItem = selectItem;
-	vm.toggleItemsList = toggleItemsList;
-	vm.showActions = showActions;
-	// vm.title = $route.current.config.title;
-	vm.showSimpleToast = showSimpleToast;
-	vm.toggleSidebar = toggleSidebar;
-	vm.toggleRightSidebar = toggleRightSidebar;
-
-	$navigator.loadAllItems()//
-	.then(function(menuItems) {
-		vm.menuItems = [].concat(menuItems);
-	});
-
-
-	// $view service
-	function toggleRightSidebar() {
-		toggleSidebar('right');
-	}
-
-	function toggleSidebar(id) {
-		return $mdSidenav(id).toggle();
-	}
-
-	function toggleItemsList() {
-		var pending = $mdBottomSheet.hide() || $q.when(true);
-		pending.then(function() {
-			toggleSidebar('left');
-		});
-	}
-
-	function selectItem(item) {
-		vm.title = item.config.name;
-		vm.toggleItemsList();
-		vm.showSimpleToast(vm.title);
-	}
-
-	// $shortcut service
-	function showActions($event) {
-		$mdBottomSheet.show(
-				{
-					parent : angular.element(document
-							.getElementById('content')),
-							templateUrl : 'views/partials/bottomSheet.html',
-							controller : [ '$mdBottomSheet', SheetController ],
-							controllerAs : "vm",
-							bindToController : true,
-							targetEvent : $event
-				}).then(function(clickedItem) {
-					clickedItem && $log.debug(clickedItem.name + ' clicked!');
-				});
-
-		function SheetController($mdBottomSheet) {
-			var vm = this;
-			vm.actions = [ {
-				name : 'Share',
-				icon : 'share',
-				url : 'https://tinc'
-			}, {
-				name : 'Star',
-				icon : 'star',
-				url : 'https://stargazers'
-			} ];
-
-			vm.performAction = function(action) {
-				$mdBottomSheet.hide(action);
-			};
-		}
-	}
-
-
-	// $notify service
-	function showSimpleToast(title) {
-		$mdToast.show($mdToast.simple().content(title).hideDelay(2000)
-				.position('bottom right'));
-	}
-
-	// Message service
-	$monitor.monitor('message', 'count')//
-	.then(function(monitor){
-		$scope.messageMonitor = monitor;
-	})
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc controller
  * @name MbAccountCtrl
@@ -907,11 +785,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdHelpCtrl
+ * @name MbHelpCtrl
  * @description Help page controller
  * 
  */
-.controller('AmdHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
 	$rootScope.showHelp = false;
 
 
@@ -1351,6 +1229,46 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
+ * @name MbSettingsCtrl
+ * @description Manages settings page
+ * 
+ * Manages settings pages.
+ * 
+ */
+.controller('MbOptionsCtrl',function($scope, $options) {
+	// Load settings.
+	$options.pages()
+	.then(function(pages){
+		$scope.tabs = pages.items;
+	});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc controller
  * @name MbPreferenceCtrl
  * @description Show a preference page
  * 
@@ -1549,151 +1467,6 @@ angular.module('mblowfish-core')
 	 * مقداردهی اولیه
 	 */
 //	reload();
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name settingsBrandCtrl
- * @description Dashboard
- * 
- */
-.controller('settingsBrandCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
-		}
-	})//
-	.add({
-		title: 'Branding',
-		active: function(){
-			$navigator.openPage('/settings/brand');
-		}
-	});
-    
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name settingsGoogleAnalyticCtrl
- * @description Dashboard
- * 
- */
-.controller('settingsGoogleAnalyticCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
-		}
-	})//
-	.add({
-		title: 'Google analytic',
-		active: function(){
-			$navigator.openPage('/settings/google-analytic');
-		}
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name settingsLocalCtrl
- * @description Dashboard
- * 
- */
-.controller('settingsLocalCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
-		}
-	})//
-	.add({
-		title: 'Localization',
-		active: function(){
-			$navigator.openPage('/settings/local');
-		}
-	});
 });
 
 /*
@@ -2136,7 +1909,7 @@ angular.module('mblowfish-core')
  * In some case, a dynamic tabs are required. This module add them dynamically.
  * 
  */
-.directive('mbDynamicTabs', function($wbUtil, $settings, $q, $rootScope, $compile, $controller) {
+.directive('mbDynamicTabs', function($wbUtil, $q, $rootScope, $compile, $controller) {
 	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
 
 
@@ -2158,9 +1931,6 @@ angular.module('mblowfish-core')
 
 	function link($scope, $element, $attr) {
 		// Load pages in scope
-		var pages = $settings.settings();
-		$scope.pages = pages;
-
 		function loadPage(index){
 			var widget = null;
 			var jobs = [];
@@ -2174,7 +1944,7 @@ angular.module('mblowfish-core')
 			target.empty();
 
 			// 3- load pages
-			var page = pages[index];
+			var page = $scope.mbTabs[index];
 			var template = $wbUtil.getTemplateFor(page);
 			if (angular.isDefined(template)) {
 				jobs.push(template.then(function(templateSrc) {
@@ -2200,7 +1970,8 @@ angular.module('mblowfish-core')
 				});
 			});
 		}
-
+		
+		// Index of selected page
 		$scope.$watch('pageIndex', function(value){
 			if(value >= 0){
 				loadPage(value);
@@ -2214,13 +1985,10 @@ angular.module('mblowfish-core')
 		restrict: 'E',
 		replace: true,
 		scope: {
-			amdSection: '='
+			mbTabs: '='
 		},
 		templateUrl: 'views/directives/mb-dynamic-tabs.html',
 		link: link,
-		controller : function($scope) {
-			// TODO: maso, 2017:
-		}
 	};
 });
 
@@ -2542,21 +2310,6 @@ angular.module('mblowfish-core')
 	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
 
 
-	// $view service
-//	function toggleRightSidebar() {
-//	toggleSidebar('right');
-//	}
-
-//	function toggleSidebar(id) {
-//	return $mdSidenav(id).toggle();
-//	}
-
-//	function toggleItemsList() {
-//	var pending = $mdBottomSheet.hide() || $q.when(true);
-//	pending.then(function() {
-//	toggleSidebar('left');
-//	});
-//	}
 
 	/*
 	 * Load page and create an element
@@ -3738,7 +3491,7 @@ angular.module('mblowfish-core')
 		id : 'help',
 		title : 'Help',
 		description : 'System online help',
-		controller : 'AmdHelpCtrl',
+		controller : 'MbHelpCtrl',
 		templateUrl : 'views/sidenavs/mb-help.html',
 		locked : true,
 		visible : function() {
@@ -3748,14 +3501,11 @@ angular.module('mblowfish-core')
 	});
 	$app.newSidenav({
 		id : 'settings',
-		title : 'Settings',
-		description : 'User settings',
-//		controller : 'AvaHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-settings.html',
+		title : 'Options',
+		description : 'User options',
+		controller : 'MbOptionsCtrl',
+		templateUrl : 'views/sidenavs/mb-options.html',
 		locked : false,
-//		visible : function($scope) {
-//			return $scope.showHelp;
-//		},
 		position : 'end'
 	});
 });
@@ -4017,7 +3767,7 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($settings, $preferences) {
+.run(function($options, $preferences) {
 	// Pages
 	$preferences
 	.newPage({
@@ -4034,7 +3784,7 @@ angular.module('mblowfish-core')
 		title : 'Branding',
 		description : 'Manage application branding such as title, logo and descritpions.',
 		templateUrl : 'views/preferences/mb-brand.html',
-		controller : 'settingsBrandCtrl',
+//		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
 		priority: 2,
 		required: true,
@@ -4057,14 +3807,14 @@ angular.module('mblowfish-core')
 	});
 	
 	// Settings
-	$settings.newPage({
+	$options.newPage({
 		title: 'Local',
-		templateUrl: 'views/settings/mb-local.html',
+		templateUrl: 'views/options/mb-local.html',
 		tags: ['local']
 	});
-	$settings.newPage({
+	$options.newPage({
 		title: 'Theme',
-		templateUrl: 'views/settings/mb-theme.html',
+		templateUrl: 'views/options/mb-theme.html',
 		tags: ['theme']
 	});
 });
@@ -4568,73 +4318,6 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-
-	/**
-	 * Isolated menu of the scope
-	 * 
-	 * به صورت پیش فرض برای هر اسکوپ یک منو در نظر گرفته می‌شه که توی منوی
-	 * کاربری نمایش داده می‌شه.
-	 * 
-	 * این فراخوانی منوی معادل با اسکپ رو تعیین می‌کند.
-	 * 
-	 * در صورتی که اسکپ از بین بره، منوی معادل با اون هم خالی می‌شه.
-	 * 
-	 * @memberof $app
-	 * @param scope
-	 * @returns promiss
-	 */
-	function scopeMenu(scope) {
-		scope.$on('$destroy', function() {
-			$menu.menu('scopeMenu') //
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('scopeMenu', menu);
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
-
-	/**
-	 * Returns scope menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getScopeMenu() {
-		return $menu.menu('scopeMenu');
-	}
-
-	/**
-	 * Return menu related to the current user
-	 * 
-	 * @memberof $app
-	 * @return {Menu} of the user
-	 */
-	function userMenu(){
-		return $menu.menu('userMenu');
-	}
-	
-	/**
-	 * Get public menu
-	 * 
-	 * @memberof $app
-	 * @return {Menu} a menu of public usage
-	 */
-	function publicMenu(){
-		return $menu.menu('publicMenu');
-	}
-	
-	/**
-	 * Get location menu
-	 * 
-	 * @memberof $app
-	 * @return {Menu} a menu of locations
-	 */
-	function locationMenu(){
-		return $menu.menu('locationMenu');
-	}
 	
 	/**
 	 * Returns toolbar menu.
@@ -4786,12 +4469,8 @@ angular.module('mblowfish-core') //
 	apps.defaultSidenavs = defaultSidenavs;
 
 	apps.getToolbarMenu = getToolbarMenu;
-	apps.getScopeMenu = getScopeMenu;
-	apps.scopeMenu = scopeMenu;
-	
-	apps.publicMenu = publicMenu;
-	apps.userMenu = userMenu;
-	apps.locationMenu = locationMenu;
+//	apps.getScopeMenu = getScopeMenu;
+//	apps.scopeMenu = scopeMenu;
 	
 	return apps;
 });
@@ -5393,6 +5072,85 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc service
+ * @name $$options
+ * @description User option manager
+ * 
+ * Option is user configurations
+ */
+.service('$options', function($q, $navigator) {
+	var _pages = [ ];
+
+	/**
+	 * List all pages
+	 */
+	function pages() {
+		return $q.when({
+			'items' : _pages
+		});
+	}
+	
+	/**
+	 * Gets a config page
+	 * 
+	 * @name config
+	 * @param {string} configId - Id of the config
+	 * @return {promiss<config>} return config
+	 */
+	function getPage(pageId){
+		var page = null;
+		for(var i = 0; i < _pages.length; i++){
+			if(_pages[i].id == pageId){
+				return $q.when(_pages[i]);
+			}
+		}
+		return $q.reject({
+			// TODO: maso, 2018: add reason
+		});
+	}
+
+
+	/**
+	 * Creates configuration/setting page.
+	 */
+	function createPage(page){
+		_pages.push(page);
+		return app;
+	}
+	
+	var app = {
+			pages : pages,
+			page: getPage,
+			newPage : createPage,
+	};
+	return app;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc service
  * @name $preferences
  * @description System setting manager
  * 
@@ -5482,92 +5240,6 @@ angular.module('mblowfish-core')
 	};
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc service
- * @name $settings
- * @description System setting manager
- * 
- * Setting is user configurations
- */
-.service('$settings', function($q, $navigator) {
-	var _pages = [ ];
-
-	/**
-	 * List all pages
-	 */
-	function pages() {
-		return $q.when({
-			'items' : _pages
-		});
-	}
-	
-	/**
-	 * Gets a config page
-	 * 
-	 * @name config
-	 * @param {string} configId - Id of the config
-	 * @return {promiss<config>} return config
-	 */
-	function getPage(pageId){
-		var page = null;
-		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id == pageId){
-				return $q.when(_pages[i]);
-			}
-		}
-		return $q.reject({
-			// TODO: maso, 2018: add reason
-		});
-	}
-
-	/**
-	 * Open config/setting page
-	 */
-	function openPage(page){
-		return $navigator.openPage('/configs/'+page.id);
-	}
-
-	/**
-	 * Creates configuration/setting page.
-	 */
-	function createPage(page){
-		_pages.push(page);
-		return app;
-	}
-	
-	var app = {
-			pages : pages,
-			page: getPage,
-			newPage : createPage,
-			openPage : openPage,
-	};
-	return app;
-});
-
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -5586,13 +5258,18 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/directives/mb-captcha.html',
+    "<div>  <div vc-recaptcha ng-model=ctrl.captchaValue theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.key lang=\"app.captcha.language || 'fa'\"> </div>  </div>"
+  );
+
+
   $templateCache.put('views/directives/mb-datepicker.html',
     "<div> <md-persian-datepicker ng-model=date ng-show=\"app.calendar === 'Jalaali'\"> </md-persian-datepicker> <md-datepicker ng-model=date md-placeholder=\"Enter date\" ng-show=\"app.calendar === 'Gregorian'\"> </md-datepicker> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
-    "<div layout=column flex layout-fill> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"page in pages\"> <span translate>{{page.title}}</span> </md-tab> </md-tabs> <md-content id=mb-dynamic-tabs-select-resource-children> </md-content> </div>"
+    "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
 
 
@@ -5671,6 +5348,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/options/mb-local.html',
+    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
+  );
+
+
+  $templateCache.put('views/options/mb-theme.html',
+    "<md-input-container ng-controller=AmdThemesCtrl class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container>"
+  );
+
+
   $templateCache.put('views/preferences/congratulate.html',
     " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Congratulate :)</h1> <p translate> Congratulate, your site is ready. You can start design your site. </p> </div> </md-content>"
   );
@@ -5706,16 +5393,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/settings/mb-local.html',
-    "<section class=\"demo-container md-whiteframe-z1 show-source\" layout=column layout-padding> <h3 translate>Theme</h3> <md-divider></md-divider> <md-input-container ng-controller=AmdThemesCtrl class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container> </section> <section class=\"demo-container md-whiteframe-z1 show-source\" layout-padding> <h3 translate>Local</h3> <md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </section>"
-  );
-
-
-  $templateCache.put('views/settings/mb-theme.html',
-    "<section class=\"demo-container md-whiteframe-z1 show-source\" layout=column layout-padding> <h3 translate>Theme</h3> <md-divider></md-divider> <md-input-container ng-controller=AmdThemesCtrl class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container> </section> <section class=\"demo-container md-whiteframe-z1 show-source\" layout-padding> <h3 translate>Local</h3> <md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </section>"
-  );
-
-
   $templateCache.put('views/sidenavs/mb-help.html',
     "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content flex> <wb-content wb-model=helpContent></wb-content> </md-content>"
   );
@@ -5726,8 +5403,8 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/sidenavs/mb-settings.html',
-    " <amd-user-toolbar amd-actions=userActions> </amd-user-toolbar>  <amd-dynamic-tabs amd-tabs=settingTabs> </amd-dynamic-tabs>"
+  $templateCache.put('views/sidenavs/mb-options.html',
+    " <mb-user-toolbar mb-actions=userActions> </mb-user-toolbar>  <md-content layout-padding> <mb-dynamic-tabs mb-tabs=tabs> </mb-dynamic-tabs> </md-content>"
   );
 
 
