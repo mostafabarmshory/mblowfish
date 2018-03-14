@@ -21,7 +21,7 @@ Each application using mblowfish could defines its own toolbars.
 		visible: function(){
 			return ...;
 		},
-		raw: true // determines DOM element of this toolbar is a toolbar itself and should not be wrapped to toolbar
+		raw: true // Optional. Determines DOM element of this toolbar is a toolbar itself and should not be wrapped to toolbar
 	});
 	
 </code>
@@ -104,20 +104,84 @@ To show/hide a sidenav it is sufficient to give id of that sidenav:
 
 </code>
 
+For sidenavs which 'locked' is true previous code does not work. This type of sidenavs always is shown.
+If you want to hide such sidenav you should do some action such that 'visible' for that sidenav results in false value. 
+
 Note: Sidenavs 'help' and 'setting' are defined and added automatically to all pages.
-So following codes are valid in controller of all pages:
+So following codes (to show/hide these sidenavs) are valid in controller of all pages:
 
 <code>
 
-	$mdSidenav('help').toggle();
+	// To toggle visibility of help sidenav
+	$rootScope.showHelp = !$rootScope.showHelp;
+	
+	// To toggle visibility of setting sidenav
 	$mdSidenav('setting').toggle();
 
 </code>
 
-## Menu
+## Actions
 
-- user.current
-- app
+There is a simple mechanism to manage and organize different actions. Applications using mblowfish-core 
+could define and add their own actions and organize them in different group. After, these actions and groups of actions could be accessed in difference places in application.
+
+Service $actions is used to manage actions and action groups.
+
+<code>
+
+	$actions.newAction({
+		id: 'my-action',
+		title: 'My Action',
+		description: 'Description for action',
+		type: 'action', // valid values: 'action', 'internal-link', 'link', 'divider'
+		visible: function(){
+			return ...;
+		},
+		enable: function(){
+			return ...;
+		},
+		priority: 10, // Default value is 10
+		groups: [], // list of action groups 
+		scope: $scope, // if is set action will be removed when $scope is destroyed.
+		accent: true, // Optional.
+		primary: true // Optional. 
+	});
+
+</code>
+
+Define action groups is as follow:
+
+<code>
+
+	$actions.newGroup({
+		id: 'my-action-group',
+		title: 'My Action Group',
+		description: 'Description for action group',
+		priority: 10 // default value is 10
+	});
+
+</code>
+
+## Settings
+
+## Preferences
+
+## Pages (ngRoute)
+
+Different pages (or paths) could be defined as follow:
+
+<code>
+
+	$routeProvider //
+	.when('/my-path', {
+		templateUrl : 'views/amh-content.html',
+		controller : 'AmhContentCtrl',
+		toolbars: [], // Optional. If set overrides default toolbars
+		sidenavs: [], // Optional. If set overrides default sidenavs
+		helpId: 'help-id', // Optional. This id will be used to find json document to show help about this page
+	});
+
+</code>
 
 
 
