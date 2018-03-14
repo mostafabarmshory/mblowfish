@@ -3411,6 +3411,14 @@ angular.module('mblowfish-core')
 		}
 		return $mdToast.show(toast);
 	};
+
+
+	// XXX: Hadi 1396-12-22: کد زیر توی amh بود.
+//	window.alert = $notification.alert;
+//	window.confirm = $notification.confirm;
+//	window.prompt = $notification.prompt;
+//	window.toast = $notification.toast;
+	
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3533,20 +3541,38 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-	/**
-	 * دریچه‌های محاوره‌ای
-	 */
-	.run(function(appcache, $window) {
-		// Check update
-		appcache.checkUpdate() //
-			.then(function() {
-				appcache.swapCache();
-				return confirm('app.update.message')
-			}) //
-			.then(function() {
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function(appcache, $window, $app) {
+	// Check update
+//	appcache.checkUpdate() //
+//	.then(function() {
+//		appcache.swapCache();
+//		return confirm('app.update.message')
+//	}) //
+//	.then(function() {
+//		$window.location.reload();
+//	});
+	
+	appcache.checkUpdate()//
+	.then(function(){
+		appcache.swapCache()//
+		.then(function(){
+			return $app.config('update');
+		})//
+		.then(function(updateSetting){
+			if(updateSetting !== undefined && updateSetting.hideMessage){
 				$window.location.reload();
-			});
+			}else{
+				confirm('Application is updated. Reload for new version?')//
+				.then(function(){
+					$window.location.reload();
+				});
+			}
+		});
 	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3613,21 +3639,21 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-//
+
 .run(function($window, $rootScope, $location, $app) {
-    if ($window.ga) {
-	// initialise google analytics
-	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-	    if (!value) {
-		return;
-	    }
-	    $window.ga('create', value, 'auto');
-	    // track pageview on state change
-	    $rootScope.$on('$routeChangeStart', function(/* event */) {
-		$window.ga('send', 'pageview', $location.path());
-	    });
-	});
-    }
+	if ($window.ga) {
+		// initialize google analytics
+		$rootScope.$watch('app.config.googleAnalytic.property', function(value){
+			if (!value) {
+				return;
+			}
+			$window.ga('create', value, 'auto');
+			// track pageview on state change
+			$rootScope.$on('$routeChangeStart', function(/* event */) {
+				$window.ga('send', 'pageview', $location.path());
+			});
+		});
+	}
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4957,7 +4983,7 @@ angular.module('mblowfish-core')
 	 */
 	function alert(message) {
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-alert.html',
+			templateUrl : 'views/dialogs/mb-alert.html',
 			config : {
 				message : message
 			}
@@ -4986,7 +5012,7 @@ angular.module('mblowfish-core')
 	function confirm(message) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-confirm.html',
+			templateUrl : 'views/dialogs/mb-confirm.html',
 			config : {
 				message : message
 			}
@@ -5016,7 +5042,7 @@ angular.module('mblowfish-core')
 	function prompt(text, defaultText) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-prompt.html',
+			templateUrl : 'views/dialogs/mb-prompt.html',
 			config : {
 				message : text,
 				model : defaultText
