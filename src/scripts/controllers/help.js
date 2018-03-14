@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Help page controller
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav) {
 	$rootScope.showHelp = false;
 
 
@@ -61,11 +61,19 @@ angular.module('mblowfish-core')
 			});
 		}
 	}
-	
+
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
+//		$mdSidenav('help').close();
 	}
-	
+
+	function buildToggler() {
+		var debounceFn =  $mdUtil.debounce(function(){
+			$mdSidenav('help').toggle();
+		},300);
+		return debounceFn;
+	}
+
 	$scope.$watch('showHelp', _loadHelpContent);
 
 	$scope.$watch(function(){
