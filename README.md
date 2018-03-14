@@ -31,11 +31,9 @@ Beside that, toolbars with following IDs are defined by default:
 Toolbars will not show automatically.
 To show one or more toolbar in all pages add it as default toolbars:
 
-<code>
-
+```javascript
 	$app.setDefaultToolbars(['dashboard', 'my-toolbar']);
-	
-</code>
+```
 
 To show one or more toolbars in a page (path) add them to list of toolbars of that 
 page while define page to ngRoute.
@@ -47,8 +45,7 @@ Note: Defining list of toolbars for a page overrides list of default toolbars fo
 
 Each application using mblowfish could defines its own sidenavs.
 
-<code>
-
+```javascript
 	$app.newSidenav({
 		id : 'my-sidenav',
 		title : 'My Sidenav',
@@ -61,8 +58,7 @@ Each application using mblowfish could defines its own sidenavs.
 		},
 		position : 'start', // valid values: 'start', 'end'
 	});
-	
-</code>
+```
 
 Beside that, sidenavs with following IDs are defined by default:
 
@@ -79,11 +75,9 @@ To show a sidenav in a page you should:
 
 To add one or more sidenav in all pages add it as default sidenavs:
 
-<code>
-
+```javascript
 	$app.setDefaultSidenavs(<array of id of your sidenavs>);
-	
-</code>
+```
 
 To add one or more sidenavs in a page (path) add them to list of sidenavs of that 
 page while define page to ngRoute.
@@ -96,11 +90,9 @@ Note: Sidenavs 'halp' and 'setting' are added automatically to all pages and cou
 
 To show/hide a sidenav it is sufficient to give id of that sidenav:
 
-<code>
-
+```javascript
 	$mdSidenav(<id of sidenave>).toggle();
-
-</code>
+```
 
 For sidenavs which 'locked' is true previous code does not work. This type of sidenavs always is shown.
 If you want to hide such sidenav you should do some action such that 'visible' for that sidenav results in false value. 
@@ -108,15 +100,13 @@ If you want to hide such sidenav you should do some action such that 'visible' f
 Note: Sidenavs 'help' and 'setting' are defined and added automatically to all pages.
 So following codes (to show/hide these sidenavs) are valid in controller of all pages:
 
-<code>
-
+```javascript
 	// To toggle visibility of help sidenav
 	$rootScope.showHelp = !$rootScope.showHelp;
 	
 	// To toggle visibility of setting sidenav
 	$mdSidenav('setting').toggle();
-
-</code>
+```
 
 ## Actions
 
@@ -125,8 +115,7 @@ could define and add their own actions and organize them in different group. Aft
 
 Service $actions is used to manage actions and action groups.
 
-<code>
-
+```javascript
 	$actions.newAction({
 		id: 'my-action',
 		title: 'My Action',
@@ -144,21 +133,18 @@ Service $actions is used to manage actions and action groups.
 		accent: true, // Optional.
 		primary: true // Optional. 
 	});
-
-</code>
+```
 
 Define action groups is as follow:
 
-<code>
-
+```javascript
 	$actions.newGroup({
 		id: 'my-action-group',
 		title: 'My Action Group',
 		description: 'Description for action group',
 		priority: 10 // default value is 10
 	});
-
-</code>
+```
 
 ## Settings
 
@@ -168,8 +154,7 @@ Define action groups is as follow:
 
 Different pages (or paths) could be defined as follow:
 
-<code>
-
+```javascript
 	$routeProvider //
 	.when('/my-path', {
 		templateUrl : 'views/amh-content.html',
@@ -178,8 +163,7 @@ Different pages (or paths) could be defined as follow:
 		sidenavs: [], // Optional. If set overrides default sidenavs
 		helpId: 'help-id', // Optional. This id will be used to find json document to show help about this page
 	});
-
-</code>
+```
 
 
 
