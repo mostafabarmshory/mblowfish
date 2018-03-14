@@ -22,27 +22,18 @@
 'use strict';
 
 /**
- * @ngdoc menu
+ * @ngdoc action-group
  * @name User
  * @description Global user menu
  * 
- * There are several registred menu in the $menu service. Modules can contribute
+ * There are several registred menu in the $actions service. Modules can contribute
  * to the dashbord by addin action into it.
  * 
- * - amd.user : All action related to the current user
+ * - mb.user : All action related to the current user
+ * - mb.toolbar.menu : All action related to the toolbar menu
  * 
  */
-/**
- * @ngdoc menu
- * @name Scope
- * @description Global scope menu
- * 
- * There are several registred menu in the $menu service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - amd.user : All action related to the current user
- * 
- */
+
 
 angular.module('mblowfish-core', [ //
 //	Angular
@@ -1549,8 +1540,8 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $app) {
-	$scope.toolbarMenu = $app.getToolbarMenu();
+.controller('MbToolbarDashboardCtrl', function($scope, $actions) {
+	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2091,7 +2082,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.directive('mbNavigationBar' , function($menu) {
+.directive('mbNavigationBar' , function($actions) {
 
 	return {
 		restrict : 'E',
@@ -2107,7 +2098,7 @@ angular.module('mblowfish-core')
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
 		 */
-		scope.pathMenu = $menu.menu('navigationPathMenu');
+		scope.pathMenu = $actions.group('navigationPathMenu');
 	}
 });
 
@@ -2330,7 +2321,15 @@ angular.module('mblowfish-core')
 			_page : page,
 			_visible : function() {
 				if (angular.isFunction(this._page.visible)) {
-					return this._page.visible(this);
+					var v = this._page.visible(this);
+					if(this._page.sidenav){
+						if(v)
+							$mdSidenav(this._page.id).open();
+						else
+							$mdSidenav(this._page.id).close();
+						return v;
+					}
+					return v;
 				}
 				return true;
 			}
@@ -2397,7 +2396,7 @@ angular.module('mblowfish-core')
 				}
 			}
 			return _loadPage($scope, page,
-					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && _page.locked" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
+					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
 			'</md-sidenav>')
 			.then(function(pageElement) {
 				_sidenaves.push(pageElement);
@@ -2448,6 +2447,8 @@ angular.module('mblowfish-core')
 					} else {
 						_anchor.append(ep.element);
 					}
+
+					ep.page.sidenav = true;
 				}
 			});
 		}
@@ -3172,13 +3173,13 @@ angular.module('mblowfish-core')
  * Load current user action into the scope. It is used to show user menu
  * in several parts of the system.
  */
-.directive('mbUserMenu', function($menu, $app, $mdSidenav) {
+.directive('mbUserMenu', function($actions, $app, $mdSidenav) {
 	/**
 	 * Post link 
 	 */
 	function postLink($scope, $element, $attr) {
 		// maso, 2017: Get user menu
-		$scope.menu = $menu.menu('mb.user');
+		$scope.menu = $actions.group('mb.user');
 		$scope.logout = $app.logout;
 		$scope.settings = function(){
 			return $mdSidenav('settings').toggle();
@@ -3242,6 +3243,87 @@ angular.module('mblowfish-core')
 		},
 		controller : 'MbAccountCtrl'
 	};
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+
+.factory('Action', function() {
+
+	var action  = function(data) {
+		angular.extend(this, data, {
+			priority: 10
+		});
+		return this;
+	};
+
+	action.prototype.exec = function($event){
+		if(!this.action){
+			return;
+		}
+		this.action();
+		$event.stopPropagation();
+	}
+
+	return action;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+.factory('ActionGroup', function() {
+	var actionGroup  = function(data) {
+		angular.extend(this, (data || {}), {
+			priority: 10,
+			items: []
+		});
+	};
+
+	return actionGroup;
 });
 
 /*
@@ -3455,35 +3537,34 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($app, $rootScope, $navigator, $route, $mdSidenav) {
-	$app.getToolbarMenu()//
-	.item({
+.run(function($app, $rootScope, $navigator, $route, $mdSidenav, $actions) {
+	$actions.newAction({
+		id: 'mb.preferences',
 		priority : 15,
 		icon : 'settings',
-		label : 'Preferences',
-		tooltip : 'Open preferences panel',
+		title : 'Preferences',
+		description : 'Open preferences panel',
 		visible : function(){
 			return $rootScope.app.user.owner;
 		},
-		active : function(){
+		action : function(){
 			return $navigator.openPage('/preferences');
-		}
-	})
-	.item({ // help
+		},
+		groups:['mb.toolbar.menu']
+	});
+	$actions.newAction({ // help
+		id: 'mb.help',
 		priority : 15,
 		icon : 'help',
-		label : 'Help',
-		tooltip : 'Display help in sidenav',
+		title : 'Help',
+		description : 'Display help in sidenav',
 		visible : function(){
 			return !!$route.current.helpId;
 		},
-		active : function(){
-//			return $mdSidenav('help');
+		action : function(){
 			$rootScope.showHelp = !$rootScope.showHelp;
-			if($rootScope.showHelp){
-				return $mdSidenav('help').toggle();
-			}
-		}
+		},
+		groups:['mb.toolbar.menu']
 	});
 	
 	$app.newToolbar({
@@ -3610,18 +3691,23 @@ angular.module('mblowfish-core')
  */
 .run(function($rootScope, $saas) {
 	$rootScope.app.captcha ={};
-	$saas.setting('captcha.engine')
-	.then(function(setting){
-		$rootScope.app.captcha.engine = setting.value;
-		if(setting.value === 'recaptcha'){
-			$rootScope.app.captcha.recaptcha = {};
-			// maso,2018: get publick key form server
-			$saas.setting('captcha.engine.recaptcha.key')
-			.then(function(pk){
-				$rootScope.app.captcha.recaptcha.key = pk.value;
-			});
+	$rootScope.$watch('app.state.status', function(value){
+		if(value !== 'loading'){
+			return;
 		}
-	});
+		$saas.setting('captcha.engine')
+		.then(function(setting){
+			$rootScope.app.captcha.engine = setting.value;
+			if(setting.value === 'recaptcha'){
+				$rootScope.app.captcha.recaptcha = {};
+				// maso,2018: get publick key form server
+				$saas.setting('captcha.engine.recaptcha.key')
+				.then(function(pk){
+					$rootScope.app.captcha.recaptcha.key = pk.value;
+				});
+			}
+		});
+	})
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3909,6 +3995,136 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc service
+ * @name $$$actions
+ * @description Manage application actions
+ * 
+ */
+// TODO: maso, 2018: add document
+.service('$actions', function(Action, ActionGroup) {
+	var _actionsList = [];
+	var _actionsMap = {};
+	
+	var _groupsList = [];
+	var _groupsMap = [];
+
+	function _actions() {
+		return {
+			'items' : _actionsList
+		};
+	}
+	
+	// TODO: maso, 2018: add document
+	function _newAction(data){
+		// Add new action
+		var action = new Action(data);
+		_actionsMap[action.id] = action;
+		_actionsList.push(action);
+    	for(var i = 0; i < action.groups.length; i++){
+    		var group = _group(action.groups[i]);
+    		group.items.push(action);
+    	}
+    	if(action.scope){
+    		action.scope.$on("$destroy", function() {
+    	        _removeAction(action);
+    	    });
+    	}
+		return action;
+	}
+	
+	// TODO: maso, 2018: add document
+	function _action(actionId){
+		var action = _actionsMap[actionId];
+		if(action){
+			return action;
+		}
+	}
+	
+	// TODO: maso, 2018: add document
+	function _removeAction(action){
+		_actionsMap[action.id] = null;
+		var index = _actionsList.indexOf(action);
+	    if (index > -1) {
+	    	_actionsList.splice(index, 1);
+	    	for(var i = 0; i < action.groups.length; i++){
+	    		var group = _group(action.groups[i]);
+	    		var j = group.items.indexOf(action);
+	    		if(j > -1){
+	    			group.items.splice(j, 1);
+	    		}
+	    	}
+	    	return action;
+	    }
+	}
+	
+	// TODO: maso, 2018: add document
+	function _groups(){
+		return {
+			'items' : _groupsList
+		};
+	}
+	
+	// TODO: maso, 2018: add document
+	function _newGroup(groupData){
+		// TODO: maso, 2018: assert id
+		return _group(groupData.id, groupData);
+	}
+	
+	// TODO: maso, 2018: add document
+	function _group(groupId, groupData){
+		var group = _groupsMap[groupId];
+		if(!group){
+			group = new ActionGroup();
+			group.id = groupId;
+			_groupsMap[group.id] = group;
+			_groupsList.push(group);
+		}
+		if(groupData){
+			angular.extend(group, groupData);
+		}
+		return group;
+	}
+	
+	
+	return {
+			// actions
+			actions : _actions,
+			newAction: _newAction,
+			action: _action,
+			removeAction: _removeAction,
+			
+			// groups
+			groups: _groups,
+			newGroup: _newGroup,
+			group: _group,
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
 angular.module('mblowfish-core') //
 
 /**
@@ -3933,7 +4149,7 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $menu, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
 
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -4353,15 +4569,7 @@ angular.module('mblowfish-core') //
 		});
 	}
 	
-	/**
-	 * Returns toolbar menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getToolbarMenu() {
-		return $menu.menu('amd.toolbars.main.menu');
-	}
-	
+
 	var _toolbars = [];
 
 	/**
@@ -4502,10 +4710,6 @@ angular.module('mblowfish-core') //
 	apps.setDefaultSidenavs = setDefaultSidenavs;
 	apps.defaultSidenavs = defaultSidenavs;
 
-	apps.getToolbarMenu = getToolbarMenu;
-//	apps.getScopeMenu = getScopeMenu;
-//	apps.scopeMenu = scopeMenu;
-	
 	return apps;
 });
 /*
@@ -4727,7 +4931,7 @@ angular.module('mblowfish-core')
  * An item is a single navigation part wich may be a page, link, action, and etc.
  * 
  */
-.service('$navigator', function($q, $route, $mdDialog, $location, $window, $menu) {
+.service('$navigator', function($q, $route, $mdDialog, $location, $window) {
 
 	var _items = [];
 	var _groups = [];
@@ -4890,43 +5094,12 @@ angular.module('mblowfish-core')
 		// XXX: maso, 2017: check if page is the current one
 		return false;
 	}
-	
-	/**
-	 * Set navigation path
-	 * 
-	 * A navigation path is a list of path item (link and title) to show in
-	 * navigation bar. Controllers are free to set navigation path. The path
-	 * will be drup by the controller distraction.
-	 * 
-	 * @return Menu to add path items
-	 */
-	function scopePath(scope){
-		scope.$on('$destroy', function() {
-			$menu //
-			.menu('navigationPathMenu')//
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('navigationPathMenu', menu);
-				return this;
-			}
-			this.clear = function(){
-				$menu//
-				.menu('navigationPathMenu')//
-				.clear();
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
 
 	return {
 		loadAllItems : loadAllItems,
 		openDialog : openDialog,
 		openPage: openPage,
 		isPageSelected: isPageSelected,
-		scopePath: scopePath,
 		// Itmes
 		items : items,
 		newItem: newItem,
@@ -5443,7 +5616,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleItemsList() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button>             <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleItemsList() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button>             <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
   );
 
 }]);

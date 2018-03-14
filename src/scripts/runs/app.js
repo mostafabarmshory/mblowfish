@@ -26,8 +26,7 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function($app, $rootScope, $navigator, $route, $mdSidenav, $actions) {
-	$actions.//
-	newAction({
+	$actions.newAction({
 		id: 'mb.preferences',
 		priority : 15,
 		icon : 'settings',
@@ -40,8 +39,8 @@ angular.module('mblowfish-core')
 			return $navigator.openPage('/preferences');
 		},
 		groups:['mb.toolbar.menu']
-	})
-	.newAction({ // help
+	});
+	$actions.newAction({ // help
 		id: 'mb.help',
 		priority : 15,
 		icon : 'help',

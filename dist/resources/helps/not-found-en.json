@@ -1,0 +1,23 @@
+{
+	"type": "Page",
+	"label": "Main Page",
+	"description": "Main page",
+	"style": {
+		"layout": "column",
+		"borderRadius": {},
+		"borderStyleColorWidth": {},
+		"borderStyle": {},
+		"borderWidth": {},
+		"borderColor": {},
+		"flexDirection": "wb-flex-column",
+		"padding": {},
+		"margin": {}
+	},
+	"contents": [
+		{
+			"text": "<h2>Help not found!</h2><p>Help content for requested page not found.</p>",
+			"type": "HtmlText",
+			"name": "Widget"
+		}
+	]
+}
