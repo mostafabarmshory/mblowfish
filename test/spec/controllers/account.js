@@ -21,7 +21,7 @@
  */
 'use strict';
 
-describe('AmdAccountCtrl ', function() {
+describe('MbAccountCtrl ', function() {
 
 	// load the controller's module
 	beforeEach(module('mblowfish-core'));
@@ -48,7 +48,7 @@ describe('AmdAccountCtrl ', function() {
 	// Initialize the controller and a mock scope
 	beforeEach(inject(function($controller, $rootScope) {
 		scope = $rootScope.$new();
-		LoginCtrl = $controller('AmdAccountCtrl', {
+		LoginCtrl = $controller('MbAccountCtrl', {
 			$scope : scope,
 			$app : app,
 			$navigator: navigator
