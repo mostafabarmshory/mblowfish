@@ -57,7 +57,7 @@ angular.module('mblowfish-core')
     	        _removeAction(action);
     	    });
     	}
-		return action;
+		return this;
 	}
 	
 	// TODO: maso, 2018: add document
@@ -94,7 +94,9 @@ angular.module('mblowfish-core')
 	
 	// TODO: maso, 2018: add document
 	function _newGroup(groupData){
-		return _group(groupData.id, groupData);
+		// TODO: maso, 2018: assert id
+		_group(groupData.id, groupData);
+		return this;
 	}
 	
 	// TODO: maso, 2018: add document

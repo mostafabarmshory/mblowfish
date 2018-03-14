@@ -44,7 +44,7 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $menu, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
 
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -464,15 +464,7 @@ angular.module('mblowfish-core') //
 		});
 	}
 	
-	/**
-	 * Returns toolbar menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getToolbarMenu() {
-		return $menu.menu('amd.toolbars.main.menu');
-	}
-	
+
 	var _toolbars = [];
 
 	/**
@@ -613,9 +605,5 @@ angular.module('mblowfish-core') //
 	apps.setDefaultSidenavs = setDefaultSidenavs;
 	apps.defaultSidenavs = defaultSidenavs;
 
-	apps.getToolbarMenu = getToolbarMenu;
-//	apps.getScopeMenu = getScopeMenu;
-//	apps.scopeMenu = scopeMenu;
-	
 	return apps;
 });

@@ -71,7 +71,15 @@ angular.module('mblowfish-core')
 			_page : page,
 			_visible : function() {
 				if (angular.isFunction(this._page.visible)) {
-					return this._page.visible(this);
+					var v = this._page.visible(this);
+					if(this._page.sidenav){
+						if(v)
+							$mdSidenav(this._page.id).open();
+						else
+							$mdSidenav(this._page.id).close();
+						return v;
+					}
+					return v;
 				}
 				return true;
 			}
@@ -138,7 +146,7 @@ angular.module('mblowfish-core')
 				}
 			}
 			return _loadPage($scope, page,
-					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && _page.locked" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
+					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
 			'</md-sidenav>')
 			.then(function(pageElement) {
 				_sidenaves.push(pageElement);
@@ -189,6 +197,8 @@ angular.module('mblowfish-core')
 					} else {
 						_anchor.append(ep.element);
 					}
+
+					ep.page.sidenav = true;
 				}
 			});
 		}

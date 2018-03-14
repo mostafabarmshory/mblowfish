@@ -32,18 +32,20 @@
 	<md-button
 		ng-repeat="menu in scopeMenu.items | orderBy:['-priority']"
 		ng-show="menu.visible()"
-		ng-click="menu.active()"
+		ng-href="{{menu.url}}"
+		ng-click="menu.exec($event);"
 		class="md-icon-button">
-		<md-tooltip ng-if="menu.tooltip">{{menu.tooltip}}</md-tooltip>
+		<md-tooltip ng-if="menu.tooltip">{{menu.description}}</md-tooltip>
 		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
 	</md-button>
 	<md-divider ng-if="scopeMenu.items.length"></md-divider>
 	<md-button
 		ng-repeat="menu in toolbarMenu.items | orderBy:['-priority']"
 		ng-show="menu.visible()"
-		ng-click="menu.active()"
+		ng-href="{{menu.url}}"
+		ng-click="menu.exec($event);"
 		class="md-icon-button">
-		<md-tooltip ng-if="menu.tooltip">{{menu.tooltip}}</md-tooltip>
+		<md-tooltip ng-if="menu.tooltip">{{menu.description}}</md-tooltip>
 		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
 	</md-button>
 	

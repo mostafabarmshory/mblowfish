@@ -33,6 +33,13 @@ angular.module('mblowfish-core')
 		return this;
 	};
 
+	action.prototype.exec = function($event){
+		if(!this.action){
+			return;
+		}
+		this.action();
+		$event.stopPropagation();
+	}
 
 	return action;
 });

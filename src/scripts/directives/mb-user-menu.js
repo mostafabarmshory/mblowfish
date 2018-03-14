@@ -33,13 +33,13 @@ angular.module('mblowfish-core')
  * Load current user action into the scope. It is used to show user menu
  * in several parts of the system.
  */
-.directive('mbUserMenu', function($menu, $app, $mdSidenav) {
+.directive('mbUserMenu', function($actions, $app, $mdSidenav) {
 	/**
 	 * Post link 
 	 */
 	function postLink($scope, $element, $attr) {
 		// maso, 2017: Get user menu
-		$scope.menu = $menu.menu('mb.user');
+		$scope.menu = $actions.group('mb.user');
 		$scope.logout = $app.logout;
 		$scope.settings = function(){
 			return $mdSidenav('settings').toggle();

@@ -25,35 +25,35 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($app, $rootScope, $navigator, $route, $mdSidenav) {
-	$app.getToolbarMenu()//
-	.item({
+.run(function($app, $rootScope, $navigator, $route, $mdSidenav, $actions) {
+	$actions.//
+	newAction({
+		id: 'mb.preferences',
 		priority : 15,
 		icon : 'settings',
-		label : 'Preferences',
-		tooltip : 'Open preferences panel',
+		title : 'Preferences',
+		description : 'Open preferences panel',
 		visible : function(){
 			return $rootScope.app.user.owner;
 		},
-		active : function(){
+		action : function(){
 			return $navigator.openPage('/preferences');
-		}
+		},
+		groups:['mb.toolbar.menu']
 	})
-	.item({ // help
+	.newAction({ // help
+		id: 'mb.help',
 		priority : 15,
 		icon : 'help',
-		label : 'Help',
-		tooltip : 'Display help in sidenav',
+		title : 'Help',
+		description : 'Display help in sidenav',
 		visible : function(){
 			return !!$route.current.helpId;
 		},
-		active : function(){
-//			return $mdSidenav('help');
+		action : function(){
 			$rootScope.showHelp = !$rootScope.showHelp;
-			if($rootScope.showHelp){
-				return $mdSidenav('help').toggle();
-			}
-		}
+		},
+		groups:['mb.toolbar.menu']
 	});
 	
 	$app.newToolbar({

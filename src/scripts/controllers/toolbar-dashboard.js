@@ -29,6 +29,6 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $app) {
-	$scope.toolbarMenu = $app.getToolbarMenu();
+.controller('MbToolbarDashboardCtrl', function($scope, $actions) {
+	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
 });

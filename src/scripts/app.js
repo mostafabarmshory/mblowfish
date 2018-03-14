@@ -22,27 +22,18 @@
 'use strict';
 
 /**
- * @ngdoc menu
+ * @ngdoc action-group
  * @name User
  * @description Global user menu
  * 
- * There are several registred menu in the $menu service. Modules can contribute
+ * There are several registred menu in the $actions service. Modules can contribute
  * to the dashbord by addin action into it.
  * 
- * - amd.user : All action related to the current user
+ * - mb.user : All action related to the current user
+ * - mb.toolbar.menu : All action related to the toolbar menu
  * 
  */
-/**
- * @ngdoc menu
- * @name Scope
- * @description Global scope menu
- * 
- * There are several registred menu in the $menu service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - amd.user : All action related to the current user
- * 
- */
+
 
 angular.module('mblowfish-core', [ //
 //	Angular

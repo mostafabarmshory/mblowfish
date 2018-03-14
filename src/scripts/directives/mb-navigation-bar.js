@@ -35,7 +35,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.directive('mbNavigationBar' , function($menu) {
+.directive('mbNavigationBar' , function($actions) {
 
 	return {
 		restrict : 'E',
@@ -51,6 +51,6 @@ angular.module('mblowfish-core')
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
 		 */
-		scope.pathMenu = $menu.menu('navigationPathMenu');
+		scope.pathMenu = $actions.group('navigationPathMenu');
 	}
 });
