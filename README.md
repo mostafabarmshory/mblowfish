@@ -12,7 +12,7 @@
 
 Each application using mblowfish could defines its own toolbars.
 
-<code>
+```javascript
 
 	$app.newToolbar({
 		id: 'my-toolbar',
@@ -24,7 +24,7 @@ Each application using mblowfish could defines its own toolbars.
 		raw: true // Optional. Determines DOM element of this toolbar is a toolbar itself and should not be wrapped to toolbar
 	});
 	
-</code>
+```
 
 Beside that, toolbars with following IDs are defined by default:
 
