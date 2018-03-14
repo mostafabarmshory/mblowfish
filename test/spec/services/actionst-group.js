@@ -21,27 +21,47 @@
  */
 'use strict';
 
-angular.module('mblowfish-core')
-/*
- * 
- */
-.run(function($rootScope, $saas) {
-	$rootScope.app.captcha ={};
-	$rootScope.$watch('app.state.status', function(value){
-		if(value !== 'loading'){
-			return;
-		}
-		$saas.setting('captcha.engine')
-		.then(function(setting){
-			$rootScope.app.captcha.engine = setting.value;
-			if(setting.value === 'recaptcha'){
-				$rootScope.app.captcha.recaptcha = {};
-				// maso,2018: get publick key form server
-				$saas.setting('captcha.engine.recaptcha.key')
-				.then(function(pk){
-					$rootScope.app.captcha.recaptcha.key = pk.value;
-				});
-			}
-		});
-	})
+describe('Actions service', function() {
+
+	// load the controller's module
+	beforeEach(module('mblowfish-core'));
+
+	var $actions;
+	var $rootScope;
+	var $timeout;
+
+	// Initialize the controller and a mock scope
+	beforeEach(inject(function(_$actions_, _$rootScope_, _$timeout_) {
+		$actions = _$actions_;
+		$rootScope = _$rootScope_;
+		$timeout = _$timeout_;
+	}));
+
+	it('should attach function to add a group', function() {
+		expect(angular.isFunction($actions.newGroup)).toBe(true);
+	});
+
+	it('should attach function to get a group', function() {
+		expect(angular.isFunction($actions.group)).toBe(true);
+	});
+
+	it('should attach function to get groups', function() {
+		expect(angular.isFunction($actions.groups)).toBe(true);
+	});
+
+	var groupData = {
+			id: 'example',
+			title: 'title',
+			description: 'example',
+	};
+
+
+	it('soulds load attributes of auto created group', function (){
+		var group = $actions.group(groupData.id)
+		expect(group).not.toBe(null);
+
+		var g2 = $actions.newGroup(groupData)
+		expect(g2).not.toBe(null);
+		expect(g2.title).toBe(groupData.title);
+	});
 });

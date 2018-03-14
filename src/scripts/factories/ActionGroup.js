@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,15 @@
  * SOFTWARE.
  */
 'use strict';
-
 angular.module('mblowfish-core')
-/*
- * 
- */
-.run(function($rootScope, $saas) {
-	$rootScope.app.captcha ={};
-	$rootScope.$watch('app.state.status', function(value){
-		if(value !== 'loading'){
-			return;
-		}
-		$saas.setting('captcha.engine')
-		.then(function(setting){
-			$rootScope.app.captcha.engine = setting.value;
-			if(setting.value === 'recaptcha'){
-				$rootScope.app.captcha.recaptcha = {};
-				// maso,2018: get publick key form server
-				$saas.setting('captcha.engine.recaptcha.key')
-				.then(function(pk){
-					$rootScope.app.captcha.recaptcha.key = pk.value;
-				});
-			}
+
+.factory('ActionGroup', function() {
+	var actionGroup  = function(data) {
+		angular.extend(this, (data || {}), {
+			priority: 10,
+			items: []
 		});
-	})
+	};
+
+	return actionGroup;
 });
