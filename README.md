@@ -37,7 +37,7 @@ To show one or more toolbar in all pages add it as default toolbars:
 
 	$app.setDefaultToolbars(['dashboard', 'my-toolbar']);
 	
-</code
+</code>
 
 To show one or more toolbars in a page (path) add them to list of toolbars of that 
 page while define page to ngRoute.
@@ -85,7 +85,7 @@ To add one or more sidenav in all pages add it as default sidenavs:
 
 	$app.setDefaultSidenavs(<array of id of your sidenavs>);
 	
-</code
+</code>
 
 To add one or more sidenavs in a page (path) add them to list of sidenavs of that 
 page while define page to ngRoute.
