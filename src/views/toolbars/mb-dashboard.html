@@ -67,7 +67,7 @@
 	<md-button
 		ng-repeat="menu in userMenu.items | orderBy:['-priority']"
 		ng-show="menu.visible()"
-		ng-click="menu.exec()"
+		ng-click="menu.exec($event)"
 		class="md-icon-button">
 		<md-tooltip ng-if="menu.tooltip">{{menu.tooltip}}</md-tooltip>
 		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
