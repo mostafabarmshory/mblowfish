@@ -5483,7 +5483,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-click=menu.active() class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
   );
 
 
