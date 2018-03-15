@@ -32,6 +32,8 @@
  * - mb.user : All action related to the current user
  * - mb.toolbar.menu : All action related to the toolbar menu
  * 
+ * - navigationPathMenu: All items related to navigation.
+ * 
  */
 
 
