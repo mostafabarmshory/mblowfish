@@ -7,7 +7,7 @@
 		ng-if="pathMenu.items.length">navigation</wb-icon>
 	<md-button
 		data-ng-repeat="menu in pathMenu.items | orderBy:['-priority']"
-		ng-show="menu.visible()"
+		ng-show="isVisible(menu)"
 		ng-href="{{menu.url}}"
 		ng-click="menu.exec($event);"
 		class="mb-navigation-path-bar-item">
