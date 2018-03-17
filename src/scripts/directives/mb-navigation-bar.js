@@ -48,9 +48,22 @@ angular.module('mblowfish-core')
 	 * Init the bar
 	 */
 	function postLink(scope, element, attr) {
+		
+		scope.isVisible = function(menu){
+			// default value for visible is true
+			if(angular.isUndefined(menu.visible)){
+				return true;
+			}
+			if(angular.isFunction(menu.visible)){
+				return menu.visible();
+			}
+			return menu.visible;
+		};
+		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
 		 */
 		scope.pathMenu = $actions.group('navigationPathMenu');
+		
 	}
 });
