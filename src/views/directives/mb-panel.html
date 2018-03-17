@@ -1,13 +1,13 @@
 <div id="mb-panel-root"
 	md-theme="{{app.setting.theme || 'default'}}" 
 	md-theme-watch
+	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
+	dir="{{app.dir}}"
 	layout="column"
 	layout-fill>
 
 	<div id="mb-panel-root-ready"
 		ng-show="app.state.status === 'ready'"
-		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-		dir="{{app.dir}}"
 		layout="column"
 		layout-fill>
 		
@@ -32,10 +32,6 @@
 	</div>
 
 	<div ng-if="app.state.status === 'loading'"
-		md-theme="{{app.setting.theme || 'default'}}" 
-		md-theme-watch
-		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-		dir="{{app.dir}}"
 		layout="column"
 		layout-align="center center"
 		layout-fill>
@@ -54,8 +50,6 @@
 	</div>
 
 	<div ng-if="app.state.status === 'anonymous'"
-		md-theme-watch
-		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 		layout="row"
 		layout-aligne="none"
 		layout-align-gt-sm="center center"
