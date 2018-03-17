@@ -20,16 +20,27 @@
 			  <input ng-model="user.email" type="email">
 			</md-input-container>
 			--
-			<mb-badge>12</mb-badge>
+			<mb-badge
+				mb-badge-color="primary-300"
+				mb-badge-fill="accent-100">
+				single badge
+			</mb-badge>
 			--
 			<wb-icon 
 				mb-badge="12" 
 				mb-badge-color="primary"
 				mb-badge-fill="accent">notifications</wb-icon>
 			--
-			<ng-md-icon mb-badge="12" icon="notifications"></ng-md-icon>
+			<ng-md-icon 
+				mb-badge="12" 
+				icon="notifications">
+			</ng-md-icon>
 			
-			<md-button mb-badge="13">Hi</md-button>
+			<md-button 
+				class="md-primary md-raised"
+				mb-badge="13">
+					Hi
+			</md-button>
 		</div>
 	</div>
 </md-content>
