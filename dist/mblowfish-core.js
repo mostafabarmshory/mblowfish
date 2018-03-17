@@ -2097,10 +2097,23 @@ angular.module('mblowfish-core')
 	 * Init the bar
 	 */
 	function postLink(scope, element, attr) {
+		
+		scope.isVisible = function(menu){
+			// default value for visible is true
+			if(angular.isUndefined(menu.visible)){
+				return true;
+			}
+			if(angular.isFunction(menu.visible)){
+				return menu.visible();
+			}
+			return menu.visible;
+		};
+		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
 		 */
 		scope.pathMenu = $actions.group('navigationPathMenu');
+		
 	}
 });
 
@@ -5483,7 +5496,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
   );
 
 
@@ -5493,7 +5506,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch layout=column layout-fill> <div id=mb-panel-root-ready ng-show=\"app.state.status === 'ready'\" ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=\"ctrl.state ==='working'\">  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>User name</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>  <div vc-recaptcha key=\"'6LeuFzkUAAAAALniqtqd60Ca4iG8Kqx8rpMmUjEF'\" ng-model=\"credit['g-recaptcha-response']\" ng-if=\"captcha.type=='recaptcha'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit) translate>login</md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill> <div id=mb-panel-root-ready ng-show=\"app.state.status === 'ready'\" layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=\"ctrl.state ==='working'\">  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>User name</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>  <div vc-recaptcha key=\"'6LeuFzkUAAAAALniqtqd60Ca4iG8Kqx8rpMmUjEF'\" ng-model=\"credit['g-recaptcha-response']\" ng-if=\"captcha.type=='recaptcha'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit) translate>login</md-button> </div> </form> </div> </div> </div>"
   );
 
 
