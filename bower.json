@@ -16,7 +16,7 @@
     "angular-messages": "^1.6.0",
     "angular-route": "^1.6.0",
     "angular-nvd3": "^1.0.9",
-    "angular-pluf": "^1.1.7",
+    "seen-core": "https://gitlab.com/seen/angular/seen-tenant.git#^1.1.0",
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#^1.1.0",
     "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#^1.0.0",
     "am-wb-common": "https://gitlab.com/am-wb/am-wb-common.git#^1.0.0",

@@ -45,6 +45,7 @@ angular.module('mblowfish-core', [ //
 	'ngSanitize', //
 	'ngRoute', //
 //	Seen
+	'seen-core',
 	'seen-tenant',
 //	AM-WB
 	'am-wb-core', 
