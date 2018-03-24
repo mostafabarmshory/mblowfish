@@ -5451,7 +5451,7 @@ angular.module('mblowfish-core')
 	/**
 	 * Creates configuration/setting page.
 	 */
-	function createPage(page){
+	function newPage(page){
 		_pages.push(page);
 		return app;
 	}
@@ -5459,7 +5459,7 @@ angular.module('mblowfish-core')
 	var app = {
 			pages : pages,
 			page: getPage,
-			newPage : createPage,
+			newPage : newPage,
 	};
 	return app;
 });
@@ -5566,7 +5566,7 @@ angular.module('mblowfish-core')
 	 * @param page
 	 * @returns
 	 */
-	function createPage(page){
+	function newPage(page){
 		preferences.push(page);
 		return this;
 	}
@@ -5574,7 +5574,7 @@ angular.module('mblowfish-core')
 	return  {
 		'pages' : pages,
 		'page': page,
-		'newPage': createPage,
+		'newPage': newPage,
 		'openPage' : open,
 	};
 });

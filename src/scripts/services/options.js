@@ -64,7 +64,7 @@ angular.module('mblowfish-core')
 	/**
 	 * Creates configuration/setting page.
 	 */
-	function createPage(page){
+	function newPage(page){
 		_pages.push(page);
 		return app;
 	}
@@ -72,7 +72,7 @@ angular.module('mblowfish-core')
 	var app = {
 			pages : pages,
 			page: getPage,
-			newPage : createPage,
+			newPage : newPage,
 	};
 	return app;
 });
