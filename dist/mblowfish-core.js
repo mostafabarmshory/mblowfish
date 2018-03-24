@@ -3480,6 +3480,7 @@ angular.module('mblowfish-core')
 		angular.extend(this, data, {
 			priority: 10
 		});
+		this.visible = this.visible || function(){return true;};
 		return this;
 	};
 
