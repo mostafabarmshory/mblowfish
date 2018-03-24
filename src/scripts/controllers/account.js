@@ -36,7 +36,6 @@ angular.module('mblowfish-core')
 	 * Store controller state
 	 */
 	var ctrl = {
-			loadUser: false,
 			changingPassword: false
 	};
 
