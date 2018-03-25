@@ -25,11 +25,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdThemesCtrl
+ * @name MbThemesCtrl
  * @description Dashboard
  * 
  */
-.controller('AmdThemesCtrl', function($scope, $mdTheming) {
+.controller('MbThemesCtrl', function($scope, $mdTheming) {
 	$scope.themes =[];
 	angular.forEach($mdTheming.THEMES, function(value, key){
 		$scope.themes.push({

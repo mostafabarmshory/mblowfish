@@ -72,6 +72,7 @@ angular.module('mblowfish-core')
 	});
 	$options.newPage({
 		title: 'Theme',
+		controller: 'MbThemesCtrl',
 		templateUrl: 'views/options/mb-theme.html',
 		tags: ['theme']
 	});

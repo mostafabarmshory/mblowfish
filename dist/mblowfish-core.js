@@ -1380,11 +1380,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdThemesCtrl
+ * @name MbThemesCtrl
  * @description Dashboard
  * 
  */
-.controller('AmdThemesCtrl', function($scope, $mdTheming) {
+.controller('MbThemesCtrl', function($scope, $mdTheming) {
 	$scope.themes =[];
 	angular.forEach($mdTheming.THEMES, function(value, key){
 		$scope.themes.push({
@@ -3949,6 +3949,7 @@ angular.module('mblowfish-core')
 	});
 	$options.newPage({
 		title: 'Theme',
+		controller: 'MbThemesCtrl',
 		templateUrl: 'views/options/mb-theme.html',
 		tags: ['theme']
 	});
@@ -5576,7 +5577,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/options/mb-theme.html',
-    "<md-input-container ng-controller=AmdThemesCtrl class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container>"
+    "<md-input-container class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container>"
   );
 
 
