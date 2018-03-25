@@ -3315,7 +3315,7 @@ angular.module('mblowfish-core')
  * Display tree menu
  * 
  */
-.directive('mbUserToolbar', function($animate) {
+.directive('mbUserToolbar', function($actions) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -3324,7 +3324,7 @@ angular.module('mblowfish-core')
 //		},
 		templateUrl: 'views/directives/mb-user-toolbar.html',
 		link: function($scope, $element, $attr, $ctrl) {
-			// TODO: maso, 2017:
+			$scope.menu = $actions.group('mb.user');
 		},
 		controller : 'MbAccountCtrl'
 	};
