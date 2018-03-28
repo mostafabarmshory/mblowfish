@@ -48,10 +48,12 @@ angular.module('mblowfish-core')
 		var action = new Action(data);
 		_actionsMap[action.id] = action;
 		_actionsList.push(action);
-    	for(var i = 0; i < action.groups.length; i++){
-    		var group = _group(action.groups[i]);
-    		group.items.push(action);
-    	}
+		if(action.groups){			
+			for(var i = 0; i < action.groups.length; i++){
+				var group = _group(action.groups[i]);
+				group.items.push(action);
+			}
+		}
     	if(action.scope){
     		action.scope.$on("$destroy", function() {
     	        _removeAction(action);
