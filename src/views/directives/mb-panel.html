@@ -87,7 +87,7 @@
 				layout="column" 
 				layout-padding>
 		        <md-input-container>
-		            <label translate>User name</label>
+		            <label translate>Username</label>
 		            <input name="login" ng-model="credit.login" type="text" required>
 		            <div ng-messages="loginForm.login.$error">
 						<div ng-message="required" translate>This is required!</div>
@@ -121,8 +121,7 @@
 		        	<md-button 
 		        		flex-order="0" 
 	      		  		class="md-primary md-raised" 
-		        		ng-click="login(credit)"
-		        		translate>login</md-button>
+		        		ng-click="login(credit)"><span translate>Login</span></md-button>
 		        </div>
 			</form>
 		</div>
