@@ -55,7 +55,7 @@ angular.module('mblowfish-core')
 		function setValue() {
 			var date = moment(scope.date) //
 			.utc() //
-			.format('YYYY-MM-DD HH:mm');
+			.format('YYYY-MM-DD HH:mm:ss');
 			ngModelCtrl.$setViewValue(date);
 		}
 
