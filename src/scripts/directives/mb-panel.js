@@ -280,7 +280,9 @@ angular.module('mblowfish-core')
 
 //		_reloadUi();
 		$scope.$watch(function(){
-			return $route.current;
+			if(!$route.current)
+				return false;
+			return $route.current.$$route.originalPath + '_@_' + $rootScope.app.state.status;
 		}, _reloadUi);
 	}
 
