@@ -168,7 +168,7 @@
 /*************************************************
  * Style of all tables
  *************************************************/
-table.amd-table {
+table.mb-table {
 	border: none;
 	margin: 0;
 	padding: 0;
@@ -177,19 +177,19 @@ table.amd-table {
 	border-collapse: collapse;
 }
 
-table.amd-table caption {
+table.mb-table caption {
 	font-size: 14px;
 	margin: 2px;
 }
 
-table.amd-table tr {
+table.mb-table tr {
 	border-bottom: 1px solid #6a7475;
 }
 
 /*************************************************
- * amd-table-description
+ * mb-table-description
  *************************************************/
-table.amd-table-description tr td:first-child {
+table.mb-table-description tr td:first-child {
 	font-weight: bold;
 }
 /*
