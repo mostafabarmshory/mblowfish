@@ -112,12 +112,20 @@
 		        		<!-- TODO: maso, 2018: add password recovery -->
 		        	</div>
 		        		<!-- TODO: maso, 2018: Enable recaptcha -->
-		        	<div
-						vc-recaptcha
-						key="'6LeuFzkUAAAAALniqtqd60Ca4iG8Kqx8rpMmUjEF'"
-						ng-model="credit['g-recaptcha-response']"
-						ng-if="captcha.type=='recaptcha'">
+  	<!-- 			<amh-captcha -->
+	<!-- 			    ng-model="credit.g_recaptcha_response">Hi -->
+	<!-- 			</amh-captcha> -->
+					<!-- XXX: maso, 2018: adding captcha -->
+					<div
+						ng-if="app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key"
+					    vc-recaptcha
+					    ng-model="credit.g_recaptcha_response"
+					    theme="app.captcha.theme || 'light'"
+					    type="app.captcha.type || 'image'"
+					    key="app.captcha.recaptcha.key"
+					    lang="app.captcha.language || 'fa'">
 					</div>
+				        	
 			        <input hide type="submit" />
 		        	<md-button 
 		        		flex-order="0" 
