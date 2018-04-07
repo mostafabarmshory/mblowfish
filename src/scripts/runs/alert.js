@@ -47,7 +47,7 @@ angular.module('mblowfish-core')
 	 */
 	window.alert = function(message) {
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amd-alert.html',
+			templateUrl : 'views/dialogs/mb-alert.html',
 			config : {
 				message : message
 			}
@@ -76,7 +76,7 @@ angular.module('mblowfish-core')
 	window.confirm = function(message) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amd-confirm.html',
+			templateUrl : 'views/dialogs/mb-confirm.html',
 			config : {
 				message : message
 			}
@@ -106,7 +106,7 @@ angular.module('mblowfish-core')
 	window.prompt = function(text, defaultText) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amd-prompt.html',
+			templateUrl : 'views/dialogs/mb-prompt.html',
 			config : {
 				message : text,
 				model : defaultText
@@ -127,4 +127,12 @@ angular.module('mblowfish-core')
 		}
 		return $mdToast.show(toast);
 	};
+
+
+	// XXX: Hadi 1396-12-22: کد زیر توی amh بود.
+//	window.alert = $notification.alert;
+//	window.confirm = $notification.confirm;
+//	window.prompt = $notification.prompt;
+//	window.toast = $notification.toast;
+	
 });

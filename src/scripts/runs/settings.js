@@ -25,45 +25,55 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($settings) {
+.run(function($options, $preferences) {
 	// Pages
-	$settings
-	.newConfig({
+	$preferences
+	.newPage({
 		id : 'local',
 		title : 'local',
 		description : 'manage dashboard locality and language.',
-		templateUrl : 'views/preferences/md-local.html',
-		controller : 'settingsLocalCtrl',
+		templateUrl : 'views/preferences/mb-local.html',
+//		controller : 'settingsLocalCtrl',
 		icon : 'language',
 		tags : [ 'local', 'language' ],
 	})//
-	.newConfig({
+	.newPage({
 		id : 'brand',
 		title : 'Branding',
 		description : 'Manage application branding such as title, logo and descritpions.',
-		templateUrl : 'views/preferences/md-brand.html',
-		controller : 'settingsBrandCtrl',
+		templateUrl : 'views/preferences/mb-brand.html',
+//		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
+		priority: 2,
+		required: true,
 		tags : [ 'brand' ],
 	})//
-	.newConfig({
+	.newPage({
 		id : 'google-analytic',
 		title : 'Google Analytic',
 		templateUrl : 'views/preferences/mb-google-analytic.html',
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
 		tags : [ 'analysis' ],
+	})
+	.newPage({
+		id: 'update',
+		templateUrl : 'views/preferences/update.html',
+		title: 'Update application',
+		description: 'Settings of updating process and how to update the application.',
+		icon: 'autorenew'
 	});
 	
 	// Settings
-	$settings.newSetting({
+	$options.newPage({
 		title: 'Local',
-		templateUrl: 'views/settings/mb-local.html',
+		templateUrl: 'views/options/mb-local.html',
 		tags: ['local']
 	});
-	$settings.newSetting({
+	$options.newPage({
 		title: 'Theme',
-		templateUrl: 'views/settings/mb-theme.html',
+		controller: 'MbThemesCtrl',
+		templateUrl: 'views/options/mb-theme.html',
 		tags: ['theme']
 	});
 });

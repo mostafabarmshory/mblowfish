@@ -22,27 +22,20 @@
 'use strict';
 
 /**
- * @ngdoc menu
+ * @ngdoc action-group
  * @name User
  * @description Global user menu
  * 
- * There are several registred menu in the $menu service. Modules can contribute
+ * There are several registred menu in the $actions service. Modules can contribute
  * to the dashbord by addin action into it.
  * 
- * - amd.user : All action related to the current user
+ * - mb.user : All action related to the current user
+ * - mb.toolbar.menu : All action related to the toolbar menu
+ * 
+ * - navigationPathMenu: All items related to navigation.
  * 
  */
-/**
- * @ngdoc menu
- * @name Scope
- * @description Global scope menu
- * 
- * There are several registred menu in the $menu service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - amd.user : All action related to the current user
- * 
- */
+
 
 angular.module('mblowfish-core', [ //
 //	Angular
@@ -52,6 +45,7 @@ angular.module('mblowfish-core', [ //
 	'ngSanitize', //
 	'ngRoute', //
 //	Seen
+	'seen-core',
 	'seen-tenant',
 //	AM-WB
 	'am-wb-core', 
@@ -66,6 +60,7 @@ angular.module('mblowfish-core', [ //
 	'nvd3',//
 	'ng-appcache',//
 	'ngFileSaver',//
+	'mdSteppers',//
 	'angular-material-persian-datepicker'
 ]);
 
@@ -181,11 +176,20 @@ angular.module('mblowfish-core')
 	$routeProvider//
 	/**
 	 * @ngdoc ngRoute
+	 * @name /initialization
+	 * @description Initial page
+	 */
+	.when('/initialization', {
+		templateUrl : 'views/mb-initial.html',
+		controller : 'MbInitialCtrl'
+	})
+	/**
+	 * @ngdoc ngRoute
 	 * @name /preferences
 	 * @description preferences pages
 	 */
 	.when('/preferences', {
-		templateUrl : 'views/amh-preferences.html',
+		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
 		helpId: 'preferences',
 	}) //
@@ -203,7 +207,7 @@ angular.module('mblowfish-core')
 	 * - pageNotFound
 	 */
 	.when('/preferences/:preferenceId', {
-		templateUrl : 'views/amh-preference.html',
+		templateUrl : 'views/mb-preference.html',
 		controller : 'MbPreferenceCtrl',
 		helpId: function(currentState){
 			return 'preference-' + currentState.params['preferenceId'];
@@ -293,128 +297,6 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-
-/**
- * @ngdoc controller
- * @name MainController
- * @description Dashboard
- * 
- */
-.controller('MainController2',function($scope, $navigator, $mdSidenav, $mdBottomSheet, $log, $q,
-		$mdToast, $usr, $route, $location, $monitor, $rootScope,
-		$app) {
-
-	var vm = $scope;
-
-	vm.menuItems = [];
-	vm.selectItem = selectItem;
-	vm.toggleItemsList = toggleItemsList;
-	vm.showActions = showActions;
-	// vm.title = $route.current.config.title;
-	vm.showSimpleToast = showSimpleToast;
-	vm.toggleSidebar = toggleSidebar;
-	vm.toggleRightSidebar = toggleRightSidebar;
-
-	$navigator.loadAllItems()//
-	.then(function(menuItems) {
-		vm.menuItems = [].concat(menuItems);
-	});
-
-
-	// $view service
-	function toggleRightSidebar() {
-		toggleSidebar('right');
-	}
-
-	function toggleSidebar(id) {
-		return $mdSidenav(id).toggle();
-	}
-
-	function toggleItemsList() {
-		var pending = $mdBottomSheet.hide() || $q.when(true);
-		pending.then(function() {
-			toggleSidebar('left');
-		});
-	}
-
-	function selectItem(item) {
-		vm.title = item.config.name;
-		vm.toggleItemsList();
-		vm.showSimpleToast(vm.title);
-	}
-
-	// $shortcut service
-	function showActions($event) {
-		$mdBottomSheet.show(
-				{
-					parent : angular.element(document
-							.getElementById('content')),
-							templateUrl : 'views/partials/bottomSheet.html',
-							controller : [ '$mdBottomSheet', SheetController ],
-							controllerAs : "vm",
-							bindToController : true,
-							targetEvent : $event
-				}).then(function(clickedItem) {
-					clickedItem && $log.debug(clickedItem.name + ' clicked!');
-				});
-
-		function SheetController($mdBottomSheet) {
-			var vm = this;
-			vm.actions = [ {
-				name : 'Share',
-				icon : 'share',
-				url : 'https://tinc'
-			}, {
-				name : 'Star',
-				icon : 'star',
-				url : 'https://stargazers'
-			} ];
-
-			vm.performAction = function(action) {
-				$mdBottomSheet.hide(action);
-			};
-		}
-	}
-
-
-	// $notify service
-	function showSimpleToast(title) {
-		$mdToast.show($mdToast.simple().content(title).hideDelay(2000)
-				.position('bottom right'));
-	}
-
-	// Message service
-	$monitor.monitor('message', 'count')//
-	.then(function(monitor){
-		$scope.messageMonitor = monitor;
-	})
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc controller
  * @name MbAccountCtrl
@@ -424,334 +306,178 @@ angular.module('mblowfish-core')
  */
 .controller('MbAccountCtrl', function($scope, $app, $navigator) {
 
-	/*
-	 * Store controller state
-	 */
-	var ctrl = {
-			loadUser: false,
-			changingPassword: false
-	};
+    /*
+     * Store controller state
+     */
+    var ctrl = {
+            changingPassword: false
+    };
+    
+    /**
+     * Go to the default page
+     * 
+     * @name load
+     * @memberof AmdAccountCtrl
+     * @returns {promiss} to load user data
+     */
+    function goToDashboard() {
+        // XXX: maso, 1395: ممکن هست این حالت وجود نداشته باشد
+        $navigator.openPage('dashboard');
+    }
+
+    /**
+     * Call login process for current user
+     * 
+     * @memberof AmdAccountCtrl
+     * @name login
+     * @param {object}
+     *            cridet username and password
+     * @param {string}
+     *            cridet.login username
+     * @param {stirng}
+     *            cridig.password Password
+     * @returns {promiss} to do the login
+     */
+    function login(cridet) {
+        if(ctrl.loadUser){
+            return;
+        }
+        ctrl.loadUser= true;
+        return $app.login(cridet)//
+        .catch(function(error) {
+            ctrl.error = error;
+        })//
+        .finally(function(){
+            ctrl.loadUser = false;
+        });
+    }
 
 
-	/**
-	 * Go to the default page
-	 * 
-	 * @name load
-	 * @memberof AmdAccountCtrl
-	 * @returns {promiss} to load user data
-	 */
-	function goToDashboard() {
-		// XXX: maso, 1395: ممکن هست این حالت وجود نداشته باشد
-		$navigator.openPage('dashboard');
-	}
-
-	/**
-	 * Call login process for current user
-	 * 
-	 * @memberof AmdAccountCtrl
-	 * @name login
-	 * @param {object} cridet          username and password
-	 * @param {string} cridet.login    username
-	 * @param {stirng} cridig.password Password
-	 * @returns {promiss} to do the login
-	 */
-	function login(cridet) {
-		if(ctrl.loadUser){
-			return;
-		}
-		ctrl.loadUser= true;
-		return $app.login(cridet)//
-		.catch(function(error) {
-			ctrl.error = error;
-		})//
-		.finally(function(){
-			ctrl.loadUser = false;
-		});
-	}
+    /**
+     * Loads user data
+     * 
+     * @name load
+     * @memberof AmdAccountCtrl
+     * @returns {promiss} to load user data
+     */
+    function loadUser(){
+        if(ctrl.loadUser){
+            return;
+        }
+        ctrl.loadUser = true;
+        return $usr.session()//
+        .then(function(user){
+            setUser(user);
+            ctrl.loadUser = false;
+        }, function(error){
+            ctrl.error = error;
+        })//
+        .finally(function(){
+            ctrl .loadUser = false;
+        });
+    }
 
 
-	/**
-	 * Loads user data
-	 * 
-	 * @name load
-	 * @memberof AmdAccountCtrl
-	 * @returns {promiss} to load user data
-	 */
-	function loadUser(){
-		if(ctrl.loadUser){
-			return;
-		}
-		ctrl.loadUser = true;
-		return $usr.session()//
-		.then(function(user){
-			setUser(user);
-			ctrl.loadUser = false;
-		}, function(error){
-			ctrl.error = error;
-		})//
-		.finally(function(){
-			ctrl .loadUser = false;
-		});
-	}
-	
+    /**
+     * Save current user
+     * 
+     * @name load
+     * @memberof AmdAccountCtrl
+     * @returns {promiss} to save
+     */
+    function saveUser(){
+        if(ctrl.loadUser){
+            return;
+        }
+        // TODO: maso, 2017: check if user exist
+        ctrl.saveUser = true;
+        return ctrl.user.update()//
+        .then(function(){
+            ctrl.saveUser = false;
+        }, function(error){
+            ctrl.error = error;
+            ctrl.saveUser = false;
+        })
+    }
 
-	/**
-	 * Save current user
-	 * 
-	 * @name load
-	 * @memberof AmdAccountCtrl
-	 * @returns {promiss} to save
-	 */
-	function saveUser(){
-		if(ctrl.loadUser){
-			return;
-		}
-		// TODO: maso, 2017: check if user exist
-		ctrl.saveUser = true;
-		return ctrl.user.update()//
-		.then(function(){
-			ctrl.saveUser = false;
-		}, function(error){
-			ctrl.error = error;
-			ctrl.saveUser = false;
-		})
-	}
-
-	/**
-	 * Change password of the current user
-	 * 
-	 * @name load
-	 * @memberof AmdAccountCtrl
-	 * @returns {promiss} to change password
-	 */
-	function changePassword(data) {
-		if(ctrl.changingPassword){
-			return;
-		}
-		ctrl.changingPassword = true;
-		var param = {
-				'old' : data.oldPass,
-				'new' : data.newPass,
-				'password': data.newPass,
-		};
-//		return $usr.resetPassword(param)//
-		$scope.app.user.current.newPassword(param)
-		.then(function(){
-			$scope.logout();
-		}, function(error){
-			alert('Fail to update password:'+error.data.message);
-		})//
-		.finally(function(){
-			ctrl.changingPassword = false;
-		});
-	}
-	
-
-	/**
-	 * Update avatar of the current user
-	 * 
-	 * @name load
-	 * @memberof AmdAccountCtrl
-	 * @returns {promiss} to update avatar
-	 */
-	function updateAvatar(avatarFiles){
-		// XXX: maso, 1395: reset avatar
-		return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
-		.then(function(){
-			$window.location.reload();
-		}, function(error){
-			alert('Fail to update avatar:' + error.data.message);
-		});
-	}
+    /**
+     * Change password of the current user
+     * 
+     * @name load
+     * @memberof AmdAccountCtrl
+     * @returns {promiss} to change password
+     */
+    function changePassword(data) {
+        if(ctrl.changingPassword){
+            return;
+        }
+        ctrl.changingPassword = true;
+        var param = {
+                'old' : data.oldPass,
+                'new' : data.newPass,
+                'password': data.newPass,
+        };
+//      return $usr.resetPassword(param)//
+        $scope.app.user.current.newPassword(param)
+        .then(function(){
+            $scope.logout();
+        }, function(error){
+            alert('Fail to update password:'+error.data.message);
+        })//
+        .finally(function(){
+            ctrl.changingPassword = false;
+        });
+    }
 
 
-	// TODO: maso, 2017: getting from server
-	// Account property descriptor
-	$scope.apds = [ {
-		key : 'first_name',
-		title : 'First name',
-		type : 'string'
-	}, {
-		key : 'last_name',
-		title : 'Last name',
-		type : 'string'
-	}, {
-		key : 'language',
-		title : 'language',
-		type : 'string'
-	}, {
-		key : 'timezone',
-		title : 'timezone',
-		type : 'string'
-	} ];
-	
-	// Bind to scope
-	$scope.ctrl = ctrl;
-	$scope.login = login;
-	$scope.logout = $app.logout;
-	$scope.goToDashboard = goToDashboard;
-	$scope.load = loadUser;
-	$scope.reload = loadUser;
-	$scope.saveUser = saveUser;
-	$scope.changePassword = changePassword;
-	$scope.updateAvatar = updateAvatar;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
+    /**
+     * Update avatar of the current user
+     * 
+     * @name load
+     * @memberof AmdAccountCtrl
+     * @returns {promiss} to update avatar
+     */
+    function updateAvatar(avatarFiles){
+        // XXX: maso, 1395: reset avatar
+        return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
+        .then(function(){
+            $window.location.reload();
+        }, function(error){
+            alert('Fail to update avatar:' + error.data.message);
+        });
+    }
 
 
-/**
- * @ngdoc controller
- * @name AmdConfigCtrl
- * @description Controller of a configs
- * 
- */
-.controller('AmdConfigCtrl', function($scope, $settings, $routeParams, $navigator) {
+    // TODO: maso, 2017: getting from server
+    // Account property descriptor
+    $scope.apds = [ {
+        key : 'first_name',
+        title : 'First name',
+        type : 'string'
+    }, {
+        key : 'last_name',
+        title : 'Last name',
+        type : 'string'
+    }, {
+        key : 'language',
+        title : 'language',
+        type : 'string'
+    }, {
+        key : 'timezone',
+        title : 'timezone',
+        type : 'string'
+    } ];
 
-	$settings.config($routeParams['configId'])
-	.then(function(config) {
-		$scope.config = config;
-	}, function() {
-		$navigator.openPage('configs');
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name AmdConfigsCtrl
- * @description Controller of configs
- * 
- */
-.controller('AmdConfigsCtrl', function($scope, $settings) {
-
-	var COLORS = [ '#ffebee', '#ffcdd2', '#ef9a9a', '#e57373',
-		'#ef5350', '#f44336', '#e53935', '#d32f2f', '#c62828',
-		'#b71c1c', '#ff8a80', '#ff5252', '#ff1744', '#d50000',
-		'#f8bbd0', '#f48fb1', '#f06292', '#ec407a', '#e91e63',
-		'#d81b60', '#c2185b', '#ad1457', '#880e4f', '#ff80ab',
-		'#ff4081', '#f50057', '#c51162', '#e1bee7', '#ce93d8',
-		'#ba68c8', '#ab47bc', '#9c27b0', '#8e24aa', '#7b1fa2',
-		'#4a148c', '#ea80fc', '#e040fb', '#d500f9', '#aa00ff',
-		'#ede7f6', '#d1c4e9', '#b39ddb', '#9575cd', '#7e57c2',
-		'#673ab7', '#5e35b1', '#4527a0', '#311b92', '#b388ff',
-		'#7c4dff', '#651fff', '#6200ea', '#c5cae9', '#9fa8da',
-		'#7986cb', '#5c6bc0', '#3f51b5', '#3949ab', '#303f9f',
-		'#283593', '#1a237e', '#8c9eff', '#536dfe', '#3d5afe',
-		'#304ffe', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6',
-		'#42a5f5', '#2196f3', '#1e88e5', '#1976d2', '#1565c0',
-		'#0d47a1', '#82b1ff', '#448aff', '#2979ff', '#2962ff',
-		'#b3e5fc', '#81d4fa', '#4fc3f7', '#29b6f6', '#03a9f4',
-		'#039be5', '#0288d1', '#0277bd', '#01579b', '#80d8ff',
-		'#40c4ff', '#00b0ff', '#0091ea', '#e0f7fa', '#b2ebf2',
-		'#80deea', '#4dd0e1', '#26c6da', '#00bcd4', '#00acc1',
-		'#0097a7', '#00838f', '#006064', '#84ffff', '#18ffff',
-		'#00e5ff', '#00b8d4', '#e0f2f1', '#b2dfdb', '#80cbc4',
-		'#4db6ac', '#26a69a', '#009688', '#00897b', '#00796b',
-		'#00695c', '#a7ffeb', '#64ffda', '#1de9b6', '#00bfa5',
-		'#e8f5e9', '#c8e6c9', '#a5d6a7', '#81c784', '#66bb6a',
-		'#4caf50', '#43a047', '#388e3c', '#2e7d32', '#1b5e20',
-		'#b9f6ca', '#69f0ae', '#00e676', '#00c853', '#f1f8e9',
-		'#dcedc8', '#c5e1a5', '#aed581', '#9ccc65', '#8bc34a',
-		'#7cb342', '#689f38', '#558b2f', '#33691e', '#ccff90',
-		'#b2ff59', '#76ff03', '#64dd17', '#f9fbe7', '#f0f4c3',
-		'#e6ee9c', '#dce775', '#d4e157', '#cddc39', '#c0ca33',
-		'#afb42b', '#9e9d24', '#827717', '#f4ff81', '#eeff41',
-		'#c6ff00', '#aeea00', '#fffde7', '#fff9c4', '#fff59d',
-		'#fff176', '#ffee58', '#ffeb3b', '#fdd835', '#fbc02d',
-		'#f9a825', '#f57f17', '#ffff8d', '#ffff00', '#ffea00',
-		'#ffd600', '#fff8e1', '#ffecb3', '#ffe082', '#ffd54f',
-		'#ffca28', '#ffc107', '#ffb300', '#ffa000', '#ff8f00',
-		'#ff6f00', '#ffe57f', '#ffd740', '#ffc400', '#ffab00',
-		'#fff3e0', '#ffe0b2', '#ffcc80', '#ffb74d', '#ffa726',
-		'#ff9800', '#fb8c00', '#f57c00', '#ef6c00', '#e65100',
-		'#ffd180', '#ffab40', '#ff9100', '#ff6d00', '#fbe9e7',
-		'#ffccbc', '#ffab91', '#ff8a65', '#ff7043', '#ff5722',
-		'#f4511e', '#e64a19', '#d84315', '#bf360c', '#ff9e80',
-		'#ff6e40', '#ff3d00', '#dd2c00', '#d7ccc8', '#bcaaa4',
-		'#795548', '#d7ccc8', '#bcaaa4', '#8d6e63', '#eceff1',
-		'#cfd8dc', '#b0bec5', '#90a4ae', '#78909c', '#607d8b',
-		'#546e7a', '#cfd8dc', '#b0bec5', '#78909c' ];
-
-	function randomColor() {
-		return COLORS[Math.floor(Math.random() * COLORS.length)];
-	}
-
-	function randomSpan() {
-		var r = Math.random();
-		if (r < 0.8) {
-			return 1;
-		} else if (r < 0.9) {
-			return 2;
-		} else {
-			return 3;
-		}
-	}
-
-	function openSetting(tile) {
-		$settings.openConfig(tile.page);
-	}
-
-	// Load settings
-	$settings.configs()//
-	.then(function(settings) {
-		$scope.settingsTiles = [];
-		for (var i = 0; i < settings.items.length; i++) {
-			$scope.settingsTiles.push({
-				color : randomColor(),
-				colspan : randomSpan(),
-				rowspan : randomSpan(),
-				page : settings.items[i]
-			});
-		}
-	});
-
-	$scope.openSetting = openSetting;
+    // Bind to scope
+    $scope.ctrl = ctrl;
+    $scope.login = login;
+    $scope.logout = $app.logout;
+    $scope.goToDashboard = goToDashboard;
+    $scope.load = loadUser;
+    $scope.reload = loadUser;
+    $scope.saveUser = saveUser;
+    $scope.changePassword = changePassword;
+    $scope.updateAvatar = updateAvatar;
 });
 
 'use strict';
@@ -935,11 +661,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdHelpCtrl
+ * @name MbHelpCtrl
  * @description Help page controller
  * 
  */
-.controller('AmdHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav) {
 	$rootScope.showHelp = false;
 
 
@@ -951,8 +677,8 @@ angular.module('mblowfish-core')
 		// TODO: maso, 2018: check if route is changed.
 		var currentState = $route.current;
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		if (currentState && currentState.config) {
-			var myId = currentState.config.helpId;
+		if (currentState) {
+			var myId = currentState.helpId;
 			if (angular.isFunction(myId)) {
 				myId = myId(currentState);
 			}
@@ -971,17 +697,148 @@ angular.module('mblowfish-core')
 			});
 		}
 	}
-	
+
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
+//		$mdSidenav('help').close();
 	}
-	
+
+	function buildToggler() {
+		var debounceFn =  $mdUtil.debounce(function(){
+			$mdSidenav('help').toggle();
+		},300);
+		return debounceFn;
+	}
+
 	$scope.$watch('showHelp', _loadHelpContent);
 
 	$scope.$watch(function(){
 		return $route.current;
 	}, _loadHelpContent);
 });
+// TODO: should be moved to mblowfish-core
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc controller
+ * @name MbInitialCtrl
+ * @description Show initialization page
+ * 
+ * Display initialization page to set initial configuration of SPA.
+ * 
+ */
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
+
+	function goToStep(index){
+		var stepper = $mdStepper('setting-stepper');
+		if(!$rootScope.app.user.owner){
+			stepper.error('You are not allowed');
+			return;
+		}
+		stepper.goto(index);
+	}
+
+	function nextStep(){
+		var stepper = $mdStepper('setting-stepper');
+		if(!$rootScope.app.user.owner){
+			stepper.error('You are not allowed');
+			return;
+		}
+		stepper.next();
+	}
+
+	function prevStep(){			
+		var stepper = $mdStepper('setting-stepper');
+		stepper.back();
+	}
+
+	function initialization(){
+		// Configure welcome page. It will be added as first page of setting stepper
+		var welcomePage = {
+			id: 'welcome',
+			title: 'Welcome',
+			templateUrl : 'views/preferences/welcome.html',
+			controller : 'MbAccountCtrl',
+			description: 'Welcome. Please login to continue.',
+			icon: 'accessibility',
+			priority: 'first',
+			required: true
+		};
+		var congratulatePage = {
+			id: 'congratulate',
+			templateUrl : 'views/preferences/congratulate.html',
+			title: ':)',
+			description: 'Congratulation. Your site is ready.',
+			icon: 'favorite',
+			priority: 'last',
+			required: true
+		};
+		$preferences.newPage(welcomePage);
+		$preferences.newPage(congratulatePage);
+		// Load settings
+		$preferences.pages()//
+		.then(function(settingItems) {
+//			$scope.settings = settingItems.items;
+			$scope.settings = [];
+			settingItems.items.forEach(function(sItem){
+				if(sItem.required){
+					$scope.settings.push(sItem);
+				}
+			});
+			// add watch on setting stepper current step.
+			$scope.$watch(function(){
+				var stepper = $mdStepper('setting-stepper');
+				return stepper.currentStep;
+			}, function(val){
+				if(!$scope.settings || $scope.settings.length === 0){
+					return;
+				}
+				$scope.pageId = $scope.settings[val].id;
+			});
+		});
+	}
+
+	var callWatch = $scope.$watch(function(){
+		return $rootScope.app.initial;
+	}, function(val){
+		if(val){
+			initialization();
+		}else if(val === false){
+			// remove watch
+			callWatch();
+		}
+	});
+
+	$scope.settings = [];
+	$scope.nextStep = nextStep;
+	$scope.prevStep = prevStep;
+	$scope.goToStep = goToStep;
+
+});
+
 'use strict';
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1252,6 +1109,149 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc controller
+ * @name MbSettingsCtrl
+ * @description Manages settings page
+ * 
+ * Manages settings pages.
+ * 
+ */
+.controller('MbOptionsCtrl',function($scope, $options) {
+	// Load settings.
+	$options.pages()
+	.then(function(pages){
+		$scope.tabs = pages.items;
+	});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc controller
+ * @name MbPreferenceCtrl
+ * @description Show a preference page
+ * 
+ * Display preference view and load its controller.
+ * 
+ */
+.controller('MbPreferenceCtrl', function($scope, $routeParams, $navigator, $preferences) {
+
+	$preferences.page($routeParams.preferenceId)
+	.then(function(preference) {
+		$scope.preference = preference;
+	}, function() {
+		$navigator.openPage('preferences');
+	});
+	
+	$scope.preferenceId = $routeParams.preferenceId;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc controller
+ * @name MbPreferencesCtrl
+ * @description Manages preferences page
+ * 
+ * In the preferences page, all configs of the system are displayed and
+ * users are able to change them. These preferences pages are related to
+ * the current SPA usually.
+ * 
+ */
+.controller('MbPreferencesCtrl',function($scope, $preferences) {
+
+	/**
+	 * Open tile
+	 */
+	function openPreference(tile) {
+		$preferences.openPage(tile.page);
+	}
+
+	// Load settings
+	$preferences.pages()//
+	.then(function(list) {
+		$scope.preferenceTiles = [];
+		for (var i = 0; i < list.items.length; i++) {
+			$scope.preferenceTiles.push({
+				colspan : 1,
+				rowspan : 1,
+				page : list.items[i]
+			});
+		}
+	});
+
+	$scope.openPreference = openPreference;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
 
 angular.module('mblowfish-core')
 
@@ -1380,156 +1380,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name settingsBrandCtrl
+ * @name MbThemesCtrl
  * @description Dashboard
  * 
  */
-.controller('settingsBrandCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
-		}
-	})//
-	.add({
-		title: 'Branding',
-		active: function(){
-			$navigator.openPage('/settings/brand');
-		}
-	});
-    
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name settingsGoogleAnalyticCtrl
- * @description Dashboard
- * 
- */
-.controller('settingsGoogleAnalyticCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
-		}
-	})//
-	.add({
-		title: 'Google analytic',
-		active: function(){
-			$navigator.openPage('/settings/google-analytic');
-		}
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name settingsLocalCtrl
- * @description Dashboard
- * 
- */
-.controller('settingsLocalCtrl', function($scope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Settings',
-		active: function(){
-			$navigator.openPage('/settings');
-		}
-	})//
-	.add({
-		title: 'Localization',
-		active: function(){
-			$navigator.openPage('/settings/local');
-		}
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name AmdThemesCtrl
- * @description Dashboard
- * 
- */
-.controller('AmdThemesCtrl', function($scope, $mdTheming) {
+.controller('MbThemesCtrl', function($scope, $mdTheming) {
 	$scope.themes =[];
 	angular.forEach($mdTheming.THEMES, function(value, key){
 		$scope.themes.push({
@@ -1570,8 +1425,15 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $app) {
-	$scope.toolbarMenu = $app.getToolbarMenu();
+.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav) {
+	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
+	
+	function toggleNavigationSidenav(){
+		$mdSidenav('navigator').toggle();
+	}
+	
+	$scope.toggleNavigationSidenav = toggleNavigationSidenav;
+	
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1684,8 +1546,330 @@ angular.module('mblowfish-core')
 
 });
 
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc directives
+ * @name compare-to
+ * @description Compare two attrs.
+ */
+.directive('compareTo', function(){
+	return {
+		require: 'ngModel',
+		scope: {
+			otherModelValue: '=compareTo'
+		},
+		link: function(scope, element, attributes, ngModel){
+			ngModel.$validators.compareTo = function(modelValue) {
+				return modelValue === scope.otherModelValue;
+			};
+
+			scope.$watch('otherModelValue', function() {
+				ngModel.$validate();
+			});
+		}
+	};
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+/**
+ * 
+ */
+.directive('mbBadge', function($mdTheming, $rootScope) {
+	
+	function __badge_toRGB(color){
+		var split = (color || '').split('-')
+		if (split.length < 2) {
+			split.push('500');
+		}
+		
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+		
+		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
+		if(typeof theme === 'undefined'){
+			theme = $mdTheming.THEMES['default'];
+		}
+		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		
+		function style(where, color) {
+			if (color) {
+				element.css(where, __badge_toRGB(color));
+			}
+		}
+		function getPosition(){
+				return {
+					top: element.prop('offsetTop'),
+					left: element.prop('offsetLeft'),
+					width: element.prop('offsetWidth'),
+					height: element.prop('offsetHeight')
+				};
+		}
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value){
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value){
+			style('background-color', value);
+		});
+	}
+	
+	return {
+		restrict: 'E',
+		replace: true,
+		transclude: true,
+		link: postLink,
+		template: function(element, attributes) {
+			return '<div class="mb-badge" ng-transclude></div>';
+		}
+	};
+});
+
+angular.module('mblowfish-core')
+.directive('mbBadge', function($mdTheming, $mdColors, $timeout, $window, $compile, $rootScope) {
+
+	
+	function __badge_toRGB(color){
+		var split = (color || '').split('-')
+		if (split.length < 2) {
+			split.push('500');
+		}
+		
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+		
+		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
+		if(typeof theme === 'undefined'){
+			theme = $mdTheming.THEMES['default'];
+		}
+		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		//
+		var parent = element.parent();
+		var bg = angular.element('<div></div>');
+		var link = $compile(bg);
+		var badge = link(scope);
+
+		var offset = parseInt(attributes.mdBadgeOffset);
+		if (isNaN(offset)) {
+			offset = 10;
+		}
+		
+		function style(where, color) {
+			if (color) {
+				badge.css(where, __badge_toRGB(color));
+			}
+		}
+		function getPosition(){
+				return {
+					top: element.prop('offsetTop'),
+					left: element.prop('offsetLeft'),
+					width: element.prop('offsetWidth'),
+					height: element.prop('offsetHeight')
+				};
+		}
+
+		function position(value) {
+			var top = element.prop('offsetTop');
+			badge.css({
+				'display' : attributes.mbBadge && top ? 'initial' : 'none',
+				'left' : value.left + value.width - 20 + offset + 'px',
+				'top' : value.top + value.height - 20 + offset + 'px'
+			});
+		};
+
+		function update () {
+			position(getPosition());
+		};
+		
+		badge.addClass('mb-badge');
+		badge.css('position', 'absolute');
+		parent.append(badge);
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value){
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value){
+			style('background-color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadge;
+		}, function(value){
+			badge.text(value);
+			badge.css('display', value ? 'initial' : 'none');
+		});
+		
+		scope.$watch(getPosition, function(value) {
+			position(value);
+		}, true);
+		
+//		angular.element($window)
+//		.bind('resize', function(){
+//			update();
+//		});
+	}
+	return {
+        priority: 100,
+		restrict: 'A',
+		link: postLink,
+	};
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc directives
+ * @name mb-captcha
+ * @description Adding captcha value
+ * 
+ * In some case, user must send captcha to the server fro auth. This a directive
+ * to enablie captcha
+ * 
+ */
+.directive("mbCaptcha", function() {
+
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @returns
+	 */
+	function postLink(scope, element, attrs, ctrls) {
+		var form=ctrls[0];
+		var ngModel=ctrls[1];
+
+		function validate(){
+			if(form){
+				form.$setValidity('captcha', scope.required === false ? null : Boolean(scope.response));
+			}
+		}
+
+		function destroy() {
+			if (form) {
+				// reset the validity of the form if we were removed
+				form.$setValidity('captcha', null);
+			}
+		}
+
+
+		if(form && angular.isDefined(attrs.required)){
+			scope.$watch('required', validate);
+		}
+		scope._response = null;
+		scope.$watch('_response', function(){
+			scope.response = scope._response;
+		});
+		scope.$watch('response', function(){
+			scope._response = scope.response;
+		});
+
+
+	}
+
+	return {
+		restrict : 'E',
+		require: ['?^^form'],
+		templateUrl: 'views/directives/mb-captcha.html',
+		scope: {
+			response: '=?ngModel',
+		},
+		link: postLink
+	};
+});
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1709,33 +1893,181 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
+
 /**
  * @ngdoc directive
- * @name amd-infinate-scroll
- * @description Infinet scroll 
+ * @name mb-datepicker
+ * @descritpion Date picker
  * 
+ * Select a date based on local.
  * 
- * Manage scroll of list 
  */
-.directive('amdInfinateScroll', function($parse) {
-    // FIXME: maso, 2017: tipo in diractive name (infinite)
-    function postLink(scope, elem, attrs) {
-	// adding infinite scroll class
-	elem.addClass('amd-infinate-scroll');
-	elem.on('scroll', function(evt) {
-	    var raw = elem[0];
-	    if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
-		$parse(attrs.amdInfinateScroll)(scope);
-	    }
-	});
-	// Call the callback for the first time:
-	$parse(attrs.amdInfinateScroll)(scope);
-    }
+.directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-    return {
-	restrict : 'A',
-	link : postLink
-    };
+	// **********************************************************
+	// Private Methods
+	// **********************************************************
+	function postLink(scope, element, attr, ctrls) {
+		scope.app = $rootScope.app;
+		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+
+		function render() {
+			var date = moment //
+			.utc(ngModelCtrl.$modelValue) //
+			.local();
+			if (date.isValid()) {
+				scope.date = date;
+				return;
+			}
+			// TODO: maso, 2018: handle invalid date
+		}
+
+		function setValue() {
+			var date = moment(scope.date) //
+			.utc() //
+			.format('YYYY-MM-DD HH:mm:ss');
+			ngModelCtrl.$setViewValue(date);
+		}
+
+		ngModelCtrl.$render = render;
+		scope.$watch('date', setValue);
+	}
+
+
+	return {
+		replace : false,
+		templateUrl : 'views/directives/mb-datepicker.html',
+		restrict : 'E',
+		scope : {
+			minDate : '=mdMinDate',
+			maxDate : '=mdMaxDate',
+			//		        placeholder: '@mdPlaceholder',
+			//		        currentView: '@mdCurrentView',
+			//		        dateFilter: '=mdDateFilter',
+			//		        isOpen: '=?mdIsOpen',
+			//		        debounceInterval: '=mdDebounceInterval',
+			//		        dateLocale: '=mdDateLocale'
+		},
+		require : [ 'ngModel' ],
+		priority : 210, // Run before ngAria
+		link : postLink
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc directive
+ * @name mb-dynamic-tabs
+ * @description Display tabs dynamically
+ * 
+ * In some case, a dynamic tabs are required. This module add them dynamically.
+ * 
+ */
+.directive('mbDynamicTabs', function($wbUtil, $q, $rootScope, $compile, $controller) {
+	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
+
+
+	/**
+	 * encapsulate template srce with panel widget template.
+	 * 
+	 * @param page
+	 *            setting page config
+	 * @param tempateSrc
+	 *            setting page html template
+	 * @returns encapsulate html template
+	 */
+	function _encapsulatePanel(page, template) {
+		// TODO: maso, 2017: pass all paramter to the setting
+		// panel.
+		return template;
+	}
+
+
+	function link($scope, $element, $attr) {
+		// Load pages in scope
+		function loadPage(index){
+			var widget = null;
+			var jobs = [];
+			var pages2 = [];
+
+
+			// 1- Find element
+			var target = $element.find('#' + CHILDREN_AUNCHOR);
+
+			// 2- Clear childrens
+			target.empty();
+
+			// 3- load pages
+			var page = $scope.mbTabs[index];
+			var template = $wbUtil.getTemplateFor(page);
+			if (angular.isDefined(template)) {
+				jobs.push(template.then(function(templateSrc) {
+					templateSrc = _encapsulatePanel(page, templateSrc);
+					var element = angular.element(templateSrc);
+					var scope = $rootScope.$new(false, $scope);
+					scope.page = page;
+					scope.value = $scope.value;
+					if (angular .isDefined(page.controller)) {
+						$controller(page.controller, {
+							$scope : scope,
+							$element : element,
+						});
+					}
+					$compile(element)(scope);
+					pages2.push(element);
+				}));
+			}
+
+			$q.all(jobs).then(function() {
+				angular.forEach(pages2, function(element) {
+					target.append(element);
+				});
+			});
+		}
+		
+		// Index of selected page
+		$scope.$watch('pageIndex', function(value){
+			if(value >= 0){
+				loadPage(value);
+			}
+		});
+	}
+
+
+
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			mbTabs: '='
+		},
+		templateUrl: 'views/directives/mb-dynamic-tabs.html',
+		link: link,
+	};
 });
 
 /*
@@ -1765,77 +2097,201 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-pagination-bar
- * @property {Object}    amd-model           -Data model
- * @property {function}  amd-reload          -Reload function
- * @property {Array}     amd-sort-keys       -Array
- * @property {Array}     amd-more-actions    -Array
- * @property {string}    amd-title           -String
- * @property {string}    amd-icon            -String
+ * @name mb-infinate-scroll
+ * @description Infinet scroll 
+ * 
+ * 
+ * Manage scroll of list 
+ */
+.directive('mbInfinateScroll', function($parse) {
+	// FIXME: maso, 2017: tipo in diractive name (infinite)
+	function postLink(scope, elem, attrs) {
+		// adding infinite scroll class
+		elem.addClass('mb-infinate-scroll');
+		elem.on('scroll', function(evt) {
+			var raw = elem[0];
+			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
+				$parse(attrs.mbInfinateScroll)(scope);
+			}
+		});
+		// Call the callback for the first time:
+		$parse(attrs.mbInfinateScroll)(scope);
+	}
+
+	return {
+		restrict : 'A',
+		link : postLink
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc directive
+ * @name mb-navigation-path
+ * @description Display current navigation path of system
+ * 
+ * Navigation path is a menu which is updated by the $navigation service. This menu
+ * show a chain of menu items to show the current path of the system. It is very
+ * usefull to show current path to the users.
+ * 
+ * 
+ */
+.directive('mbNavigationBar' , function($actions) {
+
+	return {
+		restrict : 'E',
+		replace: false,
+		templateUrl: 'views/directives/mb-navigation-bar.html',
+		link: postLink
+	};
+
+	/**
+	 * Init the bar
+	 */
+	function postLink(scope, element, attr) {
+		
+		scope.isVisible = function(menu){
+			// default value for visible is true
+			if(angular.isUndefined(menu.visible)){
+				return true;
+			}
+			if(angular.isFunction(menu.visible)){
+				return menu.visible();
+			}
+			return menu.visible;
+		};
+		
+		/*
+		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
+		 */
+		scope.pathMenu = $actions.group('navigationPathMenu');
+		
+	}
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc directive
+ * @name mb-pagination-bar
+ * @property {Object}    mb-model           -Data model
+ * @property {function}  mb-reload          -Reload function
+ * @property {Array}     mb-sort-keys       -Array
+ * @property {Array}     mb-more-actions    -Array
+ * @property {string}    mb-title           -String
+ * @property {string}    mb-icon            -String
  * @description Pagination bar
  * 
  * Pagination parameters are a complex data structure and it is hard to manage
  * it. This is a toolbar to manage the pagination options.
  */
-.directive('amdPaginationBar', function() {
+.directive('mbPaginationBar', function() {
 
 	function postLink(scope, element, attr) {
 
 		var query = {
 			sortDesc: true,
-			sortBy: typeof scope.amdSortKeys === 'undefined' ? 'id' : scope.amdSortKeys[0],
+			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
 			searchTerm: null
 		};
 		/*
 		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی 
 		 */
 		function reload(){
-			if(!angular.isFunction(scope.amdReload)){
+			if(!angular.isFunction(scope.mbReload)){
 				return;
 			}
-			scope.amdReload(scope.amdModel);
+			scope.mbReload(scope.mbModel);
 		}
 		/**
 		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
 		 */
 		function exportData(){
-			if(!angular.isFunction(scope.amdExport)){
+			if(!angular.isFunction(scope.mbExport)){
 				return;
 			}
-			scope.amdExport(scope.amdModel);
+			scope.mbExport(scope.mbModel);
 		}
 
 		function searchQuery(searchText){
-			scope.amdModel.setQuery(searchText);
-			scope.amdReload();
+			scope.mbModel.setQuery(searchText);
+			scope.mbReload();
 		}
 
 		function init(){
 			// Checks sort key
-			if(scope.amdModel){
+			if(scope.mbModel){
 				// clear previous sorters
-				// TODO: replace it with scope.amdModel.clearSorters() 
-				scope.amdModel.sortMap = {};
-				scope.amdModel.filterMap = {};
-				scope.amdModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
-				scope.amdModel.setQuery(query.searchTerm);
+				// TODO: replace it with scope.mbModel.clearSorters() 
+				scope.mbModel.sortMap = {};
+				scope.mbModel.filterMap = {};
+				scope.mbModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
+				scope.mbModel.setQuery(query.searchTerm);
 			}
 		}
 
 		// configure scope:
 		scope.search = searchQuery;
 		scope.query=query;
-		if(angular.isFunction(scope.amdReload)){
+		if(angular.isFunction(scope.mbReload)){
 			scope.reload = reload;
 		}
-		if(angular.isFunction(scope.amdExport)){
+		if(angular.isFunction(scope.mbExport)){
 			scope.exportData = exportData;
 		}
-		if(typeof scope.amdEnableSearch === 'undefined'){
-			scope.amdEnableSearch = true;
+		if(typeof scope.mbEnableSearch === 'undefined'){
+			scope.mbEnableSearch = true;
 		}
 		
-		scope.$watch('amdModel', function(){
+		scope.$watch('mbModel', function(){
 			init();
 		});
 
@@ -1849,36 +2305,36 @@ angular.module('mblowfish-core')
 
 	return {
 		restrict : 'E',
-		templateUrl: 'views/directives/amd-pagination-bar.html',
+		templateUrl: 'views/directives/mb-pagination-bar.html',
 		scope : {
 			/*
 			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم. 
 			 */
-			amdModel : '=',
+			mbModel : '=',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
 			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
 			 */
-			amdReload : '=',
+			mbReload : '=',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
 			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
 			 */
-			amdExport : '=',
+			mbExport : '=',
 			/*
 			 * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
 			 * بشن.
 			 */
-			amdSortKeys: '=',
+			mbSortKeys: '=',
 			/*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
-			amdMoreActions: '=',
+			mbMoreActions: '=',
 
-			amdTitle: '@?',
-			amdIcon: '@?',
+			mbTitle: '@?',
+			mbIcon: '@?',
 
-			amdEnableSearch: '=?'
+			mbEnableSearch: '=?'
 		},
 		link : postLink
 	};
@@ -1912,14 +2368,422 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-preloading
+ * @name amd-panel
+ * @restrict E
+ * @scope true
+ * 
+ * @description A full dashboard panel
+ * 
+ * Dashboard needs an area to show modules, navigator, message and the other visual parts
+ * of the system. This is a general dashboard panel which must be placed to the index.html
+ * directly.
+ * 
+ * @usage
+ * To load the dashboard add this directive to the index.html. All internal elements will be removed after the
+ * module loaded.
+ * <hljs lang="html">
+ * 	<body>
+ * 		<amd-panel>
+ * 			<div class="amd-preloader">
+ * 				Loading....
+ * 			</div>
+ * 		</amd-panel>
+ * 	....
+ * 	</body>
+ * </hljs>
+ * 
+ */
+.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
+		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+
+
+	var bodyElementSelector = 'div#mb-panel-root-ready';
+	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
+
+
+
+	/*
+	 * Load page and create an element
+	 */
+	function _loadPage($scope, page, prefix, postfix) {
+		// 1- create scope
+		var childScope = $scope.$new(false, $scope);
+		childScope = Object.assign(childScope, {
+			app : $rootScope.app,
+			_page : page,
+			_visible : function() {
+				if (angular.isFunction(this._page.visible)) {
+					var v = this._page.visible(this);
+					if(this._page.sidenav){
+						if(v)
+							$mdSidenav(this._page.id).open();
+						else
+							$mdSidenav(this._page.id).close();
+						return v;
+					}
+					return v;
+				}
+				return true;
+			}
+		});
+
+		// 2- create element
+		return $widget.getTemplateFor(page)
+		.then(function(template) {
+			var element = angular.element(prefix + template + postfix);
+
+			// 3- bind controller
+			var link = $compile(element);
+			if (angular.isDefined(page.controller)) {
+				var locals = {
+						$scope : childScope,
+						$element : element,
+				};
+				var controller = $controller(page.controller, locals);
+				if (page.controllerAs) {
+					childScope[page.controllerAs] = controller;
+				}
+				element.data('$ngControllerController', controller);
+			}
+			;
+			return {
+				element : link(childScope),
+				page : page
+			};
+		});
+	}
+
+	function postLink($scope, $element, $attr) {
+		var _sidenaves = [];
+		var _toolbars = [];
+
+		/*
+		 * Remove all sidenaves
+		 */
+		function _removeElements(pages, elements) {
+			var cache = [];
+			for(var i = 0; i < elements.length; i++){
+				var flag = false;
+				for(var j = 0; j < pages.length; j++){
+					if(pages[j].id === elements[i].page.id) {
+						flag = true;
+						break;
+					}
+				}
+				if(flag){
+					elements[i].element.detach();
+					elements[i].cached = true;
+					cache.push(elements[i]);
+				} else {
+					elements[i].element.remove();
+				}
+			}
+			return cache;
+		}
+
+		function _getSidenavElement(page){
+			for(var i = 0; i < _sidenaves.length; i++){
+				if(_sidenaves[i].page.id == page.id){
+					return $q.when(_sidenaves[i]);
+				}
+			}
+			return _loadPage($scope, page,
+					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
+			'</md-sidenav>')
+			.then(function(pageElement) {
+				_sidenaves.push(pageElement);
+			});
+		}
+		
+		function _getToolbarElement(page){
+			for(var i = 0; i < _toolbars.length; i++){
+				if(_toolbars[i].page.id == page.id){
+					return $q.when(_toolbars[i]);
+				}
+			}
+			
+			var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+			var postfix = page.raw ? '' : '</md-toolbar>';
+			return _loadPage($scope, page, prefix, postfix)
+			.then(function(pageElement) {
+				_toolbars.push(pageElement);
+			});
+		}
+
+		/*
+		 * reload sidenav
+		 */
+		function _reloadSidenavs(sidenavs) {
+			_sidenaves = _removeElements(sidenavs, _sidenaves);
+			var jobs = [];
+			for (var i = 0; i < sidenavs.length; i++) {
+				jobs.push(_getSidenavElement(sidenavs[i]));
+			}
+			$q.all(jobs) //
+			.then(function() {
+				// Get Anchor
+				var _anchor = $element //
+				.children(bodyElementSelector) //
+				.children(placeholderElementSelector);
+				// maso, 2018: sort
+				_sidenaves.sort(function(a, b){
+					return (a.page.priority || 10) > (b.page.priority || 10);
+				});
+				for (var i = 0; i < _sidenaves.length; i++) {
+					var ep = _sidenaves[i];
+					if(ep.chached){
+						continue;
+					}
+					if (ep.page.position === 'start') {
+						_anchor.prepend(ep.element);
+					} else {
+						_anchor.append(ep.element);
+					}
+
+					ep.page.sidenav = true;
+				}
+			});
+		}
+
+		/*
+		 * Reload toolbars
+		 */
+		function _reloadToolbars(toolbars) {
+			_toolbars = _removeElements(toolbars, _toolbars);
+			var jobs = [];
+			for (var i = 0; i < toolbars.length; i++) {
+				jobs.push(_getToolbarElement(toolbars[i]));
+			}
+			$q.all(jobs) //
+			.then(function() {
+				// Get Anchor
+				var _anchor = $element //
+				.children(bodyElementSelector);
+				// maso, 2018: sort
+				_toolbars.sort(function(a, b){
+					return (a.page.priority || 10) > (b.page.priority || 10);
+				});
+				for (var i = 0; i < _toolbars.length; i++) {
+					var ep = _toolbars[i];
+					if(ep.chached){
+						continue;
+					}
+					_anchor.prepend(ep.element);
+				}
+			});
+		}
+
+		/*
+		 * Reload UI
+		 * 
+		 * - sidenav
+		 * - toolbar
+		 */
+		function _reloadUi(){
+			if(!$route.current){
+				return;
+			}
+			// Sidenavs
+			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
+			sdid = sdid.slice(0);
+			sdid.push('settings');
+			sdid.push('help');
+			if(angular.isArray(sdid)){
+				var sd =[];
+				var jobs = [];
+				angular.forEach(sdid, function(item){
+					jobs.push($app.sidenav(item)
+							.then(function(sidenav){
+								sd.push(sidenav);
+							}));
+				});
+				$q.all(jobs)
+				.then(function(){
+					_reloadSidenavs(sd);
+				});
+			}
+			// Toolbars
+			var tids = $route.current.toolbars || $app.defaultToolbars();
+			if(angular.isArray(tids)){
+				var ts = [];
+				var jobs = [];
+				angular.forEach(tids, function(item){
+					jobs.push($app.toolbar(item)
+							.then(function(toolbar){
+								ts.push(toolbar);
+							}));
+				});
+				$q.all(jobs)
+				.then(function(){
+					_reloadToolbars(ts);
+				});
+			}
+		}
+
+//		_reloadUi();
+		$scope.$watch(function(){
+			if(!$route.current)
+				return false;
+			return $route.current.$$route.originalPath + '_@_' + $rootScope.app.state.status;
+		}, _reloadUi);
+	}
+
+
+	return {
+		restrict : 'E',
+		replace : true,
+		templateUrl : 'views/directives/mb-panel.html',
+		link : postLink
+	};
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc directives
+ * @name mb-preference-page
+ * @description Preference page 
+ * 
+ * Preference page
+ * 
+ */
+.directive('mbPreferencePage', function($compile, $controller, $preferences, $widget, $rootScope) {
+
+
+	var bodyElementSelector = 'div#mb-preference-body';
+	var placeholderElementSelector = 'div#mb-preference-placeholder';
+	/**
+	 * 
+	 */
+	function loadPreference($scope, page, anchor) {
+		// 1- create scope
+		var childScope = $scope.$new(false, $scope);
+		childScope.app = $rootScope.app;
+		//		childScope.wbModel = model;
+
+		// 2- create element
+		$widget.getTemplateFor(page)
+		.then(function(template) {
+			var element = angular.element(
+					'<div md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
+
+			// 3- bind controller
+			var link = $compile(element);
+			if (angular.isDefined(page.controller)) {
+				var locals = {
+						$scope : childScope,
+						$element : element,
+						// TODO: maso, 2018: 
+				};
+				var controller = $controller(page.controller, locals);
+				if (page.controllerAs) {
+					childScope[page.controllerAs] = controller;
+				}
+				element.data('$ngControllerController', controller);
+			}
+			;
+
+			// Load preferences
+			anchor.empty();
+			anchor.append(link(childScope));
+		});
+	}
+
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @returns
+	 */
+	function postLink(scope, element, attr) {
+		// Get Anchor
+		var _anchor = element //
+		.children(bodyElementSelector) //
+		.children(placeholderElementSelector);
+		// TODO: maso, 2018: check auncher exist
+		scope.$watch('mbPreferenceId', function(id) {
+			if (!!id) {
+				$preferences.page(id)
+				.then(function(page) {
+					loadPreference(scope, page, _anchor);
+				}, function() {
+					// TODO: maso, 2017: handle errors
+				});
+			}
+		});
+	}
+
+	return {
+		restrict : 'E',
+		templateUrl : 'views/directives/mb-preference-page.html',
+		replace : true,
+		scope : {
+			mbPreferenceId : '='
+		},
+		link : postLink
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc directive
+ * @name mb-preloading
  * @description Show preloading of the module
  * 
  */
-.directive('amdPreloading', function($animate) {
-	var PRELOAD_CLASS = 'amd-preload';
-	var PRELOAD_CLASS_BOX = 'amd-preload-box';
-	var PRELOAD_IN_PROGRESS_CLASS = 'amd-preload-animate';
+.directive('mbPreloading', function($animate) {
+	var PRELOAD_CLASS = 'mb-preload';
+	var PRELOAD_CLASS_BOX = 'mb-preload-box';
+	var PRELOAD_IN_PROGRESS_CLASS = 'mb-preload-animate';
 
 	/*
 	 * Init element for preloading 
@@ -1949,7 +2813,7 @@ angular.module('mblowfish-core')
 	 */
 	function postLink(scope, element, attr) {
 		initPreloading(scope, element, attr);
-		scope.$watch(attr.amdPreloading, function(value) {
+		scope.$watch(attr.mbPreloading, function(value) {
 			if(!value){
 				removePreloading(scope, element, attr);
 			} else {
@@ -1964,105 +2828,6 @@ angular.module('mblowfish-core')
 	};
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc directive
- * @name amd-style-color
- * @descritpion Manages color of an element 
- * 
- * 
- */
-.directive('amdStyleColor', function ($mdTheming, $rootScope) {
-	/*
-	 * Apply colors
-	 */
-	function _apply_color($element, styleColor) {
-		angular.forEach(styleColor, function(value, key){
-//			var themeColors = ssSideNavSections.theme.colors;
-			
-			var split = (value || '').split('.')
-			if (split.length < 2) {
-				split.unshift('primary');
-			}
-			
-			var hueR = split[1] || 'hue-1'; // 'hue-1'
-			var colorR = split[0] || 'primary'; // 'warn'
-			
-			// Absolute color: 'orange'
-			var theme = $mdTheming.THEMES[$rootScope.app.setting.theme];
-			if(typeof theme === 'undefined'){
-				// if theme is not valid we choose default theme
-				theme = $mdTheming.THEMES['default'];
-			}
-			var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
-			
-			// Absolute Hue: '500'
-			var hueA =  theme.colors[colorR] ? (theme.colors[colorR].hues[hueR] || hueR) : hueR;
-			
-			var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-			
-			$element.css(key, 'rgb(' + colorValue.join(',') + ')');
-			
-			// Add color to md-sidenav
-			if($element.parent().attr('md-component-id')){
-				$element.parent().css(key, 'rgb(' + colorValue.join(',') + ')');
-			}
-		});
-	}
-	
-	/*
-	 * Link function
-	 */
-	function linkFunction($scope, $element, $attrs) {
-		// TODO: maso, 2017: check if it is possible to remvoe code in release condetion.
-		if (!$mdTheming.THEMES || !$mdTheming.PALETTES) {
-			return console.warn('amd-style-color: you probably want to $mdTheming');
-		}
-		// XXX: maso, 2017: lesson on property changes.
-//		$scope.$watch($attrs.amdStyleColor, function (newVal) {
-//			if (newVal) {
-//				_apply_color($element, newVal);
-//			}
-//		});
-		$rootScope.$watch('app.setting.theme', function(newVal){
-			_apply_color($element, $scope.$eval($attrs.amdStyleColor));
-		});
-		_apply_color($element, $scope.$eval($attrs.amdStyleColor));
-	}
-
-	return {
-		restrict: 'A',
-//		scope: {
-//		ssStyleColor: '='
-//		},
-		link: linkFunction
-	};
-});
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -2091,22 +2856,22 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-titled-block
+ * @name mb-titled-block
  * @descritpion Title block
  * 
  * 
  */
-.directive('amdTitledBlock', function() {
+.directive('mbTitledBlock', function() {
 	return {
 		replace:true,
 		restrict: 'E',
 		transclude: true,
 		scope: {
-			amdTitle: '@?',
-			amdIcon: '@?',
-			amdProgress: '<?'
-	    },
-		templateUrl: 'views/directives/amd-titled-block.html'
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?'
+		},
+		templateUrl: 'views/directives/mb-titled-block.html'
 	};
 });
 /*
@@ -2137,20 +2902,20 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-tree-heading
+ * @name mb-tree-heading
  * @description Tree heading
  * 
  * Display tree heading
  * 
  */
-.directive('amdTreeHeading', function($animate) {
+.directive('mbTreeHeading', function($animate) {
 	return {
         restrict: 'E',
         replace: true,
         scope: {
-            amdSection: '='
+            mbSection: '='
         },
-		templateUrl: 'views/directives/amd-tree-heading.html',
+		templateUrl: 'views/directives/mb-tree-heading.html',
 		link: function(scope, element, attr) {
 			// TODO: maso, 2017:
 		},
@@ -2188,20 +2953,20 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-tree-link
+ * @name mb-tree-link
  * @description Tree link
  * 
  * Display and link section item
  * 
  */
-.directive('amdTreeLink', function($animate) {
+.directive('mbTreeLink', function($animate) {
 	return {
 		restrict : 'E',
 //		replace: true,
 		scope: {
-			amdSection: '='
+			mbSection: '='
 		},
-		templateUrl: 'views/directives/amd-tree-link.html',
+		templateUrl: 'views/directives/mb-tree-link.html',
 		link: function(scope, element, attr) {
 			// TODO: maso, 2017:
 		},
@@ -2262,20 +3027,20 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-tree-toggle
+ * @name mb-tree-toggle
  * @description Tree toggle
  * 
  * Display tree toggle
  * 
  */
-.directive('amdTreeToggle', function($timeout, $animateCss, $mdSidenav, $mdMedia, $rootScope) {
+.directive('mbTreeToggle', function($timeout, $animateCss, $mdSidenav, $mdMedia, $rootScope) {
 	return {
 		restrict: 'E',
 		replace: true,
 		scope: {
-			amdSection: '='
+			mbSection: '='
 		},
-		templateUrl: 'views/directives/amd-tree-toggle.html',
+		templateUrl: 'views/directives/mb-tree-toggle.html',
 		link: function($scope, $element, $attr, $ctrl) {
 			var _el_ul = $element.find('ul');
 
@@ -2294,7 +3059,7 @@ angular.module('mblowfish-core')
 			};
 
 			if (!_el_ul) {
-				return console.warn('amd-tree: `menuToggle` cannot find ul element');
+				return console.warn('mb-tree: `menuToggle` cannot find ul element');
 			}
 
 			
@@ -2315,7 +3080,7 @@ angular.module('mblowfish-core')
 			}
 
 			$scope.$watch(function() {
-				return $ctrl.isOpen($scope.amdSection);
+				return $ctrl.isOpen($scope.mbSection);
 			}, function(open) {
 				$timeout(function(){
 					toggleMenu(open);
@@ -2384,203 +3149,6 @@ angular.module('mblowfish-core')
 	};
 });
 
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directives
- * @name amdConfigPage
- * @description Configuaration page 
- * 
- * Configuration page
- * 
- */
-.directive('amdConfigPage', function($compile, $controller, $settings, $widget, $rootScope) {
-
-
-	var bodyElementSelector = 'div#amd-config-body';
-	var placeholderElementSelector = 'div#amd-config-placeholder';
-	/**
-	 * 
-	 */
-	function loadPreference($scope, page, anchor) {
-		// 1- create scope
-		var childScope = $scope.$new(false, $scope);
-		childScope.app = $rootScope.app;
-		//		childScope.wbModel = model;
-
-		// 2- create element
-		$widget.getTemplateFor(page)
-		.then(function(template) {
-			var element = angular.element(
-					'<div md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
-
-			// 3- bind controller
-			var link = $compile(element);
-			if (angular.isDefined(page.controller)) {
-				var locals = {
-						$scope : childScope,
-						$element : element,
-						// TODO: maso, 2018: 
-				};
-				var controller = $controller(page.controller, locals);
-				if (page.controllerAs) {
-					childScope[page.controllerAs] = controller;
-				}
-				element.data('$ngControllerController', controller);
-			}
-			;
-
-			// Load preferences
-			anchor.empty();
-			anchor.append(link(childScope));
-		});
-	}
-
-	/**
-	 * Adding preloader.
-	 * 
-	 * @param scope
-	 * @param element
-	 * @param attr
-	 * @returns
-	 */
-	function postLink(scope, element, attr) {
-		// Get Anchor
-		var _anchor = element //
-		.children(bodyElementSelector) //
-		.children(placeholderElementSelector);
-		// TODO: maso, 2018: check auncher exist
-		scope.$watch('amdConfigId', function(id) {
-			if (!!id) {
-				$settings.config(id)
-				.then(function(page) {
-					loadPreference(scope, page, _anchor);
-				}, function() {
-					// TODO: maso, 2017: handle errors
-				});
-			}
-		});
-	}
-
-	return {
-		restrict : 'E',
-		templateUrl : 'views/directives/amd-config-page.html',
-		replace : true,
-		scope : {
-			amdConfigId : '='
-		},
-		link : postLink
-	};
-});
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-
-	/**
-	 * @ngdoc directive
-	 * @name amd-datepicker
-	 * @descritpion Date picker
-	 * 
-	 * Select a date based on local.
-	 * 
-	 */
-	.directive('amdDatepicker', function($mdUtil, $rootScope) {
-
-		// **********************************************************
-		// Private Methods
-		// **********************************************************
-		function postLink(scope, element, attr, ctrls) {
-			scope.app = $rootScope.app;
-			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
-
-			function render() {
-				var date = moment //
-					.utc(ngModelCtrl.$modelValue) //
-					.local();
-				if (date.isValid()) {
-					scope.date = date;
-					return;
-				}
-			// TODO: maso, 2018: handle invalid date
-			}
-
-			function setValue() {
-				var date = moment(scope.date) //
-					.utc() //
-					.format('YYYY-MM-DD HH:mm');
-				ngModelCtrl.$setViewValue(date);
-			}
-
-			ngModelCtrl.$render = render;
-			scope.$watch('date', setValue);
-		}
-
-
-		return {
-			replace : false,
-			templateUrl : 'views/directives/mb-datepicker.html',
-			restrict : 'E',
-			scope : {
-				minDate : '=mdMinDate',
-				maxDate : '=mdMaxDate',
-			//		        placeholder: '@mdPlaceholder',
-			//		        currentView: '@mdCurrentView',
-			//		        dateFilter: '=mdDateFilter',
-			//		        isOpen: '=?mdIsOpen',
-			//		        debounceInterval: '=mdDebounceInterval',
-			//		        dateLocale: '=mdDateLocale'
-			},
-			require : [ 'ngModel' ],
-			priority : 210, // Run before ngAria
-			link : postLink
-		};
-	});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -2609,418 +3177,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name mb-dynamic-tabs
- * @description Display tabs dynamically
- * 
- * In some case, a dynamic tabs are required. This module add them dynamically.
- * 
- */
-.directive('mbDynamicTabs', function($wbUtil, $settings, $q, $rootScope, $compile, $controller) {
-	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
-
-
-	/**
-	 * encapsulate template srce with panel widget template.
-	 * 
-	 * @param page
-	 *            setting page config
-	 * @param tempateSrc
-	 *            setting page html template
-	 * @returns encapsulate html template
-	 */
-	function _encapsulatePanel(page, template) {
-		// TODO: maso, 2017: pass all paramter to the setting
-		// panel.
-		return template;
-	}
-
-
-	function link($scope, $element, $attr) {
-		// Load pages in scope
-		var pages = $settings.settings();
-		$scope.pages = pages;
-
-		function loadPage(index){
-			var widget = null;
-			var jobs = [];
-			var pages2 = [];
-
-
-			// 1- Find element
-			var target = $element.find('#' + CHILDREN_AUNCHOR);
-
-			// 2- Clear childrens
-			target.empty();
-
-			// 3- load pages
-			var page = pages[index];
-			var template = $wbUtil.getTemplateFor(page);
-			if (angular.isDefined(template)) {
-				jobs.push(template.then(function(templateSrc) {
-					templateSrc = _encapsulatePanel(page, templateSrc);
-					var element = angular.element(templateSrc);
-					var scope = $rootScope.$new(false, $scope);
-					scope.page = page;
-					scope.value = $scope.value;
-					if (angular .isDefined(page.controller)) {
-						$controller(page.controller, {
-							$scope : scope,
-							$element : element,
-						});
-					}
-					$compile(element)(scope);
-					pages2.push(element);
-				}));
-			}
-
-			$q.all(jobs).then(function() {
-				angular.forEach(pages2, function(element) {
-					target.append(element);
-				});
-			});
-		}
-
-		$scope.$watch('pageIndex', function(value){
-			if(value >= 0){
-				loadPage(value);
-			}
-		});
-	}
-
-
-
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			amdSection: '='
-		},
-		templateUrl: 'views/directives/mb-dynamic-tabs.html',
-		link: link,
-		controller : function($scope) {
-			// TODO: maso, 2017:
-		}
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc directive
- * @name amd-panel
- * @restrict E
- * @scope true
- * 
- * @description A full dashboard panel
- * 
- * Dashboard needs an area to show modules, navigator, message and the other visual parts
- * of the system. This is a general dashboard panel which must be placed to the index.html
- * directly.
- * 
- * @usage
- * To load the dashboard add this directive to the index.html. All internal elements will be removed after the
- * module loaded.
- * <hljs lang="html">
- * 	<body>
- * 		<amd-panel>
- * 			<div class="amd-preloader">
- * 				Loading....
- * 			</div>
- * 		</amd-panel>
- * 	....
- * 	</body>
- * </hljs>
- * 
- */
-.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
-		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
-
-
-	var bodyElementSelector = 'div#mb-panel-root-ready';
-	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
-
-
-	// $view service
-//	function toggleRightSidebar() {
-//	toggleSidebar('right');
-//	}
-
-//	function toggleSidebar(id) {
-//	return $mdSidenav(id).toggle();
-//	}
-
-//	function toggleItemsList() {
-//	var pending = $mdBottomSheet.hide() || $q.when(true);
-//	pending.then(function() {
-//	toggleSidebar('left');
-//	});
-//	}
-
-	/*
-	 * Load page and create an element
-	 */
-	function _loadPage($scope, page, prefix, postfix) {
-		// 1- create scope
-		var childScope = $scope.$new(false, $scope);
-		childScope = Object.assign(childScope, {
-			app : $rootScope.app,
-			_page : page,
-			_visible : function() {
-				if (angular.isFunction(this._page.visible)) {
-					return this._page.visible(this);
-				}
-				return true;
-			}
-		});
-
-		// 2- create element
-		return $widget.getTemplateFor(page)
-		.then(function(template) {
-			var element = angular.element(prefix + template + postfix);
-
-			// 3- bind controller
-			var link = $compile(element);
-			if (angular.isDefined(page.controller)) {
-				var locals = {
-						$scope : childScope,
-						$element : element,
-				};
-				var controller = $controller(page.controller, locals);
-				if (page.controllerAs) {
-					childScope[page.controllerAs] = controller;
-				}
-				element.data('$ngControllerController', controller);
-			}
-			;
-			return {
-				element : link(childScope),
-				page : page
-			};
-		});
-	}
-
-	function postLink($scope, $element, $attr) {
-		var _sidenaves = [];
-		var _toolbars = [];
-
-		/*
-		 * Remove all sidenaves
-		 */
-		function _removeElements(pages, elements) {
-			var cache = [];
-			for(var i = 0; i < elements.length; i++){
-				var flag = false;
-				for(var j = 0; j < pages.length; j++){
-					if(pages[j].id === elements[i].page.id) {
-						flag = true;
-						break;
-					}
-				}
-				if(flag){
-					elements[i].element.detach();
-					elements[i].cached = true;
-					cache.push(elements[i]);
-				} else {
-					elements[i].element.remove();
-				}
-			}
-			return cache;
-		}
-
-		function _getSidenavElement(page){
-			for(var i = 0; i < _sidenaves.length; i++){
-				if(_sidenaves[i].page.id == page.id){
-					return $q.when(_sidenaves[i]);
-				}
-			}
-			return _loadPage($scope, page,
-					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch ng-show="_visible()" md-component-id="{{_page.id}}" md-is-locked-open="_page.locked && $mdMedia(\'gt-sm\')" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
-			'</md-sidenav>')
-			.then(function(pageElement) {
-				_sidenaves.push(pageElement);
-			});
-		}
-		
-		function _getToolbarElement(page){
-			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id == page.id){
-					return $q.when(_toolbars[i]);
-				}
-			}
-			return _loadPage($scope, page, 
-					'<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">', 
-			'</md-toolbar>')
-			.then(function(pageElement) {
-				_toolbars.push(pageElement);
-			});
-		}
-
-		/*
-		 * reload sidenav
-		 */
-		function _reloadSidenavs(sidenavs) {
-			_sidenaves = _removeElements(sidenavs, _sidenaves);
-			var jobs = [];
-			for (var i = 0; i < sidenavs.length; i++) {
-				jobs.push(_getSidenavElement(sidenavs[i]));
-			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element //
-				.children(bodyElementSelector) //
-				.children(placeholderElementSelector);
-				for (var i = 0; i < _sidenaves.length; i++) {
-					var ep = _sidenaves[i];
-					if(ep.chached){
-						continue;
-					}
-					if (ep.page.position === 'start') {
-						_anchor.prepend(ep.element);
-					} else {
-						_anchor.append(ep.element);
-					}
-				}
-			});
-		}
-
-		/*
-		 * Reload toolbars
-		 */
-		function _reloadToolbars(toolbars) {
-			_toolbars = _removeElements(toolbars, _toolbars);
-			var jobs = [];
-			for (var i = 0; i < toolbars.length; i++) {
-				jobs.push(_getToolbarElement(toolbars[i]));
-			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element //
-				.children(bodyElementSelector);
-				for (var i = 0; i < _toolbars.length; i++) {
-					var ep = _toolbars[i];
-					if(ep.chached){
-						continue;
-					}
-					_anchor.prepend(ep.element);
-				}
-			});
-		}
-
-		/*
-		 * Reload UI
-		 * 
-		 * - sidenav
-		 * - toolbar
-		 */
-		function _reloadUi(){
-			if(!$route.current){
-				return;
-			}
-			// Sidenavs
-			var sdid = $route.current.sidenavs || ['navigator'];
-			sdid.push('settings');
-			sdid.push('help');
-			if(angular.isArray(sdid)){
-				var sd =[];
-				var jobs = [];
-				angular.forEach(sdid, function(item){
-					jobs.push($app.sidenav(item)
-							.then(function(sidenav){
-								sd.push(sidenav);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadSidenavs(sd);
-				});
-			}
-			// Toolbars
-			var tids = $route.current.toolbars || ['dashboard'];
-			if(angular.isArray(tids)){
-				var ts = [];
-				var jobs = [];
-				angular.forEach(tids, function(item){
-					jobs.push($app.toolbar(item)
-							.then(function(toolbar){
-								ts.push(toolbar);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadToolbars(ts);
-				});
-			}
-		}
-
-//		_reloadUi();
-		$scope.$watch(function(){
-			return $route.current;
-		}, _reloadUi);
-	}
-
-
-	return {
-		restrict : 'E',
-		replace : true,
-		templateUrl : 'views/directives/mb-panel.html',
-		link : postLink
-	};
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc directive
- * @name amd-tree
+ * @name mb-tree
  * @description Tree
  * 
  * Display tree menu
@@ -3103,63 +3260,6 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name mb-navigation-path
- * @description Display current navigation path of system
- * 
- * Navigation path is a menu which is updated by the $navigation service. This menu
- * show a chain of menu items to show the current path of the system. It is very
- * usefull to show current path to the users.
- * 
- * 
- */
-.directive('mbNavigationBar' , function($menu) {
-
-	return {
-		restrict : 'E',
-		replace: false,
-		templateUrl: 'views/directives/mb-navigation-bar.html',
-		link: postLink
-	};
-
-	/**
-	 * Init the bar
-	 */
-	function postLink(scope, element, attr) {
-		/*
-		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
-		 */
-		scope.pathMenu = $menu.menu('navigationPathMenu');
-	}
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc directive
  * @name mb-user-menu
  * @restrict E
  * @description Display global user menu
@@ -3167,13 +3267,13 @@ angular.module('mblowfish-core')
  * Load current user action into the scope. It is used to show user menu
  * in several parts of the system.
  */
-.directive('mbUserMenu', function($menu, $app, $mdSidenav) {
+.directive('mbUserMenu', function($actions, $app, $mdSidenav) {
 	/**
 	 * Post link 
 	 */
 	function postLink($scope, $element, $attr) {
 		// maso, 2017: Get user menu
-		$scope.menu = $menu.menu('mb.user');
+		$scope.menu = $actions.group('mb.user');
 		$scope.logout = $app.logout;
 		$scope.settings = function(){
 			return $mdSidenav('settings').toggle();
@@ -3224,7 +3324,7 @@ angular.module('mblowfish-core')
  * Display tree menu
  * 
  */
-.directive('mbUserToolbar', function($animate) {
+.directive('mbUserToolbar', function($actions) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -3233,10 +3333,92 @@ angular.module('mblowfish-core')
 //		},
 		templateUrl: 'views/directives/mb-user-toolbar.html',
 		link: function($scope, $element, $attr, $ctrl) {
-			// TODO: maso, 2017:
+			$scope.menu = $actions.group('mb.user');
 		},
 		controller : 'MbAccountCtrl'
 	};
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+
+.factory('Action', function() {
+
+	var action  = function(data) {
+		angular.extend(this, data, {
+			priority: 10
+		});
+		this.visible = this.visible || function(){return true;};
+		return this;
+	};
+
+	action.prototype.exec = function($event){
+		if(!this.action){
+			return;
+		}
+		this.action();
+		$event.stopPropagation();
+	}
+
+	return action;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+.factory('ActionGroup', function() {
+	var actionGroup  = function(data) {
+		angular.extend(this, (data || {}), {
+			priority: 10,
+			items: []
+		});
+	};
+
+	return actionGroup;
 });
 
 /*
@@ -3334,7 +3516,7 @@ angular.module('mblowfish-core')
 	 */
 	window.alert = function(message) {
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amd-alert.html',
+			templateUrl : 'views/dialogs/mb-alert.html',
 			config : {
 				message : message
 			}
@@ -3363,7 +3545,7 @@ angular.module('mblowfish-core')
 	window.confirm = function(message) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amd-confirm.html',
+			templateUrl : 'views/dialogs/mb-confirm.html',
 			config : {
 				message : message
 			}
@@ -3393,7 +3575,7 @@ angular.module('mblowfish-core')
 	window.prompt = function(text, defaultText) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amd-prompt.html',
+			templateUrl : 'views/dialogs/mb-prompt.html',
 			config : {
 				message : text,
 				model : defaultText
@@ -3414,6 +3596,14 @@ angular.module('mblowfish-core')
 		}
 		return $mdToast.show(toast);
 	};
+
+
+	// XXX: Hadi 1396-12-22: کد زیر توی amh بود.
+//	window.alert = $notification.alert;
+//	window.confirm = $notification.confirm;
+//	window.prompt = $notification.prompt;
+//	window.toast = $notification.toast;
+	
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3442,35 +3632,34 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($app, $rootScope, $navigator, $route, $mdSidenav) {
-	$app.getToolbarMenu()//
-	.item({
+.run(function($app, $rootScope, $navigator, $route, $mdSidenav, $actions) {
+	$actions.newAction({
+		id: 'mb.preferences',
 		priority : 15,
 		icon : 'settings',
-		label : 'Preferences',
-		tooltip : 'Open preferences panel',
+		title : 'Preferences',
+		description : 'Open preferences panel',
 		visible : function(){
 			return $rootScope.app.user.owner;
 		},
-		active : function(){
+		action : function(){
 			return $navigator.openPage('/preferences');
-		}
-	})
-	.item({ // help
+		},
+		groups:['mb.toolbar.menu']
+	});
+	$actions.newAction({ // help
+		id: 'mb.help',
 		priority : 15,
 		icon : 'help',
-		label : 'Help',
-		tooltip : 'Display help in sidenav',
+		title : 'Help',
+		description : 'Display help in sidenav',
 		visible : function(){
 			return !!$route.current.helpId;
 		},
-		active : function(){
-//			return $mdSidenav('help');
+		action : function(){
 			$rootScope.showHelp = !$rootScope.showHelp;
-			if($rootScope.showHelp){
-				return $mdSidenav('help').toggle();
-			}
-		}
+		},
+		groups:['mb.toolbar.menu']
 	});
 	
 	$app.newToolbar({
@@ -3494,7 +3683,7 @@ angular.module('mblowfish-core')
 		id : 'help',
 		title : 'Help',
 		description : 'System online help',
-		controller : 'AmdHelpCtrl',
+		controller : 'MbHelpCtrl',
 		templateUrl : 'views/sidenavs/mb-help.html',
 		locked : true,
 		visible : function() {
@@ -3504,14 +3693,11 @@ angular.module('mblowfish-core')
 	});
 	$app.newSidenav({
 		id : 'settings',
-		title : 'Settings',
-		description : 'User settings',
-//		controller : 'AvaHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-settings.html',
+		title : 'Options',
+		description : 'User options',
+		controller : 'MbOptionsCtrl',
+		templateUrl : 'views/sidenavs/mb-options.html',
 		locked : false,
-//		visible : function($scope) {
-//			return $scope.showHelp;
-//		},
 		position : 'end'
 	});
 });
@@ -3539,20 +3725,38 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-	/**
-	 * دریچه‌های محاوره‌ای
-	 */
-	.run(function(appcache, $window) {
-		// Check update
-		appcache.checkUpdate() //
-			.then(function() {
-				appcache.swapCache();
-				return confirm('app.update.message')
-			}) //
-			.then(function() {
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function(appcache, $window, $app) {
+	// Check update
+//	appcache.checkUpdate() //
+//	.then(function() {
+//		appcache.swapCache();
+//		return confirm('app.update.message')
+//	}) //
+//	.then(function() {
+//		$window.location.reload();
+//	});
+	
+	appcache.checkUpdate()//
+	.then(function(){
+		appcache.swapCache()//
+		.then(function(){
+			return $app.config('update');
+		})//
+		.then(function(updateSetting){
+			if(updateSetting !== undefined && updateSetting.hideMessage){
 				$window.location.reload();
-			});
+			}else{
+				confirm('Application is updated. Reload for new version?')//
+				.then(function(){
+					$window.location.reload();
+				});
+			}
+		});
 	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3577,21 +3781,68 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-//
+/*
+ * 
+ */
+.run(function($rootScope, $saas) {
+	$rootScope.app.captcha ={};
+	$rootScope.$watch('app.state.status', function(value){
+		if(value !== 'loading'){
+			return;
+		}
+		$saas.setting('captcha.engine')
+		.then(function(setting){
+			$rootScope.app.captcha.engine = setting.value;
+			if(setting.value === 'recaptcha'){
+				$rootScope.app.captcha.recaptcha = {};
+				// maso,2018: get publick key form server
+				$saas.setting('captcha.engine.recaptcha.key')
+				.then(function(pk){
+					$rootScope.app.captcha.recaptcha.key = pk.value;
+				});
+			}
+		});
+	})
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
 .run(function($window, $rootScope, $location, $app) {
-    if ($window.ga) {
-	// initialise google analytics
-	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-	    if (!value) {
-		return;
-	    }
-	    $window.ga('create', value, 'auto');
-	    // track pageview on state change
-	    $rootScope.$on('$routeChangeStart', function(/* event */) {
-		$window.ga('send', 'pageview', $location.path());
-	    });
-	});
-    }
+	if ($window.ga) {
+		// initialize google analytics
+		$rootScope.$watch('app.config.googleAnalytic.property', function(value){
+			if (!value) {
+				return;
+			}
+			$window.ga('create', value, 'auto');
+			// track pageview on state change
+			$rootScope.$on('$routeChangeStart', function(/* event */) {
+				$window.ga('send', 'pageview', $location.path());
+			});
+		});
+	}
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3620,48 +3871,17 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($resource) {
-	$resource.newPage({
-		label: 'User id',
-		type: 'userid',
-		templateUrl: 'views/resources/amd-user.html',
-//		controller: 'AmWbSeenSelectContentsCtrl',
-		tags: ['userId']
-	});
-	$resource.newPage({
-		label: 'User id list',
-		type:'useridlist',
-		templateUrl: 'views/resources/amd-users-list.html',
-		controller: 'AmdUsersResourceCtrl',
-		tags: ['userId']
-	});
-	$resource.newPage({
-		label: 'Group id',
-		type:'groupid',
-		templateUrl: 'views/resources/amd-group.html',
-//		controller: 'AmdGroupsResourceCtrl',
-		tags: ['groupId']
-	});
-	$resource.newPage({
-		label: 'Group id list',
-		type:'groupidlist',
-		templateUrl: 'views/resources/amd-groups-list.html',
-		controller: 'AmdGroupsResourceCtrl',
-		tags: ['groupId']
-	});
-	$resource.newPage({
-		label: 'Role id',
-		type:'roleid',
-		templateUrl: 'views/resources/amd-role.html',
-//		controller: 'AmdRolesResourceCtrl',
-		tags: ['roleId']
-	});
-	$resource.newPage({
-		label: 'Role id list',
-		type:'roleidlist',
-		templateUrl: 'views/resources/amd-roles-list.html',
-		controller: 'AmdRolesResourceCtrl',
-		tags: ['roleId']
+.run(function($app, $rootScope, $navigator) {
+	
+	var callWatch = $rootScope.$watch(function(){
+		return $rootScope.app.initial;
+	}, function(val){
+		if(val){
+			$navigator.openPage('initialization');
+		}else if(val === false){
+			// remove watch
+			callWatch();
+		}
 	});
 });
 /*
@@ -3691,45 +3911,55 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($settings) {
+.run(function($options, $preferences) {
 	// Pages
-	$settings
-	.newConfig({
+	$preferences
+	.newPage({
 		id : 'local',
 		title : 'local',
 		description : 'manage dashboard locality and language.',
-		templateUrl : 'views/preferences/md-local.html',
-		controller : 'settingsLocalCtrl',
+		templateUrl : 'views/preferences/mb-local.html',
+//		controller : 'settingsLocalCtrl',
 		icon : 'language',
 		tags : [ 'local', 'language' ],
 	})//
-	.newConfig({
+	.newPage({
 		id : 'brand',
 		title : 'Branding',
 		description : 'Manage application branding such as title, logo and descritpions.',
-		templateUrl : 'views/preferences/md-brand.html',
-		controller : 'settingsBrandCtrl',
+		templateUrl : 'views/preferences/mb-brand.html',
+//		controller : 'settingsBrandCtrl',
 		icon : 'copyright',
+		priority: 2,
+		required: true,
 		tags : [ 'brand' ],
 	})//
-	.newConfig({
+	.newPage({
 		id : 'google-analytic',
 		title : 'Google Analytic',
 		templateUrl : 'views/preferences/mb-google-analytic.html',
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
 		tags : [ 'analysis' ],
+	})
+	.newPage({
+		id: 'update',
+		templateUrl : 'views/preferences/update.html',
+		title: 'Update application',
+		description: 'Settings of updating process and how to update the application.',
+		icon: 'autorenew'
 	});
 	
 	// Settings
-	$settings.newSetting({
+	$options.newPage({
 		title: 'Local',
-		templateUrl: 'views/settings/mb-local.html',
+		templateUrl: 'views/options/mb-local.html',
 		tags: ['local']
 	});
-	$settings.newSetting({
+	$options.newPage({
 		title: 'Theme',
-		templateUrl: 'views/settings/mb-theme.html',
+		controller: 'MbThemesCtrl',
+		templateUrl: 'views/options/mb-theme.html',
 		tags: ['theme']
 	});
 });
@@ -3790,6 +4020,136 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc service
+ * @name $$$actions
+ * @description Manage application actions
+ * 
+ */
+// TODO: maso, 2018: add document
+.service('$actions', function(Action, ActionGroup) {
+	var _actionsList = [];
+	var _actionsMap = {};
+	
+	var _groupsList = [];
+	var _groupsMap = [];
+
+	function _actions() {
+		return {
+			'items' : _actionsList
+		};
+	}
+	
+	// TODO: maso, 2018: add document
+	function _newAction(data){
+		// Add new action
+		var action = new Action(data);
+		_actionsMap[action.id] = action;
+		_actionsList.push(action);
+    	for(var i = 0; i < action.groups.length; i++){
+    		var group = _group(action.groups[i]);
+    		group.items.push(action);
+    	}
+    	if(action.scope){
+    		action.scope.$on("$destroy", function() {
+    	        _removeAction(action);
+    	    });
+    	}
+		return action;
+	}
+	
+	// TODO: maso, 2018: add document
+	function _action(actionId){
+		var action = _actionsMap[actionId];
+		if(action){
+			return action;
+		}
+	}
+	
+	// TODO: maso, 2018: add document
+	function _removeAction(action){
+		_actionsMap[action.id] = null;
+		var index = _actionsList.indexOf(action);
+	    if (index > -1) {
+	    	_actionsList.splice(index, 1);
+	    	for(var i = 0; i < action.groups.length; i++){
+	    		var group = _group(action.groups[i]);
+	    		var j = group.items.indexOf(action);
+	    		if(j > -1){
+	    			group.items.splice(j, 1);
+	    		}
+	    	}
+	    	return action;
+	    }
+	}
+	
+	// TODO: maso, 2018: add document
+	function _groups(){
+		return {
+			'items' : _groupsList
+		};
+	}
+	
+	// TODO: maso, 2018: add document
+	function _newGroup(groupData){
+		// TODO: maso, 2018: assert id
+		return _group(groupData.id, groupData);
+	}
+	
+	// TODO: maso, 2018: add document
+	function _group(groupId, groupData){
+		var group = _groupsMap[groupId];
+		if(!group){
+			group = new ActionGroup();
+			group.id = groupId;
+			_groupsMap[group.id] = group;
+			_groupsList.push(group);
+		}
+		if(groupData){
+			angular.extend(group, groupData);
+		}
+		return group;
+	}
+	
+	
+	return {
+			// actions
+			actions : _actions,
+			newAction: _newAction,
+			action: _action,
+			removeAction: _removeAction,
+			
+			// groups
+			groups: _groups,
+			newGroup: _newGroup,
+			group: _group,
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
 angular.module('mblowfish-core') //
 
 /**
@@ -3814,9 +4174,9 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $menu, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
 
-	var APP_PREFIX = 'angular-material-dashbord-';
+	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
 	var app = {
 			state : {
@@ -3903,7 +4263,7 @@ angular.module('mblowfish-core') //
 	});
 	
 	/*
-	 * watch callender
+	 * watch calendar
 	 * 
 	 */
 	$rootScope.$watch(function(){
@@ -3928,6 +4288,12 @@ angular.module('mblowfish-core') //
 		return $q.when(app.config[key] || defaultValue);
 	}
 
+	function setConfig(key, value){
+		return $timeout(function() {
+			return app.config[key] = value;
+		}, 1);
+	}
+	
 	/**
 	 * تنظیم‌های نرم افزار را لود می‌کند.
 	 * 
@@ -3938,8 +4304,14 @@ angular.module('mblowfish-core') //
 		return $cms.content(APP_PREFIX + app.key) //
 		.then(function(content) {
 			app._acc = content;
+			app.initial = false;
 			_loadingLog('loading configuration', 'fetch configuration content');
 			return app._acc.value();
+		}, function(error) {
+			if(error.status && error.status == '404'){
+				app.initial = true;
+			}
+			return {};
 		}) //
 		.then(function(appConfig) {
 			app.config = appConfig;
@@ -4221,53 +4593,8 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-
-	/**
-	 * Isolated menu of the scope
-	 * 
-	 * به صورت پیش فرض برای هر اسکوپ یک منو در نظر گرفته می‌شه که توی منوی
-	 * کاربری نمایش داده می‌شه.
-	 * 
-	 * این فراخوانی منوی معادل با اسکپ رو تعیین می‌کند.
-	 * 
-	 * در صورتی که اسکپ از بین بره، منوی معادل با اون هم خالی می‌شه.
-	 * 
-	 * @memberof $app
-	 * @param scope
-	 * @returns promiss
-	 */
-	function scopeMenu(scope) {
-		scope.$on('$destroy', function() {
-			$menu.menu('scopeMenu') //
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('scopeMenu', menu);
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
-
-	/**
-	 * Returns scope menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getScopeMenu() {
-		return $menu.menu('scopeMenu');
-	}
-
-	/**
-	 * Returns toolbar menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getToolbarMenu() {
-		return $menu.menu('amd.toolbars.main.menu');
-	}
 	
+
 	var _toolbars = [];
 
 	/**
@@ -4346,6 +4673,31 @@ angular.module('mblowfish-core') //
 		return $q.reject('Sidenav not found');
 	}
 	
+	
+	var _defaultToolbars = [];
+	
+	function setDefaultToolbars(defaultToolbars){
+		_defaultToolbars = defaultToolbars || [];
+		return this;
+	}
+	
+	function defaultToolbars(){
+		return _defaultToolbars;
+	}
+	
+	var _defaultSidenavs = [];
+	
+	function setDefaultSidenavs(defaultSidenavs){
+		_defaultSidenavs = defaultSidenavs || [];
+		return this;
+	}
+	
+	function defaultSidenavs(){
+		return _defaultSidenavs;
+	}
+	
+	
+	
 	$rootScope.app = app;
 
 	var apps = {};
@@ -4363,6 +4715,7 @@ angular.module('mblowfish-core') //
 
 	// Configuaration
 	apps.config = getApplicationConfig;
+	apps.setConfig = setConfig;
 	apps.loadConfig = loadApplicationConfig; // deprecated
 	apps.storeConfig = storeApplicationConfig; // deprecated
 	apps.setting = setting;
@@ -4372,15 +4725,16 @@ angular.module('mblowfish-core') //
 	apps.toolbars = toolbars;
 	apps.newToolbar = newToolbar;
 	apps.toolbar = toolbar;
+	apps.setDefaultToolbars = setDefaultToolbars;
+	apps.defaultToolbars = defaultToolbars;
 	
 	// sidenav
 	apps.sidenavs = sidenavs;
 	apps.newSidenav = newSidenav;
 	apps.sidenav = sidenav;
+	apps.setDefaultSidenavs = setDefaultSidenavs;
+	apps.defaultSidenavs = defaultSidenavs;
 
-	apps.getToolbarMenu = getToolbarMenu;
-	apps.getScopeMenu = getScopeMenu;
-	apps.scopeMenu = scopeMenu;
 	return apps;
 });
 /*
@@ -4602,7 +4956,7 @@ angular.module('mblowfish-core')
  * An item is a single navigation part wich may be a page, link, action, and etc.
  * 
  */
-.service('$navigator', function($q, $route, $mdDialog, $location, $window, $menu) {
+.service('$navigator', function($q, $route, $mdDialog, $location, $window) {
 
 	var _items = [];
 	var _groups = [];
@@ -4765,43 +5119,12 @@ angular.module('mblowfish-core')
 		// XXX: maso, 2017: check if page is the current one
 		return false;
 	}
-	
-	/**
-	 * Set navigation path
-	 * 
-	 * A navigation path is a list of path item (link and title) to show in
-	 * navigation bar. Controllers are free to set navigation path. The path
-	 * will be drup by the controller distraction.
-	 * 
-	 * @return Menu to add path items
-	 */
-	function scopePath(scope){
-		scope.$on('$destroy', function() {
-			$menu //
-			.menu('navigationPathMenu')//
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('navigationPathMenu', menu);
-				return this;
-			}
-			this.clear = function(){
-				$menu//
-				.menu('navigationPathMenu')//
-				.clear();
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
 
 	return {
 		loadAllItems : loadAllItems,
 		openDialog : openDialog,
 		openPage: openPage,
 		isPageSelected: isPageSelected,
-		scopePath: scopePath,
 		// Itmes
 		items : items,
 		newItem: newItem,
@@ -4866,7 +5189,7 @@ angular.module('mblowfish-core')
 	 */
 	function alert(message) {
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-alert.html',
+			templateUrl : 'views/dialogs/mb-alert.html',
 			config : {
 				message : message
 			}
@@ -4895,7 +5218,7 @@ angular.module('mblowfish-core')
 	function confirm(message) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-confirm.html',
+			templateUrl : 'views/dialogs/mb-confirm.html',
 			config : {
 				message : message
 			}
@@ -4925,7 +5248,7 @@ angular.module('mblowfish-core')
 	function prompt(text, defaultText) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/amh-prompt.html',
+			templateUrl : 'views/dialogs/mb-prompt.html',
 			config : {
 				message : text,
 				model : defaultText
@@ -4953,6 +5276,85 @@ angular.module('mblowfish-core')
 		prompt: prompt,
 		confirm: confirm
 	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc service
+ * @name $$options
+ * @description User option manager
+ * 
+ * Option is user configurations
+ */
+.service('$options', function($q, $navigator) {
+	var _pages = [ ];
+
+	/**
+	 * List all pages
+	 */
+	function pages() {
+		return $q.when({
+			'items' : _pages
+		});
+	}
+	
+	/**
+	 * Gets a config page
+	 * 
+	 * @name config
+	 * @param {string} configId - Id of the config
+	 * @return {promiss<config>} return config
+	 */
+	function getPage(pageId){
+		var page = null;
+		for(var i = 0; i < _pages.length; i++){
+			if(_pages[i].id == pageId){
+				return $q.when(_pages[i]);
+			}
+		}
+		return $q.reject({
+			// TODO: maso, 2018: add reason
+		});
+	}
+
+
+	/**
+	 * Creates configuration/setting page.
+	 */
+	function newPage(page){
+		_pages.push(page);
+		return app;
+	}
+	
+	var app = {
+			pages : pages,
+			page: getPage,
+			newPage : newPage,
+	};
+	return app;
 });
 
 /*
@@ -5057,7 +5459,7 @@ angular.module('mblowfish-core')
 	 * @param page
 	 * @returns
 	 */
-	function createPage(page){
+	function newPage(page){
 		preferences.push(page);
 		return this;
 	}
@@ -5065,124 +5467,9 @@ angular.module('mblowfish-core')
 	return  {
 		'pages' : pages,
 		'page': page,
-		'open' : open,
+		'newPage': newPage,
 		'openPage' : open,
-		'createPage': createPage,
 	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc service
- * @name $settings
- * @description System setting manager
- * 
- * Setting is user configurations
- */
-.service('$settings', function($q, $navigator) {
-	var _pages = [ ];
-	var _settings = [];
-
-	/**
-	 * List all pages
-	 */
-	function pages() {
-		return $q.when({
-			'items' : _pages
-		});
-	}
-	
-	/**
-	 * Gets a config page
-	 * 
-	 * @name config
-	 * @param {string} configId - Id of the config
-	 * @return {promiss<config>} return config
-	 */
-	function getPage(pageId){
-		var page = null;
-		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id == pageId){
-				return $q.when(_pages[i]);
-			}
-		}
-		return $q.reject({
-			// TODO: maso, 2018: add reason
-		});
-	}
-
-	/**
-	 * Open config/setting page
-	 */
-	function openPage(page){
-		return $navigator.openPage('/configs/'+page.id);
-	}
-
-	/**
-	 * Creates configuration/setting page.
-	 */
-	function createPage(page){
-		_pages.push(page);
-		return app;
-	}
-
-	/**
-	 * List all settings
-	 */
-	function settings(){
-		return  _settings;
-	}
-	
-	/**
-	 * Adding new setting page
-	 */
-	function newSetting(setting){
-		_settings.push(setting);
-		return this;
-	}
-	
-	/**
-	 * get a setting 
-	 */
-	function setting(){
-		// TODO: maso, 2017: support add and remove
-	}
-	
-	var app = {
-			configs : pages,
-			config: getPage,
-			openConfig : openPage,
-			newPage: createPage,
-			newConfig: createPage,
-			// Settings
-			settings: settings,
-			setting: setting,
-			newSetting: newSetting
-	};
-	return app;
 });
 
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
@@ -5203,33 +5490,38 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/directives/mb-captcha.html',
+    "<div>  <div vc-recaptcha ng-model=ctrl.captchaValue theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.key lang=\"app.captcha.language || 'fa'\"> </div>  </div>"
+  );
+
+
   $templateCache.put('views/directives/mb-datepicker.html',
     "<div> <md-persian-datepicker ng-model=date ng-show=\"app.calendar === 'Jalaali'\"> </md-persian-datepicker> <md-datepicker ng-model=date md-placeholder=\"Enter date\" ng-show=\"app.calendar === 'Gregorian'\"> </md-datepicker> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
-    "<div layout=column flex layout-fill> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"page in pages\"> <span translate>{{page.title}}</span> </md-tab> </md-tabs> <md-content id=mb-dynamic-tabs-select-resource-children> </md-content> </div>"
+    "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=amd-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-click=menu.active() class=amd-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div>  <md-toolbar ng-show=!(showSearch||showSort||showState)> <div class=md-toolbar-tools> <md-button ng-if=amdIcon md-no-ink class=md-icon-button aria-label={{amdIcon}}> <wb-icon>{{amdIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-show=amdTitle>{{amdTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=amdSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=amdEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <md-menu ng-show=amdMoreActions.length> <md-button aria-label=\"Open phone interactions menu\" class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in amdMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=\"showSearch && amdEnableSearch\"> <div class=md-toolbar-tools> <md-button ng-click=\"showSearch = !showSearch\" aria-label=Back> <wb-icon>arrow_back</wb-icon> </md-button> <h3 flex=10 translate>Back</h3> <md-input-container md-theme=input flex> <label>&nbsp;</label> <input ng-model=temp.query ng-keyup=\"$event.keyCode == 13 ? query.searchTerm=temp.query : null\"> </md-input-container> <md-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=showSort> <div class=md-toolbar-tools> <md-button ng-click=\"showSort = !showSort\"> <wb-icon>arrow_back</wb-icon> </md-button> <md-switch ng-model=query.sortDesc aria-label=DESC> DESC sort order </md-switch> <span flex=10></span> <div layout=row layout-align=\"space-between center\"> <span translate>Sort by : </span> <md-select ng-model=query.sortBy> <md-option ng-repeat=\"key in amdSortKeys\" value={{key}} translate>{{key}}</md-option> </md-select> </div> </div> </md-toolbar> </div>"
+    "<div>  <md-toolbar ng-show=!(showSearch||showSort||showState)> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-show=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <md-menu ng-show=mbMoreActions.length> <md-button aria-label=\"Open phone interactions menu\" class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=\"showSearch && mbEnableSearch\"> <div class=md-toolbar-tools> <md-button ng-click=\"showSearch = !showSearch\" aria-label=Back> <wb-icon>arrow_back</wb-icon> </md-button> <h3 flex=10 translate>Back</h3> <md-input-container md-theme=input flex> <label>&nbsp;</label> <input ng-model=temp.query ng-keyup=\"$event.keyCode == 13 ? query.searchTerm=temp.query : null\"> </md-input-container> <md-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=showSort> <div class=md-toolbar-tools> <md-button ng-click=\"showSort = !showSort\"> <wb-icon>arrow_back</wb-icon> </md-button> <md-switch ng-model=query.sortDesc aria-label=DESC> DESC sort order </md-switch> <span flex=10></span> <div layout=row layout-align=\"space-between center\"> <span translate>Sort by : </span> <md-select ng-model=query.sortBy> <md-option ng-repeat=\"key in mbSortKeys\" value={{key}} translate>{{key}}</md-option> </md-select> </div> </div> </md-toolbar> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch layout=column layout-fill> <div id=mb-panel-root-ready ng-show=\"app.state.status === 'ready'\" ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=AmdAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=\"ctrl.state ==='working'\">  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>User name</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>  <div vc-recaptcha key=\"'6LeuFzkUAAAAALniqtqd60Ca4iG8Kqx8rpMmUjEF'\" ng-model=\"credit['g-recaptcha-response']\" ng-if=\"captcha.type=='recaptcha'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit) translate>login</md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready ng-if=\"app.state.status === 'ready'\" layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>  <div vc-recaptcha key=\"'6LeuFzkUAAAAALniqtqd60Ca4iG8Kqx8rpMmUjEF'\" ng-model=\"credit['g-recaptcha-response']\" ng-if=\"captcha.type=='recaptcha'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-preference-page.html',
-    "<div> <div id=amd-config-body> <div id=amd-config-placeholder> </div> </div> </div>"
+    "<div> <div id=mb-preference-body> <div id=mb-preference-placeholder> </div> </div> </div>"
   );
 
 
@@ -5239,32 +5531,37 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-tree-heading.html',
-    "<h2 amd-style-color=\"{'color': 'primary.A100'}\" class=\"amd-tree-heading md-subhead\"> <wb-icon ng-if=amdSection.icon>{{amdSection.icon}}</wb-icon> {{amdSection.title}} </h2>"
+    "<h2 md-colors=\"{color: 'primary.A100'}\" class=\"mb-tree-heading md-subhead\"> <wb-icon ng-if=mbSection.icon>{{mbSection.icon}}</wb-icon> {{mbSection.title}} </h2>"
   );
 
 
   $templateCache.put('views/directives/mb-tree-link.html',
-    "<md-button amd-style-color=\"{'background-color': (isSelected(amdSection.state) || $state.includes(amdSection.state)) ? 'primary.800': 'primary.default'}\" class=\"md-raised md-primary md-hue-1\" ng-click=focusSection(amdSection)> <wb-icon ng-if=amdSection.icon>{{amdSection.icon}}</wb-icon> <span translate>{{amdSection.title}}</span> <span class=md-visually-hidden ng-if=isSelected(amdSection)> current page </span> </md-button>"
+    "<md-button md-colors=\"{backgroundColor: (isSelected(mbSection.state) || $state.includes(mbSection.state)) ? 'primary.800': 'primary'}\" class=\"md-raised md-primary md-hue-1\" ng-click=focusSection(mbSection)> <wb-icon ng-if=mbSection.icon>{{mbSection.icon}}</wb-icon> <span translate>{{mbSection.title}}</span> <span class=md-visually-hidden ng-if=isSelected(mbSection)> current page </span> </md-button>"
   );
 
 
   $templateCache.put('views/directives/mb-tree-toggle.html',
-    "<div> <md-button class=\"md-raised md-primary md-hue-1 md-button-toggle\" ng-click=toggle(amdSection) aria-controls=docs-menu-{{section.name}} aria-expanded={{isOpen(amdSection)}}> <div flex layout=row> <wb-icon ng-if=amdSection.icon>{{amdSection.icon}}</wb-icon> <span class=amd-toggle-title translate>{{amdSection.title}}</span> <span flex></span> <span aria-hidden=true class=md-toggle-icon ng-class=\"{toggled : isOpen(amdSection)}\"> <wb-icon>keyboard_arrow_up</wb-icon> </span> </div> <span class=md-visually-hidden> Toggle {{isOpen(amdSection)? expanded : collapsed}} </span> </md-button> <ul id=docs-menu-{{amdSection.title}} class=amd-tree-toggle-list> <li ng-repeat=\"section in amdSection.sections\" ng-if=isVisible(section)> <amd-tree-link amd-section=section ng-if=\"section.type === 'link'\"> </amd-tree-link> </li> </ul> </div>"
+    "<div> <md-button class=\"md-raised md-primary md-hue-1 md-button-toggle\" ng-click=toggle(mbSection) aria-controls=docs-menu-{{section.name}} aria-expanded={{isOpen(mbSection)}}> <div flex layout=row> <wb-icon ng-if=mbSection.icon>{{mbSection.icon}}</wb-icon> <span class=mb-toggle-title translate>{{mbSection.title}}</span> <span flex></span> <span aria-hidden=true class=md-toggle-icon ng-class=\"{toggled : isOpen(mbSection)}\"> <wb-icon>keyboard_arrow_up</wb-icon> </span> </div> <span class=md-visually-hidden> Toggle {{isOpen(mbSection)? expanded : collapsed}} </span> </md-button> <ul id=docs-menu-{{mbSection.title}} class=mb-tree-toggle-list> <li ng-repeat=\"section in mbSection.sections\" ng-if=isVisible(section)> <mb-tree-link mb-section=section ng-if=\"section.type === 'link'\"> </mb-tree-link> </li> </ul> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-tree.html',
-    "<ul class=mb-tree> <li mb-style-color=\"{'border-bottom-color': 'background.600'}\" ng-repeat=\"section in mbSection.sections | orderBy : 'priority'\" ng-if=isVisible(section)> <mb-tree-heading mb-section=section ng-if=\"$parent.section.type === 'heading'\"> </mb-tree-heading> <mb-tree-link mb-section=section ng-if=\"$parent.section.type === 'link'\"> </mb-tree-link> <mb-tree-toggle mb-section=section ng-if=\"section.type === 'toggle'\"> </mb-tree-toggle>                </li> </ul>"
+    "<ul class=mb-tree> <li mb-color=\"{borderBottom-color: 'background.600'}\" ng-repeat=\"section in mbSection.sections | orderBy : 'priority'\" ng-if=isVisible(section)> <mb-tree-heading mb-section=section ng-if=\"$parent.section.type === 'heading'\"> </mb-tree-heading> <mb-tree-link mb-section=section ng-if=\"$parent.section.type === 'link'\"> </mb-tree-link> <mb-tree-toggle mb-section=section ng-if=\"section.type === 'toggle'\"> </mb-tree-toggle>                </li> </ul>"
   );
 
 
   $templateCache.put('views/directives/mb-user-menu.html',
-    "<div md-colors=\"{'background-color': 'primary-400'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle ng-src={{app.user.current.avatar}}> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.active() translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate>{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings() translate>Settings</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=logout() translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
+    "<div md-colors=\"{'background-color': 'primary-400'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle ng-src={{app.user.current.avatar}}> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate=\"\">{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings() translate>Settings</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=logout() translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
-    "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src={{app.user.current.avatar}}> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.active() translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate>{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout(); translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+    "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src={{app.user.current.avatar}}> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate>{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout(); translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+  );
+
+
+  $templateCache.put('views/mb-initial.html',
+    "<md-content layout=column flex> <mb-preference-page mb-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href=\"/\" translate>go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
   );
 
 
@@ -5274,12 +5571,27 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<md-content ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{config.icon}} size=128> </wb-icon> </td> <td><h1 translate>{{config.title}}</h1> <p translate>{{config.description}}</p></td> </tr> </table> <amd-config-page amd-config-id=config.id> </amd-config-page> </md-content>"
+    "<md-content ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td><h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p></td> </tr> </table> <mb-preference-page mb-preference-id=preference.id> </mb-preference-page> </md-content>"
   );
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in settingsTiles\" ng-style=\"{'background': tile.color}\" ng-click=openSetting(tile)> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\">{{tile.page.title}}</h3> </md-grid-tile-header> <div> <h3><wb-icon>{{tile.page.icon}}</wb-icon></h3> <p>{{tile.page.description}}</p> </div> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> {{tile.page.title}} </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding> {{tile.page.description}} </p> </md-grid-tile> </md-grid-list> </md-content>"
+  );
+
+
+  $templateCache.put('views/options/mb-local.html',
+    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
+  );
+
+
+  $templateCache.put('views/options/mb-theme.html',
+    "<md-input-container class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container>"
+  );
+
+
+  $templateCache.put('views/preferences/congratulate.html',
+    " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Congratulate :)</h1> <p translate> Congratulate, your site is ready. You can start design your site. </p> </div> </md-content>"
   );
 
 
@@ -5298,18 +5610,18 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/preferences/update.html',
+    "<md-switch class=md-secondary ng-model=app.config.update.hideMessage> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoCheck> <p translate>Check update automaticlly</p> </md-switch>"
+  );
+
+
+  $templateCache.put('views/preferences/welcome.html',
+    " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Welcome</h1> <p translate> It is your site. You should determine some little settings before launch your site. After that your site is ready. These settings and some more could be set at future in settings section of your site. If you are not login please login to change settings. </p> </div> <div flex=none layout=column>  <form ng-show=app.user.anonymous style=\"border: solid 1px\" md-colors=\"{borderColor:'default-primary-100'}\" name=form ng-submit=login(credit) layout=column layout-padding> <div layout-padding> <p><span md-colors=\"{color:'default-warn'}\" translate>{{loginMessage}}</span></p> </div> <md-input-container> <label translate>username or email</label> <input ng-model=credit.login required> </md-input-container> <md-input-container> <label translate>password</label> <input ng-model=credit.password required type=password> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-padding> <md-button ng-disabled=form.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button> </div> </form> <div layout-padding ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>continue to set some options and settings.</p> </div> </div> </md-content>"
+  );
+
+
   $templateCache.put('views/resources/mb-sidenav.html',
     ""
-  );
-
-
-  $templateCache.put('views/settings/mb-local.html',
-    "<section class=\"demo-container md-whiteframe-z1 show-source\" layout=column layout-padding> <h3 translate>Theme</h3> <md-divider></md-divider> <md-input-container ng-controller=AmdThemesCtrl class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container> </section> <section class=\"demo-container md-whiteframe-z1 show-source\" layout-padding> <h3 translate>Local</h3> <md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </section>"
-  );
-
-
-  $templateCache.put('views/settings/mb-theme.html',
-    "<section class=\"demo-container md-whiteframe-z1 show-source\" layout=column layout-padding> <h3 translate>Theme</h3> <md-divider></md-divider> <md-input-container ng-controller=AmdThemesCtrl class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container> </section> <section class=\"demo-container md-whiteframe-z1 show-source\" layout-padding> <h3 translate>Local</h3> <md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </section>"
   );
 
 
@@ -5319,17 +5631,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-navigator.html',
-    "<md-toolbar class=md-whiteframe-z2 layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{app.config.description}}</p> </md-toolbar> <md-content> <mb-tree mb-section=menuItems>  </mb-tree></md-content>"
+    "<md-toolbar class=md-whiteframe-z2 layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{app.config.description}}</p> </md-toolbar> <md-content> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
   );
 
 
-  $templateCache.put('views/sidenavs/mb-settings.html',
-    " <amd-user-toolbar amd-actions=userActions> </amd-user-toolbar>  <amd-dynamic-tabs amd-tabs=settingTabs> </amd-dynamic-tabs>"
+  $templateCache.put('views/sidenavs/mb-options.html',
+    " <mb-user-toolbar mb-actions=userActions> </mb-user-toolbar>  <md-content layout-padding> <mb-dynamic-tabs mb-tabs=tabs> </mb-dynamic-tabs> </md-content>"
   );
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleItemsList() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button>             <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.active() class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button>             <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
   );
 
 }]);

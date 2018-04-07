@@ -44,9 +44,9 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $menu, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
 
-	var APP_PREFIX = 'angular-material-dashbord-';
+	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
 	var app = {
 			state : {
@@ -133,7 +133,7 @@ angular.module('mblowfish-core') //
 	});
 	
 	/*
-	 * watch callender
+	 * watch calendar
 	 * 
 	 */
 	$rootScope.$watch(function(){
@@ -158,6 +158,12 @@ angular.module('mblowfish-core') //
 		return $q.when(app.config[key] || defaultValue);
 	}
 
+	function setConfig(key, value){
+		return $timeout(function() {
+			return app.config[key] = value;
+		}, 1);
+	}
+	
 	/**
 	 * تنظیم‌های نرم افزار را لود می‌کند.
 	 * 
@@ -168,8 +174,14 @@ angular.module('mblowfish-core') //
 		return $cms.content(APP_PREFIX + app.key) //
 		.then(function(content) {
 			app._acc = content;
+			app.initial = false;
 			_loadingLog('loading configuration', 'fetch configuration content');
 			return app._acc.value();
+		}, function(error) {
+			if(error.status && error.status == '404'){
+				app.initial = true;
+			}
+			return {};
 		}) //
 		.then(function(appConfig) {
 			app.config = appConfig;
@@ -451,53 +463,8 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-
-	/**
-	 * Isolated menu of the scope
-	 * 
-	 * به صورت پیش فرض برای هر اسکوپ یک منو در نظر گرفته می‌شه که توی منوی
-	 * کاربری نمایش داده می‌شه.
-	 * 
-	 * این فراخوانی منوی معادل با اسکپ رو تعیین می‌کند.
-	 * 
-	 * در صورتی که اسکپ از بین بره، منوی معادل با اون هم خالی می‌شه.
-	 * 
-	 * @memberof $app
-	 * @param scope
-	 * @returns promiss
-	 */
-	function scopeMenu(scope) {
-		scope.$on('$destroy', function() {
-			$menu.menu('scopeMenu') //
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('scopeMenu', menu);
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
-
-	/**
-	 * Returns scope menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getScopeMenu() {
-		return $menu.menu('scopeMenu');
-	}
-
-	/**
-	 * Returns toolbar menu.
-	 * 
-	 * @returns promiss
-	 */
-	function getToolbarMenu() {
-		return $menu.menu('amd.toolbars.main.menu');
-	}
 	
+
 	var _toolbars = [];
 
 	/**
@@ -576,6 +543,31 @@ angular.module('mblowfish-core') //
 		return $q.reject('Sidenav not found');
 	}
 	
+	
+	var _defaultToolbars = [];
+	
+	function setDefaultToolbars(defaultToolbars){
+		_defaultToolbars = defaultToolbars || [];
+		return this;
+	}
+	
+	function defaultToolbars(){
+		return _defaultToolbars;
+	}
+	
+	var _defaultSidenavs = [];
+	
+	function setDefaultSidenavs(defaultSidenavs){
+		_defaultSidenavs = defaultSidenavs || [];
+		return this;
+	}
+	
+	function defaultSidenavs(){
+		return _defaultSidenavs;
+	}
+	
+	
+	
 	$rootScope.app = app;
 
 	var apps = {};
@@ -593,6 +585,7 @@ angular.module('mblowfish-core') //
 
 	// Configuaration
 	apps.config = getApplicationConfig;
+	apps.setConfig = setConfig;
 	apps.loadConfig = loadApplicationConfig; // deprecated
 	apps.storeConfig = storeApplicationConfig; // deprecated
 	apps.setting = setting;
@@ -602,14 +595,15 @@ angular.module('mblowfish-core') //
 	apps.toolbars = toolbars;
 	apps.newToolbar = newToolbar;
 	apps.toolbar = toolbar;
+	apps.setDefaultToolbars = setDefaultToolbars;
+	apps.defaultToolbars = defaultToolbars;
 	
 	// sidenav
 	apps.sidenavs = sidenavs;
 	apps.newSidenav = newSidenav;
 	apps.sidenav = sidenav;
+	apps.setDefaultSidenavs = setDefaultSidenavs;
+	apps.defaultSidenavs = defaultSidenavs;
 
-	apps.getToolbarMenu = getToolbarMenu;
-	apps.getScopeMenu = getScopeMenu;
-	apps.scopeMenu = scopeMenu;
 	return apps;
 });

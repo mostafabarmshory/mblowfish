@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * An item is a single navigation part wich may be a page, link, action, and etc.
  * 
  */
-.service('$navigator', function($q, $route, $mdDialog, $location, $window, $menu) {
+.service('$navigator', function($q, $route, $mdDialog, $location, $window) {
 
 	var _items = [];
 	var _groups = [];
@@ -195,43 +195,12 @@ angular.module('mblowfish-core')
 		// XXX: maso, 2017: check if page is the current one
 		return false;
 	}
-	
-	/**
-	 * Set navigation path
-	 * 
-	 * A navigation path is a list of path item (link and title) to show in
-	 * navigation bar. Controllers are free to set navigation path. The path
-	 * will be drup by the controller distraction.
-	 * 
-	 * @return Menu to add path items
-	 */
-	function scopePath(scope){
-		scope.$on('$destroy', function() {
-			$menu //
-			.menu('navigationPathMenu')//
-			.clear();
-		});
-		function tempMenu() {
-			this.add = function(menu) {
-				$menu.addItem('navigationPathMenu', menu);
-				return this;
-			}
-			this.clear = function(){
-				$menu//
-				.menu('navigationPathMenu')//
-				.clear();
-				return this;
-			}
-		}
-		return new tempMenu();
-	}
 
 	return {
 		loadAllItems : loadAllItems,
 		openDialog : openDialog,
 		openPage: openPage,
 		isPageSelected: isPageSelected,
-		scopePath: scopePath,
 		// Itmes
 		items : items,
 		newItem: newItem,

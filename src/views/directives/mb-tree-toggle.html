@@ -1,36 +1,36 @@
 <div>
 	<md-button 
 		class="md-raised md-primary md-hue-1 md-button-toggle"
-		ng-click="toggle(amdSection)"
+		ng-click="toggle(mbSection)"
 		aria-controls="docs-menu-{{section.name}}"
-		aria-expanded="{{isOpen(amdSection)}}">
+		aria-expanded="{{isOpen(mbSection)}}">
 		<div flex layout="row">
-			<wb-icon ng-if="amdSection.icon">{{amdSection.icon}}</wb-icon>
-	    	<span class="amd-toggle-title" translate>{{amdSection.title}}</span>
+			<wb-icon ng-if="mbSection.icon">{{mbSection.icon}}</wb-icon>
+	    	<span class="mb-toggle-title" translate>{{mbSection.title}}</span>
 		    <span flex></span>
 		    <span 
 		    	aria-hidden="true" 
 		    	class="md-toggle-icon"
-		        ng-class="{toggled : isOpen(amdSection)}">
+		        ng-class="{toggled : isOpen(mbSection)}">
 				<wb-icon>keyboard_arrow_up</wb-icon>
 		    </span>
 		</div>
 		<span 
 			class="md-visually-hidden">
-		    Toggle {{isOpen(amdSection)? expanded : collapsed}}
+		    Toggle {{isOpen(mbSection)? expanded : collapsed}}
 		</span>
 	</md-button>
 	
 	<ul 
-		id="docs-menu-{{amdSection.title}}" 
-		class="amd-tree-toggle-list">
+		id="docs-menu-{{mbSection.title}}" 
+		class="mb-tree-toggle-list">
 		<li 
-			ng-repeat="section in amdSection.sections" 
+			ng-repeat="section in mbSection.sections" 
 			ng-if="isVisible(section)">
-	        <amd-tree-link
-	        	amd-section="section" 
+	        <mb-tree-link
+	        	mb-section="section" 
 	        	ng-if="section.type === 'link'">
-	        </amd-tree-link>
+	        </mb-tree-link>
 		</li>
 	</ul>
 </div>

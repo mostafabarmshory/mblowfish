@@ -18,6 +18,46 @@
     direction: ltr;
     text-align: left;
 }
+.mb-badge {
+	background-color: rgb(0, 130, 130);
+	border-image-outset: 0px;
+	border-image-repeat: stretch;
+	border-image-slice: 100%;
+	border-image-source: none;
+	color: rgb(255, 255, 255);
+	border-radius: 10px;
+	box-sizing: border-box;
+	cursor: pointer;
+	display: inline-block;
+	font-family: Roboto, "Helvetica Neue", sans-serif;
+	font-size: 11px;
+	font-stretch: normal;
+	font-style: normal;
+	font-variant-caps: normal;
+	font-variant-ligatures: normal;
+	font-variant-numeric: normal;
+	font-weight: normal;
+	height: 20px;
+	letter-spacing: 0.4px;
+	line-height: 18px;
+	min-width: 20px;
+	padding-bottom: 0px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 1px;
+	text-align: center;
+	text-indent: 0px;
+	text-rendering: auto;
+	text-shadow: none;
+	text-size-adjust: 100%;
+	text-transform: none;
+	white-space: normal;
+	word-spacing: 0px;
+	/* z-index: 9999; */
+	writing-mode: horizontal-tb;
+	-webkit-font-smoothing: antialiased;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
 /*
 */
 
@@ -42,7 +82,7 @@
  *  This class is add to the domes where you are interested to adding
  * infinate scroll.
  */
-.amd-infinate-scroll {
+.mb-infinate-scroll {
 	overflow: auto;
 	overflow-x: auto;
 	overflow-y: auto;
@@ -128,7 +168,7 @@
 /*************************************************
  * Style of all tables
  *************************************************/
-table.amd-table {
+table.mb-table {
 	border: none;
 	margin: 0;
 	padding: 0;
@@ -137,19 +177,19 @@ table.amd-table {
 	border-collapse: collapse;
 }
 
-table.amd-table caption {
+table.mb-table caption {
 	font-size: 14px;
 	margin: 2px;
 }
 
-table.amd-table tr {
+table.mb-table tr {
 	border-bottom: 1px solid #6a7475;
 }
 
 /*************************************************
- * amd-table-description
+ * mb-table-description
  *************************************************/
-table.amd-table-description tr td:first-child {
+table.mb-table-description tr td:first-child {
 	font-weight: bold;
 }
 /*
@@ -159,24 +199,24 @@ table.amd-table-description tr td:first-child {
  * free to use this item anywhere.
  * 
  */
-.amd-tree {
+.mb-tree {
 	margin: 0;
 }
 
-.amd-tree, .amd-tree ul {
+.mb-tree, .mb-tree ul {
 	list-style: none;
 	padding: 0;
 }
 
-.amd-tree li {
+.mb-tree li {
 	margin: 0;
 }
 
-.amd-tree>li {
+.mb-tree>li {
 	border-bottom: 1px solid;
 }
 
-.amd-tree>li:nth-child(1) {
+.mb-tree>li:nth-child(1) {
 	border-top: none;
 }
 
@@ -185,7 +225,7 @@ table.amd-table-description tr td:first-child {
 		rgba(0, 0, 0, 0.098), 0px 0px 5px 1px rgba(0, 0, 0, 0.084);
 }
 
-.amd-tree .md-button {
+.mb-tree .md-button {
 	box-shadow: none !important;
 	border-radius: 0;
 	/*color: white;*/
@@ -203,7 +243,7 @@ table.amd-table-description tr td:first-child {
 	width: 100%;
 }
 
-.amd-tree md-select {
+.mb-tree md-select {
 	/**
      * Override md-select margins.
      * With margins the menu will look incorrect and causes mobile list
@@ -213,25 +253,25 @@ table.amd-table-description tr td:first-child {
 	width: 100%;
 }
 
-.amd-tree md-select md-select-label {
+.mb-tree md-select md-select-label {
 	justify-content: flex-end;
 	padding-top: 10px;
 }
 
-.amd-tree md-select md-select-label span {
+.mb-tree md-select md-select-label span {
 	margin-right: auto;
 	padding-left: 13px;
 }
 
-.amd-tree md-select .md-select-icon {
+.mb-tree md-select .md-select-icon {
 	margin-right: 28px;
 }
 
-.amd-tree button.md-button::-moz-focus-inner {
+.mb-tree button.md-button::-moz-focus-inner {
 	padding: 0;
 }
 
-.amd-tree-heading {
+.mb-tree-heading {
 	display: block;
 	line-height: 32px;
 	margin: 0;
@@ -240,13 +280,13 @@ table.amd-table-description tr td:first-child {
 	width: 100%;
 }
 
-.amd-tree-toggle-list {
+.mb-tree-toggle-list {
 	overflow: hidden;
 	position: relative;
 	z-index: 1;
 }
 
-.amd-tree .amd-tree-toggle-list a.md-button {
+.mb-tree .mb-tree-toggle-list a.md-button {
 	display: block;
 	padding: 0 16px 0 32px;
 	text-transform: none;
@@ -274,14 +314,14 @@ table.amd-table-description tr td:first-child {
 	height: 40px;
 }
 
-.amd-toggle-title {
+.mb-toggle-title {
 	padding: 0px 5px 0px 5px;
 }
 /*
  * User menu root
  */
 .amd-user-menu {
-	
+/* 	background: red; */
 }
 
 /*

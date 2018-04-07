@@ -1,12 +1,12 @@
 <md-button
-	amd-style-color="{'background-color': (isSelected(amdSection.state) || $state.includes(amdSection.state)) ? 'primary.800': 'primary.default'}"
+	md-colors="{backgroundColor: (isSelected(mbSection.state) || $state.includes(mbSection.state)) ? 'primary.800': 'primary'}"
 	class="md-raised md-primary md-hue-1"
-	ng-click="focusSection(amdSection)">
-		<wb-icon ng-if="amdSection.icon">{{amdSection.icon}}</wb-icon>
-		<span translate>{{amdSection.title}}</span>
+	ng-click="focusSection(mbSection)">
+		<wb-icon ng-if="mbSection.icon">{{mbSection.icon}}</wb-icon>
+		<span translate>{{mbSection.title}}</span>
 	<span 
 		class="md-visually-hidden"
-		ng-if="isSelected(amdSection)">
+		ng-if="isSelected(mbSection)">
 		current page
 	</span>
 </md-button>

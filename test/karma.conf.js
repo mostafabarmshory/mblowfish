@@ -90,6 +90,7 @@ module.exports = function(config) {
       'bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
       'bower_components/ng-appcache/dist/appcache.js',
       'bower_components/angular-recaptcha/release/angular-recaptcha.js',
+      'bower_components/material-steppers/dist/material-steppers.js',
       'bower_components/blob-polyfill/Blob.js',
       'bower_components/file-saver.js/FileSaver.js',
       'bower_components/angular-file-saver/dist/angular-file-saver.bundle.js',

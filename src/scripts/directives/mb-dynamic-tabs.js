@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * In some case, a dynamic tabs are required. This module add them dynamically.
  * 
  */
-.directive('mbDynamicTabs', function($wbUtil, $settings, $q, $rootScope, $compile, $controller) {
+.directive('mbDynamicTabs', function($wbUtil, $q, $rootScope, $compile, $controller) {
 	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
 
 
@@ -54,9 +54,6 @@ angular.module('mblowfish-core')
 
 	function link($scope, $element, $attr) {
 		// Load pages in scope
-		var pages = $settings.settings();
-		$scope.pages = pages;
-
 		function loadPage(index){
 			var widget = null;
 			var jobs = [];
@@ -70,7 +67,7 @@ angular.module('mblowfish-core')
 			target.empty();
 
 			// 3- load pages
-			var page = pages[index];
+			var page = $scope.mbTabs[index];
 			var template = $wbUtil.getTemplateFor(page);
 			if (angular.isDefined(template)) {
 				jobs.push(template.then(function(templateSrc) {
@@ -96,7 +93,8 @@ angular.module('mblowfish-core')
 				});
 			});
 		}
-
+		
+		// Index of selected page
 		$scope.$watch('pageIndex', function(value){
 			if(value >= 0){
 				loadPage(value);
@@ -110,12 +108,9 @@ angular.module('mblowfish-core')
 		restrict: 'E',
 		replace: true,
 		scope: {
-			amdSection: '='
+			mbTabs: '='
 		},
 		templateUrl: 'views/directives/mb-dynamic-tabs.html',
 		link: link,
-		controller : function($scope) {
-			// TODO: maso, 2017:
-		}
 	};
 });

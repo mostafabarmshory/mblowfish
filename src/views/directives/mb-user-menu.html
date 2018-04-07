@@ -20,10 +20,10 @@
             	ng-if="menu.items.length"
             	ng-repeat="item in menu.items | orderBy:['-priority']">
             	<md-button 
-            		ng-click="item.active()"
+            		ng-click="item.exec($event)"
             		translate>
            			<wb-icon ng-if="item.icon">{{item.icon}}</wb-icon>
-					<span ng-if="item.title" translate>{{item.title}}</span>
+					<span ng-if="item.title" translate="">{{item.title}}</span>
             	</md-button>
             </md-menu-item>
 			<md-menu-divider ng-if="menu.items.length"></md-menu-divider>

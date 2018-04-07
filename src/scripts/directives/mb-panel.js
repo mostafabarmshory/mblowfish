@@ -59,21 +59,6 @@ angular.module('mblowfish-core')
 	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
 
 
-	// $view service
-//	function toggleRightSidebar() {
-//	toggleSidebar('right');
-//	}
-
-//	function toggleSidebar(id) {
-//	return $mdSidenav(id).toggle();
-//	}
-
-//	function toggleItemsList() {
-//	var pending = $mdBottomSheet.hide() || $q.when(true);
-//	pending.then(function() {
-//	toggleSidebar('left');
-//	});
-//	}
 
 	/*
 	 * Load page and create an element
@@ -86,7 +71,15 @@ angular.module('mblowfish-core')
 			_page : page,
 			_visible : function() {
 				if (angular.isFunction(this._page.visible)) {
-					return this._page.visible(this);
+					var v = this._page.visible(this);
+					if(this._page.sidenav){
+						if(v)
+							$mdSidenav(this._page.id).open();
+						else
+							$mdSidenav(this._page.id).close();
+						return v;
+					}
+					return v;
 				}
 				return true;
 			}
@@ -153,7 +146,7 @@ angular.module('mblowfish-core')
 				}
 			}
 			return _loadPage($scope, page,
-					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch ng-show="_visible()" md-component-id="{{_page.id}}" md-is-locked-open="_page.locked && $mdMedia(\'gt-sm\')" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
+					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
 			'</md-sidenav>')
 			.then(function(pageElement) {
 				_sidenaves.push(pageElement);
@@ -166,9 +159,10 @@ angular.module('mblowfish-core')
 					return $q.when(_toolbars[i]);
 				}
 			}
-			return _loadPage($scope, page, 
-					'<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">', 
-			'</md-toolbar>')
+			
+			var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+			var postfix = page.raw ? '' : '</md-toolbar>';
+			return _loadPage($scope, page, prefix, postfix)
 			.then(function(pageElement) {
 				_toolbars.push(pageElement);
 			});
@@ -189,6 +183,10 @@ angular.module('mblowfish-core')
 				var _anchor = $element //
 				.children(bodyElementSelector) //
 				.children(placeholderElementSelector);
+				// maso, 2018: sort
+				_sidenaves.sort(function(a, b){
+					return (a.page.priority || 10) > (b.page.priority || 10);
+				});
 				for (var i = 0; i < _sidenaves.length; i++) {
 					var ep = _sidenaves[i];
 					if(ep.chached){
@@ -199,6 +197,8 @@ angular.module('mblowfish-core')
 					} else {
 						_anchor.append(ep.element);
 					}
+
+					ep.page.sidenav = true;
 				}
 			});
 		}
@@ -217,6 +217,10 @@ angular.module('mblowfish-core')
 				// Get Anchor
 				var _anchor = $element //
 				.children(bodyElementSelector);
+				// maso, 2018: sort
+				_toolbars.sort(function(a, b){
+					return (a.page.priority || 10) > (b.page.priority || 10);
+				});
 				for (var i = 0; i < _toolbars.length; i++) {
 					var ep = _toolbars[i];
 					if(ep.chached){
@@ -238,7 +242,8 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Sidenavs
-			var sdid = $route.current.sidenavs || ['navigator'];
+			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
+			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
 			if(angular.isArray(sdid)){
@@ -256,7 +261,7 @@ angular.module('mblowfish-core')
 				});
 			}
 			// Toolbars
-			var tids = $route.current.toolbars || ['dashboard'];
+			var tids = $route.current.toolbars || $app.defaultToolbars();
 			if(angular.isArray(tids)){
 				var ts = [];
 				var jobs = [];
@@ -275,7 +280,9 @@ angular.module('mblowfish-core')
 
 //		_reloadUi();
 		$scope.$watch(function(){
-			return $route.current;
+			if(!$route.current)
+				return false;
+			return $route.current.$$route.originalPath + '_@_' + $rootScope.app.state.status;
 		}, _reloadUi);
 	}
 

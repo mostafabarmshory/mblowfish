@@ -4,12 +4,12 @@
 		ng-show="!(showSearch||showSort||showState)">
 	  <div class="md-toolbar-tools">
 	  	<md-button 
-	  		ng-if="amdIcon" 
+	  		ng-if="mbIcon" 
 	  		md-no-ink class="md-icon-button" 
-	  		aria-label="{{amdIcon}}">
-	      <wb-icon>{{amdIcon}}</wb-icon>
+	  		aria-label="{{mbIcon}}">
+	      <wb-icon>{{mbIcon}}</wb-icon>
 	    </md-button>
-	  	<h2 flex md-truncate ng-show="amdTitle">{{amdTitle}}</h2>
+	  	<h2 flex md-truncate ng-show="mbTitle">{{mbTitle}}</h2>
 	  
 	  	<md-button 
 	  		ng-if="reload"
@@ -19,14 +19,14 @@
 	      <wb-icon>repeat</wb-icon>
 	    </md-button>
 	    <md-button 
-	    	ng-show="amdSortKeys"
+	    	ng-show="mbSortKeys"
 	    	class="md-icon-button" 
 	  		aria-label="Sort"
 	    	ng-click="showSort = !showSort">
 	      <wb-icon>sort</wb-icon>
 	    </md-button>
 	    <md-button 
-	    	ng-show="amdEnableSearch"
+	    	ng-show="mbEnableSearch"
 	    	class="md-icon-button" 
 	    	aria-label="Search" 
 	    	ng-click="showSearch = !showSearch">
@@ -41,7 +41,7 @@
 	    </md-button>
 	  
 	  
-		<md-menu ng-show="amdMoreActions.length">
+		<md-menu ng-show="mbMoreActions.length">
 			<md-button 
 				aria-label="Open phone interactions menu" 
 				class="md-icon-button" 
@@ -50,7 +50,7 @@
 			</md-button>
 			<md-menu-content width="4">
 				<md-menu-item
-					ng-repeat="item in amdMoreActions">
+					ng-repeat="item in mbMoreActions">
 					<md-button 
 						ng-click="item.action()">
 						<wb-icon ng-show="item.icon">{{item.icon}}</wb-icon>
@@ -63,7 +63,7 @@
 	</md-toolbar>
 	
 	<!-- 	Search -->
-	<md-toolbar class="md-hue-1" ng-show="showSearch && amdEnableSearch">
+	<md-toolbar class="md-hue-1" ng-show="showSearch && mbEnableSearch">
 	  <div class="md-toolbar-tools">
 	    <md-button ng-click="showSearch = !showSearch" aria-label="Back">
 	      <wb-icon>arrow_back</wb-icon>
@@ -95,7 +95,7 @@
 		   <span translate>Sort by : </span>
 		   <md-select ng-model="query.sortBy">
 		     <md-option
-		     	ng-repeat="key in amdSortKeys" 
+		     	ng-repeat="key in mbSortKeys" 
 		     	value="{{key}}" 
 		     	translate>{{key}}</md-option>
 		   </md-select>

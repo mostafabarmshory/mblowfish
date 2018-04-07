@@ -1,15 +1,13 @@
 <div 
-	layout="column"
-	flex 
-	layout-fill>
+	layout="column">
 	<md-tabs
 		md-selected="pageIndex">
 		<md-tab 
-			ng-repeat="page in pages">
-			<span translate>{{page.title}}</span>
+			ng-repeat="tab in mbTabs">
+			<span translate>{{tab.title}}</span>
 		</md-tab>
 	</md-tabs>
-	<md-content
+	<div
 		id="mb-dynamic-tabs-select-resource-children">
-	</md-content>
+	</div>
 </div>

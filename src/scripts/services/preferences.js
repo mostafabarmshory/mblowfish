@@ -100,7 +100,7 @@ angular.module('mblowfish-core')
 	 * @param page
 	 * @returns
 	 */
-	function createPage(page){
+	function newPage(page){
 		preferences.push(page);
 		return this;
 	}
@@ -108,8 +108,7 @@ angular.module('mblowfish-core')
 	return  {
 		'pages' : pages,
 		'page': page,
-		'open' : open,
+		'newPage': newPage,
 		'openPage' : open,
-		'createPage': createPage,
 	};
 });

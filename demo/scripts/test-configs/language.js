@@ -69,6 +69,7 @@ angular.module('app')
 		'Whatsapp' : 'واتساپ',
 		'Contacts' : 'تماس‌ها',
 		'User avatar' : 'اواتار کاربری',
+		'User id': 'شناسه کاربری',
 		'Socials' : 'شبکه‌های اجتمائی',
 
 		'spas' : 'نرم‌افزارها',

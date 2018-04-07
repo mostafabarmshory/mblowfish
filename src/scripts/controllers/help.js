@@ -25,11 +25,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc controller
- * @name AmdHelpCtrl
+ * @name MbHelpCtrl
  * @description Help page controller
  * 
  */
-.controller('AmdHelpCtrl', function($scope, $rootScope, $route, $http, $translate) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav) {
 	$rootScope.showHelp = false;
 
 
@@ -41,8 +41,8 @@ angular.module('mblowfish-core')
 		// TODO: maso, 2018: check if route is changed.
 		var currentState = $route.current;
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		if (currentState && currentState.config) {
-			var myId = currentState.config.helpId;
+		if (currentState) {
+			var myId = currentState.helpId;
 			if (angular.isFunction(myId)) {
 				myId = myId(currentState);
 			}
@@ -61,11 +61,19 @@ angular.module('mblowfish-core')
 			});
 		}
 	}
-	
+
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
+//		$mdSidenav('help').close();
 	}
-	
+
+	function buildToggler() {
+		var debounceFn =  $mdUtil.debounce(function(){
+			$mdSidenav('help').toggle();
+		},300);
+		return debounceFn;
+	}
+
 	$scope.$watch('showHelp', _loadHelpContent);
 
 	$scope.$watch(function(){

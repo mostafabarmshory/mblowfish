@@ -26,7 +26,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc directive
- * @name amd-tree
+ * @name mb-tree
  * @description Tree
  * 
  * Display tree menu

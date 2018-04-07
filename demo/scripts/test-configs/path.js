@@ -47,14 +47,6 @@ angular.module('app') //
 		name : 'Preloading test page',
 		icon : 'load',
 	})
-	.when('/test/resources', {
-		controller : 'SelectResourcesCtrl',
-		templateUrl : 'views/amd-test-resources.html',
-		navigate : true,
-		groups : [ 'example' ],
-		name : 'Select resource',
-		icon : 'load',
-	})
 	.when('/test/inline', {
 		controller : 'InlineEditCtrl',
 		templateUrl : 'views/amd-test-inline.html',

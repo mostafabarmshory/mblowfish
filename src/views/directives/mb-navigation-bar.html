@@ -1,5 +1,5 @@
 <div
-	class="amd-navigation-path-bar"
+	class="mb-navigation-path-bar"
 	md-colors="{'background-color': 'primary'}"
 	layout="row">
 	<wb-icon 
@@ -7,9 +7,11 @@
 		ng-if="pathMenu.items.length">navigation</wb-icon>
 	<md-button
 		data-ng-repeat="menu in pathMenu.items | orderBy:['-priority']"
-		ng-click="menu.active()"
-		class="amd-navigation-path-bar-item">
-		<md-tooltip ng-if="menu.tooltip">{{menu.tooltip}}</md-tooltip>
+		ng-show="isVisible(menu)"
+		ng-href="{{menu.url}}"
+		ng-click="menu.exec($event);"
+		class="mb-navigation-path-bar-item">
+		<md-tooltip ng-if="menu.tooltip">{{menu.description}}</md-tooltip>
 		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
 		{{menu.title | translate}} 
 		<span ng-show="$index &lt; pathMenu.items.length - 1">&gt;</span>

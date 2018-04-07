@@ -1,13 +1,14 @@
 <div id="mb-panel-root"
 	md-theme="{{app.setting.theme || 'default'}}" 
 	md-theme-watch
+	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
+	dir="{{app.dir}}"
 	layout="column"
 	layout-fill>
+	<!-- TODO: THIS PART WILL BE REMOVED -->
 
 	<div id="mb-panel-root-ready"
-		ng-show="app.state.status === 'ready'"
-		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-		dir="{{app.dir}}"
+		ng-if="app.state.status === 'ready'"
 		layout="column"
 		layout-fill>
 		
@@ -32,10 +33,6 @@
 	</div>
 
 	<div ng-if="app.state.status === 'loading'"
-		md-theme="{{app.setting.theme || 'default'}}" 
-		md-theme-watch
-		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-		dir="{{app.dir}}"
 		layout="column"
 		layout-align="center center"
 		layout-fill>
@@ -54,19 +51,17 @@
 	</div>
 
 	<div ng-if="app.state.status === 'anonymous'"
-		md-theme-watch
-		ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 		layout="row"
 		layout-aligne="none"
 		layout-align-gt-sm="center center"
-		ng-controller="AmdAccountCtrl"
+		ng-controller="MbAccountCtrl"
 		flex>
 		<div 
 			md-whiteframe="3"
 			flex="100"
 			flex-gt-sm="50"
 			layout="column"
-			mb-preloading="ctrl.state ==='working'">
+			mb-preloading="ctrl.loadUser">
 			<!-- Toolbar -->
 			<md-toolbar 
 				layout="row" 
@@ -93,7 +88,7 @@
 				layout="column" 
 				layout-padding>
 		        <md-input-container>
-		            <label translate>User name</label>
+		            <label translate>Username</label>
 		            <input name="login" ng-model="credit.login" type="text" required>
 		            <div ng-messages="loginForm.login.$error">
 						<div ng-message="required" translate>This is required!</div>
@@ -127,8 +122,7 @@
 		        	<md-button 
 		        		flex-order="0" 
 	      		  		class="md-primary md-raised" 
-		        		ng-click="login(credit)"
-		        		translate>login</md-button>
+		        		ng-click="login(credit)"><span translate>Login</span></md-button>
 		        </div>
 			</form>
 		</div>
