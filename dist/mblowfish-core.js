@@ -3730,15 +3730,6 @@ angular.module('mblowfish-core')
  */
 .run(function(appcache, $window, $app) {
 	// Check update
-//	appcache.checkUpdate() //
-//	.then(function() {
-//		appcache.swapCache();
-//		return confirm('app.update.message')
-//	}) //
-//	.then(function() {
-//		$window.location.reload();
-//	});
-	
 	appcache.checkUpdate()//
 	.then(function(){
 		appcache.swapCache()//
