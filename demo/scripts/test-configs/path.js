@@ -118,6 +118,16 @@ angular.module('app') //
 		name : 'Sidenav panel config:display',
 		icon : 'list',
 	})
+	
+	
+	.when('/test/help/basic', {
+	    controller: 'TestHelpCtrl',
+	    templateUrl : 'views/mb-test-help.html',
+	    navigate : true,
+	    groups : [ 'help' ],
+	    name : 'Open help for item',
+	    icon : 'help',
+	})
 	;
 	// for(var i = 0; i <20; i++){
 	// $routeProvider.when('/table'+i, {

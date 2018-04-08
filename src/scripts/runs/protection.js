@@ -25,23 +25,15 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($notification, $help) {
-
-    /**
-     * Display help for an item
-     * 
-     * @memberof window
-     * @name openHelp
-     * @params item {object} item which is target of the help system
-     */
-	window.openHelp = function(item){
-	    return $help.openHelp(item);
-	}
-
-	// Hadi 1396-12-22: کد زیر توی amh بود.
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-	
+.run(function($help, $rootScope, $route) {
+    // Watch current state
+    var callWatch = $rootScope.$watch(function(){
+        return $route.current;
+    }, 
+    function(val){
+        // TODO: maso, 2018: Check protection of the current route
+        
+        // set help page
+        $help.setCurrentItem(val);
+    });
 });
