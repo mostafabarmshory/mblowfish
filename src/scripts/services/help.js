@@ -31,10 +31,11 @@ angular.module('mblowfish-core')
  * Manage application help.
  * 
  */
-.service('$help', function($q, $navigator) {
+.service('$help', function($q, $navigator, $rootScope) {
 
 	var _tips = [];
-
+	var _currentItem = null;
+	
 	/**
 	 * Adds new tip
 	 * 
@@ -61,11 +62,48 @@ angular.module('mblowfish-core')
 		});
 	}
 	
+	/**
+	 * Gets current item in help system
+	 * 
+	 * @memberof $help
+	 * @return {Object} current item
+	 */
+	function currentItem() {
+	    return _currentItem;
+	}
+	
+	/**
+	 * Sets current item in help system
+	 * 
+	 * @memberof $help
+	 * @params item {Object} target of the help system
+	 */
+	function setCurrentItem(item) {
+	    _currentItem = item;
+	}
+	
+	/**
+	 * Display help for an item
+	 * 
+	 * This function change current item automatically and display help for it.
+	 * 
+	 * @memberof $help
+	 * @params item {Object} an item to show help for
+	 */
+	function openHelp(item){
+	    setCurrentItem(item);
+	    $rootScope.showHelp = true;
+	}
+	
 	/*
 	 * Service struct
 	 */
 	return {
 		tip: tip,
 		tips: tips,
+		
+		currentItem: currentItem,
+		setCurrentItem: setCurrentItem,
+		openHelp: openHelp
 	};
 });

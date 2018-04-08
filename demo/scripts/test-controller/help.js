@@ -2,7 +2,7 @@
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -11,7 +11,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -21,27 +21,23 @@
  */
 'use strict';
 
-angular.module('mblowfish-core')
+angular.module('app')
 /**
- * دریچه‌های محاوره‌ای
+ * 
  */
-.run(function($notification, $help) {
-
-    /**
-     * Display help for an item
-     * 
-     * @memberof window
-     * @name openHelp
-     * @params item {object} item which is target of the help system
-     */
-	window.openHelp = function(item){
-	    return $help.openHelp(item);
-	}
-
-	// Hadi 1396-12-22: کد زیر توی amh بود.
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-	
+.controller('TestHelpCtrl', function($scope, $help) {
+    
+   $scope.openHelpItem = function(item) {
+       return $help.openHelp(item);
+   }
+   
+   $scope.setCurrentItem = function(item) {
+       return $help.setCurrentItem(item);
+   }
+    
+   $scope.openHelpWindow = function(item) {
+       return openHelp(item);
+   }
+   
+    
 });

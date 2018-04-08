@@ -29,37 +29,50 @@ angular.module('mblowfish-core')
  * @description Help page controller
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;
 
 
+	function _getHelpId(item) {
+        if(!item){
+            // TODO: maso, 2018: what if current item is null
+            return;
+        }
+        var id = item.helpId;
+        
+        if (angular.isFunction(id)) {
+            id = id(item);
+        }
 
-	function _loadHelpContent() {
-		if (!$rootScope.showHelp) {
-			return;
-		}
-		// TODO: maso, 2018: check if route is changed.
-		var currentState = $route.current;
+        if (!angular.isDefined(id)) {
+            id = 'not-found';
+        }
+        return id;
+	}
+	
+	/**
+	 * load help content for the item
+	 * 
+	 * @name loadHelpContent
+	 * @memberof MbHelpCtrl
+	 * @params item {object} an item to display help for
+	 */
+	function _loadHelpContent(item) {
+	    if($scope.helpLoading){
+	        // TODO: maso, 2018: cancle old loading
+	    }
+	    var myId = _getHelpId(item);
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		if (currentState) {
-			var myId = currentState.helpId;
-			if (angular.isFunction(myId)) {
-				myId = myId(currentState);
-			}
-			if (!angular.isDefined(myId)) {
-				myId = 'not-found';
-			}
-			// load content
-			$http.get('resources/helps/' + myId + '-' + lang + '.json') //
-			.then(function(res) {
-				$scope.helpContent = res.data;
-			});
-		} else {
-			$http.get('resources/helps/not-found-' + lang + '.json') //
-			.then(function(res) {
-				$scope.helpContent = res.val;
-			});
-		}
+		
+		// load content
+		return $scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
+		.then(function(res) {
+			$scope.helpContent = res.data;
+			$scope.helpLoaded = true;
+		})//
+		.finally(function(){
+		    $scope.helpLoading = false;
+		});
 	}
 
 	$scope.closeHelp = function(){
@@ -74,9 +87,22 @@ angular.module('mblowfish-core')
 		return debounceFn;
 	}
 
-	$scope.$watch('showHelp', _loadHelpContent);
+	/*
+	 * If user want to display help, content will be loaded.
+	 */
+	$scope.$watch('showHelp', function(){
+	    if($scope.showHelp && !$scope.helpLoaded){
+	        return _loadHelpContent();
+	    }
+	});
 
+	/*
+	 * Watch for current item in help service
+	 */
 	$scope.$watch(function(){
-		return $route.current;
-	}, _loadHelpContent);
+	        return $help.currentItem();
+	}, function(newValue){
+	    $scope.helpLoaded = false;
+	    return _loadHelpContent(newValue);
+	});
 });

@@ -665,37 +665,50 @@ angular.module('mblowfish-core')
  * @description Help page controller
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;
 
 
+	function _getHelpId(item) {
+        if(!item){
+            // TODO: maso, 2018: what if current item is null
+            return;
+        }
+        var id = item.helpId;
+        
+        if (angular.isFunction(id)) {
+            id = id(item);
+        }
 
-	function _loadHelpContent() {
-		if (!$rootScope.showHelp) {
-			return;
-		}
-		// TODO: maso, 2018: check if route is changed.
-		var currentState = $route.current;
+        if (!angular.isDefined(id)) {
+            id = 'not-found';
+        }
+        return id;
+	}
+	
+	/**
+	 * load help content for the item
+	 * 
+	 * @name loadHelpContent
+	 * @memberof MbHelpCtrl
+	 * @params item {object} an item to display help for
+	 */
+	function _loadHelpContent(item) {
+	    if($scope.helpLoading){
+	        // TODO: maso, 2018: cancle old loading
+	    }
+	    var myId = _getHelpId(item);
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		if (currentState) {
-			var myId = currentState.helpId;
-			if (angular.isFunction(myId)) {
-				myId = myId(currentState);
-			}
-			if (!angular.isDefined(myId)) {
-				myId = 'not-found';
-			}
-			// load content
-			$http.get('resources/helps/' + myId + '-' + lang + '.json') //
-			.then(function(res) {
-				$scope.helpContent = res.data;
-			});
-		} else {
-			$http.get('resources/helps/not-found-' + lang + '.json') //
-			.then(function(res) {
-				$scope.helpContent = res.val;
-			});
-		}
+		
+		// load content
+		return $scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
+		.then(function(res) {
+			$scope.helpContent = res.data;
+			$scope.helpLoaded = true;
+		})//
+		.finally(function(){
+		    $scope.helpLoading = false;
+		});
 	}
 
 	$scope.closeHelp = function(){
@@ -710,11 +723,24 @@ angular.module('mblowfish-core')
 		return debounceFn;
 	}
 
-	$scope.$watch('showHelp', _loadHelpContent);
+	/*
+	 * If user want to display help, content will be loaded.
+	 */
+	$scope.$watch('showHelp', function(){
+	    if($scope.showHelp && !$scope.helpLoaded){
+	        return _loadHelpContent();
+	    }
+	});
 
+	/*
+	 * Watch for current item in help service
+	 */
 	$scope.$watch(function(){
-		return $route.current;
-	}, _loadHelpContent);
+	        return $help.currentItem();
+	}, function(newValue){
+	    $scope.helpLoaded = false;
+	    return _loadHelpContent(newValue);
+	});
 });
 // TODO: should be moved to mblowfish-core
 
@@ -3494,115 +3520,24 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($navigator, $mdToast) {
-	// TODO:
+.run(function($notification, $help) {
 
-	/**
-	 * The alert() method displays an alert box with a specified message and an
-	 * OK button.
-	 * 
-	 * An alert box is often used if you want to make sure information comes
-	 * through to the user.
-	 * 
-	 * Note: The alert box takes the focus away from the current window, and
-	 * forces the browser to read the message. Do not overuse this method, as it
-	 * prevents the user from accessing other parts of the page until the box is
-	 * closed.
-	 * 
-	 * @param String
-	 *                message Optional. Specifies the text to display in the
-	 *                alert box, or an object converted into a string and
-	 *                displayed
-	 */
-	window.alert = function(message) {
-		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/mb-alert.html',
-			config : {
-				message : message
-			}
-		});
-	};
+    /**
+     * Display help for an item
+     * 
+     * @memberof window
+     * @name openHelp
+     * @params item {object} item which is target of the help system
+     */
+	window.openHelp = function(item){
+	    return $help.openHelp(item);
+	}
 
-	/**
-	 * The confirm() method displays a dialog box with a specified message,
-	 * along with an OK and a Cancel button.
-	 * 
-	 * A confirm box is often used if you want the user to verify or accept
-	 * something.
-	 * 
-	 * Note: The confirm box takes the focus away from the current window, and
-	 * forces the browser to read the message. Do not overuse this method, as it
-	 * prevents the user from accessing other parts of the page until the box is
-	 * closed.
-	 * 
-	 * The confirm() method returns true if the user clicked "OK", and false
-	 * otherwise.
-	 * 
-	 * @param String
-	 *                message Optional. Specifies the text to display in the
-	 *                confirm box
-	 */
-	window.confirm = function(message) {
-		// XXX: maso, 1395: wait for response (sync method)
-		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/mb-confirm.html',
-			config : {
-				message : message
-			}
-		});
-	};
-
-	/**
-	 * The prompt() method displays a dialog box that prompts the visitor for
-	 * input.
-	 * 
-	 * A prompt box is often used if you want the user to input a value before
-	 * entering a page.
-	 * 
-	 * Note: When a prompt box pops up, the user will have to click either "OK"
-	 * or "Cancel" to proceed after entering an input value. Do not overuse this
-	 * method, as it prevent the user from accessing other parts of the page
-	 * until the box is closed.
-	 * 
-	 * The prompt() method returns the input value if the user clicks "OK". If
-	 * the user clicks "cancel" the method returns null.
-	 * 
-	 * @param String
-	 *                text Required. The text to display in the dialog box
-	 * @param String
-	 *                defaultText Optional. The default input text
-	 */
-	window.prompt = function(text, defaultText) {
-		// XXX: maso, 1395: wait for response (sync method)
-		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/mb-prompt.html',
-			config : {
-				message : text,
-				model : defaultText
-			}
-		});
-	};
-
-	/*
-	 * FIXME: maso, 2017: add document
-	 */
-	window.toast = function (text){
-		var toast = text;
-		if(angular.isString(text)){
-			var toast = $mdToast.simple()
-				.textContent(text)
-				.position("bottom right")
-				.hideDelay(3000);
-		}
-		return $mdToast.show(toast);
-	};
-
-
-	// XXX: Hadi 1396-12-22: کد زیر توی amh بود.
-//	window.alert = $notification.alert;
-//	window.confirm = $notification.confirm;
-//	window.prompt = $notification.prompt;
-//	window.toast = $notification.toast;
+	// Hadi 1396-12-22: کد زیر توی amh بود.
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
 	
 });
 /*
@@ -3730,15 +3665,6 @@ angular.module('mblowfish-core')
  */
 .run(function(appcache, $window, $app) {
 	// Check update
-//	appcache.checkUpdate() //
-//	.then(function() {
-//		appcache.swapCache();
-//		return confirm('app.update.message')
-//	}) //
-//	.then(function() {
-//		$window.location.reload();
-//	});
-	
 	appcache.checkUpdate()//
 	.then(function(){
 		appcache.swapCache()//
@@ -3883,6 +3809,45 @@ angular.module('mblowfish-core')
 			callWatch();
 		}
 	});
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function($help, $rootScope, $route) {
+    // Watch current state
+    var callWatch = $rootScope.$watch(function(){
+        return $route.current;
+    }, 
+    function(val){
+        // TODO: maso, 2018: Check protection of the current route
+        
+        // set help page
+        $help.setCurrentItem(val);
+    });
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4883,10 +4848,11 @@ angular.module('mblowfish-core')
  * Manage application help.
  * 
  */
-.service('$help', function($q, $navigator) {
+.service('$help', function($q, $navigator, $rootScope) {
 
 	var _tips = [];
-
+	var _currentItem = null;
+	
 	/**
 	 * Adds new tip
 	 * 
@@ -4913,12 +4879,49 @@ angular.module('mblowfish-core')
 		});
 	}
 	
+	/**
+	 * Gets current item in help system
+	 * 
+	 * @memberof $help
+	 * @return {Object} current item
+	 */
+	function currentItem() {
+	    return _currentItem;
+	}
+	
+	/**
+	 * Sets current item in help system
+	 * 
+	 * @memberof $help
+	 * @params item {Object} target of the help system
+	 */
+	function setCurrentItem(item) {
+	    _currentItem = item;
+	}
+	
+	/**
+	 * Display help for an item
+	 * 
+	 * This function change current item automatically and display help for it.
+	 * 
+	 * @memberof $help
+	 * @params item {Object} an item to show help for
+	 */
+	function openHelp(item){
+	    setCurrentItem(item);
+	    $rootScope.showHelp = true;
+	}
+	
 	/*
 	 * Service struct
 	 */
 	return {
 		tip: tip,
 		tips: tips,
+		
+		currentItem: currentItem,
+		setCurrentItem: setCurrentItem,
+		openHelp: openHelp
 	};
 });
 
@@ -5516,7 +5519,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready ng-if=\"app.state.status === 'ready'\" layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>  <div vc-recaptcha key=\"'6LeuFzkUAAAAALniqtqd60Ca4iG8Kqx8rpMmUjEF'\" ng-model=\"credit['g-recaptcha-response']\" ng-if=\"captcha.type=='recaptcha'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready ng-if=\"app.state.status === 'ready'\" layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
   );
 
 
