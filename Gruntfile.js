@@ -517,12 +517,16 @@ module.exports = function(grunt) {
 		 * مشاهد کنید:
 		 * 
 		 * https://github.com/mgol/grunt-ng-annotate
+		 * https://github.com/olov/ng-annotate
 		 * 
 		 * این کار روی پرونده‌هایی انجام می‌شه که توی مسیر .tmp ایجاد شده اند و
 		 * همگی پرونده‌های موقت هستن. به این ترتیب می‌تونیم تمام پرونده‌های
 		 * موجود در این مسیر رو کامل به هم بریزیم.
 		 */
 		ngAnnotate : {
+		    options: {
+		        singleQuotes: true 
+		    }, 
 			dist : {
 				files : [ {
 					expand : true,

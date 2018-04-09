@@ -140,16 +140,38 @@ angular.module('app') //
 	    icon : 'help',
 	    protect: true
 	})
+	
+	.when('/test/panel/protect-function', {
+	    controller: 'TestHelpCtrl',
+	    templateUrl : 'views/mb-test-help.html',
+	    navigate : true,
+	    groups : [ 'mb-panel' ],
+	    name : 'Protected page (function)',
+	    icon : 'help',
+	    /*
+	     * Add injection annotation if you are interested to inject
+	     * a service.
+	     * 
+	     * @ngInject
+	     */
+	    protect: function($rootScope){
+	        if(!$rootScope.app.user.owner){
+	            alert('You are not owner');
+	            return true;
+	        }
+	        return false;
+	    }
+	})
+	.when('/test/panel/protect-function-denied', {
+	    controller: 'TestHelpCtrl',
+	    templateUrl : 'views/mb-test-help.html',
+	    navigate : true,
+	    groups : [ 'mb-panel' ],
+	    name : 'Protected page - denied(function)',
+	    icon : 'help',
+	    protect: function(){
+	        return true;
+	    }
+	})
 	;
-	// for(var i = 0; i <20; i++){
-	// $routeProvider.when('/table'+i, {
-	// controller : 'TableController',
-	// template : '<h1>Hi</h1>',
-	// config : {
-	// name : 'Table',
-	// sref : '.table',
-	// navigate : true
-	// }
-	// })//
-	// }
 });

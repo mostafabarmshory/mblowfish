@@ -52,7 +52,7 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
-        $app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+        $app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $injector) {
     /*
      * evaluate protect function
      */
@@ -61,7 +61,9 @@ angular.module('mblowfish-core')
             return false;
         }
         if(angular.isFunction(route.protect)){
-            return route.protect();
+            var value = $injector.invoke(route.protect, route);
+//            return route.protect($injector);
+            return value;
         }
         return route.protect && $rootScope.app.user.anonymous;
     }

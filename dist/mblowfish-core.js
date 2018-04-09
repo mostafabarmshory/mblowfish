@@ -2484,27 +2484,13 @@ angular.module('mblowfish-core')
                 }
             }
             return _loadPage($scope, page,
-                    '<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
+                    '<md-sidenav md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
             '</md-sidenav>')
             .then(function(pageElement) {
                 _sidenaves.push(pageElement);
             });
         }
 
-        function _getToolbarElement(page){
-            for(var i = 0; i < _toolbars.length; i++){
-                if(_toolbars[i].page.id == page.id){
-                    return $q.when(_toolbars[i]);
-                }
-            }
-
-            var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
-            var postfix = page.raw ? '' : '</md-toolbar>';
-            return _loadPage($scope, page, prefix, postfix)
-            .then(function(pageElement) {
-                _toolbars.push(pageElement);
-            });
-        }
 
         /*
          * reload sidenav
@@ -2579,6 +2565,7 @@ angular.module('mblowfish-core')
         restrict : 'A',
 //        replace : true,
 //        templateUrl : 'views/directives/mb-panel.html',
+        priority: 601,
         link : postLink
     };
 });
@@ -2843,7 +2830,7 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
-        $app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+        $app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $injector) {
     /*
      * evaluate protect function
      */
@@ -2852,7 +2839,9 @@ angular.module('mblowfish-core')
             return false;
         }
         if(angular.isFunction(route.protect)){
-            return route.protect();
+            var value = $injector.invoke(route.protect, route);
+//            return route.protect($injector);
+            return value;
         }
         return route.protect && $rootScope.app.user.anonymous;
     }
