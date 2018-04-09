@@ -114,7 +114,7 @@ angular.module('mblowfish-core')
 	function postLink($scope, $element, $attr) {
 		var _sidenaves = [];
 		var _toolbars = [];
-
+		
 		/*
 		 * Remove all sidenaves
 		 */
@@ -280,6 +280,7 @@ angular.module('mblowfish-core')
 
 //		_reloadUi();
 		$scope.$watch(function(){
+		    $scope.route = $route.current;
 			if(!$route.current)
 				return false;
 			return $route.current.$$route.originalPath + '_@_' + $rootScope.app.state.status;

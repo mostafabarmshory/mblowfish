@@ -8,15 +8,9 @@
 	<!-- TODO: THIS PART WILL BE REMOVED -->
 
 	<div id="mb-panel-root-ready"
-		ng-if="app.state.status === 'ready'"
+		ng-if="!route.protect && app.state.status === 'ready'"
 		layout="column"
 		layout-fill>
-		
-<!-- 		<mb-navigation-bar -->
-<!-- 			hide-gt-sm -->
-<!-- 			ng-show="app.setting.navigationPath"> -->
-<!-- 		</mb-navigation-bar> -->
-		
 		<!-- Main body -->
 		<!-- System states and data will be displayed at this element. -->
 		<div id="mb-panel-root-ready-anchor"
@@ -50,7 +44,7 @@
 		</md-button>
 	</div>
 
-	<div ng-if="app.state.status === 'anonymous'"
+	<div ng-if="route.protect && app.state.status === 'anonymous'"
 		layout="row"
 		layout-aligne="none"
 		layout-align-gt-sm="center center"
