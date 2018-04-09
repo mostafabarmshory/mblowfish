@@ -66,12 +66,17 @@ angular.module('mblowfish-core')
 
 	return {
 		replace : false,
-		templateUrl : 'views/directives/mb-datepicker.html',
+		template : function(){
+			if($rootScope.app.calendar === 'Gregorian'){
+				return '<md-datepicker ng-model="date" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+			}
+			return '<md-persian-datepicker ng-model="date" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+		},
 		restrict : 'E',
 		scope : {
-			minDate : '=mdMinDate',
-			maxDate : '=mdMaxDate',
-			//		        placeholder: '@mdPlaceholder',
+			minDate : '=mbMinDate',
+			maxDate : '=mbMaxDate',
+	        placeholder: '@mbPlaceholder',
 			//		        currentView: '@mdCurrentView',
 			//		        dateFilter: '=mdDateFilter',
 			//		        isOpen: '=?mdIsOpen',

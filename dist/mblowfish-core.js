@@ -1962,12 +1962,17 @@ angular.module('mblowfish-core')
 
 	return {
 		replace : false,
-		templateUrl : 'views/directives/mb-datepicker.html',
+		template : function(){
+			if($rootScope.app.calendar === 'Gregorian'){
+				return '<md-datepicker ng-model="date" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+			}
+			return '<md-persian-datepicker ng-model="date" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+		},
 		restrict : 'E',
 		scope : {
-			minDate : '=mdMinDate',
-			maxDate : '=mdMaxDate',
-			//		        placeholder: '@mdPlaceholder',
+			minDate : '=mbMinDate',
+			maxDate : '=mbMaxDate',
+	        placeholder: '@mbPlaceholder',
 			//		        currentView: '@mdCurrentView',
 			//		        dateFilter: '=mdDateFilter',
 			//		        isOpen: '=?mdIsOpen',
@@ -5839,11 +5844,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-captcha.html',
     "<div>  <div vc-recaptcha ng-model=ctrl.captchaValue theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.key lang=\"app.captcha.language || 'fa'\"> </div>  </div>"
-  );
-
-
-  $templateCache.put('views/directives/mb-datepicker.html',
-    "<div> <md-persian-datepicker ng-model=date ng-show=\"app.calendar === 'Jalaali'\"> </md-persian-datepicker> <md-datepicker ng-model=date md-placeholder=\"Enter date\" ng-show=\"app.calendar === 'Gregorian'\"> </md-datepicker> </div>"
   );
 
 
