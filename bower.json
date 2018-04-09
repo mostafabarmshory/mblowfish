@@ -16,15 +16,12 @@
     "angular-messages": "^1.6.0",
     "angular-route": "^1.6.0",
     "angular-nvd3": "^1.0.9",
-    
     "seen-core": "https://gitlab.com/seen/angular/seen-core.git#^1.1.0",
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#^1.1.0",
-    
     "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#^1.1.0",
     "am-wb-common": "https://gitlab.com/am-wb/am-wb-common.git#^1.1.0",
     "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#^1.1.0",
     "am-wb-seen-monitors": "https://gitlab.com/am-wb/am-wb-seen-monitors.git#^1.1.0",
-    
     "ngstorage": "^0.3.11",
     "ngInfiniteScroll": "1.3.0",
     "ng-appcache": "^2.0.1",
@@ -32,7 +29,8 @@
     "angular-recaptcha": "^4.1.1",
     "material-steppers": "^2.0.0",
     "angular-file-saver": "^1.1.3",
-    "angular-material-persian-datepicker": "^1.2.0"
+    "angular-material-persian-datepicker": "^1.2.0",
+    "machina": "^2.0.2"
   },
   "resolutions": {
     "angular": "^1.6.0"

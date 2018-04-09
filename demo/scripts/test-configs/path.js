@@ -128,6 +128,18 @@ angular.module('app') //
 	    name : 'Open help for item',
 	    icon : 'help',
 	})
+	
+	
+	
+	.when('/test/panel/protect', {
+	    controller: 'TestHelpCtrl',
+	    templateUrl : 'views/mb-test-help.html',
+	    navigate : true,
+	    groups : [ 'mb-panel' ],
+	    name : 'Protected page',
+	    icon : 'help',
+	    protect: true
+	})
 	;
 	// for(var i = 0; i <20; i++){
 	// $routeProvider.when('/table'+i, {

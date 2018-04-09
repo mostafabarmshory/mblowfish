@@ -16,6 +16,7 @@
 		"toast": false,
 		"prompt": false,
 		"confirm": false,
-		"alert": false
+		"alert": false,
+		"machina": false
 	}
 }
