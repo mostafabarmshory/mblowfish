@@ -42,6 +42,10 @@ angular.module('mblowfish-core')
 		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
 		function render() {
+		    if(!ngModelCtrl.$modelValue){
+		        scope.date = null;
+		        return;
+		    }
 			var date = moment //
 			.utc(ngModelCtrl.$modelValue) //
 			.local();
@@ -53,6 +57,10 @@ angular.module('mblowfish-core')
 		}
 
 		function setValue() {
+		    if(!scope.date) {
+	            ngModelCtrl.$setViewValue(null);
+	            return;
+		    }
 			var date = moment(scope.date) //
 			.utc() //
 			.format('YYYY-MM-DD HH:mm:ss');
