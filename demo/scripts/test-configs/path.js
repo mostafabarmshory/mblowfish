@@ -102,7 +102,10 @@ angular.module('app') //
 
 
 	.when('/test/date/general', {
-		//		controller: 'TablesClassTestCtrl',
+	    controller: function($scope){
+	        $scope._date = '2018-01-01 00:00:00';
+	        $scope._dateUndef = undefined;
+	    },
 		templateUrl : 'views/amd-test-amddate.html',
 		navigate : true,
 		//			groups: ['tables'],

@@ -3,18 +3,26 @@
 	layout-align="center none"
 	flex>
 	
+	
 	<div>
 		<h1>amd-date filter</h1>
 		<p> add amddate filter to show the date</p>	
 		{{_date | amddate}}
+		<p> while the real date is:</p>
+		{{_date}}
 	</div> 
 
 	<div>
 		<h1>amd-datepicker</h1>
-		<p>Select date based on calender</p>	
-		<amd-datepicker
+		<p>Select date based on calender</p>
+		<mb-datepicker
 			ng-model="_date">
-		</amd-datepicker>
+		</mb-datepicker>
+		
+		<p>This is an empty date  :{{_dateUndef}}</p>
+		<mb-datepicker
+			ng-model="_dateUndef">
+		</mb-datepicker>
 	</div> 
 
 	<div>

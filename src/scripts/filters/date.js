@@ -30,6 +30,9 @@ angular.module('mblowfish-core')
 	 */
 	.filter('amddate', function($rootScope) {
 		return function(inputDate, format) {
+		    if(!inputDate){
+		        return '';
+		    }
 			try {
 				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat;
 				if($rootScope.app.calendar !== 'Jalaali'){
