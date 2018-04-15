@@ -2918,8 +2918,8 @@ angular.module('mblowfish-core')
                         }
                         var route = this.getRoute();
                         if(state === 'ready'){
-                            if(route.protect && !evaluateProtection(route)){
-                                this.transition('readyAnonymous');
+                            if(route.protect && evaluateProtection(route)){
+                                this.transition('accessDenied');
                                 return;
                             }
                         } else {
@@ -2995,7 +2995,11 @@ angular.module('mblowfish-core')
         $scope.$watch(function(){
             return $route.current;
         }, function(route){
-            state.routeChange(route);
+        	if(route){        		
+        		state.routeChange(route.$$route);
+        	}else{
+        		state.routeChange(route);        		
+        	}
         });
         $scope.$watch('app.state.status', function(appState){
             state.appStateChange(appState);
