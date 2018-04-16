@@ -1972,15 +1972,16 @@ angular.module('mblowfish-core')
 		replace : false,
 		template : function(){
 			if($rootScope.app.calendar === 'Gregorian'){
-				return '<md-datepicker ng-model="date" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+				return '<md-datepicker ng-model="date" md-hide-icons="{{hideIcons}}" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
 			}
-			return '<md-persian-datepicker ng-model="date" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+			return '<md-persian-datepicker ng-model="date" md-hide-icons="{{hideIcons}}" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
 		},
 		restrict : 'E',
 		scope : {
 			minDate : '=mbMinDate',
 			maxDate : '=mbMaxDate',
 	        placeholder: '@mbPlaceholder',
+	        hideIcons: '@?mbHideIcons',
 			//		        currentView: '@mdCurrentView',
 			//		        dateFilter: '=mdDateFilter',
 			//		        isOpen: '=?mdIsOpen',
@@ -2926,8 +2927,8 @@ angular.module('mblowfish-core')
                         }
                         var route = this.getRoute();
                         if(state === 'ready'){
-                            if(route.protect && !evaluateProtection(route)){
-                                this.transition('readyAnonymous');
+                            if(route.protect && evaluateProtection(route)){
+                                this.transition('accessDenied');
                                 return;
                             }
                         } else {
@@ -3003,7 +3004,11 @@ angular.module('mblowfish-core')
         $scope.$watch(function(){
             return $route.current;
         }, function(route){
-            state.routeChange(route);
+        	if(route){        		
+        		state.routeChange(route.$$route);
+        	}else{
+        		state.routeChange(route);        		
+        	}
         });
         $scope.$watch('app.state.status', function(appState){
             state.appStateChange(appState);
