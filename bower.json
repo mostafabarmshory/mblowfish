@@ -46,9 +46,9 @@
   "backend": {
     "host": "sellonclouds.com"
   },
-  "2#backend": {
+  "##backend": {
     "#comment": "Gazmeh test machine",
     "host": "localhost",
-    "port": 8080
+    "port": 8083
   }
 }

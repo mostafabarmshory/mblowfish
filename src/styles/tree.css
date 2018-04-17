@@ -18,8 +18,8 @@
 	margin: 0;
 }
 
-.mb-tree>li {
-	border-bottom: 1px solid;
+.mb-tree > * {
+/* 	border-bottom: 1px solid; */
 }
 
 .mb-tree>li:nth-child(1) {
