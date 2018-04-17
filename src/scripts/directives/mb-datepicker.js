@@ -76,9 +76,9 @@ angular.module('mblowfish-core')
 		replace : false,
 		template : function(){
 			if($rootScope.app.calendar === 'Gregorian'){
-				return '<md-datepicker ng-model="date" md-hide-icons="{{hideIcons}}" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
 			}
-			return '<md-persian-datepicker ng-model="date" md-hide-icons="{{hideIcons}}" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
 		},
 		restrict : 'E',
 		scope : {
