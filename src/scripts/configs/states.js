@@ -39,7 +39,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		protect: function($rootScope){
-			return $rootScope.user.owner;
+			return !$rootScope.app.user.owner;
 		}
 	})
 	/**
@@ -55,7 +55,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		protect: function($rootScope){
-			return $rootScope.user.owner;
+			return !$rootScope.app.user.owner;
 		}
 	}) //
 	/**
@@ -81,7 +81,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		protect: function($rootScope){
-			return $rootScope.user.owner;
+			return !$rootScope.app.user.owner;
 		}
 	}); //
 
