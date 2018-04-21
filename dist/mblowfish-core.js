@@ -2219,7 +2219,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.directive('mbNavigationBar' , function($actions) {
+.directive('mbNavigationBar' , function($actions, $navigator) {
 
 	return {
 		restrict : 'E',
@@ -2243,6 +2243,10 @@ angular.module('mblowfish-core')
 			}
 			return menu.visible;
 		};
+		
+		scope.goToHome = function(){
+			$navigator.openPage('');
+		}
 		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
@@ -5891,7 +5895,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip>{{'home' | translate}}</md-tooltip> <wb-icon>home</wb-icon> </md-button> <wb-icon ng-if=pathMenu.items.length>chevron_left</wb-icon> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} </md-button> <wb-icon ng-show=\"$index &lt; pathMenu.items.length - 1\">chevron_left</wb-icon> </div> </div>"
   );
 
 

@@ -131,7 +131,7 @@
 /*
  *
  */
-.amd-navigation-path-bar {
+.mb-navigation-path-bar {
 	padding: 1px;
 	margin: 0px;
 	font-size: 12px;
@@ -140,14 +140,24 @@
 /*
  * Navigation item in navigation bar
  */
-.amd-navigation-path-bar-item {
+.mb-navigation-path-bar-item {
 	padding: 1px;
 	margin: 0px;
+	margin-left: 2px;
+	margin-right: 2px;
 	cursor: pointer;
 	line-height: normal;
 	min-height: 0px;
 	min-width: 0px;
 	text-transform: none;
+}
+
+[dir=rtl] .mb-navigation-path-bar-item-home{
+	margin-right: 16px;
+}
+
+[dir=ltr] .mb-navigation-path-bar-item-home{
+	margin-left: 16px;	
 }
 /*
  * Addin a preloader default box size
