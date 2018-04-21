@@ -35,7 +35,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.directive('mbNavigationBar' , function($actions) {
+.directive('mbNavigationBar' , function($actions, $navigator) {
 
 	return {
 		restrict : 'E',
@@ -59,6 +59,10 @@ angular.module('mblowfish-core')
 			}
 			return menu.visible;
 		};
+		
+		scope.goToHome = function(){
+			$navigator.openPage('');
+		}
 		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
