@@ -41,13 +41,6 @@ angular.module('mblowfish-core')
             _visible : function() {
                 if (angular.isFunction(this._page.visible)) {
                     var v = this._page.visible(this);
-                    if(this._page.sidenav){
-                        if(v)
-                            $mdSidenav(this._page.id).open();
-                        else
-                            $mdSidenav(this._page.id).close();
-                        return v;
-                    }
                     return v;
                 }
                 return true;
@@ -109,19 +102,6 @@ angular.module('mblowfish-core')
             return cache;
         }
 
-        function _getSidenavElement(page){
-            for(var i = 0; i < _sidenaves.length; i++){
-                if(_sidenaves[i].page.id == page.id){
-                    return $q.when(_sidenaves[i]);
-                }
-            }
-            return _loadPage($scope, page,
-                    '<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
-            '</md-sidenav>')
-            .then(function(pageElement) {
-                _sidenaves.push(pageElement);
-            });
-        }
 
         function _getToolbarElement(page){
             for(var i = 0; i < _toolbars.length; i++){
@@ -193,8 +173,10 @@ angular.module('mblowfish-core')
             }
         }
 
-        
-        _reloadUi();
+        $scope.$watch(function(){
+            return $route.current;
+        },_reloadUi);
+//        _reloadUi();
     }
 
 
