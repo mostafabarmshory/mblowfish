@@ -121,6 +121,14 @@ angular.module('app') //
 		name : 'Sidenav panel config:display',
 		icon : 'list',
 	})
+	.when('/test/sidenave/no-sidenav', {
+		templateUrl : 'views/amd-test-sidenav-config.html',
+		navigate : true,
+		groups : [ 'sidenav' ],
+		sidenavs: [],
+		name : 'No sidenave',
+		icon : 'list',
+	})
 	
 	
 	.when('/test/help/basic', {
