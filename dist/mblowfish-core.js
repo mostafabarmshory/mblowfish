@@ -2129,6 +2129,86 @@ angular.module('mblowfish-core')
 });
 
 /*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * 
+ */
+.directive('mbErrorMessages', function($compile, $interpolate) {
+
+	/*
+	 * Link function
+	 */
+	function postLink(scope, element){
+		
+		/**
+		 * Original element which replaced by this directive.
+		 */
+		var origin = null;
+		
+		scope.errorMessages = function(err){
+			if(!err) {
+				return;
+			}
+			var message = {};
+			message[err.status]= err.statusText;
+			message[err.data.code]= err.data.message;
+			return message;
+		};
+		
+		scope.$watch(function(){
+			return scope.mbErrorMessages;
+		}, function(value){	
+			if(value){
+				var tmplStr = 
+					'<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
+					'	<div ng-messages-include="views/mb-error-messages.html"></div>' +
+					'</div>';
+				var el = angular.element(tmplStr);
+				var cmplEl = $compile(el);
+				var myEl = cmplEl(scope);
+				origin = element.replaceWith(myEl);
+			} else if(origin){
+				element.replaceWith(origin);
+				origin = null;
+			}
+		});
+	}
+
+	/*
+	 * Directive
+	 */
+	return {
+		restrict: 'A',
+		scope:{
+			mbErrorMessages : '='
+		},
+		link: postLink
+	};
+});
+/*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5919,6 +5999,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
     "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src={{app.user.current.avatar}}> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate>{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout(); translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+  );
+
+
+  $templateCache.put('views/mb-error-messages.html',
+    "<div ng-message=403 layout=column layout-align=\"center center\"> <wb-icon size=64px>do_not_disturb</wb-icon> <strong translate>Access denied</strong> <p translate>You are not allowed to access this item.</p> </div> <div ng-message=404 layout=column layout-align=\"center center\"> <wb-icon size=64px>visibility_off</wb-icon> <strong translate>Not found</strong> <p translate>Requested item not found.</p> </div> <div ng-message=500 layout=column layout-align=\"center center\"> <wb-icon size=64px>bug_report</wb-icon> <strong translate>Server error</strong> <p translate>An internal server error is occurred.</p> </div>"
   );
 
 
