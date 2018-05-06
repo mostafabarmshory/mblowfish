@@ -41,7 +41,7 @@ angular.module('mblowfish-core')
 			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
 				$parse(attrs.mbInfinateScroll)(scope);
 			}
-		});
+	 	});
 		// Call the callback for the first time:
 		$parse(attrs.mbInfinateScroll)(scope);
 	}
