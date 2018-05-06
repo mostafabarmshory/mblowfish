@@ -2910,7 +2910,7 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope, $app,
-		$translate, $http, $mdSidenav, $mdBottomSheet, $q,
+		$translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
 		$injector) {
 	/*
 	 * evaluate protect function
@@ -3082,6 +3082,7 @@ angular.module('mblowfish-core')
 		$scope.$watch(function() {
 			return $route.current;
 		}, function(route) {
+			$actions.group('navigationPathMenu').clear();
 			if (route) {
 				state.routeChange(route.$$route);
 				// Run state integeration

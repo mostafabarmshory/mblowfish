@@ -43,7 +43,7 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope, $app,
-		$translate, $http, $mdSidenav, $mdBottomSheet, $q,
+		$translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
 		$injector) {
 	/*
 	 * evaluate protect function
@@ -215,10 +215,10 @@ angular.module('mblowfish-core')
 		$scope.$watch(function() {
 			return $route.current;
 		}, function(route) {
+			$actions.group('navigationPathMenu').clear();
 			if (route) {
 				state.routeChange(route.$$route);
 				// Run state integeration
-				$actions.group('navigationPathMenu').clear();
 				if(angular.isFunction(route.$$route.integerate)){
 					var value = $injector.invoke(route.$$route.integerate, route.$$route);
 				}
