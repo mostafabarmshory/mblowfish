@@ -23,27 +23,58 @@
 
 angular.module('mblowfish-core')
 
-	/**
-	 * @ngdoc filter
-	 * @name mbDate
-	 * @description # Format date
+/**
+ * 
+ */
+.directive('mbErrorMessages', function($compile, $interpolate) {
+
+	/*
+	 * Link function
 	 */
-	.filter('mbDate', function($rootScope) {
-		return function(inputDate, format) {
-		    if(!inputDate){
-		        return '';
-		    }
-			try {
-				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-				if($rootScope.app.calendar !== 'Jalaali'){
-					mf = mf.replace('j', '');
-				}
-				var date = moment //
-					.utc(inputDate) //
-					.local();
-				return date.format(mf);
-			} catch (ex) {
-				return '-' + ex.message;
+	function postLink(scope, element){
+		
+		/**
+		 * Original element which replaced by this directive.
+		 */
+		var origin = null;
+		
+		scope.errorMessages = function(err){
+			if(!err) {
+				return;
 			}
+			var message = {};
+			message[err.status]= err.statusText;
+			message[err.data.code]= err.data.message;
+			return message;
 		};
-	});
+		
+		scope.$watch(function(){
+			return scope.mbErrorMessages;
+		}, function(value){	
+			if(value){
+				var tmplStr = 
+					'<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
+					'	<div ng-messages-include="views/mb-error-messages.html"></div>' +
+					'</div>';
+				var el = angular.element(tmplStr);
+				var cmplEl = $compile(el);
+				var myEl = cmplEl(scope);
+				origin = element.replaceWith(myEl);
+			} else if(origin){
+				element.replaceWith(origin);
+				origin = null;
+			}
+		});
+	}
+
+	/*
+	 * Directive
+	 */
+	return {
+		restrict: 'A',
+		scope:{
+			mbErrorMessages : '='
+		},
+		link: postLink
+	};
+});
