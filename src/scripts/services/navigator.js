@@ -175,12 +175,16 @@ angular.module('mblowfish-core')
 	 * 
 	 * @param page
 	 */
-	function openPage(page){
+	function openPage(page, params){
 		//TODO: support page parameters
 		if(page && page.toLowerCase().startsWith("http")){
 			$window.open(page);
 		}
-		$location.path(page);
+		if(params){			
+			$location.path(page).search(params);
+		}else{
+			$location.path(page);
+		}
 	}
 
 	/**

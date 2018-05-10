@@ -22,6 +22,12 @@
 'use strict';
 angular.module('mblowfish-core')
 
+/**
+ * @ngdoc factory
+ * @name ActionGroup
+ * @description Groups of actions.
+ * 
+ */
 .factory('ActionGroup', function() {
 	var actionGroup  = function(data) {
 		angular.extend(this, (data || {}), {
@@ -30,5 +36,15 @@ angular.module('mblowfish-core')
 		});
 	};
 
+	/**
+	 * Clear the items list from action group
+	 * 
+	 * @name clear
+	 * @memberof ActionGroup
+	 */
+	actionGroup.prototype.clear = function(){
+		this.items = [];
+	}
+	
 	return actionGroup;
 });

@@ -21,7 +21,6 @@
  */
 'use strict';
 
-
 angular.module('mblowfish-core')
 
 /**
@@ -32,260 +31,206 @@ angular.module('mblowfish-core')
  * 
  * @description A full dashboard panel
  * 
- * Dashboard needs an area to show modules, navigator, message and the other visual parts
- * of the system. This is a general dashboard panel which must be placed to the index.html
- * directly.
+ * Dashboard needs an area to show modules, navigator, message and the
+ * other visual parts of the system. This is a general dashboard panel
+ * which must be placed to the index.html directly.
  * 
- * @usage
- * To load the dashboard add this directive to the index.html. All internal elements will be removed after the
- * module loaded.
- * <hljs lang="html">
- * 	<body>
- * 		<amd-panel>
- * 			<div class="amd-preloader">
- * 				Loading....
- * 			</div>
- * 		</amd-panel>
- * 	....
- * 	</body>
- * </hljs>
+ * @usage To load the dashboard add this directive to the index.html.
+ *        All internal elements will be removed after the module loaded.
+ *        <hljs lang="html"> <body> <amd-panel> <div
+ *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
+ *        </body> </hljs>
  * 
  */
-.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
-		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
-
-
-	var bodyElementSelector = 'div#mb-panel-root-ready';
-	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
-
-
-
+.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope, $app,
+		$translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
+		$injector) {
 	/*
-	 * Load page and create an element
+	 * evaluate protect function
 	 */
-	function _loadPage($scope, page, prefix, postfix) {
-		// 1- create scope
-		var childScope = $scope.$new(false, $scope);
-		childScope = Object.assign(childScope, {
-			app : $rootScope.app,
-			_page : page,
-			_visible : function() {
-				if (angular.isFunction(this._page.visible)) {
-					var v = this._page.visible(this);
-					if(this._page.sidenav){
-						if(v)
-							$mdSidenav(this._page.id).open();
-						else
-							$mdSidenav(this._page.id).close();
-						return v;
-					}
-					return v;
-				}
-				return true;
-			}
-		});
-
-		// 2- create element
-		return $widget.getTemplateFor(page)
-		.then(function(template) {
-			var element = angular.element(prefix + template + postfix);
-
-			// 3- bind controller
-			var link = $compile(element);
-			if (angular.isDefined(page.controller)) {
-				var locals = {
-						$scope : childScope,
-						$element : element,
-				};
-				var controller = $controller(page.controller, locals);
-				if (page.controllerAs) {
-					childScope[page.controllerAs] = controller;
-				}
-				element.data('$ngControllerController', controller);
-			}
-			;
-			return {
-				element : link(childScope),
-				page : page
-			};
-		});
+	function evaluateProtection(route) {
+		if (!route.protect) {
+			return false;
+		}
+		if (angular.isFunction(route.protect)) {
+			var value = $injector.invoke(route.protect, route);
+			// return route.protect($injector);
+			return value;
+		}
+		return route.protect && $rootScope.app.user.anonymous;
 	}
 
 	function postLink($scope, $element, $attr) {
-		var _sidenaves = [];
-		var _toolbars = [];
 
-		/*
-		 * Remove all sidenaves
-		 */
-		function _removeElements(pages, elements) {
-			var cache = [];
-			for(var i = 0; i < elements.length; i++){
-				var flag = false;
-				for(var j = 0; j < pages.length; j++){
-					if(pages[j].id === elements[i].page.id) {
-						flag = true;
-						break;
+		// State machin to controlle the view
+		var state = new machina.Fsm({
+			/* 
+			 * the initialize method is called right after the FSM
+			 * instance is constructed, giving you a place for any
+			 * setup behavior, etc. It receives the same
+			 * arguments (options) as the constructor function.
+			 */
+			initialize : function(options) {
+				// your setup code goes here...
+				$scope.status = this.initialState;
+			},
+			namespace : 'mb-panel-controller',
+			initialState : 'loading',
+			states : {
+				ready: {
+					// _onEnter: function(){
+					// _reloadUi();
+					// },
+					routeChange : function(route) {
+						if (route.protect
+								&& evaluateProtection(route)) {
+							this
+							.transition('accessDenied');
+							return;
+						}
+					},
+					appStateChange : function(state) {
+						// return if state is ready
+						if (this.getRoute().protect) {
+							this.transition('login');
+						} else {
+							this
+							.transition('readyAnonymous');
+						}
 					}
-				}
-				if(flag){
-					elements[i].element.detach();
-					elements[i].cached = true;
-					cache.push(elements[i]);
-				} else {
-					elements[i].element.remove();
-				}
-			}
-			return cache;
-		}
-
-		function _getSidenavElement(page){
-			for(var i = 0; i < _sidenaves.length; i++){
-				if(_sidenaves[i].page.id == page.id){
-					return $q.when(_sidenaves[i]);
-				}
-			}
-			return _loadPage($scope, page,
-					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
-			'</md-sidenav>')
-			.then(function(pageElement) {
-				_sidenaves.push(pageElement);
-			});
-		}
-		
-		function _getToolbarElement(page){
-			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id == page.id){
-					return $q.when(_toolbars[i]);
-				}
-			}
-			
-			var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
-			var postfix = page.raw ? '' : '</md-toolbar>';
-			return _loadPage($scope, page, prefix, postfix)
-			.then(function(pageElement) {
-				_toolbars.push(pageElement);
-			});
-		}
-
-		/*
-		 * reload sidenav
-		 */
-		function _reloadSidenavs(sidenavs) {
-			_sidenaves = _removeElements(sidenavs, _sidenaves);
-			var jobs = [];
-			for (var i = 0; i < sidenavs.length; i++) {
-				jobs.push(_getSidenavElement(sidenavs[i]));
-			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element //
-				.children(bodyElementSelector) //
-				.children(placeholderElementSelector);
-				// maso, 2018: sort
-				_sidenaves.sort(function(a, b){
-					return (a.page.priority || 10) > (b.page.priority || 10);
-				});
-				for (var i = 0; i < _sidenaves.length; i++) {
-					var ep = _sidenaves[i];
-					if(ep.chached){
-						continue;
+				},
+				accessDenied : {
+					routeChange : function(route) {
+						if (route.protect
+								&& evaluateProtection(route)) {
+							return;
+						}
+						this.transition('ready');
+					},
+					appStateChange : function(state) {
+						this.transition('login');
 					}
-					if (ep.page.position === 'start') {
-						_anchor.prepend(ep.element);
-					} else {
-						_anchor.append(ep.element);
+				},
+				readyAnonymous : {
+					// _onEnter: function(){
+					// _reloadUi();
+					// },
+					routeChange : function(route) {
+						// TODO: maso, change to login
+						// page
+						if (route.protect) {
+							this.transition('login');
+						}
+					},
+					appStateChange : function(state) {
+						this.transition('ready');
 					}
-
-					ep.page.sidenav = true;
+				},
+				loading : {
+					// routeChange: function(route){},
+					appStateChange : function(state) {
+						if (state === 'loading') {
+							return;
+						}
+						var route = this.getRoute();
+						if (state === 'ready') {
+							if (route.protect
+									&& evaluateProtection(route)) {
+								this.transition('accessDenied');
+								return;
+							}
+						} else {
+							// anonymous
+							if (route.protect) {
+								this.transition('login');
+							} else {
+								this.transition('readyAnonymous');
+							}
+							return;
+						}
+						this.transition('ready');
+					}
+				},
+				login : {
+					routeChange : function(route) {
+						if (!route.protect) {
+							this.transition('readyAnonymous');
+							return;
+						}
+					},
+					appStateChange : function(state) {
+						if (state === 'ready'
+							&& evaluateProtection(this.getRoute())) {
+							this.transition('accessDenied');
+							return;
+						}
+						this.transition('ready');
+					}
+				},
+			},
+			/*
+			 * Handle route change event
+			 */
+			routeChange : function(route) {
+				this.currentRoute = route;
+				if (!route) {
+					return;
 				}
-			});
-		}
+				this.handle("routeChange", route);
+			},
+			/*
+			 * Handle application state change
+			 */
+			appStateChange : function(appState) {
+				this.appState = appState;
+				this.handle("appStateChange", appState);
+			},
 
-		/*
-		 * Reload toolbars
-		 */
-		function _reloadToolbars(toolbars) {
-			_toolbars = _removeElements(toolbars, _toolbars);
-			var jobs = [];
-			for (var i = 0; i < toolbars.length; i++) {
-				jobs.push(_getToolbarElement(toolbars[i]));
+			/*
+			 * Get current route
+			 */
+			getRoute : function() {
+				return this.currentRoute
+				|| $route.current;
+			},
+
+			/*
+			 * Get current status
+			 */
+			getState : function() {
+				return this.appState
+				|| $rootScope.app.state.status;
 			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element //
-				.children(bodyElementSelector);
-				// maso, 2018: sort
-				_toolbars.sort(function(a, b){
-					return (a.page.priority || 10) > (b.page.priority || 10);
-				});
-				for (var i = 0; i < _toolbars.length; i++) {
-					var ep = _toolbars[i];
-					if(ep.chached){
-						continue;
-					}
-					_anchor.prepend(ep.element);
-				}
-			});
-		}
+		});
 
-		/*
-		 * Reload UI
-		 * 
-		 * - sidenav
-		 * - toolbar
-		 */
-		function _reloadUi(){
-			if(!$route.current){
+		// I'd like to know when the transition event occurs
+		state.on("transition", function() {
+			if (state.state.startsWith('ready')) {
+				$scope.status = 'ready';
 				return;
 			}
-			// Sidenavs
-			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
-			sdid = sdid.slice(0);
-			sdid.push('settings');
-			sdid.push('help');
-			if(angular.isArray(sdid)){
-				var sd =[];
-				var jobs = [];
-				angular.forEach(sdid, function(item){
-					jobs.push($app.sidenav(item)
-							.then(function(sidenav){
-								sd.push(sidenav);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadSidenavs(sd);
-				});
-			}
-			// Toolbars
-			var tids = $route.current.toolbars || $app.defaultToolbars();
-			if(angular.isArray(tids)){
-				var ts = [];
-				var jobs = [];
-				angular.forEach(tids, function(item){
-					jobs.push($app.toolbar(item)
-							.then(function(toolbar){
-								ts.push(toolbar);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadToolbars(ts);
-				});
-			}
-		}
+			$scope.status = state.state;
+		});
 
-//		_reloadUi();
-		$scope.$watch(function(){
-			if(!$route.current)
-				return false;
-			return $route.current.$$route.originalPath + '_@_' + $rootScope.app.state.status;
-		}, _reloadUi);
+		$scope.$watch(function() {
+			return $route.current;
+		}, function(route) {
+			$actions.group('navigationPathMenu').clear();
+			if (route) {
+				state.routeChange(route.$$route);
+				// Run state integeration
+				if(angular.isFunction(route.$$route.integerate)){
+					var value = $injector.invoke(route.$$route.integerate, route.$$route);
+				}
+			} else {
+				state.routeChange(route);
+			}
+		});
+		$scope.$watch('app.state.status', function(appState) {
+			state.appStateChange(appState);
+		});
+		state.appStateChange($rootScope.app.state.status);
 	}
-
 
 	return {
 		restrict : 'E',

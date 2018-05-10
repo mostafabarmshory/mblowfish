@@ -58,5 +58,8 @@
   },
   "scripts": {
     "test": "karma start test/karma.conf.js"
+  },
+  "dependencies": {
+    "ng-annotate": "^1.2.2"
   }
 }

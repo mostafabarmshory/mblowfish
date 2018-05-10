@@ -42,6 +42,10 @@ angular.module('mblowfish-core')
 		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
 		function render() {
+		    if(!ngModelCtrl.$modelValue){
+		        scope.date = null;
+		        return;
+		    }
 			var date = moment //
 			.utc(ngModelCtrl.$modelValue) //
 			.local();
@@ -53,6 +57,10 @@ angular.module('mblowfish-core')
 		}
 
 		function setValue() {
+		    if(!scope.date) {
+	            ngModelCtrl.$setViewValue(null);
+	            return;
+		    }
 			var date = moment(scope.date) //
 			.utc() //
 			.format('YYYY-MM-DD HH:mm:ss');
@@ -66,12 +74,18 @@ angular.module('mblowfish-core')
 
 	return {
 		replace : false,
-		templateUrl : 'views/directives/mb-datepicker.html',
+		template : function(){
+			if($rootScope.app.calendar === 'Gregorian'){
+				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+			}
+			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+		},
 		restrict : 'E',
 		scope : {
-			minDate : '=mdMinDate',
-			maxDate : '=mdMaxDate',
-			//		        placeholder: '@mdPlaceholder',
+			minDate : '=mbMinDate',
+			maxDate : '=mbMaxDate',
+	        placeholder: '@mbPlaceholder',
+	        hideIcons: '@?mbHideIcons',
 			//		        currentView: '@mdCurrentView',
 			//		        dateFilter: '=mdDateFilter',
 			//		        isOpen: '=?mdIsOpen',

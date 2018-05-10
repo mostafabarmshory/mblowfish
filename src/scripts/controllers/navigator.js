@@ -47,7 +47,7 @@ angular.module('mblowfish-core')
 				config.link = config.originalPath;
 				config.title = config.title || config.name || 'no-name';
 				config.priority = config.priority || 100;
-				_items.push(config)
+				_items.push(config);
 			}
 		});
 		

@@ -1,16 +1,16 @@
-<ul 
+<ul 	
 	class="mb-tree">
     <li 
-    	mb-color="{borderBottom-color: 'background.600'}" 
+    	md-colors="{borderBottomColor: 'background-600'}" 
     	ng-repeat="section in mbSection.sections | orderBy : 'priority'" 
     	ng-if="isVisible(section)">
         <mb-tree-heading
         	mb-section="section"
-        	ng-if="$parent.section.type === 'heading'">
+        	ng-if="section.type === 'heading'">
         </mb-tree-heading>
         <mb-tree-link
         	mb-section="section" 
-        	ng-if="$parent.section.type === 'link'">
+        	ng-if="section.type === 'link'">
         </mb-tree-link>
         <mb-tree-toggle 
         	mb-section="section" 

@@ -181,7 +181,13 @@ angular.module('mblowfish-core')
 	 */
 	.when('/initialization', {
 		templateUrl : 'views/mb-initial.html',
-		controller : 'MbInitialCtrl'
+		controller : 'MbInitialCtrl',
+		/*
+		 * @ngInject
+		 */
+		protect: function($rootScope){
+			return !$rootScope.app.user.owner;
+		}
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -192,6 +198,12 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
 		helpId: 'preferences',
+		/*
+		 * @ngInject
+		 */
+		protect: function($rootScope){
+			return !$rootScope.app.user.owner;
+		}
 	}) //
 	/**
 	 * @ngdoc ngRoute
@@ -211,6 +223,12 @@ angular.module('mblowfish-core')
 		controller : 'MbPreferenceCtrl',
 		helpId: function(currentState){
 			return 'preference-' + currentState.params['preferenceId'];
+		},
+		/*
+		 * @ngInject
+		 */
+		protect: function($rootScope){
+			return !$rootScope.app.user.owner;
 		}
 	}); //
 
@@ -1075,7 +1093,7 @@ angular.module('mblowfish-core')
 				config.link = config.originalPath;
 				config.title = config.title || config.name || 'no-name';
 				config.priority = config.priority || 100;
-				_items.push(config)
+				_items.push(config);
 			}
 		});
 		
@@ -1938,6 +1956,10 @@ angular.module('mblowfish-core')
 		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
 		function render() {
+		    if(!ngModelCtrl.$modelValue){
+		        scope.date = null;
+		        return;
+		    }
 			var date = moment //
 			.utc(ngModelCtrl.$modelValue) //
 			.local();
@@ -1949,6 +1971,10 @@ angular.module('mblowfish-core')
 		}
 
 		function setValue() {
+		    if(!scope.date) {
+	            ngModelCtrl.$setViewValue(null);
+	            return;
+		    }
 			var date = moment(scope.date) //
 			.utc() //
 			.format('YYYY-MM-DD HH:mm:ss');
@@ -1962,12 +1988,18 @@ angular.module('mblowfish-core')
 
 	return {
 		replace : false,
-		templateUrl : 'views/directives/mb-datepicker.html',
+		template : function(){
+			if($rootScope.app.calendar === 'Gregorian'){
+				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+			}
+			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+		},
 		restrict : 'E',
 		scope : {
-			minDate : '=mdMinDate',
-			maxDate : '=mdMaxDate',
-			//		        placeholder: '@mdPlaceholder',
+			minDate : '=mbMinDate',
+			maxDate : '=mbMaxDate',
+	        placeholder: '@mbPlaceholder',
+	        hideIcons: '@?mbHideIcons',
 			//		        currentView: '@mdCurrentView',
 			//		        dateFilter: '=mdDateFilter',
 			//		        isOpen: '=?mdIsOpen',
@@ -2097,6 +2129,86 @@ angular.module('mblowfish-core')
 });
 
 /*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * 
+ */
+.directive('mbErrorMessages', function($compile, $interpolate) {
+
+	/*
+	 * Link function
+	 */
+	function postLink(scope, element){
+		
+		/**
+		 * Original element which replaced by this directive.
+		 */
+		var origin = null;
+		
+		scope.errorMessages = function(err){
+			if(!err) {
+				return;
+			}
+			var message = {};
+			message[err.status]= err.statusText;
+			message[err.data.code]= err.data.message;
+			return message;
+		};
+		
+		scope.$watch(function(){
+			return scope.mbErrorMessages;
+		}, function(value){	
+			if(value){
+				var tmplStr = 
+					'<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
+					'	<div ng-messages-include="views/mb-error-messages.html"></div>' +
+					'</div>';
+				var el = angular.element(tmplStr);
+				var cmplEl = $compile(el);
+				var myEl = cmplEl(scope);
+				origin = element.replaceWith(myEl);
+			} else if(origin){
+				element.replaceWith(origin);
+				origin = null;
+			}
+		});
+	}
+
+	/*
+	 * Directive
+	 */
+	return {
+		restrict: 'A',
+		scope:{
+			mbErrorMessages : '='
+		},
+		link: postLink
+	};
+});
+/*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -2139,7 +2251,7 @@ angular.module('mblowfish-core')
 			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
 				$parse(attrs.mbInfinateScroll)(scope);
 			}
-		});
+	 	});
 		// Call the callback for the first time:
 		$parse(attrs.mbInfinateScroll)(scope);
 	}
@@ -2187,7 +2299,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.directive('mbNavigationBar' , function($actions) {
+.directive('mbNavigationBar' , function($actions, $navigator) {
 
 	return {
 		restrict : 'E',
@@ -2211,6 +2323,10 @@ angular.module('mblowfish-core')
 			}
 			return menu.visible;
 		};
+		
+		scope.goToHome = function(){
+			$navigator.openPage('');
+		}
 		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
@@ -2392,39 +2508,8 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-/**
- * @ngdoc directive
- * @name amd-panel
- * @restrict E
- * @scope true
- * 
- * @description A full dashboard panel
- * 
- * Dashboard needs an area to show modules, navigator, message and the other visual parts
- * of the system. This is a general dashboard panel which must be placed to the index.html
- * directly.
- * 
- * @usage
- * To load the dashboard add this directive to the index.html. All internal elements will be removed after the
- * module loaded.
- * <hljs lang="html">
- * 	<body>
- * 		<amd-panel>
- * 			<div class="amd-preloader">
- * 				Loading....
- * 			</div>
- * 		</amd-panel>
- * 	....
- * 	</body>
- * </hljs>
- * 
- */
-.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope,
-		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
-
-
-	var bodyElementSelector = 'div#mb-panel-root-ready';
-	var placeholderElementSelector = 'div#mb-panel-root-ready-anchor';
+.directive('mbPanelSidenavAnchor', function($route, $rootScope,
+		$app, $mdSidenav, $q, $widget, $controller, $compile) {
 
 
 
@@ -2440,13 +2525,10 @@ angular.module('mblowfish-core')
 			_visible : function() {
 				if (angular.isFunction(this._page.visible)) {
 					var v = this._page.visible(this);
-					if(this._page.sidenav){
-						if(v)
-							$mdSidenav(this._page.id).open();
-						else
-							$mdSidenav(this._page.id).close();
-						return v;
-					}
+					if(v)
+						$mdSidenav(this._page.id).open();
+					else
+						$mdSidenav(this._page.id).close();
 					return v;
 				}
 				return true;
@@ -2483,6 +2565,7 @@ angular.module('mblowfish-core')
 		var _sidenaves = [];
 		var _toolbars = [];
 
+
 		/*
 		 * Remove all sidenaves
 		 */
@@ -2514,27 +2597,13 @@ angular.module('mblowfish-core')
 				}
 			}
 			return _loadPage($scope, page,
-					'<md-sidenav layout="column" md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column" >',
+					'<md-sidenav md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
 			'</md-sidenav>')
 			.then(function(pageElement) {
 				_sidenaves.push(pageElement);
 			});
 		}
-		
-		function _getToolbarElement(page){
-			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id == page.id){
-					return $q.when(_toolbars[i]);
-				}
-			}
-			
-			var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
-			var postfix = page.raw ? '' : '</md-toolbar>';
-			return _loadPage($scope, page, prefix, postfix)
-			.then(function(pageElement) {
-				_toolbars.push(pageElement);
-			});
-		}
+
 
 		/*
 		 * reload sidenav
@@ -2548,9 +2617,7 @@ angular.module('mblowfish-core')
 			$q.all(jobs) //
 			.then(function() {
 				// Get Anchor
-				var _anchor = $element //
-				.children(bodyElementSelector) //
-				.children(placeholderElementSelector);
+				var _anchor = $element;
 				// maso, 2018: sort
 				_sidenaves.sort(function(a, b){
 					return (a.page.priority || 10) > (b.page.priority || 10);
@@ -2565,36 +2632,6 @@ angular.module('mblowfish-core')
 					} else {
 						_anchor.append(ep.element);
 					}
-
-					ep.page.sidenav = true;
-				}
-			});
-		}
-
-		/*
-		 * Reload toolbars
-		 */
-		function _reloadToolbars(toolbars) {
-			_toolbars = _removeElements(toolbars, _toolbars);
-			var jobs = [];
-			for (var i = 0; i < toolbars.length; i++) {
-				jobs.push(_getToolbarElement(toolbars[i]));
-			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element //
-				.children(bodyElementSelector);
-				// maso, 2018: sort
-				_toolbars.sort(function(a, b){
-					return (a.page.priority || 10) > (b.page.priority || 10);
-				});
-				for (var i = 0; i < _toolbars.length; i++) {
-					var ep = _toolbars[i];
-					if(ep.chached){
-						continue;
-					}
-					_anchor.prepend(ep.element);
 				}
 			});
 		}
@@ -2602,11 +2639,10 @@ angular.module('mblowfish-core')
 		/*
 		 * Reload UI
 		 * 
-		 * - sidenav
-		 * - toolbar
+		 * Get list of sidenavs for the current state and load them.
 		 */
 		function _reloadUi(){
-			if(!$route.current){
+			if(!angular.isDefined($route.current)){
 				return;
 			}
 			// Sidenavs
@@ -2614,46 +2650,454 @@ angular.module('mblowfish-core')
 			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
-			if(angular.isArray(sdid)){
-				var sd =[];
-				var jobs = [];
-				angular.forEach(sdid, function(item){
-					jobs.push($app.sidenav(item)
-							.then(function(sidenav){
-								sd.push(sidenav);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadSidenavs(sd);
-				});
-			}
-			// Toolbars
-			var tids = $route.current.toolbars || $app.defaultToolbars();
-			if(angular.isArray(tids)){
-				var ts = [];
-				var jobs = [];
-				angular.forEach(tids, function(item){
-					jobs.push($app.toolbar(item)
-							.then(function(toolbar){
-								ts.push(toolbar);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadToolbars(ts);
-				});
-			}
+			var sidenavs =[];
+			var jobs = [];
+			angular.forEach(sdid, function(item){
+				jobs.push($app.sidenav(item)
+						.then(function(sidenav){
+							sidenavs.push(sidenav);
+						}));
+			});
+			$q.all(jobs)
+			.then(function(){
+				_reloadSidenavs(sidenavs);
+			});
 		}
 
-//		_reloadUi();
 		$scope.$watch(function(){
-			if(!$route.current)
-				return false;
-			return $route.current.$$route.originalPath + '_@_' + $rootScope.app.state.status;
-		}, _reloadUi);
+			return $route.current;
+		},_reloadUi);
 	}
 
+
+	return {
+		restrict : 'A',
+		priority: 601,
+		link : postLink
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
+
+.directive('mbPanelToolbarAnchor', function($navigator, $usr, $route, $window, $rootScope,
+        $app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+
+
+
+    /*
+     * Load page and create an element
+     */
+    function _loadPage($scope, page, prefix, postfix) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope = Object.assign(childScope, {
+            app : $rootScope.app,
+            _page : page,
+            _visible : function() {
+                if (angular.isFunction(this._page.visible)) {
+                    var v = this._page.visible(this);
+                    return v;
+                }
+                return true;
+            }
+        });
+
+        // 2- create element
+        return $widget.getTemplateFor(page)
+        .then(function(template) {
+            var element = angular.element(prefix + template + postfix);
+
+            // 3- bind controller
+            var link = $compile(element);
+            if (angular.isDefined(page.controller)) {
+                var locals = {
+                        $scope : childScope,
+                        $element : element,
+                };
+                var controller = $controller(page.controller, locals);
+                if (page.controllerAs) {
+                    childScope[page.controllerAs] = controller;
+                }
+                element.data('$ngControllerController', controller);
+            }
+            ;
+            return {
+                element : link(childScope),
+                page : page
+            };
+        });
+    }
+
+    function postLink($scope, $element, $attr) {
+        var _sidenaves = [];
+        var _toolbars = [];
+
+
+        /*
+         * Remove all sidenaves
+         */
+        function _removeElements(pages, elements) {
+            var cache = [];
+            for(var i = 0; i < elements.length; i++){
+                var flag = false;
+                for(var j = 0; j < pages.length; j++){
+                    if(pages[j].id === elements[i].page.id) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if(flag){
+                    elements[i].element.detach();
+                    elements[i].cached = true;
+                    cache.push(elements[i]);
+                } else {
+                    elements[i].element.remove();
+                }
+            }
+            return cache;
+        }
+
+
+        function _getToolbarElement(page){
+            for(var i = 0; i < _toolbars.length; i++){
+                if(_toolbars[i].page.id == page.id){
+                    return $q.when(_toolbars[i]);
+                }
+            }
+
+            var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+            var postfix = page.raw ? '' : '</md-toolbar>';
+            return _loadPage($scope, page, prefix, postfix)
+            .then(function(pageElement) {
+                _toolbars.push(pageElement);
+            });
+        }
+
+        /*
+         * Reload toolbars
+         */
+        function _reloadToolbars(toolbars) {
+            _toolbars = _removeElements(toolbars, _toolbars);
+            var jobs = [];
+            for (var i = 0; i < toolbars.length; i++) {
+                jobs.push(_getToolbarElement(toolbars[i]));
+            }
+            $q.all(jobs) //
+            .then(function() {
+                // Get Anchor
+                var _anchor = $element;
+                // maso, 2018: sort
+                _toolbars.sort(function(a, b){
+                    return (a.page.priority || 10) > (b.page.priority || 10);
+                });
+                for (var i = 0; i < _toolbars.length; i++) {
+                    var ep = _toolbars[i];
+                    if(ep.chached){
+                        continue;
+                    }
+                    _anchor.prepend(ep.element);
+                }
+            });
+        }
+
+        /*
+         * Reload UI
+         * 
+         * - sidenav
+         * - toolbar
+         */
+        function _reloadUi(){
+            if(!$route.current){
+                return;
+            }
+            // Toolbars
+            var tids = $route.current.toolbars || $app.defaultToolbars();
+            if(angular.isArray(tids)){
+                var ts = [];
+                var jobs = [];
+                angular.forEach(tids, function(item){
+                    jobs.push($app.toolbar(item)
+                            .then(function(toolbar){
+                                ts.push(toolbar);
+                            }));
+                });
+                $q.all(jobs)
+                .then(function(){
+                    _reloadToolbars(ts);
+                });
+            }
+        }
+
+        $scope.$watch(function(){
+            return $route.current;
+        },_reloadUi);
+//        _reloadUi();
+    }
+
+
+    return {
+        restrict : 'A',
+//        replace : true,
+//        templateUrl : 'views/directives/mb-panel.html',
+        link : postLink
+    };
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc directive
+ * @name amd-panel
+ * @restrict E
+ * @scope true
+ * 
+ * @description A full dashboard panel
+ * 
+ * Dashboard needs an area to show modules, navigator, message and the
+ * other visual parts of the system. This is a general dashboard panel
+ * which must be placed to the index.html directly.
+ * 
+ * @usage To load the dashboard add this directive to the index.html.
+ *        All internal elements will be removed after the module loaded.
+ *        <hljs lang="html"> <body> <amd-panel> <div
+ *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
+ *        </body> </hljs>
+ * 
+ */
+.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope, $app,
+		$translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
+		$injector) {
+	/*
+	 * evaluate protect function
+	 */
+	function evaluateProtection(route) {
+		if (!route.protect) {
+			return false;
+		}
+		if (angular.isFunction(route.protect)) {
+			var value = $injector.invoke(route.protect, route);
+			// return route.protect($injector);
+			return value;
+		}
+		return route.protect && $rootScope.app.user.anonymous;
+	}
+
+	function postLink($scope, $element, $attr) {
+
+		// State machin to controlle the view
+		var state = new machina.Fsm({
+			/* 
+			 * the initialize method is called right after the FSM
+			 * instance is constructed, giving you a place for any
+			 * setup behavior, etc. It receives the same
+			 * arguments (options) as the constructor function.
+			 */
+			initialize : function(options) {
+				// your setup code goes here...
+				$scope.status = this.initialState;
+			},
+			namespace : 'mb-panel-controller',
+			initialState : 'loading',
+			states : {
+				ready: {
+					// _onEnter: function(){
+					// _reloadUi();
+					// },
+					routeChange : function(route) {
+						if (route.protect
+								&& evaluateProtection(route)) {
+							this
+							.transition('accessDenied');
+							return;
+						}
+					},
+					appStateChange : function(state) {
+						// return if state is ready
+						if (this.getRoute().protect) {
+							this.transition('login');
+						} else {
+							this
+							.transition('readyAnonymous');
+						}
+					}
+				},
+				accessDenied : {
+					routeChange : function(route) {
+						if (route.protect
+								&& evaluateProtection(route)) {
+							return;
+						}
+						this.transition('ready');
+					},
+					appStateChange : function(state) {
+						this.transition('login');
+					}
+				},
+				readyAnonymous : {
+					// _onEnter: function(){
+					// _reloadUi();
+					// },
+					routeChange : function(route) {
+						// TODO: maso, change to login
+						// page
+						if (route.protect) {
+							this.transition('login');
+						}
+					},
+					appStateChange : function(state) {
+						this.transition('ready');
+					}
+				},
+				loading : {
+					// routeChange: function(route){},
+					appStateChange : function(state) {
+						if (state === 'loading') {
+							return;
+						}
+						var route = this.getRoute();
+						if (state === 'ready') {
+							if (route.protect
+									&& evaluateProtection(route)) {
+								this.transition('accessDenied');
+								return;
+							}
+						} else {
+							// anonymous
+							if (route.protect) {
+								this.transition('login');
+							} else {
+								this.transition('readyAnonymous');
+							}
+							return;
+						}
+						this.transition('ready');
+					}
+				},
+				login : {
+					routeChange : function(route) {
+						if (!route.protect) {
+							this.transition('readyAnonymous');
+							return;
+						}
+					},
+					appStateChange : function(state) {
+						if (state === 'ready'
+							&& evaluateProtection(this.getRoute())) {
+							this.transition('accessDenied');
+							return;
+						}
+						this.transition('ready');
+					}
+				},
+			},
+			/*
+			 * Handle route change event
+			 */
+			routeChange : function(route) {
+				this.currentRoute = route;
+				if (!route) {
+					return;
+				}
+				this.handle("routeChange", route);
+			},
+			/*
+			 * Handle application state change
+			 */
+			appStateChange : function(appState) {
+				this.appState = appState;
+				this.handle("appStateChange", appState);
+			},
+
+			/*
+			 * Get current route
+			 */
+			getRoute : function() {
+				return this.currentRoute
+				|| $route.current;
+			},
+
+			/*
+			 * Get current status
+			 */
+			getState : function() {
+				return this.appState
+				|| $rootScope.app.state.status;
+			}
+		});
+
+		// I'd like to know when the transition event occurs
+		state.on("transition", function() {
+			if (state.state.startsWith('ready')) {
+				$scope.status = 'ready';
+				return;
+			}
+			$scope.status = state.state;
+		});
+
+		$scope.$watch(function() {
+			return $route.current;
+		}, function(route) {
+			$actions.group('navigationPathMenu').clear();
+			if (route) {
+				state.routeChange(route.$$route);
+				// Run state integeration
+				if(angular.isFunction(route.$$route.integerate)){
+					var value = $injector.invoke(route.$$route.integerate, route.$$route);
+				}
+			} else {
+				state.routeChange(route);
+			}
+		});
+		$scope.$watch('app.state.status', function(appState) {
+			state.appStateChange(appState);
+		});
+		state.appStateChange($rootScope.app.state.status);
+	}
 
 	return {
 		restrict : 'E',
@@ -3436,6 +3880,12 @@ angular.module('mblowfish-core')
 'use strict';
 angular.module('mblowfish-core')
 
+/**
+ * @ngdoc factory
+ * @name ActionGroup
+ * @description Groups of actions.
+ * 
+ */
 .factory('ActionGroup', function() {
 	var actionGroup  = function(data) {
 		angular.extend(this, (data || {}), {
@@ -3444,6 +3894,16 @@ angular.module('mblowfish-core')
 		});
 	};
 
+	/**
+	 * Clear the items list from action group
+	 * 
+	 * @name clear
+	 * @memberof ActionGroup
+	 */
+	actionGroup.prototype.clear = function(){
+		this.items = [];
+	}
+	
 	return actionGroup;
 });
 
@@ -3474,13 +3934,16 @@ angular.module('mblowfish-core')
 
 	/**
 	 * @ngdoc filter
-	 * @name amddate
+	 * @name mbDate
 	 * @description # Format date
 	 */
-	.filter('amddate', function($rootScope) {
+	.filter('mbDate', function($rootScope) {
 		return function(inputDate, format) {
+		    if(!inputDate){
+		        return '';
+		    }
 			try {
-				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat;
+				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
 				if($rootScope.app.calendar !== 'Jalaali'){
 					mf = mf.replace('j', '');
 				}
@@ -5102,12 +5565,16 @@ angular.module('mblowfish-core')
 	 * 
 	 * @param page
 	 */
-	function openPage(page){
+	function openPage(page, params){
 		//TODO: support page parameters
 		if(page && page.toLowerCase().startsWith("http")){
 			$window.open(page);
 		}
-		$location.path(page);
+		if(params){			
+			$location.path(page).search(params);
+		}else{
+			$location.path(page);
+		}
 	}
 
 	/**
@@ -5498,18 +5965,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/directives/mb-datepicker.html',
-    "<div> <md-persian-datepicker ng-model=date ng-show=\"app.calendar === 'Jalaali'\"> </md-persian-datepicker> <md-datepicker ng-model=date md-placeholder=\"Enter date\" ng-show=\"app.calendar === 'Gregorian'\"> </md-datepicker> </div>"
-  );
-
-
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
     "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <wb-icon style=\"margin: 1px\" ng-if=pathMenu.items.length>navigation</wb-icon> <md-button data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\" ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} <span ng-show=\"$index &lt; pathMenu.items.length - 1\">&gt;</span> </md-button> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip>{{'home' | translate}}</md-tooltip> <wb-icon>home</wb-icon> </md-button> <wb-icon ng-if=pathMenu.items.length>chevron_left</wb-icon> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} </md-button> <wb-icon ng-show=\"$index &lt; pathMenu.items.length - 1\">chevron_left</wb-icon> </div> </div>"
   );
 
 
@@ -5519,7 +5981,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready ng-if=\"app.state.status === 'ready'\" layout=column layout-fill>       <div id=mb-panel-root-ready-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div ng-if=\"app.state.status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"app.state.status === 'anonymous'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
   );
 
 
@@ -5549,7 +6011,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-tree.html',
-    "<ul class=mb-tree> <li mb-color=\"{borderBottom-color: 'background.600'}\" ng-repeat=\"section in mbSection.sections | orderBy : 'priority'\" ng-if=isVisible(section)> <mb-tree-heading mb-section=section ng-if=\"$parent.section.type === 'heading'\"> </mb-tree-heading> <mb-tree-link mb-section=section ng-if=\"$parent.section.type === 'link'\"> </mb-tree-link> <mb-tree-toggle mb-section=section ng-if=\"section.type === 'toggle'\"> </mb-tree-toggle>                </li> </ul>"
+    "<ul class=mb-tree> <li md-colors=\"{borderBottomColor: 'background-600'}\" ng-repeat=\"section in mbSection.sections | orderBy : 'priority'\" ng-if=isVisible(section)> <mb-tree-heading mb-section=section ng-if=\"section.type === 'heading'\"> </mb-tree-heading> <mb-tree-link mb-section=section ng-if=\"section.type === 'link'\"> </mb-tree-link> <mb-tree-toggle mb-section=section ng-if=\"section.type === 'toggle'\"> </mb-tree-toggle>                </li> </ul>"
   );
 
 
@@ -5560,6 +6022,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
     "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src={{app.user.current.avatar}}> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title translate>{{item.title}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout(); translate>Log out</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+  );
+
+
+  $templateCache.put('views/mb-error-messages.html',
+    "<div ng-message=403 layout=column layout-align=\"center center\"> <wb-icon size=64px>do_not_disturb</wb-icon> <strong translate>Access denied</strong> <p translate>You are not allowed to access this item.</p> </div> <div ng-message=404 layout=column layout-align=\"center center\"> <wb-icon size=64px>visibility_off</wb-icon> <strong translate>Not found</strong> <p translate>Requested item not found.</p> </div> <div ng-message=500 layout=column layout-align=\"center center\"> <wb-icon size=64px>bug_report</wb-icon> <strong translate>Server error</strong> <p translate>An internal server error is occurred.</p> </div>"
   );
 
 
@@ -5574,7 +6041,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<md-content ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td><h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p></td> </tr> </table> <mb-preference-page mb-preference-id=preference.id> </mb-preference-page> </md-content>"
+    "<md-content ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id> </mb-preference-page> </md-content>"
   );
 
 
@@ -5584,7 +6051,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/options/mb-local.html',
-    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
+    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
 
 
@@ -5609,7 +6076,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | amddate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | amddate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | amddate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
@@ -5634,7 +6101,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-navigator.html',
-    "<md-toolbar class=md-whiteframe-z2 layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{app.config.description}}</p> </md-toolbar> <md-content> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
+    "<md-toolbar class=md-whiteframe-z2 layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{app.config.description}}</p> </md-toolbar> <md-content md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
   );
 
 

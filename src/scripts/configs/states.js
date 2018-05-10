@@ -34,7 +34,13 @@ angular.module('mblowfish-core')
 	 */
 	.when('/initialization', {
 		templateUrl : 'views/mb-initial.html',
-		controller : 'MbInitialCtrl'
+		controller : 'MbInitialCtrl',
+		/*
+		 * @ngInject
+		 */
+		protect: function($rootScope){
+			return !$rootScope.app.user.owner;
+		}
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -45,6 +51,12 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
 		helpId: 'preferences',
+		/*
+		 * @ngInject
+		 */
+		protect: function($rootScope){
+			return !$rootScope.app.user.owner;
+		}
 	}) //
 	/**
 	 * @ngdoc ngRoute
@@ -64,6 +76,12 @@ angular.module('mblowfish-core')
 		controller : 'MbPreferenceCtrl',
 		helpId: function(currentState){
 			return 'preference-' + currentState.params['preferenceId'];
+		},
+		/*
+		 * @ngInject
+		 */
+		protect: function($rootScope){
+			return !$rootScope.app.user.owner;
 		}
 	}); //
 

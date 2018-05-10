@@ -25,13 +25,16 @@ angular.module('mblowfish-core')
 
 	/**
 	 * @ngdoc filter
-	 * @name amddate
+	 * @name mbDate
 	 * @description # Format date
 	 */
-	.filter('amddate', function($rootScope) {
+	.filter('mbDate', function($rootScope) {
 		return function(inputDate, format) {
+		    if(!inputDate){
+		        return '';
+		    }
 			try {
-				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat;
+				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
 				if($rootScope.app.calendar !== 'Jalaali'){
 					mf = mf.replace('j', '');
 				}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,57 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
- * @name mb-infinate-scroll
- * @description Infinet scroll 
  * 
- * 
- * Manage scroll of list 
  */
-.directive('mbInfinateScroll', function($parse) {
-	// FIXME: maso, 2017: tipo in diractive name (infinite)
-	function postLink(scope, elem, attrs) {
-		// adding infinite scroll class
-		elem.addClass('mb-infinate-scroll');
-		elem.on('scroll', function(evt) {
-			var raw = elem[0];
-			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
-				$parse(attrs.mbInfinateScroll)(scope);
+.directive('mbErrorMessages', function($compile, $interpolate) {
+
+	/*
+	 * Link function
+	 */
+	function postLink(scope, element){
+		
+		/**
+		 * Original element which replaced by this directive.
+		 */
+		var origin = null;
+		
+		scope.errorMessages = function(err){
+			if(!err) {
+				return;
 			}
-	 	});
-		// Call the callback for the first time:
-		$parse(attrs.mbInfinateScroll)(scope);
+			var message = {};
+			message[err.status]= err.statusText;
+			message[err.data.code]= err.data.message;
+			return message;
+		};
+		
+		scope.$watch(function(){
+			return scope.mbErrorMessages;
+		}, function(value){	
+			if(value){
+				var tmplStr = 
+					'<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
+					'	<div ng-messages-include="views/mb-error-messages.html"></div>' +
+					'</div>';
+				var el = angular.element(tmplStr);
+				var cmplEl = $compile(el);
+				var myEl = cmplEl(scope);
+				origin = element.replaceWith(myEl);
+			} else if(origin){
+				element.replaceWith(origin);
+				origin = null;
+			}
+		});
 	}
 
+	/*
+	 * Directive
+	 */
 	return {
-		restrict : 'A',
-		link : postLink
+		restrict: 'A',
+		scope:{
+			mbErrorMessages : '='
+		},
+		link: postLink
 	};
 });
