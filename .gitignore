@@ -4,20 +4,29 @@
 
 # bower
 /bower_components
-/demo/bower_components
 
 # Project
-#/dist
 /.tmp
 /.sass-cache
-/app/images/mde
+#/dist
+#/src/images/wb
+/dist/images/wb
+*.log
+*.zip
+coverage/
 
 # Eclipse
 .settings
+#.project
 
 # KDE
 .directory
 
-/doc/
-/coverage/
-/nbproject/private/
+# WebStorm and JetBrains Softwares
+.idea
+#/dist/
+/my-home-0.1.0.zip
+/dist/
+
+#netbeans
+nbproject/private/
