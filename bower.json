@@ -10,11 +10,11 @@
     "dist/mblowfish-core.css"
   ],
   "dependencies": {
-    "angular-animate": "^1.6.0",
-    "angular-cookies": "^1.6.0",
-    "angular-sanitize": "^1.6.0",
-    "angular-messages": "^1.6.0",
-    "angular-route": "^1.6.0",
+    "angular-animate": "1.7.x",
+    "angular-cookies": "1.7.x",
+    "angular-sanitize": "1.7.x",
+    "angular-messages": "1.7.x",
+    "angular-route": "1.7.x",
     "angular-nvd3": "^1.0.9",
     "seen-core": "https://gitlab.com/seen/angular/seen-core.git#^1.1.0",
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#^1.1.0",
@@ -33,10 +33,10 @@
     "machina": "^2.0.2"
   },
   "resolutions": {
-    "angular": "^1.6.0"
+    "angular": "1.7.x"
   },
   "devDependencies": {
-    "angular-mocks": "^1.6.0"
+    "angular-mocks": "1.7.x"
   },
   "appPath": "src",
   "1#backend": {
