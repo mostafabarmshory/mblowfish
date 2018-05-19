@@ -1,5 +1,5 @@
 <div id="mb-panel-root"
-	md-theme="{{app.setting.theme || 'default'}}" 
+	md-theme="{{app.setting.theme || app.config.theme || 'default'}}" 
 	md-theme-watch
 	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 	dir="{{app.dir}}"
