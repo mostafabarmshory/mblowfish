@@ -2841,7 +2841,9 @@ angular.module('mblowfish-core')
                 angular.forEach(tids, function(item){
                     jobs.push($app.toolbar(item)
                             .then(function(toolbar){
-                                ts.push(toolbar);
+                            	if(_isVisible(toolbar)){                            		
+                            		ts.push(toolbar);
+                            	}
                             }));
                 });
                 $q.all(jobs)
@@ -2849,6 +2851,18 @@ angular.module('mblowfish-core')
                     _reloadToolbars(ts);
                 });
             }
+        }
+        
+        function _isVisible(item){
+            if (angular.isFunction(item.visible)) {
+                var v = item.visible(this);
+                return v;
+            }
+            if(angular.isDefined(item.visible)){
+            	// item.visible is defined but is not a function
+            	return item.visible;
+            }
+            return true;
         }
 
         $scope.$watch(function(){
