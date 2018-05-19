@@ -2597,7 +2597,7 @@ angular.module('mblowfish-core')
 				}
 			}
 			return _loadPage($scope, page,
-					'<md-sidenav md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
+					'<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
 			'</md-sidenav>')
 			.then(function(pageElement) {
 				_sidenaves.push(pageElement);
@@ -2788,7 +2788,7 @@ angular.module('mblowfish-core')
                 }
             }
 
-            var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+            var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
             var postfix = page.raw ? '' : '</md-toolbar>';
             return _loadPage($scope, page, prefix, postfix)
             .then(function(pageElement) {
@@ -3158,7 +3158,7 @@ angular.module('mblowfish-core')
 		$widget.getTemplateFor(page)
 		.then(function(template) {
 			var element = angular.element(
-					'<div md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
+					'<div md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
 
 			// 3- bind controller
 			var link = $compile(element);
@@ -3838,8 +3838,11 @@ angular.module('mblowfish-core')
 .factory('Action', function() {
 
 	var action  = function(data) {
+		if(!angular.isDefined(data)){
+			data = {};
+		}
 		angular.extend(this, data, {
-			priority: 10
+			priority: data.priority || 10
 		});
 		this.visible = this.visible || function(){return true;};
 		return this;
@@ -3850,7 +3853,9 @@ angular.module('mblowfish-core')
 			return;
 		}
 		this.action();
-		$event.stopPropagation();
+		if($event){			
+			$event.stopPropagation();
+		}
 	}
 
 	return action;
@@ -3888,8 +3893,11 @@ angular.module('mblowfish-core')
  */
 .factory('ActionGroup', function() {
 	var actionGroup  = function(data) {
-		angular.extend(this, (data || {}), {
-			priority: 10,
+		if(!angular.isDefined(data)){
+			data = {};
+		}
+		angular.extend(this, data, {
+			priority: data.priority || 10,
 			items: []
 		});
 	};
@@ -5981,7 +5989,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
   );
 
 
