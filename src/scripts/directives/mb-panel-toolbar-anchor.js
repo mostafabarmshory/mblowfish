@@ -110,7 +110,7 @@ angular.module('mblowfish-core')
                 }
             }
 
-            var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+            var prefix = page.raw ? '' : '<md-toolbar md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
             var postfix = page.raw ? '' : '</md-toolbar>';
             return _loadPage($scope, page, prefix, postfix)
             .then(function(pageElement) {
