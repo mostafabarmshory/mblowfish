@@ -27,8 +27,11 @@ angular.module('mblowfish-core')
 .factory('Action', function() {
 
 	var action  = function(data) {
+		if(!angular.isDefined(data)){
+			data = {};
+		}
 		angular.extend(this, data, {
-			priority: 10
+			priority: data.priority || 10
 		});
 		this.visible = this.visible || function(){return true;};
 		return this;
@@ -39,7 +42,9 @@ angular.module('mblowfish-core')
 			return;
 		}
 		this.action();
-		$event.stopPropagation();
+		if($event){			
+			$event.stopPropagation();
+		}
 	}
 
 	return action;

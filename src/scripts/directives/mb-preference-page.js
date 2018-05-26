@@ -50,7 +50,7 @@ angular.module('mblowfish-core')
 		$widget.getTemplateFor(page)
 		.then(function(template) {
 			var element = angular.element(
-					'<div md-theme="{{app.setting.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
+					'<div md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
 
 			// 3- bind controller
 			var link = $compile(element);

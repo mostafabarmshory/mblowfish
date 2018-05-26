@@ -1,15 +1,15 @@
 <div
-	md-colors="{'background-color': 'primary-400'}"
+	md-colors="{'background-color': 'primary-hue-1'}"
 	class="amd-user-menu">
-    <md-menu 
+    <md-menu
     	md-offset="0 20">
-        <md-button 
-        	class="amd-user-menu-button" 
-        	ng-click="$mdOpenMenu()" 
+        <md-button
+        	class="amd-user-menu-button"
+        	ng-click="$mdOpenMenu()"
         	aria-label="Open menu">
-		    <img 
+		    <img
 		    	height="32px"
-		    	class="img-circle" 
+		    	class="img-circle"
 		    	ng-src="{{app.user.current.avatar}}">
             <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span>
             <wb-icon class="material-icons">keyboard_arrow_down</wb-icon>
@@ -19,7 +19,7 @@
             <md-menu-item
             	ng-if="menu.items.length"
             	ng-repeat="item in menu.items | orderBy:['-priority']">
-            	<md-button 
+            	<md-button
             		ng-click="item.exec($event)"
             		translate>
            			<wb-icon ng-if="item.icon">{{item.icon}}</wb-icon>
@@ -28,13 +28,13 @@
             </md-menu-item>
 			<md-menu-divider ng-if="menu.items.length"></md-menu-divider>
             <md-menu-item>
-            	<md-button 
-            		ng-click="settings()" 
+            	<md-button
+            		ng-click="settings()"
             		translate>Settings</md-button>
             </md-menu-item>
             <md-menu-item>
-            	<md-button 
-            		ng-click="logout()" 
+            	<md-button
+            		ng-click="logout()"
             		translate>Log out</md-button>
             </md-menu-item>
         </md-menu-content>

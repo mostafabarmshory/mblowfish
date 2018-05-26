@@ -30,8 +30,11 @@ angular.module('mblowfish-core')
  */
 .factory('ActionGroup', function() {
 	var actionGroup  = function(data) {
-		angular.extend(this, (data || {}), {
-			priority: 10,
+		if(!angular.isDefined(data)){
+			data = {};
+		}
+		angular.extend(this, data, {
+			priority: data.priority || 10,
 			items: []
 		});
 	};
