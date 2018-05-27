@@ -404,17 +404,18 @@ angular.module('mblowfish-core')
      */
     function saveUser(){
         if(ctrl.loadUser){
-            return;
+            return ctrl.loadUser;
         }
-        // TODO: maso, 2017: check if user exist
-        ctrl.saveUser = true;
-        return ctrl.user.update()//
-        .then(function(){
-            ctrl.saveUser = false;
+        ctrl.loadUser = ctrl.user.update()//
+        .then(function(user){
+        	ctrl.user = user;
         }, function(error){
             ctrl.error = error;
-            ctrl.saveUser = false;
-        })
+        })//
+        .finally(function(){
+        	ctrl.saveUser = false;
+        });
+        return ctrl.loadUser;
     }
 
     /**
