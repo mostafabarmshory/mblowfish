@@ -322,7 +322,7 @@ angular.module('mblowfish-core')
  * 
  * Manages current user action
  */
-.controller('MbAccountCtrl', function($scope, $app, $navigator) {
+.controller('MbAccountCtrl', function($scope, $app, $navigator, $usr, $window) {
 
     /*
      * Store controller state
@@ -380,19 +380,18 @@ angular.module('mblowfish-core')
      */
     function loadUser(){
         if(ctrl.loadUser){
-            return;
+            return ctrl.loadUser;
         }
-        ctrl.loadUser = true;
-        return $usr.session()//
+        ctrl.loadUser =  $usr.session()//
         .then(function(user){
-            setUser(user);
-            ctrl.loadUser = false;
+        	ctrl.user = user;;
         }, function(error){
             ctrl.error = error;
         })//
         .finally(function(){
             ctrl .loadUser = false;
         });
+        return ctrl.loadUser;
     }
 
 
@@ -405,17 +404,18 @@ angular.module('mblowfish-core')
      */
     function saveUser(){
         if(ctrl.loadUser){
-            return;
+            return ctrl.loadUser;
         }
-        // TODO: maso, 2017: check if user exist
-        ctrl.saveUser = true;
-        return ctrl.user.update()//
-        .then(function(){
-            ctrl.saveUser = false;
+        ctrl.loadUser = ctrl.user.update()//
+        .then(function(user){
+        	ctrl.user = user;
         }, function(error){
             ctrl.error = error;
-            ctrl.saveUser = false;
-        })
+        })//
+        .finally(function(){
+        	ctrl.saveUser = false;
+        });
+        return ctrl.loadUser;
     }
 
     /**
@@ -496,6 +496,8 @@ angular.module('mblowfish-core')
     $scope.saveUser = saveUser;
     $scope.changePassword = changePassword;
     $scope.updateAvatar = updateAvatar;
+    
+    loadUser();
 });
 
 'use strict';
@@ -5412,17 +5414,17 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -5438,11 +5440,11 @@ angular.module('mblowfish-core')
  * @ngdoc service
  * @name $navigator
  * @description A default system navigator
- * 
+ *
  * # Item
- * 
+ *
  * An item is a single navigation part wich may be a page, link, action, and etc.
- * 
+ *
  */
 .service('$navigator', function($q, $route, $mdDialog, $location, $window) {
 
@@ -5459,10 +5461,10 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Gets list of all items in the navigation
-	 * 
+	 *
 	 * Returns all items added into the navigation list.
-	 * 
-	 * Note: this is an unsynchronized function and the return value is a promiss 
+	 *
+	 * Note: this is an unsynchronized function and the return value is a promiss
 	 */
 	function items(pagination){
 		var items = _items;
@@ -5473,7 +5475,7 @@ angular.module('mblowfish-core')
 				// group
 				if(pagination.param._px_fk === 'group'){
 					angular.forEach(_items, function(item){
-						if(item.groups && 
+						if(item.groups &&
 								angular.isArray(item.groups) &&
 								item.groups.indexOf(pagination.param._px_fv) > -1){
 							items.push(item);
@@ -5489,8 +5491,8 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Adding the item into the navigation list
-	 * 
-	 * Note: this is an unsynchronized function and the return value is a promiss 
+	 *
+	 * Note: this is an unsynchronized function and the return value is a promiss
 	 */
 	function newItem(item){
 		item.priority = item.priority || 100;
@@ -5500,8 +5502,8 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Remove the item from navigation list
-	 * 
-	 * Note: this is an unsynchronized function and the return value is a promiss 
+	 *
+	 * Note: this is an unsynchronized function and the return value is a promiss
 	 */
 	function removeItem(item) {
 		var index = _items.indexOf(item);
@@ -5520,7 +5522,7 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Create new group
-	 * 
+	 *
 	 * Note: if group with the same id exist, it will bet updated
 	 */
 	function newGroup(group){
@@ -5534,7 +5536,7 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Getting the group
-	 * 
+	 *
 	 * If the group is not register before, new empty will be created.
 	 */
 	function group(groupId){
@@ -5549,18 +5551,18 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Open an dialog view
-	 * 
+	 *
 	 * A dialogs needs:
-	 * 
+	 *
 	 * <ul>
 	 * <li>templateUrl</li>
 	 * <li>config (optinal)</li>
 	 * </ul>
-	 * 
+	 *
 	 * templateUrl is an html template.
-	 * 
+	 *
 	 * config is bind into the template automaticly.
-	 * 
+	 *
 	 * @param dialog
 	 * @returns promiss
 	 */
@@ -5570,7 +5572,8 @@ angular.module('mblowfish-core')
 			controller : 'AmdNavigatorDialogCtrl',
 			parent : angular.element(document.body),
 			clickOutsideToClose : true,
-			fullscreen: true
+			fullscreen: true,
+      multiple:true
 		}, dialog);
 		if (!dialogCnf.config) {
 			dialogCnf.config = {};
@@ -5583,8 +5586,8 @@ angular.module('mblowfish-core')
 	}
 
 	/**
-	 * Open a page 
-	 * 
+	 * Open a page
+	 *
 	 * @param page
 	 */
 	function openPage(page, params){
@@ -5592,7 +5595,7 @@ angular.module('mblowfish-core')
 		if(page && page.toLowerCase().startsWith("http")){
 			$window.open(page);
 		}
-		if(params){			
+		if(params){
 			$location.path(page).search(params);
 		}else{
 			$location.path(page);
@@ -5601,9 +5604,9 @@ angular.module('mblowfish-core')
 
 	/**
 	 * Check page is the current one
-	 * 
+	 *
 	 * If the input page is selected and loaded before return true;
-	 * 
+	 *
 	 * @param page String the page path
 	 * @return boolean true if page is selected.
 	 */

@@ -30,7 +30,7 @@ angular.module('mblowfish-core')
  * 
  * Manages current user action
  */
-.controller('MbAccountCtrl', function($scope, $app, $navigator) {
+.controller('MbAccountCtrl', function($scope, $app, $navigator, $usr, $window) {
 
     /*
      * Store controller state
@@ -88,19 +88,18 @@ angular.module('mblowfish-core')
      */
     function loadUser(){
         if(ctrl.loadUser){
-            return;
+            return ctrl.loadUser;
         }
-        ctrl.loadUser = true;
-        return $usr.session()//
+        ctrl.loadUser =  $usr.session()//
         .then(function(user){
-            setUser(user);
-            ctrl.loadUser = false;
+        	ctrl.user = user;;
         }, function(error){
             ctrl.error = error;
         })//
         .finally(function(){
             ctrl .loadUser = false;
         });
+        return ctrl.loadUser;
     }
 
 
@@ -113,17 +112,18 @@ angular.module('mblowfish-core')
      */
     function saveUser(){
         if(ctrl.loadUser){
-            return;
+            return ctrl.loadUser;
         }
-        // TODO: maso, 2017: check if user exist
-        ctrl.saveUser = true;
-        return ctrl.user.update()//
-        .then(function(){
-            ctrl.saveUser = false;
+        ctrl.loadUser = ctrl.user.update()//
+        .then(function(user){
+        	ctrl.user = user;
         }, function(error){
             ctrl.error = error;
-            ctrl.saveUser = false;
-        })
+        })//
+        .finally(function(){
+        	ctrl.saveUser = false;
+        });
+        return ctrl.loadUser;
     }
 
     /**
@@ -204,4 +204,6 @@ angular.module('mblowfish-core')
     $scope.saveUser = saveUser;
     $scope.changePassword = changePassword;
     $scope.updateAvatar = updateAvatar;
+    
+    loadUser();
 });
