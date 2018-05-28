@@ -6088,7 +6088,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-brand.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo value=app.config.logo> </wb-ui-setting-image> </div>"
+    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo value=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon value=app.config.favicon> </wb-ui-setting-image> </div>"
   );
 
 
