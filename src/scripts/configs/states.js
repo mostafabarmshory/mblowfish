@@ -27,6 +27,8 @@ angular.module('mblowfish-core')
  */
 .config(function($routeProvider, $locationProvider) {
 	$routeProvider//
+	
+	// Preferences
 	/**
 	 * @ngdoc ngRoute
 	 * @name /initialization
@@ -38,9 +40,10 @@ angular.module('mblowfish-core')
 		/*
 		 * @ngInject
 		 */
-		protect: function($rootScope){
+		protect : function($rootScope) {
 			return !$rootScope.app.user.owner;
-		}
+		},
+		sidenavs: [],
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -50,11 +53,11 @@ angular.module('mblowfish-core')
 	.when('/preferences', {
 		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
-		helpId: 'preferences',
+		helpId : 'preferences',
 		/*
 		 * @ngInject
 		 */
-		protect: function($rootScope){
+		protect : function($rootScope) {
 			return !$rootScope.app.user.owner;
 		}
 	}) //
@@ -64,26 +67,62 @@ angular.module('mblowfish-core')
 	 * @description Preferences page
 	 * 
 	 * Display a preferences page to manage a part of settings. Here is list of
-	 * default pages:
-	 * 
-	 * - google-analytic
-	 * - brand
-	 * - update
-	 * - pageNotFound
+	 * default pages: - google-analytic - brand - update - pageNotFound
 	 */
 	.when('/preferences/:preferenceId', {
 		templateUrl : 'views/mb-preference.html',
 		controller : 'MbPreferenceCtrl',
-		helpId: function(currentState){
+		helpId : function(currentState) {
 			return 'preference-' + currentState.params['preferenceId'];
 		},
 		/*
 		 * @ngInject
 		 */
-		protect: function($rootScope){
+		protect : function($rootScope) {
 			return !$rootScope.app.user.owner;
 		}
-	}); //
+	})
+	
+	// Users
+	// Login
+	.when('/users/login', {
+		templateUrl : 'views/users/mb-login.html',
+		controller : 'MbAccountCtrl'
+	})
+	/**
+	 * @ngdoc ngRoute
+	 * @name /users/account
+	 * @description Details of the current account
+	 */
+	.when('/users/account', {
+		templateUrl : 'views/users/mb-account.html',
+		controller : 'MbAccountCtrl',
+		protect: true
+	})
+	/**
+	 * @ngdoc ngRoute
+	 * @name /users/profile
+	 * @description Profile of the current account
+	 */
+	.when('/users/profile', {
+		templateUrl : 'views/users/mb-profile.html',
+		controller : 'MbProfileCtrl'
+	})
+	
+	// Reset forgotten password
+	.when('/users/reset-password', {
+		templateUrl : 'views/users/mb-forgot-password.html',
+		controller : 'MbPasswordCtrl'
+	})//
+	.when('/users/reset-password/token', {
+		templateUrl : 'views/users/mb-recover-password.html',
+		controller : 'MbPasswordCtrl'
+	})//
+	.when('/users/reset-password/token/:token', {
+		templateUrl : 'views/users/mb-recover-password.html',
+		controller : 'MbPasswordCtrl'
+	})//
+	; //
 
 	$locationProvider.html5Mode(true);
 });
