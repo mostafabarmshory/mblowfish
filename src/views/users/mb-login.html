@@ -1,0 +1,124 @@
+<!-- صفحه لاگین کاربر -->
+<md-content layout="row"
+	layout-align="none"
+	layout-align-gt-sm="center center"
+	flex>
+	<div md-whiteframe="3"
+		style="max-height: none;"
+		flex="100"
+		flex-gt-sm="50"
+		layout="column">
+		<!-- Toolbar -->
+		<md-toolbar 
+			layout="row" 
+			layout-padding
+			md-colors="{backgroundColor: 'primary-100'}">
+			<!-- TODO: toolbar items -->
+			<img 
+				height="160"
+				ng-show="app.config.logo"
+				ng-src="{{app.config.logo}}" />
+			<p>
+				<strong>{{app.config.title}}</strong><br/>
+				<em>{{app.config.description}}</em>
+			</p>
+		</md-toolbar>
+		<md-progress-linear
+			ng-disabled="!(ctrl.loginProcess || ctrl.logoutProcess)"
+			style="margin: 0px; padding: 0px"
+			md-mode="indeterminate"
+			class="md-primary"
+			md-color>
+		</md-progress-linear>
+		<!-- body -->
+		<div style="text-align: center;"
+			layout-margin
+			ng-show="!ctrl.loginProcess && ctrl.loginState === 'fail'"> 
+			<p><span md-colors="{color:'warn'}" translate>{{loginMessage}}</span></p>
+		</div>
+		<form ng-show="app.user.anonymous"
+			name="ctrl.myForm"
+			ng-submit="login(credit)" 
+			layout="column" 
+			layout-margin>
+	        <md-input-container>
+	            <label translate>Username</label>
+	            <input ng-model="credit.login" name="username" required>
+	            <div ng-messages="ctrl.myForm.username.$error">
+					<div ng-message="required" translate>This field is required.</div>
+		        </div>
+	        </md-input-container>
+	        <md-input-container>
+	            <label translate>Password</label>
+	            <input ng-model="credit.password" type="password" name="password" required>
+	            <div ng-messages="ctrl.myForm.password.$error">
+					<div ng-message="required" translate>This field is required.</div>
+		        </div>
+	        </md-input-container>
+<!-- 			<amh-captcha -->
+<!-- 			    ng-model="credit.g_recaptcha_response">Hi -->
+<!-- 			</amh-captcha> -->
+			<!-- XXX: maso, 2018: adding captcha -->
+			<div
+				ng-if="app.captcha.engine==='recaptcha'"
+			    vc-recaptcha
+			    ng-model="credit.g_recaptcha_response"
+			    theme="app.captcha.theme || 'light'"
+			    type="app.captcha.type || 'image'"
+			    key="app.captcha.recaptcha.key"
+			    lang="app.captcha.language || 'fa'">
+			</div>
+	        <input hide type="submit" />
+	        <div layout="column" layout-align="none"
+	        	layout-gt-xs="row" layout-align-gt-xs="center center"
+	        	layout-margin>
+	        	<a 
+	        		href="users/reset-password"
+	        		style="text-decoration: none;"  
+	        		ui-sref="forget" 
+	        		flex-order="1" 
+	        		flex-order-gt-xs="-1">{{'forgot your password?' | translate}}</a>
+	        	<md-button 
+	        		ng-disabled="ctrl.myForm.$invalid"
+	        		flex-order="-1" 
+	        		flex-order-gt-xs="1" 
+	        		class="md-primary md-raised" 
+	        		ng-click="login(credit)">{{'login' | translate}}</md-button>
+<!-- 	        	<md-button  -->
+<!-- 	        		ng-href="users/signup" -->
+<!-- 	        		flex-order="0"  -->
+<!-- 	        		flex-order-gt-xs="0"  -->
+<!-- 	        		class="md-raised"> {{ 'sign up' | translate }} </md-button> -->
+	        </div>
+		</form>
+        <div layout-margin ng-show="!app.user.anonymous" 
+        	layout="column" layout-align="none center">
+        	<img
+		    	width="150px" height="150px" ng-show="!uploadAvatar"
+		    	ng-src="{{app.user.current.avatar}}" />
+		    <h3>{{app.user.current.login}}</h3>
+        	<p translate>you are loged in. go to one of the following options.</p>
+        </div>
+        <div ng-show="!app.user.anonymous" 
+        	layout="column" layout-align="none"
+        	layout-gt-xs="row" layout-align-gt-xs="center center"
+        	layout-margin>
+        	<md-button 
+        		ng-click="cancel()"
+        		flex-order="0" 
+        		flex-order-gt-xs="0" 
+        		class="md-raised">
+        		<wb-icon>settings_backup_restore</wb-icon> 
+        		{{'back' | translate}}
+        	</md-button>
+        	<md-button 
+        		ng-href="users/account"
+        		flex-order="1" 
+        		flex-order-gt-xs="-1" 
+        		class="md-raised">
+        		<wb-icon>account_circle</wb-icon> 
+        		{{'account' | translate}}
+        	</md-button>
+        </div>
+	</div>
+</md-content>
