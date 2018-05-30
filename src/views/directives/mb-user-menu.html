@@ -10,6 +10,7 @@
 		    <img
 		    	height="32px"
 		    	class="img-circle"
+		    	style="border-radius: 50%"
 		    	ng-src="{{app.user.current.avatar}}">
             <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span>
             <wb-icon class="material-icons">keyboard_arrow_down</wb-icon>
@@ -23,19 +24,17 @@
             		ng-click="item.exec($event)"
             		translate>
            			<wb-icon ng-if="item.icon">{{item.icon}}</wb-icon>
-					<span ng-if="item.title" translate="">{{item.title}}</span>
+					<span ng-if="item.title">{{item.title | translate}}</span>
             	</md-button>
             </md-menu-item>
 			<md-menu-divider ng-if="menu.items.length"></md-menu-divider>
             <md-menu-item>
             	<md-button
-            		ng-click="settings()"
-            		translate>Settings</md-button>
+            		ng-click="settings()">{{'Settings' | translate}}</md-button>
             </md-menu-item>
             <md-menu-item>
             	<md-button
-            		ng-click="logout()"
-            		translate>Log out</md-button>
+            		ng-click="logout()">{{'Logout' | translate}}</md-button>
             </md-menu-item>
         </md-menu-content>
     </md-menu>
