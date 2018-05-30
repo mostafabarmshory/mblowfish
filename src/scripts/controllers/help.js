@@ -34,22 +34,22 @@ angular.module('mblowfish-core')
 
 
 	function _getHelpId(item) {
-        if(!item){
-            // TODO: maso, 2018: what if current item is null
-            return;
-        }
-        var id = item.helpId;
-        
-        if (angular.isFunction(id)) {
-            id = id(item);
-        }
+		if(!item){
+			// TODO: maso, 2018: what if current item is null
+			return;
+		}
+		var id = item.helpId;
 
-        if (!angular.isDefined(id)) {
-            id = 'not-found';
-        }
-        return id;
+		if (angular.isFunction(id)) {
+			id = id(item);
+		}
+
+		if (!angular.isDefined(id)) {
+			id = 'not-found';
+		}
+		return id;
 	}
-	
+
 	/**
 	 * load help content for the item
 	 * 
@@ -58,12 +58,12 @@ angular.module('mblowfish-core')
 	 * @params item {object} an item to display help for
 	 */
 	function _loadHelpContent(item) {
-	    if($scope.helpLoading){
-	        // TODO: maso, 2018: cancle old loading
-	    }
-	    var myId = _getHelpId(item);
+		if($scope.helpLoading){
+			// TODO: maso, 2018: cancle old loading
+		}
+		var myId = _getHelpId(item);
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		
+
 		// load content
 		return $scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
 		.then(function(res) {
@@ -71,7 +71,7 @@ angular.module('mblowfish-core')
 			$scope.helpLoaded = true;
 		})//
 		.finally(function(){
-		    $scope.helpLoading = false;
+			$scope.helpLoading = false;
 		});
 	}
 
@@ -91,18 +91,20 @@ angular.module('mblowfish-core')
 	 * If user want to display help, content will be loaded.
 	 */
 	$scope.$watch('showHelp', function(){
-	    if($scope.showHelp && !$scope.helpLoaded){
-	        return _loadHelpContent();
-	    }
+		if($scope.showHelp && !$scope.helpLoaded){
+			return _loadHelpContent();
+		}
 	});
 
 	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
-	        return $help.currentItem();
+		return $help.currentItem();
 	}, function(newValue){
-	    $scope.helpLoaded = false;
-	    return _loadHelpContent(newValue);
+		$scope.helpLoaded = false;
+		if($scope.showHelp){
+			return _loadHelpContent(newValue);
+		}
 	});
 });
