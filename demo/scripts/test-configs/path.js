@@ -184,5 +184,14 @@ angular.module('app') //
 	        return true;
 	    }
 	})
+	.when('/test/toolbar/toolbar-visible', {
+		controller: 'TestToolbarCtrl',
+		templateUrl : 'views/mb-test-toolbar.html',
+		navigate : true,
+		groups : [ 'mb-toolbar' ],
+		name : 'Toolbar visible',
+		icon : 'settings',
+		toolbars: ['testToolbar']
+	})
 	;
 });
