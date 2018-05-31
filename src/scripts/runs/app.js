@@ -60,7 +60,7 @@ angular.module('mblowfish-core')
 		title : 'Dashboard toolbar',
 		description : 'Main dashboard toolbar',
 		controller: 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/mb-dashboard.html',
+		templateUrl : 'views/toolbars/mb-dashboard.html'
 	});
 	
 	$app.newSidenav({

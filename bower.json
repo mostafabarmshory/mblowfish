@@ -4,7 +4,7 @@
   "description": "Material blowfish is an application framework",
   "homepage": "https://github.com/mblowfish/mblowfish-core",
   "license": "MIT",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "main": [
     "dist/mblowfish-core.js",
     "dist/mblowfish-core.css"
@@ -44,7 +44,9 @@
     "port": 9590
   },
   "backend": {
-    "host": "sellonclouds.com"
+    "#host": "sellonclouds.com",
+    "host": "217.218.74.61",
+    "port": 8083
   },
   "##backend": {
     "#comment": "Gazmeh test machine",

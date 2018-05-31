@@ -22,14 +22,13 @@
             		ng-click="item.exec($event)"
             		translate>
            			<wb-icon ng-if="item.icon">{{item.icon}}</wb-icon>
-					<span ng-if="item.title" translate>{{item.title}}</span>
+					<span ng-if="item.title">{{item.title | translate}}</span>
             	</md-button>
             </md-menu-item>
 			<md-menu-divider></md-menu-divider>
             <md-menu-item>
             	<md-button 
-            		ng-click="toggleRightSidebar();logout();" 
-            		translate>Log out</md-button>
+            		ng-click="toggleRightSidebar();logout();">{{'Logout' | translate}}</md-button>
             </md-menu-item>
         </md-menu-content>
     </md-menu>
