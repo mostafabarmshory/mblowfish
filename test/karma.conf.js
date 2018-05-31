@@ -61,6 +61,8 @@ module.exports = function(config) {
       'bower_components/moment/moment.js',
       'bower_components/moment-jalaali/build/moment-jalaali.js',
       'bower_components/angular-pluf/dist/angular-pluf.js',
+      'bower_components/mustache.js/mustache.js',
+      'bower_components/lodash/lodash.js',
       'bower_components/seen-core/dist/seen-core.js',
       'bower_components/seen-tenant/dist/seen-tenant.js',
       'bower_components/angular-aria/angular-aria.js',
@@ -95,7 +97,6 @@ module.exports = function(config) {
       'bower_components/file-saver.js/FileSaver.js',
       'bower_components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'bower_components/angular-material-persian-datepicker/dist/datePicker.min.js',
-      'bower_components/lodash/lodash.js',
       'bower_components/machina/lib/machina.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower

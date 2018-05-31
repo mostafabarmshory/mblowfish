@@ -2891,7 +2891,7 @@ angular.module('mblowfish-core')
 				}
 			}
 			return _loadPage($scope, page,
-					'<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-left\': app.dir==\'rtl\',  \'md-sidenav-right\': app.dir!=\'rtl\'}" layout="column">',
+					'<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\'}" layout="column">',
 			'</md-sidenav>')
 			.then(function(pageElement) {
 				_sidenaves.push(pageElement);
@@ -3080,7 +3080,7 @@ angular.module('mblowfish-core')
 				}
 			}
 
-			var prefix = page.raw ? '' : '<md-toolbar ng-if="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+			var prefix = page.raw ? '' : '<md-toolbar ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
 			var postfix = page.raw ? '' : '</md-toolbar>';
 			return _loadPage($scope, page, prefix, postfix)
 			.then(function(pageElement) {
