@@ -5231,18 +5231,33 @@ angular.module('mblowfish-core') //
 	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
 	 * نرم افزار پر می‌شود.
 	 * 
+	 * If there is a role x.y (where x is application code and y is code name) in role list then
+	 * the folloing var is added in user:
+	 * 
+	 *     app.user.x_y
+	 * 
 	 */
 	function loadUserProperty() {
 		_loadingLog('loading user info', 'fetch user information');
 		return $usr.session() //
 		.then(function(user) {
 			// app user date
+			app.user={};
 			app.user.current = user;
-			app.user.administrator = user.isAdministrator();
 			app.user.anonymous = user.isAnonymous();
 			_loadingLog('loading user info', 'user information loaded successfully');
 
 			_loadingLog('loading user info', 'check user permissions');
+			if(angular.isArray(user.roles)){
+				for(var i=0; i < user.roles.length; i++){
+					var role = user.roles[i];
+					app.user[role.application+'_'+role.code_name] = role;
+				}
+			}
+			
+			/*
+			 * @DEPRECATED: this monitor will be removed in the next version.
+			 */
 			return $monitor //
 			.monitor('user', 'owner') //
 			.then(function(monitor) {
