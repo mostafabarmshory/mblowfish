@@ -594,7 +594,7 @@ angular.module('mblowfish-core')
     $navigator.scopePath($scope)//
 	.add({
 		title: 'Dashboard',
-		link: '#!/dashboard'
+		link: 'dashboard'
 	});
     
     $app.scopeMenu($scope) //
