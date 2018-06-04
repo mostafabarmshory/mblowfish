@@ -221,6 +221,12 @@ angular.module('mblowfish-core')
         type : 'string'
     } ];
 
+    $scope.$watch(function(){
+    	return $rootScope.app.user;
+    }, function(usrStruct){
+    	$scope.appUser = usrStruct;
+    }, true);
+    
     // Bind to scope
     $scope.ctrl = ctrl;
     $scope.login = login;
@@ -230,8 +236,6 @@ angular.module('mblowfish-core')
     $scope.load = loadUser;
     $scope.reload = loadUser;
     $scope.saveUser = saveUser;
-    
-    $scope.appUser = $rootScope.app.user;
     
     $scope.back = back;
     $scope.cancel = back;

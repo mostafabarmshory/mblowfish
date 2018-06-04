@@ -552,6 +552,12 @@ angular.module('mblowfish-core')
         type : 'string'
     } ];
 
+    $scope.$watch(function(){
+    	return $rootScope.app.user;
+    }, function(usrStruct){
+    	$scope.appUser = usrStruct;
+    }, true);
+    
     // Bind to scope
     $scope.ctrl = ctrl;
     $scope.login = login;
@@ -561,8 +567,6 @@ angular.module('mblowfish-core')
     $scope.load = loadUser;
     $scope.reload = loadUser;
     $scope.saveUser = saveUser;
-    
-    $scope.appUser = $rootScope.app.user;
     
     $scope.back = back;
     $scope.cancel = back;
@@ -5231,18 +5235,33 @@ angular.module('mblowfish-core') //
 	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
 	 * نرم افزار پر می‌شود.
 	 * 
+	 * If there is a role x.y (where x is application code and y is code name) in role list then
+	 * the folloing var is added in user:
+	 * 
+	 *     app.user.x_y
+	 * 
 	 */
 	function loadUserProperty() {
 		_loadingLog('loading user info', 'fetch user information');
 		return $usr.session() //
 		.then(function(user) {
 			// app user date
+			app.user={};
 			app.user.current = user;
-			app.user.administrator = user.isAdministrator();
 			app.user.anonymous = user.isAnonymous();
 			_loadingLog('loading user info', 'user information loaded successfully');
 
 			_loadingLog('loading user info', 'check user permissions');
+			if(angular.isArray(user.roles)){
+				for(var i=0; i < user.roles.length; i++){
+					var role = user.roles[i];
+					app.user[role.application+'_'+role.code_name] = role;
+				}
+			}
+			
+			/*
+			 * @DEPRECATED: this monitor will be removed in the next version.
+			 */
 			return $monitor //
 			.monitor('user', 'owner') //
 			.then(function(monitor) {
@@ -6294,7 +6313,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img width=160 height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
   );
 
 
