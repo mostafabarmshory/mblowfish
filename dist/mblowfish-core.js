@@ -763,12 +763,13 @@ angular.module('mblowfish-core')
  */
 .controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;
+	var lastItem = 'not-found';
+	var lastLoaded;
 
 
 	function _getHelpId(item) {
 		if(!item){
-			// TODO: maso, 2018: what if current item is null
-			return;
+			return lastItem;
 		}
 		var id = item.helpId;
 
@@ -779,6 +780,7 @@ angular.module('mblowfish-core')
 		if (!angular.isDefined(id)) {
 			id = 'not-found';
 		}
+		lastItem = id;
 		return id;
 	}
 
@@ -794,17 +796,20 @@ angular.module('mblowfish-core')
 			// TODO: maso, 2018: cancle old loading
 		}
 		var myId = _getHelpId(item);
+		if(!$scope.showHelp || myId === lastLoaded) {
+			return;
+		}
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-
 		// load content
-		return $scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
+		$scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
 		.then(function(res) {
 			$scope.helpContent = res.data;
-			$scope.helpLoaded = true;
+			lastLoaded = myId;
 		})//
 		.finally(function(){
 			$scope.helpLoading = false;
 		});
+		return $scope.helpLoading;
 	}
 
 	$scope.closeHelp = function(){
@@ -812,33 +817,36 @@ angular.module('mblowfish-core')
 //		$mdSidenav('help').close();
 	}
 
-	function buildToggler() {
-		var debounceFn =  $mdUtil.debounce(function(){
-			$mdSidenav('help').toggle();
-		},300);
-		return debounceFn;
-	}
+//	function buildToggler() {
+//		var debounceFn =  $mdUtil.debounce(function(){
+//			$mdSidenav('help').toggle();
+//		},300);
+//		return debounceFn;
+//	}
 
 	/*
 	 * If user want to display help, content will be loaded.
 	 */
 	$scope.$watch('showHelp', function(){
-		if($scope.showHelp && !$scope.helpLoaded){
-			return _loadHelpContent();
-		}
+		return _loadHelpContent();
 	});
+
+	/*
+	 * Watch current state changes
+	 */
+	$scope.$watch(function(){
+		if($route.current){
+			return $route.current.$$route;
+		}
+		return null;
+	}, _loadHelpContent);
 
 	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
 		return $help.currentItem();
-	}, function(newValue){
-		$scope.helpLoaded = false;
-		if($scope.showHelp){
-			return _loadHelpContent(newValue);
-		}
-	});
+	}, _loadHelpContent);
 });
 // TODO: should be moved to mblowfish-core
 
@@ -6378,7 +6386,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> {{tile.page.title}} </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding> {{tile.page.description}} </p> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
   );
 
 
