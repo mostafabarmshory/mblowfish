@@ -8,7 +8,7 @@
 			<md-tooltip ng-if="menu.tooltip">{{'home' | translate}}</md-tooltip>
 			<wb-icon>home</wb-icon>
 		</md-button>
-		<wb-icon ng-if="pathMenu.items.length">chevron_left</wb-icon>
+		<wb-icon ng-if="pathMenu.items.length">{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</wb-icon>
 	</div>
 	<div layout="row"
 		data-ng-repeat="menu in pathMenu.items | orderBy:['-priority']">
