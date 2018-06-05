@@ -594,7 +594,7 @@ angular.module('mblowfish-core')
     $navigator.scopePath($scope)//
 	.add({
 		title: 'Dashboard',
-		link: '#!/dashboard'
+		link: 'dashboard'
 	});
     
     $app.scopeMenu($scope) //
@@ -763,12 +763,13 @@ angular.module('mblowfish-core')
  */
 .controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;
+	var lastItem = 'not-found';
+	var lastLoaded;
 
 
 	function _getHelpId(item) {
 		if(!item){
-			// TODO: maso, 2018: what if current item is null
-			return;
+			return lastItem;
 		}
 		var id = item.helpId;
 
@@ -779,6 +780,7 @@ angular.module('mblowfish-core')
 		if (!angular.isDefined(id)) {
 			id = 'not-found';
 		}
+		lastItem = id;
 		return id;
 	}
 
@@ -794,17 +796,20 @@ angular.module('mblowfish-core')
 			// TODO: maso, 2018: cancle old loading
 		}
 		var myId = _getHelpId(item);
+		if(!$scope.showHelp || myId === lastLoaded) {
+			return;
+		}
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-
 		// load content
-		return $scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
+		$scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
 		.then(function(res) {
 			$scope.helpContent = res.data;
-			$scope.helpLoaded = true;
+			lastLoaded = myId;
 		})//
 		.finally(function(){
 			$scope.helpLoading = false;
 		});
+		return $scope.helpLoading;
 	}
 
 	$scope.closeHelp = function(){
@@ -812,33 +817,36 @@ angular.module('mblowfish-core')
 //		$mdSidenav('help').close();
 	}
 
-	function buildToggler() {
-		var debounceFn =  $mdUtil.debounce(function(){
-			$mdSidenav('help').toggle();
-		},300);
-		return debounceFn;
-	}
+//	function buildToggler() {
+//		var debounceFn =  $mdUtil.debounce(function(){
+//			$mdSidenav('help').toggle();
+//		},300);
+//		return debounceFn;
+//	}
 
 	/*
 	 * If user want to display help, content will be loaded.
 	 */
 	$scope.$watch('showHelp', function(){
-		if($scope.showHelp && !$scope.helpLoaded){
-			return _loadHelpContent();
-		}
+		return _loadHelpContent();
 	});
+
+	/*
+	 * Watch current state changes
+	 */
+	$scope.$watch(function(){
+		if($route.current){
+			return $route.current.$$route;
+		}
+		return null;
+	}, _loadHelpContent);
 
 	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
 		return $help.currentItem();
-	}, function(newValue){
-		$scope.helpLoaded = false;
-		if($scope.showHelp){
-			return _loadHelpContent(newValue);
-		}
-	});
+	}, _loadHelpContent);
 });
 // TODO: should be moved to mblowfish-core
 
@@ -6308,7 +6316,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div>  <md-toolbar style=\"border-radius: 5px 5px 0px 0px\" ng-show=!(showSearch||showSort||showState)> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-show=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <md-menu ng-show=mbMoreActions.length> <md-button aria-label=\"Open phone interactions menu\" class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=\"showSearch && mbEnableSearch\"> <div class=md-toolbar-tools> <md-button ng-click=\"showSearch = !showSearch\" aria-label=Back> <wb-icon>arrow_back</wb-icon> </md-button> <h3 flex=10 translate>Back</h3> <md-input-container md-theme=input flex> <label>&nbsp;</label> <input ng-model=temp.query ng-keyup=\"$event.keyCode == 13 ? query.searchTerm=temp.query : null\"> </md-input-container> <md-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=showSort> <div class=md-toolbar-tools> <md-button ng-click=\"showSort = !showSort\"> <wb-icon>arrow_back</wb-icon> </md-button> <md-switch ng-model=query.sortDesc aria-label=DESC> DESC sort order </md-switch> <span flex=10></span> <div layout=row layout-align=\"space-between center\"> <span translate>Sort by : </span> <md-select ng-model=query.sortBy> <md-option ng-repeat=\"key in mbSortKeys\" value={{key}} translate>{{key}}</md-option> </md-select> </div> </div> </md-toolbar> </div>"
+    "<div>  <md-toolbar class=md-hue-2 ng-show=!(showSearch||showSort||showState)> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-show=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <md-menu ng-show=mbMoreActions.length> <md-button aria-label=\"Open phone interactions menu\" class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=\"showSearch && mbEnableSearch\"> <div class=md-toolbar-tools> <md-button ng-click=\"showSearch = !showSearch\" aria-label=Back> <wb-icon>arrow_back</wb-icon> </md-button> <h3 flex=10 translate>Back</h3> <md-input-container md-theme=input flex> <label>&nbsp;</label> <input ng-model=temp.query ng-keyup=\"$event.keyCode == 13 ? query.searchTerm=temp.query : null\"> </md-input-container> <md-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=showSort> <div class=md-toolbar-tools> <md-button ng-click=\"showSort = !showSort\"> <wb-icon>arrow_back</wb-icon> </md-button> <md-switch ng-model=query.sortDesc aria-label=DESC> <span translate>DESC sort order</span> </md-switch> <span flex=10></span> <div layout=row layout-align=\"space-between center\"> <span translate>Sort by</span> : <md-select ng-model=query.sortBy> <md-option ng-repeat=\"key in mbSortKeys\" value={{key}} translate>{{key}}</md-option> </md-select> </div> </div> </md-toolbar> </div>"
   );
 
 
@@ -6378,7 +6386,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> {{tile.page.title}} </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding> {{tile.page.description}} </p> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
   );
 
 
