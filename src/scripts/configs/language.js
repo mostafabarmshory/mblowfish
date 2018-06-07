@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 weburger
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +24,22 @@
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- *
- */
-  .config(function(ngMdIconServiceProvider) {
-    ngMdIconServiceProvider
-    //		TEST ELEMENT: HTTP
-      .addShape('category', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/><path fill="none" d="M0 0h24v24H0z"/></svg>');
 
+
+.config(function($translateProvider) {
+	$translateProvider
+	//
+	.translations('fa', {
+		'ID' : 'شناسه',
+    'id':'شناسه',
+    'title':'عنوان',
+    'state':'وضعیت',
+    'description':'توضیح',
+    'Sort':'مرتب‌سازی',
+    'Sort by':'مرتب‌سازی براساس',
+    'Sort order':'نوع مرتب‌سازی',
+    'Ascending':'صعودی',
+    'Descending':'نزولی'
+	});
+	$translateProvider.preferredLanguage('fa');
 });

@@ -66,17 +66,17 @@ angular.module('mblowfish-core', [ //
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -89,11 +89,59 @@ angular.module('mblowfish-core', [ //
 
 angular.module('mblowfish-core')
 /**
- * 
+ *
  */
-.config(function() {
-	// XXX: maso, 2017: adding custom icons 
-//	$mdIconProvider.icon('user', 'images/user.svg', 64);
+  .config(function(ngMdIconServiceProvider) {
+    ngMdIconServiceProvider
+    //		TEST ELEMENT: HTTP
+      .addShape('category', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/><path fill="none" d="M0 0h24v24H0z"/></svg>');
+
+});
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 weburger
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+
+.config(function($translateProvider) {
+	$translateProvider
+	//
+	.translations('fa', {
+		'ID' : 'شناسه',
+    'id':'شناسه',
+    'title':'عنوان',
+    'state':'وضعیت',
+    'description':'توضیح',
+    'Sort':'مرتب‌سازی',
+    'Sort by':'مرتب‌سازی براساس',
+    'Sort order':'نوع مرتب‌سازی',
+    'Ascending':'صعودی',
+    'Descending':'نزولی'
+	});
+	$translateProvider.preferredLanguage('fa');
 });
 
 /*
@@ -2644,17 +2692,17 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -2677,11 +2725,11 @@ angular.module('mblowfish-core')
  * @property {string}    mb-title           -String
  * @property {string}    mb-icon            -String
  * @description Pagination bar
- * 
+ *
  * Pagination parameters are a complex data structure and it is hard to manage
  * it. This is a toolbar to manage the pagination options.
  */
-.directive('mbPaginationBar', function() {
+.directive('mbPaginationBar',  ['$window','$timeout','$mdMenu', function($window,$timeout,$mdMenu) {
 
 	function postLink(scope, element, attr) {
 
@@ -2691,7 +2739,7 @@ angular.module('mblowfish-core')
 			searchTerm: null
 		};
 		/*
-		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی 
+		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
 		 */
 		function reload(){
 			if(!angular.isFunction(scope.mbReload)){
@@ -2718,7 +2766,7 @@ angular.module('mblowfish-core')
 			// Checks sort key
 			if(scope.mbModel){
 				// clear previous sorters
-				// TODO: replace it with scope.mbModel.clearSorters() 
+				// TODO: replace it with scope.mbModel.clearSorters()
 				scope.mbModel.sortMap = {};
 				scope.mbModel.filterMap = {};
 				scope.mbModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
@@ -2726,6 +2774,16 @@ angular.module('mblowfish-core')
 			}
 		}
 
+    function focusToElementById(id){
+      $timeout(function(){
+        var searchControl;
+        searchControl=$window.document.getElementById(id);
+        searchControl.focus();
+      }, 50 );
+		}
+
+    scope.showBoxOne=false;
+    scope.focusToElement=focusToElementById;
 		// configure scope:
 		scope.search = searchQuery;
 		scope.query=query;
@@ -2738,7 +2796,7 @@ angular.module('mblowfish-core')
 		if(typeof scope.mbEnableSearch === 'undefined'){
 			scope.mbEnableSearch = true;
 		}
-		
+
 		scope.$watch('mbModel', function(){
 			init();
 		});
@@ -2756,7 +2814,7 @@ angular.module('mblowfish-core')
 		templateUrl: 'views/directives/mb-pagination-bar.html',
 		scope : {
 			/*
-			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم. 
+			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
 			 */
 			mbModel : '=',
 			/*
@@ -2774,7 +2832,10 @@ angular.module('mblowfish-core')
 			 * بشن.
 			 */
 			mbSortKeys: '=',
-			/*
+
+      /* titles corresponding to sort keys */
+      mbSortKeysTitles: '=?',
+      /*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',
@@ -2786,7 +2847,7 @@ angular.module('mblowfish-core')
 		},
 		link : postLink
 	};
-});
+}]);
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6311,12 +6372,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip>{{'home' | translate}}</md-tooltip> <wb-icon>home</wb-icon> </md-button> <wb-icon ng-if=pathMenu.items.length>chevron_left</wb-icon> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} </md-button> <wb-icon ng-show=\"$index &lt; pathMenu.items.length - 1\">chevron_left</wb-icon> </div> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip>{{'home' | translate}}</md-tooltip> <wb-icon>home</wb-icon> </md-button> <wb-icon ng-if=pathMenu.items.length>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</wb-icon> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} </md-button> <wb-icon ng-show=\"$index &lt; pathMenu.items.length - 1\">chevron_left</wb-icon> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div>  <md-toolbar class=md-hue-2 ng-show=!(showSearch||showSort||showState)> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-show=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <md-menu ng-show=mbMoreActions.length> <md-button aria-label=\"Open phone interactions menu\" class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=\"showSearch && mbEnableSearch\"> <div class=md-toolbar-tools> <md-button ng-click=\"showSearch = !showSearch\" aria-label=Back> <wb-icon>arrow_back</wb-icon> </md-button> <h3 flex=10 translate>Back</h3> <md-input-container md-theme=input flex> <label>&nbsp;</label> <input ng-model=temp.query ng-keyup=\"$event.keyCode == 13 ? query.searchTerm=temp.query : null\"> </md-input-container> <md-button aria-label=Search ng-click=\"showSearch = !showSearch\"> <wb-icon>search</wb-icon> </md-button> </div> </md-toolbar>  <md-toolbar class=md-hue-1 ng-show=showSort> <div class=md-toolbar-tools> <md-button ng-click=\"showSort = !showSort\"> <wb-icon>arrow_back</wb-icon> </md-button> <md-switch ng-model=query.sortDesc aria-label=DESC> <span translate>DESC sort order</span> </md-switch> <span flex=10></span> <div layout=row layout-align=\"space-between center\"> <span translate>Sort by</span> : <md-select ng-model=query.sortBy> <md-option ng-repeat=\"key in mbSortKeys\" value={{key}} translate>{{key}}</md-option> </md-select> </div> </div> </md-toolbar> </div>"
+    "<div class=\"wrapper-stack-toolbar-container top-corner-round\">  <div md-colors=\"{background: 'primary'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-show=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <md-menu ng-show=mbMoreActions.length> <md-button aria-label=\"Open phone interactions menu\" class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-700'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container>   </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-700'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate>Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button md-colors=\"{background: 'primary-400'}\" layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon>category</wb-icon> <h3>{{query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy==key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!=key\">radio_button_unchecked</wb-icon> {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button md-colors=\"{background: 'primary-400'}\" layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex>    </div> </div> </div>"
   );
 
 
