@@ -114,7 +114,7 @@
         <md-button md-colors="{background: 'primary-400'}" layout="row" style="text-transform: none;"
                    ng-click="$mdMenu.open()">
           <wb-icon>category</wb-icon>
-          <h3>{{query.sortBy|translate}}</h3>
+          <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3>
         </md-button>
         <md-menu-content width="4">
           <md-menu-item ng-repeat="key in mbSortKeys">
