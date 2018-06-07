@@ -64,7 +64,7 @@
   <!-- Search -->
   <div
     class="stack-toolbar new-box-showing-animation"
-    md-colors="{background: 'primary-700'}"
+    md-colors="{background: 'primary-hue-3'}"
     ng-show="showSearch">
     <div class="md-toolbar-tools">
       <md-button
@@ -95,7 +95,7 @@
   <!-- Sort -->
   <div
     class="stack-toolbar new-box-showing-animation"
-    md-colors="{background: 'primary-700'}"
+    md-colors="{background: 'primary-hue-3'}"
     ng-show="showSort">
     <div class="md-toolbar-tools">
       <md-button
@@ -111,7 +111,7 @@
 
       <!-- Menu including sort keys -->
       <md-menu>
-        <md-button md-colors="{background: 'primary-400'}" layout="row" style="text-transform: none;"
+        <md-button md-colors="{background: 'primary'}" layout="row" style="text-transform: none;"
                    ng-click="$mdMenu.open()">
           <wb-icon>category</wb-icon>
           <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3>
@@ -129,7 +129,7 @@
 
       <!-- Menu including sort type:asce and desc -->
       <md-menu>
-        <md-button md-colors="{background: 'primary-400'}" layout="row" style="text-transform: none;"
+        <md-button md-colors="{background: 'primary'}" layout="row" style="text-transform: none;"
                    ng-click="$mdMenu.open()">
           <wb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</wb-icon>
           <wb-icon ng-if="query.sortDesc">filter_list</wb-icon>
