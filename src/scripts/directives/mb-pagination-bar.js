@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,11 +33,11 @@ angular.module('mblowfish-core')
  * @property {string}    mb-title           -String
  * @property {string}    mb-icon            -String
  * @description Pagination bar
- * 
+ *
  * Pagination parameters are a complex data structure and it is hard to manage
  * it. This is a toolbar to manage the pagination options.
  */
-.directive('mbPaginationBar', function() {
+.directive('mbPaginationBar',  ['$window','$timeout','$mdMenu', function($window,$timeout,$mdMenu) {
 
 	function postLink(scope, element, attr) {
 
@@ -47,7 +47,7 @@ angular.module('mblowfish-core')
 			searchTerm: null
 		};
 		/*
-		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی 
+		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
 		 */
 		function reload(){
 			if(!angular.isFunction(scope.mbReload)){
@@ -74,7 +74,7 @@ angular.module('mblowfish-core')
 			// Checks sort key
 			if(scope.mbModel){
 				// clear previous sorters
-				// TODO: replace it with scope.mbModel.clearSorters() 
+				// TODO: replace it with scope.mbModel.clearSorters()
 				scope.mbModel.sortMap = {};
 				scope.mbModel.filterMap = {};
 				scope.mbModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
@@ -82,6 +82,16 @@ angular.module('mblowfish-core')
 			}
 		}
 
+    function focusToElementById(id){
+      $timeout(function(){
+        var searchControl;
+        searchControl=$window.document.getElementById(id);
+        searchControl.focus();
+      }, 50 );
+		}
+
+    scope.showBoxOne=false;
+    scope.focusToElement=focusToElementById;
 		// configure scope:
 		scope.search = searchQuery;
 		scope.query=query;
@@ -94,7 +104,7 @@ angular.module('mblowfish-core')
 		if(typeof scope.mbEnableSearch === 'undefined'){
 			scope.mbEnableSearch = true;
 		}
-		
+
 		scope.$watch('mbModel', function(){
 			init();
 		});
@@ -112,7 +122,7 @@ angular.module('mblowfish-core')
 		templateUrl: 'views/directives/mb-pagination-bar.html',
 		scope : {
 			/*
-			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم. 
+			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
 			 */
 			mbModel : '=',
 			/*
@@ -130,7 +140,10 @@ angular.module('mblowfish-core')
 			 * بشن.
 			 */
 			mbSortKeys: '=',
-			/*
+
+      /* titles corresponding to sort keys */
+      mbSortKeysTitles: '=?',
+      /*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',
@@ -142,4 +155,4 @@ angular.module('mblowfish-core')
 		},
 		link : postLink
 	};
-});
+}]);

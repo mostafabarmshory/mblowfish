@@ -1,3 +1,64 @@
+/**
+ * Created by mgh on 6/6/18.
+ */
+.fit-input {
+  margin: 0px;
+}
+
+.fit-input .md-errors-spacer {
+  display: none;
+}
+
+[dir='rtl'] .icon-rotate-180-for-rtl {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.icon-rotate-180 {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.top-corner-round {
+  border-radius: 5px 5px 0px 0px;
+}
+
+.wrapper-stack-toolbar-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.stack-toolbar {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.new-box-showing-animation {
+  -webkit-transition: transform cubic-bezier(.26,.69,0,1) 0.4s;
+  transition: transform cubic-bezier(.26,.69,0,1) 0.4s;
+
+}
+
+[dir='rtl'] .new-box-showing-animation.ng-hide {
+  /*opacity: 0;*/
+  transform: translateX(+100%);
+}
+
+[dir='ltr'] .new-box-showing-animation.ng-hide {
+  /*opacity: 0;*/
+  transform: translateX(-100%);
+}
+
 [dir=ltr] md-list-item > ng-md-icon:first-child,
 [dir=ltr] md-list-item .md-list-item-inner > ng-md-icon:first-child{
     -webkit-margin-end: 32px;
