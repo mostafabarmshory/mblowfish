@@ -383,6 +383,7 @@ angular.module('mblowfish-core') //
 					var role = user.roles[i];
 					app.user[role.application+'_'+role.code_name] = role;
 				}
+				delete user.roles;
 			}
 			
 			/*
