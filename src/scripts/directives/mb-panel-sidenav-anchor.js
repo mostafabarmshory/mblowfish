@@ -166,6 +166,7 @@ angular.module('mblowfish-core')
 			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
+			sdid.push('messages');
 			var sidenavs =[];
 			var jobs = [];
 			angular.forEach(sdid, function(item){

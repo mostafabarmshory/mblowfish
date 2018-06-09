@@ -50,18 +50,19 @@
 	</md-button>
 	
 	
-<!-- 	<md-button  -->
-<!-- 		class="md-icon-button"  -->
-<!-- 		ng-click="showHelp = !showHelp"  -->
-<!-- 		aria-label="Help sidenav"> -->
-<!-- 		<wb-icon>help</wb-icon> -->
-<!-- 	</md-button> -->
-<!-- 	<md-button  -->
-<!-- 		class="md-icon-button"  -->
-<!-- 		aria-label="Settings"  -->
-<!-- 		ng-click="toggleRightSidebar()"> -->
-<!-- 		<wb-icon>menu</wb-icon> -->
-<!-- 	</md-button> -->
+	
+	<md-button
+		ng-click="toggleMessageSidenav()" 
+		style="overflow: visible;"
+		class="md-icon-button">
+		<md-tooltip>
+			<span  translate="">Display list of messages</span>
+		</md-tooltip>
+		<wb-icon
+			mb-badge="{{messageCount}}"
+			mb-badge-color="primary"
+			mb-badge-fill="accent">notifications</wb-icon>
+	</md-button>
 	
 	<mb-user-menu></mb-user-menu>
 	<md-button

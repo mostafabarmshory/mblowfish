@@ -29,13 +29,28 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav) {
+.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav, $monitor) {
 	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
 	
 	function toggleNavigationSidenav(){
 		$mdSidenav('navigator').toggle();
 	}
 	
-	$scope.toggleNavigationSidenav = toggleNavigationSidenav;
+	function toggleMessageSidenav(){
+		$mdSidenav('messages').toggle();
+	}
 	
+	$scope.toggleNavigationSidenav = toggleNavigationSidenav;
+	$scope.toggleMessageSidenav = toggleMessageSidenav;
+	
+	// watch messages
+	var handler;
+	$monitor.monitor('message', 'count')//
+	.then(function(monitor){
+		handler = monitor.watch(function(a, old, n){
+			$scope.messageCount = n;
+		});
+		monitor.refresh();
+	});
+	$scope.$on('$destroy', handler);
 });
