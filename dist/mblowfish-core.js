@@ -3479,7 +3479,7 @@ angular.module('mblowfish-core')
 			if (route) {
 				state.routeChange(route.$$route);
 				// Run state integeration
-				if(angular.isFunction(route.$$route.integerate)){
+				if(route.$$route && angular.isFunction(route.$$route.integerate)){
 					var value = $injector.invoke(route.$$route.integerate, route.$$route);
 				}
 			} else {
