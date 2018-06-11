@@ -9,7 +9,7 @@
         aria-label="{{mbIcon}}">
         <wb-icon>{{mbIcon}}</wb-icon>
       </md-button>
-      <h2 flex md-truncate ng-show="mbTitle">{{mbTitle}}</h2>
+      <h2 flex md-truncate ng-if="mbTitle">{{mbTitle}}</h2>
       <md-button
         ng-if="reload"
         class="md-icon-button"
@@ -38,11 +38,11 @@
         ng-click="exportData()">
         <wb-icon>save</wb-icon>
       </md-button>
-
+      
+	  <span flex ng-if="!mbTitle"></span>
 
       <md-menu ng-show="mbMoreActions.length">
         <md-button
-          aria-label="Open phone interactions menu"
           class="md-icon-button"
           ng-click="$mdOpenMenu($event)">
           <wb-icon>more_vert</wb-icon>
