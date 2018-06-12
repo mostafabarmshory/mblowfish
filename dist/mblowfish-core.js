@@ -3975,6 +3975,14 @@ angular.module('mblowfish-core')
 			 * Checks if the section is visible
 			 */
 			function isVisible(section){
+				if(!section){
+					for(var i = 0; i < $scope.mbSection.sections.length; i++){
+						if(!$rootScope.$eval($scope.mbSection.sections[i].hidden)){
+							return true;
+						}
+					}
+					return false;
+				}
 				if(section.hidden){
 					return !$rootScope.$eval(section.hidden);
 				}
@@ -4054,22 +4062,26 @@ angular.module('mblowfish-core')
 			mbSection: '='
 		},
 		templateUrl: 'views/directives/mb-tree.html',
-		link: function(scope, element, attr) {
+		link: function($scope, $element, $attr) {
 			// TODO: maso, 2017:
-		},
-		controller : function($scope) {
-			// Current section
-			var openedSection = null;
-
 			/**
 			 * Checks if the section is visible
 			 */
 			function isVisible(section){
+				if(!$element.has('li').length){
+					return false;
+				}
 				if(section.hidden){
 					return !$rootScope.$eval(section.hidden);
 				}
 				return true;
 			}
+			$scope.isVisible = isVisible;
+		},
+		controller : function($scope) {
+			// Current section
+			var openedSection = null;
+
 
 			/**
 			 * Check if the opened section is the section.
@@ -4090,7 +4102,6 @@ angular.module('mblowfish-core')
 
 			$scope.isOpen = isOpen;
 			$scope.toggle = toggle;
-			$scope.isVisible = isVisible;
 		}
 	};
 });
@@ -6433,12 +6444,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-tree-toggle.html',
-    "<div> <md-button class=\"md-raised md-primary md-hue-1 md-button-toggle\" ng-click=toggle(mbSection) aria-controls=docs-menu-{{section.name}} aria-expanded={{isOpen(mbSection)}}> <div flex layout=row> <wb-icon ng-if=mbSection.icon>{{mbSection.icon}}</wb-icon> <span class=mb-toggle-title translate>{{mbSection.title}}</span> <span flex></span> <span aria-hidden=true class=md-toggle-icon ng-class=\"{toggled : isOpen(mbSection)}\"> <wb-icon>keyboard_arrow_up</wb-icon> </span> </div> <span class=md-visually-hidden> Toggle {{isOpen(mbSection)? expanded : collapsed}} </span> </md-button> <ul id=docs-menu-{{mbSection.title}} class=mb-tree-toggle-list> <li ng-repeat=\"section in mbSection.sections\" ng-if=isVisible(section)> <mb-tree-link mb-section=section ng-if=\"section.type === 'link'\"> </mb-tree-link> </li> </ul> </div>"
+    "<div ng-show=isVisible()> <md-button class=\"md-raised md-primary md-hue-1 md-button-toggle\" ng-click=toggle(mbSection) aria-controls=docs-menu-{{section.name}} aria-expanded={{isOpen(mbSection)}}> <div flex layout=row> <wb-icon ng-if=mbSection.icon>{{mbSection.icon}}</wb-icon> <span class=mb-toggle-title translate>{{mbSection.title}}</span> <span flex></span> <span aria-hidden=true class=md-toggle-icon ng-class=\"{toggled : isOpen(mbSection)}\"> <wb-icon>keyboard_arrow_up</wb-icon> </span> </div> <span class=md-visually-hidden> Toggle {{isOpen(mbSection)? expanded : collapsed}} </span> </md-button> <ul id=docs-menu-{{mbSection.title}} class=mb-tree-toggle-list> <li ng-repeat=\"section in mbSection.sections\" ng-if=isVisible(section)> <mb-tree-link mb-section=section ng-if=\"section.type === 'link'\"> </mb-tree-link> </li> </ul> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-tree.html',
-    "<ul class=mb-tree> <li md-colors=\"{borderBottomColor: 'background-600'}\" ng-repeat=\"section in mbSection.sections | orderBy : 'priority'\" ng-if=isVisible(section)> <mb-tree-heading mb-section=section ng-if=\"section.type === 'heading'\"> </mb-tree-heading> <mb-tree-link mb-section=section ng-if=\"section.type === 'link'\"> </mb-tree-link> <mb-tree-toggle mb-section=section ng-if=\"section.type === 'toggle'\"> </mb-tree-toggle>                </li> </ul>"
+    "<ul id=mb-tree-root-element class=mb-tree> <li md-colors=\"{borderBottomColor: 'background-600'}\" ng-repeat=\"section in mbSection.sections | orderBy : 'priority'\" ng-show=isVisible(section)> <mb-tree-heading mb-section=section ng-if=\"section.type === 'heading'\"> </mb-tree-heading> <mb-tree-link mb-section=section ng-if=\"section.type === 'link'\"> </mb-tree-link> <mb-tree-toggle mb-section=section ng-if=\"section.type === 'toggle'\"> </mb-tree-toggle> </li> </ul>"
   );
 
 
