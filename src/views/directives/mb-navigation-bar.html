@@ -8,10 +8,10 @@
 			<md-tooltip ng-if="menu.tooltip">{{'home' | translate}}</md-tooltip>
 			<wb-icon>home</wb-icon>
 		</md-button>
-		<wb-icon ng-if="pathMenu.items.length">{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</wb-icon>
 	</div>
 	<div layout="row"
 		data-ng-repeat="menu in pathMenu.items | orderBy:['-priority']">
+		<wb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</wb-icon>
 		<md-button
 			ng-show="isVisible(menu)"
 			ng-href="{{menu.url}}"
@@ -21,6 +21,6 @@
 			<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
 			{{menu.title | translate}} 
 		</md-button>
-		<wb-icon ng-show="$index &lt; pathMenu.items.length - 1">chevron_left</wb-icon>
+<!-- 		<wb-icon ng-show="$index &lt; pathMenu.items.length - 1">chevron_left</wb-icon> -->
 	</div>
 </div>
