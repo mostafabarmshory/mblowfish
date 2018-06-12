@@ -26,31 +26,25 @@ angular.module('app')
  * 
  */
 .controller('TestNavigatorHiddenPathCtrl', function($scope, $rootScope, $navigator) {
-	// Integerate with dashboard
-    $navigator.scopePath($scope)//
-	.add({
-		title: 'Example',
-	})//
-	.add({
-		title: 'Navigator',
-	})//
-	.add({
-		title: 'Hidden navigator',
-		active: function(){
-			$navigator.openPage('/test/navigator/hidden');
-		}
-	});
     
-	/**
-	 * Update the object in scope
-	 */
-	function toggle() {
-		$rootScope.navigatorHiddenTestFlag = !$rootScope.navigatorHiddenTestFlag;
-	}
 
 	$scope.toggleNavigation = function(){
 		$rootScope.navigatorGroupHiddenTestFlag = !$rootScope.navigatorGroupHiddenTestFlag;
 	}
+
+	/**
+	 * Update the object in scope
+	 */
+	$scope.toggle = function() {
+		$rootScope.navigatorHiddenTestFlag = !$rootScope.navigatorHiddenTestFlag;
+	}
 	
-	$scope.toggle = toggle;
+	/*
+	 * Toggles all items
+	 */
+	$scope.toggleAll = function() {
+		$rootScope.navigatorHiddenTestFlag = !$rootScope.navigatorHiddenTestFlag;
+		$rootScope.navigatorHiddenTestFlag2 = !$rootScope.navigatorHiddenTestFlag2;
+	}
+	
 });
