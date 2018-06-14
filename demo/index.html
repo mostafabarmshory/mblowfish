@@ -35,6 +35,7 @@
 
 <!-- build:css({.tmp/serve,src}) styles/app.css -->
 <!-- injector:css -->
+<link rel="stylesheet" href="styles/angular-material-common.css">
 <link rel="stylesheet" href="styles/angular-material-icon.css">
 <link rel="stylesheet" href="styles/angular-material.css">
 <link rel="stylesheet" href="styles/badge.css">
@@ -44,6 +45,7 @@
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/navigation-path-bar.css">
 <link rel="stylesheet" href="styles/preload.css">
+<link rel="stylesheet" href="styles/sidenave.css">
 <link rel="stylesheet" href="styles/tables.css">
 <link rel="stylesheet" href="styles/tree.css">
 <link rel="stylesheet" href="styles/user-menu.css">
@@ -79,6 +81,8 @@
 	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/moment-jalaali/build/moment-jalaali.js"></script>
 	<script src="bower_components/angular-pluf/dist/angular-pluf.js"></script>
+	<script src="bower_components/mustache.js/mustache.js"></script>
+	<script src="bower_components/lodash/lodash.js"></script>
 	<script src="bower_components/seen-core/dist/seen-core.js"></script>
 	<script src="bower_components/seen-tenant/dist/seen-tenant.js"></script>
 	<script src="bower_components/angular-aria/angular-aria.js"></script>
@@ -113,7 +117,6 @@
 	<script src="bower_components/file-saver.js/FileSaver.js"></script>
 	<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
-	<script src="bower_components/lodash/lodash.js"></script>
 	<script src="bower_components/machina/lib/machina.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -122,6 +125,7 @@
 	<!-- injector:js -->
 	<script src="scripts/app.js"></script>
 	<script src="scripts/configs/icons.js"></script>
+	<script src="scripts/configs/language.js"></script>
 	<script src="scripts/configs/local.js"></script>
 	<script src="scripts/configs/states.js"></script>
 	<script src="scripts/configs/theme.js"></script>

@@ -93,4 +93,13 @@ angular.module('mblowfish-core')
 		locked : false,
 		position : 'end'
 	});
+	$app.newSidenav({
+		id : 'messages',
+		title : 'Messages',
+		description : 'User message queue',
+		controller : 'MessagesCtrl',
+		templateUrl : 'views/sidenavs/mb-messages.html',
+		locked : false,
+		position : 'start'
+	});
 });

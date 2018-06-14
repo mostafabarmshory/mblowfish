@@ -63,6 +63,8 @@ angular.module('app') //
 		name : 'Pagination Bars',
 		icon : 'apps',
 	})
+	
+	// Navigators
 	.when('/test/navigator/hidden', {
 		controller : 'TestNavigatorHiddenPathCtrl',
 		templateUrl : 'views/amd-test-navigator-hidden.html',
@@ -78,7 +80,8 @@ angular.module('app') //
 		navigate : true,
 		groups : [ 'navigator' ],
 		name : 'Dialogs',
-		icon : 'apps'
+		icon : 'apps',
+		hidden: 'navigatorHiddenTestFlag2'
 	})
 
 

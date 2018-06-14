@@ -8,7 +8,7 @@
 		ng-show="app.config.logo"
 		ng-src="{{app.config.logo}}"/>
 	<strong>{{app.config.title}}</strong>
-	<p style="text-align: center;">{{app.config.description}}</p>
+	<p style="text-align: center;">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p>
 </md-toolbar>
 <md-content
    	md-colors="{backgroundColor: 'primary'}" 

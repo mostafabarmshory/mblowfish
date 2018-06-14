@@ -111,6 +111,14 @@ angular.module('mblowfish-core')
 			 * Checks if the section is visible
 			 */
 			function isVisible(section){
+				if(!section){
+					for(var i = 0; i < $scope.mbSection.sections.length; i++){
+						if(!$rootScope.$eval($scope.mbSection.sections[i].hidden)){
+							return true;
+						}
+					}
+					return false;
+				}
 				if(section.hidden){
 					return !$rootScope.$eval(section.hidden);
 				}

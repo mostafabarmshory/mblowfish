@@ -77,7 +77,7 @@
 					ng-src="{{app.config.logo}}" />
 				<p>
 					<strong>{{app.config.title}}</strong><br/>
-					<em>{{app.config.description}}</em>
+					<p>{{ app.config.description | limitTo: 150 }}{{app.config.description.length > 150 ? '...' : ''}}</p>
 				</p>
 			</md-toolbar>
 			<!-- body -->
