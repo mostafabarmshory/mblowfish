@@ -26,35 +26,27 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc controller
  * @name MbAccountCtrl
- * @description Manages the current user.
+ * @description Manages account of users.
  * 
  * Manages current user action
  */
-.controller('MbAccountCtrl', function($scope, $app, $navigator) {
+.controller('MbAccountCtrl', function($scope, $rootScope, $app, $translate, $window, $usr) {
 
-    /*
-     * Store controller state
-     */
     var ctrl = {
-            changingPassword: false
+    		loginProcess: false,
+    		loginState: null,
+    		logoutProcess: false,
+    		logoutState: null,
+            changingPassword: false,
+            updatingAvatar: false,
+            loadingUser: false,
+            savingUser: false
     };
     
     /**
-     * Go to the default page
-     * 
-     * @name load
-     * @memberof AmdAccountCtrl
-     * @returns {promiss} to load user data
-     */
-    function goToDashboard() {
-        // XXX: maso, 1395: ممکن هست این حالت وجود نداشته باشد
-        $navigator.openPage('dashboard');
-    }
-
-    /**
      * Call login process for current user
      * 
-     * @memberof AmdAccountCtrl
+     * @memberof AmhUserAccountCtrl
      * @name login
      * @param {object}
      *            cridet username and password
@@ -65,72 +57,45 @@ angular.module('mblowfish-core')
      * @returns {promiss} to do the login
      */
     function login(cridet) {
-        if(ctrl.loadUser){
-            return;
+        if(ctrl.loginProcess){
+            return false;
         }
-        ctrl.loadUser= true;
+        ctrl.loginProcess= true;
         return $app.login(cridet)//
-        .catch(function(error) {
-            ctrl.error = error;
-        })//
-        .finally(function(){
-            ctrl.loadUser = false;
-        });
-    }
-
-
-    /**
-     * Loads user data
-     * 
-     * @name load
-     * @memberof AmdAccountCtrl
-     * @returns {promiss} to load user data
-     */
-    function loadUser(){
-        if(ctrl.loadUser){
-            return;
-        }
-        ctrl.loadUser = true;
-        return $usr.session()//
-        .then(function(user){
-            setUser(user);
-            ctrl.loadUser = false;
-        }, function(error){
-            ctrl.error = error;
-        })//
-        .finally(function(){
-            ctrl .loadUser = false;
-        });
-    }
-
-
-    /**
-     * Save current user
-     * 
-     * @name load
-     * @memberof AmdAccountCtrl
-     * @returns {promiss} to save
-     */
-    function saveUser(){
-        if(ctrl.loadUser){
-            return;
-        }
-        // TODO: maso, 2017: check if user exist
-        ctrl.saveUser = true;
-        return ctrl.user.update()//
         .then(function(){
-            ctrl.saveUser = false;
-        }, function(error){
-            ctrl.error = error;
-            ctrl.saveUser = false;
+        	ctrl.loginState = 'success';
+        	$scope.loginMessage = null;
+        }, function(){
+        	ctrl.loginState = 'fail';
+        	$scope.loginMessage = 'Username or password is incorrect';
         })
+        .finally(function(){
+            ctrl.loginProcess = false;
+        });
     }
+    
+    function logout() {
+        if(ctrl.logoutProcess){
+            return false;
+        }
+        ctrl.logoutProcess= true;
+        return $app.logout()//
+        .then(function(){
+        	ctrl.logoutState = 'success';
+        }, function(){
+        	ctrl.logoutState = 'fail';
+        })
+        .finally(function(){
+            ctrl.logoutProcess = false;
+        });
+    }
+
 
     /**
      * Change password of the current user
      * 
      * @name load
-     * @memberof AmdAccountCtrl
+     * @memberof MbAccountCtrl
      * @returns {promiss} to change password
      */
     function changePassword(data) {
@@ -146,9 +111,10 @@ angular.module('mblowfish-core')
 //      return $usr.resetPassword(param)//
         $scope.app.user.current.newPassword(param)
         .then(function(){
-            $scope.logout();
-        }, function(error){
-            alert('Fail to update password:'+error.data.message);
+            $app.logout();
+            alert($translate.instant('Password is changed successfully. Login with new password.'));
+        }, function(){
+            alert('Failed to change password.');
         })//
         .finally(function(){
             ctrl.changingPassword = false;
@@ -160,19 +126,80 @@ angular.module('mblowfish-core')
      * Update avatar of the current user
      * 
      * @name load
-     * @memberof AmdAccountCtrl
+     * @memberof MbAccountCtrl
      * @returns {promiss} to update avatar
      */
     function updateAvatar(avatarFiles){
         // XXX: maso, 1395: reset avatar
+    	if(ctrl.updatingAvatar){
+    		return;
+    	}
+    	ctrl.updatingAvatar = true;
         return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
         .then(function(){
+        	// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
+        	// clear address before upload and set it again after upload.
             $window.location.reload();
-        }, function(error){
-            alert('Fail to update avatar:' + error.data.message);
+        }, function(){
+            alert('Failed to update avatar');
+        })//
+        .finally(function(){
+        	ctrl.updatingAvatar = false;
         });
     }
 
+    function back() {
+		 $window.history.back();
+	}
+
+    
+    /**
+     * Loads user data
+     * 
+     * @name load
+     * @memberof MbAccountCtrl
+     * @returns {promiss} to load user data
+     */
+    function loadUser(){
+        if(ctrl.loadingUser){
+            return;
+        }
+        ctrl.loadingUser = true;
+        return $usr.session()//
+        .then(function(user){
+        	ctrl.user = user;
+        }, function(error){
+            ctrl.error = error;
+        })//
+        .finally(function(){
+            ctrl .loadingUser = false;
+        });
+    }
+
+
+    /**
+     * Save current user
+     * 
+     * @name load
+     * @memberof MbAccountCtrl
+     * @returns {promiss} to save
+     */
+    function saveUser(){
+        if(ctrl.savingUser){
+            return;
+        }
+        ctrl.savingUser = true;
+        return ctrl.user.update()//
+        .then(function(user){
+        	ctrl.user = user;
+        }, function(error){
+            ctrl.error = error;
+        })//
+        .finally(function(){
+        	ctrl.savingUser = false;
+        });
+    }
+    
 
     // TODO: maso, 2017: getting from server
     // Account property descriptor
@@ -194,14 +221,26 @@ angular.module('mblowfish-core')
         type : 'string'
     } ];
 
+    $scope.$watch(function(){
+    	return $rootScope.app.user;
+    }, function(usrStruct){
+    	$scope.appUser = usrStruct;
+    }, true);
+    
     // Bind to scope
     $scope.ctrl = ctrl;
     $scope.login = login;
-    $scope.logout = $app.logout;
-    $scope.goToDashboard = goToDashboard;
+    $scope.logout = logout;
+    $scope.changePassword = changePassword;
+    $scope.updateAvatar = updateAvatar;
     $scope.load = loadUser;
     $scope.reload = loadUser;
     $scope.saveUser = saveUser;
-    $scope.changePassword = changePassword;
-    $scope.updateAvatar = updateAvatar;
+    
+    $scope.back = back;
+    $scope.cancel = back;
+    
+    loadUser();
 });
+
+

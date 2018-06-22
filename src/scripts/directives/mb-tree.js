@@ -40,22 +40,26 @@ angular.module('mblowfish-core')
 			mbSection: '='
 		},
 		templateUrl: 'views/directives/mb-tree.html',
-		link: function(scope, element, attr) {
+		link: function($scope, $element, $attr) {
 			// TODO: maso, 2017:
-		},
-		controller : function($scope) {
-			// Current section
-			var openedSection = null;
-
 			/**
 			 * Checks if the section is visible
 			 */
 			function isVisible(section){
+				if(!$element.has('li').length){
+					return false;
+				}
 				if(section.hidden){
 					return !$rootScope.$eval(section.hidden);
 				}
 				return true;
 			}
+			$scope.isVisible = isVisible;
+		},
+		controller : function($scope) {
+			// Current section
+			var openedSection = null;
+
 
 			/**
 			 * Check if the opened section is the section.
@@ -76,7 +80,6 @@ angular.module('mblowfish-core')
 
 			$scope.isOpen = isOpen;
 			$scope.toggle = toggle;
-			$scope.isVisible = isVisible;
 		}
 	};
 });

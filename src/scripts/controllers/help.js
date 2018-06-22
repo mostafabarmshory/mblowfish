@@ -31,25 +31,27 @@ angular.module('mblowfish-core')
  */
 .controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;
+	var lastItem = 'not-found';
+	var lastLoaded;
 
 
 	function _getHelpId(item) {
-        if(!item){
-            // TODO: maso, 2018: what if current item is null
-            return;
-        }
-        var id = item.helpId;
-        
-        if (angular.isFunction(id)) {
-            id = id(item);
-        }
+		if(!item){
+			return lastItem;
+		}
+		var id = item.helpId;
 
-        if (!angular.isDefined(id)) {
-            id = 'not-found';
-        }
-        return id;
+		if (angular.isFunction(id)) {
+			id = id(item);
+		}
+
+		if (!angular.isDefined(id)) {
+			id = 'not-found';
+		}
+		lastItem = id;
+		return id;
 	}
-	
+
 	/**
 	 * load help content for the item
 	 * 
@@ -58,21 +60,24 @@ angular.module('mblowfish-core')
 	 * @params item {object} an item to display help for
 	 */
 	function _loadHelpContent(item) {
-	    if($scope.helpLoading){
-	        // TODO: maso, 2018: cancle old loading
-	    }
-	    var myId = _getHelpId(item);
+		if($scope.helpLoading){
+			// TODO: maso, 2018: cancle old loading
+		}
+		var myId = _getHelpId(item);
+		if(!$scope.showHelp || myId === lastLoaded) {
+			return;
+		}
 		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
-		
 		// load content
-		return $scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
+		$scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
 		.then(function(res) {
 			$scope.helpContent = res.data;
-			$scope.helpLoaded = true;
+			lastLoaded = myId;
 		})//
 		.finally(function(){
-		    $scope.helpLoading = false;
+			$scope.helpLoading = false;
 		});
+		return $scope.helpLoading;
 	}
 
 	$scope.closeHelp = function(){
@@ -80,29 +85,34 @@ angular.module('mblowfish-core')
 //		$mdSidenav('help').close();
 	}
 
-	function buildToggler() {
-		var debounceFn =  $mdUtil.debounce(function(){
-			$mdSidenav('help').toggle();
-		},300);
-		return debounceFn;
-	}
+//	function buildToggler() {
+//		var debounceFn =  $mdUtil.debounce(function(){
+//			$mdSidenav('help').toggle();
+//		},300);
+//		return debounceFn;
+//	}
 
 	/*
 	 * If user want to display help, content will be loaded.
 	 */
 	$scope.$watch('showHelp', function(){
-	    if($scope.showHelp && !$scope.helpLoaded){
-	        return _loadHelpContent();
-	    }
+		return _loadHelpContent();
 	});
+
+	/*
+	 * Watch current state changes
+	 */
+	$scope.$watch(function(){
+		if($route.current){
+			return $route.current.$$route;
+		}
+		return null;
+	}, _loadHelpContent);
 
 	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
-	        return $help.currentItem();
-	}, function(newValue){
-	    $scope.helpLoaded = false;
-	    return _loadHelpContent(newValue);
-	});
+		return $help.currentItem();
+	}, _loadHelpContent);
 });

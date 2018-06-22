@@ -4,39 +4,39 @@
   "description": "Material blowfish is an application framework",
   "homepage": "https://github.com/mblowfish/mblowfish-core",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.1.4",
   "main": [
     "dist/mblowfish-core.js",
     "dist/mblowfish-core.css"
   ],
   "dependencies": {
-    "angular-animate": "^1.6.0",
-    "angular-cookies": "^1.6.0",
-    "angular-sanitize": "^1.6.0",
-    "angular-messages": "^1.6.0",
-    "angular-route": "^1.6.0",
+    "angular-animate": "1.7.x",
+    "angular-cookies": "1.7.x",
+    "angular-sanitize": "1.7.x",
+    "angular-messages": "1.7.x",
+    "angular-route": "1.7.x",
     "angular-nvd3": "^1.0.9",
-    "seen-core": "https://gitlab.com/seen/angular/seen-core.git#^1.1.0",
-    "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#^1.1.0",
-    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#^1.1.0",
-    "am-wb-common": "https://gitlab.com/am-wb/am-wb-common.git#^1.1.0",
-    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#^1.1.0",
-    "am-wb-seen-monitors": "https://gitlab.com/am-wb/am-wb-seen-monitors.git#^1.1.0",
-    "ngstorage": "^0.3.11",
-    "ngInfiniteScroll": "1.3.0",
-    "ng-appcache": "^2.0.1",
-    "lf-ng-md-file-input": "^1.4.8",
-    "angular-recaptcha": "^4.1.1",
-    "material-steppers": "^2.0.0",
-    "angular-file-saver": "^1.1.3",
-    "angular-material-persian-datepicker": "^1.2.0",
-    "machina": "^2.0.2"
+    "seen-core": "https://gitlab.com/seen/angular/seen-core.git#1.1.x",
+    "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#1.1.x",
+    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#1.1.x",
+    "am-wb-common": "https://gitlab.com/am-wb/am-wb-common.git#1.1.x",
+    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#1.1.x",
+    "am-wb-seen-monitors": "https://gitlab.com/am-wb/am-wb-seen-monitors.git#1.1.x",
+    "ngstorage": "0.3.x",
+    "ngInfiniteScroll": "1.3.x",
+    "ng-appcache": "2.0.x",
+    "lf-ng-md-file-input": "1.5.x",
+    "angular-recaptcha": "4.1.x",
+    "material-steppers": "2.0.x",
+    "angular-file-saver": "1.1.x",
+    "angular-material-persian-datepicker": "1.2.x",
+    "machina": "2.0.x"
   },
   "resolutions": {
-    "angular": "^1.6.0"
+    "angular": "1.7.x"
   },
   "devDependencies": {
-    "angular-mocks": "^1.6.0"
+    "angular-mocks": "1.7.x"
   },
   "appPath": "src",
   "1#backend": {
@@ -44,7 +44,9 @@
     "port": 9590
   },
   "backend": {
-    "host": "sellonclouds.com"
+    "#host": "sellonclouds.com",
+    "host": "217.218.74.61",
+    "port": 8083
   },
   "##backend": {
     "#comment": "Gazmeh test machine",

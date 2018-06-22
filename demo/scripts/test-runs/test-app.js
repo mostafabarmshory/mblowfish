@@ -27,7 +27,7 @@ angular.module('app')//
 /**
  * 
  */
-.run(function($navigator){
+.run(function($navigator, $app, $rootScope){
 		// add category
 	$navigator.newGroup({
 		id: 'tables',
@@ -77,5 +77,19 @@ angular.module('app')//
 		link: 'https://gitlab.com/angular-material-dashboard/angular-material-dashboard/wikis/home',
 		title: 'Online help',
 		icon: 'help'
+	});
+	
+	
+	
+
+	$app.newToolbar({
+		id : 'testToolbar',
+		title : 'Test toolbar',
+		description : 'Main dashboard toolbar',
+		controller: 'MbToolbarDashboardCtrl',
+		templateUrl : 'views/toolbars/test.html',
+		visible: function(){
+			return $rootScope.testToolbar;
+		}
 	});
 });

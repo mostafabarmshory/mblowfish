@@ -60,7 +60,7 @@ angular.module('mblowfish-core')
 		title : 'Dashboard toolbar',
 		description : 'Main dashboard toolbar',
 		controller: 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/mb-dashboard.html',
+		templateUrl : 'views/toolbars/mb-dashboard.html'
 	});
 	
 	$app.newSidenav({
@@ -92,5 +92,14 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/sidenavs/mb-options.html',
 		locked : false,
 		position : 'end'
+	});
+	$app.newSidenav({
+		id : 'messages',
+		title : 'Messages',
+		description : 'User message queue',
+		controller : 'MessagesCtrl',
+		templateUrl : 'views/sidenavs/mb-messages.html',
+		locked : false,
+		position : 'start'
 	});
 });

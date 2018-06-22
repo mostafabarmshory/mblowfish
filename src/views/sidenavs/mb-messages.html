@@ -1,0 +1,31 @@
+<md-toolbar 
+	class="md-hue-1" 
+	layout="column"
+	layout-align="center">
+	<div layout="row"
+		layout-align="start center">
+		<h4 translate="">Messages</h4>
+	</div>
+</md-toolbar>
+<md-content
+	mb-preloading="ctrl.status === 'working'"
+	mb-infinate-scroll="nextMessages()"
+	flex
+	layout-fill>
+	<md-list> 
+		<md-list-item 
+			class="md-2-line"
+			ng-repeat="message in ctrl.items"> 
+			<wb-icon ng-class="">mail</wb-icon>
+			<div class="md-list-item-text">
+				<p>{{message.message}}</p>
+			</div>
+			<md-button 
+				class="md-secondary md-icon-button" 
+				ng-click="remove(message)" 
+				aria-label="remove">
+				<wb-icon>delete</wb-icon>
+			</md-button>
+		</md-list-item> 
+	</md-list>
+</md-content>
