@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Display initialization page to set initial configuration of SPA.
  * 
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
 
 	function goToStep(index){
 		var stepper = $mdStepper('setting-stepper');
@@ -119,4 +119,5 @@ angular.module('mblowfish-core')
 	$scope.prevStep = prevStep;
 	$scope.goToStep = goToStep;
 
+	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
 });

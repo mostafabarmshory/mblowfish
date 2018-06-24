@@ -1,6 +1,7 @@
 <md-content
 	layout="column"
 	flex>
+	{{basePath}}
 	<mb-preference-page 
 		mb-preference-id="pageId">
 	</mb-preference-page>
@@ -14,16 +15,20 @@
 			md-label="{{item.title}}" 
 			ng-repeat="item in settings">
 		    <md-step-actions layout="row">
-		        <md-button ng-show="$index !== 0"
-		        	 class="md-primary md-raised" 
+		        <md-button 
+		        	ng-show="$index !== 0"
+		        	class="md-primary md-raised" 
 		        	ng-click="prevStep()" translate>back</md-button>
 		        <div flex></div>
-		        <md-button ng-show="$index < settings.length-1"
+		        <md-button 
+		        	ng-show="$index < settings.length-1"
 		        	class="md-primary md-raised" 
 		        	ng-click="nextStep()" translate>next</md-button>
-		        <md-button ng-show="$index === settings.length-1"
+		        <md-button 
+		        	ng-show="$index === settings.length-1"
 		        	class="md-primary md-raised" 
-		        	ng-href="/" translate>go to site</md-button>
+		        	ng-href="{{getMainPage()}}" 
+		        	translate="">go to site</md-button>
 		    </md-step-actions>
 		</md-step>
 	</md-stepper>

@@ -930,7 +930,7 @@ angular.module('mblowfish-core')
  * Display initialization page to set initial configuration of SPA.
  * 
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
 
 	function goToStep(index){
 		var stepper = $mdStepper('setting-stepper');
@@ -1017,6 +1017,7 @@ angular.module('mblowfish-core')
 	$scope.prevStep = prevStep;
 	$scope.goToStep = goToStep;
 
+	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
 });
 
 'use strict';
@@ -6469,7 +6470,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<md-content layout=column flex> <mb-preference-page mb-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href=\"/\" translate>go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
+    "<md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href={{getMainPage()}} translate=\"\">go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
   );
 
 
