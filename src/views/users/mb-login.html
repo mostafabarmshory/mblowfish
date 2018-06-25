@@ -15,6 +15,7 @@
 			md-colors="{backgroundColor: 'primary-100'}">
 			<!-- TODO: toolbar items -->
 			<img 
+				style="max-width: 50%;"
 				height="160"
 				ng-show="app.config.logo"
 				ng-src="{{app.config.logo}}" />
@@ -55,10 +56,7 @@
 					<div ng-message="required" translate>This field is required.</div>
 		        </div>
 	        </md-input-container>
-<!-- 			<amh-captcha -->
-<!-- 			    ng-model="credit.g_recaptcha_response">Hi -->
-<!-- 			</amh-captcha> -->
-			<!-- XXX: maso, 2018: adding captcha -->
+			<!-- adding captcha -->
 			<div
 				ng-if="app.captcha.engine==='recaptcha'"
 			    vc-recaptcha
@@ -66,7 +64,7 @@
 			    theme="app.captcha.theme || 'light'"
 			    type="app.captcha.type || 'image'"
 			    key="app.captcha.recaptcha.key"
-			    lang="app.captcha.language || 'fa'">
+			    lang="app.setting.local || app.config.local || 'en'">
 			</div>
 	        <input hide type="submit" />
 	        <div layout="column" layout-align="none"
