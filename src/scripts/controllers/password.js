@@ -38,12 +38,12 @@ angular.module('mblowfish-core')
 .controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window) {
 
 	var ctrl = {
-		sendingToken: false,
-		sendTokenState: null,
-		changingPass: false,
-		changingPassState: null
+			sendingToken: false,
+			sendTokenState: null,
+			changingPass: false,
+			changingPassState: null
 	};
-	
+
 	$scope.data = {};
 	$scope.data.token = $routeParams.token;
 
@@ -63,22 +63,28 @@ angular.module('mblowfish-core')
 			ctrl.sendingToken = false;
 		});
 	};
-	
+
 	function changePassword(param) {
 		if(ctrl.changingPass){
 			return false;
 		}
 		ctrl.changingPass = true;
 		var data = {
-			'token' : param.token,
-			'new' : param.password
+				'token' : param.token,
+				'new' : param.password
 		};
 		return $usr.resetPassword(data)//
 		.then(function() {
 			ctrl.changePassState = 'success';
+			$scope.changePassMessage = null;
 			$navigator.openView('users/login');
-		}, function(){
-			ctrl.changePassState = 'fail';			
+		}, function(error){
+			ctrl.changePassState = 'fail';
+			var message = '';
+        	if(error.status >= 400 && error.status <600){
+        		message = error.data.message;
+        	}
+        	$scope.changePassMessage = message;
 		})//
 		.finally(function(){
 			ctrl.changingPass = false;
@@ -86,15 +92,15 @@ angular.module('mblowfish-core')
 	};
 
 	function back() {
-		 $window.history.back();
+		$window.history.back();
 	}
-	
+
 	$scope.ctrl = ctrl;
-	
+
 	$scope.sendToken = sendToken;
 	$scope.changePassword = changePassword;
-	
+
 	$scope.cancel = back;
-	
+
 });
 

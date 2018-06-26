@@ -38,6 +38,7 @@ angular.module('mblowfish-core')
     		logoutProcess: false,
     		logoutState: null,
             changingPassword: false,
+            changePassState: null,
             updatingAvatar: false,
             loadingUser: false,
             savingUser: false
@@ -65,9 +66,22 @@ angular.module('mblowfish-core')
         .then(function(){
         	ctrl.loginState = 'success';
         	$scope.loginMessage = null;
-        }, function(){
+        }, function(error){
         	ctrl.loginState = 'fail';
-        	$scope.loginMessage = 'Username or password is incorrect';
+        	var message = '';
+        	if(error.status >= 400 && error.status <600){
+        		message = error.data.message;
+        	}
+//        	if(error.status === 401){
+//        		message = 'Username or password is incorrect';
+//        	}else if(error.status === 402){
+//        		message = 'Access is forbiden';
+//        	}else if(error.status === 408){
+//        		message = 'Request Timeout';
+//        	}else if(error.status >= 500 && error.status <600){
+//        		message = 'Server could not response to your request'
+//        	}
+        	$scope.loginMessage = message;
         })
         .finally(function(){
             ctrl.loginProcess = false;
@@ -112,9 +126,16 @@ angular.module('mblowfish-core')
         $scope.app.user.current.newPassword(param)
         .then(function(){
             $app.logout();
+            ctrl.changePassState = 'success';
+            $scope.changePassMessage = null;
             alert($translate.instant('Password is changed successfully. Login with new password.'));
-        }, function(){
-            alert('Failed to change password.');
+        }, function(error){
+        	ctrl.changePassState = 'fail';
+        	var message = '';
+        	if(error.status >= 400 && error.status <600){
+        		message = error.data.message;
+        	}
+        	$scope.changePassMessage = message;
         })//
         .finally(function(){
             ctrl.changingPassword = false;
