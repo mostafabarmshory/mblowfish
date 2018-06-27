@@ -121,7 +121,9 @@ angular.module('mblowfish-core')
 	})//
 	.when('/users/reset-password/token', {
 		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	.when('/users/reset-password/token/:token', {
 		templateUrl : 'views/users/mb-recover-password.html',

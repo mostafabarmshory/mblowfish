@@ -9,21 +9,7 @@
 		flex-gt-sm="50"
 		layout="column">
 		<!-- Toolbar -->
-		<md-toolbar 
-			layout="row" 
-			layout-padding
-			md-colors="{backgroundColor: 'primary-100'}">
-			<!-- TODO: toolbar items -->
-			<img 
-				style="max-width: 50%;"
-				height="160"
-				ng-show="app.config.logo"
-				ng-src="{{app.config.logo}}" />
-			<p>
-				<strong>{{app.config.title}}</strong><br/>
-				<em>{{app.config.description}}</em>
-			</p>
-		</md-toolbar>
+		<ng-include src="'views/partials/mb-branding-header-toolbar.html'"></ng-include>
 		<md-progress-linear
 			ng-disabled="!(ctrl.loginProcess || ctrl.logoutProcess)"
 			style="margin: 0px; padding: 0px"
@@ -67,8 +53,8 @@
 			    lang="app.setting.local || app.config.local || 'en'">
 			</div>
 	        <input hide type="submit" />
-	        <div layout="column" layout-align="none"
-	        	layout-gt-xs="row" layout-align-gt-xs="center center"
+	        <div layout="column" layout-align="center none"
+	        	layout-gt-xs="row" layout-align-gt-xs="end center"
 	        	layout-margin>
 	        	<a 
 	        		href="users/reset-password"

@@ -1,0 +1,17 @@
+<!-- Toolbar -->
+<md-toolbar 
+	layout="row" 
+	layout-padding
+	md-colors="{backgroundColor: 'primary-100'}">
+	<!-- TODO: toolbar items -->
+	<img 
+		style="max-width: 50%;"
+		height="160"
+		ng-show="app.config.logo"
+		ng-src="{{app.config.logo}}" />
+	<div>
+		<h3>{{app.config.title}}</h3>
+		<p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p>
+	</div>
+</md-toolbar>
+		
