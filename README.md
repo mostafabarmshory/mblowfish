@@ -7,6 +7,11 @@
 - Preferences
 - Pages (ngRoute)
 
+- Services
+- Filters
+- Directives
+- Factories
+
 
 ## Toolbars
 
@@ -166,5 +171,25 @@ Different pages (or paths) could be defined as follow:
 ```
 
 
+## Services
 
+Here services defined in this module are described. 
+Some of this services are in introduced in previous sections, such as $app and $action.
+
+ - $app
+ - $actions
+ - $errorHandler
+ - $export
+ - $help
+ - $navigator
+ - $notification
+ - $options
+ - $preferences
+ 
+ 
+## Filters
+
+## Directives
+
+## Factories
 
