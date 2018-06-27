@@ -41,7 +41,7 @@ angular.module('mblowfish-core')
 	function handleError(error, form){
 		var message = null;
 		if(error.status === 400 && form){ // Bad request
-			message = 'Form is not valid. Fix errors and retry again.';
+			message = 'Form is not valid. Fix errors and retry.';
 //			form.$invalid = true;
 			error.data.data.forEach(function(item){
 				var constraints = item.constraints.map(function(cons){
