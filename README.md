@@ -6,8 +6,6 @@
 - Settings
 - Preferences
 - Pages (ngRoute)
-
-
 - Services
 - Filters
 - Directives
