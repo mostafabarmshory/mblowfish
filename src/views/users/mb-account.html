@@ -84,20 +84,24 @@
 			<h3 translate>General settings</h3>
 			<form
 				name="generalForm"
-				ng-submit="saveUser()" 
+				ng-submit="saveUser(generalForm)" 
 				layout="column" 
 				layout-padding>
+				<input hide type="submit" />
+				<div style="text-align: center;"
+					layout-margin
+					ng-show="!ctrl.savingUser && saveUserMessage"> 
+					<p><span md-colors="{color:'warn'}" translate>{{changePassMessage}}</span></p>
+				</div>
 			    <md-input-container ng-repeat="apd in apds" layout-fill>
 			        <label translate>{{apd.title}}</label>
 			        <input ng-model="ctrl.user[apd.key]">
 			    </md-input-container>
-			    <input hide type="submit" />
 			    <div layout="column" layout-align="center none"
         			layout-gt-xs="row" layout-align-gt-xs="end center">
 			    	<md-button 
 			    		 class="md-raised md-primary"
-			    		 ng-click="saveUser()">
-<!-- 			    		 <wb-icon>save</wb-icon> -->
+			    		 ng-click="saveUser(generalForm)">
 			    		<sapn translate>update</sapn>
 			    	</md-button>
 			    </div>
@@ -115,7 +119,7 @@
 			<p translate>insert current password and new password to change it.</p>
 			<form
 				name="ctrl.passForm"
-				ng-submit="changePassword(data)" 
+				ng-submit="changePassword(data, ctrl.passForm)" 
 				layout="column" 
 				layout-padding>
 				<input hide type="submit" />
@@ -150,7 +154,7 @@
         			layout-gt-xs="row" layout-align-gt-xs="end center">
 			    	<md-button 
 			    		 class="md-raised md-primary"
-			    		 ng-click="changePassword(data)"
+			    		 ng-click="changePassword(data, ctrl.passForm)"
 			    		 ng-disabled="ctrl.passForm.$invalid">
 			    		<span translate>change password</sapn>
 			    	</md-button>

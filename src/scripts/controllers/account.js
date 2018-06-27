@@ -57,7 +57,7 @@ angular.module('mblowfish-core')
 	 *            cridig.password Password
 	 * @returns {promiss} to do the login
 	 */
-	function login(cridet) {
+	function login(cridet, form) {
 		if(ctrl.loginProcess){
 			return false;
 		}
@@ -68,11 +68,7 @@ angular.module('mblowfish-core')
 			$scope.loginMessage = null;
 		}, function(error){
 			ctrl.loginState = 'fail';
-			var message = '';
-			if(error.status >= 400 && error.status <600){
-				message = error.data.message;
-			}
-			$scope.loginMessage = message;
+			$scope.loginMessage = $errorHandler.handleError(error, form);
 		})
 		.finally(function(){
 			ctrl.loginProcess = false;
@@ -102,7 +98,7 @@ angular.module('mblowfish-core')
 	 * @memberof MbAccountCtrl
 	 * @returns {promiss} to change password
 	 */
-	function changePassword(data) {
+	function changePassword(data, form) {
 		if(ctrl.changingPassword){
 			return;
 		}
@@ -121,7 +117,7 @@ angular.module('mblowfish-core')
 			alert($translate.instant('Password is changed successfully. Login with new password.'));
 		}, function(error){
 			ctrl.changePassState = 'fail';
-			$scope.changePassMessage = $errorHandler.handleError(error, ctrl.passForm);
+			$scope.changePassMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.changingPassword = false;
@@ -191,7 +187,7 @@ angular.module('mblowfish-core')
 	 * @memberof MbAccountCtrl
 	 * @returns {promiss} to save
 	 */
-	function saveUser(){
+	function saveUser(form){
 		if(ctrl.savingUser){
 			return;
 		}
@@ -199,8 +195,9 @@ angular.module('mblowfish-core')
 		return ctrl.user.update()//
 		.then(function(user){
 			ctrl.user = user;
+			$scope.saveUserMessage = null; 
 		}, function(error){
-			ctrl.error = error;
+			$scope.saveUserMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.savingUser = false;
