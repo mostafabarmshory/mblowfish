@@ -443,7 +443,7 @@ angular.module('mblowfish-core')
 	 *            cridig.password Password
 	 * @returns {promiss} to do the login
 	 */
-	function login(cridet) {
+	function login(cridet, form) {
 		if(ctrl.loginProcess){
 			return false;
 		}
@@ -454,11 +454,7 @@ angular.module('mblowfish-core')
 			$scope.loginMessage = null;
 		}, function(error){
 			ctrl.loginState = 'fail';
-			var message = '';
-			if(error.status >= 400 && error.status <600){
-				message = error.data.message;
-			}
-			$scope.loginMessage = message;
+			$scope.loginMessage = $errorHandler.handleError(error, form);
 		})
 		.finally(function(){
 			ctrl.loginProcess = false;
@@ -488,7 +484,7 @@ angular.module('mblowfish-core')
 	 * @memberof MbAccountCtrl
 	 * @returns {promiss} to change password
 	 */
-	function changePassword(data) {
+	function changePassword(data, form) {
 		if(ctrl.changingPassword){
 			return;
 		}
@@ -507,7 +503,7 @@ angular.module('mblowfish-core')
 			alert($translate.instant('Password is changed successfully. Login with new password.'));
 		}, function(error){
 			ctrl.changePassState = 'fail';
-			$scope.changePassMessage = $errorHandler.handleError(error, ctrl.passForm);
+			$scope.changePassMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.changingPassword = false;
@@ -577,7 +573,7 @@ angular.module('mblowfish-core')
 	 * @memberof MbAccountCtrl
 	 * @returns {promiss} to save
 	 */
-	function saveUser(){
+	function saveUser(form){
 		if(ctrl.savingUser){
 			return;
 		}
@@ -585,8 +581,9 @@ angular.module('mblowfish-core')
 		return ctrl.user.update()//
 		.then(function(user){
 			ctrl.user = user;
+			$scope.saveUserMessage = null; 
 		}, function(error){
-			ctrl.error = error;
+			$scope.saveUserMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.savingUser = false;
@@ -1357,7 +1354,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window) {
+.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
 
 	var ctrl = {
 			sendingToken: false,
@@ -1369,7 +1366,7 @@ angular.module('mblowfish-core')
 	$scope.data = {};
 	$scope.data.token = $routeParams.token;
 
-	function sendToken(data) {
+	function sendToken(data, form) {
 		if(ctrl.sendingToken){
 			return false;
 		}
@@ -1378,15 +1375,17 @@ angular.module('mblowfish-core')
 		return $usr.resetPassword(data)//
 		.then(function() {
 			ctrl.sendTokenState = 'success';
-		}, function(){
+			$scope.sendingTokenMessage = null;
+		}, function(error){
 			ctrl.sendTokenState = 'fail';
+			$scope.sendingTokenMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.sendingToken = false;
 		});
 	};
 
-	function changePassword(param) {
+	function changePassword(param, form) {
 		if(ctrl.changingPass){
 			return false;
 		}
@@ -1402,11 +1401,7 @@ angular.module('mblowfish-core')
 			$navigator.openView('users/login');
 		}, function(error){
 			ctrl.changePassState = 'fail';
-			var message = '';
-        	if(error.status >= 400 && error.status <600){
-        		message = error.data.message;
-        	}
-        	$scope.changePassMessage = message;
+        	$scope.changePassMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.changingPass = false;
@@ -6653,7 +6648,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-account.html',
-    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser() layout=column layout-padding> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser()>  <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=changePassword(data) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=changePassword(data) ng-disabled=ctrl.passForm.$invalid> <span translate>change password </span></md-button> </div> </form> </section> </div> </md-content>"
+    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate>change password </span></md-button> </div> </form> </section> </div> </md-content>"
   );
 
 
