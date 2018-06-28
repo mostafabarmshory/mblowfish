@@ -114,7 +114,7 @@ angular.module('mblowfish-core')
 			$app.logout();
 			ctrl.changePassState = 'success';
 			$scope.changePassMessage = null;
-			alert($translate.instant('Password is changed successfully. Login with new password.'));
+			toast($translate.instant('Password is changed successfully. Login with new password.'));
 		}, function(error){
 			ctrl.changePassState = 'fail';
 			$scope.changePassMessage = $errorHandler.handleError(error, form);
