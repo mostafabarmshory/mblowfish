@@ -118,7 +118,7 @@ angular.module('mblowfish-core')
 		}, function(error){
 			ctrl.changePassState = 'fail';
 			$scope.changePassMessage = $errorHandler.handleError(error, form);
-                        alert($translate.instant('Failed to update new password.'));
+                        alert($translate.instant('Failed to change new password.'));
 		})//
 		.finally(function(){
 			ctrl.changingPassword = false;
