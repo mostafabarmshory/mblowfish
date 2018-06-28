@@ -118,6 +118,7 @@ angular.module('mblowfish-core')
 		}, function(error){
 			ctrl.changePassState = 'fail';
 			$scope.changePassMessage = $errorHandler.handleError(error, form);
+                        alert($translate.instant('Failed to update new password.'));
 		})//
 		.finally(function(){
 			ctrl.changingPassword = false;
@@ -143,8 +144,9 @@ angular.module('mblowfish-core')
 			// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
 			// clear address before upload and set it again after upload.
 			$window.location.reload();
+                        toast($translate.instant('Your avatar updated successfully.'));
 		}, function(){
-			alert('Failed to update avatar');
+			alert($translate.instant('Failed to update avatar'));
 		})//
 		.finally(function(){
 			ctrl.updatingAvatar = false;
@@ -196,8 +198,10 @@ angular.module('mblowfish-core')
 		.then(function(user){
 			ctrl.user = user;
 			$scope.saveUserMessage = null; 
+                        toast($translate.instant('Your information updated successfully.'));
 		}, function(error){
 			$scope.saveUserMessage = $errorHandler.handleError(error, form);
+                        alert($translate.instant('Failed to update.'));
 		})//
 		.finally(function(){
 			ctrl.savingUser = false;
