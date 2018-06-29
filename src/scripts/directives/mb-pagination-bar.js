@@ -141,9 +141,9 @@ angular.module('mblowfish-core')
 			 */
 			mbSortKeys: '=',
 
-      /* titles corresponding to sort keys */
-      mbSortKeysTitles: '=?',
-      /*
+                        /* titles corresponding to sort keys */
+                        mbSortKeysTitles: '=?',
+                        /*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',

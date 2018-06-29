@@ -87,7 +87,9 @@ angular.module('mblowfish-core')
 	// Login
 	.when('/users/login', {
 		templateUrl : 'views/users/mb-login.html',
-		controller : 'MbAccountCtrl'
+		controller : 'MbAccountCtrl',
+		sidenavs: [],
+		toolbars: []
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -106,21 +108,28 @@ angular.module('mblowfish-core')
 	 */
 	.when('/users/profile', {
 		templateUrl : 'views/users/mb-profile.html',
-		controller : 'MbProfileCtrl'
+		controller : 'MbProfileCtrl',
+		protect: true
 	})
 	
 	// Reset forgotten password
 	.when('/users/reset-password', {
 		templateUrl : 'views/users/mb-forgot-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	.when('/users/reset-password/token', {
 		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	.when('/users/reset-password/token/:token', {
 		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	; //
 

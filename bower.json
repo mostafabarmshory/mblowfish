@@ -39,12 +39,11 @@
     "angular-mocks": "1.7.x"
   },
   "appPath": "src",
-  "1#backend": {
+  "#backend": {
     "host": "localhost",
-    "port": 9590
+    "port": 8080
   },
   "backend": {
-    "#host": "sellonclouds.com",
     "host": "217.218.74.61",
     "port": 8083
   },
