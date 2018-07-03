@@ -1,0 +1,20 @@
+{
+	"languages": [
+	{
+		"key": "fa",
+		"title": "فارسی",
+		"map": {
+			"hello": "سلام",
+			"Branding": "برندینگ",
+			"Welcome": "شروع",
+			"Language": "زبان"
+		}
+	},
+	{
+		"key": "en",
+		"title": "English",
+		"map": {
+			"hello": "Hello"
+		}
+	}]
+}
