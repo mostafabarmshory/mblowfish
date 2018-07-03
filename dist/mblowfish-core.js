@@ -49,7 +49,7 @@ angular.module('mblowfish-core', [ //
 	'seen-tenant',
 //	AM-WB
 	'am-wb-core', 
-//	'am-wb-common', //
+	'am-wb-common', //
 //	'am-wb-seen-core',
 //	'am-wb-seen-monitors',
 //	Others
@@ -63,6 +63,37 @@ angular.module('mblowfish-core', [ //
 	'mdSteppers',//
 	'angular-material-persian-datepicker'
 ]);
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+.config(function($translateProvider) {
+	$translateProvider.preferredLanguage('en');
+//	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
+	$translateProvider.useLoader('MbLanguageLoader');
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -892,16 +923,27 @@ angular.module('mblowfish-core')
 	}
 
 	function initialization(){
-		// Configure welcome page. It will be added as first page of setting stepper
-		var welcomePage = {
-			id: 'welcome',
-			title: 'Welcome',
-			templateUrl : 'views/preferences/welcome.html',
-			controller : 'MbAccountCtrl',
-			description: 'Welcome. Please login to continue.',
-			icon: 'accessibility',
+		// Configure language page. It will be added as first page of setting stepper
+		var langPage = {
+			id: 'initial-language',
+			title: 'Language',
+			templateUrl : 'views/preferences/mb-language.html',
+			controller : 'MbLanguageCtrl',
+			description: 'Select default language of web application.',
+			icon: 'language',
 			priority: 'first',
 			required: true
+		};
+		// Configure welcome page. It will be added as one of the first pages of setting stepper
+		var welcomePage = {
+				id: 'welcome',
+				title: 'Welcome',
+				templateUrl : 'views/preferences/welcome.html',
+				controller : 'MbAccountCtrl',
+				description: 'Welcome. Please login to continue.',
+				icon: 'accessibility',
+				priority: 'first',
+				required: true
 		};
 		var congratulatePage = {
 			id: 'congratulate',
@@ -912,6 +954,7 @@ angular.module('mblowfish-core')
 			priority: 'last',
 			required: true
 		};
+		$preferences.newPage(langPage);
 		$preferences.newPage(welcomePage);
 		$preferences.newPage(congratulatePage);
 		// Load settings
@@ -954,6 +997,65 @@ angular.module('mblowfish-core')
 	$scope.goToStep = goToStep;
 
 	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+
+/**
+ * @ngdoc controller
+ * @name MbThemesCtrl
+ * @description Dashboard
+ * 
+ */
+.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $translate) {
+
+	$app.config('languages')//
+	.then(function(langs){
+		$scope.languages = langs;
+		return langs;
+	})//
+	.then(function(){
+		if(!$scope.languages){
+			$http.get('resources/languages.json')//
+			.then(function(res){
+				var data = res ? res.data : {};
+				$scope.languages = data.languages;
+				$rootScope.app.config.language = $scope.languages;
+			});
+		}
+	});
+
+	function updateLanguage(){
+		$translate.refresh($scope.myLanguage);
+		$translate.use($scope.myLanguage);
+	}
+	
+	$scope.myLanguage = $translate.use();
+	$scope.updateLanguage = updateLanguage;
+	
 });
 
 'use strict';
@@ -4261,6 +4363,93 @@ angular.module('mblowfish-core')
 });
 
 /*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc object
+ * @name mblowfish-core.factories.MbLanguageLoader
+ * 
+ * Loads translation table of given language (if language is registered before). Then finds 
+ * translation table from config (if exist) and merge this table with previouse table. If there
+ * is no config
+ * It loads languages and their translation tables from config. If it 
+ * 
+ * @param $q
+ * @param $app
+ * @param $http
+ * @param $translate
+ * @returns
+ */
+.factory('MbLanguageLoader', function ($q, $app, $http, $translate) {
+	return function (option) {
+		var deferred = $q.defer();        
+		var translate = {};
+
+		// Fetch translations from config
+		$http.get('resources/languages.json')//
+		.then(function(res){
+			var data = res ? res.data : {};
+			var resLangs = data.languages;
+			if(resLangs){
+				angular.forEach(resLangs, function(lang){
+					if(lang.key === option.key){
+//						var translate = {};
+						angular.forEach(lang.map, function(value, key){
+							translate[key] = value;
+						});
+					}
+				});
+			}
+		})//
+		.finally(function(){
+			// Fetch translations from configuration process of module.
+			var myTranslate = $translate.getTranslationTable(option.key);
+			myTranslate = myTranslate ? myTranslate : {};
+			translate = angular.extend(translate, myTranslate);
+			// Fetch translations from config on server
+			$app.config('languages')//
+			.then(function(langs){
+				if(langs){
+					angular.forEach(langs, function(lang){
+						if(lang.key === option.key){
+//							var translate = {};
+							angular.forEach(lang.map, function(value, key){
+								translate[key] = value;
+							});
+							return deferred.resolve(translate);
+						}
+					});
+				}
+			}, function(){
+				return deferred.reject('Language not found');				
+			});
+		});
+
+		return deferred.promise;
+	};
+});
+/*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6466,7 +6655,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href={{getMainPage()}} translate=\"\">go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
+    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label=\"{{item.title | translate}}\" ng-repeat=\"item in settings\">                </md-step> </md-stepper> </div>"
   );
 
 
@@ -6512,6 +6701,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/mb-google-analytic.html',
     "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label>Google analytic property</label> <input required md-no-asterisk name=property ng-model=\"app.config.googleAnalytic.property\"> </md-input-container> </div>"
+  );
+
+
+  $templateCache.put('views/preferences/mb-language.html',
+    "<div layout=column ng-cloak flex> <h3>{{'hello' | translate}}</h3> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=myLanguage ng-change=updateLanguage()> <md-option ng-repeat=\"lang in languages\" value={{lang.key}} translate>{{lang.title}}</md-option>       </md-select> </md-input-container> </div>"
   );
 
 

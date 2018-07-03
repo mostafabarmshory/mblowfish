@@ -82,6 +82,8 @@ module.exports = function(config) {
       'bower_components/handsontable/dist/handsontable.js',
       'bower_components/ngHandsontable/dist/ngHandsontable.js',
       'bower_components/am-wb-core/dist/am-wb-core.js',
+      'bower_components/angular-xeditable/dist/js/xeditable.js',
+      'bower_components/am-wb-common/dist/am-wb-common.js',
       'bower_components/ngstorage/ngStorage.js',
       'bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
       'bower_components/ng-appcache/dist/appcache.js',
