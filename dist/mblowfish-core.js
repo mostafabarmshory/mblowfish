@@ -49,9 +49,9 @@ angular.module('mblowfish-core', [ //
 	'seen-tenant',
 //	AM-WB
 	'am-wb-core', 
-	'am-wb-common', //
-	'am-wb-seen-core',
-	'am-wb-seen-monitors',
+//	'am-wb-common', //
+//	'am-wb-seen-core',
+//	'am-wb-seen-monitors',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'ngStorage', // https://github.com/gsklee/ngStorage
@@ -63,86 +63,6 @@ angular.module('mblowfish-core', [ //
 	'mdSteppers',//
 	'angular-material-persian-datepicker'
 ]);
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-/**
- *
- */
-  .config(function(ngMdIconServiceProvider) {
-    ngMdIconServiceProvider
-    //		TEST ELEMENT: HTTP
-      .addShape('category', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/><path fill="none" d="M0 0h24v24H0z"/></svg>');
-
-});
-
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2016 weburger
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-
-.config(function($translateProvider) {
-	$translateProvider
-	//
-	.translations('fa', {
-		'ID' : 'شناسه',
-    'id':'شناسه',
-    'title':'عنوان',
-    'state':'وضعیت',
-    'description':'توضیح',
-    'Sort':'مرتب‌سازی',
-    'Sort by':'مرتب‌سازی براساس',
-    'Sort order':'نوع مرتب‌سازی',
-    'Ascending':'صعودی',
-    'Descending':'نزولی'
-	});
-	$translateProvider.preferredLanguage('fa');
-});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -502,10 +422,11 @@ angular.module('mblowfish-core')
 			$app.logout();
 			ctrl.changePassState = 'success';
 			$scope.changePassMessage = null;
-			alert($translate.instant('Password is changed successfully. Login with new password.'));
+			toast($translate.instant('Password is changed successfully. Login with new password.'));
 		}, function(error){
 			ctrl.changePassState = 'fail';
 			$scope.changePassMessage = $errorHandler.handleError(error, form);
+                        alert($translate.instant('Failed to change new password.'));
 		})//
 		.finally(function(){
 			ctrl.changingPassword = false;
@@ -531,8 +452,9 @@ angular.module('mblowfish-core')
 			// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
 			// clear address before upload and set it again after upload.
 			$window.location.reload();
+                        toast($translate.instant('Your avatar updated successfully.'));
 		}, function(){
-			alert('Failed to update avatar');
+			alert($translate.instant('Failed to update avatar'));
 		})//
 		.finally(function(){
 			ctrl.updatingAvatar = false;
@@ -584,8 +506,10 @@ angular.module('mblowfish-core')
 		.then(function(user){
 			ctrl.user = user;
 			$scope.saveUserMessage = null; 
+                        toast($translate.instant('Your information updated successfully.'));
 		}, function(error){
 			$scope.saveUserMessage = $errorHandler.handleError(error, form);
+                        alert($translate.instant('Failed to update.'));
 		})//
 		.finally(function(){
 			ctrl.savingUser = false;
@@ -2865,9 +2789,9 @@ angular.module('mblowfish-core')
 			 */
 			mbSortKeys: '=',
 
-      /* titles corresponding to sort keys */
-      mbSortKeysTitles: '=?',
-      /*
+                        /* titles corresponding to sort keys */
+                        mbSortKeysTitles: '=?',
+                        /*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',
@@ -4851,41 +4775,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 'use strict';
-
-angular.module('mblowfish-core')
-/**
- * حالت امنیتی را بررسی می‌کند
- * 
- * در صورتی که یک حالت حالتی امن باشد، و کاربر وارد سیستم نشده باشد، حالت ماشین
- * را به حالت لاگین می‌برد.
- */
-.run(function($rootScope, $localStorage) {
-	$rootScope.app.setting = $localStorage.$default({
-		dashboardModel : {}
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
 angular.module('mblowfish-core')
 
 /**
@@ -5040,7 +4929,7 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale, $localStorage) {
 
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -5397,6 +5286,19 @@ angular.module('mblowfish-core') //
 			_loadingLog('loading user info', 'warning: ' + error.message);
 		});
 	}
+	
+	/*
+	 * Loads local storage
+	 */
+	function loadLocalStorage(){
+		$rootScope.app.setting = $localStorage.$default({
+			dashboardModel : {}
+		});
+//		$rootScope.app.session = $localStorage.$default({
+//			dashboardModel : {}
+//		});
+		return $q.when($rootScope.app.setting);
+	}
 
 	/*
 	 * Attaches loading logs
@@ -5441,6 +5343,8 @@ angular.module('mblowfish-core') //
 	/**
 	 * Starts the application 
 	 * 
+	 * Loads local storage used to store user settings.
+	 * 
 	 * قبل از اینکه هرکاری توی سیستم انجام بدید باید نرم افزار رو اجرا کنید در
 	 * غیر این صورت هیچ یک از خصوصیت‌هایی که برای نرم افزار تعیین کرده‌اید
 	 * بارگذاری نخواهد شد. هر نرم افزار باید یک کلید منحصر به فرد داشده باشد تا
@@ -5458,6 +5362,7 @@ angular.module('mblowfish-core') //
 		app.key = key;
 		// application jobs
 		var jobs = [];
+		jobs.push(loadLocalStorage());
 		jobs.push(loadUserProperty());
 		jobs.push(loadApplicationConfig());
 		return $q.all(jobs) //
@@ -6651,7 +6556,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-color=primary mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
   );
 
 
