@@ -58,16 +58,27 @@ angular.module('mblowfish-core')
 	}
 
 	function initialization(){
-		// Configure welcome page. It will be added as first page of setting stepper
-		var welcomePage = {
-			id: 'welcome',
-			title: 'Welcome',
-			templateUrl : 'views/preferences/welcome.html',
-			controller : 'MbAccountCtrl',
-			description: 'Welcome. Please login to continue.',
-			icon: 'accessibility',
+		// Configure language page. It will be added as first page of setting stepper
+		var langPage = {
+			id: 'initial-language',
+			title: 'Language',
+			templateUrl : 'views/preferences/mb-language.html',
+			controller : 'MbLanguageCtrl',
+			description: 'Select default language of web application.',
+			icon: 'language',
 			priority: 'first',
 			required: true
+		};
+		// Configure welcome page. It will be added as one of the first pages of setting stepper
+		var welcomePage = {
+				id: 'welcome',
+				title: 'Welcome',
+				templateUrl : 'views/preferences/welcome.html',
+				controller : 'MbAccountCtrl',
+				description: 'Welcome. Please login to continue.',
+				icon: 'accessibility',
+				priority: 'first',
+				required: true
 		};
 		var congratulatePage = {
 			id: 'congratulate',
@@ -78,6 +89,7 @@ angular.module('mblowfish-core')
 			priority: 'last',
 			required: true
 		};
+		$preferences.newPage(langPage);
 		$preferences.newPage(welcomePage);
 		$preferences.newPage(congratulatePage);
 		// Load settings

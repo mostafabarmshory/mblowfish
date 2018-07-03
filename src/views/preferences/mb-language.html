@@ -1,0 +1,24 @@
+<div layout="column" 
+	ng-cloak
+	flex>
+	
+	<h3>{{'hello' | translate}}</h3>
+	
+	<md-input-container class="md-block">
+		<label translate>Language</label>
+		<md-select 
+			ng-model="myLanguage" 
+			ng-change="updateLanguage()">
+				<md-option ng-repeat="lang in languages"
+					value="{{lang.key}}" 
+					translate>{{lang.title}}</md-option>
+<!-- 			<md-option  -->
+<!-- 				value="fa"  -->
+<!-- 				translate>Persian</md-option> -->
+<!-- 			<md-option  -->
+<!-- 				value="en"  -->
+<!-- 				translate>English</md-option> -->
+		</md-select>
+	</md-input-container>
+	
+</div>
