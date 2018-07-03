@@ -121,6 +121,8 @@ angular.module('app')
 		'report' : 'گزارش',
 
 		'app.update.message' : 'نسخه جدید نصب شده است، دوباره لود کنید.',
+		
+		'next': 'بعدی'
 	});
 	$translateProvider.preferredLanguage('fa');
 });
