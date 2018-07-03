@@ -49,7 +49,7 @@ angular.module('mblowfish-core', [ //
 	'seen-tenant',
 //	AM-WB
 	'am-wb-core', 
-//	'am-wb-common', //
+	'am-wb-common', //
 //	'am-wb-seen-core',
 //	'am-wb-seen-monitors',
 //	Others
