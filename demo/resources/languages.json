@@ -2,19 +2,24 @@
 	"languages": [
 	{
 		"key": "fa",
-		"title": "فارسی",
+		"dir": "rtl",
+		"title": "Persian",
 		"map": {
-			"hello": "سلام",
+			"Persian": "پارسی",
+			"English": "Enblish",
 			"Branding": "برندینگ",
 			"Welcome": "شروع",
-			"Language": "زبان"
+			"Language": "زبان",
+			"Select default language of site": "زبان سایت را انتخاب کنید"
 		}
 	},
 	{
 		"key": "en",
+		"dir": "ltr",
 		"title": "English",
 		"map": {
-			"hello": "Hello"
+			"Persian": "پارسی",
+			"English": "Enblish"
 		}
 	}]
 }

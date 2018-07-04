@@ -31,32 +31,44 @@ angular.module('mblowfish-core')
  */
 .controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $translate) {
 
-	$app.config('languages')//
-	.then(function(langs){
-		$scope.languages = langs;
-		return langs;
-	})//
-	.then(function(){
-		if(!$scope.languages){
-			$http.get('resources/languages.json')//
-			.then(function(res){
-				var data = res ? res.data : {};
-				$scope.languages = data.languages;
-				$rootScope.app.config.languages = $scope.languages;
-			});
-		}
-	});
+	function init(){		
+		$app.config('languages')//
+		.then(function(langs){
+			$scope.languages = langs;
+			return langs;
+		})//
+		.then(function(){
+			if(!$scope.languages){
+				$http.get('resources/languages.json')//
+				.then(function(res){
+					var data = res ? res.data : {};
+					$scope.languages = data.languages;
+//				$rootScope.app.config.languages = $scope.languages;
+				});
+			}
+		})//
+		.finally(function(){			
+			$scope.myLanguage = $translate.use();
+		});
+	}
+	
 
-	function updateLanguage(){
-		$translate.refresh($scope.myLanguage);
-		$translate.use($scope.myLanguage);
+	function setLanguage(lang){
+		$scope.myLanguage = lang;
+		// XXX: hadi 1397-03-13: Following two commands should be replaced with a command from $language
+		$translate.refresh($scope.myLanguage.key);
+		$translate.use($scope.myLanguage.key);
 		if(!$rootScope.app.config.local){
 			$rootScope.app.config.local = {};
 		}
-		$rootScope.app.config.local.language = $scope.myLanguage;
+		$rootScope.app.config.local.language = $scope.myLanguage.key;
+		if($scope.myLanguage.dir){
+			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
+			$rootScope.app.dir = $scope.myLanguage.dir;
+		}
 	}
 	
-	$scope.myLanguage = $translate.use();
-	$scope.updateLanguage = updateLanguage;
+	$scope.setLanguage = setLanguage;
 	
+	init();
 });
