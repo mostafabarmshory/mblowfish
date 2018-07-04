@@ -43,15 +43,21 @@ angular.module('mblowfish-core')
 				.then(function(res){
 					var data = res ? res.data : {};
 					$scope.languages = data.languages;
-//				$rootScope.app.config.languages = $scope.languages;
+					$rootScope.app.config.languages = $scope.languages;
 				});
 			}
 		})//
-		.finally(function(){			
-			$scope.myLanguage = $translate.use();
+		.finally(function(){	
+			var langKey =  $translate.use();
+			$scope.languages.forEach(function(item){
+				if(item.key === langKey){
+					$scope.myLanguage = item;
+					return;
+				}
+			});
 		});
 	}
-	
+
 
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
@@ -67,8 +73,8 @@ angular.module('mblowfish-core')
 			$rootScope.app.dir = $scope.myLanguage.dir;
 		}
 	}
-	
+
 	$scope.setLanguage = setLanguage;
-	
+
 	init();
 });
