@@ -147,7 +147,7 @@ angular.module('mblowfish-core')
 	 *
 	 * templateUrl is an html template.
 	 *
-	 * config is bind into the template automaticly.
+	 * the config element is bind into the scope of the template automatically.
 	 *
 	 * @param dialog
 	 * @returns promiss
@@ -159,7 +159,7 @@ angular.module('mblowfish-core')
 			parent : angular.element(document.body),
 			clickOutsideToClose : true,
 			fullscreen: true,
-      multiple:true
+			multiple:true
 		}, dialog);
 		if (!dialogCnf.config) {
 			dialogCnf.config = {};
