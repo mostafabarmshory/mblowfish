@@ -23,7 +23,12 @@
 
 
 angular.module('mblowfish-core')
-
+/**
+ * @ngdoc factory
+ * @name Action
+ * @description An action item
+ * 
+ */
 .factory('Action', function() {
 
 	var action  = function(data) {
