@@ -44,6 +44,7 @@ angular.module('mblowfish-core')
 			return !$rootScope.app.user.owner;
 		},
 		sidenavs: [],
+		toolbars: []
 	})
 	/**
 	 * @ngdoc ngRoute
