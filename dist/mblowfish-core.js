@@ -51,7 +51,7 @@ angular.module('mblowfish-core', [ //
 	'am-wb-core', 
 	'am-wb-common', //
 	'am-wb-seen-core',
-	'am-wb-seen-monitors',
+//	'am-wb-seen-monitors',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'ngStorage', // https://github.com/gsklee/ngStorage
@@ -66,17 +66,17 @@ angular.module('mblowfish-core', [ //
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -88,60 +88,11 @@ angular.module('mblowfish-core', [ //
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- *
- */
-  .config(function(ngMdIconServiceProvider) {
-    ngMdIconServiceProvider
-    //		TEST ELEMENT: HTTP
-      .addShape('category', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/><path fill="none" d="M0 0h24v24H0z"/></svg>');
-
-});
-
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2016 weburger
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
 
 .config(function($translateProvider) {
-	$translateProvider
-	//
-	.translations('fa', {
-		'ID' : 'شناسه',
-    'id':'شناسه',
-    'title':'عنوان',
-    'state':'وضعیت',
-    'description':'توضیح',
-    'Sort':'مرتب‌سازی',
-    'Sort by':'مرتب‌سازی براساس',
-    'Sort order':'نوع مرتب‌سازی',
-    'Ascending':'صعودی',
-    'Descending':'نزولی'
-	});
-	$translateProvider.preferredLanguage('fa');
+	$translateProvider.preferredLanguage('en');
+//	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
+	$translateProvider.useLoader('MbLanguageLoader');
 });
 
 /*
@@ -282,7 +233,9 @@ angular.module('mblowfish-core')
 	// Login
 	.when('/users/login', {
 		templateUrl : 'views/users/mb-login.html',
-		controller : 'MbAccountCtrl'
+		controller : 'MbAccountCtrl',
+		sidenavs: [],
+		toolbars: []
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -301,21 +254,28 @@ angular.module('mblowfish-core')
 	 */
 	.when('/users/profile', {
 		templateUrl : 'views/users/mb-profile.html',
-		controller : 'MbProfileCtrl'
+		controller : 'MbProfileCtrl',
+		protect: true
 	})
 	
 	// Reset forgotten password
 	.when('/users/reset-password', {
 		templateUrl : 'views/users/mb-forgot-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	.when('/users/reset-password/token', {
 		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	.when('/users/reset-password/token/:token', {
 		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl'
+		controller : 'MbPasswordCtrl',
+		sidenavs: [],
+		toolbars: []
 	})//
 	; //
 
@@ -409,217 +369,224 @@ angular.module('mblowfish-core')
  * 
  * Manages current user action
  */
-.controller('MbAccountCtrl', function($scope, $rootScope, $app, $translate, $window, $usr) {
+.controller('MbAccountCtrl', function($scope, $rootScope, $app, $translate, $window, $usr, $errorHandler) {
 
-    var ctrl = {
-    		loginProcess: false,
-    		loginState: null,
-    		logoutProcess: false,
-    		logoutState: null,
-            changingPassword: false,
-            updatingAvatar: false,
-            loadingUser: false,
-            savingUser: false
-    };
-    
-    /**
-     * Call login process for current user
-     * 
-     * @memberof AmhUserAccountCtrl
-     * @name login
-     * @param {object}
-     *            cridet username and password
-     * @param {string}
-     *            cridet.login username
-     * @param {stirng}
-     *            cridig.password Password
-     * @returns {promiss} to do the login
-     */
-    function login(cridet) {
-        if(ctrl.loginProcess){
-            return false;
-        }
-        ctrl.loginProcess= true;
-        return $app.login(cridet)//
-        .then(function(){
-        	ctrl.loginState = 'success';
-        	$scope.loginMessage = null;
-        }, function(){
-        	ctrl.loginState = 'fail';
-        	$scope.loginMessage = 'Username or password is incorrect';
-        })
-        .finally(function(){
-            ctrl.loginProcess = false;
-        });
-    }
-    
-    function logout() {
-        if(ctrl.logoutProcess){
-            return false;
-        }
-        ctrl.logoutProcess= true;
-        return $app.logout()//
-        .then(function(){
-        	ctrl.logoutState = 'success';
-        }, function(){
-        	ctrl.logoutState = 'fail';
-        })
-        .finally(function(){
-            ctrl.logoutProcess = false;
-        });
-    }
+	var ctrl = {
+			loginProcess: false,
+			loginState: null,
+			logoutProcess: false,
+			logoutState: null,
+			changingPassword: false,
+			changePassState: null,
+			updatingAvatar: false,
+			loadingUser: false,
+			savingUser: false
+	};
 
-
-    /**
-     * Change password of the current user
-     * 
-     * @name load
-     * @memberof MbAccountCtrl
-     * @returns {promiss} to change password
-     */
-    function changePassword(data) {
-        if(ctrl.changingPassword){
-            return;
-        }
-        ctrl.changingPassword = true;
-        var param = {
-                'old' : data.oldPass,
-                'new' : data.newPass,
-                'password': data.newPass,
-        };
-//      return $usr.resetPassword(param)//
-        $scope.app.user.current.newPassword(param)
-        .then(function(){
-            $app.logout();
-            alert($translate.instant('Password is changed successfully. Login with new password.'));
-        }, function(){
-            alert('Failed to change password.');
-        })//
-        .finally(function(){
-            ctrl.changingPassword = false;
-        });
-    }
-
-
-    /**
-     * Update avatar of the current user
-     * 
-     * @name load
-     * @memberof MbAccountCtrl
-     * @returns {promiss} to update avatar
-     */
-    function updateAvatar(avatarFiles){
-        // XXX: maso, 1395: reset avatar
-    	if(ctrl.updatingAvatar){
-    		return;
-    	}
-    	ctrl.updatingAvatar = true;
-        return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
-        .then(function(){
-        	// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
-        	// clear address before upload and set it again after upload.
-            $window.location.reload();
-        }, function(){
-            alert('Failed to update avatar');
-        })//
-        .finally(function(){
-        	ctrl.updatingAvatar = false;
-        });
-    }
-
-    function back() {
-		 $window.history.back();
+	/**
+	 * Call login process for current user
+	 * 
+	 * @memberof AmhUserAccountCtrl
+	 * @name login
+	 * @param {object}
+	 *            cridet username and password
+	 * @param {string}
+	 *            cridet.login username
+	 * @param {stirng}
+	 *            cridig.password Password
+	 * @returns {promiss} to do the login
+	 */
+	function login(cridet, form) {
+		if(ctrl.loginProcess){
+			return false;
+		}
+		ctrl.loginProcess= true;
+		return $app.login(cridet)//
+		.then(function(){
+			ctrl.loginState = 'success';
+			$scope.loginMessage = null;
+		}, function(error){
+			ctrl.loginState = 'fail';
+			$scope.loginMessage = $errorHandler.handleError(error, form);
+		})
+		.finally(function(){
+			ctrl.loginProcess = false;
+		});
 	}
 
-    
-    /**
-     * Loads user data
-     * 
-     * @name load
-     * @memberof MbAccountCtrl
-     * @returns {promiss} to load user data
-     */
-    function loadUser(){
-        if(ctrl.loadingUser){
-            return;
-        }
-        ctrl.loadingUser = true;
-        return $usr.session()//
-        .then(function(user){
-        	ctrl.user = user;
-        }, function(error){
-            ctrl.error = error;
-        })//
-        .finally(function(){
-            ctrl .loadingUser = false;
-        });
-    }
+	function logout() {
+		if(ctrl.logoutProcess){
+			return false;
+		}
+		ctrl.logoutProcess= true;
+		return $app.logout()//
+		.then(function(){
+			ctrl.logoutState = 'success';
+		}, function(){
+			ctrl.logoutState = 'fail';
+		})
+		.finally(function(){
+			ctrl.logoutProcess = false;
+		});
+	}
+
+	/**
+	 * Change password of the current user
+	 * 
+	 * @name load
+	 * @memberof MbAccountCtrl
+	 * @returns {promiss} to change password
+	 */
+	function changePassword(data, form) {
+		if(ctrl.changingPassword){
+			return;
+		}
+		ctrl.changingPassword = true;
+		var param = {
+				'old' : data.oldPass,
+				'new' : data.newPass,
+				'password': data.newPass,
+		};
+//		return $usr.resetPassword(param)//
+		$scope.app.user.current.newPassword(param)
+		.then(function(){
+			$app.logout();
+			ctrl.changePassState = 'success';
+			$scope.changePassMessage = null;
+			toast($translate.instant('Password is changed successfully. Login with new password.'));
+		}, function(error){
+			ctrl.changePassState = 'fail';
+			$scope.changePassMessage = $errorHandler.handleError(error, form);
+                        alert($translate.instant('Failed to change new password.'));
+		})//
+		.finally(function(){
+			ctrl.changingPassword = false;
+		});
+	}
 
 
-    /**
-     * Save current user
-     * 
-     * @name load
-     * @memberof MbAccountCtrl
-     * @returns {promiss} to save
-     */
-    function saveUser(){
-        if(ctrl.savingUser){
-            return;
-        }
-        ctrl.savingUser = true;
-        return ctrl.user.update()//
-        .then(function(user){
-        	ctrl.user = user;
-        }, function(error){
-            ctrl.error = error;
-        })//
-        .finally(function(){
-        	ctrl.savingUser = false;
-        });
-    }
-    
+	/**
+	 * Update avatar of the current user
+	 * 
+	 * @name load
+	 * @memberof MbAccountCtrl
+	 * @returns {promiss} to update avatar
+	 */
+	function updateAvatar(avatarFiles){
+		// XXX: maso, 1395: reset avatar
+		if(ctrl.updatingAvatar){
+			return;
+		}
+		ctrl.updatingAvatar = true;
+		return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
+		.then(function(){
+			// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
+			// clear address before upload and set it again after upload.
+			$window.location.reload();
+                        toast($translate.instant('Your avatar updated successfully.'));
+		}, function(){
+			alert($translate.instant('Failed to update avatar'));
+		})//
+		.finally(function(){
+			ctrl.updatingAvatar = false;
+		});
+	}
 
-    // TODO: maso, 2017: getting from server
-    // Account property descriptor
-    $scope.apds = [ {
-        key : 'first_name',
-        title : 'First name',
-        type : 'string'
-    }, {
-        key : 'last_name',
-        title : 'Last name',
-        type : 'string'
-    }, {
-        key : 'language',
-        title : 'language',
-        type : 'string'
-    }, {
-        key : 'timezone',
-        title : 'timezone',
-        type : 'string'
-    } ];
+	function back() {
+		$window.history.back();
+	}
 
-    $scope.$watch(function(){
-    	return $rootScope.app.user;
-    }, function(usrStruct){
-    	$scope.appUser = usrStruct;
-    }, true);
-    
-    // Bind to scope
-    $scope.ctrl = ctrl;
-    $scope.login = login;
-    $scope.logout = logout;
-    $scope.changePassword = changePassword;
-    $scope.updateAvatar = updateAvatar;
-    $scope.load = loadUser;
-    $scope.reload = loadUser;
-    $scope.saveUser = saveUser;
-    
-    $scope.back = back;
-    $scope.cancel = back;
-    
-    loadUser();
+
+	/**
+	 * Loads user data
+	 * 
+	 * @name load
+	 * @memberof MbAccountCtrl
+	 * @returns {promiss} to load user data
+	 */
+	function loadUser(){
+		if(ctrl.loadingUser){
+			return;
+		}
+		ctrl.loadingUser = true;
+		return $usr.session()//
+		.then(function(user){
+			ctrl.user = user;
+		}, function(error){
+			ctrl.error = error;
+		})//
+		.finally(function(){
+			ctrl .loadingUser = false;
+		});
+	}
+
+
+	/**
+	 * Save current user
+	 * 
+	 * @name load
+	 * @memberof MbAccountCtrl
+	 * @returns {promiss} to save
+	 */
+	function saveUser(form){
+		if(ctrl.savingUser){
+			return;
+		}
+		ctrl.savingUser = true;
+		return ctrl.user.update()//
+		.then(function(user){
+			ctrl.user = user;
+			$scope.saveUserMessage = null; 
+                        toast($translate.instant('Your information updated successfully.'));
+		}, function(error){
+			$scope.saveUserMessage = $errorHandler.handleError(error, form);
+                        alert($translate.instant('Failed to update.'));
+		})//
+		.finally(function(){
+			ctrl.savingUser = false;
+		});
+	}
+
+	// TODO: maso, 2017: getting from server
+	// Account property descriptor
+	$scope.apds = [ {
+		key : 'first_name',
+		title : 'First name',
+		type : 'string'
+	}, {
+		key : 'last_name',
+		title : 'Last name',
+		type : 'string'
+	}, {
+		key : 'language',
+		title : 'language',
+		type : 'string'
+	}, {
+		key : 'timezone',
+		title : 'timezone',
+		type : 'string'
+	} ];
+
+	$scope.$watch(function(){
+		return $rootScope.app.user;
+	}, function(usrStruct){
+		$scope.appUser = usrStruct;
+	}, true);
+
+	// Bind to scope
+	$scope.ctrl = ctrl;
+	$scope.login = login;
+	$scope.logout = logout;
+	$scope.changePassword = changePassword;
+	$scope.updateAvatar = updateAvatar;
+	$scope.load = loadUser;
+	$scope.reload = loadUser;
+	$scope.saveUser = saveUser;
+
+	$scope.back = back;
+	$scope.cancel = back;
+
+	loadUser();
 });
 
 
@@ -930,7 +897,7 @@ angular.module('mblowfish-core')
  * Display initialization page to set initial configuration of SPA.
  * 
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
 
 	function goToStep(index){
 		var stepper = $mdStepper('setting-stepper');
@@ -956,16 +923,27 @@ angular.module('mblowfish-core')
 	}
 
 	function initialization(){
-		// Configure welcome page. It will be added as first page of setting stepper
-		var welcomePage = {
-			id: 'welcome',
-			title: 'Welcome',
-			templateUrl : 'views/preferences/welcome.html',
-			controller : 'MbAccountCtrl',
-			description: 'Welcome. Please login to continue.',
-			icon: 'accessibility',
+		// Configure language page. It will be added as first page of setting stepper
+		var langPage = {
+			id: 'initial-language',
+			title: 'Language',
+			templateUrl : 'views/preferences/mb-language.html',
+			controller : 'MbLanguageCtrl',
+			description: 'Select default language of web application.',
+			icon: 'language',
 			priority: 'first',
 			required: true
+		};
+		// Configure welcome page. It will be added as one of the first pages of setting stepper
+		var welcomePage = {
+				id: 'welcome',
+				title: 'Welcome',
+				templateUrl : 'views/preferences/welcome.html',
+				controller : 'MbAccountCtrl',
+				description: 'Welcome. Please login to continue.',
+				icon: 'accessibility',
+				priority: 'first',
+				required: true
 		};
 		var congratulatePage = {
 			id: 'congratulate',
@@ -976,6 +954,7 @@ angular.module('mblowfish-core')
 			priority: 'last',
 			required: true
 		};
+		$preferences.newPage(langPage);
 		$preferences.newPage(welcomePage);
 		$preferences.newPage(congratulatePage);
 		// Load settings
@@ -1017,6 +996,70 @@ angular.module('mblowfish-core')
 	$scope.prevStep = prevStep;
 	$scope.goToStep = goToStep;
 
+	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+
+/**
+ * @ngdoc controller
+ * @name MbThemesCtrl
+ * @description Dashboard
+ * 
+ */
+.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $translate) {
+
+	$app.config('languages')//
+	.then(function(langs){
+		$scope.languages = langs;
+		return langs;
+	})//
+	.then(function(){
+		if(!$scope.languages){
+			$http.get('resources/languages.json')//
+			.then(function(res){
+				var data = res ? res.data : {};
+				$scope.languages = data.languages;
+				$rootScope.app.config.languages = $scope.languages;
+			});
+		}
+	});
+
+	function updateLanguage(){
+		$translate.refresh($scope.myLanguage);
+		$translate.use($scope.myLanguage);
+		if(!$rootScope.app.config.local){
+			$rootScope.app.config.local = {};
+		}
+		$rootScope.app.config.local.language = $scope.myLanguage;
+	}
+	
+	$scope.myLanguage = $translate.use();
+	$scope.updateLanguage = updateLanguage;
+	
 });
 
 'use strict';
@@ -1344,19 +1387,19 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window) {
+.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
 
 	var ctrl = {
-		sendingToken: false,
-		sendTokenState: null,
-		changingPass: false,
-		changingPassState: null
+			sendingToken: false,
+			sendTokenState: null,
+			changingPass: false,
+			changingPassState: null
 	};
-	
+
 	$scope.data = {};
 	$scope.data.token = $routeParams.token;
 
-	function sendToken(data) {
+	function sendToken(data, form) {
 		if(ctrl.sendingToken){
 			return false;
 		}
@@ -1365,29 +1408,33 @@ angular.module('mblowfish-core')
 		return $usr.resetPassword(data)//
 		.then(function() {
 			ctrl.sendTokenState = 'success';
-		}, function(){
+			$scope.sendingTokenMessage = null;
+		}, function(error){
 			ctrl.sendTokenState = 'fail';
+			$scope.sendingTokenMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.sendingToken = false;
 		});
 	};
-	
-	function changePassword(param) {
+
+	function changePassword(param, form) {
 		if(ctrl.changingPass){
 			return false;
 		}
 		ctrl.changingPass = true;
 		var data = {
-			'token' : param.token,
-			'new' : param.password
+				'token' : param.token,
+				'new' : param.password
 		};
 		return $usr.resetPassword(data)//
 		.then(function() {
 			ctrl.changePassState = 'success';
+			$scope.changePassMessage = null;
 			$navigator.openView('users/login');
-		}, function(){
-			ctrl.changePassState = 'fail';			
+		}, function(error){
+			ctrl.changePassState = 'fail';
+        	$scope.changePassMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.changingPass = false;
@@ -1395,16 +1442,16 @@ angular.module('mblowfish-core')
 	};
 
 	function back() {
-		 $window.history.back();
+		$window.history.back();
 	}
-	
+
 	$scope.ctrl = ctrl;
-	
+
 	$scope.sendToken = sendToken;
 	$scope.changePassword = changePassword;
-	
+
 	$scope.cancel = back;
-	
+
 });
 
 
@@ -2848,9 +2895,9 @@ angular.module('mblowfish-core')
 			 */
 			mbSortKeys: '=',
 
-      /* titles corresponding to sort keys */
-      mbSortKeysTitles: '=?',
-      /*
+                        /* titles corresponding to sort keys */
+                        mbSortKeysTitles: '=?',
+                        /*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',
@@ -4238,7 +4285,12 @@ angular.module('mblowfish-core')
 
 
 angular.module('mblowfish-core')
-
+/**
+ * @ngdoc factory
+ * @name Action
+ * @description An action item
+ * 
+ */
 .factory('Action', function() {
 
 	var action  = function(data) {
@@ -4319,6 +4371,95 @@ angular.module('mblowfish-core')
 	return actionGroup;
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc object
+ * @name MbLanguageLoader
+ * @description Language loader factory
+ * 
+ * Loads translation table of given language (if language is registered before). Then finds 
+ * translation table from config (if exist) and merge this table with previouse table. If there
+ * is no config
+ * It loads languages and their translation tables from config. If it 
+ * 
+ * @param $q
+ * @param $app
+ * @param $http
+ * @param $translate
+ * @returns
+ */
+.factory('MbLanguageLoader', function ($q, $app, $http, $translate) {
+	return function (option) {
+		var deferred = $q.defer(); 
+		var resourceTranslate = {};
+
+		// Fetch translations from config
+		$http.get('resources/languages.json')//
+		.then(function(res){
+			var data = res ? res.data : {};
+			var resLangs = data.languages;
+			if(resLangs){
+				angular.forEach(resLangs, function(lang){
+					if(lang.key === option.key){
+//						var translate = {};
+						angular.forEach(lang.map, function(value, key){
+							resourceTranslate[key] = value;
+						});
+					}
+				});
+			}
+			return resourceTranslate;
+		})//
+		.finally(function(){
+			// Fetch translations from config of SPA.
+			var spaTranslate = $translate.getTranslationTable(option.key);
+			spaTranslate = spaTranslate ? spaTranslate : {};
+			// Translations in JSONs have upper priority than translations in SPA config.
+			var translate = angular.extend(spaTranslate, resourceTranslate);
+			// Fetch translations from config on server
+			$app.config('languages')//
+			.then(function(langs){
+				if(langs){
+					angular.forEach(langs, function(lang){
+						if(lang.key === option.key){
+							angular.forEach(lang.map, function(value, key){
+								translate[key] = value;
+							});
+						}
+					});
+				}
+				return deferred.resolve(translate);
+			}, function(){
+				return deferred.reject('Language not found');				
+			});
+		});
+
+		return deferred.promise;
+	};
+});
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -4834,41 +4975,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 'use strict';
-
-angular.module('mblowfish-core')
-/**
- * حالت امنیتی را بررسی می‌کند
- * 
- * در صورتی که یک حالت حالتی امن باشد، و کاربر وارد سیستم نشده باشد، حالت ماشین
- * را به حالت لاگین می‌برد.
- */
-.run(function($rootScope, $localStorage) {
-	$rootScope.app.setting = $localStorage.$default({
-		dashboardModel : {}
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
 angular.module('mblowfish-core')
 
 /**
@@ -5023,7 +5129,7 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale, $localStorage) {
 
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -5380,6 +5486,19 @@ angular.module('mblowfish-core') //
 			_loadingLog('loading user info', 'warning: ' + error.message);
 		});
 	}
+	
+	/*
+	 * Loads local storage
+	 */
+	function loadLocalStorage(){
+		$rootScope.app.setting = $localStorage.$default({
+			dashboardModel : {}
+		});
+//		$rootScope.app.session = $localStorage.$default({
+//			dashboardModel : {}
+//		});
+		return $q.when($rootScope.app.setting);
+	}
 
 	/*
 	 * Attaches loading logs
@@ -5424,6 +5543,8 @@ angular.module('mblowfish-core') //
 	/**
 	 * Starts the application 
 	 * 
+	 * Loads local storage used to store user settings.
+	 * 
 	 * قبل از اینکه هرکاری توی سیستم انجام بدید باید نرم افزار رو اجرا کنید در
 	 * غیر این صورت هیچ یک از خصوصیت‌هایی که برای نرم افزار تعیین کرده‌اید
 	 * بارگذاری نخواهد شد. هر نرم افزار باید یک کلید منحصر به فرد داشده باشد تا
@@ -5441,6 +5562,7 @@ angular.module('mblowfish-core') //
 		app.key = key;
 		// application jobs
 		var jobs = [];
+		jobs.push(loadLocalStorage());
 		jobs.push(loadUserProperty());
 		jobs.push(loadApplicationConfig());
 		return $q.all(jobs) //
@@ -5602,6 +5724,81 @@ angular.module('mblowfish-core') //
 
 	return apps;
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc service
+ * @name $$errorHandler
+ * @description A service to handle errors in forms.
+ * 
+ * 
+ * 
+ */
+.service('$errorHandler', function($navigator, $mdToast) {
+
+	/**
+	 * Checks status, message and data of the error. If given form is not null, it set related values in $error of 
+	 * fields in the form.
+	 * It also returns a general message to show to the user.
+	 */
+	function handleError(error, form){
+		var message = null;
+		if(error.status === 400 && form){ // Bad request
+			message = 'Form is not valid. Fix errors and retry.';
+//			form.$invalid = true;
+			error.data.data.forEach(function(item){
+				var constraints = item.constraints.map(function(cons){
+					if(form[item.name]){						
+						form[item.name].$error[cons.toLowerCase()] = true;
+					}
+				});
+			});
+		}else{				
+			message = error.data.message;
+		}
+
+//		if(error.status === 401){
+//		message = 'Username or password is incorrect';
+//		}else if(error.status === 402){
+//		message = 'Access is forbiden';
+//		}else if(error.status === 408){
+//		message = 'Request Timeout';
+//		}else if(error.status >= 500 && error.status <600){
+//		message = 'Server could not response to your request'
+//		}
+
+		return message;
+	}
+
+
+	return {
+		handleError: handleError
+	};
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5974,7 +6171,7 @@ angular.module('mblowfish-core')
 	 *
 	 * templateUrl is an html template.
 	 *
-	 * config is bind into the template automaticly.
+	 * the config element is bind into the scope of the template automatically.
 	 *
 	 * @param dialog
 	 * @returns promiss
@@ -5986,7 +6183,7 @@ angular.module('mblowfish-core')
 			parent : angular.element(document.body),
 			clickOutsideToClose : true,
 			fullscreen: true,
-      multiple:true
+			multiple:true
 		}, dialog);
 		if (!dialogCnf.config) {
 			dialogCnf.config = {};
@@ -6419,7 +6616,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <md-toolbar layout=row layout-padding>  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> </p><p>{{ app.config.description | limitTo: 150 }}{{app.config.description.length > 150 ? '...' : ''}}</p>  </md-toolbar>  <div ng-show=errorMessage> {{errorMessage}} </div> <form name=loginForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input name=login ng-model=credit.login required> <div ng-messages=loginForm.login.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input name=password ng-model=credit.password type=password required> <div ng-messages=loginForm.password.$error> <div ng-message=required translate>This is required!</div> </div> </md-input-container> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <div layout=column flex-order=1 flex-order-gt-sm=-1>  </div>      <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)><span translate>Login</span></md-button> </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> </div> </div> </div>"
   );
 
 
@@ -6469,7 +6666,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<md-content layout=column flex> <mb-preference-page mb-preference-id=pageId> </mb-preference-page> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label={{item.title}} ng-repeat=\"item in settings\"> <md-step-actions layout=row> <md-button ng-show=\"$index !== 0\" class=\"md-primary md-raised\" ng-click=prevStep() translate>back</md-button> <div flex></div> <md-button ng-show=\"$index < settings.length-1\" class=\"md-primary md-raised\" ng-click=nextStep() translate>next</md-button> <md-button ng-show=\"$index === settings.length-1\" class=\"md-primary md-raised\" ng-href=\"/\" translate>go to site</md-button> </md-step-actions> </md-step> </md-stepper> </md-content>"
+    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label=\"{{item.title | translate}}\" ng-repeat=\"item in settings\">                </md-step> </md-stepper> </div>"
   );
 
 
@@ -6498,6 +6695,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/partials/mb-branding-header-toolbar.html',
+    " <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar>"
+  );
+
+
   $templateCache.put('views/preferences/congratulate.html',
     " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Congratulate :)</h1> <p translate> Congratulate, your site is ready. You can start design your site. </p> </div> </md-content>"
   );
@@ -6513,8 +6715,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/preferences/mb-language.html',
+    "<div layout=column ng-cloak flex> <h3>{{'hello' | translate}}</h3> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=myLanguage ng-change=updateLanguage()> <md-option ng-repeat=\"lang in languages\" value={{lang.key}} translate>{{lang.title}}</md-option>       </md-select> </md-input-container> </div>"
+  );
+
+
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
@@ -6554,22 +6761,22 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-color=primary mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=app.setting.navigationPath> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
   );
 
 
   $templateCache.put('views/users/mb-account.html',
-    "<md-content class=md-padding layout-padding flex amh-preloading=\"ctrl.loadUser || ctrl.saveUser\"> <div layout-gt-sm=row layout=column>  <section flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser() layout=column layout-padding> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser()>  <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=passForm ng-submit=changePassword(data) layout=column layout-padding> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=changePassword(data) ng-disabled=passForm.$invalid> <span translate>change password </span></md-button> </div> </form> </section> </div> </md-content>"
+    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate>change password </span></md-button> </div> </form> </section> </div> </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-forgot-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <md-toolbar style=min-height:164px layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\"> <img height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar> <md-progress-linear ng-disabled=!ctrl.sendingToken style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>recover password</h3> <p translate>recover password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.sendingToken> <span ng-show=\"ctrl.sendTokenState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to send token.</span> <span ng-show=\"ctrl.sendTokenState === 'success'\" md-colors=\"{color:'primary'}\" translate>Token is sent.</span> </div> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.sendingToken style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>recover password</h3> <p translate>recover password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.sendingToken> <span ng-show=\"ctrl.sendTokenState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to send token.</span> <span ng-show=\"ctrl.sendTokenState === 'success'\" md-colors=\"{color:'primary'}\" translate>Token is sent.</span> </div> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-login.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=login(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are loged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> {{'back' | translate}} </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> {{'account' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=login(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are loged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> {{'back' | translate}} </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> {{'account' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 
@@ -6579,7 +6786,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-recover-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <md-toolbar style=min-height:164px layout=row md-colors=\"{backgroundColor: 'primary-100'}\"> <img height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <p> <strong>{{app.config.title}}</strong><br> <em>{{app.config.description}}</em> </p> </md-toolbar> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 }]);

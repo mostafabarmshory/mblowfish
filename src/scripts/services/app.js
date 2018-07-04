@@ -44,7 +44,7 @@ angular.module('mblowfish-core') //
  * @property {object}  app.config  - Application setting.
  * 
  */
-.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale) {
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale, $localStorage) {
 
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -401,6 +401,19 @@ angular.module('mblowfish-core') //
 			_loadingLog('loading user info', 'warning: ' + error.message);
 		});
 	}
+	
+	/*
+	 * Loads local storage
+	 */
+	function loadLocalStorage(){
+		$rootScope.app.setting = $localStorage.$default({
+			dashboardModel : {}
+		});
+//		$rootScope.app.session = $localStorage.$default({
+//			dashboardModel : {}
+//		});
+		return $q.when($rootScope.app.setting);
+	}
 
 	/*
 	 * Attaches loading logs
@@ -445,6 +458,8 @@ angular.module('mblowfish-core') //
 	/**
 	 * Starts the application 
 	 * 
+	 * Loads local storage used to store user settings.
+	 * 
 	 * قبل از اینکه هرکاری توی سیستم انجام بدید باید نرم افزار رو اجرا کنید در
 	 * غیر این صورت هیچ یک از خصوصیت‌هایی که برای نرم افزار تعیین کرده‌اید
 	 * بارگذاری نخواهد شد. هر نرم افزار باید یک کلید منحصر به فرد داشده باشد تا
@@ -462,6 +477,7 @@ angular.module('mblowfish-core') //
 		app.key = key;
 		// application jobs
 		var jobs = [];
+		jobs.push(loadLocalStorage());
 		jobs.push(loadUserProperty());
 		jobs.push(loadApplicationConfig());
 		return $q.all(jobs) //

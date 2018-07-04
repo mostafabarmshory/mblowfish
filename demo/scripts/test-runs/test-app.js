@@ -72,6 +72,26 @@ angular.module('app')//
 		icon: 'list',
 		priority : 40
 	});
+	$navigator.newGroup({
+		id: 'help',
+		title: 'Help',
+		icon: 'help',
+		priority : 40
+	});
+	$navigator.newGroup({
+		id: 'mb-panel',
+		title: 'MB Panel',
+		icon: 'web',
+		priority : 40
+	});
+	$navigator.newGroup({
+		id: 'mb-toolbar',
+		title: 'MB Toolbar',
+		icon: 'toolbar',
+		priority : 40
+	});
+	
+	
 	$navigator.newItem({
 		type: 'link',
 		link: 'https://gitlab.com/angular-material-dashboard/angular-material-dashboard/wikis/home',
@@ -79,9 +99,6 @@ angular.module('app')//
 		icon: 'help'
 	});
 	
-	
-	
-
 	$app.newToolbar({
 		id : 'testToolbar',
 		title : 'Test toolbar',

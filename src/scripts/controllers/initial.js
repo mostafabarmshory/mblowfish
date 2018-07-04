@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Display initialization page to set initial configuration of SPA.
  * 
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
 
 	function goToStep(index){
 		var stepper = $mdStepper('setting-stepper');
@@ -58,16 +58,27 @@ angular.module('mblowfish-core')
 	}
 
 	function initialization(){
-		// Configure welcome page. It will be added as first page of setting stepper
-		var welcomePage = {
-			id: 'welcome',
-			title: 'Welcome',
-			templateUrl : 'views/preferences/welcome.html',
-			controller : 'MbAccountCtrl',
-			description: 'Welcome. Please login to continue.',
-			icon: 'accessibility',
+		// Configure language page. It will be added as first page of setting stepper
+		var langPage = {
+			id: 'initial-language',
+			title: 'Language',
+			templateUrl : 'views/preferences/mb-language.html',
+			controller : 'MbLanguageCtrl',
+			description: 'Select default language of web application.',
+			icon: 'language',
 			priority: 'first',
 			required: true
+		};
+		// Configure welcome page. It will be added as one of the first pages of setting stepper
+		var welcomePage = {
+				id: 'welcome',
+				title: 'Welcome',
+				templateUrl : 'views/preferences/welcome.html',
+				controller : 'MbAccountCtrl',
+				description: 'Welcome. Please login to continue.',
+				icon: 'accessibility',
+				priority: 'first',
+				required: true
 		};
 		var congratulatePage = {
 			id: 'congratulate',
@@ -78,6 +89,7 @@ angular.module('mblowfish-core')
 			priority: 'last',
 			required: true
 		};
+		$preferences.newPage(langPage);
 		$preferences.newPage(welcomePage);
 		$preferences.newPage(congratulatePage);
 		// Load settings
@@ -119,4 +131,5 @@ angular.module('mblowfish-core')
 	$scope.prevStep = prevStep;
 	$scope.goToStep = goToStep;
 
+	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
 });

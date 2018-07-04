@@ -1,0 +1,25 @@
+{
+	"languages": [
+	{
+		"key": "fa",
+		"dir": "rtl",
+		"title": "Persian",
+		"map": {
+			"Persian": "پارسی",
+			"English": "Enblish",
+			"Branding": "برندینگ",
+			"Welcome": "شروع",
+			"Language": "زبان",
+			"Select default language of site": "زبان سایت را انتخاب کنید"
+		}
+	},
+	{
+		"key": "en",
+		"dir": "ltr",
+		"title": "English",
+		"map": {
+			"Persian": "پارسی",
+			"English": "Enblish"
+		}
+	}]
+}

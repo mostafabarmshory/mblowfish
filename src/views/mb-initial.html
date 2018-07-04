@@ -1,30 +1,36 @@
-<md-content
-	layout="column"
-	flex>
-	<mb-preference-page 
-		mb-preference-id="pageId">
-	</mb-preference-page>
-    <md-stepper id="setting-stepper" 
+<div layout="column" flex>
+	<md-content
+		layout="column"
+		flex>
+		{{basePath}}
+		<mb-preference-page 
+			mb-preference-id="pageId">
+		</mb-preference-page>
+	</md-content>
+	<md-stepper id="setting-stepper" 
 		ng-show="app.initial"
 		md-mobile-step-text="false" 
 		md-vertical="false" 
 		md-linear="false"
 		md-alternative="true">
 		<md-step
-			md-label="{{item.title}}" 
+			md-label="{{item.title | translate}}"
 			ng-repeat="item in settings">
-		    <md-step-actions layout="row">
-		        <md-button ng-show="$index !== 0"
-		        	 class="md-primary md-raised" 
-		        	ng-click="prevStep()" translate>back</md-button>
-		        <div flex></div>
-		        <md-button ng-show="$index < settings.length-1"
-		        	class="md-primary md-raised" 
-		        	ng-click="nextStep()" translate>next</md-button>
-		        <md-button ng-show="$index === settings.length-1"
-		        	class="md-primary md-raised" 
-		        	ng-href="/" translate>go to site</md-button>
-		    </md-step-actions>
+<!-- 	    <md-step-actions layout="row"> -->
+<!-- 	        <md-button  -->
+<!-- 	        	ng-show="$index !== 0" -->
+<!-- 	        	class="md-primary md-raised"  -->
+<!-- 	        	ng-click="prevStep()">{{'back' | translate}}</md-button> -->
+<!-- 	        <div flex></div> -->
+<!-- 	        <md-button  -->
+<!-- 	        	ng-show="$index < settings.length-1" -->
+<!-- 	        	class="md-primary md-raised"  -->
+<!-- 	        	ng-click="nextStep()">{{'next' | translate}}</md-button> -->
+<!-- 	        <md-button  -->
+<!-- 	        	ng-show="$index === settings.length-1" -->
+<!-- 	        	class="md-primary md-raised"  -->
+<!-- 	        	ng-href="{{getMainPage()}}" >{{'go to site' | translate}}</md-button> -->
+<!-- 	    </md-step-actions> -->
 		</md-step>
-	</md-stepper>
-</md-content>
+</md-stepper>
+</div>

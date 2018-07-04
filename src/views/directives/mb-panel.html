@@ -66,74 +66,70 @@
 			layout="column"
 			mb-preloading="ctrl.loadUser">
 			<!-- Toolbar -->
-			<md-toolbar 
-				layout="row" 
-				layout-padding>
-				<!-- TODO: toolbar items -->
-				<img 
-					style="max-width: 50%;"
-					height="160"
-					ng-show="app.config.logo"
-					ng-src="{{app.config.logo}}" />
-				<p>
-					<strong>{{app.config.title}}</strong><br/>
-					<p>{{ app.config.description | limitTo: 150 }}{{app.config.description.length > 150 ? '...' : ''}}</p>
-				</p>
-			</md-toolbar>
+			<ng-include src="'views/partials/mb-branding-header-toolbar.html'"></ng-include>
+			<md-progress-linear
+				ng-disabled="!(ctrl.loginProcess || ctrl.logoutProcess)"
+				style="margin: 0px; padding: 0px"
+				md-mode="indeterminate"
+				class="md-primary"
+				md-color>
+			</md-progress-linear>
 			<!-- body -->
-			<div
-				ng-show="errorMessage">
-				{{errorMessage}}
+			<div style="text-align: center;"
+				layout-margin
+				ng-show="!ctrl.loginProcess && ctrl.loginState === 'fail'"> 
+				<p><span md-colors="{color:'warn'}" translate>{{loginMessage}}</span></p>
 			</div>
 			<form
-				name="loginForm"
+				name="ctrl.myForm"
 				ng-submit="login(credit)" 
 				layout="column" 
 				layout-padding>
 		        <md-input-container>
 		            <label translate>Username</label>
-		            <input name="login" ng-model="credit.login" type="text" required>
-		            <div ng-messages="loginForm.login.$error">
-						<div ng-message="required" translate>This is required!</div>
-					</div>
+		            <input ng-model="credit.login" name="username" required>
+		            <div ng-messages="ctrl.myForm.username.$error">
+						<div ng-message="required" translate>This field is required.</div>
+			        </div>
 		        </md-input-container>
 		        <md-input-container>
 		            <label translate>Password</label>
-		            <input name="password" ng-model="credit.password" type="password" required>
-		            <div ng-messages="loginForm.password.$error">
-						<div ng-message="required" translate>This is required!</div>
-					</div>
+		            <input ng-model="credit.password" type="password" name="password" required>
+		            <div ng-messages="ctrl.myForm.password.$error">
+						<div ng-message="required" translate>This field is required.</div>
+			        </div>
 		        </md-input-container>
-		        <div 
-		        	layout="column" layout-align="none"
-		        	layout-gt-sm="row" layout-align-gt-sm="space-between center"
-		        	layout-padding>
-		        	<div
-		        		layout="column"
+				<!-- adding captcha -->
+				<div
+					ng-if="app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key"
+				    vc-recaptcha
+				    ng-model="credit.g_recaptcha_response"
+				    theme="app.captcha.theme || 'light'"
+				    type="app.captcha.type || 'image'"
+				    key="app.captcha.recaptcha.key"
+				    lang="app.setting.local || app.config.local || 'en'">
+				</div>
+		        <input hide type="submit" />
+	        	<div layout="column" layout-align="none"
+		        	layout-gt-xs="row" layout-align-gt-xs="end center"
+		        	layout-margin>
+		        	<a 
+		        		href="users/reset-password"
+		        		style="text-decoration: none;"  
+		        		ui-sref="forget" 
 		        		flex-order="1" 
-		        		flex-order-gt-sm="-1">
-		        		<!-- TODO: maso, 2018: add password recovery -->
-		        	</div>
-		        		<!-- TODO: maso, 2018: Enable recaptcha -->
-  	<!-- 			<amh-captcha -->
-	<!-- 			    ng-model="credit.g_recaptcha_response">Hi -->
-	<!-- 			</amh-captcha> -->
-					<!-- XXX: maso, 2018: adding captcha -->
-					<div
-						ng-if="app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key"
-					    vc-recaptcha
-					    ng-model="credit.g_recaptcha_response"
-					    theme="app.captcha.theme || 'light'"
-					    type="app.captcha.type || 'image'"
-					    key="app.captcha.recaptcha.key"
-					    lang="app.setting.local || app.config.local || 'en'">
-					</div>
-				        	
-			        <input hide type="submit" />
+		        		flex-order-gt-xs="-1">{{'forgot your password?' | translate}}</a>
 		        	<md-button 
-		        		flex-order="0" 
-	      		  		class="md-primary md-raised" 
-		        		ng-click="login(credit)"><span translate>Login</span></md-button>
+		        		ng-disabled="ctrl.myForm.$invalid"
+		        		flex-order="-1" 
+		        		flex-order-gt-xs="1" 
+		        		class="md-primary md-raised" 
+		        		ng-click="login(credit)">{{'login' | translate}}</md-button>
+	<!-- 	        	<md-button  -->
+	<!-- 	        		ng-href="users/signup" -->
+	<!-- 	        		flex-order="0"  -->
+	<!-- 	        		flex-order-gt-xs="0"  -->
+	<!-- 	        		class="md-raised"> {{ 'sign up' | translate }} </md-button> -->
 		        </div>
 			</form>
 		</div>

@@ -35,19 +35,19 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window) {
+.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
 
 	var ctrl = {
-		sendingToken: false,
-		sendTokenState: null,
-		changingPass: false,
-		changingPassState: null
+			sendingToken: false,
+			sendTokenState: null,
+			changingPass: false,
+			changingPassState: null
 	};
-	
+
 	$scope.data = {};
 	$scope.data.token = $routeParams.token;
 
-	function sendToken(data) {
+	function sendToken(data, form) {
 		if(ctrl.sendingToken){
 			return false;
 		}
@@ -56,29 +56,33 @@ angular.module('mblowfish-core')
 		return $usr.resetPassword(data)//
 		.then(function() {
 			ctrl.sendTokenState = 'success';
-		}, function(){
+			$scope.sendingTokenMessage = null;
+		}, function(error){
 			ctrl.sendTokenState = 'fail';
+			$scope.sendingTokenMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.sendingToken = false;
 		});
 	};
-	
-	function changePassword(param) {
+
+	function changePassword(param, form) {
 		if(ctrl.changingPass){
 			return false;
 		}
 		ctrl.changingPass = true;
 		var data = {
-			'token' : param.token,
-			'new' : param.password
+				'token' : param.token,
+				'new' : param.password
 		};
 		return $usr.resetPassword(data)//
 		.then(function() {
 			ctrl.changePassState = 'success';
+			$scope.changePassMessage = null;
 			$navigator.openView('users/login');
-		}, function(){
-			ctrl.changePassState = 'fail';			
+		}, function(error){
+			ctrl.changePassState = 'fail';
+        	$scope.changePassMessage = $errorHandler.handleError(error, form);
 		})//
 		.finally(function(){
 			ctrl.changingPass = false;
@@ -86,15 +90,15 @@ angular.module('mblowfish-core')
 	};
 
 	function back() {
-		 $window.history.back();
+		$window.history.back();
 	}
-	
+
 	$scope.ctrl = ctrl;
-	
+
 	$scope.sendToken = sendToken;
 	$scope.changePassword = changePassword;
-	
+
 	$scope.cancel = back;
-	
+
 });
 
