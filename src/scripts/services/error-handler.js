@@ -24,7 +24,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $$errorHandler
  * @description A service to handle errors in forms.
  * 

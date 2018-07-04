@@ -23,13 +23,13 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $navigator
  * @description A default system navigator
  *
  * # Item
  *
- * An item is a single navigation part wich may be a page, link, action, and etc.
+ * An item is a single navigation part which may be a page, link, action, and etc.
  *
  */
 .service('$navigator', function($q, $route, $mdDialog, $location, $window) {

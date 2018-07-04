@@ -23,8 +23,8 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
- * @name $$options
+ * @ngdoc services
+ * @name $options
  * @description User option manager
  * 
  * Option is user configurations

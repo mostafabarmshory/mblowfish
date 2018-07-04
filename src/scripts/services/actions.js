@@ -23,12 +23,14 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
- * @name $$$actions
+ * @ngdoc services
+ * @name $actions
  * @description Manage application actions
  * 
+ * Controllers and views can access actions which is registered by an applications. This 
+ * service is responsible to manage global actions.
+ * 
  */
-// TODO: maso, 2018: add document
 .service('$actions', function(Action, ActionGroup) {
 	var _actionsList = [];
 	var _actionsMap = {};
