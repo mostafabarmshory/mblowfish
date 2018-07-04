@@ -6,7 +6,7 @@
 	<md-input-container class="md-block">
 		<label translate>Language</label>
 		<md-select 
-			ng-model="app.config.local">
+			ng-model="app.config.local.language">
 			<md-option 
 				value="fa" 
 				translate>Persian</md-option>
@@ -19,7 +19,7 @@
 	<md-input-container class="md-block">
 		<label translate>Direction</label>
 		<md-select 
-			ng-model="app.config.dir" 
+			ng-model="app.config.local.dir" 
 			placeholder="Direction">
 			<md-option 
 				value="rtl" 
@@ -33,7 +33,7 @@
 	<md-input-container class="md-block">
 		<label translate>Calendar</label>
 		<md-select 
-			ng-model="app.config.calendar" 
+			ng-model="app.config.local.calendar" 
 			placeholder="">
 			<md-option 
 				value="Gregorian"
@@ -47,7 +47,7 @@
 	<md-input-container class="md-block">
 		<label translate>Date format</label>
 		<md-select 
-			ng-model="app.config.dateFormat" 
+			ng-model="app.config.local.dateFormat" 
 			placeholder="">
 			<md-option 
 				value="jMM-jDD-jYYYY"

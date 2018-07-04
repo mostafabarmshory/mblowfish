@@ -42,7 +42,7 @@ angular.module('mblowfish-core')
 			.then(function(res){
 				var data = res ? res.data : {};
 				$scope.languages = data.languages;
-				$rootScope.app.config.language = $scope.languages;
+				$rootScope.app.config.languages = $scope.languages;
 			});
 		}
 	});
@@ -50,6 +50,10 @@ angular.module('mblowfish-core')
 	function updateLanguage(){
 		$translate.refresh($scope.myLanguage);
 		$translate.use($scope.myLanguage);
+		if(!$rootScope.app.config.local){
+			$rootScope.app.config.local = {};
+		}
+		$rootScope.app.config.local.language = $scope.myLanguage;
 	}
 	
 	$scope.myLanguage = $translate.use();
