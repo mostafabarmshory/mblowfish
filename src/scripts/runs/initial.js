@@ -19,22 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
+/*
+ * NOTE: maso, 2018: We do not check application
+ * 
+ * If the application is not initialized, users are responsible to redirect to 
+ * initialization page.
  */
-.run(function($app, $rootScope, $navigator) {
-	
-	var callWatch = $rootScope.$watch(function(){
-		return $rootScope.app.initial;
-	}, function(val){
-		if(val){
-			$navigator.openPage('initialization');
-		}else if(val === false){
-			// remove watch
-			callWatch();
-		}
-	});
-});

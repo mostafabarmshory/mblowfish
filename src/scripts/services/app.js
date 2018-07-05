@@ -109,7 +109,12 @@ angular.module('mblowfish-core') //
 	 * watch local
 	 */
 	$rootScope.$watch(function(){
-		return app.setting.local || app.config.local || 'en';
+		// TODO: maso, 2018: remove this part in the next release
+		if(!angular.isObject(app.config.local)){
+			app.config.local = {};
+		}
+		// Check language
+		return app.setting.local || app.config.local.language || 'en';
 	}, function(key){
 		// 0- set app local
 		app.local = key;
@@ -174,21 +179,18 @@ angular.module('mblowfish-core') //
 		return $cms.content(APP_PREFIX + app.key) //
 		.then(function(content) {
 			app._acc = content;
-			app.initial = false;
 			_loadingLog('loading configuration', 'fetch configuration content');
 			return app._acc.value();
 		}, function(error) {
-			if(error.status && error.status == '404'){
-				app.initial = true;
+			if(error.status === 404){
+				return {};
 			}
-			return {};
+			// TODO: maso, 2018: throw an excetpion and go the the fail state
+			_loadingLog('loading configuration', 'warning: ' + error.message);
 		}) //
 		.then(function(appConfig) {
 			app.config = appConfig;
 			_loadingLog('loading configuration', 'application configuration loaded successfully');
-		}) //
-		.catch(function(error) {
-			_loadingLog('loading configuration', 'warning: ' + error.message);
 		});
 	}
 
@@ -481,9 +483,9 @@ angular.module('mblowfish-core') //
 		jobs.push(loadUserProperty());
 		jobs.push(loadApplicationConfig());
 		return $q.all(jobs) //
-		// FIXME: maso, 2018: run user defined jobs after all application jobs
+		// FIXME: maso, 2018: run applilcation defined jobs after all application jobs
 //		.then(function(){
-//			return $q.all(userJobs);
+//			return $q.all(applicationJobs);
 //		})
 		.then(_updateApplicationState)
 		.catch(function() {
