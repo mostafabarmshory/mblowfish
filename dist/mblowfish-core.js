@@ -1043,7 +1043,7 @@ angular.module('mblowfish-core')
 			.then(function(res){
 				var data = res ? res.data : {};
 				$scope.languages = data.languages;
-				$rootScope.app.config.language = $scope.languages;
+				$rootScope.app.config.languages = $scope.languages;
 			});
 		}
 	});
@@ -1051,6 +1051,10 @@ angular.module('mblowfish-core')
 	function updateLanguage(){
 		$translate.refresh($scope.myLanguage);
 		$translate.use($scope.myLanguage);
+		if(!$rootScope.app.config.local){
+			$rootScope.app.config.local = {};
+		}
+		$rootScope.app.config.local.language = $scope.myLanguage;
 	}
 	
 	$scope.myLanguage = $translate.use();
@@ -4281,7 +4285,12 @@ angular.module('mblowfish-core')
 
 
 angular.module('mblowfish-core')
-
+/**
+ * @ngdoc factory
+ * @name Action
+ * @description An action item
+ * 
+ */
 .factory('Action', function() {
 
 	var action  = function(data) {
@@ -4388,7 +4397,8 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc object
- * @name mblowfish-core.factories.MbLanguageLoader
+ * @name MbLanguageLoader
+ * @description Language loader factory
  * 
  * Loads translation table of given language (if language is registered before). Then finds 
  * translation table from config (if exist) and merge this table with previouse table. If there
@@ -4403,8 +4413,8 @@ angular.module('mblowfish-core')
  */
 .factory('MbLanguageLoader', function ($q, $app, $http, $translate) {
 	return function (option) {
-		var deferred = $q.defer();        
-		var translate = {};
+		var deferred = $q.defer(); 
+		var resourceTranslate = {};
 
 		// Fetch translations from config
 		$http.get('resources/languages.json')//
@@ -4416,31 +4426,32 @@ angular.module('mblowfish-core')
 					if(lang.key === option.key){
 //						var translate = {};
 						angular.forEach(lang.map, function(value, key){
-							translate[key] = value;
+							resourceTranslate[key] = value;
 						});
 					}
 				});
 			}
+			return resourceTranslate;
 		})//
 		.finally(function(){
-			// Fetch translations from configuration process of module.
-			var myTranslate = $translate.getTranslationTable(option.key);
-			myTranslate = myTranslate ? myTranslate : {};
-			translate = angular.extend(translate, myTranslate);
+			// Fetch translations from config of SPA.
+			var spaTranslate = $translate.getTranslationTable(option.key);
+			spaTranslate = spaTranslate ? spaTranslate : {};
+			// Translations in JSONs have upper priority than translations in SPA config.
+			var translate = angular.extend(spaTranslate, resourceTranslate);
 			// Fetch translations from config on server
 			$app.config('languages')//
 			.then(function(langs){
 				if(langs){
 					angular.forEach(langs, function(lang){
 						if(lang.key === option.key){
-//							var translate = {};
 							angular.forEach(lang.map, function(value, key){
 								translate[key] = value;
 							});
-							return deferred.resolve(translate);
 						}
 					});
 				}
+				return deferred.resolve(translate);
 			}, function(){
 				return deferred.reject('Language not found');				
 			});
@@ -6160,7 +6171,7 @@ angular.module('mblowfish-core')
 	 *
 	 * templateUrl is an html template.
 	 *
-	 * config is bind into the template automaticly.
+	 * the config element is bind into the scope of the template automatically.
 	 *
 	 * @param dialog
 	 * @returns promiss
@@ -6172,7 +6183,7 @@ angular.module('mblowfish-core')
 			parent : angular.element(document.body),
 			clickOutsideToClose : true,
 			fullscreen: true,
-      multiple:true
+			multiple:true
 		}, dialog);
 		if (!dialogCnf.config) {
 			dialogCnf.config = {};
@@ -6710,7 +6721,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 

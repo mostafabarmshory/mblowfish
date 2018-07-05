@@ -23,7 +23,7 @@
 angular.module('mblowfish-core') //
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $app
  * @description Application manager
  * 

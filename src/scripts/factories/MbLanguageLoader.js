@@ -24,7 +24,8 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc object
- * @name mblowfish-core.factories.MbLanguageLoader
+ * @name MbLanguageLoader
+ * @description Language loader factory
  * 
  * Loads translation table of given language (if language is registered before). Then finds 
  * translation table from config (if exist) and merge this table with previouse table. If there

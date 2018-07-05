@@ -23,13 +23,13 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $navigator
  * @description A default system navigator
  *
  * # Item
  *
- * An item is a single navigation part wich may be a page, link, action, and etc.
+ * An item is a single navigation part which may be a page, link, action, and etc.
  *
  */
 .service('$navigator', function($q, $route, $mdDialog, $location, $window) {
@@ -147,7 +147,7 @@ angular.module('mblowfish-core')
 	 *
 	 * templateUrl is an html template.
 	 *
-	 * config is bind into the template automaticly.
+	 * the config element is bind into the scope of the template automatically.
 	 *
 	 * @param dialog
 	 * @returns promiss
@@ -159,7 +159,7 @@ angular.module('mblowfish-core')
 			parent : angular.element(document.body),
 			clickOutsideToClose : true,
 			fullscreen: true,
-      multiple:true
+			multiple:true
 		}, dialog);
 		if (!dialogCnf.config) {
 			dialogCnf.config = {};

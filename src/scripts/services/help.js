@@ -24,9 +24,9 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $help
- * @description A simple help module
+ * @description A help management service
  * 
  * Manage application help.
  * 
