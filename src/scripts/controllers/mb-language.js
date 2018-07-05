@@ -67,6 +67,9 @@ angular.module('mblowfish-core')
 		if(!$rootScope.app.config.local){
 			$rootScope.app.config.local = {};
 		}
+		if(!angular.isObject($rootScope.app.config.local)){
+			$rootScope.app.config.local = {};
+		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
 		if($scope.myLanguage.dir){
 			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
