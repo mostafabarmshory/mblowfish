@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Controller to manage local settings
  * 
  */
-.controller('MbLocalCtrl', function($scope, $language) {
+.controller('MbLocalCtrl', function($scope, $language, $navigator) {
 
 	function init(){		
 		$language.languages()//
@@ -39,8 +39,13 @@ angular.module('mblowfish-core')
 		});
 	}
 
+	$scope.goToManage = function(){
+		// XXX: hadi, Following path exist in angular-material-home-language.
+		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
+		$navigator.openPage('preferences/languages/manager');
+	}
+	
 	$scope.languages = [];
-//	$scope.loadLanguages = init;
 	
 	init();
 });
