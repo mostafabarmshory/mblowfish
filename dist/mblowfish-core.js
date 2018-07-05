@@ -909,13 +909,14 @@ angular.module('mblowfish-core')
  * Here is list of all data managed with controller
  * 
  * <ul>
- * <li>settings: list of all settings</li>
- * <li>currentSetting: object (with id) points to the current setting page</li>
+ * <li>steps: list of all settings</li>
+ * <li>currentStep: object (with id) points to the current setting page</li>
  * </ul>
  * 
- * NOTE: the controller works with an stepper and $mdStepper (id: setting-stepper)
+ * NOTE: the controller works with an stepper and $mdStepper (id:
+ * setting-stepper)
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $routeParams) {
 
 	/*
 	 * ID of the stepper
@@ -950,10 +951,33 @@ angular.module('mblowfish-core')
 	 * @memberof MbInitialCtrl
 	 */
 	function prevStep(){			
-		$mdStepper('setting-stepper')//
+		$mdStepper(_stepper_id)//
 			.back();
 	}
+	
+	/*
+	 * Set application is initialized
+	 */
+	function _setInitialized(flag){
+		$rootScope.app.config.is_initialized = true;
+	}
+	
+	/*
+	 * Checks if it is initialized
+	 * 
+	 * NOTE: maso, 2018: check runs/initial.js for changes
+	 */
+	function _isInitialized(){
+		return !$routeParams.force && $rootScope.app.config.is_initialized;
+	}
 
+	/*
+	 * Go to the main page
+	 */
+	function _redirectToMain(){
+		 $window.location =  $window.location.href.replace(/initialization$/mg, '');
+	}
+	
 	/*
 	 * Loads internal pages and settings
 	 */
@@ -976,7 +1000,17 @@ angular.module('mblowfish-core')
 				id: 'welcome',
 				title: 'Welcome',
 				templateUrl : 'views/preferences/welcome.html',
-				controller : 'MbWelcomeCtrl',
+				/*
+				 * @ngInject
+				 */
+				controller : function($scope, $http, $translate) {
+					// TODO: hadi: Use $language to get current lanugage
+					$http.get('resources/welcome/'+$translate.use()+'.json')//
+					.then(function(res){
+						var data = res && res.data ? res.data : {};
+						$scope.model = data;
+					});
+				},
 				description: 'Welcome. Please login to continue.',
 				icon: 'accessibility',
 				priority: 'first',
@@ -985,6 +1019,9 @@ angular.module('mblowfish-core')
 		var congratulatePage = {
 			id: 'congratulate',
 			templateUrl : 'views/preferences/congratulate.html',
+			controller: function(){
+				_setInitialized(true);
+			},
 			title: ':)',
 			description: 'Congratulation. Your site is ready.',
 			icon: 'favorite',
@@ -997,46 +1034,54 @@ angular.module('mblowfish-core')
 		// Load settings
 		$preferences.pages()//
 		.then(function(settingItems) {
-			$scope.settings = [];
-			settingItems.items.forEach(function(sItem){
-				if(sItem.required){
-					$scope.settings.push(sItem);
+			var steps = [];
+			settingItems.items.forEach(function(settingItem){
+				if(settingItem.required){
+					steps.push(settingItem);
 				}
 			});
-			// add watch on setting stepper current step.
-			$scope.$watch(function(){
-				var stepper = $mdStepper('setting-stepper');
-				return stepper.currentStep;
-			}, function(val){
-				if(!$scope.settings || $scope.settings.length === 0){
-					return;
-				}
-				$scope.pageId = $scope.settings[val].id;
-			});
+			$scope.steps = steps;
+		});
+		
+		// add watch on setting stepper current step.
+		$scope.$watch(function(){
+			var current = $mdStepper(_stepper_id);
+			if(current){
+				return current.currentStep;
+			}
+			return -1;
+		}, function(index){
+			if(index >= 0 && $scope.steps && $scope.steps.length){
+				$scope.currentStep = $scope.steps[index];
+			}
 		});
 	}
 
 	
-	var removeApplicationStateWatch = $scope.$watch('app.initial', function(val){
-//		if(val){
-			_initialization();
-//		} else if(val === false){
-//			// TODO: remove initial-language, welcome and congratulate pages if
-//			// are added already.
-//			// remove watch
-//			removeApplicationStateWatch();
-//			// redirect to main page
-//			// $navigator.openPage($scope.mainPage);
-//			$window.location = $scope.mainPage;
-//		}
+	/*
+	 * Watch application state
+	 */
+	var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
+		switch (status) {
+		case "loading":
+		case "fail":
+		case "error":
+			// Wait it for ready
+			break;
+		case "ready":
+			// remove watch
+			removeApplicationStateWatch();
+			if(_isInitialized()){
+				_redirectToMain();
+			} else {
+				_initialization();
+			}
+			break;
+		default:
+			break;
+		}
 	});
 
-//	$scope.settings = [];
-//	$scope.nextStep = nextStep;
-//	$scope.prevStep = prevStep;
-//	$scope.goToStep = goToStep;
-//
-//	$scope.mainPage = $window.location.href.replace(/initialization$/mg, '');
 });
 
 /*
@@ -1108,6 +1153,9 @@ angular.module('mblowfish-core')
 		if(!$rootScope.app.config.local){
 			$rootScope.app.config.local = {};
 		}
+		if(!angular.isObject($rootScope.app.config.local)){
+			$rootScope.app.config.local = {};
+		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
 		if($scope.myLanguage.dir){
 			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
@@ -1118,48 +1166,6 @@ angular.module('mblowfish-core')
 	$scope.setLanguage = setLanguage;
 
 	init();
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc controller
- * @name MbWelcomeCtrl
- * @description 
- * 
- */
-.controller('MbWelcomeCtrl', function($scope, $http, $translate) {
-
-	// TODO: hadi: Use $language to get current lanugage
-	$http.get('resources/welcome/'+$translate.use()+'.json')//
-	.then(function(res){
-		var data = res && res.data ? res.data : {};
-		$scope.model = data;
-	});
-	
 });
 
 'use strict';
@@ -4916,25 +4922,14 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
+/*
+ * NOTE: maso, 2018: We do not check application
+ * 
+ * If the application is not initialized, users are responsible to redirect to 
+ * initialization page.
  */
-.run(function($app, $rootScope, $navigator) {
-	
-	var callWatch = $rootScope.$watch(function(){
-		return $rootScope.app.initial;
-	}, function(val){
-		if(val){
-			$navigator.openPage('initialization');
-		}else if(val === false){
-			// remove watch
-			callWatch();
-		}
-	});
-});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5296,7 +5291,12 @@ angular.module('mblowfish-core') //
 	 * watch local
 	 */
 	$rootScope.$watch(function(){
-		return app.setting.local || app.config.local || 'en';
+		// TODO: maso, 2018: remove this part in the next release
+		if(!angular.isObject(app.config.local)){
+			app.config.local = {};
+		}
+		// Check language
+		return app.setting.local || app.config.local.language || 'en';
 	}, function(key){
 		// 0- set app local
 		app.local = key;
@@ -5361,21 +5361,18 @@ angular.module('mblowfish-core') //
 		return $cms.content(APP_PREFIX + app.key) //
 		.then(function(content) {
 			app._acc = content;
-			app.initial = false;
 			_loadingLog('loading configuration', 'fetch configuration content');
 			return app._acc.value();
 		}, function(error) {
-			if(error.status && error.status == '404'){
-				app.initial = true;
+			if(error.status === 404){
+				return {};
 			}
-			return {};
+			// TODO: maso, 2018: throw an excetpion and go the the fail state
+			_loadingLog('loading configuration', 'warning: ' + error.message);
 		}) //
 		.then(function(appConfig) {
 			app.config = appConfig;
 			_loadingLog('loading configuration', 'application configuration loaded successfully');
-		}) //
-		.catch(function(error) {
-			_loadingLog('loading configuration', 'warning: ' + error.message);
 		});
 	}
 
@@ -5668,9 +5665,9 @@ angular.module('mblowfish-core') //
 		jobs.push(loadUserProperty());
 		jobs.push(loadApplicationConfig());
 		return $q.all(jobs) //
-		// FIXME: maso, 2018: run user defined jobs after all application jobs
+		// FIXME: maso, 2018: run applilcation defined jobs after all application jobs
 //		.then(function(){
-//			return $q.all(userJobs);
+//			return $q.all(applicationJobs);
 //		})
 		.then(_updateApplicationState)
 		.catch(function() {
@@ -6768,7 +6765,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label=\"{{item.title | translate}}\" ng-repeat=\"item in settings\"> </md-step> </md-stepper> </div>"
+    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=currentStep.id> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=steps.length md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step ng-repeat=\"step in steps\" md-label=\"{{step.title | translate}}\"> </md-step> </md-stepper> </div>"
   );
 
 

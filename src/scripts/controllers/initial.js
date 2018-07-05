@@ -128,11 +128,21 @@ angular.module('mblowfish-core')
 		};
 		// Configure welcome page. It will be added as one of the first pages of
 		// setting stepper
+		var inlineTemplate = '<wb-content wb-model="model" flex style="overflow: auto;"></wb-content>';
 		var welcomePage = {
 				id: 'welcome',
 				title: 'Welcome',
-				templateUrl : 'views/preferences/welcome.html',
-				controller : 'MbWelcomeCtrl',
+				template : inlineTemplate,
+				/*
+				 * @ngInject
+				 */
+				controller : function($scope, $http, $translate) {
+					// TODO: hadi: Use $language to get current Language
+					$http.get('resources/welcome/'+$translate.use()+'.json')//
+					.then(function(res){
+						$scope.model = res.data || {};
+					});
+				},
 				description: 'Welcome. Please login to continue.',
 				icon: 'accessibility',
 				priority: 'first',
@@ -140,12 +150,20 @@ angular.module('mblowfish-core')
 		};
 		var congratulatePage = {
 			id: 'congratulate',
-			templateUrl : 'views/preferences/congratulate.html',
-			controller: function(){
-				_setInitialized(true);
-			},
 			title: ':)',
 			description: 'Congratulation. Your site is ready.',
+			template : inlineTemplate,
+			/*
+			 * @ngInject
+			 */
+			controller : function($scope, $http, $translate) {
+				// TODO: hadi: Use $language to get current Language
+				$http.get('resources/congratulate/'+$translate.use()+'.json')//
+				.then(function(res){
+					$scope.model = res.data || {};
+				});
+				_setInitialized(true);
+			},
 			icon: 'favorite',
 			priority: 'last',
 			required: true
