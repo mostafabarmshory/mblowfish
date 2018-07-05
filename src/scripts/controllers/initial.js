@@ -74,7 +74,7 @@ angular.module('mblowfish-core')
 				id: 'welcome',
 				title: 'Welcome',
 				templateUrl : 'views/preferences/welcome.html',
-				controller : 'MbAccountCtrl',
+				controller : 'MbWelcomeCtrl',
 				description: 'Welcome. Please login to continue.',
 				icon: 'accessibility',
 				priority: 'first',
@@ -121,8 +121,12 @@ angular.module('mblowfish-core')
 		if(val){
 			initialization();
 		}else if(val === false){
+			// TODO: remove initial-language, welcome and congratulate pages if are added already.
 			// remove watch
 			callWatch();
+			// redirect to main page
+//			$navigator.openPage($scope.mainPage);
+			$window.location = $scope.mainPage;
 		}
 	});
 
