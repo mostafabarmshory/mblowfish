@@ -183,13 +183,16 @@ angular.module('mblowfish-core')
 	.when('/initialization', {
 		templateUrl : 'views/mb-initial.html',
 		controller : 'MbInitialCtrl',
+		controllerAs: 'ctrl',
 		/*
 		 * @ngInject
 		 */
 		protect : function($rootScope) {
+			// TODO: maso, 2018: replace with roles core_owner, Pluf_owner
 			return !$rootScope.app.user.owner;
 		},
 		sidenavs: [],
+		toolbars: []
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -890,40 +893,73 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbInitialCtrl
- * @description Show initialization page
+ * @description Initializes the application
  * 
- * Display initialization page to set initial configuration of SPA.
+ * Manages and initializes the application.
  * 
+ * This controller is used first time when the application is run.
+ * 
+ * The controller puts list of configuration pages in `settings` and current
+ * setting in `currentSetting`.
+ * 
+ * Settings is ordered list and the index of the item is unique.
+ * 
+ * Here is list of all data managed with controller
+ * 
+ * <ul>
+ * <li>settings: list of all settings</li>
+ * <li>currentSetting: object (with id) points to the current setting page</li>
+ * </ul>
+ * 
+ * NOTE: the controller works with an stepper and $mdStepper (id: setting-stepper)
  */
 .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
 
+	/*
+	 * ID of the stepper
+	 */
+	var _stepper_id = 'setting-stepper';
+	
+	/**
+	 * Loads settings with the index
+	 * 
+	 * @memberof MbInitialCtrl
+	 * @param {integer}
+	 *            index of the setting
+	 */
 	function goToStep(index){
-		var stepper = $mdStepper('setting-stepper');
-		if(!$rootScope.app.user.owner){
-			stepper.error('You are not allowed');
-			return;
-		}
-		stepper.goto(index);
+		$mdStepper(_stepper_id)//
+			.goto(index);
 	}
 
+	/**
+	 * Loads the next setting page
+	 * 
+	 * @memberof MbInitialCtrl
+	 */
 	function nextStep(){
-		var stepper = $mdStepper('setting-stepper');
-		if(!$rootScope.app.user.owner){
-			stepper.error('You are not allowed');
-			return;
-		}
-		stepper.next();
+		$mdStepper(_stepper_id)//
+			.next();
 	}
 
+	/**
+	 * Loads the previous setting page
+	 * 
+	 * @memberof MbInitialCtrl
+	 */
 	function prevStep(){			
-		var stepper = $mdStepper('setting-stepper');
-		stepper.back();
+		$mdStepper('setting-stepper')//
+			.back();
 	}
 
-	function initialization(){
-		// Configure language page. It will be added as first page of setting stepper
+	/*
+	 * Loads internal pages and settings
+	 */
+	function _initialization(){
+		// Configure language page. It will be added as first page of setting
+		// stepper
 		var langPage = {
 			id: 'initial-language',
 			title: 'Language',
@@ -934,12 +970,13 @@ angular.module('mblowfish-core')
 			priority: 'first',
 			required: true
 		};
-		// Configure welcome page. It will be added as one of the first pages of setting stepper
+		// Configure welcome page. It will be added as one of the first pages of
+		// setting stepper
 		var welcomePage = {
 				id: 'welcome',
 				title: 'Welcome',
 				templateUrl : 'views/preferences/welcome.html',
-				controller : 'MbAccountCtrl',
+				controller : 'MbWelcomeCtrl',
 				description: 'Welcome. Please login to continue.',
 				icon: 'accessibility',
 				priority: 'first',
@@ -960,7 +997,6 @@ angular.module('mblowfish-core')
 		// Load settings
 		$preferences.pages()//
 		.then(function(settingItems) {
-//			$scope.settings = settingItems.items;
 			$scope.settings = [];
 			settingItems.items.forEach(function(sItem){
 				if(sItem.required){
@@ -980,23 +1016,27 @@ angular.module('mblowfish-core')
 		});
 	}
 
-	var callWatch = $scope.$watch(function(){
-		return $rootScope.app.initial;
-	}, function(val){
-		if(val){
-			initialization();
-		}else if(val === false){
-			// remove watch
-			callWatch();
-		}
+	
+	var removeApplicationStateWatch = $scope.$watch('app.initial', function(val){
+//		if(val){
+			_initialization();
+//		} else if(val === false){
+//			// TODO: remove initial-language, welcome and congratulate pages if
+//			// are added already.
+//			// remove watch
+//			removeApplicationStateWatch();
+//			// redirect to main page
+//			// $navigator.openPage($scope.mainPage);
+//			$window.location = $scope.mainPage;
+//		}
 	});
 
-	$scope.settings = [];
-	$scope.nextStep = nextStep;
-	$scope.prevStep = prevStep;
-	$scope.goToStep = goToStep;
-
-	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
+//	$scope.settings = [];
+//	$scope.nextStep = nextStep;
+//	$scope.prevStep = prevStep;
+//	$scope.goToStep = goToStep;
+//
+//	$scope.mainPage = $window.location.href.replace(/initialization$/mg, '');
 });
 
 /*
@@ -1032,33 +1072,93 @@ angular.module('mblowfish-core')
  */
 .controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $translate) {
 
-	$app.config('languages')//
-	.then(function(langs){
-		$scope.languages = langs;
-		return langs;
-	})//
-	.then(function(){
-		if(!$scope.languages){
-			$http.get('resources/languages.json')//
-			.then(function(res){
-				var data = res ? res.data : {};
-				$scope.languages = data.languages;
-				$rootScope.app.config.languages = $scope.languages;
+	function init(){		
+		$app.config('languages')//
+		.then(function(langs){
+			$scope.languages = langs;
+			return langs;
+		})//
+		.then(function(){
+			if(!$scope.languages){
+				$http.get('resources/languages.json')//
+				.then(function(res){
+					var data = res ? res.data : {};
+					$scope.languages = data.languages;
+					$rootScope.app.config.languages = $scope.languages;
+				});
+			}
+		})//
+		.finally(function(){	
+			var langKey =  $translate.use();
+			$scope.languages.forEach(function(item){
+				if(item.key === langKey){
+					$scope.myLanguage = item;
+					return;
+				}
 			});
-		}
-	});
+		});
+	}
 
-	function updateLanguage(){
-		$translate.refresh($scope.myLanguage);
-		$translate.use($scope.myLanguage);
+
+	function setLanguage(lang){
+		$scope.myLanguage = lang;
+		// XXX: hadi 1397-03-13: Following two commands should be replaced with a command from $language
+		$translate.refresh($scope.myLanguage.key);
+		$translate.use($scope.myLanguage.key);
 		if(!$rootScope.app.config.local){
 			$rootScope.app.config.local = {};
 		}
-		$rootScope.app.config.local.language = $scope.myLanguage;
+		$rootScope.app.config.local.language = $scope.myLanguage.key;
+		if($scope.myLanguage.dir){
+			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
+			$rootScope.app.dir = $scope.myLanguage.dir;
+		}
 	}
-	
-	$scope.myLanguage = $translate.use();
-	$scope.updateLanguage = updateLanguage;
+
+	$scope.setLanguage = setLanguage;
+
+	init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+
+/**
+ * @ngdoc controller
+ * @name MbWelcomeCtrl
+ * @description 
+ * 
+ */
+.controller('MbWelcomeCtrl', function($scope, $http, $translate) {
+
+	// TODO: hadi: Use $language to get current lanugage
+	$http.get('resources/welcome/'+$translate.use()+'.json')//
+	.then(function(res){
+		var data = res && res.data ? res.data : {};
+		$scope.model = data;
+	});
 	
 });
 
@@ -4978,12 +5078,14 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
- * @name $$$actions
+ * @ngdoc services
+ * @name $actions
  * @description Manage application actions
  * 
+ * Controllers and views can access actions which is registered by an applications. This 
+ * service is responsible to manage global actions.
+ * 
  */
-// TODO: maso, 2018: add document
 .service('$actions', function(Action, ActionGroup) {
 	var _actionsList = [];
 	var _actionsMap = {};
@@ -5108,7 +5210,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core') //
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $app
  * @description Application manager
  * 
@@ -5750,7 +5852,7 @@ angular.module('mblowfish-core') //
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $$errorHandler
  * @description A service to handle errors in forms.
  * 
@@ -5938,9 +6040,9 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $help
- * @description A simple help module
+ * @description A help management service
  * 
  * Manage application help.
  * 
@@ -6047,13 +6149,13 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $navigator
  * @description A default system navigator
  *
  * # Item
  *
- * An item is a single navigation part wich may be a page, link, action, and etc.
+ * An item is a single navigation part which may be a page, link, action, and etc.
  *
  */
 .service('$navigator', function($q, $route, $mdDialog, $location, $window) {
@@ -6266,7 +6368,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $notification
  * @description A default system navigator
  * 
@@ -6408,8 +6510,8 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
- * @name $$options
+ * @ngdoc services
+ * @name $options
  * @description User option manager
  * 
  * Option is user configurations
@@ -6487,7 +6589,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $preferences
  * @description System setting manager
  * 
@@ -6529,9 +6631,9 @@ angular.module('mblowfish-core')
 	}
 	
 	/**
-	 * Gets a prefernece page
+	 * Gets a preference page
 	 * 
-	 * @memberof $
+	 * @memberof $preferences
 	 * @param id {string} Pereference page id
 	 */
 	function page(id){
@@ -6666,7 +6768,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label=\"{{item.title | translate}}\" ng-repeat=\"item in settings\">                </md-step> </md-stepper> </div>"
+    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=pageId> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=app.initial md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step md-label=\"{{item.title | translate}}\" ng-repeat=\"item in settings\"> </md-step> </md-stepper> </div>"
   );
 
 
@@ -6706,17 +6808,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-brand.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo value=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon value=app.config.favicon> </wb-ui-setting-image> </div>"
+    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo value=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon value=app.config.favicon> </wb-ui-setting-image> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-google-analytic.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label>Google analytic property</label> <input required md-no-asterisk name=property ng-model=\"app.config.googleAnalytic.property\"> </md-input-container> </div>"
+    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label>Google analytic property</label> <input required md-no-asterisk name=property ng-model=\"app.config.googleAnalytic.property\"> </md-input-container> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-language.html',
-    "<div layout=column ng-cloak flex> <h3>{{'hello' | translate}}</h3> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=myLanguage ng-change=updateLanguage()> <md-option ng-repeat=\"lang in languages\" value={{lang.key}} translate>{{lang.title}}</md-option>       </md-select> </md-input-container> </div>"
+    "<div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex>           <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site' | translate}}:</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
   );
 
 
@@ -6731,7 +6833,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/welcome.html',
-    " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Welcome</h1> <p translate> It is your site. You should determine some little settings before launch your site. After that your site is ready. These settings and some more could be set at future in settings section of your site. If you are not login please login to change settings. </p> </div> <div flex=none layout=column>  <form ng-show=app.user.anonymous style=\"border: solid 1px\" md-colors=\"{borderColor:'default-primary-100'}\" name=form ng-submit=login(credit) layout=column layout-padding> <div layout-padding> <p><span md-colors=\"{color:'default-warn'}\" translate>{{loginMessage}}</span></p> </div> <md-input-container> <label translate>username or email</label> <input ng-model=credit.login required> </md-input-container> <md-input-container> <label translate>password</label> <input ng-model=credit.password required type=password> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-padding> <md-button ng-disabled=form.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button> </div> </form> <div layout-padding ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>continue to set some options and settings.</p> </div> </div> </md-content>"
+    " <wb-content wb-model=model flex style=\"overflow: auto\"> </wb-content>"
   );
 
 
