@@ -51,8 +51,8 @@ angular.module('mblowfish-core')
 			var langKey =  $language.use();
 			if($scope.languages){				
 				for(var i=0 ; i<$scope.languages.length ; i++){				
-					if(item.key === langKey){
-						$scope.myLanguage = item;
+					if($scope.languages[i].key === langKey){
+						$scope.myLanguage = $scope.languages[i];
 						return;
 					}
 				}

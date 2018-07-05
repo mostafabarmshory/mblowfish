@@ -100,9 +100,12 @@ angular.module('mblowfish-core') //
 	 * watch direction and update app.dir
 	 */
 	$rootScope.$watch(function() {
-		return app.setting.dir || app.config.dir;
+		if(!app.config.local){
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
 	}, function(value) {
-		app.dir = (app.setting.dir || app.config.dir);
+		app.dir = (app.setting.dir || app.config.local.dir);
 	});
 	
 	/*

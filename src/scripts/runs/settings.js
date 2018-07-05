@@ -33,7 +33,7 @@ angular.module('mblowfish-core')
 		title : 'local',
 		description : 'manage dashboard locality and language.',
 		templateUrl : 'views/preferences/mb-local.html',
-//		controller : 'settingsLocalCtrl',
+		controller: 'MbLocalCtrl',
 		icon : 'language',
 		tags : [ 'local', 'language' ],
 	})//
@@ -68,6 +68,7 @@ angular.module('mblowfish-core')
 	$options.newPage({
 		title: 'Local',
 		templateUrl: 'views/options/mb-local.html',
+		controller: 'MbLocalCtrl',
 		tags: ['local']
 	});
 	$options.newPage({
