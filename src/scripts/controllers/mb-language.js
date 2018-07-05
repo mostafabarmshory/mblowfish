@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $translate) {
+.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $language) {
 
 	function init(){		
 		$app.config('languages')//
@@ -48,22 +48,22 @@ angular.module('mblowfish-core')
 			}
 		})//
 		.finally(function(){	
-			var langKey =  $translate.use();
-			$scope.languages.forEach(function(item){
-				if(item.key === langKey){
-					$scope.myLanguage = item;
-					return;
+			var langKey =  $language.use();
+			if($scope.languages){				
+				for(var i=0 ; i<$scope.languages.length ; i++){				
+					if(item.key === langKey){
+						$scope.myLanguage = item;
+						return;
+					}
 				}
-			});
+			}
 		});
 	}
 
 
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
-		// XXX: hadi 1397-03-13: Following two commands should be replaced with a command from $language
-		$translate.refresh($scope.myLanguage.key);
-		$translate.use($scope.myLanguage.key);
+		$language.use($scope.myLanguage.key);
 		if(!$rootScope.app.config.local){
 			$rootScope.app.config.local = {};
 		}

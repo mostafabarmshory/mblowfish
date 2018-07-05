@@ -51,7 +51,6 @@ angular.module('mblowfish-core')
 			if(resLangs){
 				angular.forEach(resLangs, function(lang){
 					if(lang.key === option.key){
-//						var translate = {};
 						angular.forEach(lang.map, function(value, key){
 							resourceTranslate[key] = value;
 						});
