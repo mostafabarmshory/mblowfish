@@ -996,19 +996,19 @@ angular.module('mblowfish-core')
 		};
 		// Configure welcome page. It will be added as one of the first pages of
 		// setting stepper
+		var inlineTemplate = '<wb-content wb-model="model" flex style="overflow: auto;"></wb-content>';
 		var welcomePage = {
 				id: 'welcome',
 				title: 'Welcome',
-				templateUrl : 'views/preferences/welcome.html',
+				template : inlineTemplate,
 				/*
 				 * @ngInject
 				 */
 				controller : function($scope, $http, $translate) {
-					// TODO: hadi: Use $language to get current lanugage
+					// TODO: hadi: Use $language to get current Language
 					$http.get('resources/welcome/'+$translate.use()+'.json')//
 					.then(function(res){
-						var data = res && res.data ? res.data : {};
-						$scope.model = data;
+						$scope.model = res.data || {};
 					});
 				},
 				description: 'Welcome. Please login to continue.',
@@ -1018,12 +1018,20 @@ angular.module('mblowfish-core')
 		};
 		var congratulatePage = {
 			id: 'congratulate',
-			templateUrl : 'views/preferences/congratulate.html',
-			controller: function(){
-				_setInitialized(true);
-			},
 			title: ':)',
 			description: 'Congratulation. Your site is ready.',
+			template : inlineTemplate,
+			/*
+			 * @ngInject
+			 */
+			controller : function($scope, $http, $translate) {
+				// TODO: hadi: Use $language to get current Language
+				$http.get('resources/congratulate/'+$translate.use()+'.json')//
+				.then(function(res){
+					$scope.model = res.data || {};
+				});
+				_setInitialized(true);
+			},
 			icon: 'favorite',
 			priority: 'last',
 			required: true
@@ -1115,7 +1123,7 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $translate) {
+.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $language) {
 
 	function init(){		
 		$app.config('languages')//
@@ -1134,22 +1142,22 @@ angular.module('mblowfish-core')
 			}
 		})//
 		.finally(function(){	
-			var langKey =  $translate.use();
-			$scope.languages.forEach(function(item){
-				if(item.key === langKey){
-					$scope.myLanguage = item;
-					return;
+			var langKey =  $language.use();
+			if($scope.languages){				
+				for(var i=0 ; i<$scope.languages.length ; i++){				
+					if($scope.languages[i].key === langKey){
+						$scope.myLanguage = $scope.languages[i];
+						return;
+					}
 				}
-			});
+			}
 		});
 	}
 
 
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
-		// XXX: hadi 1397-03-13: Following two commands should be replaced with a command from $language
-		$translate.refresh($scope.myLanguage.key);
-		$translate.use($scope.myLanguage.key);
+		$language.use($scope.myLanguage.key);
 		if(!$rootScope.app.config.local){
 			$rootScope.app.config.local = {};
 		}
@@ -1165,6 +1173,53 @@ angular.module('mblowfish-core')
 
 	$scope.setLanguage = setLanguage;
 
+	init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbLocalCtrl
+ * @description Controller to manage local settings
+ * 
+ */
+.controller('MbLocalCtrl', function($scope, $language) {
+
+	function init(){		
+		$language.languages()//
+		.then(function(langs){
+			$scope.languages = langs.items;
+			return $scope.languages;
+		});
+	}
+
+	$scope.languages = [];
+//	$scope.loadLanguages = init;
+	
 	init();
 });
 
@@ -1689,10 +1744,9 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
- * @memberof mblowfish-core
- * @name ContentCtrl
- * @description # ContentCtrl
+ * @ngdoc Controllers
+ * @name MbProfileCtrl
+ * @description  Manages profile of a user
  * 
  */
 .controller('MbProfileCtrl', function($scope, $app, $translate, $window) {
@@ -4530,7 +4584,6 @@ angular.module('mblowfish-core')
 			if(resLangs){
 				angular.forEach(resLangs, function(lang){
 					if(lang.key === option.key){
-//						var translate = {};
 						angular.forEach(lang.map, function(value, key){
 							resourceTranslate[key] = value;
 						});
@@ -5004,7 +5057,7 @@ angular.module('mblowfish-core')
 		title : 'local',
 		description : 'manage dashboard locality and language.',
 		templateUrl : 'views/preferences/mb-local.html',
-//		controller : 'settingsLocalCtrl',
+		controller: 'MbLocalCtrl',
 		icon : 'language',
 		tags : [ 'local', 'language' ],
 	})//
@@ -5039,6 +5092,7 @@ angular.module('mblowfish-core')
 	$options.newPage({
 		title: 'Local',
 		templateUrl: 'views/options/mb-local.html',
+		controller: 'MbLocalCtrl',
 		tags: ['local']
 	});
 	$options.newPage({
@@ -5282,9 +5336,12 @@ angular.module('mblowfish-core') //
 	 * watch direction and update app.dir
 	 */
 	$rootScope.$watch(function() {
-		return app.setting.dir || app.config.dir;
+		if(!app.config.local){
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
 	}, function(value) {
-		app.dir = (app.setting.dir || app.config.dir);
+		app.dir = (app.setting.dir || app.config.local.dir);
 	});
 	
 	/*
@@ -6123,6 +6180,193 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Services
+ * @name $language
+ * @description 
+ * Manages languages of the application.
+ * This service provide functionality to switch between multiple languages.
+ * Also provides functionlity to manage languages (add, remove or edit translations).
+ * 
+ */
+.service('$language', function($rootScope, $q, $navigator, $translate, $app) {
+
+	/**
+	 * Returns language determined by given key.
+	 * 
+	 * @memberof $language
+	 * @param {string} language key - Key of the language
+	 * @return {object}  Returns language with given key. 
+	 * Returns 'undefined' if language does not exist or is not loaded yet.
+	 */
+	function language(key) {
+		var languages = $rootScope.app.config.languages;
+		if(!languages || !languages.length){
+			return undefined;
+		}
+		for(var i=0; i<languages.length; i++){			
+			if(languages[i].key === key){
+				return languages[i];
+			}
+		}
+		return undefined;
+	}
+
+	/**
+	 * Returns list of defined and loaded languages.
+	 * It returns a promise of an object which field 'items' of the object is an array of languages.
+	 * 
+	 * @memberof $language
+	 * @return {promise<Array>} of languages
+	 */
+	function languages() {
+		return $app.config('languages')//
+		.then(function(langs){
+			var res = {items : langs || []};
+			return res;
+		});
+//		return $q.resolve({
+//			items : $rootScope.app.config.languages || []
+//		});
+	}
+
+	/**
+	 * Adds a new language
+	 * 
+	 * @param {object} lang - Object contain information of a language.
+	 * 		A language object would contain following properties:
+	 * 
+	 * 		- key: a key to determin language (for example fa, en and so on)
+	 * 		- title: title for language (for example Persian, English, ...)
+	 * 		- dir: direction of language ('ltr' or 'rtl')
+	 * 		- map: translation table of language contains some key-values. 
+	 * 
+	 * @memberof $language
+	 */
+	function newLanguage(lang) {
+		if(!$rootScope.app.user.owner){
+			return $q.reject('not allowed');
+		}
+		if(!$rootScope.app.config.languages){
+			$rootScope.app.config.languages = [];
+		}
+		$rootScope.app.config.languages.push(lang);
+		$translate.refresh(lang.key);
+		return $q.resolve(lang);
+	}
+
+	/**
+	 * Delete a language
+	 * 
+	 * @memberof $language
+	 * @param {object|string} lang - The Language to delete or key of language to delete
+	 * @return {promise} promise of deleted language
+	 */
+	function deleteLanguage(lang){
+		if(!$rootScope.app.user.owner){
+			return $q.reject('not allowed');
+		}
+		var languages = $rootScope.app.config.langauges;
+		if(!languages || !languages.length){
+			return $q.reject('Not found');
+		}
+		var index = -1;
+		if(angular.isString(lang)){
+			// lang is key of language
+			for(var i=0 ; i<langauges.length; i++){				
+				if(langauges[i].key === lang){
+					index = i;
+					break;
+				}
+			}
+		}else{			
+			index = languages.indexOf(lang);
+		}
+		
+	    if (index !== -1) {
+	    	languages.splice(index, 1);
+	    	return $q.resolve(lang);
+	    }
+    	return $q.reject('Not found');
+	}
+
+	/**
+	 * Returns the language key of language that is currently loaded asynchronously.
+	 * 
+	 * @memberof $language
+	 * @return {string} language key
+	 */
+	function proposedLanguage() {
+		return $translate.proposedLanguage();
+	}
+
+	/**
+	 * Tells angular-translate which language to use by given language key. This 
+	 * method is used to change language at runtime. It also takes care of 
+	 * storing the language key in a configured store to let your app remember 
+	 * the choosed language.
+	 *
+	 * When trying to 'use' a language which isn't available it tries to load it 
+	 * asynchronously with registered loaders.
+	 * 
+	 * Returns promise object with loaded language file data or string of the 
+	 * currently used language.
+	 * 
+	 * If no or a falsy key is given it returns the currently used language key. 
+	 * The returned string will be undefined if setting up $translate hasn't 
+	 * finished.
+	 * 
+	 * @memberof $language
+	 * @param {string} key - Feature description.Language key
+	 * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
+	 * 
+	 */
+	function use(key) {
+		if(!key){
+			return $translate.use();
+		}
+		if(!language(key)){
+			$translate.refresh(key);
+		}
+		return $translate.use(key);
+	}
+	/*
+	 * Service struct
+	 */
+	return {
+		language : language,
+		languages : languages,
+		newLanguage : newLanguage,
+		deleteLanguage: deleteLanguage,
+		proposedLanguage : proposedLanguage,
+		use: use
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -6785,7 +7029,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/options/mb-local.html',
-    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
+    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language&Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
 
 
@@ -6796,11 +7040,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/partials/mb-branding-header-toolbar.html',
     " <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar>"
-  );
-
-
-  $templateCache.put('views/preferences/congratulate.html',
-    " <md-content layout=column layout-align=none layout-align-gt-sm=\"none center\" flex> <div flex=none layout=column layout-padding> <h1 translate>Congratulate :)</h1> <p translate> Congratulate, your site is ready. You can start design your site. </p> </div> </md-content>"
   );
 
 
@@ -6820,17 +7059,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option value=fa translate>Persian</md-option> <md-option value=en translate>English</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
   $templateCache.put('views/preferences/update.html',
     "<md-switch class=md-secondary ng-model=app.config.update.hideMessage> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoCheck> <p translate>Check update automaticlly</p> </md-switch>"
-  );
-
-
-  $templateCache.put('views/preferences/welcome.html',
-    " <wb-content wb-model=model flex style=\"overflow: auto\"> </wb-content>"
   );
 
 
