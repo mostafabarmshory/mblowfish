@@ -23,10 +23,9 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
- * @memberof mblowfish-core
- * @name ContentCtrl
- * @description # ContentCtrl
+ * @ngdoc Controllers
+ * @name MbProfileCtrl
+ * @description  Manages profile of a user
  * 
  */
 .controller('MbProfileCtrl', function($scope, $app, $translate, $window) {
