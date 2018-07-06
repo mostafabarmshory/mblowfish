@@ -41,7 +41,7 @@ angular.module('mblowfish-core')
 .factory('MbLanguageLoader', function ($q, $app, $http, $translate) {
 	return function (option) {
 		var deferred = $q.defer(); 
-		var resourceTranslate = {};
+//		var resourceTranslate = {};
 		// Fetch translations from config of SPA.
 		var spaTranslate = $translate.getTranslationTable(option.key);
 		var translate = spaTranslate ? spaTranslate : {};

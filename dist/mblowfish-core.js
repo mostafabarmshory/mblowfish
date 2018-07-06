@@ -5423,7 +5423,7 @@ angular.module('mblowfish-core') //
 			angular.forEach(configRequesters, function(defers, key){
 				angular.forEach(defers, function(def){
 					if(val === 'ready'){						
-						def.resolve(app.config[key] || defaultValue);
+						def.resolve(app.config[key]);
 					}else{
 						def.reject('Fail to get config');
 					}
@@ -7127,7 +7127,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content flex> <wb-content wb-model=helpContent></wb-content> </md-content>"
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading flex> <wb-content wb-model=helpContent></wb-content> </md-content>"
   );
 
 

@@ -179,7 +179,7 @@ angular.module('mblowfish-core') //
 			angular.forEach(configRequesters, function(defers, key){
 				angular.forEach(defers, function(def){
 					if(val === 'ready'){						
-						def.resolve(app.config[key] || defaultValue);
+						def.resolve(app.config[key]);
 					}else{
 						def.reject('Fail to get config');
 					}
