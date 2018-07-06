@@ -1125,22 +1125,28 @@ angular.module('mblowfish-core')
  */
 .controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $language) {
 
-	function init(){		
-		$app.config('languages')//
-		.then(function(langs){
-			$scope.languages = langs;
-			return langs;
-		})//
-		.then(function(){
-			if(!$scope.languages){
-				$http.get('resources/languages.json')//
-				.then(function(res){
-					var data = res ? res.data : {};
-					$scope.languages = data.languages;
-					$rootScope.app.config.languages = $scope.languages;
-				});
-			}
-		})//
+	function init(){	
+		$http.get('resources/languages.json')//
+		.then(function(res){
+			var data = res ? res.data : {};
+			$scope.languages = data.languages;
+			$rootScope.app.config.languages = $scope.languages;
+		})
+//		$app.config('languages')//
+//		.then(function(langs){
+//			$scope.languages = langs;
+//			return langs;
+//		})//
+//		.then(function(){
+//			if(!$scope.languages){
+//				$http.get('resources/languages.json')//
+//				.then(function(res){
+//					var data = res ? res.data : {};
+//					$scope.languages = data.languages;
+//					$rootScope.app.config.languages = $scope.languages;
+//				});
+//			}
+//		})//
 		.finally(function(){	
 			var langKey =  $language.use();
 			if($scope.languages){				
@@ -1158,16 +1164,14 @@ angular.module('mblowfish-core')
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
 		$language.use($scope.myLanguage.key);
-		if(!$rootScope.app.config.local){
-			$rootScope.app.config.local = {};
-		}
+		$rootScope.app.config.local = $rootScope.app.config.local || {};
 		if(!angular.isObject($rootScope.app.config.local)){
 			$rootScope.app.config.local = {};
 		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
 		if($scope.myLanguage.dir){
 			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-			$rootScope.app.dir = $scope.myLanguage.dir;
+//			$rootScope.app.dir = $scope.myLanguage.dir;
 		}
 	}
 
@@ -1207,7 +1211,7 @@ angular.module('mblowfish-core')
  * @description Controller to manage local settings
  * 
  */
-.controller('MbLocalCtrl', function($scope, $language) {
+.controller('MbLocalCtrl', function($scope, $language, $navigator) {
 
 	function init(){		
 		$language.languages()//
@@ -1217,8 +1221,13 @@ angular.module('mblowfish-core')
 		});
 	}
 
+	$scope.goToManage = function(){
+		// XXX: hadi, Following path exist in angular-material-home-language.
+		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
+		$navigator.openPage('preferences/languages/manager');
+	}
+	
 	$scope.languages = [];
-//	$scope.loadLanguages = init;
 	
 	init();
 });
@@ -4575,46 +4584,45 @@ angular.module('mblowfish-core')
 	return function (option) {
 		var deferred = $q.defer(); 
 		var resourceTranslate = {};
-
-		// Fetch translations from config
-		$http.get('resources/languages.json')//
-		.then(function(res){
-			var data = res ? res.data : {};
-			var resLangs = data.languages;
-			if(resLangs){
-				angular.forEach(resLangs, function(lang){
+		// Fetch translations from config of SPA.
+		var spaTranslate = $translate.getTranslationTable(option.key);
+		var translate = spaTranslate ? spaTranslate : {};
+		// Fetch translations from config on server
+		$app.config('languages')//
+		.then(function(langs){
+			if(langs){
+				angular.forEach(langs, function(lang){
 					if(lang.key === option.key){
 						angular.forEach(lang.map, function(value, key){
-							resourceTranslate[key] = value;
+							translate[key] = value;
 						});
 					}
 				});
 			}
-			return resourceTranslate;
-		})//
-		.finally(function(){
-			// Fetch translations from config of SPA.
-			var spaTranslate = $translate.getTranslationTable(option.key);
-			spaTranslate = spaTranslate ? spaTranslate : {};
-			// Translations in JSONs have upper priority than translations in SPA config.
-			var translate = angular.extend(spaTranslate, resourceTranslate);
-			// Fetch translations from config on server
-			$app.config('languages')//
-			.then(function(langs){
-				if(langs){
-					angular.forEach(langs, function(lang){
-						if(lang.key === option.key){
-							angular.forEach(lang.map, function(value, key){
-								translate[key] = value;
-							});
-						}
-					});
-				}
-				return deferred.resolve(translate);
-			}, function(){
-				return deferred.reject('Language not found');				
-			});
+			return deferred.resolve(translate);
+		}, function(){
+			return deferred.reject('Language not found');				
 		});
+		
+		// Fetch translations from config
+//		$http.get('resources/languages.json')//
+//		.then(function(res){
+//			var data = res ? res.data : {};
+//			var resLangs = data.languages;
+//			if(resLangs){
+//				angular.forEach(resLangs, function(lang){
+//					if(lang.key === option.key){
+//						angular.forEach(lang.map, function(value, key){
+//							resourceTranslate[key] = value;
+//						});
+//					}
+//				});
+//			}
+//			return resourceTranslate;
+//		})//
+//		.finally(function(){
+//			
+//		});
 
 		return deferred.promise;
 	};
@@ -5388,6 +5396,8 @@ angular.module('mblowfish-core') //
 	});
 	
 	
+	var configRequesters = {};
+	
 	/**
 	 * خصوصیت را از تنظیم‌ها تعیین می‌کند
 	 * 
@@ -5399,8 +5409,28 @@ angular.module('mblowfish-core') //
 	 * @returns promiss
 	 */
 	function getApplicationConfig(key, defaultValue) {
-		return $q.when(app.config[key] || defaultValue);
+		if(app.state.status === 'ready'){
+			return $q.when(app.config[key] || defaultValue);
+		}			
+		var defer = $q.defer();
+		configRequesters[key] = configRequesters[key] || [];
+		configRequesters[key].push(defer);
+		return defer.promise;
 	}
+	
+	$rootScope.$watch('app.state.status', function(val){
+		if(val === 'ready' || val === 'fail' || val === 'error'){
+			angular.forEach(configRequesters, function(defers, key){
+				angular.forEach(defers, function(def){
+					if(val === 'ready'){						
+						def.resolve(app.config[key] || defaultValue);
+					}else{
+						def.reject('Fail to get config');
+					}
+				})
+			});
+		}
+	});
 
 	function setConfig(key, value){
 		return $timeout(function() {
@@ -6249,7 +6279,7 @@ angular.module('mblowfish-core')
 			return res;
 		});
 //		return $q.resolve({
-//			items : $rootScope.app.config.languages || []
+//		items : $rootScope.app.config.languages || []
 //		});
 	}
 
@@ -6305,12 +6335,12 @@ angular.module('mblowfish-core')
 		}else{			
 			index = languages.indexOf(lang);
 		}
-		
-	    if (index !== -1) {
-	    	languages.splice(index, 1);
-	    	return $q.resolve(lang);
-	    }
-    	return $q.reject('Not found');
+
+		if (index !== -1) {
+			languages.splice(index, 1);
+			return $q.resolve(lang);
+		}
+		return $q.reject('Not found');
 	}
 
 	/**
@@ -6345,14 +6375,37 @@ angular.module('mblowfish-core')
 	 * 
 	 */
 	function use(key) {
-		if(!key){
-			return $translate.use();
-		}
-		if(!language(key)){
-			$translate.refresh(key);
-		}
 		return $translate.use(key);
 	}
+
+	/**
+	 * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
+	 * the module will drop all existent translation tables and load new version of those which
+	 * are currently in use.
+	 *
+	 * Refresh means that the module will drop target translation table and try to load it again.
+	 *
+	 * In case there are no loaders registered the refresh() method will throw an Error.
+	 *
+	 * If the module is able to refresh translation tables refresh() method will broadcast
+	 * $translateRefreshStart and $translateRefreshEnd events.
+	 *
+	 * @example
+	 * // this will drop all currently existent translation tables and reload those which are
+	 * // currently in use
+	 * $translate.refresh();
+	 * // this will refresh a translation table for the en_US language
+	 * $translate.refresh('en_US');
+	 *
+	 * @param {string} langKey A language key of the table, which has to be refreshed
+	 *
+	 * @return {promise} Promise, which will be resolved in case a translation tables refreshing
+	 * process is finished successfully, and reject if not.
+	 */
+	function refresh(key){
+		return $translate.refresh(key);
+	}
+
 	/*
 	 * Service struct
 	 */
@@ -7059,7 +7112,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=md-block> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <wb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</wb-icon> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
