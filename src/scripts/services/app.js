@@ -152,6 +152,8 @@ angular.module('mblowfish-core') //
 	});
 	
 	
+	var configRequesters = {};
+	
 	/**
 	 * خصوصیت را از تنظیم‌ها تعیین می‌کند
 	 * 
@@ -163,8 +165,28 @@ angular.module('mblowfish-core') //
 	 * @returns promiss
 	 */
 	function getApplicationConfig(key, defaultValue) {
-		return $q.when(app.config[key] || defaultValue);
+		if(app.state.status === 'ready'){
+			return $q.when(app.config[key] || defaultValue);
+		}			
+		var defer = $q.defer();
+		configRequesters[key] = configRequesters[key] || [];
+		configRequesters[key].push(defer);
+		return defer.promise;
 	}
+	
+	$rootScope.$watch('app.state.status', function(val){
+		if(val === 'ready' || val === 'fail' || val === 'error'){
+			angular.forEach(configRequesters, function(defers, key){
+				angular.forEach(defers, function(def){
+					if(val === 'ready'){						
+						def.resolve(app.config[key] || defaultValue);
+					}else{
+						def.reject('Fail to get config');
+					}
+				})
+			});
+		}
+	});
 
 	function setConfig(key, value){
 		return $timeout(function() {
