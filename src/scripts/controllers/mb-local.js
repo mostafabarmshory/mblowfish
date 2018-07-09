@@ -22,57 +22,30 @@
 'use strict';
 angular.module('mblowfish-core')
 
+
 /**
- * @ngdoc services
- * @name $options
- * @description User option manager
+ * @ngdoc Controllers
+ * @name MbLocalCtrl
+ * @description Controller to manage local settings
  * 
- * Option is user configurations
  */
-.service('$options', function($q, $navigator) {
-	var _pages = [ ];
+.controller('MbLocalCtrl', function($scope, $language, $navigator) {
 
-	/**
-	 * List all pages
-	 */
-	function pages() {
-		return $q.when({
-			'items' : _pages
-		});
-	}
-	
-	/**
-	 * Gets a config page
-	 * 
-	 * @name config
-	 * @param {string} configId - Id of the config
-	 * @return {promiss<config>} return config
-	 */
-	function getPage(pageId){
-		var page = null;
-		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id == pageId){
-				return $q.when(_pages[i]);
-			}
-		}
-		return $q.reject({
-			// TODO: maso, 2018: add reason
+	function init(){		
+		$language.languages()//
+		.then(function(langs){
+			$scope.languages = langs.items;
+			return $scope.languages;
 		});
 	}
 
-
-	/**
-	 * Creates configuration/setting page.
-	 */
-	function newPage(page){
-		_pages.push(page);
-		return app;
+	$scope.goToManage = function(){
+		// XXX: hadi, Following path exist in angular-material-home-language.
+		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
+		$navigator.openPage('preferences/languages/manager');
 	}
 	
-	var app = {
-			pages : pages,
-			page: getPage,
-			newPage : newPage,
-	};
-	return app;
+	$scope.languages = [];
+	
+	init();
 });

@@ -24,7 +24,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $$errorHandler
  * @description A service to handle errors in forms.
  * 
@@ -44,6 +44,7 @@ angular.module('mblowfish-core')
 			message = 'Form is not valid. Fix errors and retry.';
 //			form.$invalid = true;
 			error.data.data.forEach(function(item){
+				form[item.name].$error = {};
 				var constraints = item.constraints.map(function(cons){
 					if(form[item.name]){						
 						form[item.name].$error[cons.toLowerCase()] = true;

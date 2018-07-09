@@ -23,7 +23,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc service
+ * @ngdoc services
  * @name $preferences
  * @description System setting manager
  * 
@@ -65,9 +65,9 @@ angular.module('mblowfish-core')
 	}
 	
 	/**
-	 * Gets a prefernece page
+	 * Gets a preference page
 	 * 
-	 * @memberof $
+	 * @memberof $preferences
 	 * @param id {string} Pereference page id
 	 */
 	function page(id){

@@ -41,48 +41,46 @@ angular.module('mblowfish-core')
 .factory('MbLanguageLoader', function ($q, $app, $http, $translate) {
 	return function (option) {
 		var deferred = $q.defer(); 
-		var resourceTranslate = {};
-
-		// Fetch translations from config
-		$http.get('resources/languages.json')//
-		.then(function(res){
-			var data = res ? res.data : {};
-			var resLangs = data.languages;
-			if(resLangs){
-				angular.forEach(resLangs, function(lang){
+//		var resourceTranslate = {};
+		// Fetch translations from config of SPA.
+		var spaTranslate = $translate.getTranslationTable(option.key);
+		var translate = spaTranslate ? spaTranslate : {};
+		// Fetch translations from config on server
+		$app.config('languages')//
+		.then(function(langs){
+			if(langs){
+				angular.forEach(langs, function(lang){
 					if(lang.key === option.key){
-//						var translate = {};
 						angular.forEach(lang.map, function(value, key){
-							resourceTranslate[key] = value;
+							translate[key] = value;
 						});
 					}
 				});
 			}
-			return resourceTranslate;
-		})//
-		.finally(function(){
-			// Fetch translations from config of SPA.
-			var spaTranslate = $translate.getTranslationTable(option.key);
-			spaTranslate = spaTranslate ? spaTranslate : {};
-			// Translations in JSONs have upper priority than translations in SPA config.
-			var translate = angular.extend(spaTranslate, resourceTranslate);
-			// Fetch translations from config on server
-			$app.config('languages')//
-			.then(function(langs){
-				if(langs){
-					angular.forEach(langs, function(lang){
-						if(lang.key === option.key){
-							angular.forEach(lang.map, function(value, key){
-								translate[key] = value;
-							});
-						}
-					});
-				}
-				return deferred.resolve(translate);
-			}, function(){
-				return deferred.reject('Language not found');				
-			});
+			return deferred.resolve(translate);
+		}, function(){
+			return deferred.reject('Language not found');				
 		});
+		
+		// Fetch translations from config
+//		$http.get('resources/languages.json')//
+//		.then(function(res){
+//			var data = res ? res.data : {};
+//			var resLangs = data.languages;
+//			if(resLangs){
+//				angular.forEach(resLangs, function(lang){
+//					if(lang.key === option.key){
+//						angular.forEach(lang.map, function(value, key){
+//							resourceTranslate[key] = value;
+//						});
+//					}
+//				});
+//			}
+//			return resourceTranslate;
+//		})//
+//		.finally(function(){
+//			
+//		});
 
 		return deferred.promise;
 	};

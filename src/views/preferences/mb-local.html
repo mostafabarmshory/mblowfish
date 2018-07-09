@@ -2,18 +2,17 @@
 	layout="column" 
 	ng-cloak
 	flex>
-	
-	<md-input-container class="md-block">
+	<md-input-container class="md-icon-float md-block">
 		<label translate>Language</label>
 		<md-select 
 			ng-model="app.config.local.language">
 			<md-option 
-				value="fa" 
-				translate>Persian</md-option>
-			<md-option 
-				value="en" 
-				translate>English</md-option>
+				ng-repeat="lang in languages"
+				ng-value="lang.key">{{lang.title | translate}}</md-option>
 		</md-select>
+		<wb-icon
+			style="cursor: pointer;" 
+			ng-click="goToManage()">settings</wb-icon>
 	</md-input-container>
 	
 	<md-input-container class="md-block">

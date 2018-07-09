@@ -37,10 +37,12 @@ angular.module('mblowfish-core')
 	.when('/initialization', {
 		templateUrl : 'views/mb-initial.html',
 		controller : 'MbInitialCtrl',
+		controllerAs: 'ctrl',
 		/*
 		 * @ngInject
 		 */
 		protect : function($rootScope) {
+			// TODO: maso, 2018: replace with roles core_owner, Pluf_owner
 			return !$rootScope.app.user.owner;
 		},
 		sidenavs: [],

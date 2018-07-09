@@ -25,40 +25,97 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbInitialCtrl
- * @description Show initialization page
+ * @description Initializes the application
  * 
- * Display initialization page to set initial configuration of SPA.
+ * Manages and initializes the application.
  * 
+ * This controller is used first time when the application is run.
+ * 
+ * The controller puts list of configuration pages in `settings` and current
+ * setting in `currentSetting`.
+ * 
+ * Settings is ordered list and the index of the item is unique.
+ * 
+ * Here is list of all data managed with controller
+ * 
+ * <ul>
+ * <li>steps: list of all settings</li>
+ * <li>currentStep: object (with id) points to the current setting page</li>
+ * </ul>
+ * 
+ * NOTE: the controller works with an stepper and $mdStepper (id:
+ * setting-stepper)
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $navigator, $window) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $routeParams) {
 
+	/*
+	 * ID of the stepper
+	 */
+	var _stepper_id = 'setting-stepper';
+	
+	/**
+	 * Loads settings with the index
+	 * 
+	 * @memberof MbInitialCtrl
+	 * @param {integer}
+	 *            index of the setting
+	 */
 	function goToStep(index){
-		var stepper = $mdStepper('setting-stepper');
-		if(!$rootScope.app.user.owner){
-			stepper.error('You are not allowed');
-			return;
-		}
-		stepper.goto(index);
+		$mdStepper(_stepper_id)//
+			.goto(index);
 	}
 
+	/**
+	 * Loads the next setting page
+	 * 
+	 * @memberof MbInitialCtrl
+	 */
 	function nextStep(){
-		var stepper = $mdStepper('setting-stepper');
-		if(!$rootScope.app.user.owner){
-			stepper.error('You are not allowed');
-			return;
-		}
-		stepper.next();
+		$mdStepper(_stepper_id)//
+			.next();
 	}
 
+	/**
+	 * Loads the previous setting page
+	 * 
+	 * @memberof MbInitialCtrl
+	 */
 	function prevStep(){			
-		var stepper = $mdStepper('setting-stepper');
-		stepper.back();
+		$mdStepper(_stepper_id)//
+			.back();
+	}
+	
+	/*
+	 * Set application is initialized
+	 */
+	function _setInitialized(flag){
+		$rootScope.app.config.is_initialized = true;
+	}
+	
+	/*
+	 * Checks if it is initialized
+	 * 
+	 * NOTE: maso, 2018: check runs/initial.js for changes
+	 */
+	function _isInitialized(){
+		return !$routeParams.force && $rootScope.app.config.is_initialized;
 	}
 
-	function initialization(){
-		// Configure language page. It will be added as first page of setting stepper
+	/*
+	 * Go to the main page
+	 */
+	function _redirectToMain(){
+		 $window.location =  $window.location.href.replace(/initialization$/mg, '');
+	}
+	
+	/*
+	 * Loads internal pages and settings
+	 */
+	function _initialization(){
+		// Configure language page. It will be added as first page of setting
+		// stepper
 		var langPage = {
 			id: 'initial-language',
 			title: 'Language',
@@ -69,12 +126,23 @@ angular.module('mblowfish-core')
 			priority: 'first',
 			required: true
 		};
-		// Configure welcome page. It will be added as one of the first pages of setting stepper
+		// Configure welcome page. It will be added as one of the first pages of
+		// setting stepper
+		var inlineTemplate = '<wb-content wb-model="model" flex style="overflow: auto;"></wb-content>';
 		var welcomePage = {
 				id: 'welcome',
 				title: 'Welcome',
-				templateUrl : 'views/preferences/welcome.html',
-				controller : 'MbAccountCtrl',
+				template : inlineTemplate,
+				/*
+				 * @ngInject
+				 */
+				controller : function($scope, $http, $translate) {
+					// TODO: hadi: Use $language to get current Language
+					$http.get('resources/welcome/'+$translate.use()+'.json')//
+					.then(function(res){
+						$scope.model = res.data || {};
+					});
+				},
 				description: 'Welcome. Please login to continue.',
 				icon: 'accessibility',
 				priority: 'first',
@@ -82,9 +150,20 @@ angular.module('mblowfish-core')
 		};
 		var congratulatePage = {
 			id: 'congratulate',
-			templateUrl : 'views/preferences/congratulate.html',
 			title: ':)',
 			description: 'Congratulation. Your site is ready.',
+			template : inlineTemplate,
+			/*
+			 * @ngInject
+			 */
+			controller : function($scope, $http, $translate) {
+				// TODO: hadi: Use $language to get current Language
+				$http.get('resources/congratulate/'+$translate.use()+'.json')//
+				.then(function(res){
+					$scope.model = res.data || {};
+				});
+				_setInitialized(true);
+			},
 			icon: 'favorite',
 			priority: 'last',
 			required: true
@@ -95,41 +174,52 @@ angular.module('mblowfish-core')
 		// Load settings
 		$preferences.pages()//
 		.then(function(settingItems) {
-//			$scope.settings = settingItems.items;
-			$scope.settings = [];
-			settingItems.items.forEach(function(sItem){
-				if(sItem.required){
-					$scope.settings.push(sItem);
+			var steps = [];
+			settingItems.items.forEach(function(settingItem){
+				if(settingItem.required){
+					steps.push(settingItem);
 				}
 			});
-			// add watch on setting stepper current step.
-			$scope.$watch(function(){
-				var stepper = $mdStepper('setting-stepper');
-				return stepper.currentStep;
-			}, function(val){
-				if(!$scope.settings || $scope.settings.length === 0){
-					return;
-				}
-				$scope.pageId = $scope.settings[val].id;
-			});
+			$scope.steps = steps;
+		});
+		
+		// add watch on setting stepper current step.
+		$scope.$watch(function(){
+			var current = $mdStepper(_stepper_id);
+			if(current){
+				return current.currentStep;
+			}
+			return -1;
+		}, function(index){
+			if(index >= 0 && $scope.steps && $scope.steps.length){
+				$scope.currentStep = $scope.steps[index];
+			}
 		});
 	}
 
-	var callWatch = $scope.$watch(function(){
-		return $rootScope.app.initial;
-	}, function(val){
-		if(val){
-			initialization();
-		}else if(val === false){
+	
+	/*
+	 * Watch application state
+	 */
+	var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
+		switch (status) {
+		case "loading":
+		case "fail":
+		case "error":
+			// Wait it for ready
+			break;
+		case "ready":
 			// remove watch
-			callWatch();
+			removeApplicationStateWatch();
+			if(_isInitialized()){
+				_redirectToMain();
+			} else {
+				_initialization();
+			}
+			break;
+		default:
+			break;
 		}
 	});
 
-	$scope.settings = [];
-	$scope.nextStep = nextStep;
-	$scope.prevStep = prevStep;
-	$scope.goToStep = goToStep;
-
-	$scope.mainPage=$window.location.href.replace(/initialization$/mg, '');
 });
