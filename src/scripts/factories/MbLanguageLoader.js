@@ -23,7 +23,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc object
+ * @ngdoc Factories
  * @name MbLanguageLoader
  * @description Language loader factory
  * 

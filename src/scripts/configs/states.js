@@ -56,6 +56,7 @@ angular.module('mblowfish-core')
 	.when('/preferences', {
 		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
+		controllerAs: 'ctrl',
 		helpId : 'preferences',
 		/*
 		 * @ngInject

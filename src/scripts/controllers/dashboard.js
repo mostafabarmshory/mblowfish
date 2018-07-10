@@ -3,7 +3,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdDashboardCtrl
  * @description Dashboard
  * 

@@ -25,7 +25,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-preloading
  * @description Show preloading of the module
  * 

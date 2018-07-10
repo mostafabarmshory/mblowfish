@@ -24,10 +24,11 @@
 angular.module('mblowfish-core')
 
 /**
+ * @ngdoc Services
+ * @name $amdExport
+ * @description Data model exporter
  * 
- * @description A default system navigator
- * 
- * 
+ * Export data model into a CSV file.
  * 
  */
 .service('$amdExport', function(FileSaver, $q, PaginatorParameter) {

@@ -26,6 +26,9 @@
 
 angular.module('mblowfish-core')
 /**
+ * @ngdoc Directives
+ * @name mb-badge
+ * @description Display a badge on items
  * 
  */
 .directive('mbBadge', function($mdTheming, $rootScope) {

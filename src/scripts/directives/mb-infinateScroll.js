@@ -24,7 +24,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-infinate-scroll
  * @description Infinet scroll 
  * 

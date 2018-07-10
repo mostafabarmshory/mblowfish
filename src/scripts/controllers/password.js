@@ -24,10 +24,9 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbPasswordCtrl
- * @memberof ngMaterialHomeUser
- * @description
+ * @description Store user password
  * 
  * این کنترلر داده‌های یوزرنیم پسورد و ایمیل را از
  * کاربر دریافت و در سیستم ذخیره می‌نماید

@@ -23,7 +23,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbPreferencesCtrl
  * @description Manages preferences page
  * 
@@ -35,24 +35,29 @@ angular.module('mblowfish-core')
 .controller('MbPreferencesCtrl',function($scope, $preferences) {
 
 	/**
-	 * Open tile
+	 * Open a preference page
+	 * 
+	 * @memberof MbPreferencesCtrl
 	 */
-	function openPreference(tile) {
-		$preferences.openPage(tile.page);
+	function openPreference(page) {
+		$preferences.openPage(page);
 	}
 
 	// Load settings
 	$preferences.pages()//
 	.then(function(list) {
 		$scope.preferenceTiles = [];
+		$scope.pages = [];
 		for (var i = 0; i < list.items.length; i++) {
-			$scope.preferenceTiles.push({
-				colspan : 1,
-				rowspan : 1,
-				page : list.items[i]
-			});
+			var page = list.items[i];
+			if(!page.hidden){ // Filter hidden items
+				$scope.preferenceTiles.push({
+					colspan : 1,
+					rowspan : 1,
+					page : page
+				});
+				$scope.pages.push(page);
+			}
 		}
 	});
-
-	$scope.openPreference = openPreference;
 });

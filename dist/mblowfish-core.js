@@ -202,6 +202,7 @@ angular.module('mblowfish-core')
 	.when('/preferences', {
 		templateUrl : 'views/mb-preferences.html',
 		controller : 'MbPreferencesCtrl',
+		controllerAs: 'ctrl',
 		helpId : 'preferences',
 		/*
 		 * @ngInject
@@ -366,7 +367,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbAccountCtrl
  * @description Manages account of users.
  * 
@@ -599,7 +600,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdDashboardCtrl
  * @description Dashboard
  * 
@@ -655,7 +656,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdGroupsResourceCtrl
  * @description Dashboard
  * 
@@ -774,7 +775,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbHelpCtrl
  * @description Help page controller
  * 
@@ -1118,7 +1119,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbThemesCtrl
  * @description Dashboard
  * 
@@ -1258,7 +1259,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MessagesCtrl
  * @description Dashboard
  * 
@@ -1376,7 +1377,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdNavigatorDialogCtrl
  * @description # AccountCtrl Controller of the mblowfish-core
  */
@@ -1419,7 +1420,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AvaNavigatorCtrl
  * @description Navigator controller
  * 
@@ -1505,7 +1506,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbSettingsCtrl
  * @description Manages settings page
  * 
@@ -1546,10 +1547,9 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbPasswordCtrl
- * @memberof ngMaterialHomeUser
- * @description
+ * @description Store user password
  * 
  * این کنترلر داده‌های یوزرنیم پسورد و ایمیل را از
  * کاربر دریافت و در سیستم ذخیره می‌نماید
@@ -1650,7 +1650,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbPreferenceCtrl
  * @description Show a preference page
  * 
@@ -1694,7 +1694,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbPreferencesCtrl
  * @description Manages preferences page
  * 
@@ -1706,26 +1706,31 @@ angular.module('mblowfish-core')
 .controller('MbPreferencesCtrl',function($scope, $preferences) {
 
 	/**
-	 * Open tile
+	 * Open a preference page
+	 * 
+	 * @memberof MbPreferencesCtrl
 	 */
-	function openPreference(tile) {
-		$preferences.openPage(tile.page);
+	function openPreference(page) {
+		$preferences.openPage(page);
 	}
 
 	// Load settings
 	$preferences.pages()//
 	.then(function(list) {
 		$scope.preferenceTiles = [];
+		$scope.pages = [];
 		for (var i = 0; i < list.items.length; i++) {
-			$scope.preferenceTiles.push({
-				colspan : 1,
-				rowspan : 1,
-				page : list.items[i]
-			});
+			var page = list.items[i];
+			if(!page.hidden){ // Filter hidden items
+				$scope.preferenceTiles.push({
+					colspan : 1,
+					rowspan : 1,
+					page : page
+				});
+				$scope.pages.push(page);
+			}
 		}
 	});
-
-	$scope.openPreference = openPreference;
 });
 
 /*
@@ -1870,7 +1875,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdRolesResourceCtrl
  * @description Role resource
  */
@@ -1993,7 +1998,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbThemesCtrl
  * @description Dashboard
  * 
@@ -2034,7 +2039,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdToolbarCtrl
  * @description Toolbar
  * 
@@ -2090,7 +2095,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdUsersResourceCtrl
  * @description Dashboard
  * 
@@ -2202,7 +2207,7 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 /**
- * @ngdoc directives
+ * @ngdoc Directives
  * @name compare-to
  * @description Compare two attrs.
  */
@@ -2251,6 +2256,9 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 /**
+ * @ngdoc Directives
+ * @name mb-badge
+ * @description Display a badge on items
  * 
  */
 .directive('mbBadge', function($mdTheming, $rootScope) {
@@ -2437,7 +2445,7 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 /**
- * @ngdoc directives
+ * @ngdoc Directives
  * @name mb-captcha
  * @description Adding captcha value
  * 
@@ -2524,7 +2532,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-datepicker
  * @descritpion Date picker
  * 
@@ -2623,7 +2631,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-dynamic-tabs
  * @description Display tabs dynamically
  * 
@@ -2739,7 +2747,9 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * 
+ * @ngdoc Directives
+ * @name mb-error-messages
+ * @description An error message display
  */
 .directive('mbErrorMessages', function($compile, $interpolate) {
 
@@ -2819,7 +2829,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-infinate-scroll
  * @description Infinet scroll 
  * 
@@ -2874,7 +2884,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-navigation-path
  * @description Display current navigation path of system
  * 
@@ -2947,7 +2957,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-pagination-bar
  * @property {Object}    mb-model           -Data model
  * @property {function}  mb-reload          -Reload function
@@ -3106,6 +3116,12 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
+/**
+ * @ngdoc Directives
+ * @name mb-panel-sidenav-anchor
+ * @description Display a sidenave anchor
+ * 
+ */
 .directive('mbPanelSidenavAnchor', function($route, $rootScope,
 		$app, $mdSidenav, $q, $widget, $controller, $compile) {
 
@@ -3301,6 +3317,12 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
+/**
+ * @ngdoc Directives
+ * @name mb-panel-toolbar-anchor
+ * @description display a toolbar
+ * 
+ */
 .directive('mbPanelToolbarAnchor', function($navigator, $usr, $route, $window, $rootScope,
 		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
 
@@ -3500,18 +3522,17 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
- * @name amd-panel
+ * @ngdoc Directives
+ * @name mb-panel
  * @restrict E
  * @scope true
+ * @description A dynamic panel with toolbar and sidenav
  * 
- * @description A full dashboard panel
- * 
- * Dashboard needs an area to show modules, navigator, message and the
- * other visual parts of the system. This is a general dashboard panel
+ * Applications needs an area to show modules, navigator, message and the
+ * other visual parts of the system. This is a general application panel
  * which must be placed to the index.html directly.
  * 
- * @usage To load the dashboard add this directive to the index.html.
+ * @usage To load the application add this directive to the index.html.
  *        All internal elements will be removed after the module loaded.
  *        <hljs lang="html"> <body> <amd-panel> <div
  *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
@@ -3742,7 +3763,7 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 /**
- * @ngdoc directives
+ * @ngdoc Directives
  * @name mb-preference-page
  * @description Preference page 
  * 
@@ -3854,7 +3875,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-preloading
  * @description Show preloading of the module
  * 
@@ -3934,7 +3955,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-titled-block
  * @descritpion Title block
  * 
@@ -3980,7 +4001,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-tree-heading
  * @description Tree heading
  * 
@@ -4031,7 +4052,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-tree-link
  * @description Tree link
  * 
@@ -4105,7 +4126,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-tree-toggle
  * @description Tree toggle
  * 
@@ -4263,7 +4284,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-tree
  * @description Tree
  * 
@@ -4349,7 +4370,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-user-menu
  * @restrict E
  * @description Display global user menu
@@ -4407,7 +4428,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-user-toolbar
  * @description User toolbar
  * 
@@ -4455,7 +4476,7 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 /**
- * @ngdoc factory
+ * @ngdoc Factories
  * @name Action
  * @description An action item
  * 
@@ -4511,7 +4532,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc factory
+ * @ngdoc Factories
  * @name ActionGroup
  * @description Groups of actions.
  * 
@@ -4565,7 +4586,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc object
+ * @ngdoc Factories
  * @name MbLanguageLoader
  * @description Language loader factory
  * 
@@ -4653,7 +4674,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 	/**
-	 * @ngdoc filter
+	 * @ngdoc Filters
 	 * @name mbDate
 	 * @description # Format date
 	 */
@@ -5135,7 +5156,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $actions
  * @description Manage application actions
  * 
@@ -5267,7 +5288,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core') //
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $app
  * @description Application manager
  * 
@@ -5937,8 +5958,8 @@ angular.module('mblowfish-core') //
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
- * @name $$errorHandler
+ * @ngdoc Services
+ * @name $errorHandler
  * @description A service to handle errors in forms.
  * 
  * 
@@ -6013,10 +6034,11 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
+ * @ngdoc Services
+ * @name $amdExport
+ * @description Data model exporter
  * 
- * @description A default system navigator
- * 
- * 
+ * Export data model into a CSV file.
  * 
  */
 .service('$amdExport', function(FileSaver, $q, PaginatorParameter) {
@@ -6126,7 +6148,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $help
  * @description A help management service
  * 
@@ -6445,7 +6467,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $navigator
  * @description A default system navigator
  *
@@ -6664,7 +6686,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $notification
  * @description A default system navigator
  * 
@@ -6806,7 +6828,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $options
  * @description User option manager
  * 
@@ -6885,7 +6907,7 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $preferences
  * @description System setting manager
  * 
@@ -7079,7 +7101,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=ctrl.openPreference(tile.page) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
   );
 
 

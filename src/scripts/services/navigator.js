@@ -23,7 +23,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc services
+ * @ngdoc Services
  * @name $navigator
  * @description A default system navigator
  *

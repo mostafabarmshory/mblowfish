@@ -24,18 +24,17 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
- * @name amd-panel
+ * @ngdoc Directives
+ * @name mb-panel
  * @restrict E
  * @scope true
+ * @description A dynamic panel with toolbar and sidenav
  * 
- * @description A full dashboard panel
- * 
- * Dashboard needs an area to show modules, navigator, message and the
- * other visual parts of the system. This is a general dashboard panel
+ * Applications needs an area to show modules, navigator, message and the
+ * other visual parts of the system. This is a general application panel
  * which must be placed to the index.html directly.
  * 
- * @usage To load the dashboard add this directive to the index.html.
+ * @usage To load the application add this directive to the index.html.
  *        All internal elements will be removed after the module loaded.
  *        <hljs lang="html"> <body> <amd-panel> <div
  *        class="amd-preloader"> Loading.... </div> </amd-panel> ....

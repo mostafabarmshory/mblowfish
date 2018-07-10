@@ -25,7 +25,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-user-menu
  * @restrict E
  * @description Display global user menu

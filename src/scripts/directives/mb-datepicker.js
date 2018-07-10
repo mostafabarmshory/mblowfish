@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-datepicker
  * @descritpion Date picker
  * 

@@ -2,7 +2,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name AmdNavigatorDialogCtrl
  * @description # AccountCtrl Controller of the mblowfish-core
  */
