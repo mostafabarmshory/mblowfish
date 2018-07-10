@@ -25,7 +25,7 @@
 
 angular.module('mblowfish-core')
 /**
- * @ngdoc directives
+ * @ngdoc Directives
  * @name mb-preference-page
  * @description Preference page 
  * 

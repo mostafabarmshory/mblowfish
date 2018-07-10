@@ -23,7 +23,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc factory
+ * @ngdoc Factories
  * @name ActionGroup
  * @description Groups of actions.
  * 

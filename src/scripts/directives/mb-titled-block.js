@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-titled-block
  * @descritpion Title block
  * 

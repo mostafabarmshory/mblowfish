@@ -24,7 +24,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-pagination-bar
  * @property {Object}    mb-model           -Data model
  * @property {function}  mb-reload          -Reload function

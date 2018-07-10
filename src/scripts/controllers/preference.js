@@ -23,7 +23,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc controller
+ * @ngdoc Controllers
  * @name MbPreferenceCtrl
  * @description Show a preference page
  * 

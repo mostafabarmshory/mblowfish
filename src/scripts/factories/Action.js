@@ -24,7 +24,7 @@
 
 angular.module('mblowfish-core')
 /**
- * @ngdoc factory
+ * @ngdoc Factories
  * @name Action
  * @description An action item
  * 

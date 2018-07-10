@@ -25,7 +25,7 @@
 angular.module('mblowfish-core')
 
 /**
- * @ngdoc directive
+ * @ngdoc Directives
  * @name mb-navigation-path
  * @description Display current navigation path of system
  * 

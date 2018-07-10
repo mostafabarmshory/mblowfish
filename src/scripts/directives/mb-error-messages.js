@@ -24,7 +24,9 @@
 angular.module('mblowfish-core')
 
 /**
- * 
+ * @ngdoc Directives
+ * @name mb-error-messages
+ * @description An error message display
  */
 .directive('mbErrorMessages', function($compile, $interpolate) {
 

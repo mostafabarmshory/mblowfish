@@ -24,6 +24,12 @@
 
 angular.module('mblowfish-core')
 
+/**
+ * @ngdoc Directives
+ * @name mb-panel-toolbar-anchor
+ * @description display a toolbar
+ * 
+ */
 .directive('mbPanelToolbarAnchor', function($navigator, $usr, $route, $window, $rootScope,
 		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
 
