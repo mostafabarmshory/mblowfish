@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Also provides functionlity to manage languages (add, remove or edit translations).
  * 
  */
-.service('$language', function($rootScope, $q, $navigator, $translate) {
+.service('$language', function($rootScope, $q, $navigator, $translate, $app) {
 
 	/**
 	 * Returns language determined by given key.
@@ -65,10 +65,11 @@ angular.module('mblowfish-core')
 	function languages() {
 		return $app.config('languages')//
 		.then(function(langs){
-			return {items : langs || []}
+			var res = {items : langs || []};
+			return res;
 		});
 //		return $q.resolve({
-//			items : $rootScope.app.config.languages || []
+//		items : $rootScope.app.config.languages || []
 //		});
 	}
 
@@ -124,12 +125,12 @@ angular.module('mblowfish-core')
 		}else{			
 			index = languages.indexOf(lang);
 		}
-		
-	    if (index !== -1) {
-	    	languages.splice(index, 1);
-	    	return $q.resolve(lang);
-	    }
-    	return $q.reject('Not found');
+
+		if (index !== -1) {
+			languages.splice(index, 1);
+			return $q.resolve(lang);
+		}
+		return $q.reject('Not found');
 	}
 
 	/**
@@ -164,14 +165,37 @@ angular.module('mblowfish-core')
 	 * 
 	 */
 	function use(key) {
-		if(!key){
-			return $translate.use();
-		}
-		if(!language(key)){
-			$translate.refresh(key);
-		}
 		return $translate.use(key);
 	}
+
+	/**
+	 * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
+	 * the module will drop all existent translation tables and load new version of those which
+	 * are currently in use.
+	 *
+	 * Refresh means that the module will drop target translation table and try to load it again.
+	 *
+	 * In case there are no loaders registered the refresh() method will throw an Error.
+	 *
+	 * If the module is able to refresh translation tables refresh() method will broadcast
+	 * $translateRefreshStart and $translateRefreshEnd events.
+	 *
+	 * @example
+	 * // this will drop all currently existent translation tables and reload those which are
+	 * // currently in use
+	 * $translate.refresh();
+	 * // this will refresh a translation table for the en_US language
+	 * $translate.refresh('en_US');
+	 *
+	 * @param {string} langKey A language key of the table, which has to be refreshed
+	 *
+	 * @return {promise} Promise, which will be resolved in case a translation tables refreshing
+	 * process is finished successfully, and reject if not.
+	 */
+	function refresh(key){
+		return $translate.refresh(key);
+	}
+
 	/*
 	 * Service struct
 	 */

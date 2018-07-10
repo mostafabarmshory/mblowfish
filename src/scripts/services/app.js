@@ -100,11 +100,14 @@ angular.module('mblowfish-core') //
 	 * watch direction and update app.dir
 	 */
 	$rootScope.$watch(function() {
-		return app.setting.dir || app.config.dir;
+		if(!app.config.local){
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
 	}, function(value) {
-		app.dir = (app.setting.dir || app.config.dir);
+		app.dir = (app.setting.dir || app.config.local.dir);
 	});
-	
+
 	/*
 	 * watch local
 	 */
@@ -118,25 +121,25 @@ angular.module('mblowfish-core') //
 	}, function(key){
 		// 0- set app local
 		app.local = key;
-		
+
 		// 1- change language
 		$translate.use(key);
 		// 2- chnage date format
-	    // Change moment's locale so the 'L'-format is adjusted.
-	    // For example the 'L'-format is DD-MM-YYYY for Dutch
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
 		moment.loadPersian();
-	    moment.locale(key);
+		moment.locale(key);
 
-	    // Set month and week names for the general $mdDateLocale service
-	    var localeDate = moment.localeData();
-	    $mdDateLocale.months      = localeDate._months;
-	    $mdDateLocale.shortMonths = localeDate._monthsShort;
-	    $mdDateLocale.days        = localeDate._weekdays;
-	    $mdDateLocale.shortDays   = localeDate._weekdaysMin;
-	    // Optionaly let the week start on the day as defined by moment's locale data
-	    $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months      = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days        = localeDate._weekdays;
+		$mdDateLocale.shortDays   = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
 	});
-	
+
 	/*
 	 * watch calendar
 	 * 
@@ -147,8 +150,10 @@ angular.module('mblowfish-core') //
 		// 0- set app local
 		app.calendar = key;
 	});
-	
-	
+
+
+	var configRequesters = {};
+
 	/**
 	 * خصوصیت را از تنظیم‌ها تعیین می‌کند
 	 * 
@@ -160,15 +165,36 @@ angular.module('mblowfish-core') //
 	 * @returns promiss
 	 */
 	function getApplicationConfig(key, defaultValue) {
-		return $q.when(app.config[key] || defaultValue);
+		if(app.state.status !== 'loading' && app.state.status !== 'fail'){
+			return $q.when(app.config[key] || defaultValue);
+		}			
+		var defer = $q.defer();
+		configRequesters[key] = configRequesters[key] || [];
+		configRequesters[key].push(defer);
+		return defer.promise;
 	}
+
+	$rootScope.$watch('app.state.status', function(val){
+		if(val === 'loading'){
+			return;
+		}
+		angular.forEach(configRequesters, function(defers, key){
+			angular.forEach(defers, function(def){
+				if(val === 'fail' || val === 'error'){						
+					def.reject('Fail to get config');
+				}else{
+					def.resolve(app.config[key]);
+				}
+			})
+		});
+	});
 
 	function setConfig(key, value){
 		return $timeout(function() {
 			return app.config[key] = value;
 		}, 1);
 	}
-	
+
 	/**
 	 * تنظیم‌های نرم افزار را لود می‌کند.
 	 * 
@@ -387,7 +413,7 @@ angular.module('mblowfish-core') //
 				}
 				delete user.roles;
 			}
-			
+
 			/*
 			 * @DEPRECATED: this monitor will be removed in the next version.
 			 */
@@ -403,7 +429,7 @@ angular.module('mblowfish-core') //
 			_loadingLog('loading user info', 'warning: ' + error.message);
 		});
 	}
-	
+
 	/*
 	 * Loads local storage
 	 */
@@ -412,7 +438,7 @@ angular.module('mblowfish-core') //
 			dashboardModel : {}
 		});
 //		$rootScope.app.session = $localStorage.$default({
-//			dashboardModel : {}
+//		dashboardModel : {}
 //		});
 		return $q.when($rootScope.app.setting);
 	}
@@ -427,7 +453,7 @@ angular.module('mblowfish-core') //
 			app.logs.push(message);
 		}
 	}
-	
+
 	/*
 	 * Attache error logs
 	 */
@@ -456,7 +482,7 @@ angular.module('mblowfish-core') //
 		}
 		app.state.status = 'ready';
 	}
-	
+
 	/**
 	 * Starts the application 
 	 * 
@@ -485,7 +511,7 @@ angular.module('mblowfish-core') //
 		return $q.all(jobs) //
 		// FIXME: maso, 2018: run applilcation defined jobs after all application jobs
 //		.then(function(){
-//			return $q.all(applicationJobs);
+//		return $q.all(applicationJobs);
 //		})
 		.then(_updateApplicationState)
 		.catch(function() {
@@ -497,7 +523,7 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-	
+
 
 	var _toolbars = [];
 
@@ -512,7 +538,7 @@ angular.module('mblowfish-core') //
 			items: _toolbars
 		});
 	}
-	
+
 	/**
 	 * Add new toolbar
 	 * 
@@ -522,7 +548,7 @@ angular.module('mblowfish-core') //
 	function newToolbar(toolbar){
 		_toolbars.push(toolbar);
 	}
-	
+
 	/**
 	 * Get a toolbar by id
 	 * 
@@ -537,9 +563,9 @@ angular.module('mblowfish-core') //
 		}
 		return $q.reject('Toolbar not found');
 	}
-	
+
 	var _sidenavs = [];
-	
+
 	/**
 	 * Get list of all sidenavs
 	 * 
@@ -551,7 +577,7 @@ angular.module('mblowfish-core') //
 			items: _sidenavs
 		});
 	}
-	
+
 	/**
 	 * Add new sidenav
 	 * 
@@ -561,7 +587,7 @@ angular.module('mblowfish-core') //
 	function newSidenav(sidenav){
 		_sidenavs.push(sidenav);
 	}
-	
+
 	/**
 	 * Get a sidnav by id
 	 * 
@@ -576,38 +602,38 @@ angular.module('mblowfish-core') //
 		}
 		return $q.reject('Sidenav not found');
 	}
-	
-	
+
+
 	var _defaultToolbars = [];
-	
+
 	function setDefaultToolbars(defaultToolbars){
 		_defaultToolbars = defaultToolbars || [];
 		return this;
 	}
-	
+
 	function defaultToolbars(){
 		return _defaultToolbars;
 	}
-	
+
 	var _defaultSidenavs = [];
-	
+
 	function setDefaultSidenavs(defaultSidenavs){
 		_defaultSidenavs = defaultSidenavs || [];
 		return this;
 	}
-	
+
 	function defaultSidenavs(){
 		return _defaultSidenavs;
 	}
-	
-	
-	
+
+
+
 	$rootScope.app = app;
 
 	var apps = {};
 	// Init
 	apps.start = start;
-	
+
 	// user management
 	apps.login = login;
 	apps.logout = logout;
@@ -624,14 +650,14 @@ angular.module('mblowfish-core') //
 	apps.storeConfig = storeApplicationConfig; // deprecated
 	apps.setting = setting;
 	apps.setSetting = setSetting;
-	
+
 	// toolbars
 	apps.toolbars = toolbars;
 	apps.newToolbar = newToolbar;
 	apps.toolbar = toolbar;
 	apps.setDefaultToolbars = setDefaultToolbars;
 	apps.defaultToolbars = defaultToolbars;
-	
+
 	// sidenav
 	apps.sidenavs = sidenavs;
 	apps.newSidenav = newSidenav;

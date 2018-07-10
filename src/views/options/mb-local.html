@@ -5,11 +5,8 @@
 	<md-select 
 		ng-model="app.setting.local">
 		<md-option 
-			value="fa" 
-			translate>Persian</md-option>
-		<md-option 
-			value="en" 
-			translate>English</md-option>
+			ng-repeat="lang in languages"
+			ng-value="lang.key">{{lang.title | translate}}</md-option>
 	</md-select>
 </md-input-container>
 <md-input-container class="md-block">

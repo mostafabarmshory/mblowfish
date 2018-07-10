@@ -31,28 +31,34 @@ angular.module('mblowfish-core')
  */
 .controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $language) {
 
-	function init(){		
-		$app.config('languages')//
-		.then(function(langs){
-			$scope.languages = langs;
-			return langs;
-		})//
-		.then(function(){
-			if(!$scope.languages){
-				$http.get('resources/languages.json')//
-				.then(function(res){
-					var data = res ? res.data : {};
-					$scope.languages = data.languages;
-					$rootScope.app.config.languages = $scope.languages;
-				});
-			}
-		})//
+	function init(){	
+		$http.get('resources/languages.json')//
+		.then(function(res){
+			var data = res ? res.data : {};
+			$scope.languages = data.languages;
+			$rootScope.app.config.languages = $scope.languages;
+		})
+//		$app.config('languages')//
+//		.then(function(langs){
+//			$scope.languages = langs;
+//			return langs;
+//		})//
+//		.then(function(){
+//			if(!$scope.languages){
+//				$http.get('resources/languages.json')//
+//				.then(function(res){
+//					var data = res ? res.data : {};
+//					$scope.languages = data.languages;
+//					$rootScope.app.config.languages = $scope.languages;
+//				});
+//			}
+//		})//
 		.finally(function(){	
 			var langKey =  $language.use();
 			if($scope.languages){				
 				for(var i=0 ; i<$scope.languages.length ; i++){				
-					if(item.key === langKey){
-						$scope.myLanguage = item;
+					if($scope.languages[i].key === langKey){
+						$scope.myLanguage = $scope.languages[i];
 						return;
 					}
 				}
@@ -64,16 +70,14 @@ angular.module('mblowfish-core')
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
 		$language.use($scope.myLanguage.key);
-		if(!$rootScope.app.config.local){
-			$rootScope.app.config.local = {};
-		}
+		$rootScope.app.config.local = $rootScope.app.config.local || {};
 		if(!angular.isObject($rootScope.app.config.local)){
 			$rootScope.app.config.local = {};
 		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
 		if($scope.myLanguage.dir){
 			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-			$rootScope.app.dir = $scope.myLanguage.dir;
+//			$rootScope.app.dir = $scope.myLanguage.dir;
 		}
 	}
 
