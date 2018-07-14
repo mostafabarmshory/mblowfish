@@ -205,6 +205,7 @@ angular.module('mblowfish-core')
 		newLanguage : newLanguage,
 		deleteLanguage: deleteLanguage,
 		proposedLanguage : proposedLanguage,
+		refresh: refresh,
 		use: use
 	};
 });
