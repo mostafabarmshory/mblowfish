@@ -60,4 +60,6 @@ angular.module('mblowfish-core')
 			}
 		}
 	});
+	
+	$scope.openPreference = openPreference;
 });
