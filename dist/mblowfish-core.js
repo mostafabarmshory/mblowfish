@@ -90,9 +90,9 @@ angular.module('mblowfish-core', [ //
 angular.module('mblowfish-core')
 
 .config(function($translateProvider) {
-	$translateProvider.preferredLanguage('en');
 //	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
 	$translateProvider.useLoader('MbLanguageLoader');
+	$translateProvider.preferredLanguage('fa');
 });
 
 /*
@@ -1131,7 +1131,7 @@ angular.module('mblowfish-core')
 		.then(function(res){
 			var data = res ? res.data : {};
 			$scope.languages = data.languages;
-			$rootScope.app.config.languages = $scope.languages;
+//			$rootScope.app.config.languages = $scope.languages;
 		})
 //		$app.config('languages')//
 //		.then(function(langs){
@@ -1153,7 +1153,7 @@ angular.module('mblowfish-core')
 			if($scope.languages){				
 				for(var i=0 ; i<$scope.languages.length ; i++){				
 					if($scope.languages[i].key === langKey){
-						$scope.myLanguage = $scope.languages[i];
+						setLanguage($scope.languages[i]);
 						return;
 					}
 				}
@@ -1161,10 +1161,14 @@ angular.module('mblowfish-core')
 		});
 	}
 
-
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
+		// Load langauge
+		$rootScope.app.config.languages = [];
+		$rootScope.app.config.languages.push($scope.myLanguage);
+		// Use langauge		
 		$language.use($scope.myLanguage.key);
+		// Set local
 		$rootScope.app.config.local = $rootScope.app.config.local || {};
 		if(!angular.isObject($rootScope.app.config.local)){
 			$rootScope.app.config.local = {};
@@ -1172,7 +1176,6 @@ angular.module('mblowfish-core')
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
 		if($scope.myLanguage.dir){
 			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-//			$rootScope.app.dir = $scope.myLanguage.dir;
 		}
 	}
 
@@ -1731,6 +1734,8 @@ angular.module('mblowfish-core')
 			}
 		}
 	});
+	
+	$scope.openPreference = openPreference;
 });
 
 /*
@@ -6439,6 +6444,7 @@ angular.module('mblowfish-core')
 		newLanguage : newLanguage,
 		deleteLanguage: deleteLanguage,
 		proposedLanguage : proposedLanguage,
+		refresh: refresh,
 		use: use
 	};
 });
@@ -7101,7 +7107,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=ctrl.openPreference(tile.page) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile.page) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
   );
 
 
