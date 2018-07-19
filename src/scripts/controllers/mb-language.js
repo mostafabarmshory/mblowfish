@@ -36,7 +36,7 @@ angular.module('mblowfish-core')
 		.then(function(res){
 			var data = res ? res.data : {};
 			$scope.languages = data.languages;
-			$rootScope.app.config.languages = $scope.languages;
+//			$rootScope.app.config.languages = $scope.languages;
 		})
 //		$app.config('languages')//
 //		.then(function(langs){
@@ -58,7 +58,7 @@ angular.module('mblowfish-core')
 			if($scope.languages){				
 				for(var i=0 ; i<$scope.languages.length ; i++){				
 					if($scope.languages[i].key === langKey){
-						$scope.myLanguage = $scope.languages[i];
+						setLanguage($scope.languages[i]);
 						return;
 					}
 				}
@@ -66,10 +66,14 @@ angular.module('mblowfish-core')
 		});
 	}
 
-
 	function setLanguage(lang){
 		$scope.myLanguage = lang;
+		// Load langauge
+		$rootScope.app.config.languages = [];
+		$rootScope.app.config.languages.push($scope.myLanguage);
+		// Use langauge		
 		$language.use($scope.myLanguage.key);
+		// Set local
 		$rootScope.app.config.local = $rootScope.app.config.local || {};
 		if(!angular.isObject($rootScope.app.config.local)){
 			$rootScope.app.config.local = {};
@@ -77,7 +81,6 @@ angular.module('mblowfish-core')
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
 		if($scope.myLanguage.dir){
 			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-//			$rootScope.app.dir = $scope.myLanguage.dir;
 		}
 	}
 

@@ -6,7 +6,8 @@
 		"title": "Persian",
 		"map": {
 			"Persian": "پارسی",
-			"English": "Enblish",
+			"English": "انگلیسی",
+			"Germany": "آلمانی",
 			"Branding": "برندینگ",
 			"Welcome": "شروع",
 			"Language": "زبان",
@@ -18,13 +19,13 @@
 		"dir": "ltr",
 		"title": "Germany",
 		"map": {
-			"Persian": "پارسی",
-			"English": "Enblish",
-			"Germany": "Jerman",
-			"Branding": "BARMASLDFM",
-			"Welcome": "WELCSDSF",
-			"Language": "LANGALJAKSLDG",
-			"Select default language of site": "زبان سایت را انتخاب کنید"
+			"Persian": "PERSIAN",
+			"English": "ENGLISH",
+			"Germany": "GERMANY",
+			"Branding": "BRANDING",
+			"Welcome": "WELCOME",
+			"Language": "LANGUAGE",
+			"Select default language of site": "SELECT DEFAULT LANGUAGE OF SITE"
 		}
 	},
 	{
@@ -32,8 +33,6 @@
 		"dir": "ltr",
 		"title": "English",
 		"map": {
-			"Persian": "پارسی",
-			"English": "Enblish"
 		}
 	}]
 }
