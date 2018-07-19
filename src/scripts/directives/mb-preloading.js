@@ -21,32 +21,52 @@
  */
 'use strict';
 
-
 angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
  * @name mb-preloading
- * @description Show preloading of the module
+ * @description Show a preloading of a module
+ * 
+ * The mb-preload-animate is added to element automatically to add user
+ * animation.
+ * 
+ * The class mb-preload is added if the value of the directive is true.
+ * 
+ * @example To add preload:
+ * 
+ * <pre><code>
+ *  	&lt;div mb-preload=&quot;preloadState&quot;&gt; DIV content &lt;/div&gt;
+ * </code></pre>
+ * 
+ * 
+ * User can define a custom class to add at preload time.
+ * 
+ * @example Custom preload class
+ * 
+ * <pre><code>
+ *  	&lt;div mb-preload=&quot;preloadState&quot; mb-preload-class=&quot;my-class&quot;&gt; DIV content &lt;/div&gt;
+ * </code></pre>
  * 
  */
 .directive('mbPreloading', function($animate) {
 	var PRELOAD_CLASS = 'mb-preload';
-	var PRELOAD_CLASS_BOX = 'mb-preload-box';
-	var PRELOAD_IN_PROGRESS_CLASS = 'mb-preload-animate';
+	var PRELOAD_ANIMATION_CLASS = 'mb-preload-animate';
 
 	/*
-	 * Init element for preloading 
+	 * Init element for preloading
 	 */
 	function initPreloading(scope, element, attr) {
-		element.addClass(PRELOAD_IN_PROGRESS_CLASS);
+		element.addClass(PRELOAD_ANIMATION_CLASS);
 	}
 
 	/*
 	 * Remove preloading
 	 */
 	function removePreloading(scope, element, attr) {
-		element.removeClass(PRELOAD_CLASS_BOX);
+		if (attr.mbPreloadingClass) {
+			element.addClass(attr.mbPreloadingClass);
+		}
 		element.removeClass(PRELOAD_CLASS);
 	}
 
@@ -54,7 +74,9 @@ angular.module('mblowfish-core')
 	 * Adding preloading
 	 */
 	function addPreloading(scope, element, attr) {
-		element.addClass(PRELOAD_CLASS_BOX);
+		if (attr.mbPreloadingClass) {
+			element.addClass(attr.mbPreloadingClass);
+		}
 		element.addClass(PRELOAD_CLASS);
 	}
 
@@ -64,7 +86,7 @@ angular.module('mblowfish-core')
 	function postLink(scope, element, attr) {
 		initPreloading(scope, element, attr);
 		scope.$watch(attr.mbPreloading, function(value) {
-			if(!value){
+			if (!value) {
 				removePreloading(scope, element, attr);
 			} else {
 				addPreloading(scope, element, attr);
@@ -74,6 +96,6 @@ angular.module('mblowfish-core')
 
 	return {
 		restrict : 'A',
-		link: postLink
+		link : postLink
 	};
 });
