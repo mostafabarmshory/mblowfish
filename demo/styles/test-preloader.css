@@ -1,20 +1,12 @@
 /*
- * Main page preloader
- */
-.mb-preloader {
-	left: 0px;
-	top: 0px;
-	width: 100%;
-	height: 100%;
-	z-index: 9999;
-	background: url('../images/preloader.gif') 50% 50% no-repeat rgb(249, 249, 249);
-}
-
-/*
  * This class added into the element in preload state.
  */
 .mb-preload {
-	background: #999999 url("../images/loader.gif") no-repeat center;
+	width: 100%;
+	height: 100%;
+	z-index: 9999;
+	background: url('../test-images/loader/loader.gif') 50% 50% no-repeat rgb(249, 249, 249);
+	background-position: center;
 }
 
 /*
@@ -22,4 +14,19 @@
  */
 .mb-preload-animate {
 	transition: all linear 0.5s;
+}
+
+
+/*
+ * Page animation
+ */
+.mb-preload.page {
+	
+}
+
+/*
+ * List animation
+ */
+.mb-preload.list {
+	
 }

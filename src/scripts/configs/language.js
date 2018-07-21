@@ -24,7 +24,7 @@
 angular.module('mblowfish-core')
 
 .config(function($translateProvider) {
-	$translateProvider.preferredLanguage('en');
 //	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
 	$translateProvider.useLoader('MbLanguageLoader');
+	$translateProvider.preferredLanguage('fa');
 });
