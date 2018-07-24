@@ -40,7 +40,7 @@ angular.module('mblowfish-core')
 	 * @memberof $language
 	 * @param {string} language key - Key of the language
 	 * @return {object}  Returns language with given key. 
-	 * Returns 'undefined' if language does not exist or is not loaded yet.
+	 * @Returns 'undefined' if language does not exist or is not loaded yet.
 	 */
 	function language(key) {
 		var languages = $rootScope.app.config.languages;
@@ -109,15 +109,15 @@ angular.module('mblowfish-core')
 		if(!$rootScope.app.user.owner){
 			return $q.reject('not allowed');
 		}
-		var languages = $rootScope.app.config.langauges;
+		var languages = $rootScope.app.config.languages;
 		if(!languages || !languages.length){
 			return $q.reject('Not found');
 		}
 		var index = -1;
 		if(angular.isString(lang)){
 			// lang is key of language
-			for(var i=0 ; i<langauges.length; i++){				
-				if(langauges[i].key === lang){
+			for(var i=0 ; i<languages.length; i++){				
+				if(languages[i].key === lang){
 					index = i;
 					break;
 				}
