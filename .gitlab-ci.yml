@@ -6,6 +6,7 @@ cache:
 
 build-project:
   image: node:8
+  coverage: /Lines\s*:\s*(\d+\.\d+)%/
   script:
   # TODO: install chrom 
   # TODO: install firefox
