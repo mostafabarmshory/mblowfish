@@ -92,7 +92,14 @@ angular.module('mblowfish-core')
 		}
 		if(!$rootScope.app.config.languages){
 			$rootScope.app.config.languages = [];
-		}
+		} else {
+                    var languages = $rootScope.app.config.languages;
+                    for(var i = 0; i < languages.length; i++){
+                        if(lang.key === languages[i].key){
+                            return $q.reject('Sorry, Languages with the same id are not allowed.');
+                        }
+                    }
+                }
 		$rootScope.app.config.languages.push(lang);
 		$translate.refresh(lang.key);
 		return $q.resolve(lang);
