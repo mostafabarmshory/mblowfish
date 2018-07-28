@@ -39,6 +39,7 @@ angular.module('app') //
 		groups : [ 'example', 'example2' ],
 		name : 'Infinate scroll test',
 		icon : 'load',
+		helpId: 'preloading-test'
 	})
 	.when('/test/preloading', {
 		templateUrl : 'views/amd-test-preload.html',
