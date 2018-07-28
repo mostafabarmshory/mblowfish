@@ -28,6 +28,7 @@ angular.module('mblowfish-core')
  * @name MbHelpCtrl
  * @description Help page controller
  * 
+ * Watches total system and update help data.
  */
 .controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;
@@ -61,42 +62,35 @@ angular.module('mblowfish-core')
 	 */
 	function _loadHelpContent(item) {
 		if($scope.helpLoading){
-			// TODO: maso, 2018: cancle old loading
+			// maso, 2018: cancle old loading
+			return $scope.helpLoading;
 		}
-		var myId = _getHelpId(item);
-		if(!$scope.showHelp || myId === lastLoaded) {
-			return;
-		}
-		var lang = $translate.use() === 'fa' ? 'fa' : 'en';
+		var path = $help.getHelpPath(item);
 		// load content
-		$scope.helpLoading = $http.get('resources/helps/' + myId + '-' + lang + '.json') //
-		.then(function(res) {
-			$scope.helpContent = res.data;
-			lastLoaded = myId;
-		})//
-		.finally(function(){
-			$scope.helpLoading = false;
-		});
+		if(path && path !== lastLoaded){
+			$scope.helpLoading = $http.get(path) //
+			.then(function(res) {
+				$scope.helpContent = res.data;
+				lastLoaded = path;
+			})//
+			.finally(function(){
+				$scope.helpLoading = false;
+			});
+		}
 		return $scope.helpLoading;
 	}
 
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
-//		$mdSidenav('help').close();
 	}
-
-//	function buildToggler() {
-//		var debounceFn =  $mdUtil.debounce(function(){
-//			$mdSidenav('help').toggle();
-//		},300);
-//		return debounceFn;
-//	}
 
 	/*
 	 * If user want to display help, content will be loaded.
 	 */
-	$scope.$watch('showHelp', function(){
-		return _loadHelpContent();
+	$scope.$watch('showHelp', function(value){
+		if(value) {
+			return _loadHelpContent();
+		}
 	});
 
 	/*

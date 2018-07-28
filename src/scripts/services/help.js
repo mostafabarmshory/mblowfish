@@ -153,6 +153,9 @@ angular.module('mblowfish-core')
 	 * Get help id
 	 */
 	function _getHelpId(item) {
+		if(!item){
+			return null;
+		}
 		var id = item.helpId;
 		if (angular.isFunction(id)) {
 			id = id(item);
@@ -170,6 +173,7 @@ angular.module('mblowfish-core')
 		currentItem : currentItem,
 		setCurrentItem : setCurrentItem,
 		openHelp : openHelp,
-		hasHelp : hasHelp
+		hasHelp : hasHelp,
+		getHelpPath: getHelpPath
 	};
 });
