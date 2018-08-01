@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Also provides functionlity to manage languages (add, remove or edit translations).
  * 
  */
-.service('$language', function($rootScope, $q, $navigator, $translate, $app) {
+.service('$language', function($rootScope, $q, $translate, $app) {
 
 	/**
 	 * Returns language determined by given key.
@@ -96,7 +96,7 @@ angular.module('mblowfish-core')
                     var languages = $rootScope.app.config.languages;
                     for(var i = 0; i < languages.length; i++){
                         if(lang.key === languages[i].key){
-                            return $q.reject('Sorry, Languages with the same id are not allowed.');
+                            return $q.reject('Sorry! Languages with the same key are not allowed.');
                         }
                     }
                 }

@@ -83,7 +83,7 @@ angular.module('mblowfish-core')
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
 //		$mdSidenav('help').close();
-	}
+	};
 
 //	function buildToggler() {
 //		var debounceFn =  $mdUtil.debounce(function(){
