@@ -60,6 +60,7 @@
     "test": "karma start test/karma.conf.js"
   },
   "dependencies": {
-    "ng-annotate": "^1.2.2"
+    "ng-annotate": "^1.2.2",
+    "xstate": "^3.3.3"
   }
 }
