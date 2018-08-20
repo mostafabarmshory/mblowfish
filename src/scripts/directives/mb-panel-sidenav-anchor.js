@@ -30,7 +30,7 @@ angular.module('mblowfish-core')
  * @description Display a sidenave anchor
  * 
  */
-.directive('mbPanelSidenavAnchor', function($route, $rootScope,
+.directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope,
 		$app, $mdSidenav, $q, $widget, $controller, $compile) {
 
 
@@ -168,7 +168,7 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Sidenavs
-			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
+			var sdid = $route.current.sidenavs || $sidenav.defaultSidenavs();
 			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
@@ -176,7 +176,7 @@ angular.module('mblowfish-core')
 			var sidenavs =[];
 			var jobs = [];
 			angular.forEach(sdid, function(item){
-				jobs.push($app.sidenav(item)
+				jobs.push($sidenav.sidenav(item)
 						.then(function(sidenav){
 							sidenavs.push(sidenav);
 						}));

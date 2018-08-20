@@ -1,40 +1,50 @@
 <div
-	md-colors="{'background-color': 'primary-hue-1'}"
-	class="amd-user-menu">
+    md-colors="{'background-color': 'primary-hue-1'}"
+    class="amd-user-menu">
     <md-menu
-    	md-offset="0 20">
+        md-offset="0 20">
         <md-button
-        	class="amd-user-menu-button"
-        	ng-click="$mdOpenMenu()"
-        	aria-label="Open menu">
-		    <img
-		    	height="32px"
-		    	class="img-circle"
-		    	style="border-radius: 50%"
-		    	ng-src="{{app.user.current.avatar}}">
+            class="amd-user-menu-button"
+            ng-click="$mdOpenMenu()"
+            aria-label="Open menu">
+            <img
+                height="32px"
+                class="img-circle"
+                style="border-radius: 50%"
+                ng-src="{{app.user.current.avatar}}">
             <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span>
             <wb-icon class="material-icons">keyboard_arrow_down</wb-icon>
         </md-button>
         <md-menu-content width="3">
-			<!--  maso, 2017: adding user function dynamically. -->
+            <!--  maso, 2017: adding user function dynamically. -->
             <md-menu-item
-            	ng-if="menu.items.length"
-            	ng-repeat="item in menu.items | orderBy:['-priority']">
-            	<md-button
-            		ng-click="item.exec($event)"
-            		translate>
-           			<wb-icon ng-if="item.icon">{{item.icon}}</wb-icon>
-					<span ng-if="item.title">{{item.title | translate}}</span>
-            	</md-button>
+                ng-if="menu.items.length"
+                ng-repeat="item in menu.items| orderBy:['-priority']">
+                <md-button
+                    ng-click="item.exec($event)"
+                    translate>
+                    <wb-icon ng-if="item.icon">{{item.icon}}</wb-icon>
+                    <span ng-if="item.title">{{item.title| translate}}</span>
+                </md-button>
             </md-menu-item>
-			<md-menu-divider ng-if="menu.items.length"></md-menu-divider>
+            <md-menu-divider ng-if="menu.items.length"></md-menu-divider>
             <md-menu-item>
-            	<md-button
-            		ng-click="settings()">{{'Settings' | translate}}</md-button>
+                <md-button
+                    ng-click="settings()">{{'Settings'| translate}}</md-button>
             </md-menu-item>
-            <md-menu-item>
-            	<md-button
-            		ng-click="logout()">{{'Logout' | translate}}</md-button>
+            <md-menu-item 
+                ng-if="!app.user.anonymous">
+                <md-button
+                    ng-click="logout()">
+                    <span translate>Logout</span>
+                </md-button>
+            </md-menu-item>
+            <md-menu-item
+                ng-if="app.user.anonymous">
+                <md-button
+                    ng-click="login()">
+                    <span translate>Login</span>
+                </md-button>
             </md-menu-item>
         </md-menu-content>
     </md-menu>

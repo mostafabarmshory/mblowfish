@@ -125,9 +125,9 @@
                */
               function loadApplicationConfig() {
                   _loadingLog('loading configuration', 'fetch configuration document');
-                  return $cms.content(APP_PREFIX + app.key) //
+                  $cms.content(APP_PREFIX + app.key) //
                           .then(function (content) {
-                              app.ctrl.configs_loaded = true;
+
                               app._acc = content;
                               _loadingLog('loading configuration', 'fetch configuration content');
                               return app._acc.value();
@@ -142,8 +142,10 @@
                               _loadingLog('loading configuration', 'warning: ' + error.message);
                           }) //
                           .then(function (appConfig) {
+                              app.ctrl.configs_loaded = true;
                               app.config = appConfig;
                               _loadingLog('loading configuration', 'application configuration loaded successfully');
+                              return;
                           });
               }
 
@@ -161,7 +163,7 @@
                */
               function loadUserProperty() {
                   _loadingLog('loading user info', 'fetch user information');
-                  return $usr.session() //
+                  $usr.session() //
                           .then(function (user) {
                               app.ctrl.user_loaded = true;
                               // app user data
@@ -187,6 +189,7 @@
                * Loads options
                */
               function loadOptions() {
+                  //TODO: Masood, 2018: options should be get from server. Now, its api doesn't exist.
                   _loadingLog('loading options', 'fetch options document');
                   //get the option from server and save in app.option.
                   app.option = {};
@@ -210,7 +213,7 @@
               function loadSetting() {
                   _loadingLog('loading setting from local storage', 'fetch settings');
                   //TODO: 'key' of app should be used
-                  $localStorage.setPrefix(app.key);
+//                  $localStorage.setPrefix(app.key);
                   app.setting = $localStorage.$default({
                       dashboardModel: {}
                   });
@@ -361,9 +364,15 @@
                * @returns {Promise<PUser>} کاربر جاری
                */
               function logout() {
+                  var user = $rootScope.app.user;
+//                  $rootScope.app.user = {};
                   return $usr.logout() //
-                          .then(loadUserProperty);//
-                  //.then(_updateApplicationState);//old version of app.js
+                          .then(loadUserProperty)//
+                          //.then(_updateApplicationState);//old version of app.js
+                          , function(error){
+                              //TODO: Masood, 2018: Handle if the logout was failed.
+                          };
+                          
               }
               //---------------------------------------------------------------------------------------
 
@@ -432,21 +441,21 @@
               loadOptions();//1. get from server 2. save in app.option
               //-----------------------------------------------------
               var stateMachine = new machina.Fsm({
-
                   initialize: function (options) {
                       app.state.status = 'waiting';
                   },
-                  namespace: "stateMachine",
-                  initialState: "waiting",
+                  namespace: 'stateMachine',
+                  initialState: 'waiting',
                   states: {
                       waiting: {//Before the 'start' event occurs via $app.start().
                           _onEnter: function () {
                               _loadingLog('FSM, state: waiting', 'wait for start_event');
                               app.state.status = 'waiting';
+                              var self = this;
                               $rootScope.$watch('app.ctrl', function (ctrl) {
                                   if (ctrl.start_event) {//Occures when the start() function is called.
                                       _loadingLog('FSM, state: waiting', 'start_event occurred');
-                                      this.transition('loading');
+                                      self.transition('loading');
                                   }
                               });
                           }
@@ -457,19 +466,20 @@
                               app.state.status = 'loading';
                               loadSetting();//1. get from local storage 2. save in app.setting
                               loadApplicationConfig();//1. get from server 2. save in app.setting
+                              var self = this;
                               $rootScope.$watch('app.ctrl', function (ctrl) {
                                   if (ctrl.fail_event) {//just when the error 500 is occured while getting config.
                                       _loadingLog('FSM, state: loading', 'error 500 occurred.');
-                                      this.transition('fail');
+                                      self.transition('fail');
                                   }
                                   if (ctrl.configs_loaded && ctrl.options_loaded && ctrl.user_loaded) {
                                       _loadingLog('FSM, state: loading', 'config, option and user loaded(ready to go ready state)');
-                                      this.transition('ready');
+                                      self.transition('ready');
                                   } else if (ctrl.configs_not_found && ctrl.options_loaded && ctrl.user_loaded) {
                                       _loadingLog('FSM, state: loading', 'error 404 occurred');
-                                      this.transition('error');//404 error: configs not founded.
+                                      self.transition('error');//404 error: configs not founded.
                                   }
-                              });
+                              }, true);
 
                           }
                       },
@@ -483,6 +493,7 @@
                           _onEnter: function () {
                               _loadingLog('FSM, state: error', 'error 404 is occurred');
                               app.state.status = 'error';
+                              var self = this;
                               $rootScope.$watch('app.config', function () {
                                   if (!app.user.owner) {
                                       return;
@@ -496,8 +507,8 @@
                               }, true);
                               $rootScope.$watch('app.ctrl', function (ctrl) {
                                   if (ctrl.config_created) {
-                                  _loadingLog('FSM, state: error', 'config_created event occurred(Go to ready state)');
-                                      this.transition('ready');
+                                      _loadingLog('FSM, state: error', 'config_created event occurred(Go to ready state)');
+                                      self.transition('ready');
                                   }
                               });
                           }

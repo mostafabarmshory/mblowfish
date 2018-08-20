@@ -43,7 +43,7 @@ angular.module('mblowfish-core')
 		// XXX: hadi, Following path exist in angular-material-home-language.
 		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
 		$navigator.openPage('preferences/languages/manager');
-	}
+	};
 	
 	$scope.languages = [];
 	

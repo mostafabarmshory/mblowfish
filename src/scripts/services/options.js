@@ -45,13 +45,13 @@ angular.module('mblowfish-core')
 	 * Gets a config page
 	 * 
 	 * @name config
-	 * @param {string} configId - Id of the config
+	 * @param {string} pageId - Id of the config
 	 * @return {promiss<config>} return config
 	 */
 	function getPage(pageId){
 		var page = null;
 		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id == pageId){
+			if(_pages[i].id === pageId){
 				return $q.when(_pages[i]);
 			}
 		}
@@ -72,7 +72,7 @@ angular.module('mblowfish-core')
 	var app = {
 			pages : pages,
 			page: getPage,
-			newPage : newPage,
+			newPage : newPage
 	};
 	return app;
 });
