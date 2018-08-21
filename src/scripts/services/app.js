@@ -63,7 +63,6 @@
 
               var APP_PREFIX = 'angular-material-blowfish-';
               var APP_CNF_MIMETYPE = 'application/amd-cnf';
-
               //All the things that are set up by $app service
               var app = {
                   state: {
@@ -83,20 +82,8 @@
                   },
                   config: {},
                   setting: {},
-                  option: {},
-
-                  // Some controlling variables required in the state machine
-                  ctrl: {
-                      user_loaded: false,
-                      options_loaded: false,
-                      configs_loaded: false,
-                      configs_not_found: false,
-                      start_event: false,
-                      fail_event: false,
-                      config_created: false
-                  }
+                  options: {}
               };
-
               /*
                * متغیرهای مدیریت تنظیم‌ها
                * 
@@ -109,13 +96,19 @@
                */
               var appConfigLock = false;
               var appConfigDirty = false;
+              // Some controlling variables required in the state machine
+              var ctrl = {
+                  user_loaded: false,
+                  options_loaded: false,
+                  configs_loaded: false
+              };
 
               //All required functions
               //---------------------------------------------------------------------------------------
               function start(key) {//this function is called when the app get started.
                   app.key = key;
                   _loadingLog('start_event', 'loading application');
-                  app.ctrl.start_event = true;
+                  stateMachine.start_event();
               }
 
               /**
@@ -133,18 +126,19 @@
                               return app._acc.value();
                           }, function (error) {
                               if (error.status === 404) {
-                                  app.ctrl.configs_not_found = true;
+                                  stateMachine.configs_not_found();
                                   return {};
                               } else if (error.status === 500) {
-                                  app.ctrl.fail_event = true;
+                                  stateMachine.error_500();
                               }
                               // TODO: maso, 2018: throw an excetpion and go the the fail state
                               _loadingLog('loading configuration', 'warning: ' + error.message);
                           }) //
                           .then(function (appConfig) {
-                              app.ctrl.configs_loaded = true;
+                              ctrl.configs_loaded = true;
                               app.config = appConfig;
                               _loadingLog('loading configuration', 'application configuration loaded successfully');
+                              stateMachine.loaded();
                               return;
                           });
               }
@@ -165,7 +159,8 @@
                   _loadingLog('loading user info', 'fetch user information');
                   $usr.session() //
                           .then(function (user) {
-                              app.ctrl.user_loaded = true;
+                              ctrl.user_loaded = true;
+                              stateMachine.loaded();
                               // app user data
                               app.user = {};
                               app.user.current = user;
@@ -180,10 +175,10 @@
                                   delete user.roles;
                               }
                           }, function (error) {
+                              stateMachine.error_500();
                               _loadingLog('loading user info', 'warning: ' + error.message);
                           });
               }
-
 
               /*
                * Loads options
@@ -191,18 +186,21 @@
               function loadOptions() {
                   //TODO: Masood, 2018: options should be get from server. Now, its api doesn't exist.
                   _loadingLog('loading options', 'fetch options document');
-                  //get the option from server and save in app.option.
-                  app.option = {};
-                  // $cms.getOption().
-                  // then(function (res) {
-                  //    app.ctrl.options_loaded = true;
-                  //    app.option = res.item;
+                  //get the options from server and save in app.options.
+                  app.options = {};
+                  // $cms.getOptions()
+                  // .then(function (res) {
+                  //    ctrl.options_loaded = true;
+                  //    stateMachine.loaded();
+                  //    app.options = res.item;
                   //    var deferred = $q.defer();
                   //    deferred = $q.resolve('ok');
                   //    return deferred.promise;
                   // }, funcyion (error){
+                  //    stateMachine.error_500();
                   // });
-                  app.ctrl.options_loaded = true;
+                  ctrl.options_loaded = true;
+                  stateMachine.loaded();
                   var deferred = $q.defer();
                   deferred.resolve('ok');
                   return deferred.promise;
@@ -218,9 +216,8 @@
                       dashboardModel: {}
                   });
                   _loadingLog('setting loaded', 'fetch settings');
-
                   //
-                  //The lines below is an alternative for line above but not recommended.
+                  //The lines below is an alternative for lines above but not recommended.
 //                  localStorage.setPrefix(key);
 //                  app.setting = $localStorage.app.setting || {dashboardModel: {}};
 //                  $rootScope.$watch('app.setting', function () {
@@ -254,13 +251,12 @@
                       promise = $cms.newContent({
                           name: APP_PREFIX + app.key,
                           mimetype: APP_CNF_MIMETYPE
-                      }) //
-                              .then(function (content) {
-                                  app.ctrl.config_created = true;
-                                  appConfigDirty = false;
-                                  app._acc = content;
-                                  return app._acc.setValue(app.config);
-                              });
+                      }).then(function (content) {
+                          appConfigDirty = false;
+                          app._acc = content;
+                          stateMachine.config_created();
+                          return app._acc.setValue(app.config);
+                      });
                   } //
                   return promise //
                           .finally(function () {
@@ -270,9 +266,7 @@
                               }
                           });
               }
-
-
-
+              
               /*
                * Attaches loading logs
                */
@@ -283,8 +277,6 @@
                       app.logs.push(message);
                   }
               }
-
-
 
               /**
                * بی هویت بودن کاربر جاری را تعیین می‌کند
@@ -351,8 +343,7 @@
                */
               function login(credential) {
                   return $usr.login(credential) //
-                          .then(loadUserProperty);//
-                  //.then(_updateApplicationState);//old version of app.js
+                          .then(loadUserProperty); //
               }
 
               /**
@@ -364,19 +355,12 @@
                * @returns {Promise<PUser>} کاربر جاری
                */
               function logout() {
-                  var user = $rootScope.app.user;
-//                  $rootScope.app.user = {};
                   return $usr.logout() //
                           .then(loadUserProperty)//
-                          //.then(_updateApplicationState);//old version of app.js
-                          , function(error){
+                          , function (error) {
                               //TODO: Masood, 2018: Handle if the logout was failed.
                           };
-                          
               }
-              //---------------------------------------------------------------------------------------
-
-
               //---------------------------------------------------------------------------------------
               //settings related to direction, language and calendar of the app
 
@@ -391,7 +375,6 @@
               }, function (value) {
                   app.dir = value; //(app.setting.dir || app.config.local.dir)//old version of app.js;
               });
-
               /*
                * watch local
                */
@@ -405,7 +388,6 @@
               }, function (key) {
                   // 0- set app local
                   app.local = key;
-
                   // 1- change language
                   $translate.use(key);
                   // 2- chnage date format
@@ -413,7 +395,6 @@
                   // For example the 'L'-format is DD-MM-YYYY for Dutch
                   moment.loadPersian();
                   moment.locale(key);
-
                   // Set month and week names for the general $mdDateLocale service
                   var localeDate = moment.localeData();
                   $mdDateLocale.months = localeDate._months;
@@ -423,7 +404,6 @@
                   // Optionaly let the week start on the day as defined by moment's locale data
                   $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
               });
-
               /*
                * watch calendar
                */
@@ -433,12 +413,7 @@
                   // 0- set app local
                   app.calendar = key;
               });
-              //---------------------------------------------------------------------------------------
-              //Initial calls: each function does its work internally.
-              //These two functions are called before the start_event is fired since they 
-              //don't need to the 'key' of application.
-              loadUserProperty();//1. get from server 2. save in app.user
-              loadOptions();//1. get from server 2. save in app.option
+              
               //-----------------------------------------------------
               var stateMachine = new machina.Fsm({
                   initialize: function (options) {
@@ -451,36 +426,32 @@
                           _onEnter: function () {
                               _loadingLog('FSM, state: waiting', 'wait for start_event');
                               app.state.status = 'waiting';
-                              var self = this;
-                              $rootScope.$watch('app.ctrl', function (ctrl) {
-                                  if (ctrl.start_event) {//Occures when the start() function is called.
-                                      _loadingLog('FSM, state: waiting', 'start_event occurred');
-                                      self.transition('loading');
-                                  }
-                              });
+                          },
+                          start_event: function () {//Occures when the start() function is called.
+                              _loadingLog('FSM, state: waiting', 'start_event occurred');
+                              this.transition('loading');
                           }
                       },
                       loading: {//start_event has occurred.
                           _onEnter: function () {
                               _loadingLog('FSM, state: loading', 'load setting, load config');
                               app.state.status = 'loading';
-                              loadSetting();//1. get from local storage 2. save in app.setting
-                              loadApplicationConfig();//1. get from server 2. save in app.setting
-                              var self = this;
-                              $rootScope.$watch('app.ctrl', function (ctrl) {
-                                  if (ctrl.fail_event) {//just when the error 500 is occured while getting config.
-                                      _loadingLog('FSM, state: loading', 'error 500 occurred.');
-                                      self.transition('fail');
-                                  }
-                                  if (ctrl.configs_loaded && ctrl.options_loaded && ctrl.user_loaded) {
-                                      _loadingLog('FSM, state: loading', 'config, option and user loaded(ready to go ready state)');
-                                      self.transition('ready');
-                                  } else if (ctrl.configs_not_found && ctrl.options_loaded && ctrl.user_loaded) {
-                                      _loadingLog('FSM, state: loading', 'error 404 occurred');
-                                      self.transition('error');//404 error: configs not founded.
-                                  }
-                              }, true);
-
+                              loadSetting(); //1. get from local storage 2. save in app.setting
+                              loadApplicationConfig(); //1. get from server 2. save in app.setting
+                          },
+                          error_500: function () {//
+                              _loadingLog('FSM, state: loading', 'error 500 occurred.');
+                              this.transition('fail');
+                          },
+                          loaded: function () {
+                              _loadingLog('FSM, state: loading', 'config || options || user loaded(ready to go ready state)');
+                              if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+                                  this.transition('ready');
+                              }
+                          },
+                          configs_not_found: function () {
+                              _loadingLog('FSM, state: loading', 'error 404 occurred while getting config');
+                              this.transition('error'); //404 error: configs not founded.
                           }
                       },
                       ready: {
@@ -493,24 +464,10 @@
                           _onEnter: function () {
                               _loadingLog('FSM, state: error', 'error 404 is occurred');
                               app.state.status = 'error';
-                              var self = this;
-                              $rootScope.$watch('app.config', function () {
-                                  if (!app.user.owner) {
-                                      return;
-                                  }
-                                  appConfigDirty = true;
-                                  if (appConfigLock) {
-                                      return;
-                                  }
-                                  _loadingLog('FSM, state: error', 'config has changed, Go to storeApplicationConfig()');
-                                  return storeApplicationConfig();
-                              }, true);
-                              $rootScope.$watch('app.ctrl', function (ctrl) {
-                                  if (ctrl.config_created) {
-                                      _loadingLog('FSM, state: error', 'config_created event occurred(Go to ready state)');
-                                      self.transition('ready');
-                                  }
-                              });
+                          },
+                          config_created: function () {
+                              _loadingLog('FSM, state: error', 'config_created event occurred(Go to ready state)');
+                              this.transition('ready');
                           }
                       },
                       fail: {//network
@@ -519,14 +476,30 @@
                               alert('Error in network...');
                           }
                       }
+                  },
+                  // define events
+                  loaded: function () {//config || user || options || is loaded
+                      this.handle("loaded");
+                  },
+                  configs_not_found: function () {//configs not found
+                      this.handle("configs_not_found");
+                  },
+                  start_event: function () {//start_event has occurred
+                      this.handle("start_event");
+                  },
+                  error_500: function () {//error 500 is occurred while gtting config || user || options.
+                      this.handle("error_500");
+                  },
+                  config_created: function () {//config is created on server.
+                      this.handle("config_created");
                   }
               });
-
-              //------------------------------------------------------------------------
-              //updating the values of options
-//              $rootScope.$watch('app.option', function (newOption) {
-//                  updateOption(newOption);
-//              });
+              //---------------------------------------------------------------------------------------
+              //Initial calls: each function does its work internally.
+              //These two functions are called before the start_event is fired since they 
+              //don't need to the 'key' of application.
+              loadUserProperty(); //1. get from server 2. save in app.user
+              loadOptions(); //1. get from server 2. save in app.options
               //------------------------------------------------------------------------
               $rootScope.app = app;
               var apps = {};
@@ -534,6 +507,5 @@
               apps.start = start;
               apps.login = login;
               apps.logout = logout;
-
               return apps;
           });

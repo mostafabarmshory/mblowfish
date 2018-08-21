@@ -192,7 +192,7 @@
                           this.handle("appStateChange", appState);
                       },
                       /*
-                       * Handle application state change
+                       * Handle user state change
                        */
                       userStateChange: function (userIsAnonymous) {
                           this.userState = userIsAnonymous;
@@ -239,12 +239,11 @@
                           state.routeChange(route);
                       }
                   });
+                  
                   $scope.$watch('app.state.status', function (appState) {
                       state.appStateChange(appState);
                   });
-
-//                  state.appStateChange($rootScope.app.state.status);
-
+                  
                   $scope.$watch('app.user.anonymous', function (val) {
                       state.userStateChange(val);
                   });
