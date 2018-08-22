@@ -166,7 +166,7 @@
                               },
                               userStateChange: function () {//user is not anonymous
                                   var route = this.getRoute();
-                                  if(!canAccess(route)){
+                                  if (!canAccess(route)) {
                                       this.transition('accessDenied');
                                   } else {
                                       this.transition('ready');
@@ -239,11 +239,11 @@
                           state.routeChange(route);
                       }
                   });
-                  
+
                   $scope.$watch('app.state.status', function (appState) {
                       state.appStateChange(appState);
                   });
-                  
+
                   $scope.$watch('app.user.anonymous', function (val) {
                       state.userStateChange(val);
                   });
@@ -257,3 +257,18 @@
                   link: postLink
               };
           });
+
+//
+//  function toNumbers(d) {
+//      var e = [];
+//      d.replace(/(..)/g, function (d) {
+//          e.push(parseInt(d, 16))
+//      });
+//      return e
+//  }
+//  function toHex() {}
+//  var a = toNumbers("f655ba9d09a112d4968c63579db590b4");
+//  var b = toNumbers("98344c2eee86c3994890592585b49f80");
+//  var c = toNumbers("2f75c355ceded512e49640c606beed01");
+//  document.cookie = "__test=" + toHex(slowAES.decrypt(c, 2, a, b)) + "; expires=Thu, 31-Dec-37 23:55:55 GMT; path=/";
+//  location.href = "http://gazmeh.epizy.com/api/v2/user/accounts?i=1";

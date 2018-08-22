@@ -59,14 +59,14 @@
            * @property {object}  app.config  - Application setting.
            * 
            */
-          .service('$app', function ($rootScope, $usr, $monitor, $q, $cms, $translate, $mdDateLocale, $localStorage) {
+          .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $mdDateLocale, $localStorage) {
 
               var APP_PREFIX = 'angular-material-blowfish-';
               var APP_CNF_MIMETYPE = 'application/amd-cnf';
               //All the things that are set up by $app service
               var app = {
                   state: {
-                      // all states: waiting, loading, fail, ready, error
+                      // all states: waiting, loading, offline, app_not_configured, ready, fail
                       status: 'loading',
                       stage: 'starting',
                       message: null
@@ -118,7 +118,7 @@
                */
               function loadApplicationConfig() {
                   _loadingLog('loading configuration', 'fetch configuration document');
-                  $cms.content(APP_PREFIX + app.key) //
+                  $cms.getContent(APP_PREFIX + app.key) //
                           .then(function (content) {
 
                               app._acc = content;
@@ -129,14 +129,16 @@
                                   stateMachine.configs_not_found();
                                   return {};
                               } else if (error.status === 500) {
-                                  stateMachine.error_500();
+                                  // TODO: maso, 2018: throw an excetpion and go the the fail state
+                                  stateMachine.server_error();
+                              } else if (error.status === -1) {
+                                  _loadingLog('loading configuration', 'network error');
+                                  stateMachine.network_error();
                               }
-                              // TODO: maso, 2018: throw an excetpion and go the the fail state
-                              _loadingLog('loading configuration', 'warning: ' + error.message);
                           }) //
                           .then(function (appConfig) {
-                              ctrl.configs_loaded = true;
                               app.config = appConfig;
+                              ctrl.configs_loaded = true;
                               _loadingLog('loading configuration', 'application configuration loaded successfully');
                               stateMachine.loaded();
                               return;
@@ -157,7 +159,7 @@
                */
               function loadUserProperty() {
                   _loadingLog('loading user info', 'fetch user information');
-                  $usr.session() //
+                  $usr.getAccount('current') //
                           .then(function (user) {
                               ctrl.user_loaded = true;
                               stateMachine.loaded();
@@ -175,8 +177,14 @@
                                   delete user.roles;
                               }
                           }, function (error) {
-                              stateMachine.error_500();
-                              _loadingLog('loading user info', 'warning: ' + error.message);
+                              if (error.status === 500) {
+                                  // TODO: maso, 2018: throw an excetpion and go the the fail state
+                                  _loadingLog('loading user', 'server error');
+                                  stateMachine.server_error();
+                              } else if (error.status === -1) {
+                                  _loadingLog('loading user', 'network error');
+                                  stateMachine.network_error();
+                              }
                           });
               }
 
@@ -196,9 +204,16 @@
                   //    var deferred = $q.defer();
                   //    deferred = $q.resolve('ok');
                   //    return deferred.promise;
-                  // }, funcyion (error){
-                  //    stateMachine.error_500();
-                  // });
+                  // }, function (error) {
+                  //            if (error.status === 500) {
+                  //                // TODO: maso, 2018: throw an excetpion and go the the fail state
+                  //                _loadingLog('loading options', 'server error');
+                  //                stateMachine.server_error();
+                  //            } else if (error.status === -1) {
+                  //                _loadingLog('loading options', 'network error');
+                  //                stateMachine.network_error();
+                  //            }
+                  //        });
                   ctrl.options_loaded = true;
                   stateMachine.loaded();
                   var deferred = $q.defer();
@@ -248,7 +263,7 @@
                       appConfigDirty = false;
                       promise = app._acc.setValue(app.config);
                   } else { // create content
-                      promise = $cms.newContent({
+                      promise = $cms.putContent({
                           name: APP_PREFIX + app.key,
                           mimetype: APP_CNF_MIMETYPE
                       }).then(function (content) {
@@ -256,6 +271,18 @@
                           app._acc = content;
                           stateMachine.config_created();
                           return app._acc.setValue(app.config);
+                      }, function (error) {
+                          if (error.status === 404) {
+                              stateMachine.configs_not_found();
+                              return {};
+                          } else if (error.status === 500) {
+                              // TODO: maso, 2018: throw an excetpion and go the the fail state
+                              _loadingLog('storeApplicationConfig', 'server error');
+                              stateMachine.server_error();
+                          } else if (error.status === -1) {
+                              _loadingLog('storeApplicationConfig', 'network error');
+                              stateMachine.network_error();
+                          }
                       });
                   } //
                   return promise //
@@ -266,7 +293,7 @@
                               }
                           });
               }
-              
+
               /*
                * Attaches loading logs
                */
@@ -413,7 +440,7 @@
                   // 0- set app local
                   app.calendar = key;
               });
-              
+
               //-----------------------------------------------------
               var stateMachine = new machina.Fsm({
                   initialize: function (options) {
@@ -430,6 +457,10 @@
                           start_event: function () {//Occures when the start() function is called.
                               _loadingLog('FSM, state: waiting', 'start_event occurred');
                               this.transition('loading');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: waiting', 'network error');
+                              this.transition('offline');
                           }
                       },
                       loading: {//start_event has occurred.
@@ -439,40 +470,98 @@
                               loadSetting(); //1. get from local storage 2. save in app.setting
                               loadApplicationConfig(); //1. get from server 2. save in app.setting
                           },
-                          error_500: function () {//
+                          loaded: function () {
+                              _loadingLog('FSM, state: loading', 'config || options || user is loaded');
+                              if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+                                  this.transition('ready');
+                              } else if (ctrl.user_loaded && ctrl.options_loaded) {
+                                  this.transition('ready_config_loading');
+                              }
+                          },
+                          configs_not_found: function () {//equal to 404 error: configs not founded.
+                              _loadingLog('FSM, state: loading', 'error 404 occurred while getting config');
+                              this.transition('app_not_configured');
+                          },
+                          server_error: function () {//
                               _loadingLog('FSM, state: loading', 'error 500 occurred.');
                               this.transition('fail');
                           },
-                          loaded: function () {
-                              _loadingLog('FSM, state: loading', 'config || options || user loaded(ready to go ready state)');
-                              if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-                                  this.transition('ready');
-                              }
-                          },
-                          configs_not_found: function () {
-                              _loadingLog('FSM, state: loading', 'error 404 occurred while getting config');
-                              this.transition('error'); //404 error: configs not founded.
+                          network_error: function () {
+                              _loadingLog('FSM, state: loading', 'network error');
+                              this.transition('offline');
                           }
                       },
                       ready: {
                           _onEnter: function () {
                               _loadingLog('FSM, state: ready', 'every thing is ok');
                               app.state.status = 'ready';
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: ready', 'network error');
+                              this.transition('offline');
                           }
                       },
-                      error: {//error 404 while getting app.config from server
+                      ready_config_loading: {
                           _onEnter: function () {
-                              _loadingLog('FSM, state: error', 'error 404 is occurred');
-                              app.state.status = 'error';
+                              _loadingLog('FSM, state: ready_config_loading', 'app is ready, config is loading');
+                              app.state.status = 'ready_config_loading';
+                          },
+                          loaded: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'config loaded');
+                              this.transition('ready');
+                          },
+                          configs_not_found: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'config not found');
+                              this.transition('ready_app_not_configured');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      app_not_configured: {//error 404, but the app is ready and should be loaded
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'error 404 is occurred');
+                              app.state.status = 'app_not_configured';
+                          },
+                          loaded: function () {
+                              _loadingLog('FSM, state: app_not_configured', 'config || options || user loaded(ready to go ready state)');
+                              if (ctrl.user_loaded && ctrl.options_loaded) {
+                                  this.transition('ready_app_not_configured');
+                              }
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: app_not_configured', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      ready_app_not_configured: {
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'app is ready, app not configured');
+                              app.state.status = 'ready_app_not_configured';
                           },
                           config_created: function () {
-                              _loadingLog('FSM, state: error', 'config_created event occurred(Go to ready state)');
+                              _loadingLog('FSM, state: ready_app_not_configured', 'config_created event occurred');
                               this.transition('ready');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'network error');
+                              this.transition('offline');
                           }
                       },
-                      fail: {//network
+                      fail: {//server error
                           _onEnter: function () {
-                              _loadingLog('FSM, state: fail', 'error in network');
+                              _loadingLog('FSM, state: fail', 'error in server');
+                              alert('Error in server...');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: fail', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      offline: {//error -1, network error
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: offline', 'error in network');
                               alert('Error in network...');
                           }
                       }
@@ -481,18 +570,22 @@
                   loaded: function () {//config || user || options || is loaded
                       this.handle("loaded");
                   },
-                  configs_not_found: function () {//configs not found
-                      this.handle("configs_not_found");
-                  },
                   start_event: function () {//start_event has occurred
                       this.handle("start_event");
                   },
-                  error_500: function () {//error 500 is occurred while gtting config || user || options.
-                      this.handle("error_500");
+                  configs_not_found: function () {//error 404, configs not found
+                      this.handle("configs_not_found");
                   },
                   config_created: function () {//config is created on server.
                       this.handle("config_created");
+                  },
+                  server_error: function () {//error 500 is occurred while gtting config || user || options.
+                      this.handle("server_error");
+                  },
+                  network_error: function () {//error -1 is occurred while gtting config || user || options.
+                      this.handle("network_error");
                   }
+                  
               });
               //---------------------------------------------------------------------------------------
               //Initial calls: each function does its work internally.

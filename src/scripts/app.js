@@ -47,10 +47,11 @@ angular.module('mblowfish-core', [ //
 //	Seen
 	'seen-core',
 	'seen-tenant',
+        'seen-cms',
 //	AM-WB
 	'am-wb-core', 
 	'am-wb-common', //
-	'am-wb-seen-core',
+//	'am-wb-seen-core',
 //	'am-wb-seen-monitors',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput

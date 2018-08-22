@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($toolbar, $sidenav, $rootScope, $navigator, $route, $mdSidenav, $actions) {
+.run(function($toolbar, $sidenav, $rootScope, $navigator, $route, $actions) {
 	$actions.newAction({
 		id: 'mb.preferences',
 		priority : 15,
