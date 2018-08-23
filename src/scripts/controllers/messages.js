@@ -29,10 +29,10 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MessagesCtrl', function($scope, $usr, $monitor, PaginatorParameter) {
+.controller('MessagesCtrl', function($scope,/*$monitor*/ QueryParameter, $rootScope) {
 
-	var paginatorParameter = new PaginatorParameter();
-	paginatorParameter.setOrder('id', 'd');
+	var queryParameter = new QueryParameter();
+	queryParameter.setOrder('id', 'd');
 	var requests = null;
 	var ctrl = {
 			state: 'relax',
@@ -43,11 +43,11 @@ angular.module('mblowfish-core')
 	/**
 	 * جستجوی درخواست‌ها
 	 * 
-	 * @param paginatorParameter
+	 * @param queryParameter
 	 * @returns promiss
 	 */
 	function find(query) {
-		paginatorParameter.setQuery(query);
+		queryParameter.setQuery(query);
 		return reload();
 	}
 
@@ -64,11 +64,12 @@ angular.module('mblowfish-core')
 			return;
 		}
 		if (requests) {
-			paginatorParameter.setPage(requests.next());
+			queryParameter.setPage(requests.next());
 		}
 		// start state (device list)
 		ctrl.status = 'working';
-		return $usr.messages(paginatorParameter)//
+                var currentUser = $rootScope.app.user.current;
+		return currentUser.getMessages(queryParameter)//
 		.then(function(items) {
 			requests = items;
 			ctrl.items = ctrl.items.concat(requests.items);
@@ -121,17 +122,18 @@ angular.module('mblowfish-core')
 	$scope.nextMessages = nextPage;
 	$scope.remove = remove;
 	$scope.ctrl = ctrl;
-	$scope.pp = paginatorParameter;
+	$scope.qp = queryParameter;
 
 	// watch messages
-	var handler;
-	$monitor.monitor('message', 'count')//
-	.then(function(monitor){
-		handler = monitor.watch(function(){
-			reload();
-		});
-	});
-	$scope.$on('$destroy', handler);
+        // TODO: Masood, 2018: $monitor should be updated based on version 2.
+//	var handler;
+//	$monitor.monitor('message', 'count')//
+//	.then(function(monitor){
+//		handler = monitor.watch(function(){
+//			reload();
+//		});
+//	});
+//	$scope.$on('$destroy', handler);
 	/*
 	 * مقداردهی اولیه
 	 */

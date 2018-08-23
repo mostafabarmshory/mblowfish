@@ -30,8 +30,7 @@ angular.module('mblowfish-core')
  * @description display a toolbar
  * 
  */
-.directive('mbPanelToolbarAnchor', function($navigator, $usr, $route, $window, $toolbar, $rootScope,
-		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+.directive('mbPanelToolbarAnchor', function($route, $toolbar, $rootScope, $q, $widget, $controller, $compile) {
 
 	/*
 	 * Load page and create an element
@@ -109,7 +108,7 @@ angular.module('mblowfish-core')
 
 		function _getToolbarElement(page){
 			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id == page.id){
+				if(_toolbars[i].page.id === page.id){
 					return $q.when(_toolbars[i]);
 				}
 			}

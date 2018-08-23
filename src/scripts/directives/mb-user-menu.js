@@ -43,7 +43,7 @@ angular.module('mblowfish-core')
 		$scope.logout = $app.logout;
 		$scope.settings = function(){
 			return $mdSidenav('settings').toggle();
-		}
+		};
 	}
 	
 	return {

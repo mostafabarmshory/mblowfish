@@ -170,7 +170,7 @@ angular.module('mblowfish-core')
 			return;
 		}
 		ctrl.loadingUser = true;
-		return $usr.session()//
+		return $usr.getAccount('current')//
 		.then(function(user){
 			ctrl.user = user;
 		}, function(error){

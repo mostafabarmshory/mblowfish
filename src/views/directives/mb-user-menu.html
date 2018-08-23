@@ -30,7 +30,9 @@
             <md-menu-divider ng-if="menu.items.length"></md-menu-divider>
             <md-menu-item>
                 <md-button
-                    ng-click="settings()">{{'Settings'| translate}}</md-button>
+                    ng-click="settings()">
+                    <span translate>Settings</span>
+                </md-button>
             </md-menu-item>
             <md-menu-item 
                 ng-if="!app.user.anonymous">
@@ -42,7 +44,7 @@
             <md-menu-item
                 ng-if="app.user.anonymous">
                 <md-button
-                    ng-click="login()">
+                    ng-href="users/login">
                     <span translate>Login</span>
                 </md-button>
             </md-menu-item>

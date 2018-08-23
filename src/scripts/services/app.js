@@ -59,7 +59,8 @@
            * @property {object}  app.config  - Application setting.
            * 
            */
-          .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $mdDateLocale, $localStorage) {
+          .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
+                  $httpParamSerializerJQLike, $mdDateLocale, $localStorage) {
 
               var APP_PREFIX = 'angular-material-blowfish-';
               var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -311,9 +312,7 @@
                * @returns promiss
                */
               function isAnonymous() {
-                  var deferred = $q.defer();
-                  deferred.resolve(app.user.anonymous);
-                  return deferred.promise;
+                  return app.user.anonymous;
               }
 
               /**
@@ -351,42 +350,47 @@
 
               /**
                * ورود به سیستم
-               * 
-               * <pre><code>
-               * $app.login({
-               *     login : 'user name',
-               *     password : 'password'
-               * }).then(function(user) {
-               *     //Success
-               *     }, function(ex) {
-               * 	//Fail
-               *     });
-               * </code></pre>
-               * 
                * @memberof $app
                * @param {object}
-               *                credential پارارمترهای مورد انتظار در احراز اصالت
-               * @return {promise(PUser)} اطلاعات کاربر جاری
                */
               function login(credential) {
-                  return $usr.login(credential) //
-                          .then(loadUserProperty); //
-              }
+                  if (!isAnonymous()) {
+                      var deferred = $q.defer();
+                      deferred.resolve('user is login');
+                      return deferred.promise;
+                  }
+                  return $http({
+                      method: 'POST',
+                      url: '/api/v2/user/login',
+                      data: $httpParamSerializerJQLike(credential),
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded'
+                      }
+                  }).then(function (result) {
+                      loadUserProperty();
+                  });
+              };
 
               /**
                * عمل خروج کاربر
-               * 
-               * کاربر را از سیستم خارج کرده و اصلاعات آن را در سیستم به روز می‌کند.
-               * 
                * @memberof $app
-               * @returns {Promise<PUser>} کاربر جاری
                */
               function logout() {
-                  return $usr.logout() //
-                          .then(loadUserProperty)//
-                          , function (error) {
-                              //TODO: Masood, 2018: Handle if the logout was failed.
-                          };
+                  if (isAnonymous()) {
+                      var us = $rootScope.app.user;
+                      var deferred = $q.defer();
+                      deferred.resolve('user is not login');
+                      return deferred.promise;
+                  }
+                  return $http({
+                      method: 'POST',
+                      url: '/api/v2/user/logout',
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded'
+                      }
+                  }).then(function (result) {
+                      loadUserProperty();
+                  });
               }
               //---------------------------------------------------------------------------------------
               //settings related to direction, language and calendar of the app
@@ -585,7 +589,7 @@
                   network_error: function () {//error -1 is occurred while gtting config || user || options.
                       this.handle("network_error");
                   }
-                  
+
               });
               //---------------------------------------------------------------------------------------
               //Initial calls: each function does its work internally.

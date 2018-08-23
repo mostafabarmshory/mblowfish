@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Help page controller
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
 	$rootScope.showHelp = false;
 	var lastItem = 'not-found';
 	var lastLoaded;

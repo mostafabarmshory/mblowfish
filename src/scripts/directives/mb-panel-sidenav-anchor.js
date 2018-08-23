@@ -30,8 +30,8 @@ angular.module('mblowfish-core')
  * @description Display a sidenave anchor
  * 
  */
-.directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope,
-		$app, $mdSidenav, $q, $widget, $controller, $compile) {
+.directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope, $mdSidenav,
+     $q, $widget, $controller, $compile) {
 
 
 

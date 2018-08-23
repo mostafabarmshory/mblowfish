@@ -41,8 +41,7 @@
            *        </body> </hljs>
            * 
            */
-          .directive('mbPanel', function ($navigator, $usr, $route, $window, $rootScope, $app,
-                  $translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
+          .directive('mbPanel', function ($route, $rootScope, $actions,
                   $injector) {
               /*
                * evaluate protect function
@@ -58,9 +57,8 @@
               }
 
               function postLink($scope, $element, $attr) {
-
                   // State machin to controlle the view
-                  var state = new machina.Fsm({
+                  var stateMachine = new machina.Fsm({
                       /* 
                        * the initialize method is called right after the FSM
                        * instance is constructed, giving you a place for any
@@ -83,7 +81,9 @@
                               },
                               appStateChange: function (state) {
                                   // return if state is ready
-                                  if (state.status !== 'ready') {
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
                                       this.transition('loading');
                                   }
                               },
@@ -103,7 +103,9 @@
                               },
                               appStateChange: function (state) {
                                   // return if state is ready
-                                  if (state.status !== 'ready') {
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
                                       this.transition('loading');
                                   }
                               },
@@ -115,15 +117,16 @@
                           },
                           readyAnonymous: {
                               routeChange: function (route) {
-                                  // TODO: maso, change to login
-                                  // page
+                                  // TODO: maso, change to login page
                                   if (route.protect) {
                                       this.transition('login');
                                   }
                               },
                               appStateChange: function (state) {
                                   // return if state is ready
-                                  if (state.status !== 'ready') {
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
                                       this.transition('loading');
                                   }
                               },
@@ -134,10 +137,10 @@
                           loading: {
                               // routeChange: function(route){},
                               appStateChange: function (state) {
-                                  if (state === 'ready') {
+                                  if (state.startsWith('ready')) {
                                       var route = this.getRoute();
                                       if ($rootScope.app.user.anonymous) {
-                                          if (route.protet) {
+                                          if (route.protect) {
                                               this.transition('login');
                                           } else {
                                               this.transition('readyAnonymous');
@@ -160,7 +163,9 @@
                               },
                               appStateChange: function (state) {
                                   // return if state is ready
-                                  if (state.status !== 'ready') {
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
                                       this.transition('loading');
                                   }
                               },
@@ -187,9 +192,8 @@
                       /*
                        * Handle application state change
                        */
-                      appStateChange: function (appState) {
-                          this.appState = appState;
-                          this.handle("appStateChange", appState);
+                      appStateChange: function (state) {
+                          this.handle("appStateChange", state);
                       },
                       /*
                        * Handle user state change
@@ -217,12 +221,12 @@
                   });
 
                   // I'd like to know when the transition event occurs
-                  state.on("transition", function () {
-                      if (state.state.startsWith('ready')) {
+                  stateMachine.on("transition", function () {
+                      if (stateMachine.state.startsWith('ready')) {
                           $scope.status = 'ready';
                           return;
                       }
-                      $scope.status = state.state;
+                      $scope.status = stateMachine.state;
                   });
 
                   $scope.$watch(function () {
@@ -230,22 +234,22 @@
                   }, function (route) {
                       $actions.group('navigationPathMenu').clear();
                       if (route) {
-                          state.routeChange(route.$$route);
+                          stateMachine.routeChange(route.$$route);
                           // Run state integeration
                           if (route.$$route && angular.isFunction(route.$$route.integerate)) {
                               var value = $injector.invoke(route.$$route.integerate, route.$$route);
                           }
                       } else {
-                          state.routeChange(route);
+                          stateMachine.routeChange(route);
                       }
                   });
 
-                  $scope.$watch('app.state.status', function (appState) {
-                      state.appStateChange(appState);
+                  $rootScope.$watch('app.state.status', function (appState) {
+                      stateMachine.appStateChange(appState);
                   });
 
                   $scope.$watch('app.user.anonymous', function (val) {
-                      state.userStateChange(val);
+                      stateMachine.userStateChange(val);
                   });
 
               }
@@ -257,18 +261,3 @@
                   link: postLink
               };
           });
-
-//
-//  function toNumbers(d) {
-//      var e = [];
-//      d.replace(/(..)/g, function (d) {
-//          e.push(parseInt(d, 16))
-//      });
-//      return e
-//  }
-//  function toHex() {}
-//  var a = toNumbers("f655ba9d09a112d4968c63579db590b4");
-//  var b = toNumbers("98344c2eee86c3994890592585b49f80");
-//  var c = toNumbers("2f75c355ceded512e49640c606beed01");
-//  document.cookie = "__test=" + toHex(slowAES.decrypt(c, 2, a, b)) + "; expires=Thu, 31-Dec-37 23:55:55 GMT; path=/";
-//  location.href = "http://gazmeh.epizy.com/api/v2/user/accounts?i=1";
