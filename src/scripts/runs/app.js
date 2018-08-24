@@ -47,10 +47,10 @@ angular.module('mblowfish-core')
 		title : 'Help',
 		description : 'Display help in sidenav',
 		visible : function(){
-			return !!$route.current.helpId;
+			return $help.hasHelp($route.current);
 		},
 		action : function(){
-			$rootScope.showHelp = !$rootScope.showHelp;
+			$help.openHelp($route.current);
 		},
 		groups:['mb.toolbar.menu']
 	});

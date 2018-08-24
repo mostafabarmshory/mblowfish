@@ -43,8 +43,7 @@
 		"port": 8080
 	},
 	"backend": {
-		"host": "217.218.74.61",
-		"port": 8083
+		"host": "demo.webpich.com"
 	},
 	"##backend": {
 		"#comment": "Gazmeh test machine",

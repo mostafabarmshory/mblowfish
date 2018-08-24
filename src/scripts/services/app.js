@@ -22,6 +22,7 @@
   'use strict';
   angular.module('mblowfish-core') //
 
+<<<<<<< HEAD
           /**
            * @ngdoc Services
            * @name $app
@@ -61,6 +62,46 @@
            */
           .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
                   $httpParamSerializerJQLike, $mdDateLocale, $localStorage) {
+=======
+/**
+ * @ngdoc Services
+ * @name $app
+ * @description Application manager
+ * 
+ * You can access app in view.
+ * 
+ * ## user
+ * 
+ * User information will be loaded on the start up and tracked during the application
+ * life time.
+ * 
+ * 
+ * ## settings
+ * 
+ * Settings are stored in the local storage and each user can edit it directly.
+ * 
+ * ## configurations
+ * 
+ * Configuration is stored on server an owners are allowed to update. Do not store
+ * secure properties on configuration.
+ * 
+ * Configuration is a CMS file.
+ * 
+ * ## Options
+ * 
+ * There is list of Key-Value stored in the sever and control the server behaviors. 
+ * In the. $app are called options. Options are read only and allow clients to adapt to
+ * the server.
+ * 
+ * 
+ * @property {object}  app  - Application repository.
+ * @property {string}  app.dir  - Application direction which is updated automatically baed on configuaration and setting.
+ * @property {object}  app.setting  - Application setting.
+ * @property {object}  app.config  - Application setting.
+ * 
+ */
+.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale, $localStorage) {
+>>>>>>> refs/heads/develop
 
               var APP_PREFIX = 'angular-material-blowfish-';
               var APP_CNF_MIMETYPE = 'application/amd-cnf';
