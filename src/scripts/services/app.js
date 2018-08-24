@@ -47,23 +47,19 @@ angular.module('mblowfish-core') //
  * the app.</li>
  * <li>Performing login and logout.</li>
  * </ol>
- * 
  *  ## user
  * 
  * User information will be loaded on the start up and tracked during the
  * application life time.
- * 
- * ## settings
+ *  ## settings
  * 
  * Settings are stored in the local storage and each user can edit it directly.
- * 
- * ## Options
+ *  ## Options
  * 
  * There is list of Key-Value stored in the sever and control the server
  * behaviors. In the. $app are called options. Options are read only and allow
- * clients to adapt to the server. 
- * 
- * ## configurations
+ * clients to adapt to the server.
+ *  ## configurations
  * 
  * Configuration is stored on server an owners are allowed to update. Do not
  * store secure properties on configuration.
@@ -79,11 +75,16 @@ angular.module('mblowfish-core') //
  * 
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-		$httpParamSerializerJQLike, $mdDateLocale, $localStorage) {
+		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter) {
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}'
+	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
+
+
+	var optionsQuery = new QueryParameter()//
+		.put('graphql', OPTIONS_GRAPHQL);
 	// All the things that are set up by $app service
 	var app = {
 			state: {
@@ -225,24 +226,22 @@ angular.module('mblowfish-core') //
 		_loadingLog('loading options', 'fetch options document');
 		// get the options from server and save in app.options.
 		app.options = {};
-		// $cms.getOptions()
-		// .then(function (res) {
-		// ctrl.options_loaded = true;
-		// stateMachine.loaded();
-		// app.options = res.item;
-		// var deferred = $q.defer();
-		// deferred = $q.resolve('ok');
-		// return deferred.promise;
-		// }, function (error) {
-		// if (error.status === 500) {
-		// // TODO: maso, 2018: throw an excetpion and go the the fail state
-		// _loadingLog('loading options', 'server error');
-		// stateMachine.server_error();
-		// } else if (error.status === -1) {
-		// _loadingLog('loading options', 'network error');
-		// stateMachine.network_error();
-		// }
-		// });
+		$tenant.getSettings(optionsQuery)
+		.then(function (res) {
+			for(var i = 0; i < res.items.length; i++){
+				var item = res.items[i];
+				app.options[item.key] = item.value;
+			}
+		}, function (error) {
+			if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail state
+				_loadingLog('loading options', 'server error');
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading options', 'network error');
+				stateMachine.network_error();
+			}
+		});
 		ctrl.options_loaded = true;
 		stateMachine.loaded();
 		var deferred = $q.defer();
@@ -335,7 +334,7 @@ angular.module('mblowfish-core') //
 			app.logs.push(message);
 		}
 	}
-	
+
 	/*
 	 * Bind list of roles to app data
 	 */
