@@ -29,6 +29,7 @@ angular.module('mblowfish-core')
  * @description Help page controller
  * 
  * Watches total system and update help data.
+ * 
  */
 .controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
 	$rootScope.showHelp = false;

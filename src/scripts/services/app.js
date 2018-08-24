@@ -51,8 +51,8 @@ angular.module('mblowfish-core') //
 	var app = {
 			state : {
 				// loading, fail, ready, error
-				status : 'loading',
 				stage : 'starting',
+				status : 'loading',
 				message : null
 			},
 			logs : [],
@@ -185,7 +185,7 @@ angular.module('mblowfish-core') //
 				}else{
 					def.resolve(app.config[key]);
 				}
-			})
+			});
 		});
 	});
 
