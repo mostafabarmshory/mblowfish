@@ -47,10 +47,11 @@ angular.module('mblowfish-core', [ //
 //	Seen
 	'seen-core',
 	'seen-tenant',
+        'seen-cms',
 //	AM-WB
 	'am-wb-core', 
 	'am-wb-common', //
-	'am-wb-seen-core',
+//	'am-wb-seen-core',
 //	'am-wb-seen-monitors',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
@@ -85,16 +86,16 @@ angular.module('mblowfish-core', [ //
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('mblowfish-core')
-
-.config(function($translateProvider) {
-//	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
-	$translateProvider.useLoader('MbLanguageLoader');
-	$translateProvider.preferredLanguage('fa');
-});
-
+//'use strict';
+//
+//angular.module('mblowfish-core')
+//
+//.config(function($translateProvider) {
+////	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
+//	$translateProvider.useLoader('MbLanguageLoader');
+//	$translateProvider.preferredLanguage('fa');
+//});
+// TODO: maso, 2018: remove this file
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -513,7 +514,7 @@ angular.module('mblowfish-core')
 			return;
 		}
 		ctrl.loadingUser = true;
-		return $usr.session()//
+		return $usr.getAccount('current')//
 		.then(function(user){
 			ctrl.user = user;
 		}, function(error){
@@ -780,7 +781,7 @@ angular.module('mblowfish-core')
  * @description Help page controller
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
 	$rootScope.showHelp = false;
 	var lastItem = 'not-found';
 	var lastLoaded;
@@ -834,7 +835,7 @@ angular.module('mblowfish-core')
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
 //		$mdSidenav('help').close();
-	}
+	};
 
 //	function buildToggler() {
 //		var debounceFn =  $mdUtil.debounce(function(){
@@ -1229,7 +1230,7 @@ angular.module('mblowfish-core')
 		// XXX: hadi, Following path exist in angular-material-home-language.
 		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
 		$navigator.openPage('preferences/languages/manager');
-	}
+	};
 	
 	$scope.languages = [];
 	
@@ -1267,10 +1268,10 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MessagesCtrl', function($scope, $usr, $monitor, PaginatorParameter) {
+.controller('MessagesCtrl', function($scope,/*$monitor*/ QueryParameter, $rootScope) {
 
-	var paginatorParameter = new PaginatorParameter();
-	paginatorParameter.setOrder('id', 'd');
+	var queryParameter = new QueryParameter();
+	queryParameter.setOrder('id', 'd');
 	var requests = null;
 	var ctrl = {
 			state: 'relax',
@@ -1281,11 +1282,11 @@ angular.module('mblowfish-core')
 	/**
 	 * جستجوی درخواست‌ها
 	 * 
-	 * @param paginatorParameter
+	 * @param queryParameter
 	 * @returns promiss
 	 */
 	function find(query) {
-		paginatorParameter.setQuery(query);
+		queryParameter.setQuery(query);
 		return reload();
 	}
 
@@ -1302,11 +1303,12 @@ angular.module('mblowfish-core')
 			return;
 		}
 		if (requests) {
-			paginatorParameter.setPage(requests.next());
+			queryParameter.setPage(requests.next());
 		}
 		// start state (device list)
 		ctrl.status = 'working';
-		return $usr.messages(paginatorParameter)//
+                var currentUser = $rootScope.app.user.current;
+		return currentUser.getMessages(queryParameter)//
 		.then(function(items) {
 			requests = items;
 			ctrl.items = ctrl.items.concat(requests.items);
@@ -1359,17 +1361,18 @@ angular.module('mblowfish-core')
 	$scope.nextMessages = nextPage;
 	$scope.remove = remove;
 	$scope.ctrl = ctrl;
-	$scope.pp = paginatorParameter;
+	$scope.qp = queryParameter;
 
 	// watch messages
-	var handler;
-	$monitor.monitor('message', 'count')//
-	.then(function(monitor){
-		handler = monitor.watch(function(){
-			reload();
-		});
-	});
-	$scope.$on('$destroy', handler);
+        // TODO: Masood, 2018: $monitor should be updated based on version 2.
+//	var handler;
+//	$monitor.monitor('message', 'count')//
+//	.then(function(monitor){
+//		handler = monitor.watch(function(){
+//			reload();
+//		});
+//	});
+//	$scope.$on('$destroy', handler);
 	/*
 	 * مقداردهی اولیه
 	 */
@@ -2049,7 +2052,7 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav, $monitor) {
+.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav/*, $monitor*/) {
 	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
 	
 	function toggleNavigationSidenav(){
@@ -2064,15 +2067,16 @@ angular.module('mblowfish-core')
 	$scope.toggleMessageSidenav = toggleMessageSidenav;
 	
 	// watch messages
-	var handler;
-	$monitor.monitor('message', 'count')//
-	.then(function(monitor){
-		handler = monitor.watch(function(a, old, n){
-			$scope.messageCount = n;
-		});
-		monitor.refresh();
-	});
-	$scope.$on('$destroy', handler);
+        // TODO: Masood, 2018: $monitor should be updated based on version 2.
+//	var handler;
+//	$monitor.monitor('message', 'count')//
+//	.then(function(monitor){
+//		handler = monitor.watch(function(a, old, n){
+//			$scope.messageCount = n;
+//		});
+//		monitor.refresh();
+//	});
+//	$scope.$on('$destroy', handler);
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3127,8 +3131,8 @@ angular.module('mblowfish-core')
  * @description Display a sidenave anchor
  * 
  */
-.directive('mbPanelSidenavAnchor', function($route, $rootScope,
-		$app, $mdSidenav, $q, $widget, $controller, $compile) {
+.directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope, $mdSidenav,
+     $q, $widget, $controller, $compile) {
 
 
 
@@ -3265,7 +3269,7 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Sidenavs
-			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
+			var sdid = $route.current.sidenavs || $sidenav.defaultSidenavs();
 			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
@@ -3273,7 +3277,7 @@ angular.module('mblowfish-core')
 			var sidenavs =[];
 			var jobs = [];
 			angular.forEach(sdid, function(item){
-				jobs.push($app.sidenav(item)
+				jobs.push($sidenav.sidenav(item)
 						.then(function(sidenav){
 							sidenavs.push(sidenav);
 						}));
@@ -3328,8 +3332,7 @@ angular.module('mblowfish-core')
  * @description display a toolbar
  * 
  */
-.directive('mbPanelToolbarAnchor', function($navigator, $usr, $route, $window, $rootScope,
-		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+.directive('mbPanelToolbarAnchor', function($route, $toolbar, $rootScope, $q, $widget, $controller, $compile) {
 
 	/*
 	 * Load page and create an element
@@ -3407,7 +3410,7 @@ angular.module('mblowfish-core')
 
 		function _getToolbarElement(page){
 			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id == page.id){
+				if(_toolbars[i].page.id === page.id){
 					return $q.when(_toolbars[i]);
 				}
 			}
@@ -3458,12 +3461,12 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Toolbars
-			var tids = $route.current.toolbars || $app.defaultToolbars();
+			var tids = $route.current.toolbars || $toolbar.defaultToolbars();
 			if(angular.isArray(tids)){
 				var ts = [];
 				var jobs = [];
 				angular.forEach(tids, function(item){
-					jobs.push($app.toolbar(item)
+					jobs.push($toolbar.toolbar(item)
 							.then(function(toolbar){
 								ts.push(toolbar);
 							}));
@@ -3501,246 +3504,269 @@ angular.module('mblowfish-core')
 		link : postLink
 	};
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
 
-angular.module('mblowfish-core')
+  angular.module('mblowfish-core')
 
-/**
- * @ngdoc Directives
- * @name mb-panel
- * @restrict E
- * @scope true
- * @description A dynamic panel with toolbar and sidenav
- * 
- * Applications needs an area to show modules, navigator, message and the
- * other visual parts of the system. This is a general application panel
- * which must be placed to the index.html directly.
- * 
- * @usage To load the application add this directive to the index.html.
- *        All internal elements will be removed after the module loaded.
- *        <hljs lang="html"> <body> <amd-panel> <div
- *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
- *        </body> </hljs>
- * 
- */
-.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope, $app,
-		$translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
-		$injector) {
-	/*
-	 * evaluate protect function
-	 */
-	function evaluateProtection(route) {
-		if (!route.protect) {
-			return false;
-		}
-		if (angular.isFunction(route.protect)) {
-			var value = $injector.invoke(route.protect, route);
-			// return route.protect($injector);
-			return value;
-		}
-		return route.protect && $rootScope.app.user.anonymous;
-	}
+          /**
+           * @ngdoc Directives
+           * @name mb-panel
+           * @restrict E
+           * @scope true
+           * @description A dynamic panel with toolbar and sidenav
+           * 
+           * Applications needs an area to show modules, navigator, message and the
+           * other visual parts of the system. This is a general application panel
+           * which must be placed to the index.html directly.
+           * 
+           * @usage To load the application add this directive to the index.html.
+           *        All internal elements will be removed after the module loaded.
+           *        <hljs lang="html"> <body> <amd-panel> <div
+           *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
+           *        </body> </hljs>
+           * 
+           */
+          .directive('mbPanel', function ($route, $rootScope, $actions,
+                  $injector) {
+              /*
+               * evaluate protect function
+               */
+              function canAccess(route) {
+                  if (!route.protect) {
+                      return true;
+                  }
+                  if (angular.isFunction(route.protect)) {
+                      return !$injector.invoke(route.protect, route);
+                  }
+                  return route.protect;
+              }
 
-	function postLink($scope, $element, $attr) {
+              function postLink($scope, $element, $attr) {
+                  // State machin to controlle the view
+                  var stateMachine = new machina.Fsm({
+                      /* 
+                       * the initialize method is called right after the FSM
+                       * instance is constructed, giving you a place for any
+                       * setup behavior, etc. It receives the same
+                       * arguments (options) as the constructor function.
+                       */
+                      initialize: function (options) {
+                          // your setup code goes here...
+                          $scope.status = this.initialState;
+                      },
+                      namespace: 'mb-panel-controller',
+                      initialState: 'loading',
+                      states: {
+                          ready: {
+                              routeChange: function (route) {
+                                  if (route.protect && !canAccess(route)) {
+                                      this.transition('accessDenied');
+                                      return;
+                                  }
+                              },
+                              appStateChange: function (state) {
+                                  // return if state is ready
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
+                                      this.transition('loading');
+                                  }
+                              },
+                              userStateChange: function (userIsAnonymous) {
+                                  if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
+                                      this.transition('login');
+                                  } else {
+                                      this.transition('readyAnonymous');
+                                  }
+                              }
+                          },
+                          accessDenied: {
+                              routeChange: function (route) {
+                                  if (!route.protect || canAccess(route)) {
+                                      this.transition('ready');
+                                  }
+                              },
+                              appStateChange: function (state) {
+                                  // return if state is ready
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
+                                      this.transition('loading');
+                                  }
+                              },
+                              userStateChange: function (userIsAnonymous) {
+                                  if (userIsAnonymous) {//user is anonymous
+                                      this.transition('login');
+                                  }
+                              }
+                          },
+                          readyAnonymous: {
+                              routeChange: function (route) {
+                                  // TODO: maso, change to login page
+                                  if (route.protect) {
+                                      this.transition('login');
+                                  }
+                              },
+                              appStateChange: function (state) {
+                                  // return if state is ready
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
+                                      this.transition('loading');
+                                  }
+                              },
+                              userStateChange: function () {//user is not anonymous
+                                  this.transition('ready');
+                              }
+                          },
+                          loading: {
+                              // routeChange: function(route){},
+                              appStateChange: function (state) {
+                                  if (state.startsWith('ready')) {
+                                      var route = this.getRoute();
+                                      if ($rootScope.app.user.anonymous) {
+                                          if (route.protect) {
+                                              this.transition('login');
+                                          } else {
+                                              this.transition('readyAnonymous');
+                                          }
+                                      } else {
+                                          if (!route.protect || canAccess(route)) {
+                                              this.transition('ready');
+                                          } else {
+                                              this.transition('accessDenied');
+                                          }
+                                      }
+                                  }
+                              }
+                          },
+                          login: {
+                              routeChange: function (route) {
+                                  if (!route.protect) {
+                                      this.transition('readyAnonymous');
+                                  }
+                              },
+                              appStateChange: function (state) {
+                                  // return if state is ready
+                                  if (state.startsWith('ready')) {
+                                      return;
+                                  } else {
+                                      this.transition('loading');
+                                  }
+                              },
+                              userStateChange: function () {//user is not anonymous
+                                  var route = this.getRoute();
+                                  if (!canAccess(route)) {
+                                      this.transition('accessDenied');
+                                  } else {
+                                      this.transition('ready');
+                                  }
+                              }
+                          }
+                      },
+                      /*
+                       * Handle route change event
+                       */
+                      routeChange: function (route) {
+                          this.currentRoute = route;
+                          if (!route) {
+                              return;
+                          }
+                          this.handle("routeChange", route);
+                      },
+                      /*
+                       * Handle application state change
+                       */
+                      appStateChange: function (state) {
+                          this.handle("appStateChange", state);
+                      },
+                      /*
+                       * Handle user state change
+                       */
+                      userStateChange: function (userIsAnonymous) {
+                          this.userState = userIsAnonymous;
+                          this.handle("userStateChange", userIsAnonymous);
+                      },
 
-		// State machin to controlle the view
-		var state = new machina.Fsm({
-			/* 
-			 * the initialize method is called right after the FSM
-			 * instance is constructed, giving you a place for any
-			 * setup behavior, etc. It receives the same
-			 * arguments (options) as the constructor function.
-			 */
-			initialize : function(options) {
-				// your setup code goes here...
-				$scope.status = this.initialState;
-			},
-			namespace : 'mb-panel-controller',
-			initialState : 'loading',
-			states : {
-				ready: {
-					// _onEnter: function(){
-					// _reloadUi();
-					// },
-					routeChange : function(route) {
-						if (route.protect
-								&& evaluateProtection(route)) {
-							this
-							.transition('accessDenied');
-							return;
-						}
-					},
-					appStateChange : function(state) {
-						// return if state is ready
-						if (this.getRoute().protect) {
-							this.transition('login');
-						} else {
-							this
-							.transition('readyAnonymous');
-						}
-					}
-				},
-				accessDenied : {
-					routeChange : function(route) {
-						if (route.protect
-								&& evaluateProtection(route)) {
-							return;
-						}
-						this.transition('ready');
-					},
-					appStateChange : function(state) {
-						this.transition('login');
-					}
-				},
-				readyAnonymous : {
-					// _onEnter: function(){
-					// _reloadUi();
-					// },
-					routeChange : function(route) {
-						// TODO: maso, change to login
-						// page
-						if (route.protect) {
-							this.transition('login');
-						}
-					},
-					appStateChange : function(state) {
-						this.transition('ready');
-					}
-				},
-				loading : {
-					// routeChange: function(route){},
-					appStateChange : function(state) {
-						if (state === 'loading') {
-							return;
-						}
-						var route = this.getRoute();
-						if (state === 'ready') {
-							if (route.protect
-									&& evaluateProtection(route)) {
-								this.transition('accessDenied');
-								return;
-							}
-						} else {
-							// anonymous
-							if (route.protect) {
-								this.transition('login');
-							} else {
-								this.transition('readyAnonymous');
-							}
-							return;
-						}
-						this.transition('ready');
-					}
-				},
-				login : {
-					routeChange : function(route) {
-						if (!route.protect) {
-							this.transition('readyAnonymous');
-							return;
-						}
-					},
-					appStateChange : function(state) {
-						if (state === 'ready'
-							&& evaluateProtection(this.getRoute())) {
-							this.transition('accessDenied');
-							return;
-						}
-						this.transition('ready');
-					}
-				},
-			},
-			/*
-			 * Handle route change event
-			 */
-			routeChange : function(route) {
-				this.currentRoute = route;
-				if (!route) {
-					return;
-				}
-				this.handle("routeChange", route);
-			},
-			/*
-			 * Handle application state change
-			 */
-			appStateChange : function(appState) {
-				this.appState = appState;
-				this.handle("appStateChange", appState);
-			},
+                      /*
+                       * Get current route
+                       */
+                      getRoute: function () {
+                          return this.currentRoute
+                                  || $route.current;
+                      },
 
-			/*
-			 * Get current route
-			 */
-			getRoute : function() {
-				return this.currentRoute
-				|| $route.current;
-			},
+                      /*
+                       * Get current status
+                       */
+                      getState: function () {
+                          return this.appState
+                                  || $rootScope.app.state.status;
+                      }
+                  });
 
-			/*
-			 * Get current status
-			 */
-			getState : function() {
-				return this.appState
-				|| $rootScope.app.state.status;
-			}
-		});
+                  // I'd like to know when the transition event occurs
+                  stateMachine.on("transition", function () {
+                      if (stateMachine.state.startsWith('ready')) {
+                          $scope.status = 'ready';
+                          return;
+                      }
+                      $scope.status = stateMachine.state;
+                  });
 
-		// I'd like to know when the transition event occurs
-		state.on("transition", function() {
-			if (state.state.startsWith('ready')) {
-				$scope.status = 'ready';
-				return;
-			}
-			$scope.status = state.state;
-		});
+                  $scope.$watch(function () {
+                      return $route.current;
+                  }, function (route) {
+                      $actions.group('navigationPathMenu').clear();
+                      if (route) {
+                          stateMachine.routeChange(route.$$route);
+                          // Run state integeration
+                          if (route.$$route && angular.isFunction(route.$$route.integerate)) {
+                              var value = $injector.invoke(route.$$route.integerate, route.$$route);
+                          }
+                      } else {
+                          stateMachine.routeChange(route);
+                      }
+                  });
 
-		$scope.$watch(function() {
-			return $route.current;
-		}, function(route) {
-			$actions.group('navigationPathMenu').clear();
-			if (route) {
-				state.routeChange(route.$$route);
-				// Run state integeration
-				if(route.$$route && angular.isFunction(route.$$route.integerate)){
-					var value = $injector.invoke(route.$$route.integerate, route.$$route);
-				}
-			} else {
-				state.routeChange(route);
-			}
-		});
-		$scope.$watch('app.state.status', function(appState) {
-			state.appStateChange(appState);
-		});
-		state.appStateChange($rootScope.app.state.status);
-	}
+                  $rootScope.$watch('app.state.status', function (appState) {
+                      stateMachine.appStateChange(appState);
+                  });
 
-	return {
-		restrict : 'E',
-		replace : true,
-		templateUrl : 'views/directives/mb-panel.html',
-		link : postLink
-	};
-});
+                  $scope.$watch('app.user.anonymous', function (val) {
+                      stateMachine.userStateChange(val);
+                  });
+
+              }
+
+              return {
+                  restrict: 'E',
+                  replace: true,
+                  templateUrl: 'views/directives/mb-panel.html',
+                  link: postLink
+              };
+          });
 /* 
  * The MIT License (MIT)
  * 
@@ -4415,7 +4441,7 @@ angular.module('mblowfish-core')
 		$scope.logout = $app.logout;
 		$scope.settings = function(){
 			return $mdSidenav('settings').toggle();
-		}
+		};
 	}
 	
 	return {
@@ -4588,93 +4614,69 @@ angular.module('mblowfish-core')
 	return actionGroup;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
+  angular.module('mblowfish-core')
 
-/**
- * @ngdoc Factories
- * @name MbLanguageLoader
- * @description Language loader factory
- * 
- * Loads translation table of given language (if language is registered before). Then finds 
- * translation table from config (if exist) and merge this table with previouse table. If there
- * is no config
- * It loads languages and their translation tables from config. If it 
- * 
- * @param $q
- * @param $app
- * @param $http
- * @param $translate
- * @returns
- */
-.factory('MbLanguageLoader', function ($q, $app, $http, $translate) {
-	return function (option) {
-		var deferred = $q.defer(); 
-//		var resourceTranslate = {};
-		// Fetch translations from config of SPA.
-		var spaTranslate = $translate.getTranslationTable(option.key);
-		var translate = spaTranslate ? spaTranslate : {};
-		// Fetch translations from config on server
-		$app.config('languages')//
-		.then(function(langs){
-			if(langs){
-				angular.forEach(langs, function(lang){
-					if(lang.key === option.key){
-						angular.forEach(lang.map, function(value, key){
-							translate[key] = value;
-						});
-					}
-				});
-			}
-			return deferred.resolve(translate);
-		}, function(){
-			return deferred.reject('Language not found');				
-		});
-		
-		// Fetch translations from config
-//		$http.get('resources/languages.json')//
-//		.then(function(res){
-//			var data = res ? res.data : {};
-//			var resLangs = data.languages;
-//			if(resLangs){
-//				angular.forEach(resLangs, function(lang){
-//					if(lang.key === option.key){
-//						angular.forEach(lang.map, function(value, key){
-//							resourceTranslate[key] = value;
-//						});
-//					}
-//				});
-//			}
-//			return resourceTranslate;
-//		})//
-//		.finally(function(){
-//			
-//		});
-
-		return deferred.promise;
-	};
-});
+          /**
+           * @ngdoc Factories
+           * @name MbLanguageLoader
+           * @description Language loader factory
+           * 
+           * Loads translation table of given language (if language is registered before). Then finds 
+           * translation table from config (if exist) and merge this table with previouse table. If there
+           * is no config
+           * It loads languages and their translation tables from config. If it 
+           * 
+           * @param $q
+           * @param $app
+           * @param $http
+           * @param $translate
+           * @returns
+           */
+          .factory('MbLanguageLoader', function ($q, $translate, $rootScope) {
+              return function (option) {
+                  var deferred = $q.defer();
+                  // Fetch translations from config of SPA.
+                  var spaTranslate = $translate.getTranslationTable(option.key);
+                  var translate = spaTranslate ? spaTranslate : {};
+                  // Fetch translations from config on server
+                  var langs = $rootScope.app.config.local.languages;
+                  if (langs) {
+                      angular.forEach(langs, function (lang) {
+                          if (lang.key === option.key) {
+                              angular.forEach(lang.map, function (value, key) {
+                                  translate[key] = value;
+                              });
+                          }
+                      });
+                      return deferred.resolve(translate);
+                  } else {
+                      return deferred.reject('Language not found');
+                  }
+                  return deferred.promise;
+              };
+          });
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -4798,7 +4800,7 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($app, $rootScope, $navigator, $route, $mdSidenav, $actions) {
+.run(function($toolbar, $sidenav, $rootScope, $navigator, $route, $actions) {
 	$actions.newAction({
 		id: 'mb.preferences',
 		priority : 15,
@@ -4828,7 +4830,7 @@ angular.module('mblowfish-core')
 		groups:['mb.toolbar.menu']
 	});
 	
-	$app.newToolbar({
+	$toolbar.newToolbar({
 		id : 'dashboard',
 		title : 'Dashboard toolbar',
 		description : 'Main dashboard toolbar',
@@ -4836,7 +4838,7 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/toolbars/mb-dashboard.html'
 	});
 	
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'navigator',
 		title : 'Navigator',
 		description : 'Navigate all path and routs of the pandel',
@@ -4845,7 +4847,7 @@ angular.module('mblowfish-core')
 		locked : true,
 		position : 'start',
 	});
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'help',
 		title : 'Help',
 		description : 'System online help',
@@ -4857,7 +4859,7 @@ angular.module('mblowfish-core')
 		},
 		position : 'end'
 	});
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'settings',
 		title : 'Options',
 		description : 'User options',
@@ -4866,7 +4868,7 @@ angular.module('mblowfish-core')
 		locked : false,
 		position : 'end'
 	});
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'messages',
 		title : 'Messages',
 		description : 'User message queue',
@@ -4950,19 +4952,19 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.run(function($rootScope, $saas) {
+.run(function($rootScope, $tenant) {
 	$rootScope.app.captcha ={};
 	$rootScope.$watch('app.state.status', function(value){
 		if(value !== 'loading'){
 			return;
 		}
-		$saas.setting('captcha.engine')
+		$tenant.getSetting('captcha.engine')
 		.then(function(setting){
 			$rootScope.app.captcha.engine = setting.value;
 			if(setting.value === 'recaptcha'){
 				$rootScope.app.captcha.recaptcha = {};
 				// maso,2018: get publick key form server
-				$saas.setting('captcha.engine.recaptcha.key')
+				$tenant.setting('captcha.engine.recaptcha.key')
 				.then(function(pk){
 					$rootScope.app.captcha.recaptcha.key = pk.value;
 				});
@@ -4995,7 +4997,7 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-.run(function($window, $rootScope, $location, $app) {
+.run(function($window, $rootScope, $location) {
 	if ($window.ga) {
 		// initialize google analytics
 		$rootScope.$watch('app.config.googleAnalytic.property', function(value){
@@ -5290,675 +5292,614 @@ angular.module('mblowfish-core')
 	};
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core') //
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
+  angular.module('mblowfish-core') //
 
-/**
- * @ngdoc Services
- * @name $app
- * @description Application manager
- * 
- * You can access app in view.
- * 
- * ## settings
- * 
- * Settings are stored in the local storage and each user can edit it directly.
- * 
- * ## configurations
- * 
- * Configuration is stored on server an owners are allowed to update. Do not store
- * secure properties on configuration.
- * 
- * @property {object}  app  - Application repository.
- * @property {string}  app.dir  - Application direction which is updated automatically baed on configuaration and setting.
- * @property {object}  app.setting  - Application setting.
- * @property {object}  app.config  - Application setting.
- * 
- */
-.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale, $localStorage) {
+          /**
+           * @ngdoc Services
+           * @name $app
+           * @description Application manager
+           * 
+           * $app manage the app. It gets all required information from server and store those in rootScope.
+           * So, in the scope of application everyone who wants something about this type of information it 
+           * should get them from rootScope. Also, $app watch the rootScope and do all required tasks(such as
+           * updating config into the server and etc.) automatically.
+           * That way, the $app service is separated from directly responding to others.
+           * Important: In this version, 'start', 'login' and 'logout' are exceptions and could access directly from 
+           * outside.
+           * The pseudo-code of all works that the service performs is as follows:
+           * 1) Getting required information from the server and store in rootScope.
+           * 2) Watching the rootScope and do all required works.
+           *    (such as updating config into the server and etc.) automatically.
+           * 3) Managing an internally Finite State Machine(FSM) to control the state of the app.
+           * 4) Performing login and logout.
+           * 
+           * ## user, is the account_setting is stored in server.
+           * 
+           * ## settings
+           * * Settings are stored in the local storage and each user can edit it directly.
+           * 
+           * ## options are the settings of application which is stored in server.
+           * Example: recaptcha engine.
+           * 
+           * ## config
+           * Configuration is stored in server (cms) and owners are allowed to update. Do not store
+           * secure properties on configuration.
+           * 
+           * @property {object}  app  - Application repository.
+           * @property {string}  app.dir  - Application direction which is updated automatically baed on configuaration and setting.
+           * @property {object}  app.setting  - Application setting.
+           * @property {object}  app.config  - Application setting.
+           * 
+           */
+          .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
+                  $httpParamSerializerJQLike, $mdDateLocale, $localStorage) {
 
-	var APP_PREFIX = 'angular-material-blowfish-';
-	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var app = {
-			state : {
-				// loading, fail, ready, error
-				status : 'loading',
-				stage : 'starting',
-				message : null
-			},
-			logs : [],
-			user : {
-				current : {},
-				anonymous : true,
-				administrator : false,
-				owner : false,
-				member : false,
-				authorized : false
-			},
-			config : {},
-			jobs : [],
-			setting:{}
-	};
+              var APP_PREFIX = 'angular-material-blowfish-';
+              var APP_CNF_MIMETYPE = 'application/amd-cnf';
+              //All the things that are set up by $app service
+              var app = {
+                  state: {
+                      // all states: waiting, loading, offline, app_not_configured, ready, fail
+                      status: 'loading',
+                      stage: 'starting',
+                      message: null
+                  },
+                  logs: [],
+                  user: {
+                      current: {},
+                      anonymous: true,
+                      administrator: false,
+                      owner: false,
+                      member: false,
+                      authorized: false
+                  },
+                  config: {},
+                  setting: {},
+                  options: {}
+              };
+              /*
+               * متغیرهای مدیریت تنظیم‌ها
+               * 
+               * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+               * کارهای تکراری جلوگیری کنیم.
+               * 
+               * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+               * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+               * دهد.
+               */
+              var appConfigLock = false;
+              var appConfigDirty = false;
+              // Some controlling variables required in the state machine
+              var ctrl = {
+                  user_loaded: false,
+                  options_loaded: false,
+                  configs_loaded: false
+              };
 
-	/*
-	 * متغیرهای مدیریت تنظیم‌ها
-	 * 
-	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-	 * کارهای تکراری جلوگیری کنیم.
-	 * 
-	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-	 * دهد.
-	 */
-	var appConfigLock = false;
-	var appConfigDirty = false;
+              //All required functions
+              //---------------------------------------------------------------------------------------
+              function start(key) {//this function is called when the app get started.
+                  app.key = key;
+                  _loadingLog('start_event', 'loading application');
+                  stateMachine.start_event();
+              }
 
-	/*
-	 * شنود تغییرهای تنظیمات
-	 */
-	$rootScope.$watch('app.config', function() {
-		if (!app.user.owner) {
-			return;
-		}
-		appConfigDirty = true;
-		if (appConfigLock) {
-			return;
-		}
-		return storeApplicationConfig();
-	}, true);
+              /**
+               * تنظیم‌های نرم افزار را لود می‌کند.
+               * 
+               * @returns promiss
+               */
+              function loadApplicationConfig() {
+                  _loadingLog('loading configuration', 'fetch configuration document');
+                  $cms.getContent(APP_PREFIX + app.key) //
+                          .then(function (content) {
 
-	/*
-	 * watch direction and update app.dir
-	 */
-	$rootScope.$watch(function() {
-		if(!app.config.local){
-			app.config.local = {};
-		}
-		return app.setting.dir || app.config.local.dir;
-	}, function(value) {
-		app.dir = (app.setting.dir || app.config.local.dir);
-	});
+                              app._acc = content;
+                              _loadingLog('loading configuration', 'fetch configuration content');
+                              return app._acc.value();
+                          }, function (error) {
+                              if (error.status === 404) {
+                                  stateMachine.configs_not_found();
+                                  return {};
+                              } else if (error.status === 500) {
+                                  // TODO: maso, 2018: throw an excetpion and go the the fail state
+                                  stateMachine.server_error();
+                              } else if (error.status === -1) {
+                                  _loadingLog('loading configuration', 'network error');
+                                  stateMachine.network_error();
+                              }
+                          }) //
+                          .then(function (appConfig) {
+                              app.config = appConfig;
+                              ctrl.configs_loaded = true;
+                              _loadingLog('loading configuration', 'application configuration loaded successfully');
+                              stateMachine.loaded();
+                              return;
+                          });
+              }
 
-	/*
-	 * watch local
-	 */
-	$rootScope.$watch(function(){
-		// TODO: maso, 2018: remove this part in the next release
-		if(!angular.isObject(app.config.local)){
-			app.config.local = {};
-		}
-		// Check language
-		return app.setting.local || app.config.local.language || 'en';
-	}, function(key){
-		// 0- set app local
-		app.local = key;
+              /*
+               * اطلاعات کاربر جاری را لود می‌کند
+               * 
+               * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+               * نرم افزار پر می‌شود.
+               * 
+               * If there is a role x.y (where x is application code and y is code name) in role list then
+               * the following var is added in user:
+               * 
+               *     app.user.x_y
+               * 
+               */
+              function loadUserProperty() {
+                  _loadingLog('loading user info', 'fetch user information');
+                  $usr.getAccount('current') //
+                          .then(function (user) {
+                              ctrl.user_loaded = true;
+                              stateMachine.loaded();
+                              // app user data
+                              app.user = {};
+                              app.user.current = user;
+                              app.user.anonymous = user.isAnonymous();
+                              _loadingLog('loading user info', 'user information loaded successfully');
+                              _loadingLog('loading user info', 'check user permissions');
+                              if (angular.isArray(user.roles)) {
+                                  for (var i = 0; i < user.roles.length; i++) {
+                                      var role = user.roles[i];
+                                      app.user[role.application + '_' + role.code_name] = role;
+                                  }
+                                  delete user.roles;
+                              }
+                          }, function (error) {
+                              if (error.status === 500) {
+                                  // TODO: maso, 2018: throw an excetpion and go the the fail state
+                                  _loadingLog('loading user', 'server error');
+                                  stateMachine.server_error();
+                              } else if (error.status === -1) {
+                                  _loadingLog('loading user', 'network error');
+                                  stateMachine.network_error();
+                              }
+                          });
+              }
 
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months      = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days        = localeDate._weekdays;
-		$mdDateLocale.shortDays   = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	});
-
-	/*
-	 * watch calendar
-	 * 
-	 */
-	$rootScope.$watch(function(){
-		return app.setting.calendar || app.config.calendar || 'Gregorian';
-	}, function(key){
-		// 0- set app local
-		app.calendar = key;
-	});
-
-
-	var configRequesters = {};
-
-	/**
-	 * خصوصیت را از تنظیم‌ها تعیین می‌کند
-	 * 
-	 * خصوصیت تعیین شده را از تنظیم‌های سیستم برمی‌گرداند در صورتی که مقدار
-	 * تعیین شده وجود نداشته باشد، مقدار پیش فرض را به عنوان نتیجه برمی‌گرداند
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @returns promiss
-	 */
-	function getApplicationConfig(key, defaultValue) {
-		if(app.state.status !== 'loading' && app.state.status !== 'fail'){
-			return $q.when(app.config[key] || defaultValue);
-		}			
-		var defer = $q.defer();
-		configRequesters[key] = configRequesters[key] || [];
-		configRequesters[key].push(defer);
-		return defer.promise;
-	}
-
-	$rootScope.$watch('app.state.status', function(val){
-		if(val === 'loading'){
-			return;
-		}
-		angular.forEach(configRequesters, function(defers, key){
-			angular.forEach(defers, function(def){
-				if(val === 'fail' || val === 'error'){						
-					def.reject('Fail to get config');
-				}else{
-					def.resolve(app.config[key]);
-				}
-			})
-		});
-	});
-
-	function setConfig(key, value){
-		return $timeout(function() {
-			return app.config[key] = value;
-		}, 1);
-	}
-
-	/**
-	 * تنظیم‌های نرم افزار را لود می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function loadApplicationConfig() {
-		_loadingLog('loading configuration', 'fetch configuration document');
-		return $cms.content(APP_PREFIX + app.key) //
-		.then(function(content) {
-			app._acc = content;
-			_loadingLog('loading configuration', 'fetch configuration content');
-			return app._acc.value();
-		}, function(error) {
-			if(error.status === 404){
-				return {};
-			}
-			// TODO: maso, 2018: throw an excetpion and go the the fail state
-			_loadingLog('loading configuration', 'warning: ' + error.message);
-		}) //
-		.then(function(appConfig) {
-			app.config = appConfig;
-			_loadingLog('loading configuration', 'application configuration loaded successfully');
-		});
-	}
-
-	/**
-	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function storeApplicationConfig() {
-		if (!app.user.owner || appConfigLock) {
-			var message = 'fail';
-			var deferred = $q.defer();
-			deferred.reject({
-				data : {
-					message : message
-				}
-			});
-			return deferred.promise;
-		}
-		appConfigLock = true;
-		var prommise;
-		if (app._acc) { // content loaded
-			appConfigDirty = false;
-			prommise = app._acc.setValue(app.config);
-		} else { // create content
-			prommise = $cms.newContent({
-				name : APP_PREFIX + app.key,
-				mimetype : APP_CNF_MIMETYPE
-			}) //
-			.then(function(content) {
-				appConfigDirty = false;
-				app._acc = content;
-				return app._acc.setValue(app.config);
-			});
-		} //
-		return prommise //
-		.finally(function() {
-			appConfigLock = false;
-			if (appConfigDirty) {
-				storeApplicationConfig();
-			}
-		});
-	}
-	/**
-	 * مقدار تنظیم‌ها را بازیابی می‌کند.
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @returns promiss
-	 */
-	function setting(key, defaultValue) {
-		var deferred = $q.defer();
-		if (key in $rootScope.app.setting) {
-			deferred.resolve($rootScope.app.setting[key]);
-		} else {
-			deferred.resolve(defaultValue);
-		}
-		return deferred.promise;
-	}
-
-	/**
-	 * مقدار جدید را تعیین می‌کند.
-	 * 
-	 * @param key
-	 * @param value
-	 * @returns promiss
-	 */
-	function setSetting(key, value) {
-		var deferred = $q.defer();
-		$rootScope.app.setting[key] = value;
-		deferred.resolve(value);
-		return deferred.promise;
-	}
-
-	/**
-	 * اطلاعات کاربر جاری را تعیین می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function currentUser() {
-		return $usr.session();
-	}
-
-	/**
-	 * بی هویت بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAnonymous() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.anonymous);
-		return deferred.promise;
-	}
-
-	/**
-	 * مالک بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isOwner() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.owner);
-		return deferred.promise;
-	}
-
-	/**
-	 * عضو بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isMember() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.member);
-		return deferred.promise;
-	}
-
-	/**
-	 * مجاز بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAuthorized() {
-		var deferred = $q.defer();
-		deferred.resolve(authorized);
-		return deferred.promise;
-	}
-
-	/**
-	 * ورود به سیستم
-	 * 
-	 * <pre><code>
-	 * $app.login({
-	 *     login : 'user name',
-	 *     password : 'password'
-	 * }).then(function(user) {
-	 *     //Success
-	 *     }, function(ex) {
-	 * 	//Fail
-	 *     });
-	 * </code></pre>
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 *                credential پارارمترهای مورد انتظار در احراز اصالت
-	 * @return {promise(PUser)} اطلاعات کاربر جاری
-	 */
-	function login(credential) {
-		return $usr.login(credential) //
-		.then(loadUserProperty)//
-		.then(_updateApplicationState);
-	}
-
-	/**
-	 * عمل خروج کاربر
-	 * 
-	 * کاربر را از سیستم خارج کرده و اصلاعات آن را در سیستم به روز می‌کند.
-	 * 
-	 * @memberof $app
-	 * @returns {Promise<PUser>} کاربر جاری
-	 */
-	function logout() {
-		return $usr.logout() //
-		.then(loadUserProperty)//
-		.then(_updateApplicationState);
-	}
-
-	/*
-	 * اطلاعات کاربر جاری را لود می‌کند
-	 * 
-	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-	 * نرم افزار پر می‌شود.
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name) in role list then
-	 * the folloing var is added in user:
-	 * 
-	 *     app.user.x_y
-	 * 
-	 */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		return $usr.session() //
-		.then(function(user) {
-			// app user date
-			app.user={};
-			app.user.current = user;
-			app.user.anonymous = user.isAnonymous();
-			_loadingLog('loading user info', 'user information loaded successfully');
-
-			_loadingLog('loading user info', 'check user permissions');
-			if(angular.isArray(user.roles)){
-				for(var i=0; i < user.roles.length; i++){
-					var role = user.roles[i];
-					app.user[role.application+'_'+role.code_name] = role;
-				}
-				delete user.roles;
-			}
-
-			/*
-			 * @DEPRECATED: this monitor will be removed in the next version.
-			 */
-			return $monitor //
-			.monitor('user', 'owner') //
-			.then(function(monitor) {
-				return monitor.refresh();
-			}) //
-			.then(function(monitor) {
-				app.user.owner = monitor.value;
-			});
-		}, function(error) {
-			_loadingLog('loading user info', 'warning: ' + error.message);
-		});
-	}
-
-	/*
-	 * Loads local storage
-	 */
-	function loadLocalStorage(){
-		$rootScope.app.setting = $localStorage.$default({
-			dashboardModel : {}
-		});
-//		$rootScope.app.session = $localStorage.$default({
-//		dashboardModel : {}
-//		});
-		return $q.when($rootScope.app.setting);
-	}
-
-	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
-		}
-	}
-
-	/*
-	 * Attache error logs
-	 */
-	function _loadingError(error) {
-		app.state.status = 'fail';
-		_loadingLog(error.message);
-	}
-
-	/*
-	 * Check system values and update application state
-	 * 
-	 * Possible states:
-	 * - loading
-	 * - ready
-	 * - anonymous
-	 * - fail
-	 * 
-	 */
-	function _updateApplicationState(){
-		if(app.state.status === 'fail'){
-			return;
-		}
-		if(app.user.anonymous){
-			app.state.status = 'anonymous';
-			return;
-		}
-		app.state.status = 'ready';
-	}
-
-	/**
-	 * Starts the application 
-	 * 
-	 * Loads local storage used to store user settings.
-	 * 
-	 * قبل از اینکه هرکاری توی سیستم انجام بدید باید نرم افزار رو اجرا کنید در
-	 * غیر این صورت هیچ یک از خصوصیت‌هایی که برای نرم افزار تعیین کرده‌اید
-	 * بارگذاری نخواهد شد. هر نرم افزار باید یک کلید منحصر به فرد داشده باشد تا
-	 * بتوان تنظیم‌های آن را به صورت یکتا ذخیره و بازیابی کنیم.
-	 * 
-	 * @note بهتر است برای هر نسخه یک کلید منحصر به فرد داشته باشید.
-	 * 
-	 * @memberof $app
-	 * @param key application key
-	 * @returns promiss
-	 */
-	function start(key) {
-		app.state.status = 'loading';
-		_loadingLog('starting application', 'loading application');
-		app.key = key;
-		// application jobs
-		var jobs = [];
-		jobs.push(loadLocalStorage());
-		jobs.push(loadUserProperty());
-		jobs.push(loadApplicationConfig());
-		return $q.all(jobs) //
-		// FIXME: maso, 2018: run applilcation defined jobs after all application jobs
-//		.then(function(){
-//		return $q.all(applicationJobs);
-//		})
-		.then(_updateApplicationState)
-		.catch(function() {
-			// TODO: hadi 1396-12-10: check network connection error.
-		}) //
-		.finally(function() {
-			if (app.state.status !== 'fail') {
-				_loadingLog('starting application', 'application is started successfully');
-			}
-		});
-	}
+              /*
+               * Loads options
+               */
+              function loadOptions() {
+                  //TODO: Masood, 2018: options should be get from server. Now, its api doesn't exist.
+                  _loadingLog('loading options', 'fetch options document');
+                  //get the options from server and save in app.options.
+                  app.options = {};
+                  // $cms.getOptions()
+                  // .then(function (res) {
+                  //    ctrl.options_loaded = true;
+                  //    stateMachine.loaded();
+                  //    app.options = res.item;
+                  //    var deferred = $q.defer();
+                  //    deferred = $q.resolve('ok');
+                  //    return deferred.promise;
+                  // }, function (error) {
+                  //            if (error.status === 500) {
+                  //                // TODO: maso, 2018: throw an excetpion and go the the fail state
+                  //                _loadingLog('loading options', 'server error');
+                  //                stateMachine.server_error();
+                  //            } else if (error.status === -1) {
+                  //                _loadingLog('loading options', 'network error');
+                  //                stateMachine.network_error();
+                  //            }
+                  //        });
+                  ctrl.options_loaded = true;
+                  stateMachine.loaded();
+                  var deferred = $q.defer();
+                  deferred.resolve('ok');
+                  return deferred.promise;
+              }
+              /*
+               * Loads local storage
+               */
+              function loadSetting() {
+                  _loadingLog('loading setting from local storage', 'fetch settings');
+                  //TODO: 'key' of app should be used
+//                  $localStorage.setPrefix(app.key);
+                  app.setting = $localStorage.$default({
+                      dashboardModel: {}
+                  });
+                  _loadingLog('setting loaded', 'fetch settings');
+                  //
+                  //The lines below is an alternative for lines above but not recommended.
+//                  localStorage.setPrefix(key);
+//                  app.setting = $localStorage.app.setting || {dashboardModel: {}};
+//                  $rootScope.$watch('app.setting', function () {
+//                      $localStorage.app.setting = $rootScope.app.setting;
+//                  });$
+              }
 
 
-	var _toolbars = [];
+              /**
+               * تنظیم‌های نرم افزار را ذخیره می‌کند.
+               * 
+               * @returns promiss
+               */
+              function storeApplicationConfig() {
+                  if (!app.user.owner || appConfigLock) {
+                      var message = 'fail';
+                      var deferred = $q.defer();
+                      deferred.reject({
+                          data: {
+                              message: message
+                          }
+                      });
+                      return deferred.promise;
+                  }
+                  appConfigLock = true;
+                  var promise;
+                  if (app._acc) { // content loaded
+                      appConfigDirty = false;
+                      promise = app._acc.setValue(app.config);
+                  } else { // create content
+                      promise = $cms.putContent({
+                          name: APP_PREFIX + app.key,
+                          mimetype: APP_CNF_MIMETYPE
+                      }).then(function (content) {
+                          appConfigDirty = false;
+                          app._acc = content;
+                          stateMachine.config_created();
+                          return app._acc.setValue(app.config);
+                      }, function (error) {
+                          if (error.status === 404) {
+                              stateMachine.configs_not_found();
+                              return {};
+                          } else if (error.status === 500) {
+                              // TODO: maso, 2018: throw an excetpion and go the the fail state
+                              _loadingLog('storeApplicationConfig', 'server error');
+                              stateMachine.server_error();
+                          } else if (error.status === -1) {
+                              _loadingLog('storeApplicationConfig', 'network error');
+                              stateMachine.network_error();
+                          }
+                      });
+                  } //
+                  return promise //
+                          .finally(function () {
+                              appConfigLock = false;
+                              if (appConfigDirty) {
+                                  storeApplicationConfig();
+                              }
+                          });
+              }
 
-	/**
-	 * Get list of all toolbars
-	 * 
-	 * @memberof $app
-	 * @return promiss
-	 */
-	function toolbars(){
-		return $q.when({
-			items: _toolbars
-		});
-	}
+              /*
+               * Attaches loading logs
+               */
+              function _loadingLog(stage, message) {
+                  app.state.stage = stage;
+                  app.state.message = message;
+                  if (message) {
+                      app.logs.push(message);
+                  }
+              }
 
-	/**
-	 * Add new toolbar
-	 * 
-	 * @memberof $app
-	 * @return promiss
-	 */
-	function newToolbar(toolbar){
-		_toolbars.push(toolbar);
-	}
+              /**
+               * بی هویت بودن کاربر جاری را تعیین می‌کند
+               * 
+               * @returns promiss
+               */
+              function isAnonymous() {
+                  return app.user.anonymous;
+              }
 
-	/**
-	 * Get a toolbar by id
-	 * 
-	 * @memberof $app
-	 * @return promiss
-	 */
-	function toolbar(id){
-		for(var i = 0; i < _toolbars.length; i++){
-			if(_toolbars[i].id === id){
-				return $q.when(_toolbars[i]);
-			}
-		}
-		return $q.reject('Toolbar not found');
-	}
+              /**
+               * مالک بودن کاربر جاری را تعیین می‌کند
+               * 
+               * @returns promiss
+               */
+              function isOwner() {
+                  var deferred = $q.defer();
+                  deferred.resolve(app.user.owner);
+                  return deferred.promise;
+              }
 
-	var _sidenavs = [];
+              /**
+               * عضو بودن کاربر جاری را تعیین می‌کند
+               * 
+               * @returns promiss
+               */
+              function isMember() {
+                  var deferred = $q.defer();
+                  deferred.resolve(app.user.member);
+                  return deferred.promise;
+              }
 
-	/**
-	 * Get list of all sidenavs
-	 * 
-	 * @memberof $app
-	 * @return promiss
-	 */
-	function sidenavs(){
-		return $q.when({
-			items: _sidenavs
-		});
-	}
+              /**
+               * مجاز بودن کاربر جاری را تعیین می‌کند
+               * 
+               * @returns promiss
+               */
+              function isAuthorized() {
+                  var deferred = $q.defer();
+                  deferred.resolve(authorized);
+                  return deferred.promise;
+              }
 
-	/**
-	 * Add new sidenav
-	 * 
-	 * @memberof $app
-	 * @return promiss
-	 */
-	function newSidenav(sidenav){
-		_sidenavs.push(sidenav);
-	}
+              /**
+               * ورود به سیستم
+               * @memberof $app
+               * @param {object}
+               */
+              function login(credential) {
+                  if (!isAnonymous()) {
+                      var deferred = $q.defer();
+                      deferred.resolve('user is login');
+                      return deferred.promise;
+                  }
+                  return $http({
+                      method: 'POST',
+                      url: '/api/v2/user/login',
+                      data: $httpParamSerializerJQLike(credential),
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded'
+                      }
+                  }).then(function (result) {
+                      loadUserProperty();
+                  });
+              };
 
-	/**
-	 * Get a sidnav by id
-	 * 
-	 * @memberof $app
-	 * @return promiss
-	 */
-	function sidenav(id){
-		for(var i = 0; i < _sidenavs.length; i++){
-			if(_sidenavs[i].id === id){
-				return $q.when(_sidenavs[i]);
-			}
-		}
-		return $q.reject('Sidenav not found');
-	}
+              /**
+               * عمل خروج کاربر
+               * @memberof $app
+               */
+              function logout() {
+                  if (isAnonymous()) {
+                      var us = $rootScope.app.user;
+                      var deferred = $q.defer();
+                      deferred.resolve('user is not login');
+                      return deferred.promise;
+                  }
+                  return $http({
+                      method: 'POST',
+                      url: '/api/v2/user/logout',
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded'
+                      }
+                  }).then(function (result) {
+                      loadUserProperty();
+                  });
+              }
+              //---------------------------------------------------------------------------------------
+              //settings related to direction, language and calendar of the app
 
+              /*
+               * watch direction and update app.dir
+               */
+              $rootScope.$watch(function () {
+                  if (!app.config.local) {
+                      app.config.local = {};
+                  }
+                  return app.setting.dir || app.config.local.dir;
+              }, function (value) {
+                  app.dir = value; //(app.setting.dir || app.config.local.dir)//old version of app.js;
+              });
+              /*
+               * watch local
+               */
+              $rootScope.$watch(function () {
+                  // TODO: maso, 2018: remove this part in the next release
+                  if (!angular.isObject(app.config.local)) {
+                      app.config.local = {};
+                  }
+                  // Check language
+                  return app.setting.local || app.config.local.language || 'en';
+              }, function (key) {
+                  // 0- set app local
+                  app.local = key;
+                  // 1- change language
+                  $translate.use(key);
+                  // 2- chnage date format
+                  // Change moment's locale so the 'L'-format is adjusted.
+                  // For example the 'L'-format is DD-MM-YYYY for Dutch
+                  moment.loadPersian();
+                  moment.locale(key);
+                  // Set month and week names for the general $mdDateLocale service
+                  var localeDate = moment.localeData();
+                  $mdDateLocale.months = localeDate._months;
+                  $mdDateLocale.shortMonths = localeDate._monthsShort;
+                  $mdDateLocale.days = localeDate._weekdays;
+                  $mdDateLocale.shortDays = localeDate._weekdaysMin;
+                  // Optionaly let the week start on the day as defined by moment's locale data
+                  $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+              });
+              /*
+               * watch calendar
+               */
+              $rootScope.$watch(function () {
+                  return app.setting.calendar || app.config.calendar || 'Gregorian';
+              }, function (key) {
+                  // 0- set app local
+                  app.calendar = key;
+              });
 
-	var _defaultToolbars = [];
+              //-----------------------------------------------------
+              var stateMachine = new machina.Fsm({
+                  initialize: function (options) {
+                      app.state.status = 'waiting';
+                  },
+                  namespace: 'stateMachine',
+                  initialState: 'waiting',
+                  states: {
+                      waiting: {//Before the 'start' event occurs via $app.start().
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: waiting', 'wait for start_event');
+                              app.state.status = 'waiting';
+                          },
+                          start_event: function () {//Occures when the start() function is called.
+                              _loadingLog('FSM, state: waiting', 'start_event occurred');
+                              this.transition('loading');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: waiting', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      loading: {//start_event has occurred.
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: loading', 'load setting, load config');
+                              app.state.status = 'loading';
+                              loadSetting(); //1. get from local storage 2. save in app.setting
+                              loadApplicationConfig(); //1. get from server 2. save in app.setting
+                          },
+                          loaded: function () {
+                              _loadingLog('FSM, state: loading', 'config || options || user is loaded');
+                              if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+                                  this.transition('ready');
+                              } else if (ctrl.user_loaded && ctrl.options_loaded) {
+                                  this.transition('ready_config_loading');
+                              }
+                          },
+                          configs_not_found: function () {//equal to 404 error: configs not founded.
+                              _loadingLog('FSM, state: loading', 'error 404 occurred while getting config');
+                              this.transition('app_not_configured');
+                          },
+                          server_error: function () {//
+                              _loadingLog('FSM, state: loading', 'error 500 occurred.');
+                              this.transition('fail');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: loading', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      ready: {
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: ready', 'every thing is ok');
+                              app.state.status = 'ready';
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: ready', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      ready_config_loading: {
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'app is ready, config is loading');
+                              app.state.status = 'ready_config_loading';
+                          },
+                          loaded: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'config loaded');
+                              this.transition('ready');
+                          },
+                          configs_not_found: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'config not found');
+                              this.transition('ready_app_not_configured');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: ready_config_loading', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      app_not_configured: {//error 404, but the app is ready and should be loaded
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'error 404 is occurred');
+                              app.state.status = 'app_not_configured';
+                          },
+                          loaded: function () {
+                              _loadingLog('FSM, state: app_not_configured', 'config || options || user loaded(ready to go ready state)');
+                              if (ctrl.user_loaded && ctrl.options_loaded) {
+                                  this.transition('ready_app_not_configured');
+                              }
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: app_not_configured', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      ready_app_not_configured: {
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'app is ready, app not configured');
+                              app.state.status = 'ready_app_not_configured';
+                          },
+                          config_created: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'config_created event occurred');
+                              this.transition('ready');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: ready_app_not_configured', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      fail: {//server error
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: fail', 'error in server');
+                              alert('Error in server...');
+                          },
+                          network_error: function () {
+                              _loadingLog('FSM, state: fail', 'network error');
+                              this.transition('offline');
+                          }
+                      },
+                      offline: {//error -1, network error
+                          _onEnter: function () {
+                              _loadingLog('FSM, state: offline', 'error in network');
+                              alert('Error in network...');
+                          }
+                      }
+                  },
+                  // define events
+                  loaded: function () {//config || user || options || is loaded
+                      this.handle("loaded");
+                  },
+                  start_event: function () {//start_event has occurred
+                      this.handle("start_event");
+                  },
+                  configs_not_found: function () {//error 404, configs not found
+                      this.handle("configs_not_found");
+                  },
+                  config_created: function () {//config is created on server.
+                      this.handle("config_created");
+                  },
+                  server_error: function () {//error 500 is occurred while gtting config || user || options.
+                      this.handle("server_error");
+                  },
+                  network_error: function () {//error -1 is occurred while gtting config || user || options.
+                      this.handle("network_error");
+                  }
 
-	function setDefaultToolbars(defaultToolbars){
-		_defaultToolbars = defaultToolbars || [];
-		return this;
-	}
-
-	function defaultToolbars(){
-		return _defaultToolbars;
-	}
-
-	var _defaultSidenavs = [];
-
-	function setDefaultSidenavs(defaultSidenavs){
-		_defaultSidenavs = defaultSidenavs || [];
-		return this;
-	}
-
-	function defaultSidenavs(){
-		return _defaultSidenavs;
-	}
-
-
-
-	$rootScope.app = app;
-
-	var apps = {};
-	// Init
-	apps.start = start;
-
-	// user management
-	apps.login = login;
-	apps.logout = logout;
-	apps.currentUser = currentUser;
-	apps.isAnonymous = isAnonymous;
-	apps.isOwner = isOwner;
-	apps.isMember = isMember;
-	apps.isAuthorized = isAuthorized;
-
-	// Configuaration
-	apps.config = getApplicationConfig;
-	apps.setConfig = setConfig;
-	apps.loadConfig = loadApplicationConfig; // deprecated
-	apps.storeConfig = storeApplicationConfig; // deprecated
-	apps.setting = setting;
-	apps.setSetting = setSetting;
-
-	// toolbars
-	apps.toolbars = toolbars;
-	apps.newToolbar = newToolbar;
-	apps.toolbar = toolbar;
-	apps.setDefaultToolbars = setDefaultToolbars;
-	apps.defaultToolbars = defaultToolbars;
-
-	// sidenav
-	apps.sidenavs = sidenavs;
-	apps.newSidenav = newSidenav;
-	apps.sidenav = sidenav;
-	apps.setDefaultSidenavs = setDefaultSidenavs;
-	apps.defaultSidenavs = defaultSidenavs;
-
-	return apps;
-});
+              });
+              //---------------------------------------------------------------------------------------
+              //Initial calls: each function does its work internally.
+              //These two functions are called before the start_event is fired since they 
+              //don't need to the 'key' of application.
+              loadUserProperty(); //1. get from server 2. save in app.user
+              loadOptions(); //1. get from server 2. save in app.options
+              //------------------------------------------------------------------------
+              $rootScope.app = app;
+              var apps = {};
+              // Init
+              apps.start = start;
+              apps.login = login;
+              apps.logout = logout;
+              return apps;
+          });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6259,217 +6200,224 @@ angular.module('mblowfish-core')
 	};
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
 
-angular.module('mblowfish-core')
+  angular.module('mblowfish-core')
 
-/**
- * @ngdoc Services
- * @name $language
- * @description 
- * Manages languages of the application.
- * This service provide functionality to switch between multiple languages.
- * Also provides functionlity to manage languages (add, remove or edit translations).
- * 
- */
-.service('$language', function($rootScope, $q, $navigator, $translate, $app) {
+          /**
+           * @ngdoc Services
+           * @name $language
+           * @description 
+           * Manages languages of the application.
+           * This service provide functionality to switch between multiple languages.
+           * Also provides functionlity to manage languages (add, remove or edit translations).
+           * 
+           */
+          .service('$language', function ($rootScope, $q, $translate, $app) {
 
-	/**
-	 * Returns language determined by given key.
-	 * 
-	 * @memberof $language
-	 * @param {string} language key - Key of the language
-	 * @return {object}  Returns language with given key. 
-	 * Returns 'undefined' if language does not exist or is not loaded yet.
-	 */
-	function language(key) {
-		var languages = $rootScope.app.config.languages;
-		if(!languages || !languages.length){
-			return undefined;
-		}
-		for(var i=0; i<languages.length; i++){			
-			if(languages[i].key === key){
-				return languages[i];
-			}
-		}
-		return undefined;
-	}
+              /**
+               * Returns language determined by given key.
+               * 
+               * @memberof $language
+               * @param {string} language key - Key of the language
+               * @return {object}  Returns language with given key. 
+               * @Returns 'undefined' if language does not exist or is not loaded yet.
+               */
+              function language(key) {
+                  var languages = $rootScope.app.config.languages;
+                  if (!languages || !languages.length) {
+                      return undefined;
+                  }
+                  for (var i = 0; i < languages.length; i++) {
+                      if (languages[i].key === key) {
+                          return languages[i];
+                      }
+                  }
+                  return undefined;
+              }
 
-	/**
-	 * Returns list of defined and loaded languages.
-	 * It returns a promise of an object which field 'items' of the object is an array of languages.
-	 * 
-	 * @memberof $language
-	 * @return {promise<Array>} of languages
-	 */
-	function languages() {
-		return $app.config('languages')//
-		.then(function(langs){
-			var res = {items : langs || []};
-			return res;
-		});
-//		return $q.resolve({
-//		items : $rootScope.app.config.languages || []
-//		});
-	}
+              /**
+               * Returns list of defined and loaded languages.
+               * 
+               * @memberof $language
+               * @return {promise<Array>} of languages
+               */
+              function languages() {
+                  var langs = $rootScope.app.config.languages;
+                  var res = {items: langs || []};
+                  return $q.when(res);
+                  
+                  
+//                  var deferred = $q.defer();
+//                  deferred.resolve(res);
+//                  return deferred.promise;
+              }
 
-	/**
-	 * Adds a new language
-	 * 
-	 * @param {object} lang - Object contain information of a language.
-	 * 		A language object would contain following properties:
-	 * 
-	 * 		- key: a key to determin language (for example fa, en and so on)
-	 * 		- title: title for language (for example Persian, English, ...)
-	 * 		- dir: direction of language ('ltr' or 'rtl')
-	 * 		- map: translation table of language contains some key-values. 
-	 * 
-	 * @memberof $language
-	 */
-	function newLanguage(lang) {
-		if(!$rootScope.app.user.owner){
-			return $q.reject('not allowed');
-		}
-		if(!$rootScope.app.config.languages){
-			$rootScope.app.config.languages = [];
-		}
-		$rootScope.app.config.languages.push(lang);
-		$translate.refresh(lang.key);
-		return $q.resolve(lang);
-	}
+              /**
+               * Adds a new language
+               * 
+               * @param {object} lang - Object contain information of a language.
+               * 		A language object would contain following properties:
+               * 
+               * 		- key: a key to determin language (for example fa, en and so on)
+               * 		- title: title for language (for example Persian, English, ...)
+               * 		- dir: direction of language ('ltr' or 'rtl')
+               * 		- map: translation table of language contains some key-values. 
+               * 
+               * @memberof $language
+               */
+              function newLanguage(lang) {
+                  if (!$rootScope.app.user.owner) {
+                      return $q.reject('not allowed');
+                  }
+                  if (!$rootScope.app.config.local.languages) {
+                      $rootScope.app.config.languages = [];
+                  } else {
+                      var languages = $rootScope.app.config.languages;
+                      for (var i = 0; i < languages.length; i++) {
+                          if (lang.key === languages[i].key) {
+                              return $q.reject('Sorry! Languages with the same key are not allowed.');
+                          }
+                      }
+                  }
+                  $rootScope.app.config.languages.push(lang);
+                  $translate.refresh(lang.key);
+                  return $q.resolve(lang);
+              }
 
-	/**
-	 * Delete a language
-	 * 
-	 * @memberof $language
-	 * @param {object|string} lang - The Language to delete or key of language to delete
-	 * @return {promise} promise of deleted language
-	 */
-	function deleteLanguage(lang){
-		if(!$rootScope.app.user.owner){
-			return $q.reject('not allowed');
-		}
-		var languages = $rootScope.app.config.langauges;
-		if(!languages || !languages.length){
-			return $q.reject('Not found');
-		}
-		var index = -1;
-		if(angular.isString(lang)){
-			// lang is key of language
-			for(var i=0 ; i<langauges.length; i++){				
-				if(langauges[i].key === lang){
-					index = i;
-					break;
-				}
-			}
-		}else{			
-			index = languages.indexOf(lang);
-		}
+              /**
+               * Delete a language
+               * 
+               * @memberof $language
+               * @param {object|string} lang - The Language to delete or key of language to delete
+               * @return {promise} promise of deleted language
+               */
+              function deleteLanguage(lang) {
+                  if (!$rootScope.app.user.owner) {
+                      return $q.reject('not allowed');
+                  }
+                  var languages = $rootScope.app.config.languages;
+                  if (!languages || !languages.length) {
+                      return $q.reject('Not found');
+                  }
+                  var index = -1;
+                  if (angular.isString(lang)) {
+                      // lang is key of language
+                      for (var i = 0; i < languages.length; i++) {
+                          if (languages[i].key === lang) {
+                              index = i;
+                              break;
+                          }
+                      }
+                  } else {
+                      index = languages.indexOf(lang);
+                  }
 
-		if (index !== -1) {
-			languages.splice(index, 1);
-			return $q.resolve(lang);
-		}
-		return $q.reject('Not found');
-	}
+                  if (index !== -1) {
+                      languages.splice(index, 1);
+                      return $q.resolve(lang);
+                  }
+                  return $q.reject('Not found');
+              }
 
-	/**
-	 * Returns the language key of language that is currently loaded asynchronously.
-	 * 
-	 * @memberof $language
-	 * @return {string} language key
-	 */
-	function proposedLanguage() {
-		return $translate.proposedLanguage();
-	}
+              /**
+               * Returns the language key of language that is currently loaded asynchronously.
+               * 
+               * @memberof $language
+               * @return {string} language key
+               */
+              function proposedLanguage() {
+                  return $translate.proposedLanguage();
+              }
 
-	/**
-	 * Tells angular-translate which language to use by given language key. This 
-	 * method is used to change language at runtime. It also takes care of 
-	 * storing the language key in a configured store to let your app remember 
-	 * the choosed language.
-	 *
-	 * When trying to 'use' a language which isn't available it tries to load it 
-	 * asynchronously with registered loaders.
-	 * 
-	 * Returns promise object with loaded language file data or string of the 
-	 * currently used language.
-	 * 
-	 * If no or a falsy key is given it returns the currently used language key. 
-	 * The returned string will be undefined if setting up $translate hasn't 
-	 * finished.
-	 * 
-	 * @memberof $language
-	 * @param {string} key - Feature description.Language key
-	 * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
-	 * 
-	 */
-	function use(key) {
-		return $translate.use(key);
-	}
+              /**
+               * Tells angular-translate which language to use by given language key. This 
+               * method is used to change language at runtime. It also takes care of 
+               * storing the language key in a configured store to let your app remember 
+               * the choosed language.
+               *
+               * When trying to 'use' a language which isn't available it tries to load it 
+               * asynchronously with registered loaders.
+               * 
+               * Returns promise object with loaded language file data or string of the 
+               * currently used language.
+               * 
+               * If no or a falsy key is given it returns the currently used language key. 
+               * The returned string will be undefined if setting up $translate hasn't 
+               * finished.
+               * 
+               * @memberof $language
+               * @param {string} key - Feature description.Language key
+               * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
+               * 
+               */
+              function use(key) {
+                  return $translate.use(key);
+              }
 
-	/**
-	 * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
-	 * the module will drop all existent translation tables and load new version of those which
-	 * are currently in use.
-	 *
-	 * Refresh means that the module will drop target translation table and try to load it again.
-	 *
-	 * In case there are no loaders registered the refresh() method will throw an Error.
-	 *
-	 * If the module is able to refresh translation tables refresh() method will broadcast
-	 * $translateRefreshStart and $translateRefreshEnd events.
-	 *
-	 * @example
-	 * // this will drop all currently existent translation tables and reload those which are
-	 * // currently in use
-	 * $translate.refresh();
-	 * // this will refresh a translation table for the en_US language
-	 * $translate.refresh('en_US');
-	 *
-	 * @param {string} langKey A language key of the table, which has to be refreshed
-	 *
-	 * @return {promise} Promise, which will be resolved in case a translation tables refreshing
-	 * process is finished successfully, and reject if not.
-	 */
-	function refresh(key){
-		return $translate.refresh(key);
-	}
+              /**
+               * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
+               * the module will drop all existent translation tables and load new version of those which
+               * are currently in use.
+               *
+               * Refresh means that the module will drop target translation table and try to load it again.
+               *
+               * In case there are no loaders registered the refresh() method will throw an Error.
+               *
+               * If the module is able to refresh translation tables refresh() method will broadcast
+               * $translateRefreshStart and $translateRefreshEnd events.
+               *
+               * @example
+               * // this will drop all currently existent translation tables and reload those which are
+               * // currently in use
+               * $translate.refresh();
+               * // this will refresh a translation table for the en_US language
+               * $translate.refresh('en_US');
+               *
+               * @param {string} langKey A language key of the table, which has to be refreshed
+               *
+               * @return {promise} Promise, which will be resolved in case a translation tables refreshing
+               * process is finished successfully, and reject if not.
+               */
+              function refresh(key) {
+                  return $translate.refresh(key);
+              }
 
-	/*
-	 * Service struct
-	 */
-	return {
-		language : language,
-		languages : languages,
-		newLanguage : newLanguage,
-		deleteLanguage: deleteLanguage,
-		proposedLanguage : proposedLanguage,
-		refresh: refresh,
-		use: use
-	};
-});
+              /*
+               * Service struct
+               */
+              return {
+                  language: language,
+                  languages: languages,
+                  newLanguage: newLanguage,
+                  deleteLanguage: deleteLanguage,
+                  proposedLanguage: proposedLanguage,
+                  refresh: refresh,
+                  use: use
+              };
+          });
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  *
@@ -6831,6 +6779,675 @@ angular.module('mblowfish-core')
 	};
 });
 
+///*
+// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+// * 
+// * Permission is hereby granted, free of charge, to any person obtaining a copy
+// * of this software and associated documentation files (the "Software"), to deal
+// * in the Software without restriction, including without limitation the rights
+// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// * copies of the Software, and to permit persons to whom the Software is
+// * furnished to do so, subject to the following conditions:
+// * 
+// * The above copyright notice and this permission notice shall be included in all
+// * copies or substantial portions of the Software.
+// * 
+// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// * SOFTWARE.
+// */
+//'use strict';
+//angular.module('mblowfish-core') //
+//
+///**
+// * @ngdoc Services
+// * @name $app
+// * @description Application manager
+// * 
+// * You can access app in view.
+// * 
+// * ## settings
+// * 
+// * Settings are stored in the local storage and each user can edit it directly.
+// * 
+// * ## configurations
+// * 
+// * Configuration is stored on server an owners are allowed to update. Do not store
+// * secure properties on configuration.
+// * 
+// * @property {object}  app  - Application repository.
+// * @property {string}  app.dir  - Application direction which is updated automatically baed on configuaration and setting.
+// * @property {object}  app.setting  - Application setting.
+// * @property {object}  app.config  - Application setting.
+// * 
+// */
+//.service('$app', function($rootScope, $usr, $monitor, $actions, $q, $cms, $translate, $mdDateLocale, $localStorage) {
+//
+//	var APP_PREFIX = 'angular-material-blowfish-';
+//	var APP_CNF_MIMETYPE = 'application/amd-cnf';
+//	var app = {
+//			state : {
+//				// loading, fail, ready, error
+//				stage : 'starting',
+//				status : 'loading',
+//				message : null
+//			},
+//			logs : [],
+//			user : {
+//				current : {},
+//				anonymous : true,
+//				administrator : false,
+//				owner : false,
+//				member : false,
+//				authorized : false
+//			},
+//			config : {},
+//			jobs : [],
+//			setting:{}
+//	};
+//
+//	/*
+//	 * متغیرهای مدیریت تنظیم‌ها
+//	 * 
+//	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+//	 * کارهای تکراری جلوگیری کنیم.
+//	 * 
+//	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+//	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+//	 * دهد.
+//	 */
+//	var appConfigLock = false;
+//	var appConfigDirty = false;
+//
+//	/*
+//	 * شنود تغییرهای تنظیمات
+//	 */
+//	$rootScope.$watch('app.config', function() {
+//		if (!app.user.owner) {
+//			return;
+//		}
+//		appConfigDirty = true;
+//		if (appConfigLock) {
+//			return;
+//		}
+//		return storeApplicationConfig();
+//	}, true);
+//
+//	/*
+//	 * watch direction and update app.dir
+//	 */
+//	$rootScope.$watch(function() {
+//		if(!app.config.local){
+//			app.config.local = {};
+//		}
+//		return app.setting.dir || app.config.local.dir;
+//	}, function(value) {
+//		app.dir = (app.setting.dir || app.config.local.dir);
+//	});
+//
+//	/*
+//	 * watch local
+//	 */
+//	$rootScope.$watch(function(){
+//		// TODO: maso, 2018: remove this part in the next release
+//		if(!angular.isObject(app.config.local)){
+//			app.config.local = {};
+//		}
+//		// Check language
+//		return app.setting.local || app.config.local.language || 'en';
+//	}, function(key){
+//		// 0- set app local
+//		app.local = key;
+//
+//		// 1- change language
+//		$translate.use(key);
+//		// 2- chnage date format
+//		// Change moment's locale so the 'L'-format is adjusted.
+//		// For example the 'L'-format is DD-MM-YYYY for Dutch
+//		moment.loadPersian();
+//		moment.locale(key);
+//
+//		// Set month and week names for the general $mdDateLocale service
+//		var localeDate = moment.localeData();
+//		$mdDateLocale.months      = localeDate._months;
+//		$mdDateLocale.shortMonths = localeDate._monthsShort;
+//		$mdDateLocale.days        = localeDate._weekdays;
+//		$mdDateLocale.shortDays   = localeDate._weekdaysMin;
+//		// Optionaly let the week start on the day as defined by moment's locale data
+//		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+//	});
+//
+//	/*
+//	 * watch calendar
+//	 * 
+//	 */
+//	$rootScope.$watch(function(){
+//		return app.setting.calendar || app.config.calendar || 'Gregorian';
+//	}, function(key){
+//		// 0- set app local
+//		app.calendar = key;
+//	});
+//
+//
+//	var configRequesters = {};
+//
+//	/**
+//	 * خصوصیت را از تنظیم‌ها تعیین می‌کند
+//	 * 
+//	 * خصوصیت تعیین شده را از تنظیم‌های سیستم برمی‌گرداند در صورتی که مقدار
+//	 * تعیین شده وجود نداشته باشد، مقدار پیش فرض را به عنوان نتیجه برمی‌گرداند
+//	 * 
+//	 * @param key
+//	 * @param defaultValue
+//	 * @returns promiss
+//	 */
+//	function getApplicationConfig(key, defaultValue) {
+//		if(app.state.status !== 'loading' && app.state.status !== 'fail'){
+//			return $q.when(app.config[key] || defaultValue);
+//		}			
+//		var defer = $q.defer();
+//		configRequesters[key] = configRequesters[key] || [];
+//		configRequesters[key].push(defer);
+//		return defer.promise;
+//	}
+//
+//	$rootScope.$watch('app.state.status', function(val){
+//		if(val === 'loading'){
+//			return;
+//		}
+//		angular.forEach(configRequesters, function(defers, key){
+//			angular.forEach(defers, function(def){
+//				if(val === 'fail' || val === 'error'){						
+//					def.reject('Fail to get config');
+//				}else{
+//					def.resolve(app.config[key]);
+//				}
+//			});
+//		});
+//	});
+//
+//	function setConfig(key, value){
+//		return $timeout(function() {
+//			return app.config[key] = value;
+//		}, 1);
+//	}
+//
+//	/**
+//	 * تنظیم‌های نرم افزار را لود می‌کند.
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function loadApplicationConfig() {
+//		_loadingLog('loading configuration', 'fetch configuration document');
+//		return $cms.content(APP_PREFIX + app.key) //
+//		.then(function(content) {
+//			app._acc = content;
+//			_loadingLog('loading configuration', 'fetch configuration content');
+//			return app._acc.value();
+//		}, function(error) {
+//			if(error.status === 404){
+//				return {};
+//			}
+//			// TODO: maso, 2018: throw an excetpion and go the the fail state
+//			_loadingLog('loading configuration', 'warning: ' + error.message);
+//		}) //
+//		.then(function(appConfig) {
+//			app.config = appConfig;
+//			_loadingLog('loading configuration', 'application configuration loaded successfully');
+//		});
+//	}
+//
+//	/**
+//	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function storeApplicationConfig() {
+//		if (!app.user.owner || appConfigLock) {
+//			var message = 'fail';
+//			var deferred = $q.defer();
+//			deferred.reject({
+//				data : {
+//					message : message
+//				}
+//			});
+//			return deferred.promise;
+//		}
+//		appConfigLock = true;
+//		var prommise;
+//		if (app._acc) { // content loaded
+//			appConfigDirty = false;
+//			prommise = app._acc.setValue(app.config);
+//		} else { // create content
+//			prommise = $cms.newContent({
+//				name : APP_PREFIX + app.key,
+//				mimetype : APP_CNF_MIMETYPE
+//			}) //
+//			.then(function(content) {
+//				appConfigDirty = false;
+//				app._acc = content;
+//				return app._acc.setValue(app.config);
+//			});
+//		} //
+//		return prommise //
+//		.finally(function() {
+//			appConfigLock = false;
+//			if (appConfigDirty) {
+//				storeApplicationConfig();
+//			}
+//		});
+//	}
+//	/**
+//	 * مقدار تنظیم‌ها را بازیابی می‌کند.
+//	 * 
+//	 * @param key
+//	 * @param defaultValue
+//	 * @returns promiss
+//	 */
+//	function setting(key, defaultValue) {
+//		var deferred = $q.defer();
+//		if (key in $rootScope.app.setting) {
+//			deferred.resolve($rootScope.app.setting[key]);
+//		} else {
+//			deferred.resolve(defaultValue);
+//		}
+//		return deferred.promise;
+//	}
+//
+//	/**
+//	 * مقدار جدید را تعیین می‌کند.
+//	 * 
+//	 * @param key
+//	 * @param value
+//	 * @returns promiss
+//	 */
+//	function setSetting(key, value) {
+//		var deferred = $q.defer();
+//		$rootScope.app.setting[key] = value;
+//		deferred.resolve(value);
+//		return deferred.promise;
+//	}
+//
+//	/**
+//	 * اطلاعات کاربر جاری را تعیین می‌کند.
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function currentUser() {
+//		return $usr.session();
+//	}
+//
+//	/**
+//	 * بی هویت بودن کاربر جاری را تعیین می‌کند
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function isAnonymous() {
+//		var deferred = $q.defer();
+//		deferred.resolve(app.user.anonymous);
+//		return deferred.promise;
+//	}
+//
+//	/**
+//	 * مالک بودن کاربر جاری را تعیین می‌کند
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function isOwner() {
+//		var deferred = $q.defer();
+//		deferred.resolve(app.user.owner);
+//		return deferred.promise;
+//	}
+//
+//	/**
+//	 * عضو بودن کاربر جاری را تعیین می‌کند
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function isMember() {
+//		var deferred = $q.defer();
+//		deferred.resolve(app.user.member);
+//		return deferred.promise;
+//	}
+//
+//	/**
+//	 * مجاز بودن کاربر جاری را تعیین می‌کند
+//	 * 
+//	 * @returns promiss
+//	 */
+//	function isAuthorized() {
+//		var deferred = $q.defer();
+//		deferred.resolve(authorized);
+//		return deferred.promise;
+//	}
+//
+//	/**
+//	 * ورود به سیستم
+//	 * 
+//	 * <pre><code>
+//	 * $app.login({
+//	 *     login : 'user name',
+//	 *     password : 'password'
+//	 * }).then(function(user) {
+//	 *     //Success
+//	 *     }, function(ex) {
+//	 * 	//Fail
+//	 *     });
+//	 * </code></pre>
+//	 * 
+//	 * @memberof $app
+//	 * @param {object}
+//	 *                credential پارارمترهای مورد انتظار در احراز اصالت
+//	 * @return {promise(PUser)} اطلاعات کاربر جاری
+//	 */
+//	function login(credential) {
+//		return $usr.login(credential) //
+//		.then(loadUserProperty)//
+//		.then(_updateApplicationState);
+//	}
+//
+//	/**
+//	 * عمل خروج کاربر
+//	 * 
+//	 * کاربر را از سیستم خارج کرده و اصلاعات آن را در سیستم به روز می‌کند.
+//	 * 
+//	 * @memberof $app
+//	 * @returns {Promise<PUser>} کاربر جاری
+//	 */
+//	function logout() {
+//		return $usr.logout() //
+//		.then(loadUserProperty)//
+//		.then(_updateApplicationState);
+//	}
+//
+//	/*
+//	 * اطلاعات کاربر جاری را لود می‌کند
+//	 * 
+//	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+//	 * نرم افزار پر می‌شود.
+//	 * 
+//	 * If there is a role x.y (where x is application code and y is code name) in role list then
+//	 * the folloing var is added in user:
+//	 * 
+//	 *     app.user.x_y
+//	 * 
+//	 */
+//	function loadUserProperty() {
+//		_loadingLog('loading user info', 'fetch user information');
+//		return $usr.session() //
+//		.then(function(user) {
+//			// app user date
+//			app.user={};
+//			app.user.current = user;
+//			app.user.anonymous = user.isAnonymous();
+//			_loadingLog('loading user info', 'user information loaded successfully');
+//
+//			_loadingLog('loading user info', 'check user permissions');
+//			if(angular.isArray(user.roles)){
+//				for(var i=0; i < user.roles.length; i++){
+//					var role = user.roles[i];
+//					app.user[role.application+'_'+role.code_name] = role;
+//				}
+//				delete user.roles;
+//			}
+//
+//			/*
+//			 * @DEPRECATED: this monitor will be removed in the next version.
+//			 */
+//			return $monitor //
+//			.monitor('user', 'owner') //
+//			.then(function(monitor) {
+//				return monitor.refresh();
+//			}) //
+//			.then(function(monitor) {
+//				app.user.owner = monitor.value;
+//			});
+//		}, function(error) {
+//			_loadingLog('loading user info', 'warning: ' + error.message);
+//		});
+//	}
+//
+//	/*
+//	 * Loads local storage
+//	 */
+//	function loadLocalStorage(){
+//		$rootScope.app.setting = $localStorage.$default({
+//			dashboardModel : {}
+//		});
+////		$rootScope.app.session = $localStorage.$default({
+////		dashboardModel : {}
+////		});
+//		return $q.when($rootScope.app.setting);
+//	}
+//
+//	/*
+//	 * Attaches loading logs
+//	 */
+//	function _loadingLog(stage, message) {
+//		app.state.stage = stage;
+//		app.state.message = message;
+//		if (message) {
+//			app.logs.push(message);
+//		}
+//	}
+//
+//	/*
+//	 * Attache error logs
+//	 */
+//	function _loadingError(error) {
+//		app.state.status = 'fail';
+//		_loadingLog(error.message);
+//	}
+//
+//	/*
+//	 * Check system values and update application state
+//	 * 
+//	 * Possible states:
+//	 * - loading
+//	 * - ready
+//	 * - anonymous
+//	 * - fail
+//	 * 
+//	 */
+//	function _updateApplicationState(){
+//		if(app.state.status === 'fail'){
+//			return;
+//		}
+//		if(app.user.anonymous){
+//			app.state.status = 'anonymous';
+//			return;
+//		}
+//		app.state.status = 'ready';
+//	}
+//
+//	/**
+//	 * Starts the application 
+//	 * 
+//	 * Loads local storage used to store user settings.
+//	 * 
+//	 * قبل از اینکه هرکاری توی سیستم انجام بدید باید نرم افزار رو اجرا کنید در
+//	 * غیر این صورت هیچ یک از خصوصیت‌هایی که برای نرم افزار تعیین کرده‌اید
+//	 * بارگذاری نخواهد شد. هر نرم افزار باید یک کلید منحصر به فرد داشده باشد تا
+//	 * بتوان تنظیم‌های آن را به صورت یکتا ذخیره و بازیابی کنیم.
+//	 * 
+//	 * @note بهتر است برای هر نسخه یک کلید منحصر به فرد داشته باشید.
+//	 * 
+//	 * @memberof $app
+//	 * @param key application key
+//	 * @returns promiss
+//	 */
+//	function start(key) {
+//		app.state.status = 'loading';
+//		_loadingLog('starting application', 'loading application');
+//		app.key = key;
+//		// application jobs
+//		var jobs = [];
+//		jobs.push(loadLocalStorage());
+//		jobs.push(loadUserProperty());
+//		jobs.push(loadApplicationConfig());
+//		return $q.all(jobs) //
+//		// FIXME: maso, 2018: run applilcation defined jobs after all application jobs
+////		.then(function(){
+////		return $q.all(applicationJobs);
+////		})
+//		.then(_updateApplicationState)
+//		.catch(function() {
+//			// TODO: hadi 1396-12-10: check network connection error.
+//		}) //
+//		.finally(function() {
+//			if (app.state.status !== 'fail') {
+//				_loadingLog('starting application', 'application is started successfully');
+//			}
+//		});
+//	}
+//
+//
+//	var _toolbars = [];
+//
+//	/**
+//	 * Get list of all toolbars
+//	 * 
+//	 * @memberof $app
+//	 * @return promiss
+//	 */
+//	function toolbars(){
+//		return $q.when({
+//			items: _toolbars
+//		});
+//	}
+//
+//	/**
+//	 * Add new toolbar
+//	 * 
+//	 * @memberof $app
+//	 * @return promiss
+//	 */
+//	function newToolbar(toolbar){
+//		_toolbars.push(toolbar);
+//	}
+//
+//	/**
+//	 * Get a toolbar by id
+//	 * 
+//	 * @memberof $app
+//	 * @return promiss
+//	 */
+//	function toolbar(id){
+//		for(var i = 0; i < _toolbars.length; i++){
+//			if(_toolbars[i].id === id){
+//				return $q.when(_toolbars[i]);
+//			}
+//		}
+//		return $q.reject('Toolbar not found');
+//	}
+//
+//	var _sidenavs = [];
+//
+//	/**
+//	 * Get list of all sidenavs
+//	 * 
+//	 * @memberof $app
+//	 * @return promiss
+//	 */
+//	function sidenavs(){
+//		return $q.when({
+//			items: _sidenavs
+//		});
+//	}
+//
+//	/**
+//	 * Add new sidenav
+//	 * 
+//	 * @memberof $app
+//	 * @return promiss
+//	 */
+//	function newSidenav(sidenav){
+//		_sidenavs.push(sidenav);
+//	}
+//
+//	/**
+//	 * Get a sidnav by id
+//	 * 
+//	 * @memberof $app
+//	 * @return promiss
+//	 */
+//	function sidenav(id){
+//		for(var i = 0; i < _sidenavs.length; i++){
+//			if(_sidenavs[i].id === id){
+//				return $q.when(_sidenavs[i]);
+//			}
+//		}
+//		return $q.reject('Sidenav not found');
+//	}
+//
+//
+//	var _defaultToolbars = [];
+//
+//	function setDefaultToolbars(defaultToolbars){
+//		_defaultToolbars = defaultToolbars || [];
+//		return this;
+//	}
+//
+//	function defaultToolbars(){
+//		return _defaultToolbars;
+//	}
+//
+//	var _defaultSidenavs = [];
+//
+//	function setDefaultSidenavs(defaultSidenavs){
+//		_defaultSidenavs = defaultSidenavs || [];
+//		return this;
+//	}
+//
+//	function defaultSidenavs(){
+//		return _defaultSidenavs;
+//	}
+//
+//
+//
+//	$rootScope.app = app;
+//
+//	var apps = {};
+//	// Init
+//	apps.start = start;
+//
+//	// user management
+//	apps.login = login;
+//	apps.logout = logout;
+//	apps.currentUser = currentUser;
+//	apps.isAnonymous = isAnonymous;
+//	apps.isOwner = isOwner;
+//	apps.isMember = isMember;
+//	apps.isAuthorized = isAuthorized;
+//
+//	// Configuaration
+//	apps.config = getApplicationConfig;
+//	apps.setConfig = setConfig;
+//	apps.loadConfig = loadApplicationConfig; // deprecated
+//	apps.storeConfig = storeApplicationConfig; // deprecated
+//	apps.setting = setting;
+//	apps.setSetting = setSetting;
+//
+//	// toolbars
+//	apps.toolbars = toolbars;
+//	apps.newToolbar = newToolbar;
+//	apps.toolbar = toolbar;
+//	apps.setDefaultToolbars = setDefaultToolbars;
+//	apps.defaultToolbars = defaultToolbars;
+//
+//	// sidenav
+//	apps.sidenavs = sidenavs;
+//	apps.newSidenav = newSidenav;
+//	apps.sidenav = sidenav;
+//	apps.setDefaultSidenavs = setDefaultSidenavs;
+//	apps.defaultSidenavs = defaultSidenavs;
+//
+//	return apps;
+//});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6878,13 +7495,13 @@ angular.module('mblowfish-core')
 	 * Gets a config page
 	 * 
 	 * @name config
-	 * @param {string} configId - Id of the config
+	 * @param {string} pageId - Id of the config
 	 * @return {promiss<config>} return config
 	 */
 	function getPage(pageId){
 		var page = null;
 		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id == pageId){
+			if(_pages[i].id === pageId){
 				return $q.when(_pages[i]);
 			}
 		}
@@ -6905,7 +7522,7 @@ angular.module('mblowfish-core')
 	var app = {
 			pages : pages,
 			page: getPage,
-			newPage : newPage,
+			newPage : newPage
 	};
 	return app;
 });
@@ -7025,6 +7642,213 @@ angular.module('mblowfish-core')
 	};
 });
 
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
+  angular.module('mblowfish-core') //
+
+          /**
+           * @ngdoc Services
+           * @name $sidenav
+           * @param {} $q
+           * @description sidenavs manager
+           * 
+           */
+          .service('$sidenav', function ($q) {
+              var _sidenavs = [];
+
+	/**
+	 * Get list of all sidenavs
+	 * 
+	 * @memberof $sidenav
+	 * @return promiss
+	 */
+	function sidenavs(){
+		return $q.when({
+			items: _sidenavs
+		});
+	}
+
+	/**
+	 * Add new sidenav
+	 * 
+	 * @memberof $sidenav
+         * @param {} sidenav
+	 * @return promiss
+	 */
+	function newSidenav(sidenav){
+		_sidenavs.push(sidenav);
+	}
+
+	/**
+	 * Get a sidnav by id
+	 * 
+	 * @memberof $sidenav
+         * @param {} id
+	 * @return promiss
+	 */
+	function sidenav(id){
+		for(var i = 0; i < _sidenavs.length; i++){
+			if(_sidenavs[i].id === id){
+				return $q.when(_sidenavs[i]);
+			}
+		}
+		return $q.reject('Sidenav not found');
+	}
+
+	var _defaultSidenavs = [];
+
+        /**
+	 * Add new sidenav
+	 * 
+	 * @memberof $sidenav
+         * @param {} defaultSidenavs
+	 * @return promiss
+	 */
+	function setDefaultSidenavs(defaultSidenavs){
+		_defaultSidenavs = defaultSidenavs || [];
+		return this;
+	}
+
+         /**
+	 * Add new sidenav
+	 * 
+	 * @memberof $sidenav
+	 * @return promiss
+	 */
+	function defaultSidenavs(){
+		return _defaultSidenavs;
+	}
+
+
+	var apps = {};
+
+	apps.sidenavs = sidenavs;
+	apps.newSidenav = newSidenav;
+	apps.sidenav = sidenav;
+	apps.setDefaultSidenavs = setDefaultSidenavs;
+	apps.defaultSidenavs = defaultSidenavs;
+
+	return apps;
+          });
+  
+  
+
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
+  angular.module('mblowfish-core') //
+
+          /**
+           * @ngdoc Services
+           * @name $toolbar
+           * @description toolbars manager
+           * 
+           */
+          .service('$toolbar', function ($q) {
+
+              var _toolbars = [];
+
+              /**
+               * Get list of all toolbars
+               * 
+               * @memberof $app
+               * @return promiss
+               */
+              function toolbars() {
+                  return $q.when({
+                      items: _toolbars
+                  });
+              }
+
+              /**
+               * Add new toolbar
+               * 
+               * @memberof $toolbar
+               * @param {} toolbar
+               * @return promise
+               */
+              function newToolbar(toolbar) {
+                  _toolbars.push(toolbar);
+              }
+
+              /**
+               * Get a toolbar by id
+               * 
+               * @memberof $app
+               * @param {} id
+               * @return promise
+               */
+              function toolbar(id) {
+                  for (var i = 0; i < _toolbars.length; i++) {
+                      if (_toolbars[i].id === id) {
+                          return $q.when(_toolbars[i]);
+                      }
+                  }
+                  return $q.reject('Toolbar not found');
+              }
+
+              var _defaultToolbars = [];
+              function setDefaultToolbars(defaultToolbars) {
+                  _defaultToolbars = defaultToolbars || [];
+                  return this;
+              }
+
+              function defaultToolbars() {
+                  return _defaultToolbars;
+              }
+              
+              
+              
+              var apps = {};
+              // toolbars
+              apps.toolbars = toolbars;
+              apps.newToolbar = newToolbar;
+              apps.toolbar = toolbar;
+              apps.setDefaultToolbars = setDefaultToolbars;
+              apps.defaultToolbars = defaultToolbars;
+              
+              return apps;
+          });
+
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -7064,7 +7888,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir==='rtl', 'mb-ltr-direction': app.dir!=='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> </div> </div> </div>"
   );
 
 
@@ -7099,7 +7923,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-user-menu.html',
-    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%\" ng-src={{app.user.current.avatar}}> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title | translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()>{{'Settings' | translate}}</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=logout()>{{'Logout' | translate}}</md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
+    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%\" ng-src={{app.user.current.avatar}}> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title| translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span translate>Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span translate>Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span translate>Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
   );
 
 
