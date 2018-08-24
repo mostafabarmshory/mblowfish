@@ -31,9 +31,13 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope, $mdSidenav,
-     $q, $widget, $controller, $compile) {
+     $q, $wbUtil, $controller, $compile) {
 
-
+	/*
+	 * Bank of sidnav elements. 
+	 */
+	var elementBank = angular.element('<div></div>');
+	
 
 	/*
 	 * Load page and create an element
@@ -58,9 +62,10 @@ angular.module('mblowfish-core')
 		});
 
 		// 2- create element
-		return $widget.getTemplateFor(page)
+		return $wbUtil.getTemplateFor(page)
 		.then(function(template) {
 			var element = angular.element(prefix + template + postfix);
+			elementBank.append(element);
 
 			// 3- bind controller
 			var link = $compile(element);

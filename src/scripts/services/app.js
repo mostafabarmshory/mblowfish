@@ -190,15 +190,19 @@ angular.module('mblowfish-core') //
 			// app user data
 			app.user = {};
 			app.user.current = user;
-			app.user.anonymous = user.isAnonymous();
 			// load user roles
 			_loadingLog('loading user info', 'user information loaded successfully');
 			_loadingLog('loading user info', 'check user permissions');
 			_loadRolesOfUser(user.roles);
 			for (var i = 0; i < user.groups.length; i++) {
-				_loadRolesOfUser(ser.groups[i].roles);
+				_loadRolesOfUser(user.groups[i].roles);
 			}
-			
+			//
+			if(!user.isAnonymous()){			
+				app.user.anonymous = true;
+				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+				app.user.administrator = app.user.owner;
+			}
 		}, function (error) {
 			if (error.status === 500) {
 				// TODO: maso, 2018: throw an excetpion and go the the fail

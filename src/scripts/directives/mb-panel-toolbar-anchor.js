@@ -30,7 +30,7 @@ angular.module('mblowfish-core')
  * @description display a toolbar
  * 
  */
-.directive('mbPanelToolbarAnchor', function($route, $toolbar, $rootScope, $q, $widget, $controller, $compile) {
+.directive('mbPanelToolbarAnchor', function($route, $toolbar, $rootScope, $q, $wbUtil, $controller, $compile) {
 
 	/*
 	 * Load page and create an element
@@ -51,7 +51,7 @@ angular.module('mblowfish-core')
 		});
 
 		// 2- create element
-		return $widget.getTemplateFor(page)
+		return $wbUtil.getTemplateFor(page)
 		.then(function(template) {
 			var element = angular.element(prefix + template + postfix);
 
