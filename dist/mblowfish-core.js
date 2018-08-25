@@ -785,26 +785,8 @@ angular.module('mblowfish-core')
  */
 .controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
 	$rootScope.showHelp = false;
-	var lastItem = 'not-found';
 	var lastLoaded;
 
-
-	function _getHelpId(item) {
-		if(!item){
-			return lastItem;
-		}
-		var id = item.helpId;
-
-		if (angular.isFunction(id)) {
-			id = id(item);
-		}
-
-		if (!angular.isDefined(id)) {
-			id = 'not-found';
-		}
-		lastItem = id;
-		return id;
-	}
 
 	/**
 	 * load help content for the item
@@ -835,7 +817,7 @@ angular.module('mblowfish-core')
 
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
-	}
+	};
 
 	/*
 	 * If user want to display help, content will be loaded.
@@ -5188,14 +5170,14 @@ angular.module('mblowfish-core')
  * @name $actions
  * @description Manage application actions
  * 
- * Controllers and views can access actions which is registered by an applications. This 
- * service is responsible to manage global actions.
+ * Controllers and views can access actions which is registered by an
+ * applications. This service is responsible to manage global actions.
  * 
  */
 .service('$actions', function(Action, ActionGroup) {
 	var _actionsList = [];
 	var _actionsMap = {};
-	
+
 	var _groupsList = [];
 	var _groupsMap = [];
 
@@ -5204,90 +5186,89 @@ angular.module('mblowfish-core')
 			'items' : _actionsList
 		};
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _newAction(data){
+	function _newAction(data) {
 		// Add new action
 		var action = new Action(data);
 		_actionsMap[action.id] = action;
 		_actionsList.push(action);
-    	for(var i = 0; i < action.groups.length; i++){
-    		var group = _group(action.groups[i]);
-    		group.items.push(action);
-    	}
-    	if(action.scope){
-    		action.scope.$on("$destroy", function() {
-    	        _removeAction(action);
-    	    });
-    	}
+		for (var i = 0; i < action.groups.length; i++) {
+			var group = _group(action.groups[i]);
+			group.items.push(action);
+		}
+		if (action.scope) {
+			action.scope.$on("$destroy", function() {
+				_removeAction(action);
+			});
+		}
 		return action;
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _action(actionId){
+	function _action(actionId) {
 		var action = _actionsMap[actionId];
-		if(action){
+		if (action) {
 			return action;
 		}
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _removeAction(action){
+	function _removeAction(action) {
 		_actionsMap[action.id] = null;
 		var index = _actionsList.indexOf(action);
-	    if (index > -1) {
-	    	_actionsList.splice(index, 1);
-	    	for(var i = 0; i < action.groups.length; i++){
-	    		var group = _group(action.groups[i]);
-	    		var j = group.items.indexOf(action);
-	    		if(j > -1){
-	    			group.items.splice(j, 1);
-	    		}
-	    	}
-	    	return action;
-	    }
+		if (index > -1) {
+			_actionsList.splice(index, 1);
+			for (var i = 0; i < action.groups.length; i++) {
+				var group = _group(action.groups[i]);
+				var j = group.items.indexOf(action);
+				if (j > -1) {
+					group.items.splice(j, 1);
+				}
+			}
+			return action;
+		}
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _groups(){
+	function _groups() {
 		return {
 			'items' : _groupsList
 		};
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _newGroup(groupData){
+	function _newGroup(groupData) {
 		// TODO: maso, 2018: assert id
 		return _group(groupData.id, groupData);
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _group(groupId, groupData){
+	function _group(groupId, groupData) {
 		var group = _groupsMap[groupId];
-		if(!group){
+		if (!group) {
 			group = new ActionGroup();
 			group.id = groupId;
 			_groupsMap[group.id] = group;
 			_groupsList.push(group);
 		}
-		if(groupData){
+		if (groupData) {
 			angular.extend(group, groupData);
 		}
 		return group;
 	}
-	
-	
+
 	return {
-			// actions
-			actions : _actions,
-			newAction: _newAction,
-			action: _action,
-			removeAction: _removeAction,
-			
-			// groups
-			groups: _groups,
-			newGroup: _newGroup,
-			group: _group,
+		// actions
+		actions : _actions,
+		newAction : _newAction,
+		action : _action,
+		removeAction : _removeAction,
+
+		// groups
+		groups : _groups,
+		newGroup : _newGroup,
+		group : _group,
 	};
 });
 
@@ -5339,16 +5320,13 @@ angular.module('mblowfish-core') //
  * <li>Managing an internally Finite State Machine(FSM) to control the state of
  * the app.</li>
  * <li>Performing login and logout.</li>
- * </ol>
- *  ## user
+ * </ol> ## user
  * 
  * User information will be loaded on the start up and tracked during the
- * application life time.
- *  ## settings
+ * application life time. ## settings
  * 
- * Settings are stored in the local storage and each user can edit it directly.
- * 
- *  ## Options
+ * Settings are stored in the local storage and each user can edit it directly. ##
+ * Options
  * 
  * There is list of Key-Value stored in the sever and control the server
  * behaviors. In the. $app are called options. Options are read only and allow
@@ -5357,16 +5335,14 @@ angular.module('mblowfish-core') //
  * All options can access from view as:
  * 
  * <code><pre>
- * 	<span>{{app.option['captcha.engine']}}</span>
+ * 	&lt;span&gt;{{app.option['captcha.engine']}}&lt;/span&gt;
  * </pre></code>
  * 
  * In the code:
  * 
  * <code><pre>
- * 	var a = $rootScope.app.option['captcha.engine'];
- * </pre></code>
- * 
- *  ## configurations
+ * var a = $rootScope.app.option['captcha.engine'];
+ * </pre></code> ## configurations
  * 
  * Configuration is stored on server an owners are allowed to update. Do not
  * store secure properties on configuration.
@@ -5383,6 +5359,10 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
 		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+
+	var apps = this;
+	
+	// Constants
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
 	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
@@ -5414,6 +5394,8 @@ angular.module('mblowfish-core') //
 			setting: {},
 			options: {}
 	};
+	$rootScope.app = app;
+
 	/*
 	 * متغیرهای مدیریت تنظیم‌ها
 	 * 
@@ -5432,373 +5414,9 @@ angular.module('mblowfish-core') //
 			options_loaded: false,
 			configs_loaded: false
 	};
-
-	// All required functions
-	// ---------------------------------------------------------------------------------------
-	function start(key) {// this function is called when the app get started.
-		app.key = key;
-		_loadingLog('start_event', 'loading application');
-		stateMachine.start_event();
-	}
-
-	/**
-	 * تنظیم‌های نرم افزار را لود می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function loadApplicationConfig() {
-		_loadingLog('loading configuration', 'fetch configuration document');
-		$cms.getContent(APP_PREFIX + app.key) //
-		.then(function (content) {
-
-			app._acc = content;
-			_loadingLog('loading configuration', 'fetch configuration content');
-			return app._acc.value();
-		}, function (error) {
-			if (error.status === 404) {
-				stateMachine.configs_not_found();
-				return {};
-			} else if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading configuration', 'network error');
-				stateMachine.network_error();
-			}
-		}) //
-		.then(function (appConfig) {
-			app.config = appConfig;
-			ctrl.configs_loaded = true;
-			_loadingLog('loading configuration', 'application configuration loaded successfully');
-			stateMachine.loaded();
-			return;
-		});
-	}
-
-	/*
-	 * اطلاعات کاربر جاری را لود می‌کند
-	 * 
-	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-	 * نرم افزار پر می‌شود.
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name)
-	 * in role list then the following var is added in user:
-	 * 
-	 * app.user.x_y
-	 * 
-	 */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		$usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-		.then(function (user) {
-			// load user info
-			ctrl.user_loaded = true;
-			stateMachine.loaded();
-			// app user data
-			app.user = {};
-			app.user.current = user;
-			// load user roles
-			_loadingLog('loading user info', 'user information loaded successfully');
-			_loadingLog('loading user info', 'check user permissions');
-			_loadRolesOfUser(user.roles);
-			for (var i = 0; i < user.groups.length; i++) {
-				_loadRolesOfUser(user.groups[i].roles);
-			}
-			//
-			if(!user.isAnonymous()){			
-				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-				app.user.administrator = app.user.owner;
-			} else {
-				app.user.anonymous = true;
-			}
-		}, function (error) {
-			if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				_loadingLog('loading user', 'server error');
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading user', 'network error');
-				stateMachine.network_error();
-			}
-		});
-	}
-
-	/*
-	 * Loads options
-	 */
-	function loadOptions() {
-		// TODO: Masood, 2018: options should be get from server. Now, its api
-		// doesn't exist.
-		_loadingLog('loading options', 'fetch options document');
-		// get the options from server and save in app.options.
-		app.options = {};
-		$tenant.getSettings(optionsQuery)
-		.then(function (res) {
-			for(var i = 0; i < res.items.length; i++){
-				var item = res.items[i];
-				app.options[item.key] = item.value;
-			}
-		}, function (error) {
-			if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail state
-				_loadingLog('loading options', 'server error');
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading options', 'network error');
-				stateMachine.network_error();
-			}
-		});
-		ctrl.options_loaded = true;
-		stateMachine.loaded();
-		var deferred = $q.defer();
-		deferred.resolve('ok');
-		return deferred.promise;
-	}
-	/*
-	 * Loads local storage
-	 */
-	function loadSetting() {
-		_loadingLog('loading setting from local storage', 'fetch settings');
-		// TODO: 'key' of app should be used
-//		$localStorage.setPrefix(app.key);
-		app.setting = $localStorage.$default({
-			dashboardModel: {}
-		});
-		_loadingLog('setting loaded', 'fetch settings');
-		//
-		// The lines below is an alternative for lines above but not
-		// recommended.
-//		localStorage.setPrefix(key);
-//		app.setting = $localStorage.app.setting || {dashboardModel: {}};
-//		$rootScope.$watch('app.setting', function () {
-//		$localStorage.app.setting = $rootScope.app.setting;
-//		});$
-	}
-
-
-	/**
-	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function storeApplicationConfig() {
-		if (!app.user.owner || appConfigLock) {
-			var message = 'fail';
-			var deferred = $q.defer();
-			deferred.reject({
-				data: {
-					message: message
-				}
-			});
-			return deferred.promise;
-		}
-		appConfigLock = true;
-		var promise;
-		if (app._acc) { // content loaded
-			appConfigDirty = false;
-			promise = app._acc.setValue(app.config);
-		} else { // create content
-			promise = $cms.putContent({
-				name: APP_PREFIX + app.key,
-				mimetype: APP_CNF_MIMETYPE
-			}).then(function (content) {
-				appConfigDirty = false;
-				app._acc = content;
-				stateMachine.config_created();
-				return app._acc.setValue(app.config);
-			}, function (error) {
-				if (error.status === 404) {
-					stateMachine.configs_not_found();
-					return {};
-				} else if (error.status === 500) {
-					// TODO: maso, 2018: throw an excetpion and go the the fail
-					// state
-					_loadingLog('storeApplicationConfig', 'server error');
-					stateMachine.server_error();
-				} else if (error.status === -1) {
-					_loadingLog('storeApplicationConfig', 'network error');
-					stateMachine.network_error();
-				}
-			});
-		} //
-		return promise //
-		.finally(function () {
-			appConfigLock = false;
-			if (appConfigDirty) {
-				storeApplicationConfig();
-			}
-		});
-	}
-
-	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
-		}
-	}
-
-	/*
-	 * Bind list of roles to app data
-	 */
-	function _loadRolesOfUser(roles){
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			app.user[role.application + '_' + role.code_name] = true;
-		}
-	}
-
-	/**
-	 * بی هویت بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAnonymous() {
-		return app.user.anonymous;
-	}
-
-	/**
-	 * مالک بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isOwner() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.owner);
-		return deferred.promise;
-	}
-
-	/**
-	 * عضو بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isMember() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.member);
-		return deferred.promise;
-	}
-
-	/**
-	 * مجاز بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAuthorized() {
-		var deferred = $q.defer();
-		deferred.resolve(authorized);
-		return deferred.promise;
-	}
-
-	/**
-	 * ورود به سیستم
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 */
-	function login(credential) {
-		if (!isAnonymous()) {
-			var deferred = $q.defer();
-			deferred.resolve('user is login');
-			return deferred.promise;
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function (result) {
-			loadUserProperty();
-		});
-	};
-
-	/**
-	 * عمل خروج کاربر
-	 * 
-	 * @memberof $app
-	 */
-	function logout() {
-		if (isAnonymous()) {
-			var us = $rootScope.app.user;
-			var deferred = $q.defer();
-			deferred.resolve('user is not login');
-			return deferred.promise;
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function (result) {
-			loadUserProperty();
-		});
-	}
-	// ---------------------------------------------------------------------------------------
-	// settings related to direction, language and calendar of the app
-
-	/*
-	 * watch direction and update app.dir
-	 */
-	$rootScope.$watch(function () {
-		if (!app.config.local) {
-			app.config.local = {};
-		}
-		return app.setting.dir || app.config.local.dir;
-	}, function (value) {
-		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-		// version of app.js;
-	});
-	/*
-	 * watch local
-	 */
-	$rootScope.$watch(function () {
-		// TODO: maso, 2018: remove this part in the next release
-		if (!angular.isObject(app.config.local)) {
-			app.config.local = {};
-		}
-		// Check language
-		return app.setting.local || app.config.local.language || 'en';
-	}, function (key) {
-		// 0- set app local
-		app.local = key;
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	});
-	/*
-	 * watch calendar
-	 */
-	$rootScope.$watch(function () {
-		return app.setting.calendar || app.config.calendar || 'Gregorian';
-	}, function (key) {
-		// 0- set app local
-		app.calendar = key;
-	});
-
 	// -----------------------------------------------------
 	var stateMachine = new machina.Fsm({
-		initialize: function (options) {
+		initialize: function (/*options*/) {
 			app.state.status = 'waiting';
 		},
 		namespace: 'stateMachine',
@@ -5956,8 +5574,344 @@ angular.module('mblowfish-core') //
 	loadUserProperty(); // 1. get from server 2. save in app.user
 	loadOptions(); // 1. get from server 2. save in app.options
 	// ------------------------------------------------------------------------
-	$rootScope.app = app;
-	var apps = {};
+	
+	
+
+	// All required functions
+	// ---------------------------------------------------------------------------------------
+	function start(key) {// this function is called when the app get started.
+		app.key = key;
+		_loadingLog('start_event', 'loading application');
+		stateMachine.start_event();
+	}
+
+	/**
+	 * تنظیم‌های نرم افزار را لود می‌کند.
+	 * 
+	 * @returns promiss
+	 */
+	function loadApplicationConfig() {
+		_loadingLog('loading configuration', 'fetch configuration document');
+		$cms.getContent(APP_PREFIX + app.key) //
+		.then(function (content) {
+			app._acc = content;
+			_loadingLog('loading configuration', 'fetch configuration content');
+			return app._acc.value();
+		}, function (error) {
+			if (error.status === 404) {
+				stateMachine.configs_not_found();
+				return {};
+			} else if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail
+				// state
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading configuration', 'network error');
+				stateMachine.network_error();
+			}
+		}) //
+		.then(function (appConfig) {
+			app.config = appConfig;
+			ctrl.configs_loaded = true;
+			_loadingLog('loading configuration', 'application configuration loaded successfully');
+			stateMachine.loaded();
+			return;
+		});
+	}
+
+	/*
+	 * اطلاعات کاربر جاری را لود می‌کند
+	 * 
+	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+	 * نرم افزار پر می‌شود.
+	 * 
+	 * If there is a role x.y (where x is application code and y is code name)
+	 * in role list then the following var is added in user:
+	 * 
+	 * app.user.x_y
+	 * 
+	 */
+	function loadUserProperty() {
+		_loadingLog('loading user info', 'fetch user information');
+		$usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
+		.then(function (user) {
+			// load user info
+			ctrl.user_loaded = true;
+			stateMachine.loaded();
+			// app user data
+			app.user = {};
+			app.user.current = user;
+			// load user roles
+			_loadingLog('loading user info', 'user information loaded successfully');
+			_loadingLog('loading user info', 'check user permissions');
+			_loadRolesOfUser(user.roles);
+			for (var i = 0; i < user.groups.length; i++) {
+				_loadRolesOfUser(user.groups[i].roles);
+			}
+			//
+			if(!user.isAnonymous()){			
+				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+				app.user.administrator = app.user.owner;
+			} else {
+				app.user.anonymous = true;
+			}
+		}, function (error) {
+			if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail
+				// state
+				_loadingLog('loading user', 'server error');
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading user', 'network error');
+				stateMachine.network_error();
+			}
+		});
+	}
+
+	/*
+	 * Loads options
+	 */
+	function loadOptions() {
+		// TODO: Masood, 2018: options should be get from server. Now, its api
+		// doesn't exist.
+		_loadingLog('loading options', 'fetch options document');
+		// get the options from server and save in app.options.
+		app.options = {};
+		$tenant.getSettings(optionsQuery)
+		.then(function (res) {
+			for(var i = 0; i < res.items.length; i++){
+				var item = res.items[i];
+				app.options[item.key] = item.value;
+			}
+		}, function (error) {
+			if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail
+				// state
+				_loadingLog('loading options', 'server error');
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading options', 'network error');
+				stateMachine.network_error();
+			}
+		});
+		ctrl.options_loaded = true;
+		stateMachine.loaded();
+		var deferred = $q.defer();
+		deferred.resolve('ok');
+		return deferred.promise;
+	}
+	
+	/*
+	 * Loads local storage
+	 */
+	function loadSetting() {
+		_loadingLog('loading setting from local storage', 'fetch settings');
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 */
+		app.setting = $localStorage.$default({
+			dashboardModel: {}
+		});
+		_loadingLog('setting loaded', 'fetch settings');
+	}
+
+
+	/**
+	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
+	 * 
+	 * @returns promiss
+	 */
+	function storeApplicationConfig() {
+		if (!app.user.owner || appConfigLock) {
+			var message = 'fail';
+			var deferred = $q.defer();
+			deferred.reject({
+				data: {
+					message: message
+				}
+			});
+			return deferred.promise;
+		}
+		appConfigLock = true;
+		var promise;
+		if (app._acc) { // content loaded
+			appConfigDirty = false;
+			promise = app._acc.setValue(app.config);
+		} else { // create content
+			promise = $cms.putContent({
+				name: APP_PREFIX + app.key,
+				mimetype: APP_CNF_MIMETYPE
+			}).then(function (content) {
+				appConfigDirty = false;
+				app._acc = content;
+				stateMachine.config_created();
+				return app._acc.setValue(app.config);
+			}, function (error) {
+				if (error.status === 404) {
+					stateMachine.configs_not_found();
+					return {};
+				} else if (error.status === 500) {
+					// TODO: maso, 2018: throw an excetpion and go the the fail
+					// state
+					_loadingLog('storeApplicationConfig', 'server error');
+					stateMachine.server_error();
+				} else if (error.status === -1) {
+					_loadingLog('storeApplicationConfig', 'network error');
+					stateMachine.network_error();
+				}
+			});
+		} //
+		return promise //
+		.finally(function () {
+			appConfigLock = false;
+			if (appConfigDirty) {
+				storeApplicationConfig();
+			}
+		});
+	}
+
+	/*
+	 * Attaches loading logs
+	 */
+	function _loadingLog(stage, message) {
+		app.state.stage = stage;
+		app.state.message = message;
+		if (message) {
+			app.logs.push(message);
+		}
+	}
+
+	/*
+	 * Bind list of roles to app data
+	 */
+	function _loadRolesOfUser(roles){
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			app.user[role.application + '_' + role.code_name] = true;
+		}
+	}
+
+	/**
+	 * بی هویت بودن کاربر جاری را تعیین می‌کند
+	 * 
+	 * @returns promiss
+	 */
+	function isAnonymous() {
+		return app.user.anonymous;
+	}
+
+	/**
+	 * ورود به سیستم
+	 * 
+	 * @memberof $app
+	 * @param {object}
+	 */
+	function login(credential) {
+		if (!isAnonymous()) {
+			var deferred = $q.defer();
+			deferred.resolve('user is login');
+			return deferred.promise;
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(function () {
+			loadUserProperty();
+		});
+	}
+
+	/**
+	 * Application logout
+	 * 
+	 * Logout and clean user data, this will change state of the application.
+	 * 
+	 * @memberof $app
+	 */
+	function logout() {
+		var oldUser = $rootScope.app.user;
+		if (!!oldUser.isAnonymous) {
+			return $q.resolve(oldUser);
+		}
+		$rootScope.app.user = {};
+		stateMachine.loaded();
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(function () {
+			loadUserProperty();
+		}, function(){
+			// TODO: maso, 2018: fail to logout?!
+			$rootScope.app.user = oldUser;
+			stateMachine.loaded();
+		});
+	}
+	// ---------------------------------------------------------------------------------------
+	// settings related to direction, language and calendar of the app
+
+	/*
+	 * watch direction and update app.dir
+	 */
+	$rootScope.$watch(function () {
+		if (!app.config.local) {
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
+	}, function (value) {
+		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
+		// version of app.js;
+	});
+	/*
+	 * watch local
+	 */
+	$rootScope.$watch(function () {
+		// TODO: maso, 2018: remove this part in the next release
+		if (!angular.isObject(app.config.local)) {
+			app.config.local = {};
+		}
+		// Check language
+		return app.setting.local || app.config.local.language || 'en';
+	}, function (key) {
+		// 0- set app local
+		app.local = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	});
+	/*
+	 * watch calendar
+	 */
+	$rootScope.$watch(function () {
+		return app.setting.calendar || app.config.calendar || 'Gregorian';
+	}, function (key) {
+		// 0- set app local
+		app.calendar = key;
+	});
+	
+	
 	// Init
 	apps.start = start;
 	apps.login = login;
@@ -5997,46 +5951,34 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.service('$errorHandler', function($navigator, $mdToast) {
+.service('$errorHandler', function() {
 
 	/**
-	 * Checks status, message and data of the error. If given form is not null, it set related values in $error of 
-	 * fields in the form.
-	 * It also returns a general message to show to the user.
+	 * Checks status, message and data of the error. If given form is not null,
+	 * it set related values in $error of fields in the form. It also returns a
+	 * general message to show to the user.
 	 */
-	function handleError(error, form){
+	function handleError(error, form) {
 		var message = null;
-		if(error.status === 400 && form){ // Bad request
+		if (error.status === 400 && form) { // Bad request
 			message = 'Form is not valid. Fix errors and retry.';
-//			form.$invalid = true;
-			error.data.data.forEach(function(item){
+			error.data.data.forEach(function(item) {
 				form[item.name].$error = {};
-				var constraints = item.constraints.map(function(cons){
-					if(form[item.name]){						
+				item.constraints.map(function(cons) {
+					if (form[item.name]) {
 						form[item.name].$error[cons.toLowerCase()] = true;
 					}
 				});
 			});
-		}else{				
+		} else {
 			message = error.data.message;
 		}
-
-//		if(error.status === 401){
-//		message = 'Username or password is incorrect';
-//		}else if(error.status === 402){
-//		message = 'Access is forbiden';
-//		}else if(error.status === 408){
-//		message = 'Request Timeout';
-//		}else if(error.status >= 500 && error.status <600){
-//		message = 'Server could not response to your request'
-//		}
 
 		return message;
 	}
 
-
 	return {
-		handleError: handleError
+		handleError : handleError
 	};
 });
 
@@ -6187,6 +6129,7 @@ angular.module('mblowfish-core')
  * Manage application help.
  * 
  * Set help id for an item:
+ * 
  * <pre><code>
  * 	var item = {
  * 		...
@@ -6198,8 +6141,9 @@ angular.module('mblowfish-core')
  * 
  * 
  * Open help for an item:
+ * 
  * <pre><code>
- * 	$help.openHelp(item);
+ * $help.openHelp(item);
  * </code></pre>
  * 
  */
@@ -6207,6 +6151,20 @@ angular.module('mblowfish-core')
 
 	var _tips = [];
 	var _currentItem = null;
+
+	/*
+	 * Get help id
+	 */
+	function _getHelpId(item) {
+		if (!item) {
+			return null;
+		}
+		var id = item.helpId;
+		if (angular.isFunction(id)) {
+			id = id(item);
+		}
+		return id;
+	}
 
 	/**
 	 * Adds new tip
@@ -6216,11 +6174,10 @@ angular.module('mblowfish-core')
 	 * @memberof $help
 	 * @param {object}
 	 *            tipData - Data of a tipe
-	 * @return {$help} for chaine mode
 	 */
 	function tip(tipData) {
 		_tips.push(tipData);
-		return this;
+//		return this;
 	}
 
 	/**
@@ -6256,37 +6213,6 @@ angular.module('mblowfish-core')
 	}
 
 	/**
-	 * Display help for an item
-	 * 
-	 * This function change current item automatically and display help for it.
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 */
-	function openHelp(item) {
-		if (!hasHelp(item)) {
-			return;
-		}
-		if(_currentItem === item){
-			$rootScope.showHelp = !$rootScope.showHelp;
-			return;
-		}
-		setCurrentItem(item);
-		$rootScope.showHelp = true;
-	}
-
-	/**
-	 * Check if there exist a help on item
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 * @return path if the item if exist help or false
-	 */
-	function hasHelp(item) {
-		return getHelpPath(item);
-	}
-
-	/**
 	 * Gets help path
 	 * 
 	 * @memberof $help
@@ -6301,22 +6227,39 @@ angular.module('mblowfish-core')
 			// load content
 			return 'resources/helps/' + myId + '-' + lang + '.json';
 		}
-		
+
 		return null;
 	}
 
-	/*
-	 * Get help id
+	/**
+	 * Check if there exist a help on item
+	 * 
+	 * @memberof $help
+	 * @params item {Object} an item to show help for
+	 * @return path if the item if exist help or false
 	 */
-	function _getHelpId(item) {
-		if(!item){
-			return null;
+	function hasHelp(item) {
+		return getHelpPath(item);
+	}
+
+	/**
+	 * Display help for an item
+	 * 
+	 * This function change current item automatically and display help for it.
+	 * 
+	 * @memberof $help
+	 * @params item {Object} an item to show help for
+	 */
+	function openHelp(item) {
+		if (!hasHelp(item)) {
+			return;
 		}
-		var id = item.helpId;
-		if (angular.isFunction(id)) {
-			id = id(item);
+		if (_currentItem === item) {
+			$rootScope.showHelp = !$rootScope.showHelp;
+			return;
 		}
-		return id;
+		setCurrentItem(item);
+		$rootScope.showHelp = true;
 	}
 
 	/*
@@ -6330,7 +6273,7 @@ angular.module('mblowfish-core')
 		setCurrentItem : setCurrentItem,
 		openHelp : openHelp,
 		hasHelp : hasHelp,
-		getHelpPath: getHelpPath
+		getHelpPath : getHelpPath
 	};
 });
 
@@ -8134,7 +8077,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div class=\"wrapper-stack-toolbar-container top-corner-round\">  <div md-colors=\"{background: 'primary'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-3'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container>   </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-3'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate>Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button md-colors=\"{background: 'primary'}\" layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon>category</wb-icon> <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy==key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!=key\">radio_button_unchecked</wb-icon> {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button md-colors=\"{background: 'primary'}\" layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex>    </div> </div> </div>"
+    "<div class=\"wrapper-stack-toolbar-container top-corner-round\">  <div md-colors=\"{background: 'primary'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate>{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-3'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container>   </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-3'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate>Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button md-colors=\"{background: 'primary'}\" layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon>category</wb-icon> <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy==key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!=key\">radio_button_unchecked</wb-icon> {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button md-colors=\"{background: 'primary'}\" layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span>    </div> </div> </div>"
   );
 
 
@@ -8279,7 +8222,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-account.html',
-    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate>change password </span></md-button> </div> </form> </section> </div> </md-content>"
+    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </section> </div> </md-content>"
   );
 
 

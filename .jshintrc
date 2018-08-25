@@ -17,6 +17,7 @@
 		"prompt": false,
 		"confirm": false,
 		"alert": false,
-		"machina": false
+		"machina": false,
+		"moment": false
 	}
 }

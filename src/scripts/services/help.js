@@ -31,6 +31,7 @@ angular.module('mblowfish-core')
  * Manage application help.
  * 
  * Set help id for an item:
+ * 
  * <pre><code>
  * 	var item = {
  * 		...
@@ -42,8 +43,9 @@ angular.module('mblowfish-core')
  * 
  * 
  * Open help for an item:
+ * 
  * <pre><code>
- * 	$help.openHelp(item);
+ * $help.openHelp(item);
  * </code></pre>
  * 
  */
@@ -51,6 +53,20 @@ angular.module('mblowfish-core')
 
 	var _tips = [];
 	var _currentItem = null;
+
+	/*
+	 * Get help id
+	 */
+	function _getHelpId(item) {
+		if (!item) {
+			return null;
+		}
+		var id = item.helpId;
+		if (angular.isFunction(id)) {
+			id = id(item);
+		}
+		return id;
+	}
 
 	/**
 	 * Adds new tip
@@ -60,11 +76,10 @@ angular.module('mblowfish-core')
 	 * @memberof $help
 	 * @param {object}
 	 *            tipData - Data of a tipe
-	 * @return {$help} for chaine mode
 	 */
 	function tip(tipData) {
 		_tips.push(tipData);
-		return this;
+//		return this;
 	}
 
 	/**
@@ -100,37 +115,6 @@ angular.module('mblowfish-core')
 	}
 
 	/**
-	 * Display help for an item
-	 * 
-	 * This function change current item automatically and display help for it.
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 */
-	function openHelp(item) {
-		if (!hasHelp(item)) {
-			return;
-		}
-		if(_currentItem === item){
-			$rootScope.showHelp = !$rootScope.showHelp;
-			return;
-		}
-		setCurrentItem(item);
-		$rootScope.showHelp = true;
-	}
-
-	/**
-	 * Check if there exist a help on item
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 * @return path if the item if exist help or false
-	 */
-	function hasHelp(item) {
-		return getHelpPath(item);
-	}
-
-	/**
 	 * Gets help path
 	 * 
 	 * @memberof $help
@@ -145,22 +129,39 @@ angular.module('mblowfish-core')
 			// load content
 			return 'resources/helps/' + myId + '-' + lang + '.json';
 		}
-		
+
 		return null;
 	}
 
-	/*
-	 * Get help id
+	/**
+	 * Check if there exist a help on item
+	 * 
+	 * @memberof $help
+	 * @params item {Object} an item to show help for
+	 * @return path if the item if exist help or false
 	 */
-	function _getHelpId(item) {
-		if(!item){
-			return null;
+	function hasHelp(item) {
+		return getHelpPath(item);
+	}
+
+	/**
+	 * Display help for an item
+	 * 
+	 * This function change current item automatically and display help for it.
+	 * 
+	 * @memberof $help
+	 * @params item {Object} an item to show help for
+	 */
+	function openHelp(item) {
+		if (!hasHelp(item)) {
+			return;
 		}
-		var id = item.helpId;
-		if (angular.isFunction(id)) {
-			id = id(item);
+		if (_currentItem === item) {
+			$rootScope.showHelp = !$rootScope.showHelp;
+			return;
 		}
-		return id;
+		setCurrentItem(item);
+		$rootScope.showHelp = true;
 	}
 
 	/*
@@ -174,6 +175,6 @@ angular.module('mblowfish-core')
 		setCurrentItem : setCurrentItem,
 		openHelp : openHelp,
 		hasHelp : hasHelp,
-		getHelpPath: getHelpPath
+		getHelpPath : getHelpPath
 	};
 });

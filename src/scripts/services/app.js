@@ -46,16 +46,13 @@ angular.module('mblowfish-core') //
  * <li>Managing an internally Finite State Machine(FSM) to control the state of
  * the app.</li>
  * <li>Performing login and logout.</li>
- * </ol>
- *  ## user
+ * </ol> ## user
  * 
  * User information will be loaded on the start up and tracked during the
- * application life time.
- *  ## settings
+ * application life time. ## settings
  * 
- * Settings are stored in the local storage and each user can edit it directly.
- * 
- *  ## Options
+ * Settings are stored in the local storage and each user can edit it directly. ##
+ * Options
  * 
  * There is list of Key-Value stored in the sever and control the server
  * behaviors. In the. $app are called options. Options are read only and allow
@@ -64,16 +61,14 @@ angular.module('mblowfish-core') //
  * All options can access from view as:
  * 
  * <code><pre>
- * 	<span>{{app.option['captcha.engine']}}</span>
+ * 	&lt;span&gt;{{app.option['captcha.engine']}}&lt;/span&gt;
  * </pre></code>
  * 
  * In the code:
  * 
  * <code><pre>
- * 	var a = $rootScope.app.option['captcha.engine'];
- * </pre></code>
- * 
- *  ## configurations
+ * var a = $rootScope.app.option['captcha.engine'];
+ * </pre></code> ## configurations
  * 
  * Configuration is stored on server an owners are allowed to update. Do not
  * store secure properties on configuration.
@@ -90,6 +85,10 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
 		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+
+	var apps = this;
+	
+	// Constants
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
 	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
@@ -121,6 +120,8 @@ angular.module('mblowfish-core') //
 			setting: {},
 			options: {}
 	};
+	$rootScope.app = app;
+
 	/*
 	 * متغیرهای مدیریت تنظیم‌ها
 	 * 
@@ -139,373 +140,9 @@ angular.module('mblowfish-core') //
 			options_loaded: false,
 			configs_loaded: false
 	};
-
-	// All required functions
-	// ---------------------------------------------------------------------------------------
-	function start(key) {// this function is called when the app get started.
-		app.key = key;
-		_loadingLog('start_event', 'loading application');
-		stateMachine.start_event();
-	}
-
-	/**
-	 * تنظیم‌های نرم افزار را لود می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function loadApplicationConfig() {
-		_loadingLog('loading configuration', 'fetch configuration document');
-		$cms.getContent(APP_PREFIX + app.key) //
-		.then(function (content) {
-
-			app._acc = content;
-			_loadingLog('loading configuration', 'fetch configuration content');
-			return app._acc.value();
-		}, function (error) {
-			if (error.status === 404) {
-				stateMachine.configs_not_found();
-				return {};
-			} else if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading configuration', 'network error');
-				stateMachine.network_error();
-			}
-		}) //
-		.then(function (appConfig) {
-			app.config = appConfig;
-			ctrl.configs_loaded = true;
-			_loadingLog('loading configuration', 'application configuration loaded successfully');
-			stateMachine.loaded();
-			return;
-		});
-	}
-
-	/*
-	 * اطلاعات کاربر جاری را لود می‌کند
-	 * 
-	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-	 * نرم افزار پر می‌شود.
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name)
-	 * in role list then the following var is added in user:
-	 * 
-	 * app.user.x_y
-	 * 
-	 */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		$usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-		.then(function (user) {
-			// load user info
-			ctrl.user_loaded = true;
-			stateMachine.loaded();
-			// app user data
-			app.user = {};
-			app.user.current = user;
-			// load user roles
-			_loadingLog('loading user info', 'user information loaded successfully');
-			_loadingLog('loading user info', 'check user permissions');
-			_loadRolesOfUser(user.roles);
-			for (var i = 0; i < user.groups.length; i++) {
-				_loadRolesOfUser(user.groups[i].roles);
-			}
-			//
-			if(!user.isAnonymous()){			
-				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-				app.user.administrator = app.user.owner;
-			} else {
-				app.user.anonymous = true;
-			}
-		}, function (error) {
-			if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				_loadingLog('loading user', 'server error');
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading user', 'network error');
-				stateMachine.network_error();
-			}
-		});
-	}
-
-	/*
-	 * Loads options
-	 */
-	function loadOptions() {
-		// TODO: Masood, 2018: options should be get from server. Now, its api
-		// doesn't exist.
-		_loadingLog('loading options', 'fetch options document');
-		// get the options from server and save in app.options.
-		app.options = {};
-		$tenant.getSettings(optionsQuery)
-		.then(function (res) {
-			for(var i = 0; i < res.items.length; i++){
-				var item = res.items[i];
-				app.options[item.key] = item.value;
-			}
-		}, function (error) {
-			if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail state
-				_loadingLog('loading options', 'server error');
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading options', 'network error');
-				stateMachine.network_error();
-			}
-		});
-		ctrl.options_loaded = true;
-		stateMachine.loaded();
-		var deferred = $q.defer();
-		deferred.resolve('ok');
-		return deferred.promise;
-	}
-	/*
-	 * Loads local storage
-	 */
-	function loadSetting() {
-		_loadingLog('loading setting from local storage', 'fetch settings');
-		// TODO: 'key' of app should be used
-//		$localStorage.setPrefix(app.key);
-		app.setting = $localStorage.$default({
-			dashboardModel: {}
-		});
-		_loadingLog('setting loaded', 'fetch settings');
-		//
-		// The lines below is an alternative for lines above but not
-		// recommended.
-//		localStorage.setPrefix(key);
-//		app.setting = $localStorage.app.setting || {dashboardModel: {}};
-//		$rootScope.$watch('app.setting', function () {
-//		$localStorage.app.setting = $rootScope.app.setting;
-//		});$
-	}
-
-
-	/**
-	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function storeApplicationConfig() {
-		if (!app.user.owner || appConfigLock) {
-			var message = 'fail';
-			var deferred = $q.defer();
-			deferred.reject({
-				data: {
-					message: message
-				}
-			});
-			return deferred.promise;
-		}
-		appConfigLock = true;
-		var promise;
-		if (app._acc) { // content loaded
-			appConfigDirty = false;
-			promise = app._acc.setValue(app.config);
-		} else { // create content
-			promise = $cms.putContent({
-				name: APP_PREFIX + app.key,
-				mimetype: APP_CNF_MIMETYPE
-			}).then(function (content) {
-				appConfigDirty = false;
-				app._acc = content;
-				stateMachine.config_created();
-				return app._acc.setValue(app.config);
-			}, function (error) {
-				if (error.status === 404) {
-					stateMachine.configs_not_found();
-					return {};
-				} else if (error.status === 500) {
-					// TODO: maso, 2018: throw an excetpion and go the the fail
-					// state
-					_loadingLog('storeApplicationConfig', 'server error');
-					stateMachine.server_error();
-				} else if (error.status === -1) {
-					_loadingLog('storeApplicationConfig', 'network error');
-					stateMachine.network_error();
-				}
-			});
-		} //
-		return promise //
-		.finally(function () {
-			appConfigLock = false;
-			if (appConfigDirty) {
-				storeApplicationConfig();
-			}
-		});
-	}
-
-	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
-		}
-	}
-
-	/*
-	 * Bind list of roles to app data
-	 */
-	function _loadRolesOfUser(roles){
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			app.user[role.application + '_' + role.code_name] = true;
-		}
-	}
-
-	/**
-	 * بی هویت بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAnonymous() {
-		return app.user.anonymous;
-	}
-
-	/**
-	 * مالک بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isOwner() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.owner);
-		return deferred.promise;
-	}
-
-	/**
-	 * عضو بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isMember() {
-		var deferred = $q.defer();
-		deferred.resolve(app.user.member);
-		return deferred.promise;
-	}
-
-	/**
-	 * مجاز بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAuthorized() {
-		var deferred = $q.defer();
-		deferred.resolve(authorized);
-		return deferred.promise;
-	}
-
-	/**
-	 * ورود به سیستم
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 */
-	function login(credential) {
-		if (!isAnonymous()) {
-			var deferred = $q.defer();
-			deferred.resolve('user is login');
-			return deferred.promise;
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function (result) {
-			loadUserProperty();
-		});
-	};
-
-	/**
-	 * عمل خروج کاربر
-	 * 
-	 * @memberof $app
-	 */
-	function logout() {
-		if (isAnonymous()) {
-			var us = $rootScope.app.user;
-			var deferred = $q.defer();
-			deferred.resolve('user is not login');
-			return deferred.promise;
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function (result) {
-			loadUserProperty();
-		});
-	}
-	// ---------------------------------------------------------------------------------------
-	// settings related to direction, language and calendar of the app
-
-	/*
-	 * watch direction and update app.dir
-	 */
-	$rootScope.$watch(function () {
-		if (!app.config.local) {
-			app.config.local = {};
-		}
-		return app.setting.dir || app.config.local.dir;
-	}, function (value) {
-		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-		// version of app.js;
-	});
-	/*
-	 * watch local
-	 */
-	$rootScope.$watch(function () {
-		// TODO: maso, 2018: remove this part in the next release
-		if (!angular.isObject(app.config.local)) {
-			app.config.local = {};
-		}
-		// Check language
-		return app.setting.local || app.config.local.language || 'en';
-	}, function (key) {
-		// 0- set app local
-		app.local = key;
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	});
-	/*
-	 * watch calendar
-	 */
-	$rootScope.$watch(function () {
-		return app.setting.calendar || app.config.calendar || 'Gregorian';
-	}, function (key) {
-		// 0- set app local
-		app.calendar = key;
-	});
-
 	// -----------------------------------------------------
 	var stateMachine = new machina.Fsm({
-		initialize: function (options) {
+		initialize: function (/*options*/) {
 			app.state.status = 'waiting';
 		},
 		namespace: 'stateMachine',
@@ -663,8 +300,344 @@ angular.module('mblowfish-core') //
 	loadUserProperty(); // 1. get from server 2. save in app.user
 	loadOptions(); // 1. get from server 2. save in app.options
 	// ------------------------------------------------------------------------
-	$rootScope.app = app;
-	var apps = {};
+	
+	
+
+	// All required functions
+	// ---------------------------------------------------------------------------------------
+	function start(key) {// this function is called when the app get started.
+		app.key = key;
+		_loadingLog('start_event', 'loading application');
+		stateMachine.start_event();
+	}
+
+	/**
+	 * تنظیم‌های نرم افزار را لود می‌کند.
+	 * 
+	 * @returns promiss
+	 */
+	function loadApplicationConfig() {
+		_loadingLog('loading configuration', 'fetch configuration document');
+		$cms.getContent(APP_PREFIX + app.key) //
+		.then(function (content) {
+			app._acc = content;
+			_loadingLog('loading configuration', 'fetch configuration content');
+			return app._acc.value();
+		}, function (error) {
+			if (error.status === 404) {
+				stateMachine.configs_not_found();
+				return {};
+			} else if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail
+				// state
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading configuration', 'network error');
+				stateMachine.network_error();
+			}
+		}) //
+		.then(function (appConfig) {
+			app.config = appConfig;
+			ctrl.configs_loaded = true;
+			_loadingLog('loading configuration', 'application configuration loaded successfully');
+			stateMachine.loaded();
+			return;
+		});
+	}
+
+	/*
+	 * اطلاعات کاربر جاری را لود می‌کند
+	 * 
+	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+	 * نرم افزار پر می‌شود.
+	 * 
+	 * If there is a role x.y (where x is application code and y is code name)
+	 * in role list then the following var is added in user:
+	 * 
+	 * app.user.x_y
+	 * 
+	 */
+	function loadUserProperty() {
+		_loadingLog('loading user info', 'fetch user information');
+		$usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
+		.then(function (user) {
+			// load user info
+			ctrl.user_loaded = true;
+			stateMachine.loaded();
+			// app user data
+			app.user = {};
+			app.user.current = user;
+			// load user roles
+			_loadingLog('loading user info', 'user information loaded successfully');
+			_loadingLog('loading user info', 'check user permissions');
+			_loadRolesOfUser(user.roles);
+			for (var i = 0; i < user.groups.length; i++) {
+				_loadRolesOfUser(user.groups[i].roles);
+			}
+			//
+			if(!user.isAnonymous()){			
+				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+				app.user.administrator = app.user.owner;
+			} else {
+				app.user.anonymous = true;
+			}
+		}, function (error) {
+			if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail
+				// state
+				_loadingLog('loading user', 'server error');
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading user', 'network error');
+				stateMachine.network_error();
+			}
+		});
+	}
+
+	/*
+	 * Loads options
+	 */
+	function loadOptions() {
+		// TODO: Masood, 2018: options should be get from server. Now, its api
+		// doesn't exist.
+		_loadingLog('loading options', 'fetch options document');
+		// get the options from server and save in app.options.
+		app.options = {};
+		$tenant.getSettings(optionsQuery)
+		.then(function (res) {
+			for(var i = 0; i < res.items.length; i++){
+				var item = res.items[i];
+				app.options[item.key] = item.value;
+			}
+		}, function (error) {
+			if (error.status === 500) {
+				// TODO: maso, 2018: throw an excetpion and go the the fail
+				// state
+				_loadingLog('loading options', 'server error');
+				stateMachine.server_error();
+			} else if (error.status === -1) {
+				_loadingLog('loading options', 'network error');
+				stateMachine.network_error();
+			}
+		});
+		ctrl.options_loaded = true;
+		stateMachine.loaded();
+		var deferred = $q.defer();
+		deferred.resolve('ok');
+		return deferred.promise;
+	}
+	
+	/*
+	 * Loads local storage
+	 */
+	function loadSetting() {
+		_loadingLog('loading setting from local storage', 'fetch settings');
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 */
+		app.setting = $localStorage.$default({
+			dashboardModel: {}
+		});
+		_loadingLog('setting loaded', 'fetch settings');
+	}
+
+
+	/**
+	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
+	 * 
+	 * @returns promiss
+	 */
+	function storeApplicationConfig() {
+		if (!app.user.owner || appConfigLock) {
+			var message = 'fail';
+			var deferred = $q.defer();
+			deferred.reject({
+				data: {
+					message: message
+				}
+			});
+			return deferred.promise;
+		}
+		appConfigLock = true;
+		var promise;
+		if (app._acc) { // content loaded
+			appConfigDirty = false;
+			promise = app._acc.setValue(app.config);
+		} else { // create content
+			promise = $cms.putContent({
+				name: APP_PREFIX + app.key,
+				mimetype: APP_CNF_MIMETYPE
+			}).then(function (content) {
+				appConfigDirty = false;
+				app._acc = content;
+				stateMachine.config_created();
+				return app._acc.setValue(app.config);
+			}, function (error) {
+				if (error.status === 404) {
+					stateMachine.configs_not_found();
+					return {};
+				} else if (error.status === 500) {
+					// TODO: maso, 2018: throw an excetpion and go the the fail
+					// state
+					_loadingLog('storeApplicationConfig', 'server error');
+					stateMachine.server_error();
+				} else if (error.status === -1) {
+					_loadingLog('storeApplicationConfig', 'network error');
+					stateMachine.network_error();
+				}
+			});
+		} //
+		return promise //
+		.finally(function () {
+			appConfigLock = false;
+			if (appConfigDirty) {
+				storeApplicationConfig();
+			}
+		});
+	}
+
+	/*
+	 * Attaches loading logs
+	 */
+	function _loadingLog(stage, message) {
+		app.state.stage = stage;
+		app.state.message = message;
+		if (message) {
+			app.logs.push(message);
+		}
+	}
+
+	/*
+	 * Bind list of roles to app data
+	 */
+	function _loadRolesOfUser(roles){
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			app.user[role.application + '_' + role.code_name] = true;
+		}
+	}
+
+	/**
+	 * بی هویت بودن کاربر جاری را تعیین می‌کند
+	 * 
+	 * @returns promiss
+	 */
+	function isAnonymous() {
+		return app.user.anonymous;
+	}
+
+	/**
+	 * ورود به سیستم
+	 * 
+	 * @memberof $app
+	 * @param {object}
+	 */
+	function login(credential) {
+		if (!isAnonymous()) {
+			var deferred = $q.defer();
+			deferred.resolve('user is login');
+			return deferred.promise;
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(function () {
+			loadUserProperty();
+		});
+	}
+
+	/**
+	 * Application logout
+	 * 
+	 * Logout and clean user data, this will change state of the application.
+	 * 
+	 * @memberof $app
+	 */
+	function logout() {
+		var oldUser = $rootScope.app.user;
+		if (!!oldUser.isAnonymous) {
+			return $q.resolve(oldUser);
+		}
+		$rootScope.app.user = {};
+		stateMachine.loaded();
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(function () {
+			loadUserProperty();
+		}, function(){
+			// TODO: maso, 2018: fail to logout?!
+			$rootScope.app.user = oldUser;
+			stateMachine.loaded();
+		});
+	}
+	// ---------------------------------------------------------------------------------------
+	// settings related to direction, language and calendar of the app
+
+	/*
+	 * watch direction and update app.dir
+	 */
+	$rootScope.$watch(function () {
+		if (!app.config.local) {
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
+	}, function (value) {
+		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
+		// version of app.js;
+	});
+	/*
+	 * watch local
+	 */
+	$rootScope.$watch(function () {
+		// TODO: maso, 2018: remove this part in the next release
+		if (!angular.isObject(app.config.local)) {
+			app.config.local = {};
+		}
+		// Check language
+		return app.setting.local || app.config.local.language || 'en';
+	}, function (key) {
+		// 0- set app local
+		app.local = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	});
+	/*
+	 * watch calendar
+	 */
+	$rootScope.$watch(function () {
+		return app.setting.calendar || app.config.calendar || 'Gregorian';
+	}, function (key) {
+		// 0- set app local
+		app.calendar = key;
+	});
+	
+	
 	// Init
 	apps.start = start;
 	apps.login = login;

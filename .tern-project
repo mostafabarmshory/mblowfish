@@ -4,12 +4,14 @@
     "es_modules": {
       
     },
+    "jshint": {
+      "configFile": ".jshintrc"
+    },
     "angular1": {
       
     }
   },
   "libs": [
-    "ecma5",
     "browser"
   ]
 }
