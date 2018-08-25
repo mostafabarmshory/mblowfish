@@ -87,6 +87,9 @@ angular.module('mblowfish-core')
 						}
 					},
 					userStateChange: function (userIsAnonymous) {
+						if(!userIsAnonymous){
+							return;
+						}
 						if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
 							this.transition('login');
 						} else {

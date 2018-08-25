@@ -223,8 +223,11 @@ angular.module('mblowfish-core')
 	.when('/preferences/:preferenceId', {
 		templateUrl : 'views/mb-preference.html',
 		controller : 'MbPreferenceCtrl',
-		helpId : function(currentState) {
-			return 'preference-' + currentState.params['preferenceId'];
+		/*
+		 * @ngInject
+		 */
+		helpId : function($routeParams) {
+			return 'preference-' + $routeParams.preferenceId;
 		},
 		/*
 		 * @ngInject
@@ -3575,6 +3578,9 @@ angular.module('mblowfish-core')
 						}
 					},
 					userStateChange: function (userIsAnonymous) {
+						if(!userIsAnonymous){
+							return;
+						}
 						if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
 							this.transition('login');
 						} else {
@@ -5642,24 +5648,28 @@ angular.module('mblowfish-core') //
 		.then(function (user) {
 			// load user info
 			ctrl.user_loaded = true;
-			stateMachine.loaded();
 			// app user data
-			app.user = {};
-			app.user.current = user;
+			app.user = {
+					anonymous: ! user.id || user.id == 0 ,
+					current: user
+			};
 			// load user roles
 			_loadingLog('loading user info', 'user information loaded successfully');
 			_loadingLog('loading user info', 'check user permissions');
-			_loadRolesOfUser(user.roles);
-			for (var i = 0; i < user.groups.length; i++) {
-				_loadRolesOfUser(user.groups[i].roles);
+			if(!app.user.anonymous){
+				_loadRolesOfUser(user.roles);
+				for (var i = 0; i < user.groups.length; i++) {
+					_loadRolesOfUser(user.groups[i].roles);
+				}
+				//
+				if(!user.isAnonymous()){			
+					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+					app.user.administrator = app.user.owner;
+				} else {
+					app.user.anonymous = true;
+				}
 			}
-			//
-			if(!user.isAnonymous()){			
-				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-				app.user.administrator = app.user.owner;
-			} else {
-				app.user.anonymous = true;
-			}
+			stateMachine.loaded();
 		}, function (error) {
 			if (error.status === 500) {
 				// TODO: maso, 2018: throw an excetpion and go the the fail
@@ -6152,7 +6162,7 @@ angular.module('mblowfish-core')
  * </code></pre>
  * 
  */
-.service('$help', function($q, $navigator, $rootScope, $translate) {
+.service('$help', function($q, $navigator, $rootScope, $translate, $injector) {
 
 	var _tips = [];
 	var _currentItem = null;
@@ -6165,8 +6175,8 @@ angular.module('mblowfish-core')
 			return null;
 		}
 		var id = item.helpId;
-		if (angular.isFunction(id)) {
-			id = id(item);
+		if (angular.isFunction(item.helpId)) {
+			return !$injector.invoke(item.helpId, item);
 		}
 		return id;
 	}

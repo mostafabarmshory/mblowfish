@@ -49,7 +49,7 @@ angular.module('mblowfish-core')
  * </code></pre>
  * 
  */
-.service('$help', function($q, $navigator, $rootScope, $translate) {
+.service('$help', function($q, $navigator, $rootScope, $translate, $injector) {
 
 	var _tips = [];
 	var _currentItem = null;
@@ -62,8 +62,8 @@ angular.module('mblowfish-core')
 			return null;
 		}
 		var id = item.helpId;
-		if (angular.isFunction(id)) {
-			id = id(item);
+		if (angular.isFunction(item.helpId)) {
+			return !$injector.invoke(item.helpId, item);
 		}
 		return id;
 	}
