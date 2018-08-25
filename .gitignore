@@ -1,9 +1,11 @@
 # NodeJS
 /node_modules
 /package-lock.json
+/.npmrc
 
 # bower
 /bower_components
+/.bowerrc
 
 # Project
 /.tmp
