@@ -1,0 +1,10 @@
+{
+  "type": "Page",
+  "contents": [
+    {
+      "type": "HtmlText",
+      "name": "HTML text",
+      "text": "<h2>Preferences</h2><p style=\"text-align: justify;\">All preferences from the application are listed here. Click on them to open.</p>"
+    }
+  ]
+}
