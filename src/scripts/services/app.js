@@ -54,11 +54,25 @@ angular.module('mblowfish-core') //
  *  ## settings
  * 
  * Settings are stored in the local storage and each user can edit it directly.
+ * 
  *  ## Options
  * 
  * There is list of Key-Value stored in the sever and control the server
  * behaviors. In the. $app are called options. Options are read only and allow
  * clients to adapt to the server.
+ * 
+ * All options can access from view as:
+ * 
+ * <code><pre>
+ * 	<span>{{app.option['captcha.engine']}}</span>
+ * </pre></code>
+ * 
+ * In the code:
+ * 
+ * <code><pre>
+ * 	var a = $rootScope.app.option['captcha.engine'];
+ * </pre></code>
+ * 
  *  ## configurations
  * 
  * Configuration is stored on server an owners are allowed to update. Do not
@@ -75,7 +89,7 @@ angular.module('mblowfish-core') //
  * 
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter) {
+		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
 	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
@@ -200,9 +214,10 @@ angular.module('mblowfish-core') //
 			}
 			//
 			if(!user.isAnonymous()){			
-				app.user.anonymous = true;
 				app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
 				app.user.administrator = app.user.owner;
+			} else {
+				app.user.anonymous = true;
 			}
 		}, function (error) {
 			if (error.status === 500) {

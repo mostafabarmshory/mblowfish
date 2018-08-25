@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html class="no-js" ng-app="app">
 <head>
-	<meta charset="utf-8">
-	<title>Angular Material Dashboard</title>
-	<meta name="description" content="Angular admin dashboard with material design">
-	<meta name="author" content="flatlogic.com">
-	<meta name="viewport" content="width=device-width">
-	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-	<!--  Tells to crawler that do not index this page and do not follow its links -->
-	<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<title>Angular Material Dashboard</title>
+<meta name="description" content="Angular admin dashboard with material design">
+<meta name="author" content="flatlogic.com">
+<meta name="viewport" content="width=device-width">
+<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+<!--  Tells to crawler that do not index this page and do not follow its links -->
+<meta name="robots" content="noindex, nofollow">
 
-	<!--  injector:base -->
-	<base href="/" >
-	<!--  endinjector  -->
-	
+<!--  injector:base -->
+<base href="/">
+<!--  endinjector  -->
+
 <!-- build:css({.tmp/serve,src}) styles/vendor.css -->
 <!-- bower:css -->
 <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
@@ -53,8 +53,7 @@
 <!-- endbuild -->
 
 </head>
-<body
-	md-theme="{{app.setting.theme || app.config.theme || 'default'}}" 
+<body md-theme="{{app.setting.theme || app.config.theme || 'default'}}"
 	md-theme-watch
 	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 	dir="{{app.dir}}">
@@ -64,9 +63,7 @@
         to improve your experience.</p>
     <![endif]-->
 	<mb-panel>
-		<div class="mb-preloader">
-			Loading....
-		</div>
+	<div class="mb-preloader">Loading....</div>
 	</mb-panel>
 
 	<!-- build:js(src) scripts/vendor.js -->
@@ -190,6 +187,7 @@
 	<script src="scripts/services/export.js"></script>
 	<script src="scripts/services/help.js"></script>
 	<script src="scripts/services/language.js"></script>
+	<script src="scripts/services/metrics.js"></script>
 	<script src="scripts/services/navigator.js"></script>
 	<script src="scripts/services/notification.js"></script>
 	<script src="scripts/services/old-app.js"></script>
