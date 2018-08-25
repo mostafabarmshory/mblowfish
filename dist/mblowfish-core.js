@@ -5372,7 +5372,7 @@ angular.module('mblowfish-core') //
 		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
 
 	var apps = this;
-	
+
 	// Constants
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
@@ -5382,7 +5382,7 @@ angular.module('mblowfish-core') //
 
 
 	var optionsQuery = new QueryParameter()//
-		.put('graphql', OPTIONS_GRAPHQL);
+	.put('graphql', OPTIONS_GRAPHQL);
 	// All the things that are set up by $app service
 	var app = {
 			state: {
@@ -5427,7 +5427,7 @@ angular.module('mblowfish-core') //
 	};
 	// -----------------------------------------------------
 	var stateMachine = new machina.Fsm({
-		initialize: function (/*options*/) {
+		initialize: function (/* options */) {
 			app.state.status = 'waiting';
 		},
 		namespace: 'stateMachine',
@@ -5585,8 +5585,8 @@ angular.module('mblowfish-core') //
 	loadUserProperty(); // 1. get from server 2. save in app.user
 	loadOptions(); // 1. get from server 2. save in app.options
 	// ------------------------------------------------------------------------
-	
-	
+
+
 
 	// All required functions
 	// ---------------------------------------------------------------------------------------
@@ -5715,7 +5715,7 @@ angular.module('mblowfish-core') //
 		deferred.resolve('ok');
 		return deferred.promise;
 	}
-	
+
 	/*
 	 * Loads local storage
 	 */
@@ -5740,15 +5740,12 @@ angular.module('mblowfish-core') //
 	 * @returns promiss
 	 */
 	function storeApplicationConfig() {
-		if (!app.user.owner || appConfigLock) {
-			var message = 'fail';
-			var deferred = $q.defer();
-			deferred.reject({
+		if(!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+			return $q.reject({
 				data: {
-					message: message
+					message: 'fail'
 				}
 			});
-			return deferred.promise;
 		}
 		appConfigLock = true;
 		var promise;
@@ -5781,9 +5778,9 @@ angular.module('mblowfish-core') //
 		} //
 		return promise //
 		.finally(function () {
-			appConfigLock = false;
+			appConfigLock = true;
 			if (appConfigDirty) {
-				storeApplicationConfig();
+				return storeApplicationConfig();
 			}
 		});
 	}
@@ -5925,8 +5922,16 @@ angular.module('mblowfish-core') //
 		// 0- set app local
 		app.calendar = key;
 	});
-	
-	
+
+	/*
+	 * watch application configuration
+	 */
+	$rootScope.$watch('app.config', function (key) {
+		// TODO: maso, 2018: delay to save
+		return storeApplicationConfig();
+	}, true);
+
+
 	// Init
 	apps.start = start;
 	apps.login = login;
