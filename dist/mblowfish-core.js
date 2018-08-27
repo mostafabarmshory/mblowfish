@@ -4543,13 +4543,12 @@ angular.module('mblowfish-core')
 		if(!this.action){
 			return;
 		}
-//		this.action();
                 $injector.invoke(this.action , this);
 		if($event){			
 			$event.stopPropagation();
                         $event.preventDefault();
 		}
-	}
+	};
 
 	return action;
 });
