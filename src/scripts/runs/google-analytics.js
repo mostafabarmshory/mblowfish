@@ -23,7 +23,7 @@
 
 angular.module('mblowfish-core')
 
-.run(function($window, $rootScope, $location, $app) {
+.run(function($window, $rootScope, $location) {
 	if ($window.ga) {
 		// initialize google analytics
 		$rootScope.$watch('app.config.googleAnalytic.property', function(value){

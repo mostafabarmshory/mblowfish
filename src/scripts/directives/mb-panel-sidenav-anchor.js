@@ -30,10 +30,14 @@ angular.module('mblowfish-core')
  * @description Display a sidenave anchor
  * 
  */
-.directive('mbPanelSidenavAnchor', function($route, $rootScope,
-		$app, $mdSidenav, $q, $widget, $controller, $compile) {
+.directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope, $mdSidenav,
+     $q, $wbUtil, $controller, $compile) {
 
-
+	/*
+	 * Bank of sidnav elements. 
+	 */
+	var elementBank = angular.element('<div></div>');
+	
 
 	/*
 	 * Load page and create an element
@@ -58,9 +62,10 @@ angular.module('mblowfish-core')
 		});
 
 		// 2- create element
-		return $widget.getTemplateFor(page)
+		return $wbUtil.getTemplateFor(page)
 		.then(function(template) {
 			var element = angular.element(prefix + template + postfix);
+			elementBank.append(element);
 
 			// 3- bind controller
 			var link = $compile(element);
@@ -168,7 +173,7 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Sidenavs
-			var sdid = $route.current.sidenavs || $app.defaultSidenavs();
+			var sdid = $route.current.sidenavs || $sidenav.defaultSidenavs();
 			sdid = sdid.slice(0);
 			sdid.push('settings');
 			sdid.push('help');
@@ -176,7 +181,7 @@ angular.module('mblowfish-core')
 			var sidenavs =[];
 			var jobs = [];
 			angular.forEach(sdid, function(item){
-				jobs.push($app.sidenav(item)
+				jobs.push($sidenav.sidenav(item)
 						.then(function(sidenav){
 							sidenavs.push(sidenav);
 						}));

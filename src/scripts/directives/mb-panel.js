@@ -41,136 +41,150 @@ angular.module('mblowfish-core')
  *        </body> </hljs>
  * 
  */
-.directive('mbPanel', function($navigator, $usr, $route, $window, $rootScope, $app,
-		$translate, $http, $mdSidenav, $mdBottomSheet, $q, $actions,
-		$injector) {
+.directive('mbPanel', function ($route, $rootScope, $actions, $injector) {
 	/*
 	 * evaluate protect function
 	 */
-	function evaluateProtection(route) {
+	function canAccess(route) {
 		if (!route.protect) {
-			return false;
+			return true;
 		}
 		if (angular.isFunction(route.protect)) {
-			var value = $injector.invoke(route.protect, route);
-			// return route.protect($injector);
-			return value;
+			return !$injector.invoke(route.protect, route);
 		}
-		return route.protect && $rootScope.app.user.anonymous;
+		return route.protect;
 	}
 
 	function postLink($scope, $element, $attr) {
-
 		// State machin to controlle the view
-		var state = new machina.Fsm({
+		var stateMachine = new machina.Fsm({
 			/* 
 			 * the initialize method is called right after the FSM
 			 * instance is constructed, giving you a place for any
 			 * setup behavior, etc. It receives the same
 			 * arguments (options) as the constructor function.
 			 */
-			initialize : function(options) {
+			initialize: function (options) {
 				// your setup code goes here...
 				$scope.status = this.initialState;
 			},
-			namespace : 'mb-panel-controller',
-			initialState : 'loading',
-			states : {
+			namespace: 'mb-panel-controller',
+			initialState: 'loading',
+			states: {
 				ready: {
-					// _onEnter: function(){
-					// _reloadUi();
-					// },
-					routeChange : function(route) {
-						if (route.protect
-								&& evaluateProtection(route)) {
-							this
-							.transition('accessDenied');
+					routeChange: function (route) {
+						if (route.protect && !canAccess(route)) {
+							this.transition('accessDenied');
 							return;
 						}
 					},
-					appStateChange : function(state) {
+					appStateChange: function (state) {
 						// return if state is ready
-						if (this.getRoute().protect) {
+						if (state.startsWith('ready')) {
+							return;
+						} else {
+							this.transition('loading');
+						}
+					},
+					userStateChange: function (userIsAnonymous) {
+						if(!userIsAnonymous){
+							return;
+						}
+						if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
 							this.transition('login');
 						} else {
-							this
-							.transition('readyAnonymous');
+							this.transition('readyAnonymous');
 						}
 					}
 				},
-				accessDenied : {
-					routeChange : function(route) {
-						if (route.protect
-								&& evaluateProtection(route)) {
-							return;
+				accessDenied: {
+					routeChange: function (route) {
+						if (!route.protect || canAccess(route)) {
+							this.transition('ready');
 						}
-						this.transition('ready');
 					},
-					appStateChange : function(state) {
-						this.transition('login');
+					appStateChange: function (state) {
+						// return if state is ready
+						if (state.startsWith('ready')) {
+							return;
+						} else {
+							this.transition('loading');
+						}
+					},
+					userStateChange: function (userIsAnonymous) {
+						if (userIsAnonymous) {//user is anonymous
+							this.transition('login');
+						}
 					}
 				},
-				readyAnonymous : {
-					// _onEnter: function(){
-					// _reloadUi();
-					// },
-					routeChange : function(route) {
-						// TODO: maso, change to login
-						// page
+				readyAnonymous: {
+					routeChange: function (route) {
+						// TODO: maso, change to login page
 						if (route.protect) {
 							this.transition('login');
 						}
 					},
-					appStateChange : function(state) {
-						this.transition('ready');
-					}
-				},
-				loading : {
-					// routeChange: function(route){},
-					appStateChange : function(state) {
-						if (state === 'loading') {
+					appStateChange: function (state) {
+						// return if state is ready
+						if (state.startsWith('ready')) {
 							return;
-						}
-						var route = this.getRoute();
-						if (state === 'ready') {
-							if (route.protect
-									&& evaluateProtection(route)) {
-								this.transition('accessDenied');
-								return;
-							}
 						} else {
-							// anonymous
-							if (route.protect) {
-								this.transition('login');
-							} else {
-								this.transition('readyAnonymous');
-							}
-							return;
-						}
-						this.transition('ready');
-					}
-				},
-				login : {
-					routeChange : function(route) {
-						if (!route.protect) {
-							this.transition('readyAnonymous');
-							return;
+							this.transition('loading');
 						}
 					},
-					appStateChange : function(state) {
-						if (state === 'ready'
-							&& evaluateProtection(this.getRoute())) {
-							this.transition('accessDenied');
-							return;
-						}
+					userStateChange: function () {//user is not anonymous
 						this.transition('ready');
 					}
 				},
+				loading: {
+					// routeChange: function(route){},
+					appStateChange: function (state) {
+						if (state.startsWith('ready')) {
+							var route = this.getRoute();
+							if ($rootScope.app.user.anonymous) {
+								if (route.protect) {
+									this.transition('login');
+								} else {
+									this.transition('readyAnonymous');
+								}
+							} else {
+								if (!route.protect || canAccess(route)) {
+									this.transition('ready');
+								} else {
+									this.transition('accessDenied');
+								}
+							}
+						}
+					}
+				},
+				login: {
+					routeChange: function (route) {
+						if (!route.protect) {
+							this.transition('readyAnonymous');
+						}
+					},
+					appStateChange: function (state) {
+						// return if state is ready
+						if (state.startsWith('ready')) {
+							return;
+						} else {
+							this.transition('loading');
+						}
+					},
+					userStateChange: function () {//user is not anonymous
+						var route = this.getRoute();
+						if (!canAccess(route)) {
+							this.transition('accessDenied');
+						} else {
+							this.transition('ready');
+						}
+					}
+				}
 			},
 			/*
 			 * Handle route change event
 			 */
-			routeChange : function(route) {
+			routeChange: function (route) {
 				this.currentRoute = route;
 				if (!route) {
 					return;
@@ -180,15 +194,21 @@ angular.module('mblowfish-core')
 			/*
 			 * Handle application state change
 			 */
-			appStateChange : function(appState) {
-				this.appState = appState;
-				this.handle("appStateChange", appState);
+			appStateChange: function (state) {
+				this.handle("appStateChange", state);
+			},
+			/*
+			 * Handle user state change
+			 */
+			userStateChange: function (userIsAnonymous) {
+				this.userState = userIsAnonymous;
+				this.handle("userStateChange", userIsAnonymous);
 			},
 
 			/*
 			 * Get current route
 			 */
-			getRoute : function() {
+			getRoute: function () {
 				return this.currentRoute
 				|| $route.current;
 			},
@@ -196,45 +216,50 @@ angular.module('mblowfish-core')
 			/*
 			 * Get current status
 			 */
-			getState : function() {
+			getState: function () {
 				return this.appState
 				|| $rootScope.app.state.status;
 			}
 		});
 
 		// I'd like to know when the transition event occurs
-		state.on("transition", function() {
-			if (state.state.startsWith('ready')) {
+		stateMachine.on("transition", function () {
+			if (stateMachine.state.startsWith('ready')) {
 				$scope.status = 'ready';
 				return;
 			}
-			$scope.status = state.state;
+			$scope.status = stateMachine.state;
 		});
 
-		$scope.$watch(function() {
+		$scope.$watch(function () {
 			return $route.current;
-		}, function(route) {
+		}, function (route) {
 			$actions.group('navigationPathMenu').clear();
 			if (route) {
-				state.routeChange(route.$$route);
+				stateMachine.routeChange(route.$$route);
 				// Run state integeration
-				if(route.$$route && angular.isFunction(route.$$route.integerate)){
+				if (route.$$route && angular.isFunction(route.$$route.integerate)) {
 					var value = $injector.invoke(route.$$route.integerate, route.$$route);
 				}
 			} else {
-				state.routeChange(route);
+				stateMachine.routeChange(route);
 			}
 		});
-		$scope.$watch('app.state.status', function(appState) {
-			state.appStateChange(appState);
+
+		$rootScope.$watch('app.state.status', function (appState) {
+			stateMachine.appStateChange(appState);
 		});
-		state.appStateChange($rootScope.app.state.status);
+
+		$scope.$watch('app.user.anonymous', function (val) {
+			stateMachine.userStateChange(val);
+		});
+
 	}
 
 	return {
-		restrict : 'E',
-		replace : true,
-		templateUrl : 'views/directives/mb-panel.html',
-		link : postLink
+		restrict: 'E',
+		replace: true,
+		templateUrl: 'views/directives/mb-panel.html',
+		link: postLink
 	};
 });

@@ -31,28 +31,10 @@ angular.module('mblowfish-core')
  * Watches total system and update help data.
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $mdUtil, $mdSidenav, $help) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
 	$rootScope.showHelp = false;
-	var lastItem = 'not-found';
 	var lastLoaded;
 
-
-	function _getHelpId(item) {
-		if(!item){
-			return lastItem;
-		}
-		var id = item.helpId;
-
-		if (angular.isFunction(id)) {
-			id = id(item);
-		}
-
-		if (!angular.isDefined(id)) {
-			id = 'not-found';
-		}
-		lastItem = id;
-		return id;
-	}
 
 	/**
 	 * load help content for the item
@@ -83,7 +65,7 @@ angular.module('mblowfish-core')
 
 	$scope.closeHelp = function(){
 		$rootScope.showHelp = false;
-	}
+	};
 
 	/*
 	 * If user want to display help, content will be loaded.

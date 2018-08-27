@@ -27,14 +27,14 @@ angular.module('mblowfish-core')
  * @name $actions
  * @description Manage application actions
  * 
- * Controllers and views can access actions which is registered by an applications. This 
- * service is responsible to manage global actions.
+ * Controllers and views can access actions which is registered by an
+ * applications. This service is responsible to manage global actions.
  * 
  */
 .service('$actions', function(Action, ActionGroup) {
 	var _actionsList = [];
 	var _actionsMap = {};
-	
+
 	var _groupsList = [];
 	var _groupsMap = [];
 
@@ -43,89 +43,88 @@ angular.module('mblowfish-core')
 			'items' : _actionsList
 		};
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _newAction(data){
+	function _newAction(data) {
 		// Add new action
 		var action = new Action(data);
 		_actionsMap[action.id] = action;
 		_actionsList.push(action);
-    	for(var i = 0; i < action.groups.length; i++){
-    		var group = _group(action.groups[i]);
-    		group.items.push(action);
-    	}
-    	if(action.scope){
-    		action.scope.$on("$destroy", function() {
-    	        _removeAction(action);
-    	    });
-    	}
+		for (var i = 0; i < action.groups.length; i++) {
+			var group = _group(action.groups[i]);
+			group.items.push(action);
+		}
+		if (action.scope) {
+			action.scope.$on("$destroy", function() {
+				_removeAction(action);
+			});
+		}
 		return action;
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _action(actionId){
+	function _action(actionId) {
 		var action = _actionsMap[actionId];
-		if(action){
+		if (action) {
 			return action;
 		}
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _removeAction(action){
+	function _removeAction(action) {
 		_actionsMap[action.id] = null;
 		var index = _actionsList.indexOf(action);
-	    if (index > -1) {
-	    	_actionsList.splice(index, 1);
-	    	for(var i = 0; i < action.groups.length; i++){
-	    		var group = _group(action.groups[i]);
-	    		var j = group.items.indexOf(action);
-	    		if(j > -1){
-	    			group.items.splice(j, 1);
-	    		}
-	    	}
-	    	return action;
-	    }
+		if (index > -1) {
+			_actionsList.splice(index, 1);
+			for (var i = 0; i < action.groups.length; i++) {
+				var group = _group(action.groups[i]);
+				var j = group.items.indexOf(action);
+				if (j > -1) {
+					group.items.splice(j, 1);
+				}
+			}
+			return action;
+		}
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _groups(){
+	function _groups() {
 		return {
 			'items' : _groupsList
 		};
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _newGroup(groupData){
+	function _newGroup(groupData) {
 		// TODO: maso, 2018: assert id
 		return _group(groupData.id, groupData);
 	}
-	
+
 	// TODO: maso, 2018: add document
-	function _group(groupId, groupData){
+	function _group(groupId, groupData) {
 		var group = _groupsMap[groupId];
-		if(!group){
+		if (!group) {
 			group = new ActionGroup();
 			group.id = groupId;
 			_groupsMap[group.id] = group;
 			_groupsList.push(group);
 		}
-		if(groupData){
+		if (groupData) {
 			angular.extend(group, groupData);
 		}
 		return group;
 	}
-	
-	
+
 	return {
-			// actions
-			actions : _actions,
-			newAction: _newAction,
-			action: _action,
-			removeAction: _removeAction,
-			
-			// groups
-			groups: _groups,
-			newGroup: _newGroup,
-			group: _group,
+		// actions
+		actions : _actions,
+		newAction : _newAction,
+		action : _action,
+		removeAction : _removeAction,
+
+		// groups
+		groups : _groups,
+		newGroup : _newGroup,
+		group : _group,
 	};
 });

@@ -76,8 +76,11 @@ angular.module('mblowfish-core')
 	.when('/preferences/:preferenceId', {
 		templateUrl : 'views/mb-preference.html',
 		controller : 'MbPreferenceCtrl',
-		helpId : function(currentState) {
-			return 'preference-' + currentState.params['preferenceId'];
+		/*
+		 * @ngInject
+		 */
+		helpId : function($routeParams) {
+			return 'preference-' + $routeParams.preferenceId;
 		},
 		/*
 		 * @ngInject

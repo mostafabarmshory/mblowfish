@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description An action item
  * 
  */
-.factory('Action', function() {
+.factory('Action', function($injector) {
 
 	var action  = function(data) {
 		if(!angular.isDefined(data)){
@@ -46,11 +46,12 @@ angular.module('mblowfish-core')
 		if(!this.action){
 			return;
 		}
-		this.action();
+                $injector.invoke(this.action , this);
 		if($event){			
 			$event.stopPropagation();
+                        $event.preventDefault();
 		}
-	}
+	};
 
 	return action;
 });

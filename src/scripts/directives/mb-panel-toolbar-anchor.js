@@ -30,8 +30,7 @@ angular.module('mblowfish-core')
  * @description display a toolbar
  * 
  */
-.directive('mbPanelToolbarAnchor', function($navigator, $usr, $route, $window, $rootScope,
-		$app, $translate, $http, $mdSidenav, $mdBottomSheet, $q, $widget, $controller, $compile) {
+.directive('mbPanelToolbarAnchor', function($route, $toolbar, $rootScope, $q, $wbUtil, $controller, $compile) {
 
 	/*
 	 * Load page and create an element
@@ -52,7 +51,7 @@ angular.module('mblowfish-core')
 		});
 
 		// 2- create element
-		return $widget.getTemplateFor(page)
+		return $wbUtil.getTemplateFor(page)
 		.then(function(template) {
 			var element = angular.element(prefix + template + postfix);
 
@@ -109,7 +108,7 @@ angular.module('mblowfish-core')
 
 		function _getToolbarElement(page){
 			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id == page.id){
+				if(_toolbars[i].page.id === page.id){
 					return $q.when(_toolbars[i]);
 				}
 			}
@@ -160,12 +159,12 @@ angular.module('mblowfish-core')
 				return;
 			}
 			// Toolbars
-			var tids = $route.current.toolbars || $app.defaultToolbars();
+			var tids = $route.current.toolbars || $toolbar.defaultToolbars();
 			if(angular.isArray(tids)){
 				var ts = [];
 				var jobs = [];
 				angular.forEach(tids, function(item){
-					jobs.push($app.toolbar(item)
+					jobs.push($toolbar.toolbar(item)
 							.then(function(toolbar){
 								ts.push(toolbar);
 							}));

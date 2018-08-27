@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
-.run(function($app, $rootScope, $navigator, $route, $mdSidenav, $actions, $help) {
+.run(function($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
 	$actions.newAction({
 		id: 'mb.preferences',
 		priority : 15,
@@ -55,7 +55,7 @@ angular.module('mblowfish-core')
 		groups:['mb.toolbar.menu']
 	});
 	
-	$app.newToolbar({
+	$toolbar.newToolbar({
 		id : 'dashboard',
 		title : 'Dashboard toolbar',
 		description : 'Main dashboard toolbar',
@@ -63,7 +63,7 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/toolbars/mb-dashboard.html'
 	});
 	
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'navigator',
 		title : 'Navigator',
 		description : 'Navigate all path and routs of the pandel',
@@ -72,7 +72,7 @@ angular.module('mblowfish-core')
 		locked : true,
 		position : 'start',
 	});
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'help',
 		title : 'Help',
 		description : 'System online help',
@@ -84,7 +84,7 @@ angular.module('mblowfish-core')
 		},
 		position : 'end'
 	});
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'settings',
 		title : 'Options',
 		description : 'User options',
@@ -93,7 +93,7 @@ angular.module('mblowfish-core')
 		locked : false,
 		position : 'end'
 	});
-	$app.newSidenav({
+	$sidenav.newSidenav({
 		id : 'messages',
 		title : 'Messages',
 		description : 'User message queue',
