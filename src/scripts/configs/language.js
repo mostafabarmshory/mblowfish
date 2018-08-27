@@ -19,12 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('mblowfish-core')
-
-.config(function($translateProvider) {
-//	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
-	$translateProvider.useLoader('MbLanguageLoader');
-	$translateProvider.preferredLanguage('fa');
-});
+//'use strict';
+//
+//angular.module('mblowfish-core')
+//
+//.config(function($translateProvider) {
+////	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
+//	$translateProvider.useLoader('MbLanguageLoader');
+//	$translateProvider.preferredLanguage('fa');
+//});
+// TODO: maso, 2018: remove this file

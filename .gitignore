@@ -1,33 +1,28 @@
 # NodeJS
 /node_modules
 /package-lock.json
+/.npmrc
 
 # bower
 /bower_components
+/.bowerrc
 
 # Project
 /.tmp
 /.sass-cache
-#/dist
-#/src/images/wb
-/dist/images/wb
-*.log
-*.zip
-coverage/
+/*.log
+/*.zip
+/coverage/
+/doc/
 
 # Eclipse
 .settings
-#.project
 
 # KDE
 .directory
 
 # WebStorm and JetBrains Softwares
 .idea
-#/dist/
-/my-home-0.1.0.zip
-/dist/
 
 #netbeans
 nbproject/private/
-/doc/

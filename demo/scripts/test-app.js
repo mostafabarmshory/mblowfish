@@ -24,10 +24,10 @@
 'use strict';
 
 angular.module('app', [ 'mblowfish-core' ])//
-.run(function($app) {
+.run(function($app, $toolbar, $sidenav) {
+
 	// Load application
-	$app
-		.setDefaultToolbars(['dashboard'])
-		.setDefaultSidenavs(['navigator'])
-		.start('demo');
+	$toolbar.setDefaultToolbars(['dashboard']);
+	$sidenav.setDefaultSidenavs(['navigator']);
+	$app.start('demo');
 });

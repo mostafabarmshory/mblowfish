@@ -31,45 +31,33 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.service('$errorHandler', function($navigator, $mdToast) {
+.service('$errorHandler', function() {
 
 	/**
-	 * Checks status, message and data of the error. If given form is not null, it set related values in $error of 
-	 * fields in the form.
-	 * It also returns a general message to show to the user.
+	 * Checks status, message and data of the error. If given form is not null,
+	 * it set related values in $error of fields in the form. It also returns a
+	 * general message to show to the user.
 	 */
-	function handleError(error, form){
+	function handleError(error, form) {
 		var message = null;
-		if(error.status === 400 && form){ // Bad request
+		if (error.status === 400 && form) { // Bad request
 			message = 'Form is not valid. Fix errors and retry.';
-//			form.$invalid = true;
-			error.data.data.forEach(function(item){
+			error.data.data.forEach(function(item) {
 				form[item.name].$error = {};
-				var constraints = item.constraints.map(function(cons){
-					if(form[item.name]){						
+				item.constraints.map(function(cons) {
+					if (form[item.name]) {
 						form[item.name].$error[cons.toLowerCase()] = true;
 					}
 				});
 			});
-		}else{				
+		} else {
 			message = error.data.message;
 		}
-
-//		if(error.status === 401){
-//		message = 'Username or password is incorrect';
-//		}else if(error.status === 402){
-//		message = 'Access is forbiden';
-//		}else if(error.status === 408){
-//		message = 'Request Timeout';
-//		}else if(error.status >= 500 && error.status <600){
-//		message = 'Server could not response to your request'
-//		}
 
 		return message;
 	}
 
-
 	return {
-		handleError: handleError
+		handleError : handleError
 	};
 });

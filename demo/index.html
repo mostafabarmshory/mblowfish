@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html class="no-js" ng-app="app">
 <head>
-	<meta charset="utf-8">
-	<title>Angular Material Dashboard</title>
-	<meta name="description" content="Angular admin dashboard with material design">
-	<meta name="author" content="flatlogic.com">
-	<meta name="viewport" content="width=device-width">
-	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-	<!--  Tells to crawler that do not index this page and do not follow its links -->
-	<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<title>Angular Material Dashboard</title>
+<meta name="description" content="Angular admin dashboard with material design">
+<meta name="author" content="flatlogic.com">
+<meta name="viewport" content="width=device-width">
+<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+<!--  Tells to crawler that do not index this page and do not follow its links -->
+<meta name="robots" content="noindex, nofollow">
 
-	<!--  injector:base -->
-	<base href="/" >
-	<!--  endinjector  -->
-	
+<!--  injector:base -->
+<base href="/">
+<!--  endinjector  -->
+
 <!-- build:css({.tmp/serve,src}) styles/vendor.css -->
 <!-- bower:css -->
 <link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
@@ -23,11 +23,11 @@
 <link rel="stylesheet" href="bower_components/angular-material-icons/angular-material-icons.css" />
 <link rel="stylesheet" href="bower_components/pikaday/css/pikaday.css" />
 <link rel="stylesheet" href="bower_components/handsontable/dist/handsontable.css" />
+<link rel="stylesheet" href="bower_components/jspanel4/dist/jspanel.css" />
 <link rel="stylesheet" href="bower_components/am-wb-core/dist/am-wb-core.css" />
 <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
 <link rel="stylesheet" href="bower_components/am-wb-common/dist/am-wb-common.css" />
 <link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
-<link rel="stylesheet" href="bower_components/am-wb-seen-core/dist/am-wb-seen-core.css" />
 <link rel="stylesheet" href="bower_components/material-steppers/dist/material-steppers.css" />
 <!-- endbower -->
 <!-- endbuild -->
@@ -53,8 +53,7 @@
 <!-- endbuild -->
 
 </head>
-<body
-	md-theme="{{app.setting.theme || app.config.theme || 'default'}}" 
+<body md-theme="{{app.setting.theme || app.config.theme || 'default'}}"
 	md-theme-watch
 	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 	dir="{{app.dir}}">
@@ -64,9 +63,7 @@
         to improve your experience.</p>
     <![endif]-->
 	<mb-panel>
-		<div class="mb-preloader">
-			Loading....
-		</div>
+	<div class="mb-preloader">Loading....</div>
 	</mb-panel>
 
 	<!-- build:js(src) scripts/vendor.js -->
@@ -83,11 +80,13 @@
 	<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/moment-jalaali/build/moment-jalaali.js"></script>
-	<script src="bower_components/angular-pluf/dist/angular-pluf.js"></script>
 	<script src="bower_components/mustache.js/mustache.js"></script>
 	<script src="bower_components/lodash/lodash.js"></script>
 	<script src="bower_components/seen-core/dist/seen-core.js"></script>
+	<script src="bower_components/seen-user/dist/seen-user.js"></script>
+	<script src="bower_components/seen-bank/dist/seen-bank.js"></script>
 	<script src="bower_components/seen-tenant/dist/seen-tenant.js"></script>
+	<script src="bower_components/seen-cms/dist/seen-cms.js"></script>
 	<script src="bower_components/angular-aria/angular-aria.js"></script>
 	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
@@ -95,7 +94,6 @@
 	<script src="bower_components/md-color-picker/dist/mdColorPicker.min.js"></script>
 	<script src="bower_components/tinymce/tinymce.js"></script>
 	<script src="bower_components/angular-ui-tinymce/src/tinymce.js"></script>
-	<script src="bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js"></script>
 	<script src="bower_components/angular-material-expansion-panel/dist/md-expansion-panel.js"></script>
 	<script src="bower_components/angular-material-icons/angular-material-icons.min.js"></script>
 	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
@@ -104,16 +102,16 @@
 	<script src="bower_components/zeroclipboard/dist/ZeroClipboard.js"></script>
 	<script src="bower_components/handsontable/dist/handsontable.js"></script>
 	<script src="bower_components/ngHandsontable/dist/ngHandsontable.js"></script>
+	<script src="bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js"></script>
+	<script src="bower_components/jspanel4/dist/jspanel.js"></script>
 	<script src="bower_components/am-wb-core/dist/am-wb-core.js"></script>
 	<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
 	<script src="bower_components/angular-youtube-mb/src/angular-youtube-embed.js"></script>
 	<script src="bower_components/am-wb-common/dist/am-wb-common.js"></script>
-	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
-	<script src="bower_components/angular-uuid/uuid.min.js"></script>
-	<script src="bower_components/am-wb-seen-core/dist/am-wb-seen-core.js"></script>
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
 	<script src="bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js"></script>
 	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
+	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
 	<script src="bower_components/angular-recaptcha/release/angular-recaptcha.js"></script>
 	<script src="bower_components/material-steppers/dist/material-steppers.js"></script>
 	<script src="bower_components/blob-polyfill/Blob.js"></script>
@@ -189,10 +187,14 @@
 	<script src="scripts/services/export.js"></script>
 	<script src="scripts/services/help.js"></script>
 	<script src="scripts/services/language.js"></script>
+	<script src="scripts/services/metrics.js"></script>
 	<script src="scripts/services/navigator.js"></script>
 	<script src="scripts/services/notification.js"></script>
+	<script src="scripts/services/old-app.js"></script>
 	<script src="scripts/services/options.js"></script>
 	<script src="scripts/services/preferences.js"></script>
+	<script src="scripts/services/sidenav.js"></script>
+	<script src="scripts/services/toolbar.js"></script>
 	<script src="scripts/test-app.js"></script>
 	<script src="scripts/test-configs/language.js"></script>
 	<script src="scripts/test-configs/path.js"></script>

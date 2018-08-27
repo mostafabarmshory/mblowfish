@@ -1,0 +1,30 @@
+digraph finite_state_machine {
+	rankdir=LR;
+	size="12"
+	node [shape = doublecircle,color=black]; ready ready_app_not_configured  fail offline;
+	node [shape = ellipse,color=black]; waiting loading;
+
+	waiting -> loading [ label = "Start_event" ];
+        //waiting -> offline [label = "network error(-1)"];
+        //waiting -> fail[label = "server error(500)"];
+        
+        loading -> loading [label = "loaded(user | options | config)"];
+	loading -> config_loading [ label = "user & options are loaded" ];
+	loading -> app_not_configured [ label = "config not found" ];
+	loading  -> ready [ label = "user & options & config are loaded" ];
+        //loading  -> offline [label = "network error"];
+        //loading  -> fail[label = "server error(500)"];
+
+	config_loading -> ready [ label = "config loaded" ];
+	config_loading -> ready_app_not_configured[ label = "config not found" ];
+        //config_loading -> offline [label = "network error(-1)"];
+        //config_loading -> fail[label = "server error(500)"]; 
+ 
+	app_not_configured -> app_not_configured [ label = "loaded" ];
+	app_not_configured -> ready_app_not_configured[ label = "loaded(options & user are loaded)" ];
+        //app_not_configured -> offline [label = "network error(-1)"];
+        //app_not_configured -> fail[label = "server error(500)"];
+
+	ready_app_not_configured-> ready[ label = "config created" ];
+        //ready_app_not_configured-> offline [label = "network error(-1)"]; 
+}

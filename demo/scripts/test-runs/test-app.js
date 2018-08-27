@@ -27,7 +27,7 @@ angular.module('app')//
 /**
  * 
  */
-.run(function($navigator, $app, $rootScope){
+.run(function($navigator, $toolbar, $rootScope){
 		// add category
 	$navigator.newGroup({
 		id: 'tables',
@@ -99,7 +99,7 @@ angular.module('app')//
 		icon: 'help'
 	});
 	
-	$app.newToolbar({
+	$toolbar.newToolbar({
 		id : 'testToolbar',
 		title : 'Test toolbar',
 		description : 'Main dashboard toolbar',
