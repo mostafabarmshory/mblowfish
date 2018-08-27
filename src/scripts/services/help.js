@@ -49,7 +49,7 @@ angular.module('mblowfish-core')
  * </code></pre>
  * 
  */
-.service('$help', function($q, $navigator, $rootScope, $translate, $injector) {
+.service('$help', function($q, $rootScope, $translate, $injector) {
 
 	var _tips = [];
 	var _currentItem = null;
@@ -79,7 +79,7 @@ angular.module('mblowfish-core')
 	 */
 	function tip(tipData) {
 		_tips.push(tipData);
-//		return this;
+                return this;
 	}
 
 	/**
@@ -170,7 +170,7 @@ angular.module('mblowfish-core')
 	return {
 		tip : tip,
 		tips : tips,
-
+                
 		currentItem : currentItem,
 		setCurrentItem : setCurrentItem,
 		openHelp : openHelp,

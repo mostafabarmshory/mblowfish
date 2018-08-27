@@ -322,7 +322,7 @@ angular.module('mblowfish-core') //
 		.then(function (content) {
 			app._acc = content;
 			_loadingLog('loading configuration', 'fetch configuration content');
-			return app._acc.value();
+			return app._acc.downloadValue();
 		}, function (error) {
 			if (error.status === 404) {
 				stateMachine.configs_not_found();
@@ -466,7 +466,7 @@ angular.module('mblowfish-core') //
 		var promise;
 		if (app._acc) { // content loaded
 			appConfigDirty = false;
-			promise = app._acc.setValue(app.config);
+			promise = app._acc.uploadValue(app.config);
 		} else { // create content
 			promise = $cms.putContent({
 				name: APP_PREFIX + app.key,
@@ -475,7 +475,7 @@ angular.module('mblowfish-core') //
 				appConfigDirty = false;
 				app._acc = content;
 				stateMachine.config_created();
-				return app._acc.setValue(app.config);
+				return app._acc.uploadValue(app.config);
 			}, function (error) {
 				if (error.status === 404) {
 					stateMachine.configs_not_found();

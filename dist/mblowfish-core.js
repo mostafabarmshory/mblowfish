@@ -4526,7 +4526,7 @@ angular.module('mblowfish-core')
  * @description An action item
  * 
  */
-.factory('Action', function() {
+.factory('Action', function($injector) {
 
 	var action  = function(data) {
 		if(!angular.isDefined(data)){
@@ -4543,9 +4543,11 @@ angular.module('mblowfish-core')
 		if(!this.action){
 			return;
 		}
-		this.action();
+//		this.action();
+                $injector.invoke(this.action , this);
 		if($event){			
 			$event.stopPropagation();
+                        $event.preventDefault();
 		}
 	}
 
@@ -5607,7 +5609,7 @@ angular.module('mblowfish-core') //
 		.then(function (content) {
 			app._acc = content;
 			_loadingLog('loading configuration', 'fetch configuration content');
-			return app._acc.value();
+			return app._acc.downloadValue();
 		}, function (error) {
 			if (error.status === 404) {
 				stateMachine.configs_not_found();
@@ -5751,7 +5753,7 @@ angular.module('mblowfish-core') //
 		var promise;
 		if (app._acc) { // content loaded
 			appConfigDirty = false;
-			promise = app._acc.setValue(app.config);
+			promise = app._acc.uploadValue(app.config);
 		} else { // create content
 			promise = $cms.putContent({
 				name: APP_PREFIX + app.key,
@@ -5760,7 +5762,7 @@ angular.module('mblowfish-core') //
 				appConfigDirty = false;
 				app._acc = content;
 				stateMachine.config_created();
-				return app._acc.setValue(app.config);
+				return app._acc.uploadValue(app.config);
 			}, function (error) {
 				if (error.status === 404) {
 					stateMachine.configs_not_found();
@@ -6167,7 +6169,7 @@ angular.module('mblowfish-core')
  * </code></pre>
  * 
  */
-.service('$help', function($q, $navigator, $rootScope, $translate, $injector) {
+.service('$help', function($q, $rootScope, $translate, $injector) {
 
 	var _tips = [];
 	var _currentItem = null;
@@ -6197,7 +6199,7 @@ angular.module('mblowfish-core')
 	 */
 	function tip(tipData) {
 		_tips.push(tipData);
-//		return this;
+                return this;
 	}
 
 	/**
@@ -6288,7 +6290,7 @@ angular.module('mblowfish-core')
 	return {
 		tip : tip,
 		tips : tips,
-
+                
 		currentItem : currentItem,
 		setCurrentItem : setCurrentItem,
 		openHelp : openHelp,
