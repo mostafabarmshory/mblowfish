@@ -2946,23 +2946,24 @@ angular.module('mblowfish-core')
  * Pagination parameters are a complex data structure and it is hard to manage
  * it. This is a toolbar to manage the pagination options.
  */
-.directive('mbPaginationBar',  ['$window','$timeout','$mdMenu', function($window,$timeout,$mdMenu) {
+.directive('mbPaginationBar',  function($window,$timeout,$mdMenu, $parse) {
 
-	function postLink(scope, element, attr) {
+	function postLink(scope, element, attrs) {
 
 		var query = {
-			sortDesc: true,
-			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-			searchTerm: null
+				sortDesc: true,
+				sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+						searchTerm: null
 		};
 		/*
 		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
 		 */
 		function reload(){
-			if(!angular.isFunction(scope.mbReload)){
+			if(!angular.isDefined(attrs.mbReload)){
 				return;
 			}
-			scope.mbReload(scope.mbModel);
+			// Call the callback for the first time:
+			$parse(attrs.mbReload)(scope);
 		}
 		/**
 		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
@@ -2979,28 +2980,16 @@ angular.module('mblowfish-core')
 			scope.mbReload();
 		}
 
-		function init(){
-			// Checks sort key
-			if(scope.mbModel){
-				// clear previous sorters
-				// TODO: replace it with scope.mbModel.clearSorters()
-				scope.mbModel.sortMap = {};
-				scope.mbModel.filterMap = {};
-				scope.mbModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
-				scope.mbModel.setQuery(query.searchTerm);
-			}
+		function focusToElementById(id){
+			$timeout(function(){
+				var searchControl;
+				searchControl=$window.document.getElementById(id);
+				searchControl.focus();
+			}, 50 );
 		}
 
-    function focusToElementById(id){
-      $timeout(function(){
-        var searchControl;
-        searchControl=$window.document.getElementById(id);
-        searchControl.focus();
-      }, 50 );
-		}
-
-    scope.showBoxOne=false;
-    scope.focusToElement=focusToElementById;
+		scope.showBoxOne=false;
+		scope.focusToElement=focusToElementById;
 		// configure scope:
 		scope.search = searchQuery;
 		scope.query=query;
@@ -3014,13 +3003,7 @@ angular.module('mblowfish-core')
 			scope.mbEnableSearch = true;
 		}
 
-		scope.$watch('mbModel', function(){
-			init();
-		});
-
 		scope.$watch('query', function(){
-			// Reloads search
-			init();
 			reload();
 		}, true);
 
@@ -3038,7 +3021,7 @@ angular.module('mblowfish-core')
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
 			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
 			 */
-			mbReload : '=',
+			mbReload : '@',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
 			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
@@ -3050,9 +3033,10 @@ angular.module('mblowfish-core')
 			 */
 			mbSortKeys: '=',
 
-                        /* titles corresponding to sort keys */
-                        mbSortKeysTitles: '=?',
-                        /*
+			/* titles corresponding to sort keys */
+			mbSortKeysTitles: '=?',
+			
+			/*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',
@@ -3064,7 +3048,7 @@ angular.module('mblowfish-core')
 		},
 		link : postLink
 	};
-}]);
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
