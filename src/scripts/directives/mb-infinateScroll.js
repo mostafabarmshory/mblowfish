@@ -36,7 +36,7 @@ angular.module('mblowfish-core')
 	function postLink(scope, elem, attrs) {
 		// adding infinite scroll class
 		elem.addClass('mb-infinate-scroll');
-		elem.on('scroll', function(evt) {
+		elem.on('scroll', function(){
 			var raw = elem[0];
 			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
 				$parse(attrs.mbInfinateScroll)(scope);
