@@ -197,5 +197,14 @@ angular.module('app') //
 		icon : 'settings',
 		toolbars: ['testToolbar']
 	})
+	
+    .when('/test/resources', {
+        controller : 'SelectResourcesCtrl',
+        templateUrl : 'views/mb-test-resources.html',
+        navigate : true,
+        groups : [ 'resources' ],
+        name : 'Select resource',
+        icon : 'load',
+    })
 	;
 });

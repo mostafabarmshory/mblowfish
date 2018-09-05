@@ -25,98 +25,40 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdRolesResourceCtrl
- * @description Role resource
+ * @name AmdRolesCtrl
+ * @description Manages list of roles
+ * 
+ * 
  */
-.controller('AmdRolesResourceCtrl', function($scope, $usr, QueryParameter ) {
+.controller('MbRolesCtrl', function($scope, $usr, $q, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope : $scope
+	}));
 
-	var paginatorParameter = new QueryParameter();
-	paginatorParameter.setOrder('id', 'a');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param paginatorParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		paginatorParameter.setQuery(query);
-		return reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.roles(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
+	// Overried the function
+	this.getSchema = function() {
+		return $q.resolve({
+			name : 'role',
+			properties : [ {
+				name : 'Id',
+				type : 'int'
+			} ]
 		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-
-	function selectRoleId(role){
-		$scope.$parent.setValue(role.id);
-	}
-	
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-	$scope.items = [];
-	$scope.reload = reload;
-	$scope.search = find;
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectRoleId = selectRoleId;
-	
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.sortKeys = [
-		'id', 
-		'name'
-		];
-//	$scope.moreActions = [{
-//	title: 'New role',
-//	icon: 'add',
-//	action: function(){
-//	alert('well done');
-//	}
-//	}];
-
-	/*
-	 * مقداردهی اولیه
-	 */
-//	reload();
+	};
+	// get accounts
+	this.getItems = function(parameterQuery) {
+		return $usr.getRoles(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id) {
+		return $usr.getRole(id);
+	};
+	// // Add item
+	// this.addItem = function(){
+	// return $usr.newAccount(item);
+	// };
+	// delete account
+	this.deleteItem = function(item) {
+		return $usr.deleteRole(item.id);
+	};
 });

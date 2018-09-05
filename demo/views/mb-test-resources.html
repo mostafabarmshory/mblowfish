@@ -1,0 +1,103 @@
+<md-content flex layout="row">
+	<div>
+		<div>
+			<md-button
+				ng-click="selectGroups()">
+				Select groups
+			</md-button>
+		</div>
+		<div>
+			{{groups}}
+		</div>
+	</div>
+	<div>
+		<div>
+			<md-button
+				ng-click="selectRoles()">
+				Select roles
+			</md-button>
+		</div>
+		<div>
+			{{roles}}
+		</div>
+	</div>
+	
+	
+	<div>
+	<h2>Select resource</h2>
+	<md-list ng-cloak>
+		<md-list-item>
+		    <wb-icon>account_circle</wb-icon>
+		    <p>Select User: </p>
+		    <md-button class="md-raised" 
+		    	ng-click="selectUserObject()"> select user </md-button>
+		</md-list-item>
+		<md-list-item class="md-3-line" ng-show="user">
+			<img ng-src="/api/user/{{user.id}}/avatar" class="md-avatar"/>
+			<div class="md-list-item-text" 
+				layout="column">
+				<h3>{{user.first_name}} - {{user.last_name}}</h3>
+				<h4>
+					<span ng-show="user.active">
+						<span translate>Active</span>,
+					</span>
+					<span ng-hide="user.active">
+						<span translate>Unactive</span>,
+					</span>
+				</h4>
+				<p>
+					<span translate>Joined</span>: {{user.date_joined}},
+					<span translate>Last Login</span>: {{user.last_login}},
+				</p>
+			</div>
+		</md-list-item>
+		<md-list-item class="md-3-line" ng-show="!user">
+			<img ng-src="favicon.ico" class="md-avatar"/>
+			<div class="md-list-item-text" 
+				layout="column">
+				<h3>No user is selected</h3>
+			</div>
+		</md-list-item>
+	</md-list>
+	<md-list ng-cloak>
+		<md-list-item>
+		    <wb-icon>account_circle</wb-icon>
+		    <p>Select one or more user: </p>
+		    <md-button class="md-raised" 
+		    	ng-click="selectUserObjectList()"> select user </md-button>
+		</md-list-item>
+		
+		
+		
+		
+		
+		<md-list-item class="md-3-line" ng-repeat="user in userList track by user.id">
+			<img ng-src="/api/user/{{user.id}}/avatar" class="md-avatar"/>
+			<div class="md-list-item-text" 
+				layout="column">
+				<h3>{{user.first_name}} - {{user.last_name}}</h3>
+				<h4>
+					<span ng-show="user.active">
+						<span translate>Active</span>,
+					</span>
+					<span ng-hide="user.active">
+						<span translate>Unactive</span>,
+					</span>
+				</h4>
+				<p>
+					<span translate>Joined</span>: {{user.date_joined}},
+					<span translate>Last Login</span>: {{user.last_login}},
+				</p>
+			</div>
+		</md-list-item>
+		<md-list-item class="md-3-line" ng-show="!userList.length">
+			<img ng-src="favicon.ico" class="md-avatar"/>
+			<div class="md-list-item-text" 
+				layout="column">
+				<h3>No user is selected</h3>
+			</div>
+		</md-list-item>
+	</md-list>
+	</div>
+</md-content>
+
