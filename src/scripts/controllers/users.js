@@ -29,9 +29,9 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('AmdUsersResourceCtrl', function($scope, $usr, PaginatorParameter) {
+.controller('AmdUsersResourceCtrl', function($scope, $usr, QueryParameter) {
 
-	var paginatorParameter = new PaginatorParameter();
+	var paginatorParameter = new QueryParameter();
 	paginatorParameter.setOrder('id', 'd');
 	var requests = null;
 	var ctrl = {

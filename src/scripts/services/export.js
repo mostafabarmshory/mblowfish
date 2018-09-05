@@ -31,7 +31,7 @@ angular.module('mblowfish-core')
  * Export data model into a CSV file.
  * 
  */
-.service('$amdExport', function(FileSaver, $q, PaginatorParameter) {
+.service('$amdExport', function(FileSaver, $q, QueryParameter) {
 
 	/**
 	 * 
@@ -42,10 +42,10 @@ angular.module('mblowfish-core')
 	 * @returns
 	 */
 	function exportList(objectRef, findMethod, paginatorParameter, type, name) {
-		var params = new PaginatorParameter();
+		var params = new QueryParameter();
 		// TODO: maso, 2017: adding funnction to clone params
 		//
-		// Example: params = new PaginatorParameter(old);
+		// Example: params = new QueryParameter(old);
 		params.put('_px_q ', paginatorParameter.get('_px_q'));
 		params.put('_px_sk ', paginatorParameter.get('_px_sk'));
 		params.put('_px_so ', paginatorParameter.get('_px_so'));

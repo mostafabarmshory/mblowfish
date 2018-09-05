@@ -28,9 +28,9 @@ angular.module('mblowfish-core')
  * @name AmdRolesResourceCtrl
  * @description Role resource
  */
-.controller('AmdRolesResourceCtrl', function($scope, $usr, PaginatorParameter ) {
+.controller('AmdRolesResourceCtrl', function($scope, $usr, QueryParameter ) {
 
-	var paginatorParameter = new PaginatorParameter();
+	var paginatorParameter = new QueryParameter();
 	paginatorParameter.setOrder('id', 'a');
 	var requests = null;
 	var ctrl = {

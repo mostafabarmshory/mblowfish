@@ -209,16 +209,14 @@ angular.module('mblowfish-core')
 			 * Get current route
 			 */
 			getRoute: function () {
-				return this.currentRoute
-				|| $route.current;
+				return this.currentRoute || $route.current;
 			},
 
 			/*
 			 * Get current status
 			 */
 			getState: function () {
-				return this.appState
-				|| $rootScope.app.state.status;
+				return this.appState || $rootScope.app.state.status;
 			}
 		});
 
