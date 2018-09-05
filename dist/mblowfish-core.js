@@ -1124,6 +1124,8 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     var STATE_INIT = 'init';
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
+    this.state = STATE_IDEAL;
+    
 
     /**
      * List of all loaded items
@@ -1176,7 +1178,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
-
+    
     /**
      * Reload the controller
      * 
@@ -1186,7 +1188,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @memberof AmdItemsCtrl
      * @returns promiss to reload
      */
-    function reload(){
+    this.reload = function(){
         // relaod data
         this.state=STATE_INIT;
         delete this.requests;
@@ -1195,7 +1197,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         // start the controller
         this.state=STATE_IDEAL;
         return this.loadNextPage();
-    }
+    };
 
     /**
      * Loads next page
@@ -1205,7 +1207,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @memberof AmdItemsCtrl
      * @returns promiss to load next page
      */
-    function loadNextPage() {
+    this.loadNextPage = function() {
         // Check functions
         if(!angular.isFunction(this.getItems)){
             throw 'The controller dose not implement getItems function';
@@ -1238,7 +1240,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         .finally(function(){
             ctrl.state = STATE_BUSY;
         });
-    }
+    };
 
 
     /**
@@ -1250,16 +1252,16 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @memberof AmdItemsCtrl
      * @param graphql
      */
-    function setDataQuery(grqphql){
+    this.setDataQuery = function(grqphql){
         this.grqphql = grqphql;
-    }
+    };
 
     /**
      * Get properties to sort
      * 
      * @return array of getProperties to use in search, sort and filter
      */
-    function getProperties(){
+    this.getProperties = function(){
         if(!angular.isFunction(this.getSchema)){
             return [];
         }
@@ -1274,14 +1276,14 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         });
         // view must check later
         return [];
-    }
+    };
 
     /**
      * Load controller actions
      * 
      * @return list of actions
      */
-    function getActions(){
+    this.getActions = function(){
         var actions = this._actions;
         // TODO: maso, 2018: add flag to cache 
         // add item action
@@ -1292,20 +1294,20 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         {
             // TODO: maso, 2018: crate action from reload
         }
-    }
+    };
 
     /**
      * Adds new action into the controller
      * 
      * @param action to add to list
      */
-    function addAction(action) {
+    this.addAction = function(action) {
         if(!angular.isDefined(this._actions)){
             this._actions = [];
         }
         // TODO: maso, 2018: assert the action is MbAction
         this._actions = this._actions.concat(action);
-    }
+    };
 
 
 
@@ -1329,7 +1331,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @memberof AmdItemsCtrl
      * @return promise to get schema
      */
-    function getSchema(){
+    this.getSchema = function(){
         // Controllers are supposed to override the function
         return $q.resolve({
             name: 'Item',
@@ -1338,7 +1340,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
                 title: 'string'
             }]
         });
-    }
+    };
 
     /**
      * Query and get items
@@ -1346,9 +1348,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @param queryParameter to apply search
      * @return promiss to get items
      */
-    function getItems(queryParameter){
+    this.getItems = function(queryParameter){
 
-    }
+    };
 
     /**
      * Get item with id
@@ -1356,9 +1358,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @param id of the item
      * @return promiss to get item
      */
-    function getItem(id){
+    this.getItem = function(id){
 
-    }
+    };
 
     /**
      * Adds new item
@@ -1369,14 +1371,14 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @memberof AmdItemsCtrl
      * @return promiss to add and return an item
      */
-    function addItem(){
+    this.addItem = function(){
         // Controllers are supposed to override the function
         var item = {
                 id: random(),
                 title: 'test item'
         }
         return $q.accept(item);
-    }
+    };
 
     /**
      * Deletes item
@@ -1385,31 +1387,17 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @param item
      * @return promiss to delete item
      */
-    function deleteItem(item){
+    this.deleteItem = function(/*item*/){
         // Controllers are supposed to override the function
+    };
 
-    }
 
-
-    // view layer functions
-    this.reload = reload;
-    this.loadNextPage = loadNextPage;
-    this.setDataQuery = setDataQuery;
-    this.getProperties = getProperties;
-    this.getActions = getActions;
-
-    // default data layer of item
-    this.getSchema = getSchema;
-    this.getItems = getItems;
-    this.getItem = getItem;
-    this.addItem = addItem;
-    this.deleteItem = deleteItem;
-
-    this.state = STATE_IDEAL;
 }
 
-angular.module('mblowfish-core')
-.controller('MbItemsCtrl', MbItemsCtrl);
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core').controller('MbItemsCtrl', MbItemsCtrl);
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
