@@ -151,7 +151,6 @@ module.exports = function(config) {
         'karma-safari-launcher',
         'karma-safaritechpreview-launcher',
         'karma-opera-launcher',
-        'karma-phantomjs-launcher',
         'karma-detect-browsers'
     ],
 
