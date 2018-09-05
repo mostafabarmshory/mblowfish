@@ -1107,7 +1107,6 @@ angular.module('mblowfish-core')
  */
 'use strict';
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
@@ -1121,11 +1120,7 @@ angular.module('mblowfish-core')
  * data functions are considered to be overried by extensions.
  * 
  */
-.controller('childController', function ($scope, $controller) {
-    $controller('parentController', {$scope: $scope});
-    $scope.someFunction=function(){};
-})
-.controller('MbItemsCtrl', function($scope, $usr, $q, QueryParameter) {
+function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     var STATE_INIT = 'init';
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
@@ -1411,7 +1406,10 @@ angular.module('mblowfish-core')
     this.deleteItem = deleteItem;
 
     this.state = STATE_IDEAL;
-});
+}
+
+angular.module('mblowfish-core')
+.controller('MbItemsCtrl', MbItemsCtrl);
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir

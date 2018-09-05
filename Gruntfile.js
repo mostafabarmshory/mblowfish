@@ -49,6 +49,7 @@ module.exports = function(grunt) {
 		useminPrepare : 'grunt-usemin',
 		ngtemplates : 'grunt-angular-templates',
 		configureProxies : 'grunt-connect-proxy',
+		uglify: 'grunt-contrib-uglify-es',
 	});
 
 	/*
