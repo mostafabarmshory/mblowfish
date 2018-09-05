@@ -35,10 +35,6 @@ angular.module('mblowfish-core')
  * data functions are considered to be overried by extensions.
  * 
  */
-.controller('childController', function ($scope, $controller) {
-    $controller('parentController', {$scope: $scope});
-    $scope.someFunction=function(){};
-})
 .controller('MbItemsCtrl', function($scope, $usr, $q, QueryParameter) {
     var STATE_INIT = 'init';
     var STATE_BUSY = 'busy';
