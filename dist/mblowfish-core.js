@@ -599,6 +599,71 @@ angular.module('mblowfish-core')
 
 
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name AmdAccountsCtrl
+ * @description Manages and display list of accounts
+ * 
+ * This controller is used in accounts list.
+ * 
+ */
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope: $scope
+	}));
+
+	// Overried the function
+	this.getSchema = function(){
+		return $q.resolve({
+			name: 'account',
+			properties: [{
+				name: 'Id',
+				type: 'int'
+			}]
+		});
+	};
+	// get accounts
+	this.getItems = function(parameterQuery){
+		return $usr.getAccounts(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id){
+		return $usr.getAccount(id);
+	};
+//	// Add item
+//	this.addItem = function(){
+//		return $usr.newAccount(item);
+//	};
+	// delete account
+	this.deleteItem = function(item){
+		return $usr.deleteAccount(item.id);
+	};
+})
+
 'use strict';
 
 angular.module('mblowfish-core')
@@ -661,96 +726,41 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdGroupsResourceCtrl
- * @description Dashboard
+ * @name AmdGroupsCtrl
+ * @description Manages list of groups
  * 
  */
-.controller('AmdGroupsResourceCtrl', function($scope, $usr, QueryParameter/*, $navigator*/ ) {
+.controller('MbGroupsCtrl', function($scope, $usr, $q, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope : $scope
+	}));
 
-	var paginatorParameter = new QueryParameter();
-	paginatorParameter.setOrder('id', 'a');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param paginatorParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		paginatorParameter.setQuery(query);
-		reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.groups(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
+	// Overried the function
+	this.getSchema = function() {
+		return $q.resolve({
+			name : 'group',
+			properties : [ {
+				name : 'Id',
+				type : 'int'
+			} ]
 		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-
-	function selectGroupId(group){
-		$scope.$parent.setValue(group.id);
-	}
-	
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری شده است.
-	 */
-	$scope.items = [];
-	$scope.search = find;
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectGroupId = selectGroupId;
-
-	// Pagination toolbar
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.reload = reload;
-	$scope.sortKeys= [
-		'id', 
-		'name',
-		'description'
-		];
-//	$scope.moreActions=[{
-//		title: 'New group',
-//		icon: 'group_add',
-//		action: addGroup
-//	}];
-
+	};
+	// get accounts
+	this.getItems = function(parameterQuery) {
+		return $usr.getGroups(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id) {
+		return $usr.getGroup(id);
+	};
+	// // Add item
+	// this.addItem = function(){
+	// return $usr.newAccount(item);
+	// };
+	// delete account
+	this.deleteItem = function(item) {
+		return $usr.deleteRole(item.id);
+	};
 });
 
 /*
@@ -1072,6 +1082,335 @@ angular.module('mblowfish-core')
 		}
 	});
 
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name AmdItemsCtrl
+ * @description Generic controller of items collection
+ * 
+ * This controller is used manages a collection of a virtual items. it is the
+ * base of all other collection controllers such as accounts, groups, etc.
+ * 
+ * There are two types of function in the controller: view and data related. All
+ * data functions are considered to be overried by extensions.
+ * 
+ */
+.controller('childController', function ($scope, $controller) {
+    $controller('parentController', {$scope: $scope});
+    $scope.someFunction=function(){};
+})
+.controller('MbItemsCtrl', function($scope, $usr, $q, QueryParameter) {
+    var STATE_INIT = 'init';
+    var STATE_BUSY = 'busy';
+    var STATE_IDEAL = 'ideal';
+
+    /**
+     * List of all loaded items
+     * 
+     * All loaded items will be stored into this variable for later usage. This
+     * is related to view.
+     * 
+     * @type array
+     * @memberof AmdItemsCtrl
+     */
+    this.items = [];
+
+    /**
+     * State of the controller
+     * 
+     * Controller may be in several state in the lifecycle. The state of the
+     * controller will be stored in this variable.
+     * 
+     * <ul>
+     * <li>init: the controller is not ready</li>
+     * <li>busy: controller is busy to do something (e. loading list of data)</li>
+     * <li>ideal: controller is ideal and wait for user </li>
+     * </ul>
+     * 
+     * @type string
+     * @memberof AmdItemsCtrl
+     */
+    this.state = 'init';
+
+    /**
+     * Store last paginated response
+     * 
+     * This is a collection controller and suppose the result of query to be a
+     * valid paginated collection. The last response from data layer will be
+     * stored in this variable.
+     * 
+     * @type PaginatedCollection
+     * @memberof AmdItemsCtrl
+     */
+    this.lastResponse = null;
+
+    /**
+     * Query parameter
+     * 
+     * This is the query parameter which is used to query items from the data
+     * layer.
+     * 
+     * @type QueryParameter
+     * @memberof AmdItemsCtrl
+     */
+    this.queryParameter = new QueryParameter();
+    this.queryParameter.setOrder('id', 'd');
+
+    /**
+     * Reload the controller
+     * 
+     * Remove all old items and reload the controller state. If the controller
+     * is in progress, then cancel the old promiss and start the new job.
+     * 
+     * @memberof AmdItemsCtrl
+     * @returns promiss to reload
+     */
+    function reload(){
+        // relaod data
+        this.state=STATE_INIT;
+        delete this.requests;
+        this.items = [];
+
+        // start the controller
+        this.state=STATE_IDEAL;
+        return this.loadNextPage();
+    }
+
+    /**
+     * Loads next page
+     * 
+     * Load next page and add to the current items.
+     * 
+     * @memberof AmdItemsCtrl
+     * @returns promiss to load next page
+     */
+    function loadNextPage() {
+        // Check functions
+        if(!angular.isFunction(this.getItems)){
+            throw 'The controller dose not implement getItems function';
+        }
+
+        // check state
+        if (this.state !== STATE_IDEAL) {
+            throw 'Items controller is not in ideal state';
+        }
+        this.state = STATE_BUSY;
+
+        // set next page
+        if (this.lastResponse) {
+            if(!this.lastResponse.hasMore()){
+                return $q.resolve();
+            }
+            this.queryParameter.setPage(lastResponse.next());
+        }
+
+        // Get new items
+        var ctrl = this;
+        return this.getItems(this.queryParameter)//
+        .then(function(response) {
+            ctrl.lastResponse = response;
+            ctrl.items = ctrl.items.concat(response.items);
+            ctrl.error = null;
+        }, function(error){
+            ctrl.error = error;
+        })//
+        .finally(function(){
+            ctrl.state = STATE_BUSY;
+        });
+    }
+
+
+    /**
+     * Set a GraphQl format of data
+     * 
+     * By setting this the controller is not sync and you have to reload the
+     * controller. It is better to set the data query at the start time.
+     * 
+     * @memberof AmdItemsCtrl
+     * @param graphql
+     */
+    function setDataQuery(grqphql){
+        this.grqphql = grqphql;
+    }
+
+    /**
+     * Get properties to sort
+     * 
+     * @return array of getProperties to use in search, sort and filter
+     */
+    function getProperties(){
+        if(!angular.isFunction(this.getSchema)){
+            return [];
+        }
+        if(angular.isDefined(this._schema)){
+            // TODO: maso, 2018: 
+            return this._schema;
+        }
+        var ctrl = this;
+        $q.when(this.getSchema())
+        .then(function(schema){
+            ctrl._schema = schema;
+        });
+        // view must check later
+        return [];
+    }
+
+    /**
+     * Load controller actions
+     * 
+     * @return list of actions
+     */
+    function getActions(){
+        var actions = this._actions;
+        // TODO: maso, 2018: add flag to cache 
+        // add item action
+        if(angular.isFunction(this.addItem)){
+            // TODO: maso, 2018: crate action from add item
+        }
+        // reload items action
+        {
+            // TODO: maso, 2018: crate action from reload
+        }
+    }
+
+    /**
+     * Adds new action into the controller
+     * 
+     * @param action to add to list
+     */
+    function addAction(action) {
+        if(!angular.isDefined(this._actions)){
+            this._actions = [];
+        }
+        // TODO: maso, 2018: assert the action is MbAction
+        this._actions = this._actions.concat(action);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Gets object schema
+     * 
+     * @memberof AmdItemsCtrl
+     * @return promise to get schema
+     */
+    function getSchema(){
+        // Controllers are supposed to override the function
+        return $q.resolve({
+            name: 'Item',
+            properties:[{
+                id: 'int',
+                title: 'string'
+            }]
+        });
+    }
+
+    /**
+     * Query and get items
+     * 
+     * @param queryParameter to apply search
+     * @return promiss to get items
+     */
+    function getItems(queryParameter){
+
+    }
+
+    /**
+     * Get item with id
+     * 
+     * @param id of the item
+     * @return promiss to get item
+     */
+    function getItem(id){
+
+    }
+
+    /**
+     * Adds new item
+     * 
+     * This is default implementation of the data access function. Controllers
+     * are supposed to override the function
+     * 
+     * @memberof AmdItemsCtrl
+     * @return promiss to add and return an item
+     */
+    function addItem(){
+        // Controllers are supposed to override the function
+        var item = {
+                id: random(),
+                title: 'test item'
+        }
+        return $q.accept(item);
+    }
+
+    /**
+     * Deletes item
+     * 
+     * @memberof AmdItemsCtrl
+     * @param item
+     * @return promiss to delete item
+     */
+    function deleteItem(item){
+        // Controllers are supposed to override the function
+
+    }
+
+
+    // view layer functions
+    this.reload = reload;
+    this.loadNextPage = loadNextPage;
+    this.setDataQuery = setDataQuery;
+    this.getProperties = getProperties;
+    this.getActions = getActions;
+
+    // default data layer of item
+    this.getSchema = getSchema;
+    this.getItems = getItems;
+    this.getItem = getItem;
+    this.addItem = addItem;
+    this.deleteItem = deleteItem;
+
+    this.state = STATE_IDEAL;
 });
 
 /*
@@ -1851,100 +2190,42 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdRolesResourceCtrl
- * @description Role resource
+ * @name AmdRolesCtrl
+ * @description Manages list of roles
+ * 
+ * 
  */
-.controller('AmdRolesResourceCtrl', function($scope, $usr, QueryParameter ) {
+.controller('MbRolesCtrl', function($scope, $usr, $q, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope : $scope
+	}));
 
-	var paginatorParameter = new QueryParameter();
-	paginatorParameter.setOrder('id', 'a');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param paginatorParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		paginatorParameter.setQuery(query);
-		return reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.roles(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
+	// Overried the function
+	this.getSchema = function() {
+		return $q.resolve({
+			name : 'role',
+			properties : [ {
+				name : 'Id',
+				type : 'int'
+			} ]
 		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-
-	function selectRoleId(role){
-		$scope.$parent.setValue(role.id);
-	}
-	
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-	$scope.items = [];
-	$scope.reload = reload;
-	$scope.search = find;
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectRoleId = selectRoleId;
-	
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.sortKeys = [
-		'id', 
-		'name'
-		];
-//	$scope.moreActions = [{
-//	title: 'New role',
-//	icon: 'add',
-//	action: function(){
-//	alert('well done');
-//	}
-//	}];
-
-	/*
-	 * مقداردهی اولیه
-	 */
-//	reload();
+	};
+	// get accounts
+	this.getItems = function(parameterQuery) {
+		return $usr.getRoles(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id) {
+		return $usr.getRole(id);
+	};
+	// // Add item
+	// this.addItem = function(){
+	// return $usr.newAccount(item);
+	// };
+	// delete account
+	this.deleteItem = function(item) {
+		return $usr.deleteRole(item.id);
+	};
 });
 
 /*
@@ -2045,117 +2326,6 @@ angular.module('mblowfish-core')
 //	});
 //	$scope.$on('$destroy', handler);
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name AmdUsersResourceCtrl
- * @description Dashboard
- * 
- */
-.controller('AmdUsersResourceCtrl', function($scope, $usr, QueryParameter) {
-
-	var paginatorParameter = new QueryParameter();
-	paginatorParameter.setOrder('id', 'd');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.users(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
-		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-	
-	function selectUserId(user){
-		$scope.$parent.setValue(user.id);
-	}
-
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-	$scope.items = [];
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectUserId = selectUserId;
-
-	// Pagination
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.reload = reload;
-	$scope.sortKeys= [
-		'id', 
-		'login',
-		'first_name',
-		'last_name',
-		'last_login',
-		'date_joined',
-		];
-//	$scope.moreActions=[{
-//	title: 'New user',
-//	icon: 'add',
-//	action: addUser
-//	}];
-
-});
-
 /* 
  * The MIT License (MIT)
  * 
@@ -5044,6 +5214,200 @@ angular.module('mblowfish-core')
         // set help page
         $help.setCurrentItem(val);
     });
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+/*
+ * Init application resources
+ */
+.run(function($resource) {
+
+//    TODO: maso, 2018: replace with class
+	function getSelection(){
+		if(!this.__selections){
+			this.__selections = angular.isArray(this.value) ? this.value : [];
+		}
+		return this.__selections;
+	}
+
+    function getIndexOf(list, item) {
+        if(!angular.isDefined(item.id)) {
+            return list.indexOf(item);
+        }
+        for(var i = 0; i < list.length; i++){
+            if(list[i].id === item.id){
+                return i;
+            }
+        }
+    }
+
+	function setSelected(item, selected) {
+		var selectionList = this.getSelection();
+		var index = getIndexOf(selectionList,item);
+		if(selected) {
+			// add to selection
+			if(index >= 0){
+				return;
+			}
+			selectionList.push(item);
+		} else {
+			// remove from selection
+			if (index > -1) {
+				array.splice(index, 1);
+			}
+		}
+	}
+
+	function isSelected(item){
+		var selectionList = this.getSelection();
+		return getIndexOf(selectionList,item) >= 0;
+	}
+	
+	
+	
+	
+	/**
+	 * @ngdoc Resources
+	 * @name Account
+	 * @description Get an account from resource
+	 * 
+	 * Enable user to select an account
+	 */
+	$resource.newPage({
+		label : 'Account',
+		type : 'account',
+		templateUrl : 'views/resources/mb-accounts.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = false;
+			this.value = $scope.value;
+			this.setSelected = function(item) {
+				$scope.$parent.setValue(item);
+			};
+			this.isSelected = function(item){
+				return item === this.value || item.id === this.value.id;
+			};
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'account' ]
+	});
+
+	/**
+	 * @ngdoc Resources
+	 * @name Accounts
+	 * @description Gets list of accounts
+	 * 
+	 * Display a list of accounts and allow user to select them.
+	 */
+	$resource.newPage({
+		label : 'Accounts',
+		type : 'account-list',
+		templateUrl : 'views/resources/mb-accounts.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function(item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'accounts' ]
+	});
+
+
+	
+	
+	
+	
+	
+	
+	
+	// Resource for role-list
+	$resource.newPage({
+		label : 'Role List',
+		type : 'role-list',
+		templateUrl : 'views/resources/mb-roles.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function(item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'roles' ]
+	});
+	
+	
+	// Resource for group-list
+	$resource.newPage({
+		label : 'Group List',
+		type : 'group-list',
+		templateUrl : 'views/resources/mb-groups.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function(item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'groups' ]
+	});
+
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8110,6 +8474,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/update.html',
     "<md-switch class=md-secondary ng-model=app.config.update.hideMessage> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoCheck> <p translate>Check update automaticlly</p> </md-switch>"
+  );
+
+
+  $templateCache.put('views/resources/mb-accounts.html',
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=ctrl.loading layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-groups.html',
+    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-roles.html',
+    "<div flex layout=column ng-init=\"\" ng-controller=\"MbRolesCtrl as ctrl\">  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2>Empty role list</h2> <p>There is no role match with the query</p> </div> </md-content> </div>"
   );
 
 
