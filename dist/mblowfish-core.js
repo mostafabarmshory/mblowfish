@@ -453,10 +453,10 @@ angular.module('mblowfish-core')
 		var param = {
 				'old' : data.oldPass,
 				'new' : data.newPass,
-				'password': data.newPass,
+				'password': data.newPass
 		};
 //		return $usr.resetPassword(param)//
-		$scope.app.user.current.newPassword(param)
+		$scope.app.user.current.putCridential(param)
 		.then(function(){
 			$app.logout();
 			ctrl.changePassState = 'success';
@@ -486,7 +486,7 @@ angular.module('mblowfish-core')
 			return;
 		}
 		ctrl.updatingAvatar = true;
-		return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
+		return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
 		.then(function(){
 			// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
 			// clear address before upload and set it again after upload.
@@ -599,6 +599,71 @@ angular.module('mblowfish-core')
 
 
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name AmdAccountsCtrl
+ * @description Manages and display list of accounts
+ * 
+ * This controller is used in accounts list.
+ * 
+ */
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope: $scope
+	}));
+
+	// Overried the function
+	this.getSchema = function(){
+		return $q.resolve({
+			name: 'account',
+			properties: [{
+				name: 'Id',
+				type: 'int'
+			}]
+		});
+	};
+	// get accounts
+	this.getItems = function(parameterQuery){
+		return $usr.getAccounts(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id){
+		return $usr.getAccount(id);
+	};
+//	// Add item
+//	this.addItem = function(){
+//		return $usr.newAccount(item);
+//	};
+	// delete account
+	this.deleteItem = function(item){
+		return $usr.deleteAccount(item.id);
+	};
+})
+
 'use strict';
 
 angular.module('mblowfish-core')
@@ -661,96 +726,41 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdGroupsResourceCtrl
- * @description Dashboard
+ * @name AmdGroupsCtrl
+ * @description Manages list of groups
  * 
  */
-.controller('AmdGroupsResourceCtrl', function($scope, $usr, PaginatorParameter/*, $navigator*/ ) {
+.controller('MbGroupsCtrl', function($scope, $usr, $q, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope : $scope
+	}));
 
-	var paginatorParameter = new PaginatorParameter();
-	paginatorParameter.setOrder('id', 'a');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param paginatorParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		paginatorParameter.setQuery(query);
-		reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.groups(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
+	// Overried the function
+	this.getSchema = function() {
+		return $q.resolve({
+			name : 'group',
+			properties : [ {
+				name : 'Id',
+				type : 'int'
+			} ]
 		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-
-	function selectGroupId(group){
-		$scope.$parent.setValue(group.id);
-	}
-	
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری شده است.
-	 */
-	$scope.items = [];
-	$scope.search = find;
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectGroupId = selectGroupId;
-
-	// Pagination toolbar
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.reload = reload;
-	$scope.sortKeys= [
-		'id', 
-		'name',
-		'description'
-		];
-//	$scope.moreActions=[{
-//		title: 'New group',
-//		icon: 'group_add',
-//		action: addGroup
-//	}];
-
+	};
+	// get accounts
+	this.getItems = function(parameterQuery) {
+		return $usr.getGroups(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id) {
+		return $usr.getGroup(id);
+	};
+	// // Add item
+	// this.addItem = function(){
+	// return $usr.newAccount(item);
+	// };
+	// delete account
+	this.deleteItem = function(item) {
+		return $usr.deleteRole(item.id);
+	};
 });
 
 /*
@@ -1073,6 +1083,321 @@ angular.module('mblowfish-core')
 	});
 
 });
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+/**
+ * @ngdoc Controllers
+ * @name AmdItemsCtrl
+ * @description Generic controller of items collection
+ * 
+ * This controller is used manages a collection of a virtual items. it is the
+ * base of all other collection controllers such as accounts, groups, etc.
+ * 
+ * There are two types of function in the controller: view and data related. All
+ * data functions are considered to be overried by extensions.
+ * 
+ */
+function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
+    var STATE_INIT = 'init';
+    var STATE_BUSY = 'busy';
+    var STATE_IDEAL = 'ideal';
+    this.state = STATE_IDEAL;
+    
+
+    /**
+     * List of all loaded items
+     * 
+     * All loaded items will be stored into this variable for later usage. This
+     * is related to view.
+     * 
+     * @type array
+     * @memberof AmdItemsCtrl
+     */
+    this.items = [];
+
+    /**
+     * State of the controller
+     * 
+     * Controller may be in several state in the lifecycle. The state of the
+     * controller will be stored in this variable.
+     * 
+     * <ul>
+     * <li>init: the controller is not ready</li>
+     * <li>busy: controller is busy to do something (e. loading list of data)</li>
+     * <li>ideal: controller is ideal and wait for user </li>
+     * </ul>
+     * 
+     * @type string
+     * @memberof AmdItemsCtrl
+     */
+    this.state = 'init';
+
+    /**
+     * Store last paginated response
+     * 
+     * This is a collection controller and suppose the result of query to be a
+     * valid paginated collection. The last response from data layer will be
+     * stored in this variable.
+     * 
+     * @type PaginatedCollection
+     * @memberof AmdItemsCtrl
+     */
+    this.lastResponse = null;
+
+    /**
+     * Query parameter
+     * 
+     * This is the query parameter which is used to query items from the data
+     * layer.
+     * 
+     * @type QueryParameter
+     * @memberof AmdItemsCtrl
+     */
+    this.queryParameter = new QueryParameter();
+    this.queryParameter.setOrder('id', 'd');
+    
+    /**
+     * Reload the controller
+     * 
+     * Remove all old items and reload the controller state. If the controller
+     * is in progress, then cancel the old promiss and start the new job.
+     * 
+     * @memberof AmdItemsCtrl
+     * @returns promiss to reload
+     */
+    this.reload = function(){
+        // relaod data
+        this.state=STATE_INIT;
+        delete this.requests;
+        this.items = [];
+
+        // start the controller
+        this.state=STATE_IDEAL;
+        return this.loadNextPage();
+    };
+
+    /**
+     * Loads next page
+     * 
+     * Load next page and add to the current items.
+     * 
+     * @memberof AmdItemsCtrl
+     * @returns promiss to load next page
+     */
+    this.loadNextPage = function() {
+        // Check functions
+        if(!angular.isFunction(this.getItems)){
+            throw 'The controller dose not implement getItems function';
+        }
+
+        // check state
+        if (this.state !== STATE_IDEAL) {
+            throw 'Items controller is not in ideal state';
+        }
+        this.state = STATE_BUSY;
+
+        // set next page
+        if (this.lastResponse) {
+            if(!this.lastResponse.hasMore()){
+                return $q.resolve();
+            }
+            this.queryParameter.setPage(lastResponse.next());
+        }
+
+        // Get new items
+        var ctrl = this;
+        return this.getItems(this.queryParameter)//
+        .then(function(response) {
+            ctrl.lastResponse = response;
+            ctrl.items = ctrl.items.concat(response.items);
+            ctrl.error = null;
+        }, function(error){
+            ctrl.error = error;
+        })//
+        .finally(function(){
+            ctrl.state = STATE_BUSY;
+        });
+    };
+
+
+    /**
+     * Set a GraphQl format of data
+     * 
+     * By setting this the controller is not sync and you have to reload the
+     * controller. It is better to set the data query at the start time.
+     * 
+     * @memberof AmdItemsCtrl
+     * @param graphql
+     */
+    this.setDataQuery = function(grqphql){
+        this.grqphql = grqphql;
+    };
+
+    /**
+     * Get properties to sort
+     * 
+     * @return array of getProperties to use in search, sort and filter
+     */
+    this.getProperties = function(){
+        if(!angular.isFunction(this.getSchema)){
+            return [];
+        }
+        if(angular.isDefined(this._schema)){
+            // TODO: maso, 2018: 
+            return this._schema;
+        }
+        var ctrl = this;
+        $q.when(this.getSchema())
+        .then(function(schema){
+            ctrl._schema = schema;
+        });
+        // view must check later
+        return [];
+    };
+
+    /**
+     * Load controller actions
+     * 
+     * @return list of actions
+     */
+    this.getActions = function(){
+        var actions = this._actions;
+        // TODO: maso, 2018: add flag to cache 
+        // add item action
+        if(angular.isFunction(this.addItem)){
+            // TODO: maso, 2018: crate action from add item
+        }
+        // reload items action
+        {
+            // TODO: maso, 2018: crate action from reload
+        }
+    };
+
+    /**
+     * Adds new action into the controller
+     * 
+     * @param action to add to list
+     */
+    this.addAction = function(action) {
+        if(!angular.isDefined(this._actions)){
+            this._actions = [];
+        }
+        // TODO: maso, 2018: assert the action is MbAction
+        this._actions = this._actions.concat(action);
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Gets object schema
+     * 
+     * @memberof AmdItemsCtrl
+     * @return promise to get schema
+     */
+    this.getSchema = function(){
+        // Controllers are supposed to override the function
+        return $q.resolve({
+            name: 'Item',
+            properties:[{
+                id: 'int',
+                title: 'string'
+            }]
+        });
+    };
+
+    /**
+     * Query and get items
+     * 
+     * @param queryParameter to apply search
+     * @return promiss to get items
+     */
+    this.getItems = function(queryParameter){
+
+    };
+
+    /**
+     * Get item with id
+     * 
+     * @param id of the item
+     * @return promiss to get item
+     */
+    this.getItem = function(id){
+
+    };
+
+    /**
+     * Adds new item
+     * 
+     * This is default implementation of the data access function. Controllers
+     * are supposed to override the function
+     * 
+     * @memberof AmdItemsCtrl
+     * @return promiss to add and return an item
+     */
+    this.addItem = function(){
+        // Controllers are supposed to override the function
+        var item = {
+                id: random(),
+                title: 'test item'
+        }
+        return $q.accept(item);
+    };
+
+    /**
+     * Deletes item
+     * 
+     * @memberof AmdItemsCtrl
+     * @param item
+     * @return promiss to delete item
+     */
+    this.deleteItem = function(/*item*/){
+        // Controllers are supposed to override the function
+    };
+
+
+}
+
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core').controller('MbItemsCtrl', MbItemsCtrl);
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1721,121 +2046,108 @@ angular.module('mblowfish-core')
 	$scope.openPreference = openPreference;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
+  /*
+   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
+  angular.module('mblowfish-core')
 
-/**
- * @ngdoc Controllers
- * @name MbProfileCtrl
- * @description  Manages profile of a user
- * 
- */
-.controller('MbProfileCtrl', function($scope, $app, $translate, $window) {
+          /**
+           * @ngdoc Controllers
+           * @name MbProfileCtrl
+           * @description  Manages profile of a user
+           * 
+           */
+          .controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, $q) {
 
-	var ctrl = {
-		user: null,
-		profile: null
-	};
-	
-	/**
-	 * Loads user data
-	 * @returns
-	 */
-	function loadUser(){
-		if(ctrl.loadingUser){
-			return;
-		}
-		ctrl.loadingUser = true;
-		return $app.currentUser()//
-		.then(function(user){
-			ctrl.user = user;
-			return user;
-		}, function(){
-			alert($translate.instant('Fail to load user.'));
-		})//
-		.finally(function(){
-			ctrl.loadingUser = false;
-		});
-	}
+              var ctrl = {
+                  user: null,
+                  profile: null
+              };
 
-	function loadProfile(usr){
-		if(ctrl.loadinProfile){
-			return;
-		}
-		ctrl.loadingProfile = true;
-		return usr.profile()//
-		.then(function(profile){
-			ctrl.profile = profile;
-			return profile;
-		}, function(){
-			alert($translate.instant('Fial to load profile.'));
-		})//
-		.finally(function(){
-			ctrl.loadingProfile = false;
-		});
-	}
-	
-	/**
-	 * Save current user
-	 * 
-	 * @returns
-	 */
-	function save(){
-		if(ctrl.savingProfile){
-			return;
-		}
-		ctrl.savingProfile = true;
-		return ctrl.profile.update()//
-		.then(function(){
-			toast($translate.instant('Save is successfull.'));
-		}, function(){
-			alert($translate.instant('Fail to save item.'));
-		})//
-		.finally(function(){
-			ctrl.savingProfile = false;
-		});
-	}
+              /**
+               * Loads user data
+               * @returns
+               */
+              function loadUser() {
+                  ctrl.user = $rootScope.app.user.current;//
+                  if (!ctrl.user) {
+                      alert($translate.instant('Fail to load user.'));
+                  } else {
+                      loadProfile(ctrl.user);
+                  }
+              }
 
-	function back() {
-		 $window.history.back();
-	}
+              function loadProfile(usr) {
+                  if (ctrl.loadinProfile) {
+                      return;
+                  }
+                  ctrl.loadingProfile = true;
+                  return usr.getProfiles()//
+                          .then(function (profile) {
+                              ctrl.profile = profile;
+                              return profile;
+                          }, function () {
+                              alert($translate.instant('Fial to load profile.'));
+                          })//
+                          .finally(function () {
+                              ctrl.loadingProfile = false;
+                          });
+              }
 
-	function load(){
-		return loadUser()//
-		.then(loadProfile);
-	}
-	
-	$scope.ctrl = ctrl;	
-	$scope.load = load;
-	$scope.reload = load;
-	$scope.save = save;
-	$scope.back = back;
-	$scope.cancel = back;
+              /**
+               * Save current user
+               * 
+               * @returns
+               */
+              function save() {
+                  if (ctrl.savingProfile) {
+                      return;
+                  }
+                  ctrl.savingProfile = true;
+                  return ctrl.profile.update()//
+                          .then(function () {
+                              toast($translate.instant('Save is successfull.'));
+                          }, function () {
+                              alert($translate.instant('Fail to save item.'));
+                          })//
+                          .finally(function () {
+                              ctrl.savingProfile = false;
+                          });
+              }
 
-	load();
-	
-});
+              function back() {
+                  $window.history.back();
+              }
+              
+              $scope.ctrl = ctrl;
+              $scope.load = loadUser;
+              $scope.reload = loadUser;
+              $scope.save = save;
+              $scope.back = back;
+              $scope.cancel = back;
+
+              loadUser();
+
+          });
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1864,100 +2176,42 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdRolesResourceCtrl
- * @description Role resource
+ * @name AmdRolesCtrl
+ * @description Manages list of roles
+ * 
+ * 
  */
-.controller('AmdRolesResourceCtrl', function($scope, $usr, PaginatorParameter ) {
+.controller('MbRolesCtrl', function($scope, $usr, $q, $controller) {
+	angular.extend(this, $controller('MbItemsCtrl', {
+		$scope : $scope
+	}));
 
-	var paginatorParameter = new PaginatorParameter();
-	paginatorParameter.setOrder('id', 'a');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param paginatorParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		paginatorParameter.setQuery(query);
-		return reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.roles(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
+	// Overried the function
+	this.getSchema = function() {
+		return $q.resolve({
+			name : 'role',
+			properties : [ {
+				name : 'Id',
+				type : 'int'
+			} ]
 		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-
-	function selectRoleId(role){
-		$scope.$parent.setValue(role.id);
-	}
-	
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-	$scope.items = [];
-	$scope.reload = reload;
-	$scope.search = find;
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectRoleId = selectRoleId;
-	
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.sortKeys = [
-		'id', 
-		'name'
-		];
-//	$scope.moreActions = [{
-//	title: 'New role',
-//	icon: 'add',
-//	action: function(){
-//	alert('well done');
-//	}
-//	}];
-
-	/*
-	 * مقداردهی اولیه
-	 */
-//	reload();
+	};
+	// get accounts
+	this.getItems = function(parameterQuery) {
+		return $usr.getRoles(parameterQuery);
+	};
+	// get an account
+	this.getItem = function(id) {
+		return $usr.getRole(id);
+	};
+	// // Add item
+	// this.addItem = function(){
+	// return $usr.newAccount(item);
+	// };
+	// delete account
+	this.deleteItem = function(item) {
+		return $usr.deleteRole(item.id);
+	};
 });
 
 /*
@@ -2058,117 +2312,6 @@ angular.module('mblowfish-core')
 //	});
 //	$scope.$on('$destroy', handler);
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name AmdUsersResourceCtrl
- * @description Dashboard
- * 
- */
-.controller('AmdUsersResourceCtrl', function($scope, $usr, PaginatorParameter) {
-
-	var paginatorParameter = new PaginatorParameter();
-	paginatorParameter.setOrder('id', 'd');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			paginatorParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-		return $usr.users(paginatorParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
-		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-		return nextPage();
-	}
-	
-	function selectUserId(user){
-		$scope.$parent.setValue(user.id);
-	}
-
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-	$scope.items = [];
-	$scope.nextPage = nextPage;
-	$scope.ctrl = ctrl;
-	$scope.selectUserId = selectUserId;
-
-	// Pagination
-	$scope.paginatorParameter = paginatorParameter;
-	$scope.reload = reload;
-	$scope.sortKeys= [
-		'id', 
-		'login',
-		'first_name',
-		'last_name',
-		'last_login',
-		'date_joined',
-		];
-//	$scope.moreActions=[{
-//	title: 'New user',
-//	icon: 'add',
-//	action: addUser
-//	}];
-
-});
-
 /* 
  * The MIT License (MIT)
  * 
@@ -2830,7 +2973,7 @@ angular.module('mblowfish-core')
 	function postLink(scope, elem, attrs) {
 		// adding infinite scroll class
 		elem.addClass('mb-infinate-scroll');
-		elem.on('scroll', function(evt) {
+		elem.on('scroll', function(){
 			var raw = elem[0];
 			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
 				$parse(attrs.mbInfinateScroll)(scope);
@@ -2959,23 +3102,24 @@ angular.module('mblowfish-core')
  * Pagination parameters are a complex data structure and it is hard to manage
  * it. This is a toolbar to manage the pagination options.
  */
-.directive('mbPaginationBar',  ['$window','$timeout','$mdMenu', function($window,$timeout,$mdMenu) {
+.directive('mbPaginationBar',  function($window,$timeout,$mdMenu, $parse) {
 
-	function postLink(scope, element, attr) {
+	function postLink(scope, element, attrs) {
 
 		var query = {
-			sortDesc: true,
-			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-			searchTerm: null
+				sortDesc: true,
+				sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+						searchTerm: null
 		};
 		/*
 		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
 		 */
 		function reload(){
-			if(!angular.isFunction(scope.mbReload)){
+			if(!angular.isDefined(attrs.mbReload)){
 				return;
 			}
-			scope.mbReload(scope.mbModel);
+			// Call the callback for the first time:
+			$parse(attrs.mbReload)(scope);
 		}
 		/**
 		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
@@ -2992,28 +3136,16 @@ angular.module('mblowfish-core')
 			scope.mbReload();
 		}
 
-		function init(){
-			// Checks sort key
-			if(scope.mbModel){
-				// clear previous sorters
-				// TODO: replace it with scope.mbModel.clearSorters()
-				scope.mbModel.sortMap = {};
-				scope.mbModel.filterMap = {};
-				scope.mbModel.setOrder(query.sortBy, query.sortDesc ? 'd' : 'a');
-				scope.mbModel.setQuery(query.searchTerm);
-			}
+		function focusToElementById(id){
+			$timeout(function(){
+				var searchControl;
+				searchControl=$window.document.getElementById(id);
+				searchControl.focus();
+			}, 50 );
 		}
 
-    function focusToElementById(id){
-      $timeout(function(){
-        var searchControl;
-        searchControl=$window.document.getElementById(id);
-        searchControl.focus();
-      }, 50 );
-		}
-
-    scope.showBoxOne=false;
-    scope.focusToElement=focusToElementById;
+		scope.showBoxOne=false;
+		scope.focusToElement=focusToElementById;
 		// configure scope:
 		scope.search = searchQuery;
 		scope.query=query;
@@ -3027,13 +3159,7 @@ angular.module('mblowfish-core')
 			scope.mbEnableSearch = true;
 		}
 
-		scope.$watch('mbModel', function(){
-			init();
-		});
-
 		scope.$watch('query', function(){
-			// Reloads search
-			init();
 			reload();
 		}, true);
 
@@ -3051,7 +3177,7 @@ angular.module('mblowfish-core')
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
 			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
 			 */
-			mbReload : '=',
+			mbReload : '@',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
 			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
@@ -3063,9 +3189,10 @@ angular.module('mblowfish-core')
 			 */
 			mbSortKeys: '=',
 
-                        /* titles corresponding to sort keys */
-                        mbSortKeysTitles: '=?',
-                        /*
+			/* titles corresponding to sort keys */
+			mbSortKeysTitles: '=?',
+
+			/*
 			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 			 */
 			mbMoreActions: '=',
@@ -3077,7 +3204,7 @@ angular.module('mblowfish-core')
 		},
 		link : postLink
 	};
-}]);
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3700,16 +3827,14 @@ angular.module('mblowfish-core')
 			 * Get current route
 			 */
 			getRoute: function () {
-				return this.currentRoute
-				|| $route.current;
+				return this.currentRoute || $route.current;
 			},
 
 			/*
 			 * Get current status
 			 */
 			getState: function () {
-				return this.appState
-				|| $rootScope.app.state.status;
+				return this.appState || $rootScope.app.state.status;
 			}
 		});
 
@@ -4495,63 +4620,66 @@ angular.module('mblowfish-core')
 	};
 });
 
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
+  /*
+   * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+   * 
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   * 
+   * The above copyright notice and this permission notice shall be included in all
+   * copies or substantial portions of the Software.
+   * 
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   * SOFTWARE.
+   */
+  'use strict';
 
 
-angular.module('mblowfish-core')
-/**
- * @ngdoc Factories
- * @name Action
- * @description An action item
- * 
- */
-.factory('Action', function($injector) {
+  angular.module('mblowfish-core')
+          /**
+           * @ngdoc Factories
+           * @name Action
+           * @description An action item
+           * 
+           */
+          .factory('Action', function ($injector, $navigator) {
 
-	var action  = function(data) {
-		if(!angular.isDefined(data)){
-			data = {};
-		}
-		angular.extend(this, data, {
-			priority: data.priority || 10
-		});
-		this.visible = this.visible || function(){return true;};
-		return this;
-	};
+              var action = function (data) {
+                  if (!angular.isDefined(data)) {
+                      data = {};
+                  }
+                  angular.extend(this, data, {
+                      priority: data.priority || 10
+                  });
+                  this.visible = this.visible || function () {
+                      return true;
+                  };
+                  return this;
+              };
 
-	action.prototype.exec = function($event){
-		if(!this.action){
-			return;
-		}
-                $injector.invoke(this.action , this);
-		if($event){			
-			$event.stopPropagation();
-                        $event.preventDefault();
-		}
-	};
+              action.prototype.exec = function ($event) {
+                  if (this.action) {
+                      $injector.invoke(this.action, this);
+                  } else if (this.url){
+                      $navigator.openPage('/');
+                  }
+                  if ($event) {
+                      $event.stopPropagation();
+                      $event.preventDefault();
+                  }
+              };
 
-	return action;
-});
+              return action;
+          });
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
@@ -5097,6 +5225,200 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
+/*
+ * Init application resources
+ */
+.run(function($resource) {
+
+//    TODO: maso, 2018: replace with class
+	function getSelection(){
+		if(!this.__selections){
+			this.__selections = angular.isArray(this.value) ? this.value : [];
+		}
+		return this.__selections;
+	}
+
+    function getIndexOf(list, item) {
+        if(!angular.isDefined(item.id)) {
+            return list.indexOf(item);
+        }
+        for(var i = 0; i < list.length; i++){
+            if(list[i].id === item.id){
+                return i;
+            }
+        }
+    }
+
+	function setSelected(item, selected) {
+		var selectionList = this.getSelection();
+		var index = getIndexOf(selectionList,item);
+		if(selected) {
+			// add to selection
+			if(index >= 0){
+				return;
+			}
+			selectionList.push(item);
+		} else {
+			// remove from selection
+			if (index > -1) {
+				array.splice(index, 1);
+			}
+		}
+	}
+
+	function isSelected(item){
+		var selectionList = this.getSelection();
+		return getIndexOf(selectionList,item) >= 0;
+	}
+	
+	
+	
+	
+	/**
+	 * @ngdoc Resources
+	 * @name Account
+	 * @description Get an account from resource
+	 * 
+	 * Enable user to select an account
+	 */
+	$resource.newPage({
+		label : 'Account',
+		type : 'account',
+		templateUrl : 'views/resources/mb-accounts.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = false;
+			this.value = $scope.value;
+			this.setSelected = function(item) {
+				$scope.$parent.setValue(item);
+			};
+			this.isSelected = function(item){
+				return item === this.value || item.id === this.value.id;
+			};
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'account' ]
+	});
+
+	/**
+	 * @ngdoc Resources
+	 * @name Accounts
+	 * @description Gets list of accounts
+	 * 
+	 * Display a list of accounts and allow user to select them.
+	 */
+	$resource.newPage({
+		label : 'Accounts',
+		type : 'account-list',
+		templateUrl : 'views/resources/mb-accounts.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function(item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'accounts' ]
+	});
+
+
+	
+	
+	
+	
+	
+	
+	
+	// Resource for role-list
+	$resource.newPage({
+		label : 'Role List',
+		type : 'role-list',
+		templateUrl : 'views/resources/mb-roles.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function(item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'roles' ]
+	});
+	
+	
+	// Resource for group-list
+	$resource.newPage({
+		label : 'Group List',
+		type : 'group-list',
+		templateUrl : 'views/resources/mb-groups.html',
+		/*
+		 * @ngInject
+		 */
+		controller : function($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function(item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs : 'resourceCtrl',
+		priority : 8,
+		tags : [ 'groups' ]
+	});
+
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
@@ -5380,6 +5702,24 @@ angular.module('mblowfish-core') //
 	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
 	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
+	// the state machine
+	var stateMachine;
+
+	// states
+	var APP_STATE_WAITING = 'waiting';
+	var APP_STATE_LOADING = 'loading';
+
+	// final states
+	var APP_STATE_READY = 'ready';
+	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+	var APP_STATE_OFFLINE = 'offline';
+	var APP_STATE_FAIL = 'fail';
+
+	var APP_EVENT_LOADED = 'loaded';
+	var APP_EVENT_START = 'start';
+	var APP_EVENT_NOT_FOUND = 'resource_not_found';
+	var APP_EVENT_SERVER_ERROR = 'server_error';
+	var APP_EVENT_NET_ERROR = 'network_error';
 
 
 	var optionsQuery = new QueryParameter()//
@@ -5409,15 +5749,15 @@ angular.module('mblowfish-core') //
 	$rootScope.app = app;
 
 	/*
-	 * متغیرهای مدیریت تنظیم‌ها
-	 * 
-	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-	 * کارهای تکراری جلوگیری کنیم.
-	 * 
-	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-	 * دهد.
-	 */
+     * متغیرهای مدیریت تنظیم‌ها
+     * 
+     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+     * کارهای تکراری جلوگیری کنیم.
+     * 
+     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+     * دهد.
+     */
 	var appConfigLock = false;
 	var appConfigDirty = false;
 	// Some controlling variables required in the state machine
@@ -5426,244 +5766,93 @@ angular.module('mblowfish-core') //
 			options_loaded: false,
 			configs_loaded: false
 	};
-	// -----------------------------------------------------
-	var stateMachine = new machina.Fsm({
-		initialize: function (/* options */) {
-			app.state.status = 'waiting';
-		},
-		namespace: 'stateMachine',
-		initialState: 'waiting',
-		states: {
-			waiting: {// Before the 'start' event occurs via $app.start().
-				_onEnter: function () {
-					_loadingLog('FSM, state: waiting', 'wait for start_event');
-					app.state.status = 'waiting';
-				},
-				start_event: function () {// Occures when the start() function
-					// is called.
-					_loadingLog('FSM, state: waiting', 'start_event occurred');
-					this.transition('loading');
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: waiting', 'network error');
-					this.transition('offline');
-				}
-			},
-			loading: {// start_event has occurred.
-				_onEnter: function () {
-					_loadingLog('FSM, state: loading', 'load setting, load config');
-					app.state.status = 'loading';
-					loadSetting(); // 1. get from local storage 2. save in
-					// app.setting
-					loadApplicationConfig(); // 1. get from server 2. save in
-					// app.setting
-				},
-				loaded: function () {
-					_loadingLog('FSM, state: loading', 'config || options || user is loaded');
-					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-						this.transition('ready');
-					} else if (ctrl.user_loaded && ctrl.options_loaded) {
-						this.transition('ready_config_loading');
-					}
-				},
-				configs_not_found: function () {// equal to 404 error: configs
-					// not founded.
-					_loadingLog('FSM, state: loading', 'error 404 occurred while getting config');
-					this.transition('app_not_configured');
-				},
-				server_error: function () {//
-					_loadingLog('FSM, state: loading', 'error 500 occurred.');
-					this.transition('fail');
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: loading', 'network error');
-					this.transition('offline');
-				}
-			},
-			ready: {
-				_onEnter: function () {
-					_loadingLog('FSM, state: ready', 'every thing is ok');
-					app.state.status = 'ready';
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: ready', 'network error');
-					this.transition('offline');
-				}
-			},
-			ready_config_loading: {
-				_onEnter: function () {
-					_loadingLog('FSM, state: ready_config_loading', 'app is ready, config is loading');
-					app.state.status = 'ready_config_loading';
-				},
-				loaded: function () {
-					_loadingLog('FSM, state: ready_config_loading', 'config loaded');
-					this.transition('ready');
-				},
-				configs_not_found: function () {
-					_loadingLog('FSM, state: ready_config_loading', 'config not found');
-					this.transition('ready_app_not_configured');
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: ready_config_loading', 'network error');
-					this.transition('offline');
-				}
-			},
-			app_not_configured: {// error 404, but the app is ready and
-				// should be loaded
-				_onEnter: function () {
-					_loadingLog('FSM, state: ready_app_not_configured', 'error 404 is occurred');
-					app.state.status = 'app_not_configured';
-				},
-				loaded: function () {
-					_loadingLog('FSM, state: app_not_configured', 'config || options || user loaded(ready to go ready state)');
-					if (ctrl.user_loaded && ctrl.options_loaded) {
-						this.transition('ready_app_not_configured');
-					}
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: app_not_configured', 'network error');
-					this.transition('offline');
-				}
-			},
-			ready_app_not_configured: {
-				_onEnter: function () {
-					_loadingLog('FSM, state: ready_app_not_configured', 'app is ready, app not configured');
-					app.state.status = 'ready_app_not_configured';
-				},
-				config_created: function () {
-					_loadingLog('FSM, state: ready_app_not_configured', 'config_created event occurred');
-					this.transition('ready');
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: ready_app_not_configured', 'network error');
-					this.transition('offline');
-				}
-			},
-			fail: {// server error
-				_onEnter: function () {
-					_loadingLog('FSM, state: fail', 'error in server');
-					alert('Error in server...');
-				},
-				network_error: function () {
-					_loadingLog('FSM, state: fail', 'network error');
-					this.transition('offline');
-				}
-			},
-			offline: {// error -1, network error
-				_onEnter: function () {
-					_loadingLog('FSM, state: offline', 'error in network');
-					alert('Error in network...');
-				}
-			}
-		},
-		// define events
-		loaded: function () {// config || user || options || is loaded
-			this.handle("loaded");
-		},
-		start_event: function () {// start_event has occurred
-			this.handle("start_event");
-		},
-		configs_not_found: function () {// error 404, configs not found
-			this.handle("configs_not_found");
-		},
-		config_created: function () {// config is created on server.
-			this.handle("config_created");
-		},
-		server_error: function () {// error 500 is occurred while gtting config
-			// || user || options.
-			this.handle("server_error");
-		},
-		network_error: function () {// error -1 is occurred while gtting config
-			// || user || options.
-			this.handle("network_error");
+
+	/*
+     * Attaches loading logs
+     */
+	function _loadingLog(stage, message) {
+		app.state.stage = stage;
+		app.state.message = message;
+		if (message) {
+			app.logs.push(message);
 		}
+	}
 
-	});
-	// ---------------------------------------------------------------------------------------
-	// Initial calls: each function does its work internally.
-	// These two functions are called before the start_event is fired since they
-	// don't need to the 'key' of application.
-	loadUserProperty(); // 1. get from server 2. save in app.user
-	loadOptions(); // 1. get from server 2. save in app.options
-	// ------------------------------------------------------------------------
-
-
-
-	// All required functions
-	// ---------------------------------------------------------------------------------------
-	function start(key) {// this function is called when the app get started.
-		app.key = key;
-		_loadingLog('start_event', 'loading application');
-		stateMachine.start_event();
+	/*
+     * Bind list of roles to app data
+     */
+	function _loadRolesOfUser(roles) {
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			app.user[role.application + '_' + role.code_name] = true;
+		}
 	}
 
 	/**
-	 * تنظیم‌های نرم افزار را لود می‌کند.
-	 * 
-	 * @returns promiss
-	 */
+     * تنظیم‌های نرم افزار را لود می‌کند.
+     * 
+     * @returns promiss
+     */
 	function loadApplicationConfig() {
 		_loadingLog('loading configuration', 'fetch configuration document');
+
+		ctrl.configs_loaded = false;
+		ctrl.configs_fail = false;
+
 		$cms.getContent(APP_PREFIX + app.key) //
 		.then(function (content) {
-			app._acc = content;
 			_loadingLog('loading configuration', 'fetch configuration content');
+			app._acc = content;
+			ctrl.configs_loaded = true;
+			// load config file
 			return app._acc.downloadValue();
-		}, function (error) {
-			if (error.status === 404) {
-				stateMachine.configs_not_found();
-				return {};
-			} else if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading configuration', 'network error');
-				stateMachine.network_error();
-			}
-		}) //
+		}, function(error){
+			ctrl.configs_fail = true;
+			stateMachine.error(error);
+			// return empty config
+			return {};
+		})
 		.then(function (appConfig) {
 			app.config = appConfig;
-			ctrl.configs_loaded = true;
-			_loadingLog('loading configuration', 'application configuration loaded successfully');
-			stateMachine.loaded();
-			return;
+		})
+		.finally(function(){
+		    stateMachine.loaded();
 		});
 	}
 
 	/*
-	 * اطلاعات کاربر جاری را لود می‌کند
-	 * 
-	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-	 * نرم افزار پر می‌شود.
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name)
-	 * in role list then the following var is added in user:
-	 * 
-	 * app.user.x_y
-	 * 
-	 */
+     * Loads current user informations
+     * 
+     * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+     * نرم افزار پر می‌شود.
+     * 
+     * If there is a role x.y (where x is application code and y is code name)
+     * in role list then the following var is added in user:
+     * 
+     * app.user.x_y
+     * 
+     */
 	function loadUserProperty() {
 		_loadingLog('loading user info', 'fetch user information');
-		$usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
+		return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
 		.then(function (user) {
 			// load user info
 			ctrl.user_loaded = true;
 			// app user data
 			app.user = {
-					anonymous: ! user.id || user.id == 0 ,
+					anonymous: !user.id || user.id === 0,
 					current: user
 			};
 			// load user roles
 			_loadingLog('loading user info', 'user information loaded successfully');
 			_loadingLog('loading user info', 'check user permissions');
-			if(!app.user.anonymous){
+			if (!app.user.anonymous) {
 				_loadRolesOfUser(user.roles);
 				for (var i = 0; i < user.groups.length; i++) {
 					_loadRolesOfUser(user.groups[i].roles);
 				}
 				//
-				if(!user.isAnonymous()){			
+				if (!user.isAnonymous()) {
 					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
 					app.user.administrator = app.user.owner;
 				} else {
@@ -5671,63 +5860,45 @@ angular.module('mblowfish-core') //
 				}
 			}
 			stateMachine.loaded();
-		}, function (error) {
-			if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				_loadingLog('loading user', 'server error');
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading user', 'network error');
-				stateMachine.network_error();
-			}
+		}, function(error){
+            ctrl.user_loaded = false;
+		    stateMachine.error(error);
 		});
 	}
 
 	/*
-	 * Loads options
-	 */
+     * Loads options
+     */
 	function loadOptions() {
 		// TODO: Masood, 2018: options should be get from server. Now, its api
 		// doesn't exist.
 		_loadingLog('loading options', 'fetch options document');
 		// get the options from server and save in app.options.
 		app.options = {};
-		$tenant.getSettings(optionsQuery)
+		return $tenant.getSettings(optionsQuery)
 		.then(function (res) {
-			for(var i = 0; i < res.items.length; i++){
+			for (var i = 0; i < res.items.length; i++) {
 				var item = res.items[i];
 				app.options[item.key] = item.value;
 			}
-		}, function (error) {
-			if (error.status === 500) {
-				// TODO: maso, 2018: throw an excetpion and go the the fail
-				// state
-				_loadingLog('loading options', 'server error');
-				stateMachine.server_error();
-			} else if (error.status === -1) {
-				_loadingLog('loading options', 'network error');
-				stateMachine.network_error();
-			}
+			ctrl.options_loaded = true;
+			stateMachine.loaded();
+		}, function(error){
+		    stateMachine.error(error);
 		});
-		ctrl.options_loaded = true;
-		stateMachine.loaded();
-		var deferred = $q.defer();
-		deferred.resolve('ok');
-		return deferred.promise;
 	}
 
 	/*
-	 * Loads local storage
-	 */
+     * Loads local storage
+     */
 	function loadSetting() {
 		_loadingLog('loading setting from local storage', 'fetch settings');
 		/*
-		 * TODO: masood, 2018: The lines below is an alternative for lines above
-		 * but not recommended.
-		 * 
-		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-		 */
+         * TODO: masood, 2018: The lines below is an alternative for lines above
+         * but not recommended.
+         * 
+         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+         */
 		app.setting = $localStorage.$default({
 			dashboardModel: {}
 		});
@@ -5735,13 +5906,15 @@ angular.module('mblowfish-core') //
 	}
 
 
-	/**
-	 * تنظیم‌های نرم افزار را ذخیره می‌کند.
-	 * 
-	 * @returns promiss
-	 */
+	/*
+     * Stores app configuration on the back end
+     */
 	function storeApplicationConfig() {
-		if(!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+		appConfigDirty = true;
+		if(appConfigLock){
+			return;
+		}
+		if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
 			return $q.reject({
 				data: {
 					message: 'fail'
@@ -5763,23 +5936,12 @@ angular.module('mblowfish-core') //
 				stateMachine.config_created();
 				return app._acc.uploadValue(app.config);
 			}, function (error) {
-				if (error.status === 404) {
-					stateMachine.configs_not_found();
-					return {};
-				} else if (error.status === 500) {
-					// TODO: maso, 2018: throw an excetpion and go the the fail
-					// state
-					_loadingLog('storeApplicationConfig', 'server error');
-					stateMachine.server_error();
-				} else if (error.status === -1) {
-					_loadingLog('storeApplicationConfig', 'network error');
-					stateMachine.network_error();
-				}
+				stateMachine.error(error);
 			});
 		} //
 		return promise //
 		.finally(function () {
-			appConfigLock = true;
+			appConfigLock = false;
 			if (appConfigDirty) {
 				return storeApplicationConfig();
 			}
@@ -5787,94 +5949,116 @@ angular.module('mblowfish-core') //
 	}
 
 	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
+     * State machine to handle life cycle of the system.
+     */
+	stateMachine = new machina.Fsm({
+		initialize: function (/* options */) {
+			app.state.status = APP_STATE_WAITING;
+		},
+		namespace: 'webpich.$app',
+		initialState: APP_STATE_WAITING,
+		states: {
+			// Before the 'start' event occurs via $app.start().
+			waiting: {
+				_onEnter: function(){
+					loadUserProperty(); 
+					loadOptions();
+				},
+				start: function () {
+					this.transition(APP_STATE_LOADING);
+				},
+				network_error: function () {
+					this.transition(APP_STATE_OFFLINE);
+				},
+				server_error: function(){
+					this.transition(APP_STATE_FAIL);
+				}
+			},
+			// tries to load all part of system
+			loading: {
+				_onEnter: function () {
+					loadSetting(); 
+					loadApplicationConfig(); 
+				},
+				loaded: function () {
+					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+						this.transition(APP_STATE_READY);
+					} else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
+						this.transition(APP_STATE_READY_NOT_CONFIGURED);
+					}
+				},
+				server_error: function () {//
+					this.transition(APP_STATE_FAIL);
+				},
+				network_error: function () {
+					this.transition(APP_STATE_OFFLINE);
+				}
+			},
+			// app is ready
+			ready: {
+				network_error: function () {
+					this.transition(APP_STATE_OFFLINE);
+				}
+			},
+			// app is ready with no config
+			ready_not_configured: {
+				config_created: function () {
+					this.transition(APP_STATE_READY);
+				},
+				network_error: function () {
+					this.transition(APP_STATE_OFFLINE);
+				}
+			},
+			// server error
+			fail: {},
+			// net error
+			offline: {}
+		},
+
+		/*
+         * This handle load event of app
+         * 
+         * If a part of the app loaded then this handler fire an event and
+         * update the app state.
+         */
+		loaded: function () {
+			this.handle(APP_EVENT_LOADED);
+		},
+
+		/*
+         * Fires start event
+         */
+		start: function () {
+			this.handle(APP_EVENT_START);
+		},
+
+		/*
+         * Handle HTTP response error.
+         * 
+         * If the is an error in loading and storing configuration then this
+         * function checks and fire an event.
+         */
+		error: function ($error) {
+			if ($error.status === 404) {
+				this.handle(APP_EVENT_NOT_FOUND);
+			} else if ($error.status === 500) {
+				this.handle(APP_EVENT_SERVER_ERROR);
+			} else if ($error.status === -1) {
+				this.handle(APP_EVENT_NET_ERROR);
+			}
 		}
-	}
+	});
+
+
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function () {
+		_loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
+		app.state.status = stateMachine.state;
+	});
 
 	/*
-	 * Bind list of roles to app data
-	 */
-	function _loadRolesOfUser(roles){
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			app.user[role.application + '_' + role.code_name] = true;
-		}
-	}
-
-	/**
-	 * بی هویت بودن کاربر جاری را تعیین می‌کند
-	 * 
-	 * @returns promiss
-	 */
-	function isAnonymous() {
-		return app.user.anonymous;
-	}
-
-	/**
-	 * ورود به سیستم
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 */
-	function login(credential) {
-		if (!isAnonymous()) {
-			var deferred = $q.defer();
-			deferred.resolve('user is login');
-			return deferred.promise;
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function () {
-			loadUserProperty();
-		});
-	}
-
-	/**
-	 * Application logout
-	 * 
-	 * Logout and clean user data, this will change state of the application.
-	 * 
-	 * @memberof $app
-	 */
-	function logout() {
-		var oldUser = $rootScope.app.user;
-		if (!!oldUser.isAnonymous) {
-			return $q.resolve(oldUser);
-		}
-		$rootScope.app.user = {};
-		stateMachine.loaded();
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		})
-		.then(function () {
-			loadUserProperty();
-		}, function(){
-			// TODO: maso, 2018: fail to logout?!
-			$rootScope.app.user = oldUser;
-			stateMachine.loaded();
-		});
-	}
-	// ---------------------------------------------------------------------------------------
-	// settings related to direction, language and calendar of the app
-
-	/*
-	 * watch direction and update app.dir
-	 */
+     * watch direction and update app.dir
+     */
 	$rootScope.$watch(function () {
 		if (!app.config.local) {
 			app.config.local = {};
@@ -5885,8 +6069,8 @@ angular.module('mblowfish-core') //
 		// version of app.js;
 	});
 	/*
-	 * watch local
-	 */
+     * watch local and update language
+     */
 	$rootScope.$watch(function () {
 		// TODO: maso, 2018: remove this part in the next release
 		if (!angular.isObject(app.config.local)) {
@@ -5914,9 +6098,10 @@ angular.module('mblowfish-core') //
 		// data
 		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
 	});
+
 	/*
-	 * watch calendar
-	 */
+     * watch calendar
+     */
 	$rootScope.$watch(function () {
 		return app.setting.calendar || app.config.calendar || 'Gregorian';
 	}, function (key) {
@@ -5925,13 +6110,79 @@ angular.module('mblowfish-core') //
 	});
 
 	/*
-	 * watch application configuration
-	 */
-	$rootScope.$watch('app.config', function (key) {
-		// TODO: maso, 2018: delay to save
-		return storeApplicationConfig();
+     * watch application configuration and update app state
+     */
+	$rootScope.$watch('app.config', function () {
+		if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
+			// TODO: maso, 2018: delay to save
+			storeApplicationConfig();
+		}
 	}, true);
 
+	/**
+     * Start the application
+     * 
+     * this function is called when the app get started.
+     * 
+     * @memberof $app
+     */
+	function start(key) {
+		app.key = key;
+		stateMachine.start();
+	}
+
+	/**
+     * Logins into the backend
+     * 
+     * @memberof $app
+     * @param {object}
+     *            credential of the user
+     */
+	function login(credential) {
+		if (!app.user.anonymous) {
+			return $q.resolve(app.user.current);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(function () {
+			loadUserProperty();
+		});
+	}
+
+	/**
+     * Application logout
+     * 
+     * Logout and clean user data, this will change state of the application.
+     * 
+     * @memberof $app
+     */
+	function logout() {
+		var oldUser = $rootScope.app.user;
+		if (!!oldUser.anonymous) {
+			return $q.resolve(oldUser);
+		}
+		$rootScope.app.user = {};
+		stateMachine.loaded();
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(function () {
+			loadUserProperty();
+		}, function () {
+			// TODO: maso, 2018: fail to logout?!
+			$rootScope.app.user = oldUser;
+			stateMachine.loaded();
+		});
+	}
 
 	// Init
 	apps.start = start;
@@ -6036,7 +6287,7 @@ angular.module('mblowfish-core')
  * Export data model into a CSV file.
  * 
  */
-.service('$amdExport', function(FileSaver, $q, PaginatorParameter) {
+.service('$amdExport', function(FileSaver, $q, QueryParameter) {
 
 	/**
 	 * 
@@ -6047,10 +6298,10 @@ angular.module('mblowfish-core')
 	 * @returns
 	 */
 	function exportList(objectRef, findMethod, paginatorParameter, type, name) {
-		var params = new PaginatorParameter();
+		var params = new QueryParameter();
 		// TODO: maso, 2017: adding funnction to clone params
 		//
-		// Example: params = new PaginatorParameter(old);
+		// Example: params = new QueryParameter(old);
 		params.put('_px_q ', paginatorParameter.get('_px_q'));
 		params.put('_px_sk ', paginatorParameter.get('_px_sk'));
 		params.put('_px_so ', paginatorParameter.get('_px_so'));
@@ -8188,7 +8439,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-brand.html',
-    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo value=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon value=app.config.favicon> </wb-ui-setting-image> </div>"
+    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo ng-model=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon ng-model=app.config.favicon> </wb-ui-setting-image> </div>"
   );
 
 
@@ -8209,6 +8460,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/update.html',
     "<md-switch class=md-secondary ng-model=app.config.update.hideMessage> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoCheck> <p translate>Check update automaticlly</p> </md-switch>"
+  );
+
+
+  $templateCache.put('views/resources/mb-accounts.html',
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=ctrl.loading layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-groups.html',
+    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-roles.html',
+    "<div flex layout=column ng-init=\"\" ng-controller=\"MbRolesCtrl as ctrl\">  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2>Empty role list</h2> <p>There is no role match with the query</p> </div> </md-content> </div>"
   );
 
 
@@ -8243,7 +8509,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-account.html',
-    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <wb-icon>edit</wb-icon> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </section> </div> </md-content>"
+    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </section> </div> </md-content>"
   );
 
 
@@ -8258,7 +8524,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content class=md-padding layout-padding flex amh-preloading=\"ctrl.loadUser || ctrl.loadProfile || ctrl.saveProfile\"> <div layout-gt-sm=row layout=column>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>contacts information</h3> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>site</label> <input ng-model=ctrl.profile.site> </md-input-container> <md-input-container layout-fill> <label translate>public email</label> <input name=email ng-model=ctrl.profile.email type=email> <div ng-messages=contactForm.email.$error> <div ng-message=email>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>phone number</label> <input ng-model=ctrl.profile.phone> </md-input-container> <md-input-container layout-fill> <label translate>mobile number</label> <input ng-model=ctrl.profile.mobile> </md-input-container> </form> </section>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>socials information</h3> <form name=socialForm layout=column layout-padding> <md-input-container layout-fill> <label translate>LinkedId</label> <input ng-model=ctrl.profile.linkedin> </md-input-container> <md-input-container layout-fill> <label translate>Telegram</label> <input ng-model=ctrl.profile.telegram> </md-input-container> <md-input-container layout-fill> <label translate>Facebook</label> <input ng-model=ctrl.profile.facebook> </md-input-container> </form> </section> </div> <div layout-gt-sm=row layout=column>  <section layout=column md-whiteframe=1 layout-fill layout-margin> <h3 translate>overall profile info</h3> <div name=overalForm layout=column layout-padding> <label layout-fill ng-repeat=\"(key, value) in ctrl.profile\" ng-if=value> <span translate>{{key}}</span>: {{value}} </label> </div> </section> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()>  <sapn translate>update</sapn> </md-button> </div> </md-content>"
+    "<md-content class=md-padding layout-padding flex amh-preloading=\"ctrl.loadUser || ctrl.loadProfile || ctrl.saveProfile\"> <div layout-gt-sm=row layout=column>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Contacts information</h3> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>Site</label> <input ng-model=ctrl.profile.site> </md-input-container> <md-input-container layout-fill> <label translate>Public email</label> <input name=email ng-model=ctrl.profile.email type=email> <div ng-messages=contactForm.email.$error> <div ng-message=email>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>Phone number</label> <input ng-model=ctrl.profile.phone> </md-input-container> <md-input-container layout-fill> <label translate>Mobile number</label> <input ng-model=ctrl.profile.mobile> </md-input-container> </form> </section>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Social networks information</h3> <form name=socialForm layout=column layout-padding> <md-input-container layout-fill> <label translate>LinkedId</label> <input ng-model=ctrl.profile.linkedin> </md-input-container> <md-input-container layout-fill> <label translate>Telegram</label> <input ng-model=ctrl.profile.telegram> </md-input-container> <md-input-container layout-fill> <label translate>Facebook</label> <input ng-model=ctrl.profile.facebook> </md-input-container> </form> </section> </div> <div layout-gt-sm=row layout=column>  <section layout=column md-whiteframe=1 layout-fill layout-margin> <h3 translate>Overall profile info</h3> <div name=overalForm layout=column layout-padding> <label layout-fill ng-repeat=\"(key, value) in ctrl.profile\" ng-if=value> <span translate>{{key}}</span>: {{value}} </label> </div> </section> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()>  <sapn translate>update</sapn> </md-button> </div> </md-content>"
   );
 
 

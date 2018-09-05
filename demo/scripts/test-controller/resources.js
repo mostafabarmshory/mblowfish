@@ -26,28 +26,64 @@ angular.module('app')
  * 
  */
 .controller('SelectResourcesCtrl', function($scope, $resource) {
-    $scope.selectUser = function(){
-    	return $resource.get('userId',{
-    		data: $scope.userId
-    	})//
-    	.then(function(userId){
-    		$scope.userId = userId;
-    	});
+
+
+    $scope.selectUserObject = function(){
+        return $resource.get('account',{
+            data: $scope.user,
+            style:{
+                title: 'Select account',
+                description: 'Select a user',
+                icon: 'account_circle'
+            }
+        })//
+        .then(function(usr){
+            $scope.user = usr;
+        });
     };
-    $scope.selectGroup = function(){
-    	return $resource.get('groupId',{
-    		data: $scope.groupId
-    	})//
-    	.then(function(groupId){
-    		$scope.groupId = groupId;
-    	});
+    $scope.selectUserObjectList = function(){
+        return $resource.get('accounts',{
+            data: $scope.userList,
+            style:{
+                title: 'Select account list',
+                description: 'Select one or more user',
+                icon: 'account_circle'
+            }
+        })//
+        .then(function(usrs){
+            $scope.userList = usrs;
+        });
     };
-    $scope.selectRole = function(){
-    	return $resource.get('roleId',{
-    		data: $scope.roleId
-    	})//
-    	.then(function(roleId){
-    		$scope.roleId = roleId;
-    	});
+
+
+
+
+    $scope.selectGroups = function(){
+        return $resource.get('groups',{
+            data: $scope.groups,
+            style:{
+                title: 'Select group list',
+                description: 'Select one or more group',
+                icon: 'account_circle'
+            }
+        })//
+        .then(function(groups){
+            $scope.groups = groups;
+        });
+    };
+
+
+    $scope.selectRoles = function(){
+        return $resource.get('roles',{
+            data: $scope.roles,
+            style:{
+                title: 'Select role list',
+                description: 'Select one or more roles',
+                icon: 'account_circle'
+            }
+        })//
+        .then(function(roles){
+            $scope.roles = roles;
+        });
     };
 });

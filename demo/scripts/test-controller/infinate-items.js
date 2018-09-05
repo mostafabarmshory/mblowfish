@@ -25,7 +25,7 @@ angular.module('app')
 /**
  * 
  */
-.controller('InfinateItemsCtrl', function($scope, $navigator, $q, $timeout, PaginatorParameter) {
+.controller('InfinateItemsCtrl', function($scope, $navigator, $q, $timeout, QueryParameter) {
 	var ctrl = {
 			state: 'relax',
 			items: []
@@ -87,7 +87,7 @@ angular.module('app')
 	$scope.ctrl = ctrl;
 	$scope.reload = reload;
 	
-	$scope.paginatorParameter = new PaginatorParameter();
+	$scope.paginatorParameter = new QueryParameter();
 	$scope.sortKeys = [
 		'id', 
 		'name'

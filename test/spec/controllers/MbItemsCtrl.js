@@ -21,43 +21,45 @@
  */
 'use strict';
 
-angular.module('mblowfish-core')
+describe('MbItemsCtrl ', function() {
 
-/**
- * @ngdoc Controllers
- * @name AmdGroupsCtrl
- * @description Manages list of groups
- * 
- */
-.controller('MbGroupsCtrl', function($scope, $usr, $q, $controller) {
-	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope : $scope
+	// load the controller's module
+	beforeEach(module('mblowfish-core'));
+
+	var ctrl, scope;
+	var app = {
+			logout: function(){
+				//Logout function
+			},
+			session : function() {
+				return {
+					then : function() {
+						// TODO: call the fucntion
+					}
+				};
+			}
+	};
+	var navigator = {
+			go : function() {
+
+			}
+	};
+
+	// Initialize the controller and a mock scope
+	beforeEach(inject(function($controller, $rootScope) {
+		scope = $rootScope.$new();
+		ctrl = $controller('MbItemsCtrl', {
+			$scope : scope,
+			$app : app,
+			$navigator: navigator
+		});
 	}));
 
-	// Overried the function
-	this.getSchema = function() {
-		return $q.resolve({
-			name : 'group',
-			properties : [ {
-				name : 'Id',
-				type : 'int'
-			} ]
-		});
-	};
-	// get accounts
-	this.getItems = function(parameterQuery) {
-		return $usr.getGroups(parameterQuery);
-	};
-	// get an account
-	this.getItem = function(id) {
-		return $usr.getGroup(id);
-	};
-	// // Add item
-	// this.addItem = function(){
-	// return $usr.newAccount(item);
-	// };
-	// delete account
-	this.deleteItem = function(item) {
-		return $usr.deleteRole(item.id);
-	};
+	it('should attach a function of loadNextPage to the ctrl', function() {
+		expect(angular.isFunction(ctrl.loadNextPage)).toBe(true);
+	});
+	
+	it('should attach a function of reload to the ctrl', function() {
+		expect(angular.isFunction(ctrl.reload)).toBe(true);
+	});
 });

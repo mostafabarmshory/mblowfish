@@ -106,10 +106,10 @@ angular.module('mblowfish-core')
 		var param = {
 				'old' : data.oldPass,
 				'new' : data.newPass,
-				'password': data.newPass,
+				'password': data.newPass
 		};
 //		return $usr.resetPassword(param)//
-		$scope.app.user.current.newPassword(param)
+		$scope.app.user.current.putCridential(param)
 		.then(function(){
 			$app.logout();
 			ctrl.changePassState = 'success';
@@ -139,7 +139,7 @@ angular.module('mblowfish-core')
 			return;
 		}
 		ctrl.updatingAvatar = true;
-		return ctrl.user.newAvatar(avatarFiles[0].lfFile)//
+		return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
 		.then(function(){
 			// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
 			// clear address before upload and set it again after upload.

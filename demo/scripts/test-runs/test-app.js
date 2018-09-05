@@ -90,7 +90,12 @@ angular.module('app')//
 		icon: 'toolbar',
 		priority : 40
 	});
-	
+    $navigator.newGroup({
+        id: 'resources',
+        title: 'Resources',
+        icon: 'settings',
+        priority : 50
+    });
 	
 	$navigator.newItem({
 		type: 'link',

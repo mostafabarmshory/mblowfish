@@ -20,44 +20,45 @@
  * SOFTWARE.
  */
 'use strict';
-
 angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdGroupsCtrl
- * @description Manages list of groups
+ * @name AmdAccountsCtrl
+ * @description Manages and display list of accounts
+ * 
+ * This controller is used in accounts list.
  * 
  */
-.controller('MbGroupsCtrl', function($scope, $usr, $q, $controller) {
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
 	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope : $scope
+		$scope: $scope
 	}));
 
 	// Overried the function
-	this.getSchema = function() {
+	this.getSchema = function(){
 		return $q.resolve({
-			name : 'group',
-			properties : [ {
-				name : 'Id',
-				type : 'int'
-			} ]
+			name: 'account',
+			properties: [{
+				name: 'Id',
+				type: 'int'
+			}]
 		});
 	};
 	// get accounts
-	this.getItems = function(parameterQuery) {
-		return $usr.getGroups(parameterQuery);
+	this.getItems = function(parameterQuery){
+		return $usr.getAccounts(parameterQuery);
 	};
 	// get an account
-	this.getItem = function(id) {
-		return $usr.getGroup(id);
+	this.getItem = function(id){
+		return $usr.getAccount(id);
 	};
-	// // Add item
-	// this.addItem = function(){
-	// return $usr.newAccount(item);
-	// };
+//	// Add item
+//	this.addItem = function(){
+//		return $usr.newAccount(item);
+//	};
 	// delete account
-	this.deleteItem = function(item) {
-		return $usr.deleteRole(item.id);
+	this.deleteItem = function(item){
+		return $usr.deleteAccount(item.id);
 	};
-});
+})

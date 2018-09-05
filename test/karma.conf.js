@@ -20,9 +20,10 @@ module.exports = function(config) {
     detectBrowsers: {
         // enable/disable, default is true
         enabled: true,
-   
         // enable/disable phantomjs support, default is true
-        usePhantomJS: true,
+        usePhantomJS: false,
+        // use headless mode, for browsers that support it, default is false
+        preferHeadless: true,
    
         // post processing of browsers list
         // here you can edit the list of browsers used by karma
@@ -150,7 +151,6 @@ module.exports = function(config) {
         'karma-safari-launcher',
         'karma-safaritechpreview-launcher',
         'karma-opera-launcher',
-        'karma-phantomjs-launcher',
         'karma-detect-browsers'
     ],
 
