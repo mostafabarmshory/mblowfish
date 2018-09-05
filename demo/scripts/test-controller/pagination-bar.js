@@ -119,7 +119,7 @@ angular.module('app')
 		console.log('export data list!!');
 		// TODO: work and complete
 		ctrl.status = 'working';
-		return $amdExport.list( $usr, $usr.users, 
+		return $amdExport.list( $usr, $usr.getAccounts, 
 				paginatorParameter, 'csv', 'exampel')//
 		.then(function(){
 			ctrl.status = 'ok';
