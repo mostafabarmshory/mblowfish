@@ -8,9 +8,8 @@ build-project:
   image: node:8
   coverage: /Lines\s*:\s*(\d+\.\d+)%/
   script:
-  # TODO: install opera
     - apt-get update
-    - apt-get install chromium-browser
+    - apt-get install chromium
     - apt-get install firefox
     - apt-get install git
     - npm install -g bower grunt-cli
