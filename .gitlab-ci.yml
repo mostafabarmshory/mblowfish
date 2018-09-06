@@ -9,7 +9,7 @@ build-project:
   coverage: /Lines\s*:\s*(\d+\.\d+)%/
   script:
   # TODO: install opera
-    - sudo apt-get update
+    - apt-get update
     - apt-get install chromium-browser
     - apt-get install firefox
     - apt-get install git
