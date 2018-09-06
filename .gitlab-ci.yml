@@ -8,9 +8,9 @@ build-project:
   image: node:8
   coverage: /Lines\s*:\s*(\d+\.\d+)%/
   script:
+    # TODO: maso, 2018: install opera, firefox
     - apt-get update
     - apt-get -yq install chromium
-    - apt-get -yq install firefox
     - apt-get -yq install git
     - npm install -g bower grunt-cli
     - npm install
