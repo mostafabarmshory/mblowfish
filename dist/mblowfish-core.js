@@ -5689,7 +5689,8 @@ angular.module('mblowfish-core') //
  *           automatically baed on configuaration and setting.
  * @property {object} app.setting - Application setting.
  * @property {object} app.config - Application setting.
- * 
+ * @property {object} app.user - Current user information
+ * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
 		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
@@ -5699,7 +5700,7 @@ angular.module('mblowfish-core') //
 	// Constants
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
 	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
 	// the state machine
@@ -5736,6 +5737,7 @@ angular.module('mblowfish-core') //
 			logs: [],
 			user: {
 				current: {},
+                                profile : {},
 				anonymous: true,
 				administrator: false,
 				owner: false,
@@ -5843,6 +5845,10 @@ angular.module('mblowfish-core') //
 					anonymous: !user.id || user.id === 0,
 					current: user
 			};
+                        // load the first profile of user
+                        if(user.profiles.length > 0){
+                            app.user.profile = user.profiles[0];
+                        }
 			// load user roles
 			_loadingLog('loading user info', 'user information loaded successfully');
 			_loadingLog('loading user info', 'check user permissions');
@@ -6813,7 +6819,7 @@ angular.module('mblowfish-core')
  * 
  * Metrics must be tracked by the following 
  */
-.service('$metrics', function($q, $timeout, $monitor) {
+.service('$metrics', function($q, $timeout/*, $monitor*/) {
 	/*
 	 * store list of metrics
 	 */
@@ -8389,7 +8395,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-user-menu.html',
-    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%\" ng-src={{app.user.current.avatar}}> <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title| translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span translate>Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span translate>Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span translate>Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
+    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title| translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span translate>Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span translate>Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span translate>Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
   );
 
 

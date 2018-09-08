@@ -44,7 +44,7 @@ angular.module('mblowfish-core')
  * 
  * Metrics must be tracked by the following 
  */
-.service('$metrics', function($q, $timeout, $monitor) {
+.service('$metrics', function($q, $timeout/*, $monitor*/) {
 	/*
 	 * store list of metrics
 	 */

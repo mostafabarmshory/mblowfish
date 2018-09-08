@@ -81,7 +81,8 @@ angular.module('mblowfish-core') //
  *           automatically baed on configuaration and setting.
  * @property {object} app.setting - Application setting.
  * @property {object} app.config - Application setting.
- * 
+ * @property {object} app.user - Current user information
+ * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
 		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
@@ -91,7 +92,7 @@ angular.module('mblowfish-core') //
 	// Constants
 	var APP_PREFIX = 'angular-material-blowfish-';
 	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
 	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
 	// the state machine
@@ -128,6 +129,7 @@ angular.module('mblowfish-core') //
 			logs: [],
 			user: {
 				current: {},
+                                profile : {},
 				anonymous: true,
 				administrator: false,
 				owner: false,
@@ -235,6 +237,10 @@ angular.module('mblowfish-core') //
 					anonymous: !user.id || user.id === 0,
 					current: user
 			};
+                        // load the first profile of user
+                        if(user.profiles.length > 0){
+                            app.user.profile = user.profiles[0];
+                        }
 			// load user roles
 			_loadingLog('loading user info', 'user information loaded successfully');
 			_loadingLog('loading user info', 'check user permissions');

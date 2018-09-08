@@ -39,9 +39,9 @@ module.exports = function(config) {
           */
             //Add IE Emulation
             var result = availableBrowser;
-            if (availableBrowser.indexOf('IE')>-1) {
-              result.push('IE9');
-            }
+//            if (availableBrowser.indexOf('IE')>-1) {
+//              result.push('IE9');
+//            }
             return result;
           }
       },
