@@ -104,15 +104,18 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.reload = function(){
         // relaod data
-        this.state=STATE_INIT;
-        delete this.requests;
-        this.items = [];
-
-        // start the controller
-        this.state=STATE_IDEAL;
+        this.__init();
         return this.loadNextPage();
     };
 
+    this.__init = function(){
+    	this.state=STATE_INIT;
+        delete this.requests;
+        this.items = [];
+        // start the controller
+        this.state=STATE_IDEAL;
+    }
+    
     /**
      * Loads next page
      * 
@@ -306,6 +309,8 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     };
 
 
+    this.__init();
+    
 }
 
 /*
