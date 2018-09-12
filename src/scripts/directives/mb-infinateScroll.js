@@ -43,22 +43,20 @@ angular.module('mblowfish-core')
             // Call the callback for the first time:
             var value = $parse(attrs.mbInfinateScroll)(scope);
             return $q.when(value)//
-            .then(checkScroll);
+            .then(function (value) {
+                if (value) {
+                    return $timeout(function () {
+                        if (raw.scrollHeight <= raw.offsetHeight) {
+                            return loadNextPage();
+                        }
+                    }, 100);
+                }
+            });
         }
 
         /*
-         * Check last
+         * Check scroll state and update list
          */
-        function checkScroll(value) {
-            if (value) {
-                return $timeout(function () {
-                    if (raw.scrollHeight <= raw.offsetHeight) {
-                        return loadNextPage();
-                    }
-                }, 100);
-            }
-        }
-
         function scrollChange() {
             if (raw.scrollTop + raw.offsetHeight + 5 >= raw.scrollHeight) {
                 loadNextPage();
