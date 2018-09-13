@@ -276,7 +276,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @return promiss to get item
      */
     this.getItem = function(id){
-
+        return {
+            id: id
+        };
     };
 
     /**
@@ -291,9 +293,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     this.addItem = function(){
         // Controllers are supposed to override the function
         var item = {
-                id: random(),
+                id: Math.random(),
                 title: 'test item'
-        }
+        };
         return $q.accept(item);
     };
 
@@ -312,7 +314,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     $scope.$watch(function(){
         return ctrl.queryParameter;
     }, function(){
-        reload();
+        ctrl.reload();
     }, true);
     this.__init();
     
