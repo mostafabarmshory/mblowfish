@@ -4,13 +4,13 @@
     <img 
     	width="80px"
     	class="img-circle" 
-    	ng-src="{{app.user.current.avatar}}">
+    	ng-src="/api/v2/user/accounts/{{app.user.current.id}}/avatar">
     <md-menu md-offset="0 20">
         <md-button 
         	class="capitalize" 
         	ng-click="$mdOpenMenu()" 
         	aria-label="Open menu">
-            <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span>
+            <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span>
             <wb-icon class="material-icons">keyboard_arrow_down</wb-icon>
         </md-button>
         <md-menu-content width="3">

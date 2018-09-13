@@ -155,7 +155,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             ctrl.error = error;
         })//
         .finally(function(){
-            ctrl.state = STATE_BUSY;
+            ctrl.state = STATE_IDEAL;
         });
     };
 
@@ -308,7 +308,12 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         // Controllers are supposed to override the function
     };
 
-
+    var ctrl = this;
+    $scope.$watch(function(){
+        return ctrl.queryParameter;
+    }, function(){
+        reload();
+    }, true);
     this.__init();
     
 }
