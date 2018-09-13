@@ -53,7 +53,7 @@
 <!-- endbuild -->
 
 </head>
-<body md-theme="{{app.setting.theme || app.config.theme || 'default'}}"
+<body md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
 	md-theme-watch
 	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
 	dir="{{app.dir}}">
@@ -210,6 +210,7 @@
 	<script src="scripts/test-controller/pagination-bar.js"></script>
 	<script src="scripts/test-controller/resources.js"></script>
 	<script src="scripts/test-controller/tables-class-test.js"></script>
+	<script src="scripts/test-controller/themes.js"></script>
 	<script src="scripts/test-controller/titled-block.js"></script>
 	<script src="scripts/test-controller/toolbar.js"></script>
 	<script src="scripts/test-runs/test-app.js"></script>

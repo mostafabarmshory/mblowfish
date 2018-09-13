@@ -206,5 +206,16 @@ angular.module('app') //
         name : 'Select resource',
         icon : 'load',
     })
+    
+    // Theme
+    .when('/test/themes', {
+        templateUrl : 'views/mb-test-themes.html',
+        controller: 'TestThemeCtrl',
+        controllerAs: 'ctrl',
+        navigate : true,
+        groups : [ 'themes' ],
+        name : 'Load and check themes',
+        icon : 'load',
+    })
 	;
 });

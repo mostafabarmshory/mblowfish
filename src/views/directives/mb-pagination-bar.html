@@ -53,7 +53,7 @@
             <md-button
               ng-click="item.action()">
               <wb-icon ng-show="item.icon">{{item.icon}}</wb-icon>
-              <span translate>{{ item.title }}</span>
+              <span translate="">{{ item.title }}</span>
             </md-button>
           </md-menu-item>
         </md-menu-content>
@@ -64,7 +64,7 @@
   <!-- Search -->
   <div
     class="stack-toolbar new-box-showing-animation"
-    md-colors="{background: 'primary-hue-3'}"
+    md-colors="{background: 'primary-hue-1'}"
     ng-show="showSearch">
     <div class="md-toolbar-tools">
       <md-button
@@ -74,28 +74,23 @@
         <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
       </md-button>
 
-      <md-input-container flex md-theme="dark" md-no-float class="md-block fit-input">
+      <md-input-container 
+      	flex md-theme="dark" 
+      	md-no-float 
+      	class="md-block fit-input">
         <input
           id="searchInput"
           placeholder="{{'Search'|translate}}"
           ng-model="query.searchTerm"
           ng-model-options="{debounce:1000}">
       </md-input-container>
-      <!--<input
-                  ng-model="temp.query"
-                  ng-keyup="$event.keyCode == 13 ? query.searchTerm=temp.query : null">-->
-      <!--			<md-button
-                      aria-label="Search"
-                      ng-click="showSearch = !showSearch">
-                      <wb-icon>search</wb-icon>
-                  </md-button>-->
     </div>
   </div>
 
   <!-- Sort -->
   <div
     class="stack-toolbar new-box-showing-animation"
-    md-colors="{background: 'primary-hue-3'}"
+    md-colors="{background: 'primary-hue-1'}"
     ng-show="showSort">
     <div class="md-toolbar-tools">
       <md-button
@@ -105,15 +100,16 @@
         <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
       </md-button>
 
-      <h3 translate>Sort</h3>
+      <h3 translate="">Sort</h3>
 
       <span style="width: 10px"></span>
 
       <!-- Menu including sort keys -->
       <md-menu>
-        <md-button md-colors="{background: 'primary'}" layout="row" style="text-transform: none;"
-                   ng-click="$mdMenu.open()">
-          <wb-icon>category</wb-icon>
+        <md-button 
+        	layout="row" 
+        	style="text-transform: none;"
+            ng-click="$mdMenu.open()">
           <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3>
         </md-button>
         <md-menu-content width="4">
@@ -129,8 +125,10 @@
 
       <!-- Menu including sort type:asce and desc -->
       <md-menu>
-        <md-button md-colors="{background: 'primary'}" layout="row" style="text-transform: none;"
-                   ng-click="$mdMenu.open()">
+        <md-button 
+        	layout="row" 
+        	style="text-transform: none;"
+            ng-click="$mdMenu.open()">
           <wb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</wb-icon>
           <wb-icon ng-if="query.sortDesc">filter_list</wb-icon>
           {{query.sortDesc?'Descending':'Ascending'|translate}}
@@ -154,23 +152,6 @@
       </md-menu>
 
       <span flex=""></span>
-
-
-      <!-- old implementions -->
-      <!--        <md-switch
-                ng-model="query.sortDesc"
-                aria-label="DESC">
-                <span translate>DESC sort order</span>
-              </md-switch>-->
-      <!--<md-select ng-model="query.sortBy">
-        <md-option
-          ng-repeat="key in mbSortKeys"
-          value="{{key}}"
-          translate>{{key}}
-        </md-option>
-      </md-select>-->
-
     </div>
   </div>
-
 </div>

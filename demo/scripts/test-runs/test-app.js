@@ -96,6 +96,12 @@ angular.module('app')//
         icon: 'settings',
         priority : 50
     });
+    $navigator.newGroup({
+        id: 'themes',
+        title: 'THemes',
+        icon: 'color_lens',
+        priority : 60
+    });
 	
 	$navigator.newItem({
 		type: 'link',

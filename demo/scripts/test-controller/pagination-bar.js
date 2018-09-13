@@ -27,21 +27,6 @@ angular.module('app')
  */
 .controller('TestPaginationBarCtrl', function($scope, $resource, $navigator, $amdExport, $usr,
         QueryParameter) {
-	// Integerate with dashboard
-	$navigator.scopePath($scope)//
-	.add({
-		title: 'Example',
-	})//
-	.add({
-		title: 'Pagination',
-	})//
-	.add({
-		title: 'Pagination bars',
-		active: function(){
-			$navigator.openPage('/test/pagination');
-		}
-	});
-
 	// 
 	var paginatorParameter = new QueryParameter();
 	paginatorParameter.setOrder('id', 'a');
