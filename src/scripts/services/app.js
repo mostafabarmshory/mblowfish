@@ -331,7 +331,7 @@ angular.module('mblowfish-core') //
 			}).then(function (content) {
 				appConfigDirty = false;
 				app._acc = content;
-				stateMachine.config_created();
+				stateMachine.loaded();
 				return app._acc.uploadValue(app.config);
 			}, function (error) {
 				stateMachine.error(error);
@@ -400,8 +400,10 @@ angular.module('mblowfish-core') //
 			},
 			// app is ready with no config
 			ready_not_configured: {
-				config_created: function () {
-					this.transition(APP_STATE_READY);
+			    loaded: function () {
+			        if(ctrl.configs_loaded){
+			            this.transition(APP_STATE_READY);
+			        }
 				},
 				network_error: function () {
 					this.transition(APP_STATE_OFFLINE);
