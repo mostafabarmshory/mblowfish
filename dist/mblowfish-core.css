@@ -199,7 +199,7 @@
  */
 .mb-navigation-path-bar-item {
 	padding: 1px;
-	margin: 0px;
+	margin: auto;
 	margin-left: 2px;
 	margin-right: 2px;
 	cursor: pointer;
@@ -400,5 +400,5 @@ table.mb-table-description tr td:first-child {
  */
 .amd-user-menu-button {
 	margin: 0px;
-	padding: 0px;
+	padding: 4px;
 }
