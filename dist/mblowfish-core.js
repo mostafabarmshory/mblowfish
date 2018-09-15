@@ -5129,7 +5129,7 @@ angular.module('mblowfish-core')
 			if(setting.value === 'recaptcha'){
 				$rootScope.app.captcha.recaptcha = {};
 				// maso,2018: get publick key form server
-				$tenant.setting('captcha.engine.recaptcha.key')
+				$tenant.getSetting('captcha.engine.recaptcha.key')
 				.then(function(pk){
 					$rootScope.app.captcha.recaptcha.key = pk.value;
 				});
