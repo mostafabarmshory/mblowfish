@@ -89,7 +89,7 @@
                   if (!$rootScope.app.user.owner) {
                       return $q.reject('not allowed');
                   }
-                  if (!$rootScope.app.config.local.languages) {
+                  if (!$rootScope.app.config.languages) {
                       $rootScope.app.config.languages = [];
                   } else {
                       var languages = $rootScope.app.config.languages;

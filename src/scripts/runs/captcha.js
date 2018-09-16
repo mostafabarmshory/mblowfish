@@ -21,46 +21,27 @@
  */
 'use strict';
 
-/**
- * @ngdoc action-group
- * @name User
- * @description Global user menu
- * 
- * There are several registred menu in the $actions service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - mb.user : All action related to the current user
- * - mb.toolbar.menu : All action related to the toolbar menu
- * 
- * - navigationPathMenu: All items related to navigation.
+angular.module('mblowfish-core')
+/*
  * 
  */
-
-
-angular.module('mblowfish-core', [ //
-//	Angular
-	'ngMaterial', 
-	'ngAnimate', 
-	'ngCookies',
-	'ngSanitize', //
-	'ngRoute', //
-//	Seen
-	'seen-core',
-	'seen-tenant',
-	'seen-cms',
-//	AM-WB
-	'am-wb-core', 
-	'am-wb-common', //
-	'am-wb-seen-core',
-//	'am-wb-seen-monitors',
-//	Others
-	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'ngStorage', // https://github.com/gsklee/ngStorage
-	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'infinite-scroll', // https://github.com/sroze/ngInfiniteScroll
-	'nvd3',//
-	'ng-appcache',//
-	'ngFileSaver',//
-	'mdSteppers',//
-	'angular-material-persian-datepicker'
-]);
+.run(function($rootScope, $tenant) {
+	$rootScope.app.captcha ={};
+	$rootScope.$watch('app.state.status', function(value){
+		if(value !== 'loading'){
+			return;
+		}
+		$tenant.getSetting('captcha.engine')
+		.then(function(setting){
+			$rootScope.app.captcha.engine = setting.value;
+			if(setting.value === 'recaptcha'){
+				$rootScope.app.captcha.recaptcha = {};
+				// maso,2018: get publick key form server
+				$tenant.getSetting('captcha.engine.recaptcha.key')
+				.then(function(pk){
+					$rootScope.app.captcha.recaptcha.key = pk.value;
+				});
+			}
+		});
+	})
+});

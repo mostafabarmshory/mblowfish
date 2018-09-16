@@ -109,7 +109,7 @@ angular.module('mblowfish-core')
 				'password': data.newPass
 		};
 //		return $usr.resetPassword(param)//
-		$scope.app.user.current.putCridential(param)
+		$usr.putCredential(param)
 		.then(function(){
 			$app.logout();
 			ctrl.changePassState = 'success';
@@ -118,7 +118,7 @@ angular.module('mblowfish-core')
 		}, function(error){
 			ctrl.changePassState = 'fail';
 			$scope.changePassMessage = $errorHandler.handleError(error, form);
-                        alert($translate.instant('Failed to change new password.'));
+                        alert($translate.instant('Failed to change the password.'));
 		})//
 		.finally(function(){
 			ctrl.changingPassword = false;
