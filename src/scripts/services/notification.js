@@ -57,7 +57,7 @@ angular.module('mblowfish-core')
 				message : message
 			}
 		});
-	};
+	}
 
 	/**
 	 * The confirm() method displays a dialog box with a specified message,
@@ -86,7 +86,7 @@ angular.module('mblowfish-core')
 				message : message
 			}
 		});
-	};
+	}
 
 	/**
 	 * The prompt() method displays a dialog box that prompts the visitor for
@@ -117,7 +117,7 @@ angular.module('mblowfish-core')
 				model : defaultText
 			}
 		});
-	};
+	}
 
 	/**
 	 * TODO: maso, 2017: document
@@ -130,7 +130,7 @@ angular.module('mblowfish-core')
 				.textContent(text)
 				.hideDelay(3000)
 		);
-	};
+	}
 
 
 	return {

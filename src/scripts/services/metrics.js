@@ -44,27 +44,18 @@ angular.module('mblowfish-core')
  * 
  * Metrics must be tracked by the following 
  */
-.service('$metrics', function($q, $timeout/*, $monitor*/) {
+.service('$metrics', function($q/*, $timeout, $monitor*/) {
 	/*
 	 * store list of metrics
 	 */
-	var metrics = [];
-	
-	var remoteMetrics = []
-	var localMetrics = []
+//	var metrics = [];
+//	
+//	var remoteMetrics = []
+//	var localMetrics = []
 
 	// XXX: maso, 1395: metric interval
-	var defaultInterval = 60000;
+//	var defaultInterval = 60000;
 
-
-	/**
-	 * Reloads all metrics
-	 * 
-	 * @return promisse to load all metrics
-	 */
-	function reaload(){
-		// reload all metrics
-	};
 
 	/**
 	 * Add a monitor in track list
@@ -89,10 +80,10 @@ angular.module('mblowfish-core')
 	 *            
 	 * @return {promise(PMonitor)}
 	 */
-	function trackMetric(key, $scope) {
+	function trackMetric(/*key, $scope*/) {
 		// track metric with key
 		return $q.resolve('hi');
-	};
+	}
 
 
 	/**
@@ -101,14 +92,14 @@ angular.module('mblowfish-core')
 	 * @param {Object}
 	 *            monitor
 	 */
-	function breakMonitor(key) {
+	function breakMonitor(/*key*/) {
 //		var def = $q.defer();
 //		$timeout(function() {
 //			// XXX: maso, 1395: remove monitor
 //			def.resolve(monitor);
 //		}, 1);
 //		return def.promise;
-	};
+	}
 
 
 	this.breakMonitor = breakMonitor;

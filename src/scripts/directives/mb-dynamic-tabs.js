@@ -52,10 +52,9 @@ angular.module('mblowfish-core')
 	}
 
 
-	function link($scope, $element, $attr) {
+	function link($scope, $element) {
 		// Load pages in scope
 		function loadPage(index){
-			var widget = null;
 			var jobs = [];
 			var pages2 = [];
 
@@ -79,7 +78,7 @@ angular.module('mblowfish-core')
 					if (angular .isDefined(page.controller)) {
 						$controller(page.controller, {
 							$scope : scope,
-							$element : element,
+							$element : element
 						});
 					}
 					$compile(element)(scope);
@@ -111,6 +110,6 @@ angular.module('mblowfish-core')
 			mbTabs: '='
 		},
 		templateUrl: 'views/directives/mb-dynamic-tabs.html',
-		link: link,
+		link: link
 	};
 });

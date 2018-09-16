@@ -35,7 +35,7 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-local.html',
 		controller: 'MbLocalCtrl',
 		icon : 'language',
-		tags : [ 'local', 'language' ],
+		tags : [ 'local', 'language' ]
 	})//
 	.newPage({
 		id : 'brand',
@@ -46,7 +46,7 @@ angular.module('mblowfish-core')
 		icon : 'copyright',
 		priority: 2,
 		required: true,
-		tags : [ 'brand' ],
+		tags : [ 'brand' ]
 	})//
 	.newPage({
 		id : 'google-analytic',
@@ -54,7 +54,7 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-google-analytic.html',
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
-		tags : [ 'analysis' ],
+		tags : [ 'analysis' ]
 	})
 	.newPage({
 		id: 'update',
