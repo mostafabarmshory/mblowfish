@@ -80,7 +80,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		helpId : function($routeParams) {
-			return 'preference-' + $routeParams.preferenceId;
+			return 'preferences-' + $routeParams.preferenceId;
 		},
 		/*
 		 * @ngInject
