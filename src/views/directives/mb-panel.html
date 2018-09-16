@@ -101,12 +101,12 @@
 		        </md-input-container>
 				<!-- adding captcha -->
 				<div
-					ng-if="app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key"
+					ng-if="app.options['captcha.engine']==='recaptcha'"
 				    vc-recaptcha
 				    ng-model="credit.g_recaptcha_response"
 				    theme="app.captcha.theme || 'light'"
 				    type="app.captcha.type || 'image'"
-				    key="app.captcha.recaptcha.key"
+				    key="app.options['captcha.engine.recaptcha.key']"
 				    lang="app.setting.local || app.config.local || 'en'">
 				</div>
 		        <input hide type="submit" />

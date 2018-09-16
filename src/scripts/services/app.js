@@ -61,13 +61,13 @@ angular.module('mblowfish-core') //
  * All options can access from view as:
  * 
  * <code><pre>
- * 	&lt;span&gt;{{app.option['captcha.engine']}}&lt;/span&gt;
+ * 	&lt;span&gt;{{app.options['captcha.engine']}}&lt;/span&gt;
  * </pre></code>
  * 
  * In the code:
  * 
  * <code><pre>
- * var a = $rootScope.app.option['captcha.engine'];
+ * var a = $rootScope.app.options['captcha.engine'];
  * </pre></code> ## configurations
  * 
  * Configuration is stored on server an owners are allowed to update. Do not
