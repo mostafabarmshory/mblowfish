@@ -227,7 +227,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		helpId : function($routeParams) {
-			return 'preference-' + $routeParams.preferenceId;
+			return 'preferences-' + $routeParams.preferenceId;
 		},
 		/*
 		 * @ngInject
@@ -809,7 +809,7 @@ angular.module('mblowfish-core')
 	$rootScope.showHelp = false;
 	var lastLoaded;
 
-
+        
 	/**
 	 * load help content for the item
 	 * 
@@ -851,21 +851,15 @@ angular.module('mblowfish-core')
 	});
 
 	/*
-	 * Watch current state changes
-	 */
-	$scope.$watch(function(){
-		if($route.current){
-			return $route.current.$$route;
-		}
-		return null;
-	}, _loadHelpContent);
-
-	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
 		return $help.currentItem();
-	}, _loadHelpContent);
+	}, function() {
+            if ($rootScope.showHelp) {
+                _loadHelpContent();
+            }
+        });
 });
 // TODO: should be moved to mblowfish-core
 
@@ -4774,7 +4768,7 @@ angular.module('mblowfish-core')
 	 */
 	actionGroup.prototype.clear = function(){
 		this.items = [];
-	}
+	};
 	
 	return actionGroup;
 });
@@ -4962,87 +4956,87 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-	$actions.newAction({
-		id: 'mb.preferences',
-		priority : 15,
-		icon : 'settings',
-		title : 'Preferences',
-		description : 'Open preferences panel',
-		visible : function(){
-			return $rootScope.app.user.owner;
-		},
-		action : function(){
-			return $navigator.openPage('/preferences');
-		},
-		groups:['mb.toolbar.menu']
-	});
-	$actions.newAction({ // help
-		id: 'mb.help',
-		priority : 15,
-		icon : 'help',
-		title : 'Help',
-		description : 'Display help in sidenav',
-		visible : function(){
-			return $help.hasHelp($route.current);
-		},
-		action : function(){
-			$help.openHelp($route.current);
-		},
-		groups:['mb.toolbar.menu']
-	});
-	
-	$toolbar.newToolbar({
-		id : 'dashboard',
-		title : 'Dashboard toolbar',
-		description : 'Main dashboard toolbar',
-		controller: 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/mb-dashboard.html'
-	});
-	
-	$sidenav.newSidenav({
-		id : 'navigator',
-		title : 'Navigator',
-		description : 'Navigate all path and routs of the pandel',
-		controller: 'AmdNavigatorCtrl',
-		templateUrl : 'views/sidenavs/mb-navigator.html',
-		locked : true,
-		position : 'start',
-	});
-	$sidenav.newSidenav({
-		id : 'help',
-		title : 'Help',
-		description : 'System online help',
-		controller : 'MbHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-help.html',
-		locked : true,
-		visible : function() {
-			return $rootScope.showHelp;
-		},
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'settings',
-		title : 'Options',
-		description : 'User options',
-		controller : 'MbOptionsCtrl',
-		templateUrl : 'views/sidenavs/mb-options.html',
-		locked : false,
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'messages',
-		title : 'Messages',
-		description : 'User message queue',
-		controller : 'MessagesCtrl',
-		templateUrl : 'views/sidenavs/mb-messages.html',
-		locked : false,
-		position : 'start'
-	});
-});
+        /**
+         * دریچه‌های محاوره‌ای
+         */
+        .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+            $actions.newAction({
+                id: 'mb.preferences',
+                priority: 15,
+                icon: 'settings',
+                title: 'Preferences',
+                description: 'Open preferences panel',
+                visible: function () {
+                    return $rootScope.app.user.owner;
+                },
+                action: function () {
+                    return $navigator.openPage('/preferences');
+                },
+                groups: ['mb.toolbar.menu']
+            });
+            $actions.newAction({// help
+                id: 'mb.help',
+                priority: 15,
+                icon: 'help',
+                title: 'Help',
+                description: 'Display help in sidenav',
+                visible: function () {
+                    return $help.hasHelp($route.current);;
+                },
+                action: function () {
+                    $help.openHelp($route.current);
+                },
+                groups: ['mb.toolbar.menu']
+            });
+
+            $toolbar.newToolbar({
+                id: 'dashboard',
+                title: 'Dashboard toolbar',
+                description: 'Main dashboard toolbar',
+                controller: 'MbToolbarDashboardCtrl',
+                templateUrl: 'views/toolbars/mb-dashboard.html'
+            });
+
+            $sidenav.newSidenav({
+                id: 'navigator',
+                title: 'Navigator',
+                description: 'Navigate all path and routs of the pandel',
+                controller: 'AmdNavigatorCtrl',
+                templateUrl: 'views/sidenavs/mb-navigator.html',
+                locked: true,
+                position: 'start',
+            });
+            $sidenav.newSidenav({
+                id: 'help',
+                title: 'Help',
+                description: 'System online help',
+                controller: 'MbHelpCtrl',
+                templateUrl: 'views/sidenavs/mb-help.html',
+                locked: true,
+                visible: function () {
+                    return $rootScope.showHelp;
+                },
+                position: 'end'
+            });
+            $sidenav.newSidenav({
+                id: 'settings',
+                title: 'Options',
+                description: 'User options',
+                controller: 'MbOptionsCtrl',
+                templateUrl: 'views/sidenavs/mb-options.html',
+                locked: false,
+                position: 'end'
+            });
+            $sidenav.newSidenav({
+                id: 'messages',
+                title: 'Messages',
+                description: 'User message queue',
+                controller: 'MessagesCtrl',
+                templateUrl: 'views/sidenavs/mb-messages.html',
+                locked: false,
+                position: 'start'
+            });
+        });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5089,53 +5083,6 @@ angular.module('mblowfish-core')
 			}
 		});
 	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-/*
- * 
- */
-.run(function($rootScope, $tenant) {
-	$rootScope.app.captcha ={};
-	$rootScope.$watch('app.state.status', function(value){
-		if(value !== 'loading'){
-			return;
-		}
-		$tenant.getSetting('captcha.engine')
-		.then(function(setting){
-			$rootScope.app.captcha.engine = setting.value;
-			if(setting.value === 'recaptcha'){
-				$rootScope.app.captcha.recaptcha = {};
-				// maso,2018: get publick key form server
-				$tenant.getSetting('captcha.engine.recaptcha.key')
-				.then(function(pk){
-					$rootScope.app.captcha.recaptcha.key = pk.value;
-				});
-			}
-		});
-	})
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -5713,13 +5660,13 @@ angular.module('mblowfish-core') //
  * All options can access from view as:
  * 
  * <code><pre>
- * 	&lt;span&gt;{{app.option['captcha.engine']}}&lt;/span&gt;
+ * 	&lt;span&gt;{{app.options['captcha.engine']}}&lt;/span&gt;
  * </pre></code>
  * 
  * In the code:
  * 
  * <code><pre>
- * var a = $rootScope.app.option['captcha.engine'];
+ * var a = $rootScope.app.options['captcha.engine'];
  * </pre></code> ## configurations
  * 
  * Configuration is stored on server an owners are allowed to update. Do not
@@ -6445,161 +6392,161 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-/**
- * @ngdoc Services
- * @name $help
- * @description A help management service
- * 
- * Manage application help.
- * 
- * Set help id for an item:
- * 
- * <pre><code>
- * 	var item = {
- * 		...
- * 		helpId: 'help-id'
- * 	};
- * 	$help.openHelp(item);
- * </code></pre>
- * 
- * 
- * 
- * Open help for an item:
- * 
- * <pre><code>
- * $help.openHelp(item);
- * </code></pre>
- * 
- */
-.service('$help', function($q, $rootScope, $translate, $injector) {
+        /**
+         * @ngdoc Services
+         * @name $help
+         * @description A help management service
+         * 
+         * Manage application help.
+         * 
+         * Set help id for an item:
+         * 
+         * <pre><code>
+         * 	var item = {
+         * 		...
+         * 		helpId: 'help-id'
+         * 	};
+         * 	$help.openHelp(item);
+         * </code></pre>
+         * 
+         * 
+         * 
+         * Open help for an item:
+         * 
+         * <pre><code>
+         * $help.openHelp(item);
+         * </code></pre>
+         * 
+         */
+        .service('$help', function ($q, $rootScope, $translate, $injector) {
 
-	var _tips = [];
-	var _currentItem = null;
+            var _tips = [];
+            var _currentItem = null;
 
-	/*
-	 * Get help id
-	 */
-	function _getHelpId(item) {
-		if (!item) {
-			return null;
-		}
-		var id = item.helpId;
-		if (angular.isFunction(item.helpId)) {
-			return !$injector.invoke(item.helpId, item);
-		}
-		return id;
-	}
+            /*
+             * Get help id
+             */
+            function _getHelpId(item) {
+                if (!item) {
+                    return null;
+                }
+                var id = item.helpId;
+                if (angular.isFunction(item.helpId)) {
+                    return $injector.invoke(item.helpId, item);
+                }
+                return id;
+            }
 
-	/**
-	 * Adds new tip
-	 * 
-	 * New tip is added into the tips list.
-	 * 
-	 * @memberof $help
-	 * @param {object}
-	 *            tipData - Data of a tipe
-	 */
-	function tip(tipData) {
-		_tips.push(tipData);
+            /**
+             * Adds new tip
+             * 
+             * New tip is added into the tips list.
+             * 
+             * @memberof $help
+             * @param {object}
+             *            tipData - Data of a tipe
+             */
+            function tip(tipData) {
+                _tips.push(tipData);
                 return this;
-	}
+            }
 
-	/**
-	 * List of tips
-	 * 
-	 * @memberof $help
-	 * @return {promise<Array>} of tips
-	 */
-	function tips() {
-		return $q.resolve({
-			items : _tips
-		});
-	}
+            /**
+             * List of tips
+             * 
+             * @memberof $help
+             * @return {promise<Array>} of tips
+             */
+            function tips() {
+                return $q.resolve({
+                    items: _tips
+                });
+            }
 
-	/**
-	 * Gets current item in help system
-	 * 
-	 * @memberof $help
-	 * @return {Object} current item
-	 */
-	function currentItem() {
-		return _currentItem;
-	}
+            /**
+             * Gets current item in help system
+             * 
+             * @memberof $help
+             * @return {Object} current item
+             */
+            function currentItem() {
+                return _currentItem;
+            }
 
-	/**
-	 * Sets current item in help system
-	 * 
-	 * @memberof $help
-	 * @params item {Object} target of the help system
-	 */
-	function setCurrentItem(item) {
-		_currentItem = item;
-	}
+            /**
+             * Sets current item in help system
+             * 
+             * @memberof $help
+             * @params item {Object} target of the help system
+             */
+            function setCurrentItem(item) {
+                _currentItem = item;
+            }
 
-	/**
-	 * Gets help path
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 * @return path of the help
-	 */
-	function getHelpPath(item) {
-		// Get from help id
-		var myId = _getHelpId(item);
-		if (myId) {
-			var lang = $translate.use();
-			// load content
-			return 'resources/helps/' + myId + '-' + lang + '.json';
-		}
+            /**
+             * Gets help path
+             * 
+             * @memberof $help
+             * @params item {Object} an item to show help for
+             * @return path of the help
+             */
+            function getHelpPath(item) {
+                // Get from help id
+                var myId = _getHelpId(item || _currentItem);
+                if (myId) {
+                    var lang = $translate.use();
+                    // load content
+                    return 'resources/helps/' + myId + '-' + lang + '.json';
+                }
 
-		return null;
-	}
+                return null;
+            }
 
-	/**
-	 * Check if there exist a help on item
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 * @return path if the item if exist help or false
-	 */
-	function hasHelp(item) {
-		return getHelpPath(item);
-	}
+            /**
+             * Check if there exist a help on item
+             * 
+             * @memberof $help
+             * @params item {Object} an item to show help for
+             * @return path if the item if exist help or false
+             */
+            function hasHelp(item) {
+                return !!_getHelpId(item);
+            }
 
-	/**
-	 * Display help for an item
-	 * 
-	 * This function change current item automatically and display help for it.
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 */
-	function openHelp(item) {
-		if (!hasHelp(item)) {
-			return;
-		}
-		if (_currentItem === item) {
-			$rootScope.showHelp = !$rootScope.showHelp;
-			return;
-		}
-		setCurrentItem(item);
-		$rootScope.showHelp = true;
-	}
+            /**
+             * Display help for an item
+             * 
+             * This function change current item automatically and display help for it.
+             * 
+             * @memberof $help
+             * @params item {Object} an item to show help for
+             */
+            function openHelp(item) {
+                if (!hasHelp(item)) {
+                    return;
+                }
+                if (_currentItem === item) {
+                    $rootScope.showHelp = !$rootScope.showHelp;
+                    return;
+                }
+                setCurrentItem(item);
+                $rootScope.showHelp = true;
+            }
 
-	/*
-	 * Service structure
-	 */
-	return {
-		tip : tip,
-		tips : tips,
-                
-		currentItem : currentItem,
-		setCurrentItem : setCurrentItem,
-		openHelp : openHelp,
-		hasHelp : hasHelp,
-		getHelpPath : getHelpPath
-	};
-});
+            /*
+             * Service structure
+             */
+            return {
+                tip: tip,
+                tips: tips,
+
+                currentItem: currentItem,
+                setCurrentItem: setCurrentItem,
+                openHelp: openHelp,
+                hasHelp: hasHelp,
+                getHelpPath: getHelpPath
+            };
+        });
 
   /*
    * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6692,7 +6639,7 @@ angular.module('mblowfish-core')
                   if (!$rootScope.app.user.owner) {
                       return $q.reject('not allowed');
                   }
-                  if (!$rootScope.app.config.local.languages) {
+                  if (!$rootScope.app.config.languages) {
                       $rootScope.app.config.languages = [];
                   } else {
                       var languages = $rootScope.app.config.languages;
@@ -8371,17 +8318,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   'use strict';
 
   $templateCache.put('views/dialogs/mb-alert.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-confirm.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-prompt.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
@@ -8406,7 +8353,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir==='rtl', 'mb-ltr-direction': app.dir!=='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.captcha.engine==='recaptcha' && app.captcha.recaptcha.key\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme || app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir==='rtl', 'mb-ltr-direction': app.dir!=='rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h4 translate>{{app.state.stage}}</h4> <p translate>{{app.state.message}}</p> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.options['captcha.engine']==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=\"app.options['captcha.engine.recaptcha.key']\" lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> </div> </div> </div>"
   );
 
 
@@ -8536,7 +8483,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading flex> <wb-content wb-model=helpContent></wb-content> </md-content>"
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent></wb-group> </md-content>"
   );
 
 
@@ -8571,7 +8518,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-login.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=login(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are loged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> {{'back' | translate}} </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> {{'account' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=login(credit) layout=column layout-margin> <md-input-container> <label translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.options['captcha.engine']==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=\"app.options['captcha.engine.recaptcha.key']\" lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate=\"\">you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> {{'back' | translate}} </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> {{'account' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 
