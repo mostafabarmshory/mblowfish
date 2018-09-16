@@ -37,7 +37,7 @@ angular.module('mblowfish-core')
 	/**
 	 * Post link 
 	 */
-	function postLink($scope, $element, $attr) {
+	function postLink($scope) {
 		// maso, 2017: Get user menu
 		$scope.menu = $actions.group('mb.user');
 		$scope.logout = $app.logout;

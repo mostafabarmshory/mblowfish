@@ -30,7 +30,7 @@ angular.module('mblowfish-core')
  * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller, $q) {
 	angular.extend(this, $controller('MbItemsCtrl', {
 		$scope: $scope
 	}));
@@ -53,12 +53,8 @@ angular.module('mblowfish-core')
 	this.getItem = function(id){
 		return $usr.getAccount(id);
 	};
-//	// Add item
-//	this.addItem = function(){
-//		return $usr.newAccount(item);
-//	};
 	// delete account
 	this.deleteItem = function(item){
 		return $usr.deleteAccount(item.id);
 	};
-})
+});

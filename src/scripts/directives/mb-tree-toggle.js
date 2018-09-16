@@ -33,125 +33,126 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbTreeToggle', function($timeout, $animateCss, $mdSidenav, $mdMedia, $rootScope) {
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			mbSection: '='
-		},
-		templateUrl: 'views/directives/mb-tree-toggle.html',
-		link: function($scope, $element, $attr, $ctrl) {
-			var _el_ul = $element.find('ul');
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            mbSection: '='
+        },
+        templateUrl: 'views/directives/mb-tree-toggle.html',
+        link: function($scope, $element, $attr, $ctrl) {
+            var _el_ul = $element.find('ul');
 
-			var getTargetHeight = function() {
-				var _targetHeight;
+            var getTargetHeight = function() {
+                var _targetHeight;
 
-				_el_ul.addClass('no-transition');
-				_el_ul.css('height', '');
+                _el_ul.addClass('no-transition');
+                _el_ul.css('height', '');
 
-				_targetHeight = _el_ul.prop('clientHeight');
+                _targetHeight = _el_ul.prop('clientHeight');
 
-				_el_ul.css('height', 0);
-				_el_ul.removeClass('no-transition');
+                _el_ul.css('height', 0);
+                _el_ul.removeClass('no-transition');
 
-				return _targetHeight;
-			};
+                return _targetHeight;
+            };
 
-			if (!_el_ul) {
-				return console.warn('mb-tree: `menuToggle` cannot find ul element');
-			}
+            if (!_el_ul) {
+//              return console.warn('mb-tree: `menuToggle` cannot find ul element');
+                return;
+            }
 
-			
-			
-			function toggleMenu(open) {
-//				if (!$mdMedia('gt-sm') && !$mdSidenav('left').isOpen() && open) {
-//				return;
-//				}
-				$animateCss(_el_ul, {
-					from: {
-						height: open ? 0 : (getTargetHeight() + 'px')
-					},
-					to: {
-						height: open ? (getTargetHeight() + 'px') : 0
-					},
-					duration: 0.3
-				}).start();
-			}
 
-			$scope.$watch(function() {
-				return $ctrl.isOpen($scope.mbSection);
-			}, function(open) {
-				$timeout(function(){
-					toggleMenu(open);
-				}, 0, false);
-			});
-		},
-		controller : function($scope) {
-			// Current section
-			var openedSection = null;
-			
-			/**
-			 * Check if the opened section is the section.
-			 */
-			function isOpen(section) {
-				return openedSection === section;
-			}
 
-			/**
-			 * Toggle opened section
-			 * 
-			 * We just put the section in the tree openedSection and update all
-			 * UI.
-			 */
-			function toggle(section) {
+            function toggleMenu(open) {
+//              if (!$mdMedia('gt-sm') && !$mdSidenav('left').isOpen() && open) {
+//              return;
+//              }
+                $animateCss(_el_ul, {
+                    from: {
+                        height: open ? 0 : (getTargetHeight() + 'px')
+                    },
+                    to: {
+                        height: open ? (getTargetHeight() + 'px') : 0
+                    },
+                    duration: 0.3
+                }).start();
+            }
+
+            $scope.$watch(function() {
+                return $ctrl.isOpen($scope.mbSection);
+            }, function(open) {
+                $timeout(function(){
+                    toggleMenu(open);
+                }, 0, false);
+            });
+        },
+        controller : function($scope) {
+            // Current section
+            var openedSection = null;
+
+            /**
+             * Check if the opened section is the section.
+             */
+            function isOpen(section) {
+                return openedSection === section;
+            }
+
+            /**
+             * Toggle opened section
+             * 
+             * We just put the section in the tree openedSection and update all
+             * UI.
+             */
+            function toggle(section) {
                 openedSection = (openedSection === section) ? null : section;
-			}
+            }
 
-			/**
-			 * Checks if the section is visible
-			 */
-			function isVisible(section){
-				if(!section){
-					for(var i = 0; i < $scope.mbSection.sections.length; i++){
-						if(!$rootScope.$eval($scope.mbSection.sections[i].hidden)){
-							return true;
-						}
-					}
-					return false;
-				}
-				if(section.hidden){
-					return !$rootScope.$eval(section.hidden);
-				}
-				return true;
-			}
+            /**
+             * Checks if the section is visible
+             */
+            function isVisible(section){
+                if(!section){
+                    for(var i = 0; i < $scope.mbSection.sections.length; i++){
+                        if(!$rootScope.$eval($scope.mbSection.sections[i].hidden)){
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                if(section.hidden){
+                    return !$rootScope.$eval(section.hidden);
+                }
+                return true;
+            }
 
-			/*
-			 * Init scope
-			 */
-			if(angular.isFunction($scope.$parent.isOpen)){
-				$scope.isOpen = $scope.$parent.isOpen;
-				$scope.toggle = $scope.$parent.toggle;
-			} else {
-				$scope.isOpen = isOpen;
-				$scope.toggle = toggle;
-			}
-			
-			this.isOpen = $scope.isOpen;
-			
-			$scope.isVisible = isVisible;
+            /*
+             * Init scope
+             */
+            if(angular.isFunction($scope.$parent.isOpen)){
+                $scope.isOpen = $scope.$parent.isOpen;
+                $scope.toggle = $scope.$parent.toggle;
+            } else {
+                $scope.isOpen = isOpen;
+                $scope.toggle = toggle;
+            }
 
-//			$scope.$on('SS_SIDENAV_FORCE_SELECTED_ITEM', function (event, args) {
-//			if ($scope.section && $scope.section.pages) {
-//			for (var i = $scope.section.pages.length - 1; i >= 0; i--) {
-//			var _e = $scope.section.pages[i];
-			//
-//			if (args === _e.id) {
-//			$scope.toggle($scope.section);
-//			$state.go(_e.state);
-//			}
-//			};
-//			}
-//			});
-		}
-	};
+            this.isOpen = $scope.isOpen;
+
+            $scope.isVisible = isVisible;
+
+//          $scope.$on('SS_SIDENAV_FORCE_SELECTED_ITEM', function (event, args) {
+//          if ($scope.section && $scope.section.pages) {
+//          for (var i = $scope.section.pages.length - 1; i >= 0; i--) {
+//          var _e = $scope.section.pages[i];
+            //
+//          if (args === _e.id) {
+//          $scope.toggle($scope.section);
+//          $state.go(_e.state);
+//          }
+//          };
+//          }
+//          });
+        }
+    };
 });

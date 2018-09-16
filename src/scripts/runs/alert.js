@@ -36,7 +36,7 @@ angular.module('mblowfish-core')
      */
     window.openHelp = function(item){
         return $help.openHelp(item);
-    }
+    };
 
     // Hadi 1396-12-22: کد زیر توی amh بود.
     window.alert = $notification.alert;

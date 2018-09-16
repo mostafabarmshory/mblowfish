@@ -10,25 +10,25 @@ angular.module('mblowfish-core')
  */
 .controller('AmdDashboardCtrl', function($scope, $navigator, $app) {
     function toogleEditable(){
-    	$scope.editable = !$scope.editable;
+        $scope.editable = !$scope.editable;
     }
-    
+
     $navigator.scopePath($scope)//
-	.add({
-		title: 'Dashboard',
-		link: 'dashboard'
-	});
-    
+    .add({
+        title: 'Dashboard',
+        link: 'dashboard'
+    });
+
     $app.scopeMenu($scope) //
-	.add({ // edit menu
-		priority : 15,
-		icon : 'edit',
-		label : 'Edit content',
-		tooltip : 'Toggle edit mode of the current contetn',
-		visible : function(){
-			return $scope.app.user.owner;
-		},
-		action : toogleEditable
-	});//
-    
+    .add({ // edit menu
+        priority : 15,
+        icon : 'edit',
+        label : 'Edit content',
+        tooltip : 'Toggle edit mode of the current contetn',
+        visible : function(){
+            return $scope.app.user.owner;
+        },
+        action : toogleEditable
+    });//
+
 });

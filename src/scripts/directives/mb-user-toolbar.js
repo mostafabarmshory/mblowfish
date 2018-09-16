@@ -36,11 +36,8 @@ angular.module('mblowfish-core')
 	return {
 		restrict: 'E',
 		replace: true,
-//		scope: {
-//			amdActions: '='
-//		},
 		templateUrl: 'views/directives/mb-user-toolbar.html',
-		link: function($scope, $element, $attr, $ctrl) {
+		link: function($scope) {
 			$scope.menu = $actions.group('mb.user');
 		},
 		controller : 'MbAccountCtrl'

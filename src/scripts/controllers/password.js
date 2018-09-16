@@ -36,68 +36,68 @@ angular.module('mblowfish-core')
  */
 .controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
 
-	var ctrl = {
-			sendingToken: false,
-			sendTokenState: null,
-			changingPass: false,
-			changingPassState: null
-	};
+    var ctrl = {
+            sendingToken: false,
+            sendTokenState: null,
+            changingPass: false,
+            changingPassState: null
+    };
 
-	$scope.data = {};
-	$scope.data.token = $routeParams.token;
+    $scope.data = {};
+    $scope.data.token = $routeParams.token;
 
-	function sendToken(data, form) {
-		if(ctrl.sendingToken){
-			return false;
-		}
-		ctrl.sendingToken = true;
-		data.callback = $location.absUrl() + '/token/{{token}}';
-		return $usr.resetPassword(data)//
-		.then(function() {
-			ctrl.sendTokenState = 'success';
-			$scope.sendingTokenMessage = null;
-		}, function(error){
-			ctrl.sendTokenState = 'fail';
-			$scope.sendingTokenMessage = $errorHandler.handleError(error, form);
-		})//
-		.finally(function(){
-			ctrl.sendingToken = false;
-		});
-	};
+    function sendToken(data, form) {
+        if(ctrl.sendingToken){
+            return false;
+        }
+        ctrl.sendingToken = true;
+        data.callback = $location.absUrl() + '/token/{{token}}';
+        return $usr.resetPassword(data)//
+        .then(function() {
+            ctrl.sendTokenState = 'success';
+            $scope.sendingTokenMessage = null;
+        }, function(error){
+            ctrl.sendTokenState = 'fail';
+            $scope.sendingTokenMessage = $errorHandler.handleError(error, form);
+        })//
+        .finally(function(){
+            ctrl.sendingToken = false;
+        });
+    }
 
-	function changePassword(param, form) {
-		if(ctrl.changingPass){
-			return false;
-		}
-		ctrl.changingPass = true;
-		var data = {
-				'token' : param.token,
-				'new' : param.password
-		};
-		return $usr.resetPassword(data)//
-		.then(function() {
-			ctrl.changePassState = 'success';
-			$scope.changePassMessage = null;
-			$navigator.openView('users/login');
-		}, function(error){
-			ctrl.changePassState = 'fail';
-        	$scope.changePassMessage = $errorHandler.handleError(error, form);
-		})//
-		.finally(function(){
-			ctrl.changingPass = false;
-		});
-	};
+    function changePassword(param, form) {
+        if(ctrl.changingPass){
+            return false;
+        }
+        ctrl.changingPass = true;
+        var data = {
+                'token' : param.token,
+                'new' : param.password
+        };
+        return $usr.resetPassword(data)//
+        .then(function() {
+            ctrl.changePassState = 'success';
+            $scope.changePassMessage = null;
+            $navigator.openView('users/login');
+        }, function(error){
+            ctrl.changePassState = 'fail';
+            $scope.changePassMessage = $errorHandler.handleError(error, form);
+        })//
+        .finally(function(){
+            ctrl.changingPass = false;
+        });
+    }
 
-	function back() {
-		$window.history.back();
-	}
+    function back() {
+        $window.history.back();
+    }
 
-	$scope.ctrl = ctrl;
+    $scope.ctrl = ctrl;
 
-	$scope.sendToken = sendToken;
-	$scope.changePassword = changePassword;
+    $scope.sendToken = sendToken;
+    $scope.changePassword = changePassword;
 
-	$scope.cancel = back;
+    $scope.cancel = back;
 
 });
 
