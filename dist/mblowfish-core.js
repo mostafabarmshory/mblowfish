@@ -640,7 +640,7 @@ angular.module('mblowfish-core')
  * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller, $q) {
 	angular.extend(this, $controller('MbItemsCtrl', {
 		$scope: $scope
 	}));
@@ -663,15 +663,11 @@ angular.module('mblowfish-core')
 	this.getItem = function(id){
 		return $usr.getAccount(id);
 	};
-//	// Add item
-//	this.addItem = function(){
-//		return $usr.newAccount(item);
-//	};
 	// delete account
 	this.deleteItem = function(item){
 		return $usr.deleteAccount(item.id);
 	};
-})
+});
 
 'use strict';
 
@@ -685,27 +681,27 @@ angular.module('mblowfish-core')
  */
 .controller('AmdDashboardCtrl', function($scope, $navigator, $app) {
     function toogleEditable(){
-    	$scope.editable = !$scope.editable;
+        $scope.editable = !$scope.editable;
     }
-    
+
     $navigator.scopePath($scope)//
-	.add({
-		title: 'Dashboard',
-		link: 'dashboard'
-	});
-    
+    .add({
+        title: 'Dashboard',
+        link: 'dashboard'
+    });
+
     $app.scopeMenu($scope) //
-	.add({ // edit menu
-		priority : 15,
-		icon : 'edit',
-		label : 'Edit content',
-		tooltip : 'Toggle edit mode of the current contetn',
-		visible : function(){
-			return $scope.app.user.owner;
-		},
-		action : toogleEditable
-	});//
-    
+    .add({ // edit menu
+        priority : 15,
+        icon : 'edit',
+        label : 'Edit content',
+        tooltip : 'Toggle edit mode of the current contetn',
+        visible : function(){
+            return $scope.app.user.owner;
+        },
+        action : toogleEditable
+    });//
+
 });
 
 /*
@@ -861,13 +857,13 @@ angular.module('mblowfish-core')
             }
         });
 });
-// TODO: should be moved to mblowfish-core
+//TODO: should be moved to mblowfish-core
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -876,7 +872,7 @@ angular.module('mblowfish-core')
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -913,178 +909,183 @@ angular.module('mblowfish-core')
  */
 .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $routeParams) {
 
-	/*
-	 * ID of the stepper
-	 */
-	var _stepper_id = 'setting-stepper';
-	
-	/**
-	 * Loads settings with the index
-	 * 
-	 * @memberof MbInitialCtrl
-	 * @param {integer}
-	 *            index of the setting
-	 */
-	function goToStep(index){
-		$mdStepper(_stepper_id)//
-			.goto(index);
-	}
+    /*
+     * ID of the stepper
+     */
+    var _stepper_id = 'setting-stepper';
 
-	/**
-	 * Loads the next setting page
-	 * 
-	 * @memberof MbInitialCtrl
-	 */
-	function nextStep(){
-		$mdStepper(_stepper_id)//
-			.next();
-	}
+    /**
+     * Loads settings with the index
+     * 
+     * @memberof MbInitialCtrl
+     * @param {integer}
+     *            index of the setting
+     */
+    function goToStep(index){
+        $mdStepper(_stepper_id)//
+        .goto(index);
+    }
 
-	/**
-	 * Loads the previous setting page
-	 * 
-	 * @memberof MbInitialCtrl
-	 */
-	function prevStep(){			
-		$mdStepper(_stepper_id)//
-			.back();
-	}
-	
-	/*
-	 * Set application is initialized
-	 */
-	function _setInitialized(flag){
-		$rootScope.app.config.is_initialized = true;
-	}
-	
-	/*
-	 * Checks if it is initialized
-	 * 
-	 * NOTE: maso, 2018: check runs/initial.js for changes
-	 */
-	function _isInitialized(){
-		return !$routeParams.force && $rootScope.app.config.is_initialized;
-	}
+    /**
+     * Loads the next setting page
+     * 
+     * @memberof MbInitialCtrl
+     */
+    function nextStep(){
+        $mdStepper(_stepper_id)//
+        .next();
+    }
 
-	/*
-	 * Go to the main page
-	 */
-	function _redirectToMain(){
-		 $window.location =  $window.location.href.replace(/initialization$/mg, '');
-	}
-	
-	/*
-	 * Loads internal pages and settings
-	 */
-	function _initialization(){
-		// Configure language page. It will be added as first page of setting
-		// stepper
-		var langPage = {
-			id: 'initial-language',
-			title: 'Language',
-			templateUrl : 'views/preferences/mb-language.html',
-			controller : 'MbLanguageCtrl',
-			description: 'Select default language of web application.',
-			icon: 'language',
-			priority: 'first',
-			required: true
-		};
-		// Configure welcome page. It will be added as one of the first pages of
-		// setting stepper
-		var inlineTemplate = '<wb-content wb-model="model" flex style="overflow: auto;"></wb-content>';
-		var welcomePage = {
-				id: 'welcome',
-				title: 'Welcome',
-				template : inlineTemplate,
-				/*
-				 * @ngInject
-				 */
-				controller : function($scope, $http, $translate) {
-					// TODO: hadi: Use $language to get current Language
-					$http.get('resources/welcome/'+$translate.use()+'.json')//
-					.then(function(res){
-						$scope.model = res.data || {};
-					});
-				},
-				description: 'Welcome. Please login to continue.',
-				icon: 'accessibility',
-				priority: 'first',
-				required: true
-		};
-		var congratulatePage = {
-			id: 'congratulate',
-			title: ':)',
-			description: 'Congratulation. Your site is ready.',
-			template : inlineTemplate,
-			/*
-			 * @ngInject
-			 */
-			controller : function($scope, $http, $translate) {
-				// TODO: hadi: Use $language to get current Language
-				$http.get('resources/congratulate/'+$translate.use()+'.json')//
-				.then(function(res){
-					$scope.model = res.data || {};
-				});
-				_setInitialized(true);
-			},
-			icon: 'favorite',
-			priority: 'last',
-			required: true
-		};
-		$preferences.newPage(langPage);
-		$preferences.newPage(welcomePage);
-		$preferences.newPage(congratulatePage);
-		// Load settings
-		$preferences.pages()//
-		.then(function(settingItems) {
-			var steps = [];
-			settingItems.items.forEach(function(settingItem){
-				if(settingItem.required){
-					steps.push(settingItem);
-				}
-			});
-			$scope.steps = steps;
-		});
-		
-		// add watch on setting stepper current step.
-		$scope.$watch(function(){
-			var current = $mdStepper(_stepper_id);
-			if(current){
-				return current.currentStep;
-			}
-			return -1;
-		}, function(index){
-			if(index >= 0 && $scope.steps && $scope.steps.length){
-				$scope.currentStep = $scope.steps[index];
-			}
-		});
-	}
+    /**
+     * Loads the previous setting page
+     * 
+     * @memberof MbInitialCtrl
+     */
+    function prevStep(){			
+        $mdStepper(_stepper_id)//
+        .back();
+    }
 
-	
-	/*
-	 * Watch application state
-	 */
-	var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
-		switch (status) {
-		case "loading":
-		case "fail":
-		case "error":
-			// Wait it for ready
-			break;
-		case "ready":
-			// remove watch
-			removeApplicationStateWatch();
-			if(_isInitialized()){
-				_redirectToMain();
-			} else {
-				_initialization();
-			}
-			break;
-		default:
-			break;
-		}
-	});
+    /*
+     * Set application is initialized
+     */
+    function _setInitialized(/*flag*/){
+        $rootScope.app.config.is_initialized = true;
+    }
 
+    /*
+     * Checks if it is initialized
+     * 
+     * NOTE: maso, 2018: check runs/initial.js for changes
+     */
+    function _isInitialized(){
+        return !$routeParams.force && $rootScope.app.config.is_initialized;
+    }
+
+    /*
+     * Go to the main page
+     */
+    function _redirectToMain(){
+        $window.location =  $window.location.href.replace(/initialization$/mg, '');
+    }
+
+    /*
+     * Loads internal pages and settings
+     */
+    function _initialization(){
+        // Configure language page. It will be added as first page of setting
+        // stepper
+        var langPage = {
+                id: 'initial-language',
+                title: 'Language',
+                templateUrl : 'views/preferences/mb-language.html',
+                controller : 'MbLanguageCtrl',
+                description: 'Select default language of web application.',
+                icon: 'language',
+                priority: 'first',
+                required: true
+        };
+        // Configure welcome page. It will be added as one of the first pages of
+        // setting stepper
+        var inlineTemplate = '<wb-content wb-model=\'model\' flex style=\'overflow: auto;\'></wb-content>';
+        var welcomePage = {
+                id: 'welcome',
+                title: 'Welcome',
+                template : inlineTemplate,
+                /*
+                 * @ngInject
+                 */
+                controller : function($scope, $http, $translate) {
+                    // TODO: hadi: Use $language to get current Language
+                    $http.get('resources/welcome/'+$translate.use()+'.json')//
+                    .then(function(res){
+                        $scope.model = res.data || {};
+                    });
+                },
+                description: 'Welcome. Please login to continue.',
+                icon: 'accessibility',
+                priority: 'first',
+                required: true
+        };
+        var congratulatePage = {
+                id: 'congratulate',
+                title: ':)',
+                description: 'Congratulation. Your site is ready.',
+                template : inlineTemplate,
+                /*
+                 * @ngInject
+                 */
+                controller : function($scope, $http, $translate) {
+                    // TODO: hadi: Use $language to get current Language
+                    $http.get('resources/congratulate/'+$translate.use()+'.json')//
+                    .then(function(res){
+                        $scope.model = res.data || {};
+                    });
+                    _setInitialized(true);
+                },
+                icon: 'favorite',
+                priority: 'last',
+                required: true
+        };
+        $preferences.newPage(langPage);
+        $preferences.newPage(welcomePage);
+        $preferences.newPage(congratulatePage);
+        // Load settings
+        $preferences.pages()//
+        .then(function(settingItems) {
+            var steps = [];
+            settingItems.items.forEach(function(settingItem){
+                if(settingItem.required){
+                    steps.push(settingItem);
+                }
+            });
+            $scope.steps = steps;
+        });
+
+        // add watch on setting stepper current step.
+        $scope.$watch(function(){
+            var current = $mdStepper(_stepper_id);
+            if(current){
+                return current.currentStep;
+            }
+            return -1;
+        }, function(index){
+            if(index >= 0 && $scope.steps && $scope.steps.length){
+                $scope.currentStep = $scope.steps[index];
+            }
+        });
+    }
+
+    /*
+     * Watch application state
+     */
+    var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
+        switch (status) {
+        case 'loading':
+        case 'fail':
+        case 'error':
+            // Wait it for ready
+            break;
+        case 'ready':
+            // remove watch
+            removeApplicationStateWatch();
+            if(_isInitialized()){
+                _redirectToMain();
+            } else {
+                _initialization();
+            }
+            break;
+        default:
+            break;
+        }
+    });
+    
+
+
+    this.goToStep = goToStep;
+    this.nextStep = nextStep;
+    this.nextStep = nextStep;
+    this.prevStep = prevStep;
 });
 
 /*
@@ -1128,7 +1129,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
     this.state = STATE_IDEAL;
-    
+
 
     /**
      * List of all loaded items
@@ -1181,7 +1182,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
-    
+
     /**
      * Reload the controller
      * 
@@ -1198,13 +1199,13 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     };
 
     this.__init = function(){
-    	this.state=STATE_INIT;
+        this.state=STATE_INIT;
         delete this.requests;
         this.items = [];
         // start the controller
         this.state=STATE_IDEAL;
-    }
-    
+    };
+
     /**
      * Loads next page
      * 
@@ -1230,7 +1231,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             if(!this.lastResponse.hasMore()){
                 return $q.resolve();
             }
-            this.queryParameter.setPage(lastResponse.next());
+            this.queryParameter.setPage(this.lastResponse.next());
         }
 
         // Get new items
@@ -1300,6 +1301,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         {
             // TODO: maso, 2018: crate action from reload
         }
+        return actions;
     };
 
     /**
@@ -1354,7 +1356,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @param queryParameter to apply search
      * @return promiss to get items
      */
-    this.getItems = function(queryParameter){
+    this.getItems = function(/*queryParameter*/){
 
     };
 
@@ -1406,7 +1408,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         ctrl.reload();
     }, true);
     this.__init();
-    
+
 }
 
 /*
@@ -1762,7 +1764,7 @@ angular.module('mblowfish-core')
 		/* 
 		 * Push navigation states
 		 */
-		angular.forEach($route.routes, function(config, route) {
+		angular.forEach($route.routes, function(config/*, route*/) {
 			if (config.navigate) {
 				// init conifg
 				config.type = 'link';
@@ -1885,68 +1887,68 @@ angular.module('mblowfish-core')
  */
 .controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
 
-	var ctrl = {
-			sendingToken: false,
-			sendTokenState: null,
-			changingPass: false,
-			changingPassState: null
-	};
+    var ctrl = {
+            sendingToken: false,
+            sendTokenState: null,
+            changingPass: false,
+            changingPassState: null
+    };
 
-	$scope.data = {};
-	$scope.data.token = $routeParams.token;
+    $scope.data = {};
+    $scope.data.token = $routeParams.token;
 
-	function sendToken(data, form) {
-		if(ctrl.sendingToken){
-			return false;
-		}
-		ctrl.sendingToken = true;
-		data.callback = $location.absUrl() + '/token/{{token}}';
-		return $usr.resetPassword(data)//
-		.then(function() {
-			ctrl.sendTokenState = 'success';
-			$scope.sendingTokenMessage = null;
-		}, function(error){
-			ctrl.sendTokenState = 'fail';
-			$scope.sendingTokenMessage = $errorHandler.handleError(error, form);
-		})//
-		.finally(function(){
-			ctrl.sendingToken = false;
-		});
-	};
+    function sendToken(data, form) {
+        if(ctrl.sendingToken){
+            return false;
+        }
+        ctrl.sendingToken = true;
+        data.callback = $location.absUrl() + '/token/{{token}}';
+        return $usr.resetPassword(data)//
+        .then(function() {
+            ctrl.sendTokenState = 'success';
+            $scope.sendingTokenMessage = null;
+        }, function(error){
+            ctrl.sendTokenState = 'fail';
+            $scope.sendingTokenMessage = $errorHandler.handleError(error, form);
+        })//
+        .finally(function(){
+            ctrl.sendingToken = false;
+        });
+    }
 
-	function changePassword(param, form) {
-		if(ctrl.changingPass){
-			return false;
-		}
-		ctrl.changingPass = true;
-		var data = {
-				'token' : param.token,
-				'new' : param.password
-		};
-		return $usr.resetPassword(data)//
-		.then(function() {
-			ctrl.changePassState = 'success';
-			$scope.changePassMessage = null;
-			$navigator.openView('users/login');
-		}, function(error){
-			ctrl.changePassState = 'fail';
-        	$scope.changePassMessage = $errorHandler.handleError(error, form);
-		})//
-		.finally(function(){
-			ctrl.changingPass = false;
-		});
-	};
+    function changePassword(param, form) {
+        if(ctrl.changingPass){
+            return false;
+        }
+        ctrl.changingPass = true;
+        var data = {
+                'token' : param.token,
+                'new' : param.password
+        };
+        return $usr.resetPassword(data)//
+        .then(function() {
+            ctrl.changePassState = 'success';
+            $scope.changePassMessage = null;
+            $navigator.openView('users/login');
+        }, function(error){
+            ctrl.changePassState = 'fail';
+            $scope.changePassMessage = $errorHandler.handleError(error, form);
+        })//
+        .finally(function(){
+            ctrl.changingPass = false;
+        });
+    }
 
-	function back() {
-		$window.history.back();
-	}
+    function back() {
+        $window.history.back();
+    }
 
-	$scope.ctrl = ctrl;
+    $scope.ctrl = ctrl;
 
-	$scope.sendToken = sendToken;
-	$scope.changePassword = changePassword;
+    $scope.sendToken = sendToken;
+    $scope.changePassword = changePassword;
 
-	$scope.cancel = back;
+    $scope.cancel = back;
 
 });
 
@@ -2061,108 +2063,108 @@ angular.module('mblowfish-core')
 	$scope.openPreference = openPreference;
 });
 
-  /*
-   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-   * 
-   * Permission is hereby granted, free of charge, to any person obtaining a copy
-   * of this software and associated documentation files (the "Software"), to deal
-   * in the Software without restriction, including without limitation the rights
-   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   * copies of the Software, and to permit persons to whom the Software is
-   * furnished to do so, subject to the following conditions:
-   * 
-   * The above copyright notice and this permission notice shall be included in all
-   * copies or substantial portions of the Software.
-   * 
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   * SOFTWARE.
-   */
-  'use strict';
-  angular.module('mblowfish-core')
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
 
-          /**
-           * @ngdoc Controllers
-           * @name MbProfileCtrl
-           * @description  Manages profile of a user
-           * 
-           */
-          .controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, $q) {
+/**
+ * @ngdoc Controllers
+ * @name MbProfileCtrl
+ * @description  Manages profile of a user
+ * 
+ */
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window) {
 
-              var ctrl = {
-                  user: null,
-                  profile: null
-              };
+    var ctrl = {
+            user: null,
+            profile: null
+    };
 
-              /**
-               * Loads user data
-               * @returns
-               */
-              function loadUser() {
-                  ctrl.user = $rootScope.app.user.current;//
-                  if (!ctrl.user) {
-                      alert($translate.instant('Fail to load user.'));
-                  } else {
-                      loadProfile(ctrl.user);
-                  }
-              }
+    /**
+     * Loads user data
+     * @returns
+     */
+    function loadUser() {
+        ctrl.user = $rootScope.app.user.current;//
+        if (!ctrl.user) {
+            alert($translate.instant('Fail to load user.'));
+        } else {
+            loadProfile(ctrl.user);
+        }
+    }
 
-              function loadProfile(usr) {
-                  if (ctrl.loadinProfile) {
-                      return;
-                  }
-                  ctrl.loadingProfile = true;
-                  return usr.getProfiles()//
-                          .then(function (profile) {
-                              ctrl.profile = profile;
-                              return profile;
-                          }, function () {
-                              alert($translate.instant('Fial to load profile.'));
-                          })//
-                          .finally(function () {
-                              ctrl.loadingProfile = false;
-                          });
-              }
+    function loadProfile(usr) {
+        if (ctrl.loadinProfile) {
+            return;
+        }
+        ctrl.loadingProfile = true;
+        return usr.getProfiles()//
+        .then(function (profile) {
+            ctrl.profile = profile;
+            return profile;
+        }, function () {
+            alert($translate.instant('Fial to load profile.'));
+        })//
+        .finally(function () {
+            ctrl.loadingProfile = false;
+        });
+    }
 
-              /**
-               * Save current user
-               * 
-               * @returns
-               */
-              function save() {
-                  if (ctrl.savingProfile) {
-                      return;
-                  }
-                  ctrl.savingProfile = true;
-                  return ctrl.profile.update()//
-                          .then(function () {
-                              toast($translate.instant('Save is successfull.'));
-                          }, function () {
-                              alert($translate.instant('Fail to save item.'));
-                          })//
-                          .finally(function () {
-                              ctrl.savingProfile = false;
-                          });
-              }
+    /**
+     * Save current user
+     * 
+     * @returns
+     */
+    function save() {
+        if (ctrl.savingProfile) {
+            return;
+        }
+        ctrl.savingProfile = true;
+        return ctrl.profile.update()//
+        .then(function () {
+            toast($translate.instant('Save is successfull.'));
+        }, function () {
+            alert($translate.instant('Fail to save item.'));
+        })//
+        .finally(function () {
+            ctrl.savingProfile = false;
+        });
+    }
 
-              function back() {
-                  $window.history.back();
-              }
-              
-              $scope.ctrl = ctrl;
-              $scope.load = loadUser;
-              $scope.reload = loadUser;
-              $scope.save = save;
-              $scope.back = back;
-              $scope.cancel = back;
+    function back() {
+        $window.history.back();
+    }
 
-              loadUser();
+    $scope.ctrl = ctrl;
+    $scope.load = loadUser;
+    $scope.reload = loadUser;
+    $scope.save = save;
+    $scope.back = back;
+    $scope.cancel = back;
 
-          });
+    loadUser();
+
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2411,7 +2413,7 @@ angular.module('mblowfish-core')
 .directive('mbBadge', function($mdTheming, $rootScope) {
 	
 	function __badge_toRGB(color){
-		var split = (color || '').split('-')
+		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
@@ -2436,14 +2438,14 @@ angular.module('mblowfish-core')
 				element.css(where, __badge_toRGB(color));
 			}
 		}
-		function getPosition(){
-				return {
-					top: element.prop('offsetTop'),
-					left: element.prop('offsetLeft'),
-					width: element.prop('offsetWidth'),
-					height: element.prop('offsetHeight')
-				};
-		}
+//		function getPosition(){
+//				return {
+//					top: element.prop('offsetTop'),
+//					left: element.prop('offsetLeft'),
+//					width: element.prop('offsetWidth'),
+//					height: element.prop('offsetHeight')
+//				};
+//		}
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
 		}, function(value){
@@ -2461,7 +2463,7 @@ angular.module('mblowfish-core')
 		replace: true,
 		transclude: true,
 		link: postLink,
-		template: function(element, attributes) {
+		template: function(/*element, attributes*/) {
 			return '<div class="mb-badge" ng-transclude></div>';
 		}
 	};
@@ -2472,7 +2474,7 @@ angular.module('mblowfish-core')
 
 	
 	function __badge_toRGB(color){
-		var split = (color || '').split('-')
+		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
@@ -2523,11 +2525,11 @@ angular.module('mblowfish-core')
 				'left' : value.left + value.width - 20 + offset + 'px',
 				'top' : value.top + value.height - 20 + offset + 'px'
 			});
-		};
+		}
 
-		function update () {
-			position(getPosition());
-		};
+//		function update () {
+//			position(getPosition());
+//		}
 		
 		badge.addClass('mb-badge');
 		badge.css('position', 'absolute');
@@ -2561,7 +2563,7 @@ angular.module('mblowfish-core')
 	return {
         priority: 100,
 		restrict: 'A',
-		link: postLink,
+		link: postLink
 	};
 });
 
@@ -2571,7 +2573,7 @@ angular.module('mblowfish-core')
  * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -2580,7 +2582,7 @@ angular.module('mblowfish-core')
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -2600,57 +2602,57 @@ angular.module('mblowfish-core')
  * to enablie captcha
  * 
  */
-.directive("mbCaptcha", function() {
+.directive('mbCaptcha', function() {
 
-	/**
-	 * Adding preloader.
-	 * 
-	 * @param scope
-	 * @param element
-	 * @param attr
-	 * @returns
-	 */
-	function postLink(scope, element, attrs, ctrls) {
-		var form=ctrls[0];
-		var ngModel=ctrls[1];
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @returns
+     */
+    function postLink(scope, element, attrs, ctrls) {
+        var form=ctrls[0];
+//        var ngModel=ctrls[1];
 
-		function validate(){
-			if(form){
-				form.$setValidity('captcha', scope.required === false ? null : Boolean(scope.response));
-			}
-		}
+        function validate(){
+            if(form){
+                form.$setValidity('captcha', scope.required === false ? null : Boolean(scope.response));
+            }
+        }
 
-		function destroy() {
-			if (form) {
-				// reset the validity of the form if we were removed
-				form.$setValidity('captcha', null);
-			}
-		}
-
-
-		if(form && angular.isDefined(attrs.required)){
-			scope.$watch('required', validate);
-		}
-		scope._response = null;
-		scope.$watch('_response', function(){
-			scope.response = scope._response;
-		});
-		scope.$watch('response', function(){
-			scope._response = scope.response;
-		});
+//        function destroy() {
+//            if (form) {
+//                // reset the validity of the form if we were removed
+//                form.$setValidity('captcha', null);
+//            }
+//        }
 
 
-	}
+        if(form && angular.isDefined(attrs.required)){
+            scope.$watch('required', validate);
+        }
+        scope._response = null;
+        scope.$watch('_response', function(){
+            scope.response = scope._response;
+        });
+        scope.$watch('response', function(){
+            scope._response = scope.response;
+        });
 
-	return {
-		restrict : 'E',
-		require: ['?^^form'],
-		templateUrl: 'views/directives/mb-captcha.html',
-		scope: {
-			response: '=?ngModel',
-		},
-		link: postLink
-	};
+
+    }
+
+    return {
+        restrict : 'E',
+        require: ['?^^form'],
+        templateUrl: 'views/directives/mb-captcha.html',
+        scope: {
+            response: '=?ngModel'
+        },
+        link: postLink
+    };
 });
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
@@ -2688,68 +2690,68 @@ angular.module('mblowfish-core')
  */
 .directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-	// **********************************************************
-	// Private Methods
-	// **********************************************************
-	function postLink(scope, element, attr, ctrls) {
-		scope.app = $rootScope.app;
-		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+    // **********************************************************
+    // Private Methods
+    // **********************************************************
+    function postLink(scope, element, attr, ctrls) {
+        scope.app = $rootScope.app;
+        var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-		function render() {
-		    if(!ngModelCtrl.$modelValue){
-		        scope.date = null;
-		        return;
-		    }
-			var date = moment //
-			.utc(ngModelCtrl.$modelValue) //
-			.local();
-			if (date.isValid()) {
-				scope.date = date;
-				return;
-			}
-			// TODO: maso, 2018: handle invalid date
-		}
+        function render() {
+            if(!ngModelCtrl.$modelValue){
+                scope.date = null;
+                return;
+            }
+            var date = moment //
+            .utc(ngModelCtrl.$modelValue) //
+            .local();
+            if (date.isValid()) {
+                scope.date = date;
+                return;
+            }
+            // TODO: maso, 2018: handle invalid date
+        }
 
-		function setValue() {
-		    if(!scope.date) {
-	            ngModelCtrl.$setViewValue(null);
-	            return;
-		    }
-			var date = moment(scope.date) //
-			.utc() //
-			.format('YYYY-MM-DD HH:mm:ss');
-			ngModelCtrl.$setViewValue(date);
-		}
+        function setValue() {
+            if(!scope.date) {
+                ngModelCtrl.$setViewValue(null);
+                return;
+            }
+            var date = moment(scope.date) //
+            .utc() //
+            .format('YYYY-MM-DD HH:mm:ss');
+            ngModelCtrl.$setViewValue(date);
+        }
 
-		ngModelCtrl.$render = render;
-		scope.$watch('date', setValue);
-	}
+        ngModelCtrl.$render = render;
+        scope.$watch('date', setValue);
+    }
 
 
-	return {
-		replace : false,
-		template : function(){
-			if($rootScope.app.calendar === 'Gregorian'){
-				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-			}
-			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-		},
-		restrict : 'E',
-		scope : {
-			minDate : '=mbMinDate',
-			maxDate : '=mbMaxDate',
-	        placeholder: '@mbPlaceholder',
-	        hideIcons: '@?mbHideIcons',
-			//		        currentView: '@mdCurrentView',
-			//		        dateFilter: '=mdDateFilter',
-			//		        isOpen: '=?mdIsOpen',
-			//		        debounceInterval: '=mdDebounceInterval',
-			//		        dateLocale: '=mdDateLocale'
-		},
-		require : [ 'ngModel' ],
-		priority : 210, // Run before ngAria
-		link : postLink
-	};
+    return {
+        replace : false,
+        template : function(){
+            if($rootScope.app.calendar === 'Gregorian'){
+                return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+            }
+            return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+        },
+        restrict : 'E',
+        scope : {
+            minDate : '=mbMinDate',
+            maxDate : '=mbMaxDate',
+            placeholder: '@mbPlaceholder',
+            hideIcons: '@?mbHideIcons'
+            //		        currentView: '@mdCurrentView',
+            //		        dateFilter: '=mdDateFilter',
+            //		        isOpen: '=?mdIsOpen',
+            //		        debounceInterval: '=mdDebounceInterval',
+            //		        dateLocale: '=mdDateLocale'
+        },
+        require : [ 'ngModel' ],
+        priority : 210, // Run before ngAria
+        link : postLink
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2805,10 +2807,9 @@ angular.module('mblowfish-core')
 	}
 
 
-	function link($scope, $element, $attr) {
+	function link($scope, $element) {
 		// Load pages in scope
 		function loadPage(index){
-			var widget = null;
 			var jobs = [];
 			var pages2 = [];
 
@@ -2832,7 +2833,7 @@ angular.module('mblowfish-core')
 					if (angular .isDefined(page.controller)) {
 						$controller(page.controller, {
 							$scope : scope,
-							$element : element,
+							$element : element
 						});
 					}
 					$compile(element)(scope);
@@ -2864,7 +2865,7 @@ angular.module('mblowfish-core')
 			mbTabs: '='
 		},
 		templateUrl: 'views/directives/mb-dynamic-tabs.html',
-		link: link,
+		link: link
 	};
 });
 
@@ -2898,57 +2899,57 @@ angular.module('mblowfish-core')
  * @name mb-error-messages
  * @description An error message display
  */
-.directive('mbErrorMessages', function($compile, $interpolate) {
+.directive('mbErrorMessages', function($compile) {
 
-	/*
-	 * Link function
-	 */
-	function postLink(scope, element){
-		
-		/**
-		 * Original element which replaced by this directive.
-		 */
-		var origin = null;
-		
-		scope.errorMessages = function(err){
-			if(!err) {
-				return;
-			}
-			var message = {};
-			message[err.status]= err.statusText;
-			message[err.data.code]= err.data.message;
-			return message;
-		};
-		
-		scope.$watch(function(){
-			return scope.mbErrorMessages;
-		}, function(value){	
-			if(value){
-				var tmplStr = 
-					'<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
-					'	<div ng-messages-include="views/mb-error-messages.html"></div>' +
-					'</div>';
-				var el = angular.element(tmplStr);
-				var cmplEl = $compile(el);
-				var myEl = cmplEl(scope);
-				origin = element.replaceWith(myEl);
-			} else if(origin){
-				element.replaceWith(origin);
-				origin = null;
-			}
-		});
-	}
+    /*
+     * Link function
+     */
+    function postLink(scope, element){
 
-	/*
-	 * Directive
-	 */
-	return {
-		restrict: 'A',
-		scope:{
-			mbErrorMessages : '='
-		},
-		link: postLink
-	};
+        /**
+         * Original element which replaced by this directive.
+         */
+        var origin = null;
+
+        scope.errorMessages = function(err){
+            if(!err) {
+                return;
+            }
+            var message = {};
+            message[err.status]= err.statusText;
+            message[err.data.code]= err.data.message;
+            return message;
+        };
+
+        scope.$watch(function(){
+            return scope.mbErrorMessages;
+        }, function(value){	
+            if(value){
+                var tmplStr = 
+                    '<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
+                    '	<div ng-messages-include="views/mb-error-messages.html"></div>' +
+                    '</div>';
+                var el = angular.element(tmplStr);
+                var cmplEl = $compile(el);
+                var myEl = cmplEl(scope);
+                origin = element.replaceWith(myEl);
+            } else if(origin){
+                element.replaceWith(origin);
+                origin = null;
+            }
+        });
+    }
+
+    /*
+     * Directive
+     */
+    return {
+        restrict: 'A',
+        scope:{
+            mbErrorMessages : '='
+        },
+        link: postLink
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3066,18 +3067,11 @@ angular.module('mblowfish-core')
  */
 .directive('mbNavigationBar' , function($actions, $navigator) {
 
-	return {
-		restrict : 'E',
-		replace: false,
-		templateUrl: 'views/directives/mb-navigation-bar.html',
-		link: postLink
-	};
 
 	/**
 	 * Init the bar
 	 */
-	function postLink(scope, element, attr) {
-		
+	function postLink(scope) {
 		scope.isVisible = function(menu){
 			// default value for visible is true
 			if(angular.isUndefined(menu.visible)){
@@ -3091,14 +3085,20 @@ angular.module('mblowfish-core')
 		
 		scope.goToHome = function(){
 			$navigator.openPage('');
-		}
+		};
 		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
 		 */
 		scope.pathMenu = $actions.group('navigationPathMenu');
-		
 	}
+	
+    return {
+        restrict : 'E',
+        replace: false,
+        templateUrl: 'views/directives/mb-navigation-bar.html',
+        link: postLink
+    };
 });
 
 /*
@@ -3267,7 +3267,6 @@ angular.module('mblowfish-core')
  */
 'use strict';
 
-
 angular.module('mblowfish-core')
 
 /**
@@ -3276,179 +3275,189 @@ angular.module('mblowfish-core')
  * @description Display a sidenave anchor
  * 
  */
-.directive('mbPanelSidenavAnchor', function($route, $sidenav, $rootScope, $mdSidenav,
-     $q, $wbUtil, $controller, $compile) {
+.directive('mbPanelSidenavAnchor', function ($route, $sidenav, $rootScope, $mdSidenav, $q,
+        $wbUtil, $controller, $compile) {
 
-	/*
-	 * Bank of sidnav elements. 
-	 */
-	var elementBank = angular.element('<div></div>');
-	
+    /*
+     * Bank of sidnav elements.
+     */
+    var elementBank = angular.element('<div></div>');
 
-	/*
-	 * Load page and create an element
-	 */
-	function _loadPage($scope, page, prefix, postfix) {
-		// 1- create scope
-		var childScope = $scope.$new(false, $scope);
-		childScope = Object.assign(childScope, {
-			app : $rootScope.app,
-			_page : page,
-			_visible : function() {
-				if (angular.isFunction(this._page.visible)) {
-					var v = this._page.visible(this);
-					if(v)
-						$mdSidenav(this._page.id).open();
-					else
-						$mdSidenav(this._page.id).close();
-					return v;
-				}
-				return true;
-			}
-		});
+    /*
+     * Load page and create an element
+     */
+    function _loadPage($scope, page, prefix, postfix) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope = Object.assign(childScope, {
+            app : $rootScope.app,
+            _page : page,
+            _visible : function () {
+                if (angular.isFunction(this._page.visible)) {
+                    var v = this._page.visible(this);
+                    if (v) {
+                        $mdSidenav(this._page.id).open();
+                    } else {
+                        $mdSidenav(this._page.id).close();
+                    }
+                    return v;
+                }
+                return true;
+            }
+        });
 
-		// 2- create element
-		return $wbUtil.getTemplateFor(page)
-		.then(function(template) {
-			var element = angular.element(prefix + template + postfix);
-			elementBank.append(element);
+        // 2- create element
+        return $wbUtil
+        .getTemplateFor(page)
+        .then(
+                function (template) {
+                    var element = angular
+                    .element(prefix + template + postfix);
+                    elementBank.append(element);
 
-			// 3- bind controller
-			var link = $compile(element);
-			if (angular.isDefined(page.controller)) {
-				var locals = {
-						$scope : childScope,
-						$element : element,
-				};
-				var controller = $controller(page.controller, locals);
-				if (page.controllerAs) {
-					childScope[page.controllerAs] = controller;
-				}
-				element.data('$ngControllerController', controller);
-			}
-			;
-			return {
-				element : link(childScope),
-				page : page
-			};
-		});
-	}
+                    // 3- bind controller
+                    var link = $compile(element);
+                    if (angular.isDefined(page.controller)) {
+                        var locals = {
+                                $scope : childScope,
+                                $element : element
+                        };
+                        var controller = $controller(
+                                page.controller, locals);
+                        if (page.controllerAs) {
+                            childScope[page.controllerAs] = controller;
+                        }
+                        element
+                        .data(
+                                '$ngControllerController',
+                                controller);
+                    }
+                    return {
+                        element : link(childScope),
+                        page : page
+                    };
+                });
+    }
 
-	function postLink($scope, $element, $attr) {
-		var _sidenaves = [];
-		var _toolbars = [];
+    function postLink($scope, $element) {
+        var _sidenaves = [];
 
+        /*
+         * Remove all sidenaves
+         */
+        function _removeElements(pages, elements) {
+            var cache = [];
+            for (var i = 0; i < elements.length; i++) {
+                var flag = false;
+                for (var j = 0; j < pages.length; j++) {
+                    if (pages[j].id === elements[i].page.id) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
+                    elements[i].element.detach();
+                    elements[i].cached = true;
+                    cache.push(elements[i]);
+                } else {
+                    elements[i].element.remove();
+                }
+            }
+            return cache;
+        }
 
-		/*
-		 * Remove all sidenaves
-		 */
-		function _removeElements(pages, elements) {
-			var cache = [];
-			for(var i = 0; i < elements.length; i++){
-				var flag = false;
-				for(var j = 0; j < pages.length; j++){
-					if(pages[j].id === elements[i].page.id) {
-						flag = true;
-						break;
-					}
-				}
-				if(flag){
-					elements[i].element.detach();
-					elements[i].cached = true;
-					cache.push(elements[i]);
-				} else {
-					elements[i].element.remove();
-				}
-			}
-			return cache;
-		}
+        function _getSidenavElement(page) {
+            for (var i = 0; i < _sidenaves.length; i++) {
+                if (_sidenaves[i].page.id === page.id) {
+                    return $q.when(_sidenaves[i]);
+                }
+            }
+            return _loadPage(
+                    $scope,
+                    page,
+                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column">',
+            '</md-sidenav>').then(
+                    function (pageElement) {
+                        _sidenaves.push(pageElement);
+                    });
+        }
 
-		function _getSidenavElement(page){
-			for(var i = 0; i < _sidenaves.length; i++){
-				if(_sidenaves[i].page.id == page.id){
-					return $q.when(_sidenaves[i]);
-				}
-			}
-			return _loadPage($scope, page,
-					'<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column">',
-			'</md-sidenav>')
-			.then(function(pageElement) {
-				_sidenaves.push(pageElement);
-			});
-		}
+        /*
+         * reload sidenav
+         */
+        function _reloadSidenavs(sidenavs) {
+            _sidenaves = _removeElements(sidenavs, _sidenaves);
+            var jobs = [];
+            for (var i = 0; i < sidenavs.length; i++) {
+                jobs.push(_getSidenavElement(sidenavs[i]));
+            }
+            $q
+            .all(jobs)
+            //
+            .then(
+                    function () {
+                        // Get Anchor
+                        var _anchor = $element;
+                        // maso, 2018: sort
+                        _sidenaves
+                        .sort(function (a, b) {
+                            return (a.page.priority || 10) > (b.page.priority || 10);
+                        });
+                        for (var i = 0; i < _sidenaves.length; i++) {
+                            var ep = _sidenaves[i];
+                            if (ep.chached) {
+                                continue;
+                            }
+                            if (ep.page.position === 'start') {
+                                _anchor
+                                .prepend(ep.element);
+                            } else {
+                                _anchor
+                                .append(ep.element);
+                            }
+                        }
+                    });
+        }
 
+        /*
+         * Reload UI
+         * 
+         * Get list of sidenavs for the current state and load
+         * them.
+         */
+        function _reloadUi() {
+            if (!angular.isDefined($route.current)) {
+                return;
+            }
+            // Sidenavs
+            var sdid = $route.current.sidenavs || $sidenav.defaultSidenavs();
+            sdid = sdid.slice(0);
+            sdid.push('settings');
+            sdid.push('help');
+            sdid.push('messages');
+            var sidenavs = [];
+            var jobs = [];
+            angular.forEach(sdid, function (item) {
+                jobs.push($sidenav.sidenav(item).then(
+                        function (sidenav) {
+                            sidenavs.push(sidenav);
+                        }));
+            });
+            $q.all(jobs).then(function () {
+                _reloadSidenavs(sidenavs);
+            });
+        }
 
-		/*
-		 * reload sidenav
-		 */
-		function _reloadSidenavs(sidenavs) {
-			_sidenaves = _removeElements(sidenavs, _sidenaves);
-			var jobs = [];
-			for (var i = 0; i < sidenavs.length; i++) {
-				jobs.push(_getSidenavElement(sidenavs[i]));
-			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element;
-				// maso, 2018: sort
-				_sidenaves.sort(function(a, b){
-					return (a.page.priority || 10) > (b.page.priority || 10);
-				});
-				for (var i = 0; i < _sidenaves.length; i++) {
-					var ep = _sidenaves[i];
-					if(ep.chached){
-						continue;
-					}
-					if (ep.page.position === 'start') {
-						_anchor.prepend(ep.element);
-					} else {
-						_anchor.append(ep.element);
-					}
-				}
-			});
-		}
+        $scope.$watch(function () {
+            return $route.current;
+        }, _reloadUi);
+    }
 
-		/*
-		 * Reload UI
-		 * 
-		 * Get list of sidenavs for the current state and load them.
-		 */
-		function _reloadUi(){
-			if(!angular.isDefined($route.current)){
-				return;
-			}
-			// Sidenavs
-			var sdid = $route.current.sidenavs || $sidenav.defaultSidenavs();
-			sdid = sdid.slice(0);
-			sdid.push('settings');
-			sdid.push('help');
-			sdid.push('messages');
-			var sidenavs =[];
-			var jobs = [];
-			angular.forEach(sdid, function(item){
-				jobs.push($sidenav.sidenav(item)
-						.then(function(sidenav){
-							sidenavs.push(sidenav);
-						}));
-			});
-			$q.all(jobs)
-			.then(function(){
-				_reloadSidenavs(sidenavs);
-			});
-		}
-
-		$scope.$watch(function(){
-			return $route.current;
-		},_reloadUi);
-	}
-
-
-	return {
-		restrict : 'A',
-		priority: 601,
-		link : postLink
-	};
+    return {
+        restrict : 'A',
+        priority : 601,
+        link : postLink
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3484,181 +3493,178 @@ angular.module('mblowfish-core')
  */
 .directive('mbPanelToolbarAnchor', function($route, $toolbar, $rootScope, $q, $wbUtil, $controller, $compile) {
 
-	/*
-	 * Load page and create an element
-	 */
-	function _loadPage($scope, page, prefix, postfix) {
-		// 1- create scope
-		var childScope = $scope.$new(false, $scope);
-		childScope = Object.assign(childScope, {
-			app : $rootScope.app,
-			_page : page,
-			_visible : function() {
-				if (angular.isFunction(this._page.visible)) {
-					var v = this._page.visible(this);
-					return v;
-				}
-				return true;
-			}
-		});
+    /*
+     * Load page and create an element
+     */
+    function _loadPage($scope, page, prefix, postfix) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope = Object.assign(childScope, {
+            app : $rootScope.app,
+            _page : page,
+            _visible : function() {
+                if (angular.isFunction(this._page.visible)) {
+                    var v = this._page.visible(this);
+                    return v;
+                }
+                return true;
+            }
+        });
 
-		// 2- create element
-		return $wbUtil.getTemplateFor(page)
-		.then(function(template) {
-			var element = angular.element(prefix + template + postfix);
+        // 2- create element
+        return $wbUtil.getTemplateFor(page)
+        .then(function(template) {
+            var element = angular.element(prefix + template + postfix);
 
-			// 3- bind controller
-			var link = $compile(element);
-			if (angular.isDefined(page.controller)) {
-				var locals = {
-						$scope : childScope,
-						$element : element,
-				};
-				var controller = $controller(page.controller, locals);
-				if (page.controllerAs) {
-					childScope[page.controllerAs] = controller;
-				}
-				element.data('$ngControllerController', controller);
-			}
-			;
-			return {
-				element : link(childScope),
-				page : page
-			};
-		});
-	}
+            // 3- bind controller
+            var link = $compile(element);
+            if (angular.isDefined(page.controller)) {
+                var locals = {
+                        $scope : childScope,
+                        $element : element
+                };
+                var controller = $controller(page.controller, locals);
+                if (page.controllerAs) {
+                    childScope[page.controllerAs] = controller;
+                }
+                element.data('$ngControllerController', controller);
+            }
+            return {
+                element : link(childScope),
+                page : page
+            };
+        });
+    }
 
-	function postLink($scope, $element, $attr) {
-		var _sidenaves = [];
-		var _toolbars = [];
+    function postLink($scope, $element) {
+        var _toolbars = [];
 
-
-		/*
-		 * Remove all sidenaves
-		 */
-		function _removeElements(pages, elements) {
-			var cache = [];
-			for(var i = 0; i < elements.length; i++){
-				var flag = false;
-				for(var j = 0; j < pages.length; j++){
-					if(pages[j].id === elements[i].page.id) {
-						flag = true;
-						break;
-					}
-				}
-				if(flag){
-					elements[i].element.detach();
-					elements[i].cached = true;
-					cache.push(elements[i]);
-				} else {
-					elements[i].element.remove();
-				}
-			}
-			return cache;
-		}
+        /*
+         * Remove all sidenaves
+         */
+        function _removeElements(pages, elements) {
+            var cache = [];
+            for(var i = 0; i < elements.length; i++){
+                var flag = false;
+                for(var j = 0; j < pages.length; j++){
+                    if(pages[j].id === elements[i].page.id) {
+                        flag = true;
+                        break;
+                    }
+                }
+                if(flag){
+                    elements[i].element.detach();
+                    elements[i].cached = true;
+                    cache.push(elements[i]);
+                } else {
+                    elements[i].element.remove();
+                }
+            }
+            return cache;
+        }
 
 
-		function _getToolbarElement(page){
-			for(var i = 0; i < _toolbars.length; i++){
-				if(_toolbars[i].page.id === page.id){
-					return $q.when(_toolbars[i]);
-				}
-			}
+        function _getToolbarElement(page){
+            for(var i = 0; i < _toolbars.length; i++){
+                if(_toolbars[i].page.id === page.id){
+                    return $q.when(_toolbars[i]);
+                }
+            }
 
-			var prefix = page.raw ? '' : '<md-toolbar ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
-			var postfix = page.raw ? '' : '</md-toolbar>';
-			return _loadPage($scope, page, prefix, postfix)
-			.then(function(pageElement) {
-				_toolbars.push(pageElement);
-			});
-		}
+            var prefix = page.raw ? '' : '<md-toolbar ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+            var postfix = page.raw ? '' : '</md-toolbar>';
+            return _loadPage($scope, page, prefix, postfix)
+            .then(function(pageElement) {
+                _toolbars.push(pageElement);
+            });
+        }
 
-		/*
-		 * Reload toolbars
-		 */
-		function _reloadToolbars(toolbars) {
-			_toolbars = _removeElements(toolbars, _toolbars);
-			var jobs = [];
-			for (var i = 0; i < toolbars.length; i++) {
-				jobs.push(_getToolbarElement(toolbars[i]));
-			}
-			$q.all(jobs) //
-			.then(function() {
-				// Get Anchor
-				var _anchor = $element;
-				// maso, 2018: sort
-				_toolbars.sort(function(a, b){
-					return (a.page.priority || 10) > (b.page.priority || 10);
-				});
-				for (var i = 0; i < _toolbars.length; i++) {
-					var ep = _toolbars[i];
-					if(ep.chached){
-						continue;
-					}
-					_anchor.prepend(ep.element);
-				}
-			});
-		}
+        /*
+         * Reload toolbars
+         */
+        function _reloadToolbars(toolbars) {
+            _toolbars = _removeElements(toolbars, _toolbars);
+            var jobs = [];
+            for (var i = 0; i < toolbars.length; i++) {
+                jobs.push(_getToolbarElement(toolbars[i]));
+            }
+            $q.all(jobs) //
+            .then(function() {
+                // Get Anchor
+                var _anchor = $element;
+                // maso, 2018: sort
+                _toolbars.sort(function(a, b){
+                    return (a.page.priority || 10) > (b.page.priority || 10);
+                });
+                for (var i = 0; i < _toolbars.length; i++) {
+                    var ep = _toolbars[i];
+                    if(ep.chached){
+                        continue;
+                    }
+                    _anchor.prepend(ep.element);
+                }
+            });
+        }
 
-		/*
-		 * Reload UI
-		 * 
-		 * - sidenav
-		 * - toolbar
-		 */
-		function _reloadUi(){
-			if(!$route.current){
-				return;
-			}
-			// Toolbars
-			var tids = $route.current.toolbars || $toolbar.defaultToolbars();
-			if(angular.isArray(tids)){
-				var ts = [];
-				var jobs = [];
-				angular.forEach(tids, function(item){
-					jobs.push($toolbar.toolbar(item)
-							.then(function(toolbar){
-								ts.push(toolbar);
-							}));
-				});
-				$q.all(jobs)
-				.then(function(){
-					_reloadToolbars(ts);
-				});
-			}
-		}
+        /*
+         * Reload UI
+         * 
+         * - sidenav
+         * - toolbar
+         */
+        function _reloadUi(){
+            if(!$route.current){
+                return;
+            }
+            // Toolbars
+            var tids = $route.current.toolbars || $toolbar.defaultToolbars();
+            if(angular.isArray(tids)){
+                var ts = [];
+                var jobs = [];
+                angular.forEach(tids, function(item){
+                    jobs.push($toolbar.toolbar(item)
+                            .then(function(toolbar){
+                                ts.push(toolbar);
+                            }));
+                });
+                $q.all(jobs)
+                .then(function(){
+                    _reloadToolbars(ts);
+                });
+            }
+        }
 
-		function _isVisible(item){
-			if (angular.isFunction(item.visible)) {
-				var v = item.visible(this);
-				return v;
-			}
-			if(angular.isDefined(item.visible)){
-				// item.visible is defined but is not a function
-				return item.visible;
-			}
-			return true;
-		}
+//        function _isVisible(item){
+//            if (angular.isFunction(item.visible)) {
+//                var v = item.visible(this);
+//                return v;
+//            }
+//            if(angular.isDefined(item.visible)){
+//                // item.visible is defined but is not a function
+//                return item.visible;
+//            }
+//            return true;
+//        }
 
-		$scope.$watch(function(){
-			return $route.current;
-		},_reloadUi);
-//		_reloadUi();
-	}
+        $scope.$watch(function(){
+            return $route.current;
+        },_reloadUi);
+//      _reloadUi();
+    }
 
 
-	return {
-		restrict : 'A',
-//		replace : true,
-//		templateUrl : 'views/directives/mb-panel.html',
-		link : postLink
-	};
+    return {
+        restrict : 'A',
+//      replace : true,
+//      templateUrl : 'views/directives/mb-panel.html',
+        link : postLink
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -3667,7 +3673,7 @@ angular.module('mblowfish-core')
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -3692,8 +3698,8 @@ angular.module('mblowfish-core')
  * 
  * @usage To load the application add this directive to the index.html.
  *        All internal elements will be removed after the module loaded.
- *        <hljs lang="html"> <body> <amd-panel> <div
- *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
+ *        <hljs lang='html'> <body> <amd-panel> <div
+ *        class='amd-preloader'> Loading.... </div> </amd-panel> ....
  *        </body> </hljs>
  * 
  */
@@ -3711,7 +3717,7 @@ angular.module('mblowfish-core')
 		return route.protect;
 	}
 
-	function postLink($scope, $element, $attr) {
+	function postLink($scope) {
 		// State machin to controlle the view
 		var stateMachine = new machina.Fsm({
 			/* 
@@ -3720,7 +3726,7 @@ angular.module('mblowfish-core')
 			 * setup behavior, etc. It receives the same
 			 * arguments (options) as the constructor function.
 			 */
-			initialize: function (options) {
+			initialize: function (/*options*/) {
 				// your setup code goes here...
 				$scope.status = this.initialState;
 			},
@@ -3845,20 +3851,20 @@ angular.module('mblowfish-core')
 				if (!route) {
 					return;
 				}
-				this.handle("routeChange", route);
+				this.handle('routeChange', route);
 			},
 			/*
 			 * Handle application state change
 			 */
 			appStateChange: function (state) {
-				this.handle("appStateChange", state);
+				this.handle('appStateChange', state);
 			},
 			/*
 			 * Handle user state change
 			 */
 			userStateChange: function (userIsAnonymous) {
 				this.userState = userIsAnonymous;
-				this.handle("userStateChange", userIsAnonymous);
+				this.handle('userStateChange', userIsAnonymous);
 			},
 
 			/*
@@ -3877,7 +3883,7 @@ angular.module('mblowfish-core')
 		});
 
 		// I'd like to know when the transition event occurs
-		stateMachine.on("transition", function () {
+		stateMachine.on('transition', function () {
 			if (stateMachine.state.startsWith('ready')) {
 				$scope.status = 'ready';
 				return;
@@ -3893,7 +3899,7 @@ angular.module('mblowfish-core')
 				stateMachine.routeChange(route.$$route);
 				// Run state integeration
 				if (route.$$route && angular.isFunction(route.$$route.integerate)) {
-					var value = $injector.invoke(route.$$route.integerate, route.$$route);
+					$injector.invoke(route.$$route.integerate, route.$$route);
 				}
 			} else {
 				stateMachine.routeChange(route);
@@ -3953,86 +3959,86 @@ angular
  * 
  */
 .directive('mbPreferencePage', function($compile, $controller, $preferences, $wbUtil,
-		$rootScope) {
+        $rootScope) {
 
-	var bodyElementSelector = 'div#mb-preference-body';
-	var placeholderElementSelector = 'div#mb-preference-placeholder';
-	/**
-	 * 
-	 */
-	function loadPreference($scope, page, anchor) {
-		// 1- create scope
-		var childScope = $scope.$new(false, $scope);
-		childScope.app = $rootScope.app;
-		// childScope.wbModel = model;
+    var bodyElementSelector = 'div#mb-preference-body';
+    var placeholderElementSelector = 'div#mb-preference-placeholder';
+    /**
+     * 
+     */
+    function loadPreference($scope, page, anchor) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope.app = $rootScope.app;
+        // childScope.wbModel = model;
 
-		// 2- create element
-		$wbUtil
-		.getTemplateFor(page)
-		.then(function(template) {
-			var element = angular
-			.element('<div md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
+        // 2- create element
+        $wbUtil
+        .getTemplateFor(page)
+        .then(function(template) {
+            var element = angular
+            .element('<div md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
 
-			// 3- bind controller
-			var link = $compile(element);
-			if (angular
-					.isDefined(page.controller)) {
-				var locals = {
-						$scope : childScope,
-						$element : element,
-						// TODO: maso, 2018:
-				};
-				var controller = $controller(
-						page.controller, locals);
-				if (page.controllerAs) {
-					childScope[page.controllerAs] = controller;
-				}
-				element
-				.data(
-						'$ngControllerController',
-						controller);
-			}
+            // 3- bind controller
+            var link = $compile(element);
+            if (angular
+                    .isDefined(page.controller)) {
+                var locals = {
+                        $scope : childScope,
+                        $element : element
+                        // TODO: maso, 2018:
+                };
+                var controller = $controller(
+                        page.controller, locals);
+                if (page.controllerAs) {
+                    childScope[page.controllerAs] = controller;
+                }
+                element
+                .data(
+                        '$ngControllerController',
+                        controller);
+            }
 
-			// Load preferences
-			anchor.empty();
-			anchor.append(link(childScope));
-		});
-	}
+            // Load preferences
+            anchor.empty();
+            anchor.append(link(childScope));
+        });
+    }
 
-	/**
-	 * Adding preloader.
-	 * 
-	 * @param scope
-	 * @param element
-	 * @param attr
-	 * @returns
-	 */
-	function postLink(scope, element) {
-		// Get Anchor
-		var _anchor = element //
-		.children(bodyElementSelector) //
-		.children(placeholderElementSelector);
-		// TODO: maso, 2018: check auncher exist
-		scope.$watch('mbPreferenceId', function(id) {
-			if (!!id) {
-				$preferences.page(id).then(function(page) {
-					loadPreference(scope, page, _anchor);
-				}, function() {
-					// TODO: maso, 2017: handle errors
-				});
-			}
-		});
-	}
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @returns
+     */
+    function postLink(scope, element) {
+        // Get Anchor
+        var _anchor = element //
+        .children(bodyElementSelector) //
+        .children(placeholderElementSelector);
+        // TODO: maso, 2018: check auncher exist
+        scope.$watch('mbPreferenceId', function(id) {
+            if (id) {
+                $preferences.page(id).then(function(page) {
+                    loadPreference(scope, page, _anchor);
+                }, function() {
+                    // TODO: maso, 2017: handle errors
+                });
+            }
+        });
+    }
 
-	return {
-		restrict : 'E',
-		templateUrl : 'views/directives/mb-preference-page.html',
-		replace : true,
-		scope : {
-			mbPreferenceId : '='
-		},
-		link : postLink
-	};
+    return {
+        restrict : 'E',
+        templateUrl : 'views/directives/mb-preference-page.html',
+        replace : true,
+        scope : {
+            mbPreferenceId : '='
+        },
+        link : postLink
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4085,14 +4091,14 @@ angular.module('mblowfish-core')
  * </code></pre>
  * 
  */
-.directive('mbPreloading', function($animate) {
+.directive('mbPreloading', function(/*$animate*/) {
 	var PRELOAD_CLASS = 'mb-preload';
 	var PRELOAD_ANIMATION_CLASS = 'mb-preload-animate';
 
 	/*
 	 * Init element for preloading
 	 */
-	function initPreloading(scope, element, attr) {
+	function initPreloading(scope, element/*, attr*/) {
 		element.addClass(PRELOAD_ANIMATION_CLASS);
 	}
 
@@ -4216,20 +4222,14 @@ angular.module('mblowfish-core')
  * Display tree heading
  * 
  */
-.directive('mbTreeHeading', function($animate) {
+.directive('mbTreeHeading', function(/*$animate*/) {
 	return {
         restrict: 'E',
         replace: true,
         scope: {
             mbSection: '='
         },
-		templateUrl: 'views/directives/mb-tree-heading.html',
-		link: function(scope, element, attr) {
-			// TODO: maso, 2017:
-		},
-		controller : function($scope) {
-			// TODO: maso, 2017:
-		}
+		templateUrl: 'views/directives/mb-tree-heading.html'
 	};
 });
 
@@ -4267,17 +4267,13 @@ angular.module('mblowfish-core')
  * Display and link section item
  * 
  */
-.directive('mbTreeLink', function($animate) {
+.directive('mbTreeLink', function() {
 	return {
 		restrict : 'E',
-//		replace: true,
 		scope: {
 			mbSection: '='
 		},
 		templateUrl: 'views/directives/mb-tree-link.html',
-		link: function(scope, element, attr) {
-			// TODO: maso, 2017:
-		},
 		controller : function($scope, $navigator) {
 			/**
 			 * Check if page is selected.
@@ -4296,13 +4292,9 @@ angular.module('mblowfish-core')
 			 * Run action of section
 			 */
 			$scope.focusSection = function(section) {
-//				$mdSidenav('left').close();
-//				ssSideNavSharedService.broadcast('_SIDENAV_CLICK_ITEM', item);
 				// XXX: maso, 2017: check action call
 				return $navigator.openPage(section.link);
 			};
-
-//			$scope.$state = $state;
 		}
 	};
 });
@@ -4342,127 +4334,128 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbTreeToggle', function($timeout, $animateCss, $mdSidenav, $mdMedia, $rootScope) {
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			mbSection: '='
-		},
-		templateUrl: 'views/directives/mb-tree-toggle.html',
-		link: function($scope, $element, $attr, $ctrl) {
-			var _el_ul = $element.find('ul');
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            mbSection: '='
+        },
+        templateUrl: 'views/directives/mb-tree-toggle.html',
+        link: function($scope, $element, $attr, $ctrl) {
+            var _el_ul = $element.find('ul');
 
-			var getTargetHeight = function() {
-				var _targetHeight;
+            var getTargetHeight = function() {
+                var _targetHeight;
 
-				_el_ul.addClass('no-transition');
-				_el_ul.css('height', '');
+                _el_ul.addClass('no-transition');
+                _el_ul.css('height', '');
 
-				_targetHeight = _el_ul.prop('clientHeight');
+                _targetHeight = _el_ul.prop('clientHeight');
 
-				_el_ul.css('height', 0);
-				_el_ul.removeClass('no-transition');
+                _el_ul.css('height', 0);
+                _el_ul.removeClass('no-transition');
 
-				return _targetHeight;
-			};
+                return _targetHeight;
+            };
 
-			if (!_el_ul) {
-				return console.warn('mb-tree: `menuToggle` cannot find ul element');
-			}
+            if (!_el_ul) {
+//              return console.warn('mb-tree: `menuToggle` cannot find ul element');
+                return;
+            }
 
-			
-			
-			function toggleMenu(open) {
-//				if (!$mdMedia('gt-sm') && !$mdSidenav('left').isOpen() && open) {
-//				return;
-//				}
-				$animateCss(_el_ul, {
-					from: {
-						height: open ? 0 : (getTargetHeight() + 'px')
-					},
-					to: {
-						height: open ? (getTargetHeight() + 'px') : 0
-					},
-					duration: 0.3
-				}).start();
-			}
 
-			$scope.$watch(function() {
-				return $ctrl.isOpen($scope.mbSection);
-			}, function(open) {
-				$timeout(function(){
-					toggleMenu(open);
-				}, 0, false);
-			});
-		},
-		controller : function($scope) {
-			// Current section
-			var openedSection = null;
-			
-			/**
-			 * Check if the opened section is the section.
-			 */
-			function isOpen(section) {
-				return openedSection === section;
-			}
 
-			/**
-			 * Toggle opened section
-			 * 
-			 * We just put the section in the tree openedSection and update all
-			 * UI.
-			 */
-			function toggle(section) {
+            function toggleMenu(open) {
+//              if (!$mdMedia('gt-sm') && !$mdSidenav('left').isOpen() && open) {
+//              return;
+//              }
+                $animateCss(_el_ul, {
+                    from: {
+                        height: open ? 0 : (getTargetHeight() + 'px')
+                    },
+                    to: {
+                        height: open ? (getTargetHeight() + 'px') : 0
+                    },
+                    duration: 0.3
+                }).start();
+            }
+
+            $scope.$watch(function() {
+                return $ctrl.isOpen($scope.mbSection);
+            }, function(open) {
+                $timeout(function(){
+                    toggleMenu(open);
+                }, 0, false);
+            });
+        },
+        controller : function($scope) {
+            // Current section
+            var openedSection = null;
+
+            /**
+             * Check if the opened section is the section.
+             */
+            function isOpen(section) {
+                return openedSection === section;
+            }
+
+            /**
+             * Toggle opened section
+             * 
+             * We just put the section in the tree openedSection and update all
+             * UI.
+             */
+            function toggle(section) {
                 openedSection = (openedSection === section) ? null : section;
-			}
+            }
 
-			/**
-			 * Checks if the section is visible
-			 */
-			function isVisible(section){
-				if(!section){
-					for(var i = 0; i < $scope.mbSection.sections.length; i++){
-						if(!$rootScope.$eval($scope.mbSection.sections[i].hidden)){
-							return true;
-						}
-					}
-					return false;
-				}
-				if(section.hidden){
-					return !$rootScope.$eval(section.hidden);
-				}
-				return true;
-			}
+            /**
+             * Checks if the section is visible
+             */
+            function isVisible(section){
+                if(!section){
+                    for(var i = 0; i < $scope.mbSection.sections.length; i++){
+                        if(!$rootScope.$eval($scope.mbSection.sections[i].hidden)){
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                if(section.hidden){
+                    return !$rootScope.$eval(section.hidden);
+                }
+                return true;
+            }
 
-			/*
-			 * Init scope
-			 */
-			if(angular.isFunction($scope.$parent.isOpen)){
-				$scope.isOpen = $scope.$parent.isOpen;
-				$scope.toggle = $scope.$parent.toggle;
-			} else {
-				$scope.isOpen = isOpen;
-				$scope.toggle = toggle;
-			}
-			
-			this.isOpen = $scope.isOpen;
-			
-			$scope.isVisible = isVisible;
+            /*
+             * Init scope
+             */
+            if(angular.isFunction($scope.$parent.isOpen)){
+                $scope.isOpen = $scope.$parent.isOpen;
+                $scope.toggle = $scope.$parent.toggle;
+            } else {
+                $scope.isOpen = isOpen;
+                $scope.toggle = toggle;
+            }
 
-//			$scope.$on('SS_SIDENAV_FORCE_SELECTED_ITEM', function (event, args) {
-//			if ($scope.section && $scope.section.pages) {
-//			for (var i = $scope.section.pages.length - 1; i >= 0; i--) {
-//			var _e = $scope.section.pages[i];
-			//
-//			if (args === _e.id) {
-//			$scope.toggle($scope.section);
-//			$state.go(_e.state);
-//			}
-//			};
-//			}
-//			});
-		}
-	};
+            this.isOpen = $scope.isOpen;
+
+            $scope.isVisible = isVisible;
+
+//          $scope.$on('SS_SIDENAV_FORCE_SELECTED_ITEM', function (event, args) {
+//          if ($scope.section && $scope.section.pages) {
+//          for (var i = $scope.section.pages.length - 1; i >= 0; i--) {
+//          var _e = $scope.section.pages[i];
+            //
+//          if (args === _e.id) {
+//          $scope.toggle($scope.section);
+//          $state.go(_e.state);
+//          }
+//          };
+//          }
+//          });
+        }
+    };
 });
 
 /*
@@ -4500,55 +4493,55 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbTree', function($animate, $rootScope) {
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			mbSection: '='
-		},
-		templateUrl: 'views/directives/mb-tree.html',
-		link: function($scope, $element, $attr) {
-			// TODO: maso, 2017:
-			/**
-			 * Checks if the section is visible
-			 */
-			function isVisible(section){
-				if(!$element.has('li').length){
-					return false;
-				}
-				if(section.hidden){
-					return !$rootScope.$eval(section.hidden);
-				}
-				return true;
-			}
-			$scope.isVisible = isVisible;
-		},
-		controller : function($scope) {
-			// Current section
-			var openedSection = null;
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            mbSection: '='
+        },
+        templateUrl: 'views/directives/mb-tree.html',
+        link: function($scope, $element) {
+            // TODO: maso, 2017:
+            /**
+             * Checks if the section is visible
+             */
+            function isVisible(section){
+                if(!$element.has('li').length){
+                    return false;
+                }
+                if(section.hidden){
+                    return !$rootScope.$eval(section.hidden);
+                }
+                return true;
+            }
+            $scope.isVisible = isVisible;
+        },
+        controller : function($scope) {
+            // Current section
+            var openedSection = null;
 
 
-			/**
-			 * Check if the opened section is the section.
-			 */
-			function isOpen(section) {
-				return openedSection === section;
-			}
+            /**
+             * Check if the opened section is the section.
+             */
+            function isOpen(section) {
+                return openedSection === section;
+            }
 
-			/**
-			 * Toggle opened section
-			 * 
-			 * We just put the section in the tree openedSection and update all
-			 * UI.
-			 */
-			function toggle(section) {
-				openedSection = (openedSection === section) ? null : section;
-			}
+            /**
+             * Toggle opened section
+             * 
+             * We just put the section in the tree openedSection and update all
+             * UI.
+             */
+            function toggle(section) {
+                openedSection = (openedSection === section) ? null : section;
+            }
 
-			$scope.isOpen = isOpen;
-			$scope.toggle = toggle;
-		}
-	};
+            $scope.isOpen = isOpen;
+            $scope.toggle = toggle;
+        }
+    };
 });
 
 /*
@@ -4590,7 +4583,7 @@ angular.module('mblowfish-core')
 	/**
 	 * Post link 
 	 */
-	function postLink($scope, $element, $attr) {
+	function postLink($scope) {
 		// maso, 2017: Get user menu
 		$scope.menu = $actions.group('mb.user');
 		$scope.logout = $app.logout;
@@ -4647,11 +4640,8 @@ angular.module('mblowfish-core')
 	return {
 		restrict: 'E',
 		replace: true,
-//		scope: {
-//			amdActions: '='
-//		},
 		templateUrl: 'views/directives/mb-user-toolbar.html',
-		link: function($scope, $element, $attr, $ctrl) {
+		link: function($scope) {
 			$scope.menu = $actions.group('mb.user');
 		},
 		controller : 'MbAccountCtrl'
@@ -4773,69 +4763,69 @@ angular.module('mblowfish-core')
 	return actionGroup;
 });
 
-  /*
-   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-   * 
-   * Permission is hereby granted, free of charge, to any person obtaining a copy
-   * of this software and associated documentation files (the "Software"), to deal
-   * in the Software without restriction, including without limitation the rights
-   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   * copies of the Software, and to permit persons to whom the Software is
-   * furnished to do so, subject to the following conditions:
-   * 
-   * The above copyright notice and this permission notice shall be included in all
-   * copies or substantial portions of the Software.
-   * 
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   * SOFTWARE.
-   */
-  'use strict';
-  angular.module('mblowfish-core')
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
 
-          /**
-           * @ngdoc Factories
-           * @name MbLanguageLoader
-           * @description Language loader factory
-           * 
-           * Loads translation table of given language (if language is registered before). Then finds 
-           * translation table from config (if exist) and merge this table with previouse table. If there
-           * is no config
-           * It loads languages and their translation tables from config. If it 
-           * 
-           * @param $q
-           * @param $app
-           * @param $http
-           * @param $translate
-           * @returns
-           */
-          .factory('MbLanguageLoader', function ($q, $translate, $rootScope) {
-              return function (option) {
-                  var deferred = $q.defer();
-                  // Fetch translations from config of SPA.
-                  var spaTranslate = $translate.getTranslationTable(option.key);
-                  var translate = spaTranslate ? spaTranslate : {};
-                  // Fetch translations from config on server
-                  var langs = $rootScope.app.config.local.languages;
-                  if (langs) {
-                      angular.forEach(langs, function (lang) {
-                          if (lang.key === option.key) {
-                              angular.forEach(lang.map, function (value, key) {
-                                  translate[key] = value;
-                              });
-                          }
-                      });
-                      return deferred.resolve(translate);
-                  } else {
-                      return deferred.reject('Language not found');
-                  }
-                  return deferred.promise;
-              };
-          });
+/**
+ * @ngdoc Factories
+ * @name MbLanguageLoader
+ * @description Language loader factory
+ * 
+ * Loads translation table of given language (if language is registered before). Then finds 
+ * translation table from config (if exist) and merge this table with previouse table. If there
+ * is no config
+ * It loads languages and their translation tables from config. If it 
+ * 
+ * @param $q
+ * @param $app
+ * @param $http
+ * @param $translate
+ * @returns
+ */
+.factory('MbLanguageLoader', function ($q, $translate, $rootScope) {
+    return function (option) {
+        // Fetch translations from config of SPA.
+        var spaTranslate = $translate.getTranslationTable(option.key);
+        var translate = spaTranslate ? spaTranslate : {};
+        // Fetch translations from config on server
+        var langs = $rootScope.app.config.local.languages;
+        if (langs) {
+            angular.forEach(langs, function (lang) {
+                if (lang.key === option.key) {
+                    angular.forEach(lang.map, function (value, key) {
+                        translate[key] = value;
+                    });
+                }
+            });
+            return $q.resolve(translate);
+        } else {
+            return $q.reject('Language not found');
+        }
+    };
+});
+
+
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -4861,30 +4851,30 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-	/**
-	 * @ngdoc Filters
-	 * @name mbDate
-	 * @description # Format date
-	 */
-	.filter('mbDate', function($rootScope) {
-		return function(inputDate, format) {
-		    if(!inputDate){
-		        return '';
-		    }
-			try {
-				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-				if($rootScope.app.calendar !== 'Jalaali'){
-					mf = mf.replace('j', '');
-				}
-				var date = moment //
-					.utc(inputDate) //
-					.local();
-				return date.format(mf);
-			} catch (ex) {
-				return '-' + ex.message;
-			}
-		};
-	});
+/**
+ * @ngdoc Filters
+ * @name mbDate
+ * @description # Format date
+ */
+.filter('mbDate', function($rootScope) {
+    return function(inputDate, format) {
+        if(!inputDate){
+            return '';
+        }
+        try {
+            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
+            if($rootScope.app.calendar !== 'Jalaali'){
+                mf = mf.replace('j', '');
+            }
+            var date = moment //
+            .utc(inputDate) //
+            .local();
+            return date.format(mf);
+        } catch (ex) {
+            return '-' + ex.message;
+        }
+    };
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4921,16 +4911,16 @@ angular.module('mblowfish-core')
      * @name openHelp
      * @params item {object} item which is target of the help system
      */
-	window.openHelp = function(item){
-	    return $help.openHelp(item);
-	}
+    window.openHelp = function(item){
+        return $help.openHelp(item);
+    };
 
-	// Hadi 1396-12-22: کد زیر توی amh بود.
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-	
+    // Hadi 1396-12-22: کد زیر توی amh بود.
+    window.alert = $notification.alert;
+    window.confirm = $notification.confirm;
+    window.prompt = $notification.prompt;
+    window.toast = $notification.toast;
+
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4981,7 +4971,7 @@ angular.module('mblowfish-core')
                 title: 'Help',
                 description: 'Display help in sidenav',
                 visible: function () {
-                    return $help.hasHelp($route.current);;
+                    return $help.hasHelp($route.current);
                 },
                 action: function () {
                     $help.openHelp($route.current);
@@ -5004,7 +4994,7 @@ angular.module('mblowfish-core')
                 controller: 'AmdNavigatorCtrl',
                 templateUrl: 'views/sidenavs/mb-navigator.html',
                 locked: true,
-                position: 'start',
+                position: 'start'
             });
             $sidenav.newSidenav({
                 id: 'help',
@@ -5177,12 +5167,12 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
+/*
+ * Help dialog 
  */
 .run(function($help, $rootScope, $route) {
     // Watch current state
-    var callWatch = $rootScope.$watch(function(){
+    $rootScope.$watch(function(){
         return $route.current;
     }, 
     function(val){
@@ -5221,13 +5211,13 @@ angular.module('mblowfish-core')
  */
 .run(function($resource) {
 
-//    TODO: maso, 2018: replace with class
-	function getSelection(){
-		if(!this.__selections){
-			this.__selections = angular.isArray(this.value) ? this.value : [];
-		}
-		return this.__selections;
-	}
+//  TODO: maso, 2018: replace with class
+    function getSelection(){
+        if(!this.__selections){
+            this.__selections = angular.isArray(this.value) ? this.value : [];
+        }
+        return this.__selections;
+    }
 
     function getIndexOf(list, item) {
         if(!angular.isDefined(item.id)) {
@@ -5240,150 +5230,142 @@ angular.module('mblowfish-core')
         }
     }
 
-	function setSelected(item, selected) {
-		var selectionList = this.getSelection();
-		var index = getIndexOf(selectionList,item);
-		if(selected) {
-			// add to selection
-			if(index >= 0){
-				return;
-			}
-			selectionList.push(item);
-		} else {
-			// remove from selection
-			if (index > -1) {
-				array.splice(index, 1);
-			}
-		}
-	}
+    function setSelected(item, selected) {
+        var selectionList = this.getSelection();
+        var index = getIndexOf(selectionList,item);
+        if(selected) {
+            // add to selection
+            if(index >= 0){
+                return;
+            }
+            selectionList.push(item);
+        } else {
+            // remove from selection
+            if (index > -1) {
+                selectionList.splice(index, 1);
+            }
+        }
+    }
 
-	function isSelected(item){
-		var selectionList = this.getSelection();
-		return getIndexOf(selectionList,item) >= 0;
-	}
-	
-	
-	
-	
-	/**
-	 * @ngdoc Resources
-	 * @name Account
-	 * @description Get an account from resource
-	 * 
-	 * Enable user to select an account
-	 */
-	$resource.newPage({
-		label : 'Account',
-		type : 'account',
-		templateUrl : 'views/resources/mb-accounts.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = false;
-			this.value = $scope.value;
-			this.setSelected = function(item) {
-				$scope.$parent.setValue(item);
-			};
-			this.isSelected = function(item){
-				return item === this.value || item.id === this.value.id;
-			};
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'account' ]
-	});
-
-	/**
-	 * @ngdoc Resources
-	 * @name Accounts
-	 * @description Gets list of accounts
-	 * 
-	 * Display a list of accounts and allow user to select them.
-	 */
-	$resource.newPage({
-		label : 'Accounts',
-		type : 'account-list',
-		templateUrl : 'views/resources/mb-accounts.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function(item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'accounts' ]
-	});
+    function isSelected(item){
+        var selectionList = this.getSelection();
+        return getIndexOf(selectionList,item) >= 0;
+    }
 
 
-	
-	
-	
-	
-	
-	
-	
-	// Resource for role-list
-	$resource.newPage({
-		label : 'Role List',
-		type : 'role-list',
-		templateUrl : 'views/resources/mb-roles.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function(item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'roles' ]
-	});
-	
-	
-	// Resource for group-list
-	$resource.newPage({
-		label : 'Group List',
-		type : 'group-list',
-		templateUrl : 'views/resources/mb-groups.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function(item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'groups' ]
-	});
+
+
+    /**
+     * @ngdoc Resources
+     * @name Account
+     * @description Get an account from resource
+     * 
+     * Enable user to select an account
+     */
+    $resource.newPage({
+        label : 'Account',
+        type : 'account',
+        templateUrl : 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = false;
+            this.value = $scope.value;
+            this.setSelected = function(item) {
+                $scope.$parent.setValue(item);
+            };
+            this.isSelected = function(item){
+                return item === this.value || item.id === this.value.id;
+            };
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'account' ]
+    });
+
+    /**
+     * @ngdoc Resources
+     * @name Accounts
+     * @description Gets list of accounts
+     * 
+     * Display a list of accounts and allow user to select them.
+     */
+    $resource.newPage({
+        label : 'Accounts',
+        type : 'account-list',
+        templateUrl : 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function(item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'accounts' ]
+    });
+
+    // Resource for role-list
+    $resource.newPage({
+        label : 'Role List',
+        type : 'role-list',
+        templateUrl : 'views/resources/mb-roles.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function(item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'roles' ]
+    });
+
+
+    // Resource for group-list
+    $resource.newPage({
+        label : 'Group List',
+        type : 'group-list',
+        templateUrl : 'views/resources/mb-groups.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function(item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'groups' ]
+    });
 
 });
 /*
@@ -5423,7 +5405,7 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-local.html',
 		controller: 'MbLocalCtrl',
 		icon : 'language',
-		tags : [ 'local', 'language' ],
+		tags : [ 'local', 'language' ]
 	})//
 	.newPage({
 		id : 'brand',
@@ -5434,7 +5416,7 @@ angular.module('mblowfish-core')
 		icon : 'copyright',
 		priority: 2,
 		required: true,
-		tags : [ 'brand' ],
+		tags : [ 'brand' ]
 	})//
 	.newPage({
 		id : 'google-analytic',
@@ -5442,7 +5424,7 @@ angular.module('mblowfish-core')
 		templateUrl : 'views/preferences/mb-google-analytic.html',
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
-		tags : [ 'analysis' ],
+		tags : [ 'analysis' ]
 	})
 	.newPage({
 		id: 'update',
@@ -5523,7 +5505,7 @@ angular.module('mblowfish-core')
 			group.items.push(action);
 		}
 		if (action.scope) {
-			action.scope.$on("$destroy", function() {
+			action.scope.$on('$destroy', function() {
 				_removeAction(action);
 			});
 		}
@@ -5593,7 +5575,7 @@ angular.module('mblowfish-core')
 		// groups
 		groups : _groups,
 		newGroup : _newGroup,
-		group : _group,
+		group : _group
 	};
 });
 
@@ -5684,64 +5666,64 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
 
-	var apps = this;
+    var apps = this;
 
-	// Constants
-	var APP_PREFIX = 'angular-material-blowfish-';
-	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
+    // Constants
+    var APP_PREFIX = 'angular-material-blowfish-';
+    var APP_CNF_MIMETYPE = 'application/amd-cnf';
+    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+    var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
-	// the state machine
-	var stateMachine;
+    // the state machine
+    var stateMachine;
 
-	// states
-	var APP_STATE_WAITING = 'waiting';
-	var APP_STATE_LOADING = 'loading';
+    // states
+    var APP_STATE_WAITING = 'waiting';
+    var APP_STATE_LOADING = 'loading';
 
-	// final states
-	var APP_STATE_READY = 'ready';
-	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-	var APP_STATE_OFFLINE = 'offline';
-	var APP_STATE_FAIL = 'fail';
+    // final states
+    var APP_STATE_READY = 'ready';
+    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+    var APP_STATE_OFFLINE = 'offline';
+    var APP_STATE_FAIL = 'fail';
 
-	var APP_EVENT_LOADED = 'loaded';
-	var APP_EVENT_START = 'start';
-	var APP_EVENT_NOT_FOUND = 'resource_not_found';
-	var APP_EVENT_SERVER_ERROR = 'server_error';
-	var APP_EVENT_NET_ERROR = 'network_error';
+    var APP_EVENT_LOADED = 'loaded';
+    var APP_EVENT_START = 'start';
+    var APP_EVENT_NOT_FOUND = 'resource_not_found';
+    var APP_EVENT_SERVER_ERROR = 'server_error';
+    var APP_EVENT_NET_ERROR = 'network_error';
 
 
-	var optionsQuery = new QueryParameter()//
-	.put('graphql', OPTIONS_GRAPHQL);
-	// All the things that are set up by $app service
-	var app = {
-			state: {
-				// all states: waiting, loading, offline, app_not_configured,
-				// ready, fail
-				status: 'loading',
-				stage: 'starting',
-				message: null
-			},
-			logs: [],
-			user: {
-				current: {},
-                                profile : {},
-				anonymous: true,
-				administrator: false,
-				owner: false,
-				member: false,
-				authorized: false
-			},
-			config: {},
-			setting: {},
-			options: {}
-	};
-	$rootScope.app = app;
+    var optionsQuery = new QueryParameter()//
+    .put('graphql', OPTIONS_GRAPHQL);
+    // All the things that are set up by $app service
+    var app = {
+            state: {
+                // all states: waiting, loading, offline, app_not_configured,
+                // ready, fail
+                status: 'loading',
+                stage: 'starting',
+                message: null
+            },
+            logs: [],
+            user: {
+                current: {},
+                profile : {},
+                anonymous: true,
+                administrator: false,
+                owner: false,
+                member: false,
+                authorized: false
+            },
+            config: {},
+            setting: {},
+            options: {}
+    };
+    $rootScope.app = app;
 
-	/*
+    /*
      * متغیرهای مدیریت تنظیم‌ها
      * 
      * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
@@ -5751,69 +5733,69 @@ angular.module('mblowfish-core') //
      * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
      * دهد.
      */
-	var appConfigLock = false;
-	var appConfigDirty = false;
-	// Some controlling variables required in the state machine
-	var ctrl = {
-			user_loaded: false,
-			options_loaded: false,
-			configs_loaded: false
-	};
+    var appConfigLock = false;
+    var appConfigDirty = false;
+    // Some controlling variables required in the state machine
+    var ctrl = {
+            user_loaded: false,
+            options_loaded: false,
+            configs_loaded: false
+    };
 
-	/*
+    /*
      * Attaches loading logs
      */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
-		}
-	}
+    function _loadingLog(stage, message) {
+        app.state.stage = stage;
+        app.state.message = message;
+        if (message) {
+            app.logs.push(message);
+        }
+    }
 
-	/*
+    /*
      * Bind list of roles to app data
      */
-	function _loadRolesOfUser(roles) {
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			app.user[role.application + '_' + role.code_name] = true;
-		}
-	}
+    function _loadRolesOfUser(roles) {
+        for (var i = 0; i < roles.length; i++) {
+            var role = roles[i];
+            app.user[role.application + '_' + role.code_name] = true;
+        }
+    }
 
-	/**
+    /**
      * تنظیم‌های نرم افزار را لود می‌کند.
      * 
      * @returns promiss
      */
-	function loadApplicationConfig() {
-		_loadingLog('loading configuration', 'fetch configuration document');
+    function loadApplicationConfig() {
+        _loadingLog('loading configuration', 'fetch configuration document');
 
-		ctrl.configs_loaded = false;
-		ctrl.configs_fail = false;
+        ctrl.configs_loaded = false;
+        ctrl.configs_fail = false;
 
-		$cms.getContent(APP_PREFIX + app.key) //
-		.then(function (content) {
-			_loadingLog('loading configuration', 'fetch configuration content');
-			app._acc = content;
-			ctrl.configs_loaded = true;
-			// load config file
-			return app._acc.downloadValue();
-		}, function(error){
-			ctrl.configs_fail = true;
-			stateMachine.error(error);
-			// return empty config
-			return {};
-		})
-		.then(function (appConfig) {
-			app.config = appConfig;
-		})
-		.finally(function(){
-		    stateMachine.loaded();
-		});
-	}
+        $cms.getContent(APP_PREFIX + app.key) //
+        .then(function (content) {
+            _loadingLog('loading configuration', 'fetch configuration content');
+            app._acc = content;
+            ctrl.configs_loaded = true;
+            // load config file
+            return app._acc.downloadValue();
+        }, function(error){
+            ctrl.configs_fail = true;
+            stateMachine.error(error);
+            // return empty config
+            return {};
+        })
+        .then(function (appConfig) {
+            app.config = appConfig;
+        })
+        .finally(function(){
+            stateMachine.loaded();
+        });
+    }
 
-	/*
+    /*
      * Loads current user informations
      * 
      * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
@@ -5825,369 +5807,369 @@ angular.module('mblowfish-core') //
      * app.user.x_y
      * 
      */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-		.then(function (user) {
-			// load user info
-			ctrl.user_loaded = true;
-			// app user data
-			app.user = {
-					anonymous: !user.id || user.id === 0,
-					current: user
-			};
-                        // load the first profile of user
-                        if(user.profiles.length > 0){
-                            app.user.profile = user.profiles[0];
-                        }
-			// load user roles
-			_loadingLog('loading user info', 'user information loaded successfully');
-			_loadingLog('loading user info', 'check user permissions');
-			if (!app.user.anonymous) {
-				_loadRolesOfUser(user.roles);
-				for (var i = 0; i < user.groups.length; i++) {
-					_loadRolesOfUser(user.groups[i].roles);
-				}
-				//
-				if (!user.isAnonymous()) {
-					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-					app.user.administrator = app.user.owner;
-				} else {
-					app.user.anonymous = true;
-				}
-			}
-			stateMachine.loaded();
-		}, function(error){
+    function loadUserProperty() {
+        _loadingLog('loading user info', 'fetch user information');
+        return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
+        .then(function (user) {
+            // load user info
+            ctrl.user_loaded = true;
+            // app user data
+            app.user = {
+                    anonymous: !user.id || user.id === 0,
+                    current: user
+            };
+            // load the first profile of user
+            if(user.profiles.length > 0){
+                app.user.profile = user.profiles[0];
+            }
+            // load user roles
+            _loadingLog('loading user info', 'user information loaded successfully');
+            _loadingLog('loading user info', 'check user permissions');
+            if (!app.user.anonymous) {
+                _loadRolesOfUser(user.roles);
+                for (var i = 0; i < user.groups.length; i++) {
+                    _loadRolesOfUser(user.groups[i].roles);
+                }
+                //
+                if (!user.isAnonymous()) {
+                    app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+                    app.user.administrator = app.user.owner;
+                } else {
+                    app.user.anonymous = true;
+                }
+            }
+            stateMachine.loaded();
+        }, function(error){
             ctrl.user_loaded = false;
-		    stateMachine.error(error);
-		});
-	}
+            stateMachine.error(error);
+        });
+    }
 
-	/*
+    /*
      * Loads options
      */
-	function loadOptions() {
-		// TODO: Masood, 2018: options should be get from server. Now, its api
-		// doesn't exist.
-		_loadingLog('loading options', 'fetch options document');
-		// get the options from server and save in app.options.
-		app.options = {};
-		return $tenant.getSettings(optionsQuery)
-		.then(function (res) {
-			for (var i = 0; i < res.items.length; i++) {
-				var item = res.items[i];
-				app.options[item.key] = item.value;
-			}
-			ctrl.options_loaded = true;
-			stateMachine.loaded();
-		}, function(error){
-		    stateMachine.error(error);
-		});
-	}
+    function loadOptions() {
+        // TODO: Masood, 2018: options should be get from server. Now, its api
+        // doesn't exist.
+        _loadingLog('loading options', 'fetch options document');
+        // get the options from server and save in app.options.
+        app.options = {};
+        return $tenant.getSettings(optionsQuery)
+        .then(function (res) {
+            for (var i = 0; i < res.items.length; i++) {
+                var item = res.items[i];
+                app.options[item.key] = item.value;
+            }
+            ctrl.options_loaded = true;
+            stateMachine.loaded();
+        }, function(error){
+            stateMachine.error(error);
+        });
+    }
 
-	/*
+    /*
      * Loads local storage
      */
-	function loadSetting() {
-		_loadingLog('loading setting from local storage', 'fetch settings');
-		/*
+    function loadSetting() {
+        _loadingLog('loading setting from local storage', 'fetch settings');
+        /*
          * TODO: masood, 2018: The lines below is an alternative for lines above
          * but not recommended.
          * 
          * TODO: 'key' of app should be used $localStorage.setPrefix(key);
          */
-		app.setting = $localStorage.$default({
-			dashboardModel: {}
-		});
-		_loadingLog('setting loaded', 'fetch settings');
-	}
+        app.setting = $localStorage.$default({
+            dashboardModel: {}
+        });
+        _loadingLog('setting loaded', 'fetch settings');
+    }
 
 
-	/*
+    /*
      * Stores app configuration on the back end
      */
-	function storeApplicationConfig() {
-		appConfigDirty = true;
-		if(appConfigLock){
-			return;
-		}
-		if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
-			return $q.reject({
-				data: {
-					message: 'fail'
-				}
-			});
-		}
-		appConfigLock = true;
-		var promise;
-		if (app._acc) { // content loaded
-			appConfigDirty = false;
-			promise = app._acc.uploadValue(app.config);
-		} else { // create content
-			promise = $cms.putContent({
-				name: APP_PREFIX + app.key,
-				mimetype: APP_CNF_MIMETYPE
-			}).then(function (content) {
-				appConfigDirty = false;
-				app._acc = content;
-				stateMachine.loaded();
-				return app._acc.uploadValue(app.config);
-			}, function (error) {
-				stateMachine.error(error);
-			});
-		} //
-		return promise //
-		.finally(function () {
-			appConfigLock = false;
-			if (appConfigDirty) {
-				return storeApplicationConfig();
-			}
-		});
-	}
+    function storeApplicationConfig() {
+        appConfigDirty = true;
+        if(appConfigLock){
+            return;
+        }
+        if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+            return $q.reject({
+                data: {
+                    message: 'fail'
+                }
+            });
+        }
+        appConfigLock = true;
+        var promise;
+        if (app._acc) { // content loaded
+            appConfigDirty = false;
+            promise = app._acc.uploadValue(app.config);
+        } else { // create content
+            promise = $cms.putContent({
+                name: APP_PREFIX + app.key,
+                mimetype: APP_CNF_MIMETYPE
+            }).then(function (content) {
+                appConfigDirty = false;
+                app._acc = content;
+                stateMachine.loaded();
+                return app._acc.uploadValue(app.config);
+            }, function (error) {
+                stateMachine.error(error);
+            });
+        } //
+        return promise //
+        .finally(function () {
+            appConfigLock = false;
+            if (appConfigDirty) {
+                return storeApplicationConfig();
+            }
+        });
+    }
 
-	/*
+    /*
      * State machine to handle life cycle of the system.
      */
-	stateMachine = new machina.Fsm({
-		initialize: function (/* options */) {
-			app.state.status = APP_STATE_WAITING;
-		},
-		namespace: 'webpich.$app',
-		initialState: APP_STATE_WAITING,
-		states: {
-			// Before the 'start' event occurs via $app.start().
-			waiting: {
-				_onEnter: function(){
-					loadUserProperty(); 
-					loadOptions();
-				},
-				start: function () {
-					this.transition(APP_STATE_LOADING);
-				},
-				network_error: function () {
-					this.transition(APP_STATE_OFFLINE);
-				},
-				server_error: function(){
-					this.transition(APP_STATE_FAIL);
-				}
-			},
-			// tries to load all part of system
-			loading: {
-				_onEnter: function () {
-					loadSetting(); 
-					loadApplicationConfig(); 
-				},
-				loaded: function () {
-					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-						this.transition(APP_STATE_READY);
-					} else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
-						this.transition(APP_STATE_READY_NOT_CONFIGURED);
-					}
-				},
-				server_error: function () {//
-					this.transition(APP_STATE_FAIL);
-				},
-				network_error: function () {
-					this.transition(APP_STATE_OFFLINE);
-				}
-			},
-			// app is ready
-			ready: {
-				network_error: function () {
-					this.transition(APP_STATE_OFFLINE);
-				}
-			},
-			// app is ready with no config
-			ready_not_configured: {
-			    loaded: function () {
-			        if(ctrl.configs_loaded){
-			            this.transition(APP_STATE_READY);
-			        }
-				},
-				network_error: function () {
-					this.transition(APP_STATE_OFFLINE);
-				}
-			},
-			// server error
-			fail: {},
-			// net error
-			offline: {}
-		},
+    stateMachine = new machina.Fsm({
+        initialize: function (/* options */) {
+            app.state.status = APP_STATE_WAITING;
+        },
+        namespace: 'webpich.$app',
+        initialState: APP_STATE_WAITING,
+        states: {
+            // Before the 'start' event occurs via $app.start().
+            waiting: {
+                _onEnter: function(){
+                    loadUserProperty(); 
+                    loadOptions();
+                },
+                start: function () {
+                    this.transition(APP_STATE_LOADING);
+                },
+                network_error: function () {
+                    this.transition(APP_STATE_OFFLINE);
+                },
+                server_error: function(){
+                    this.transition(APP_STATE_FAIL);
+                }
+            },
+            // tries to load all part of system
+            loading: {
+                _onEnter: function () {
+                    loadSetting(); 
+                    loadApplicationConfig(); 
+                },
+                loaded: function () {
+                    if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+                        this.transition(APP_STATE_READY);
+                    } else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
+                        this.transition(APP_STATE_READY_NOT_CONFIGURED);
+                    }
+                },
+                server_error: function () {//
+                    this.transition(APP_STATE_FAIL);
+                },
+                network_error: function () {
+                    this.transition(APP_STATE_OFFLINE);
+                }
+            },
+            // app is ready
+            ready: {
+                network_error: function () {
+                    this.transition(APP_STATE_OFFLINE);
+                }
+            },
+            // app is ready with no config
+            ready_not_configured: {
+                loaded: function () {
+                    if(ctrl.configs_loaded){
+                        this.transition(APP_STATE_READY);
+                    }
+                },
+                network_error: function () {
+                    this.transition(APP_STATE_OFFLINE);
+                }
+            },
+            // server error
+            fail: {},
+            // net error
+            offline: {}
+        },
 
-		/*
+        /*
          * This handle load event of app
          * 
          * If a part of the app loaded then this handler fire an event and
          * update the app state.
          */
-		loaded: function () {
-			this.handle(APP_EVENT_LOADED);
-		},
+        loaded: function () {
+            this.handle(APP_EVENT_LOADED);
+        },
 
-		/*
+        /*
          * Fires start event
          */
-		start: function () {
-			this.handle(APP_EVENT_START);
-		},
+        start: function () {
+            this.handle(APP_EVENT_START);
+        },
 
-		/*
+        /*
          * Handle HTTP response error.
          * 
          * If the is an error in loading and storing configuration then this
          * function checks and fire an event.
          */
-		error: function ($error) {
-			if ($error.status === 404) {
-				this.handle(APP_EVENT_NOT_FOUND);
-			} else if ($error.status === 500) {
-				this.handle(APP_EVENT_SERVER_ERROR);
-			} else if ($error.status === -1) {
-				this.handle(APP_EVENT_NET_ERROR);
-			}
-		}
-	});
+        error: function ($error) {
+            if ($error.status === 404) {
+                this.handle(APP_EVENT_NOT_FOUND);
+            } else if ($error.status === 500) {
+                this.handle(APP_EVENT_SERVER_ERROR);
+            } else if ($error.status === -1) {
+                this.handle(APP_EVENT_NET_ERROR);
+            }
+        }
+    });
 
 
-	// I'd like to know when the transition event occurs
-	stateMachine.on('transition', function () {
-		_loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
-		app.state.status = stateMachine.state;
-	});
+    // I'd like to know when the transition event occurs
+    stateMachine.on('transition', function () {
+        _loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
+        app.state.status = stateMachine.state;
+    });
 
-	/*
+    /*
      * watch direction and update app.dir
      */
-	$rootScope.$watch(function () {
-		if (!app.config.local) {
-			app.config.local = {};
-		}
-		return app.setting.dir || app.config.local.dir;
-	}, function (value) {
-		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-		// version of app.js;
-	});
-	/*
+    $rootScope.$watch(function () {
+        if (!app.config.local) {
+            app.config.local = {};
+        }
+        return app.setting.dir || app.config.local.dir;
+    }, function (value) {
+        app.dir = value; // (app.setting.dir || app.config.local.dir)//old
+        // version of app.js;
+    });
+    /*
      * watch local and update language
      */
-	$rootScope.$watch(function () {
-		// TODO: maso, 2018: remove this part in the next release
-		if (!angular.isObject(app.config.local)) {
-			app.config.local = {};
-		}
-		// Check language
-		return app.setting.local || app.config.local.language || 'en';
-	}, function (key) {
-		// 0- set app local
-		app.local = key;
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	});
+    $rootScope.$watch(function () {
+        // TODO: maso, 2018: remove this part in the next release
+        if (!angular.isObject(app.config.local)) {
+            app.config.local = {};
+        }
+        // Check language
+        return app.setting.local || app.config.local.language || 'en';
+    }, function (key) {
+        // 0- set app local
+        app.local = key;
+        // 1- change language
+        $translate.use(key);
+        // 2- chnage date format
+        // Change moment's locale so the 'L'-format is adjusted.
+        // For example the 'L'-format is DD-MM-YYYY for Dutch
+        moment.loadPersian();
+        moment.locale(key);
+        // Set month and week names for the general $mdDateLocale service
+        var localeDate = moment.localeData();
+        $mdDateLocale.months = localeDate._months;
+        $mdDateLocale.shortMonths = localeDate._monthsShort;
+        $mdDateLocale.days = localeDate._weekdays;
+        $mdDateLocale.shortDays = localeDate._weekdaysMin;
+        // Optionaly let the week start on the day as defined by moment's locale
+        // data
+        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+    });
 
-	/*
+    /*
      * watch calendar
      */
-	$rootScope.$watch(function () {
-		return app.setting.calendar || app.config.calendar || 'Gregorian';
-	}, function (key) {
-		// 0- set app local
-		app.calendar = key;
-	});
+    $rootScope.$watch(function () {
+        return app.setting.calendar || app.config.calendar || 'Gregorian';
+    }, function (key) {
+        // 0- set app local
+        app.calendar = key;
+    });
 
-	/*
+    /*
      * watch application configuration and update app state
      */
-	$rootScope.$watch('app.config', function () {
-		if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
-			// TODO: maso, 2018: delay to save
-			storeApplicationConfig();
-		}
-	}, true);
+    $rootScope.$watch('app.config', function () {
+        if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
+            // TODO: maso, 2018: delay to save
+            storeApplicationConfig();
+        }
+    }, true);
 
-	/**
+    /**
      * Start the application
      * 
      * this function is called when the app get started.
      * 
      * @memberof $app
      */
-	function start(key) {
-		app.key = key;
-		stateMachine.start();
-	}
+    function start(key) {
+        app.key = key;
+        stateMachine.start();
+    }
 
-	/**
+    /**
      * Logins into the backend
      * 
      * @memberof $app
      * @param {object}
      *            credential of the user
      */
-	function login(credential) {
-		if (!app.user.anonymous) {
-			return $q.resolve(app.user.current);
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function () {
-			loadUserProperty();
-		});
-	}
+    function login(credential) {
+        if (!app.user.anonymous) {
+            return $q.resolve(app.user.current);
+        }
+        return $http({
+            method: 'POST',
+            url: '/api/v2/user/login',
+            data: $httpParamSerializerJQLike(credential),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }).then(function () {
+            loadUserProperty();
+        });
+    }
 
-	/**
+    /**
      * Application logout
      * 
      * Logout and clean user data, this will change state of the application.
      * 
      * @memberof $app
      */
-	function logout() {
-		var oldUser = $rootScope.app.user;
-		if (!!oldUser.anonymous) {
-			return $q.resolve(oldUser);
-		}
-		$rootScope.app.user = {};
-		stateMachine.loaded();
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		})
-		.then(function () {
-			loadUserProperty();
-		}, function () {
-			// TODO: maso, 2018: fail to logout?!
-			$rootScope.app.user = oldUser;
-			stateMachine.loaded();
-		});
-	}
+    function logout() {
+        var oldUser = $rootScope.app.user;
+        if (oldUser.anonymous) {
+            return $q.resolve(oldUser);
+        }
+        $rootScope.app.user = {};
+        stateMachine.loaded();
+        return $http({
+            method: 'POST',
+            url: '/api/v2/user/logout',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(function () {
+            loadUserProperty();
+        }, function () {
+            // TODO: maso, 2018: fail to logout?!
+            $rootScope.app.user = oldUser;
+            stateMachine.loaded();
+        });
+    }
 
-	// Init
-	apps.start = start;
-	apps.login = login;
-	apps.logout = logout;
-	return apps;
+    // Init
+    apps.start = start;
+    apps.login = login;
+    apps.logout = logout;
+    return apps;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6548,223 +6530,223 @@ angular.module('mblowfish-core')
             };
         });
 
-  /*
-   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-   * 
-   * Permission is hereby granted, free of charge, to any person obtaining a copy
-   * of this software and associated documentation files (the "Software"), to deal
-   * in the Software without restriction, including without limitation the rights
-   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   * copies of the Software, and to permit persons to whom the Software is
-   * furnished to do so, subject to the following conditions:
-   * 
-   * The above copyright notice and this permission notice shall be included in all
-   * copies or substantial portions of the Software.
-   * 
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   * SOFTWARE.
-   */
-  'use strict';
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
 
-  angular.module('mblowfish-core')
+angular.module('mblowfish-core')
 
-          /**
-           * @ngdoc Services
-           * @name $language
-           * @description 
-           * Manages languages of the application.
-           * This service provide functionality to switch between multiple languages.
-           * Also provides functionlity to manage languages (add, remove or edit translations).
-           * 
-           */
-          .service('$language', function ($rootScope, $q, $translate, $app) {
+/**
+ * @ngdoc Services
+ * @name $language
+ * @description 
+ * Manages languages of the application.
+ * This service provide functionality to switch between multiple languages.
+ * Also provides functionlity to manage languages (add, remove or edit translations).
+ * 
+ */
+.service('$language', function ($rootScope, $q, $translate) {
 
-              /**
-               * Returns language determined by given key.
-               * 
-               * @memberof $language
-               * @param {string} language key - Key of the language
-               * @return {object}  Returns language with given key. 
-               * @Returns 'undefined' if language does not exist or is not loaded yet.
-               */
-              function language(key) {
-                  var languages = $rootScope.app.config.languages;
-                  if (!languages || !languages.length) {
-                      return undefined;
-                  }
-                  for (var i = 0; i < languages.length; i++) {
-                      if (languages[i].key === key) {
-                          return languages[i];
-                      }
-                  }
-                  return undefined;
-              }
+    /**
+     * Returns language determined by given key.
+     * 
+     * @memberof $language
+     * @param {string} language key - Key of the language
+     * @return {object}  Returns language with given key. 
+     * @Returns 'undefined' if language does not exist or is not loaded yet.
+     */
+    function language(key) {
+        var languages = $rootScope.app.config.languages;
+        if (!languages || !languages.length) {
+            return undefined;
+        }
+        for (var i = 0; i < languages.length; i++) {
+            if (languages[i].key === key) {
+                return languages[i];
+            }
+        }
+        return undefined;
+    }
 
-              /**
-               * Returns list of defined and loaded languages.
-               * 
-               * @memberof $language
-               * @return {promise<Array>} of languages
-               */
-              function languages() {
-                  var langs = $rootScope.app.config.languages;
-                  var res = {items: langs || []};
-                  return $q.when(res);
-                  
-                  
-//                  var deferred = $q.defer();
-//                  deferred.resolve(res);
-//                  return deferred.promise;
-              }
+    /**
+     * Returns list of defined and loaded languages.
+     * 
+     * @memberof $language
+     * @return {promise<Array>} of languages
+     */
+    function languages() {
+        var langs = $rootScope.app.config.languages;
+        var res = {items: langs || []};
+        return $q.when(res);
 
-              /**
-               * Adds a new language
-               * 
-               * @param {object} lang - Object contain information of a language.
-               * 		A language object would contain following properties:
-               * 
-               * 		- key: a key to determin language (for example fa, en and so on)
-               * 		- title: title for language (for example Persian, English, ...)
-               * 		- dir: direction of language ('ltr' or 'rtl')
-               * 		- map: translation table of language contains some key-values. 
-               * 
-               * @memberof $language
-               */
-              function newLanguage(lang) {
-                  if (!$rootScope.app.user.owner) {
-                      return $q.reject('not allowed');
-                  }
-                  if (!$rootScope.app.config.languages) {
-                      $rootScope.app.config.languages = [];
-                  } else {
-                      var languages = $rootScope.app.config.languages;
-                      for (var i = 0; i < languages.length; i++) {
-                          if (lang.key === languages[i].key) {
-                              return $q.reject('Sorry! Languages with the same key are not allowed.');
-                          }
-                      }
-                  }
-                  $rootScope.app.config.languages.push(lang);
-                  $translate.refresh(lang.key);
-                  return $q.resolve(lang);
-              }
 
-              /**
-               * Delete a language
-               * 
-               * @memberof $language
-               * @param {object|string} lang - The Language to delete or key of language to delete
-               * @return {promise} promise of deleted language
-               */
-              function deleteLanguage(lang) {
-                  if (!$rootScope.app.user.owner) {
-                      return $q.reject('not allowed');
-                  }
-                  var languages = $rootScope.app.config.languages;
-                  if (!languages || !languages.length) {
-                      return $q.reject('Not found');
-                  }
-                  var index = -1;
-                  if (angular.isString(lang)) {
-                      // lang is key of language
-                      for (var i = 0; i < languages.length; i++) {
-                          if (languages[i].key === lang) {
-                              index = i;
-                              break;
-                          }
-                      }
-                  } else {
-                      index = languages.indexOf(lang);
-                  }
+//      var deferred = $q.defer();
+//deferred.resolve(res);
+//      return deferred.promise;
+    }
 
-                  if (index !== -1) {
-                      languages.splice(index, 1);
-                      return $q.resolve(lang);
-                  }
-                  return $q.reject('Not found');
-              }
+    /**
+     * Adds a new language
+     * 
+     * @param {object} lang - Object contain information of a language.
+     * 		A language object would contain following properties:
+     * 
+     * 		- key: a key to determin language (for example fa, en and so on)
+     * 		- title: title for language (for example Persian, English, ...)
+     * 		- dir: direction of language ('ltr' or 'rtl')
+     * 		- map: translation table of language contains some key-values. 
+     * 
+     * @memberof $language
+     */
+    function newLanguage(lang) {
+        if (!$rootScope.app.user.owner) {
+            return $q.reject('not allowed');
+        }
+        if (!$rootScope.app.config.languages) {
+            $rootScope.app.config.languages = [];
+        } else {
+            var languages = $rootScope.app.config.languages;
+            for (var i = 0; i < languages.length; i++) {
+                if (lang.key === languages[i].key) {
+                    return $q.reject('Sorry! Languages with the same key are not allowed.');
+                }
+            }
+        }
+        $rootScope.app.config.languages.push(lang);
+        $translate.refresh(lang.key);
+        return $q.resolve(lang);
+    }
 
-              /**
-               * Returns the language key of language that is currently loaded asynchronously.
-               * 
-               * @memberof $language
-               * @return {string} language key
-               */
-              function proposedLanguage() {
-                  return $translate.proposedLanguage();
-              }
+    /**
+     * Delete a language
+     * 
+     * @memberof $language
+     * @param {object|string} lang - The Language to delete or key of language to delete
+     * @return {promise} promise of deleted language
+     */
+    function deleteLanguage(lang) {
+        if (!$rootScope.app.user.owner) {
+            return $q.reject('not allowed');
+        }
+        var languages = $rootScope.app.config.languages;
+        if (!languages || !languages.length) {
+            return $q.reject('Not found');
+        }
+        var index = -1;
+        if (angular.isString(lang)) {
+            // lang is key of language
+            for (var i = 0; i < languages.length; i++) {
+                if (languages[i].key === lang) {
+                    index = i;
+                    break;
+                }
+            }
+        } else {
+            index = languages.indexOf(lang);
+        }
 
-              /**
-               * Tells angular-translate which language to use by given language key. This 
-               * method is used to change language at runtime. It also takes care of 
-               * storing the language key in a configured store to let your app remember 
-               * the choosed language.
-               *
-               * When trying to 'use' a language which isn't available it tries to load it 
-               * asynchronously with registered loaders.
-               * 
-               * Returns promise object with loaded language file data or string of the 
-               * currently used language.
-               * 
-               * If no or a falsy key is given it returns the currently used language key. 
-               * The returned string will be undefined if setting up $translate hasn't 
-               * finished.
-               * 
-               * @memberof $language
-               * @param {string} key - Feature description.Language key
-               * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
-               * 
-               */
-              function use(key) {
-                  return $translate.use(key);
-              }
+        if (index !== -1) {
+            languages.splice(index, 1);
+            return $q.resolve(lang);
+        }
+        return $q.reject('Not found');
+    }
 
-              /**
-               * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
-               * the module will drop all existent translation tables and load new version of those which
-               * are currently in use.
-               *
-               * Refresh means that the module will drop target translation table and try to load it again.
-               *
-               * In case there are no loaders registered the refresh() method will throw an Error.
-               *
-               * If the module is able to refresh translation tables refresh() method will broadcast
-               * $translateRefreshStart and $translateRefreshEnd events.
-               *
-               * @example
-               * // this will drop all currently existent translation tables and reload those which are
-               * // currently in use
-               * $translate.refresh();
-               * // this will refresh a translation table for the en_US language
-               * $translate.refresh('en_US');
-               *
-               * @param {string} langKey A language key of the table, which has to be refreshed
-               *
-               * @return {promise} Promise, which will be resolved in case a translation tables refreshing
-               * process is finished successfully, and reject if not.
-               */
-              function refresh(key) {
-                  return $translate.refresh(key);
-              }
+    /**
+     * Returns the language key of language that is currently loaded asynchronously.
+     * 
+     * @memberof $language
+     * @return {string} language key
+     */
+    function proposedLanguage() {
+        return $translate.proposedLanguage();
+    }
 
-              /*
-               * Service struct
-               */
-              return {
-                  language: language,
-                  languages: languages,
-                  newLanguage: newLanguage,
-                  deleteLanguage: deleteLanguage,
-                  proposedLanguage: proposedLanguage,
-                  refresh: refresh,
-                  use: use
-              };
-          });
+    /**
+     * Tells angular-translate which language to use by given language key. This 
+     * method is used to change language at runtime. It also takes care of 
+     * storing the language key in a configured store to let your app remember 
+     * the choosed language.
+     *
+     * When trying to 'use' a language which isn't available it tries to load it 
+     * asynchronously with registered loaders.
+     * 
+     * Returns promise object with loaded language file data or string of the 
+     * currently used language.
+     * 
+     * If no or a falsy key is given it returns the currently used language key. 
+     * The returned string will be undefined if setting up $translate hasn't 
+     * finished.
+     * 
+     * @memberof $language
+     * @param {string} key - Feature description.Language key
+     * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
+     * 
+     */
+    function use(key) {
+        return $translate.use(key);
+    }
+
+    /**
+     * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
+     * the module will drop all existent translation tables and load new version of those which
+     * are currently in use.
+     *
+     * Refresh means that the module will drop target translation table and try to load it again.
+     *
+     * In case there are no loaders registered the refresh() method will throw an Error.
+     *
+     * If the module is able to refresh translation tables refresh() method will broadcast
+     * $translateRefreshStart and $translateRefreshEnd events.
+     *
+     * @example
+     * // this will drop all currently existent translation tables and reload those which are
+     * // currently in use
+     * $translate.refresh();
+     * // this will refresh a translation table for the en_US language
+     * $translate.refresh('en_US');
+     *
+     * @param {string} langKey A language key of the table, which has to be refreshed
+     *
+     * @return {promise} Promise, which will be resolved in case a translation tables refreshing
+     * process is finished successfully, and reject if not.
+     */
+    function refresh(key) {
+        return $translate.refresh(key);
+    }
+
+    /*
+     * Service struct
+     */
+    return {
+        language: language,
+        languages: languages,
+        newLanguage: newLanguage,
+        deleteLanguage: deleteLanguage,
+        proposedLanguage: proposedLanguage,
+        refresh: refresh,
+        use: use
+    };
+});
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
@@ -6812,27 +6794,18 @@ angular.module('mblowfish-core')
  * 
  * Metrics must be tracked by the following 
  */
-.service('$metrics', function($q, $timeout/*, $monitor*/) {
+.service('$metrics', function($q/*, $timeout, $monitor*/) {
 	/*
 	 * store list of metrics
 	 */
-	var metrics = [];
-	
-	var remoteMetrics = []
-	var localMetrics = []
+//	var metrics = [];
+//	
+//	var remoteMetrics = []
+//	var localMetrics = []
 
 	// XXX: maso, 1395: metric interval
-	var defaultInterval = 60000;
+//	var defaultInterval = 60000;
 
-
-	/**
-	 * Reloads all metrics
-	 * 
-	 * @return promisse to load all metrics
-	 */
-	function reaload(){
-		// reload all metrics
-	};
 
 	/**
 	 * Add a monitor in track list
@@ -6857,10 +6830,10 @@ angular.module('mblowfish-core')
 	 *            
 	 * @return {promise(PMonitor)}
 	 */
-	function trackMetric(key, $scope) {
+	function trackMetric(/*key, $scope*/) {
 		// track metric with key
 		return $q.resolve('hi');
-	};
+	}
 
 
 	/**
@@ -6869,14 +6842,14 @@ angular.module('mblowfish-core')
 	 * @param {Object}
 	 *            monitor
 	 */
-	function breakMonitor(key) {
+	function breakMonitor(/*key*/) {
 //		var def = $q.defer();
 //		$timeout(function() {
 //			// XXX: maso, 1395: remove monitor
 //			def.resolve(monitor);
 //		}, 1);
 //		return def.promise;
-	};
+	}
 
 
 	this.breakMonitor = breakMonitor;
@@ -6919,186 +6892,183 @@ angular.module('mblowfish-core')
  */
 .service('$navigator', function($q, $route, $mdDialog, $location, $window) {
 
-	var _items = [];
-	var _groups = [];
+    var _items = [];
+    var _groups = [];
 
-	function loadAllItems(pagination) {
-		setTimeout(function() {
-			deferred.notify('about to search items.');
-			deferred.resolve(items(pagination));
-		}, 100);
-		return deferred.promise;
-	}
+    /**
+     * Gets list of all items in the navigation
+     *
+     * Returns all items added into the navigation list.
+     *
+     * Note: this is an unsynchronized function and the return value is a promiss
+     */
+    function items(pagination){
+        var items = _items;
+        if(pagination){
+            // Filter items
+            if(pagination.param._px_fk){
+                items = [];
+                // group
+                if(pagination.param._px_fk === 'group'){
+                    angular.forEach(_items, function(item){
+                        if(item.groups &&
+                                angular.isArray(item.groups) &&
+                                item.groups.indexOf(pagination.param._px_fv) > -1){
+                            items.push(item);
+                        }
+                    });
+                }
+                // TODO: maso, support others
+            }
+            // TODO: maso, support sort
+        }
+        return items;
+    }
 
-	/**
-	 * Gets list of all items in the navigation
-	 *
-	 * Returns all items added into the navigation list.
-	 *
-	 * Note: this is an unsynchronized function and the return value is a promiss
-	 */
-	function items(pagination){
-		var items = _items;
-		if(pagination){
-			// Filter items
-			if(pagination.param._px_fk){
-				items = [];
-				// group
-				if(pagination.param._px_fk === 'group'){
-					angular.forEach(_items, function(item){
-						if(item.groups &&
-								angular.isArray(item.groups) &&
-								item.groups.indexOf(pagination.param._px_fv) > -1){
-							items.push(item);
-						}
-					});
-				}
-				// TODO: maso, support others
-			}
-			// TODO: maso, support sort
-		}
-		return items;
-	}
+    /**
+     * Adding the item into the navigation list
+     *
+     * Note: this is an unsynchronized function and the return value is a promiss
+     */
+    function newItem(item){
+        item.priority = item.priority || 100;
+        _items.push(item);
+        return this;
+    }
 
-	/**
-	 * Adding the item into the navigation list
-	 *
-	 * Note: this is an unsynchronized function and the return value is a promiss
-	 */
-	function newItem(item){
-		item.priority = item.priority || 100;
-		_items.push(item);
-		return this;
-	}
+    /**
+     * Remove the item from navigation list
+     *
+     * Note: this is an unsynchronized function and the return value is a promiss
+     */
+    function removeItem(item) {
+        var index = _items.indexOf(item);
+        if (index > -1) {
+            _items.splice(index, 1);
+        }
+        return this;
+    }
 
-	/**
-	 * Remove the item from navigation list
-	 *
-	 * Note: this is an unsynchronized function and the return value is a promiss
-	 */
-	function removeItem(item) {
-		var index = _items.indexOf(item);
-		if (index > -1) {
-			_items.splice(index, 1);
-		}
-		return this;
-	}
+    /**
+     * List all groups
+     */
+    function groups(/*paginationParam*/){
+        return _groups;
+    }
 
-	/**
-	 * List all groups
-	 */
-	function groups(paginationParam){
-		return _groups;
-	}
+    /**
+     * Create new group
+     *
+     * Note: if group with the same id exist, it will bet updated
+     */
+    function newGroup(group){
+        if(!(group.id in _groups)){
+            _groups[group.id] = {
+                    id: group.id
+            };
+        }
+        angular.merge(_groups[group.id], group);
+    }
 
-	/**
-	 * Create new group
-	 *
-	 * Note: if group with the same id exist, it will bet updated
-	 */
-	function newGroup(group){
-		if(!(group.id in _groups)){
-			_groups[group.id] = {
-					id: group.id
-			};
-		}
-		angular.merge(_groups[group.id], group);
-	}
-
-	/**
-	 * Getting the group
-	 *
-	 * If the group is not register before, new empty will be created.
-	 */
-	function group(groupId){
-		if(!(groupId in _groups)){
-			_groups[groupId] = {
-					id: groupId
-			};
-		}
-		return _groups[groupId];
-	}
+    /**
+     * Getting the group
+     *
+     * If the group is not register before, new empty will be created.
+     */
+    function group(groupId){
+        if(!(groupId in _groups)){
+            _groups[groupId] = {
+                    id: groupId
+            };
+        }
+        return _groups[groupId];
+    }
 
 
-	/**
-	 * Open an dialog view
-	 *
-	 * A dialogs needs:
-	 *
-	 * <ul>
-	 * <li>templateUrl</li>
-	 * <li>config (optinal)</li>
-	 * </ul>
-	 *
-	 * templateUrl is an html template.
-	 *
-	 * the config element is bind into the scope of the template automatically.
-	 *
-	 * @param dialog
-	 * @returns promiss
-	 */
-	function openDialog(dialog) {
-		var dialogCnf = {};
-		angular.extend(dialogCnf, {
-			controller : 'AmdNavigatorDialogCtrl',
-			parent : angular.element(document.body),
-			clickOutsideToClose : true,
-			fullscreen: true,
-			multiple:true
-		}, dialog);
-		if (!dialogCnf.config) {
-			dialogCnf.config = {};
-		}
-		if(!dialogCnf.locals){
-			dialogCnf.locals = {};
-		}
-		dialogCnf.locals.config = dialogCnf.config;
-		return $mdDialog.show(dialogCnf);
-	}
+    /**
+     * Open an dialog view
+     *
+     * A dialogs needs:
+     *
+     * <ul>
+     * <li>templateUrl</li>
+     * <li>config (optinal)</li>
+     * </ul>
+     *
+     * templateUrl is an html template.
+     *
+     * the config element is bind into the scope of the template automatically.
+     *
+     * @param dialog
+     * @returns promiss
+     */
+    function openDialog(dialog) {
+        var dialogCnf = {};
+        angular.extend(dialogCnf, {
+            controller : 'AmdNavigatorDialogCtrl',
+            parent : angular.element(document.body),
+            clickOutsideToClose : true,
+            fullscreen: true,
+            multiple:true
+        }, dialog);
+        if (!dialogCnf.config) {
+            dialogCnf.config = {};
+        }
+        if(!dialogCnf.locals){
+            dialogCnf.locals = {};
+        }
+        dialogCnf.locals.config = dialogCnf.config;
+        return $mdDialog.show(dialogCnf);
+    }
 
-	/**
-	 * Open a page
-	 *
-	 * @param page
-	 */
-	function openPage(page, params){
-		//TODO: support page parameters
-		if(page && page.toLowerCase().startsWith("http")){
-			$window.open(page);
-		}
-		if(params){
-			$location.path(page).search(params);
-		}else{
-			$location.path(page);
-		}
-	}
+    /**
+     * Open a page
+     *
+     * @param page
+     */
+    function openPage(page, params){
+        //TODO: support page parameters
+        if(page && page.toLowerCase().startsWith('http')){
+            $window.open(page);
+        }
+        if(params){
+            $location.path(page).search(params);
+        }else{
+            $location.path(page);
+        }
+    }
 
-	/**
-	 * Check page is the current one
-	 *
-	 * If the input page is selected and loaded before return true;
-	 *
-	 * @param page String the page path
-	 * @return boolean true if page is selected.
-	 */
-	function isPageSelected(page){
-		// XXX: maso, 2017: check if page is the current one
-		return false;
-	}
+    /**
+     * Check page is the current one
+     *
+     * If the input page is selected and loaded before return true;
+     *
+     * @param page String the page path
+     * @return boolean true if page is selected.
+     */
+    function isPageSelected(/*page*/){
+        // XXX: maso, 2017: check if page is the current one
+        return false;
+    }
 
-	return {
-		loadAllItems : loadAllItems,
-		openDialog : openDialog,
-		openPage: openPage,
-		isPageSelected: isPageSelected,
-		// Itmes
-		items : items,
-		newItem: newItem,
-		// Group
-		groups: groups,
-		newGroup: newGroup,
-		group: group
-	};
+    function loadAllItems(pagination) {
+        $q.resolve(items(pagination));
+    }
+
+    return {
+        loadAllItems : loadAllItems,
+        openDialog : openDialog,
+        openPage: openPage,
+        isPageSelected: isPageSelected,
+        // Itmes
+        items : items,
+        newItem: newItem,
+        deleteItem: removeItem,
+        // Group
+        groups: groups,
+        newGroup: newGroup,
+        group: group
+    };
 });
 
 /*
@@ -7160,7 +7130,7 @@ angular.module('mblowfish-core')
 				message : message
 			}
 		});
-	};
+	}
 
 	/**
 	 * The confirm() method displays a dialog box with a specified message,
@@ -7189,7 +7159,7 @@ angular.module('mblowfish-core')
 				message : message
 			}
 		});
-	};
+	}
 
 	/**
 	 * The prompt() method displays a dialog box that prompts the visitor for
@@ -7220,7 +7190,7 @@ angular.module('mblowfish-core')
 				model : defaultText
 			}
 		});
-	};
+	}
 
 	/**
 	 * TODO: maso, 2017: document
@@ -7233,7 +7203,7 @@ angular.module('mblowfish-core')
 				.textContent(text)
 				.hideDelay(3000)
 		);
-	};
+	}
 
 
 	return {
@@ -7944,7 +7914,7 @@ angular.module('mblowfish-core')
  * 
  * Option is user configurations
  */
-.service('$options', function($q, $navigator) {
+.service('$options', function($q) {
 	var _pages = [ ];
 
 	/**
@@ -7964,7 +7934,6 @@ angular.module('mblowfish-core')
 	 * @return {promiss<config>} return config
 	 */
 	function getPage(pageId){
-		var page = null;
 		for(var i = 0; i < _pages.length; i++){
 			if(_pages[i].id === pageId){
 				return $q.when(_pages[i]);
@@ -8068,7 +8037,7 @@ angular.module('mblowfish-core')
 		// get preferences
 		for (var i = 0, len = preferences.length; i < len; i++) {
 			if(preferences[i].id === id){
-				return $q.when(preferences[i])
+				return $q.when(preferences[i]);
 			}
 		}
 		// not found
@@ -8103,216 +8072,214 @@ angular.module('mblowfish-core')
 		'pages' : pages,
 		'page': page,
 		'newPage': newPage,
-		'openPage' : open,
+		'openPage' : open
 	};
 });
 
-  /*
-   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-   * 
-   * Permission is hereby granted, free of charge, to any person obtaining a copy
-   * of this software and associated documentation files (the "Software"), to deal
-   * in the Software without restriction, including without limitation the rights
-   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   * copies of the Software, and to permit persons to whom the Software is
-   * furnished to do so, subject to the following conditions:
-   * 
-   * The above copyright notice and this permission notice shall be included in all
-   * copies or substantial portions of the Software.
-   * 
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   * SOFTWARE.
-   */
-  'use strict';
-  angular.module('mblowfish-core') //
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core') //
 
-          /**
-           * @ngdoc Services
-           * @name $sidenav
-           * @param {} $q
-           * @description sidenavs manager
-           * 
-           */
-          .service('$sidenav', function ($q) {
-              var _sidenavs = [];
+/**
+ * @ngdoc Services
+ * @name $sidenav
+ * @param {} $q
+ * @description sidenavs manager
+ * 
+ */
+.service('$sidenav', function ($q) {
+    var _sidenavs = [];
 
-	/**
-	 * Get list of all sidenavs
-	 * 
-	 * @memberof $sidenav
-	 * @return promiss
-	 */
-	function sidenavs(){
-		return $q.when({
-			items: _sidenavs
-		});
-	}
+    /**
+     * Get list of all sidenavs
+     * 
+     * @memberof $sidenav
+     * @return promiss
+     */
+    function sidenavs(){
+        return $q.when({
+            items: _sidenavs
+        });
+    }
 
-	/**
-	 * Add new sidenav
-	 * 
-	 * @memberof $sidenav
-         * @param {} sidenav
-	 * @return promiss
-	 */
-	function newSidenav(sidenav){
-		_sidenavs.push(sidenav);
-	}
+    /**
+     * Add new sidenav
+     * 
+     * @memberof $sidenav
+     * @param {} sidenav
+     * @return promiss
+     */
+    function newSidenav(sidenav){
+        _sidenavs.push(sidenav);
+    }
 
-	/**
-	 * Get a sidnav by id
-	 * 
-	 * @memberof $sidenav
-         * @param {} id
-	 * @return promiss
-	 */
-	function sidenav(id){
-		for(var i = 0; i < _sidenavs.length; i++){
-			if(_sidenavs[i].id === id){
-				return $q.when(_sidenavs[i]);
-			}
-		}
-		return $q.reject('Sidenav not found');
-	}
+    /**
+     * Get a sidnav by id
+     * 
+     * @memberof $sidenav
+     * @param {} id
+     * @return promiss
+     */
+    function sidenav(id){
+        for(var i = 0; i < _sidenavs.length; i++){
+            if(_sidenavs[i].id === id){
+                return $q.when(_sidenavs[i]);
+            }
+        }
+        return $q.reject('Sidenav not found');
+    }
 
-	var _defaultSidenavs = [];
+    var _defaultSidenavs = [];
 
-        /**
-	 * Add new sidenav
-	 * 
-	 * @memberof $sidenav
-         * @param {} defaultSidenavs
-	 * @return promiss
-	 */
-	function setDefaultSidenavs(defaultSidenavs){
-		_defaultSidenavs = defaultSidenavs || [];
-		return this;
-	}
+    /**
+     * Add new sidenav
+     * 
+     * @memberof $sidenav
+     * @param {} defaultSidenavs
+     * @return promiss
+     */
+    function setDefaultSidenavs(defaultSidenavs){
+        _defaultSidenavs = defaultSidenavs || [];
+        return this;
+    }
 
-         /**
-	 * Add new sidenav
-	 * 
-	 * @memberof $sidenav
-	 * @return promiss
-	 */
-	function defaultSidenavs(){
-		return _defaultSidenavs;
-	}
+    /**
+     * Add new sidenav
+     * 
+     * @memberof $sidenav
+     * @return promiss
+     */
+    function defaultSidenavs(){
+        return _defaultSidenavs;
+    }
 
 
-	var apps = {};
+    var apps = {};
 
-	apps.sidenavs = sidenavs;
-	apps.newSidenav = newSidenav;
-	apps.sidenav = sidenav;
-	apps.setDefaultSidenavs = setDefaultSidenavs;
-	apps.defaultSidenavs = defaultSidenavs;
+    apps.sidenavs = sidenavs;
+    apps.newSidenav = newSidenav;
+    apps.sidenav = sidenav;
+    apps.setDefaultSidenavs = setDefaultSidenavs;
+    apps.defaultSidenavs = defaultSidenavs;
 
-	return apps;
-          });
-  
-  
+    return apps;
+});
 
-  /*
-   * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-   * 
-   * Permission is hereby granted, free of charge, to any person obtaining a copy
-   * of this software and associated documentation files (the "Software"), to deal
-   * in the Software without restriction, including without limitation the rights
-   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   * copies of the Software, and to permit persons to whom the Software is
-   * furnished to do so, subject to the following conditions:
-   * 
-   * The above copyright notice and this permission notice shall be included in all
-   * copies or substantial portions of the Software.
-   * 
-   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   * SOFTWARE.
-   */
-  'use strict';
-  angular.module('mblowfish-core') //
 
-          /**
-           * @ngdoc Services
-           * @name $toolbar
-           * @description toolbars manager
-           * 
-           */
-          .service('$toolbar', function ($q) {
 
-              var _toolbars = [];
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core') //
 
-              /**
-               * Get list of all toolbars
-               * 
-               * @memberof $app
-               * @return promiss
-               */
-              function toolbars() {
-                  return $q.when({
-                      items: _toolbars
-                  });
-              }
+/**
+ * @ngdoc Services
+ * @name $toolbar
+ * @description toolbars manager
+ * 
+ */
+.service('$toolbar', function ($q) {
 
-              /**
-               * Add new toolbar
-               * 
-               * @memberof $toolbar
-               * @param {} toolbar
-               * @return promise
-               */
-              function newToolbar(toolbar) {
-                  _toolbars.push(toolbar);
-              }
+    var _toolbars = [];
 
-              /**
-               * Get a toolbar by id
-               * 
-               * @memberof $app
-               * @param {} id
-               * @return promise
-               */
-              function toolbar(id) {
-                  for (var i = 0; i < _toolbars.length; i++) {
-                      if (_toolbars[i].id === id) {
-                          return $q.when(_toolbars[i]);
-                      }
-                  }
-                  return $q.reject('Toolbar not found');
-              }
+    /**
+     * Get list of all toolbars
+     * 
+     * @memberof $app
+     * @return promiss
+     */
+    function toolbars() {
+        return $q.when({
+            items: _toolbars
+        });
+    }
 
-              var _defaultToolbars = [];
-              function setDefaultToolbars(defaultToolbars) {
-                  _defaultToolbars = defaultToolbars || [];
-                  return this;
-              }
+    /**
+     * Add new toolbar
+     * 
+     * @memberof $toolbar
+     * @param {} toolbar
+     * @return promise
+     */
+    function newToolbar(toolbar) {
+        _toolbars.push(toolbar);
+    }
 
-              function defaultToolbars() {
-                  return _defaultToolbars;
-              }
-              
-              
-              
-              var apps = {};
-              // toolbars
-              apps.toolbars = toolbars;
-              apps.newToolbar = newToolbar;
-              apps.toolbar = toolbar;
-              apps.setDefaultToolbars = setDefaultToolbars;
-              apps.defaultToolbars = defaultToolbars;
-              
-              return apps;
-          });
+    /**
+     * Get a toolbar by id
+     * 
+     * @memberof $app
+     * @param {} id
+     * @return promise
+     */
+    function toolbar(id) {
+        for (var i = 0; i < _toolbars.length; i++) {
+            if (_toolbars[i].id === id) {
+                return $q.when(_toolbars[i]);
+            }
+        }
+        return $q.reject('Toolbar not found');
+    }
+
+    var _defaultToolbars = [];
+    function setDefaultToolbars(defaultToolbars) {
+        _defaultToolbars = defaultToolbars || [];
+        return this;
+    }
+
+    function defaultToolbars() {
+        return _defaultToolbars;
+    }
+
+    var apps = {};
+    // toolbars
+    apps.toolbars = toolbars;
+    apps.newToolbar = newToolbar;
+    apps.toolbar = toolbar;
+    apps.setDefaultToolbars = setDefaultToolbars;
+    apps.defaultToolbars = defaultToolbars;
+
+    return apps;
+});
 
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
