@@ -227,7 +227,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		helpId : function($routeParams) {
-			return 'preference-' + $routeParams.preferenceId;
+			return 'preferences-' + $routeParams.preferenceId;
 		},
 		/*
 		 * @ngInject
@@ -809,7 +809,7 @@ angular.module('mblowfish-core')
 	$rootScope.showHelp = false;
 	var lastLoaded;
 
-
+        
 	/**
 	 * load help content for the item
 	 * 
@@ -851,21 +851,15 @@ angular.module('mblowfish-core')
 	});
 
 	/*
-	 * Watch current state changes
-	 */
-	$scope.$watch(function(){
-		if($route.current){
-			return $route.current.$$route;
-		}
-		return null;
-	}, _loadHelpContent);
-
-	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
 		return $help.currentItem();
-	}, _loadHelpContent);
+	}, function() {
+            if ($rootScope.showHelp) {
+                _loadHelpContent();
+            }
+        });
 });
 // TODO: should be moved to mblowfish-core
 
@@ -4962,87 +4956,87 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-	$actions.newAction({
-		id: 'mb.preferences',
-		priority : 15,
-		icon : 'settings',
-		title : 'Preferences',
-		description : 'Open preferences panel',
-		visible : function(){
-			return $rootScope.app.user.owner;
-		},
-		action : function(){
-			return $navigator.openPage('/preferences');
-		},
-		groups:['mb.toolbar.menu']
-	});
-	$actions.newAction({ // help
-		id: 'mb.help',
-		priority : 15,
-		icon : 'help',
-		title : 'Help',
-		description : 'Display help in sidenav',
-		visible : function(){
-			return $help.hasHelp($route.current);
-		},
-		action : function(){
-			$help.openHelp($route.current);
-		},
-		groups:['mb.toolbar.menu']
-	});
-	
-	$toolbar.newToolbar({
-		id : 'dashboard',
-		title : 'Dashboard toolbar',
-		description : 'Main dashboard toolbar',
-		controller: 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/mb-dashboard.html'
-	});
-	
-	$sidenav.newSidenav({
-		id : 'navigator',
-		title : 'Navigator',
-		description : 'Navigate all path and routs of the pandel',
-		controller: 'AmdNavigatorCtrl',
-		templateUrl : 'views/sidenavs/mb-navigator.html',
-		locked : true,
-		position : 'start',
-	});
-	$sidenav.newSidenav({
-		id : 'help',
-		title : 'Help',
-		description : 'System online help',
-		controller : 'MbHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-help.html',
-		locked : true,
-		visible : function() {
-			return $rootScope.showHelp;
-		},
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'settings',
-		title : 'Options',
-		description : 'User options',
-		controller : 'MbOptionsCtrl',
-		templateUrl : 'views/sidenavs/mb-options.html',
-		locked : false,
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'messages',
-		title : 'Messages',
-		description : 'User message queue',
-		controller : 'MessagesCtrl',
-		templateUrl : 'views/sidenavs/mb-messages.html',
-		locked : false,
-		position : 'start'
-	});
-});
+        /**
+         * دریچه‌های محاوره‌ای
+         */
+        .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+            $actions.newAction({
+                id: 'mb.preferences',
+                priority: 15,
+                icon: 'settings',
+                title: 'Preferences',
+                description: 'Open preferences panel',
+                visible: function () {
+                    return $rootScope.app.user.owner;
+                },
+                action: function () {
+                    return $navigator.openPage('/preferences');
+                },
+                groups: ['mb.toolbar.menu']
+            });
+            $actions.newAction({// help
+                id: 'mb.help',
+                priority: 15,
+                icon: 'help',
+                title: 'Help',
+                description: 'Display help in sidenav',
+                visible: function () {
+                    return $help.hasHelp($route.current);;
+                },
+                action: function () {
+                    $help.openHelp($route.current);
+                },
+                groups: ['mb.toolbar.menu']
+            });
+
+            $toolbar.newToolbar({
+                id: 'dashboard',
+                title: 'Dashboard toolbar',
+                description: 'Main dashboard toolbar',
+                controller: 'MbToolbarDashboardCtrl',
+                templateUrl: 'views/toolbars/mb-dashboard.html'
+            });
+
+            $sidenav.newSidenav({
+                id: 'navigator',
+                title: 'Navigator',
+                description: 'Navigate all path and routs of the pandel',
+                controller: 'AmdNavigatorCtrl',
+                templateUrl: 'views/sidenavs/mb-navigator.html',
+                locked: true,
+                position: 'start',
+            });
+            $sidenav.newSidenav({
+                id: 'help',
+                title: 'Help',
+                description: 'System online help',
+                controller: 'MbHelpCtrl',
+                templateUrl: 'views/sidenavs/mb-help.html',
+                locked: true,
+                visible: function () {
+                    return $rootScope.showHelp;
+                },
+                position: 'end'
+            });
+            $sidenav.newSidenav({
+                id: 'settings',
+                title: 'Options',
+                description: 'User options',
+                controller: 'MbOptionsCtrl',
+                templateUrl: 'views/sidenavs/mb-options.html',
+                locked: false,
+                position: 'end'
+            });
+            $sidenav.newSidenav({
+                id: 'messages',
+                title: 'Messages',
+                description: 'User message queue',
+                controller: 'MessagesCtrl',
+                templateUrl: 'views/sidenavs/mb-messages.html',
+                locked: false,
+                position: 'start'
+            });
+        });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6445,161 +6439,161 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-/**
- * @ngdoc Services
- * @name $help
- * @description A help management service
- * 
- * Manage application help.
- * 
- * Set help id for an item:
- * 
- * <pre><code>
- * 	var item = {
- * 		...
- * 		helpId: 'help-id'
- * 	};
- * 	$help.openHelp(item);
- * </code></pre>
- * 
- * 
- * 
- * Open help for an item:
- * 
- * <pre><code>
- * $help.openHelp(item);
- * </code></pre>
- * 
- */
-.service('$help', function($q, $rootScope, $translate, $injector) {
+        /**
+         * @ngdoc Services
+         * @name $help
+         * @description A help management service
+         * 
+         * Manage application help.
+         * 
+         * Set help id for an item:
+         * 
+         * <pre><code>
+         * 	var item = {
+         * 		...
+         * 		helpId: 'help-id'
+         * 	};
+         * 	$help.openHelp(item);
+         * </code></pre>
+         * 
+         * 
+         * 
+         * Open help for an item:
+         * 
+         * <pre><code>
+         * $help.openHelp(item);
+         * </code></pre>
+         * 
+         */
+        .service('$help', function ($q, $rootScope, $translate, $injector) {
 
-	var _tips = [];
-	var _currentItem = null;
+            var _tips = [];
+            var _currentItem = null;
 
-	/*
-	 * Get help id
-	 */
-	function _getHelpId(item) {
-		if (!item) {
-			return null;
-		}
-		var id = item.helpId;
-		if (angular.isFunction(item.helpId)) {
-			return !$injector.invoke(item.helpId, item);
-		}
-		return id;
-	}
+            /*
+             * Get help id
+             */
+            function _getHelpId(item) {
+                if (!item) {
+                    return null;
+                }
+                var id = item.helpId;
+                if (angular.isFunction(item.helpId)) {
+                    return $injector.invoke(item.helpId, item);
+                }
+                return id;
+            }
 
-	/**
-	 * Adds new tip
-	 * 
-	 * New tip is added into the tips list.
-	 * 
-	 * @memberof $help
-	 * @param {object}
-	 *            tipData - Data of a tipe
-	 */
-	function tip(tipData) {
-		_tips.push(tipData);
+            /**
+             * Adds new tip
+             * 
+             * New tip is added into the tips list.
+             * 
+             * @memberof $help
+             * @param {object}
+             *            tipData - Data of a tipe
+             */
+            function tip(tipData) {
+                _tips.push(tipData);
                 return this;
-	}
+            }
 
-	/**
-	 * List of tips
-	 * 
-	 * @memberof $help
-	 * @return {promise<Array>} of tips
-	 */
-	function tips() {
-		return $q.resolve({
-			items : _tips
-		});
-	}
+            /**
+             * List of tips
+             * 
+             * @memberof $help
+             * @return {promise<Array>} of tips
+             */
+            function tips() {
+                return $q.resolve({
+                    items: _tips
+                });
+            }
 
-	/**
-	 * Gets current item in help system
-	 * 
-	 * @memberof $help
-	 * @return {Object} current item
-	 */
-	function currentItem() {
-		return _currentItem;
-	}
+            /**
+             * Gets current item in help system
+             * 
+             * @memberof $help
+             * @return {Object} current item
+             */
+            function currentItem() {
+                return _currentItem;
+            }
 
-	/**
-	 * Sets current item in help system
-	 * 
-	 * @memberof $help
-	 * @params item {Object} target of the help system
-	 */
-	function setCurrentItem(item) {
-		_currentItem = item;
-	}
+            /**
+             * Sets current item in help system
+             * 
+             * @memberof $help
+             * @params item {Object} target of the help system
+             */
+            function setCurrentItem(item) {
+                _currentItem = item;
+            }
 
-	/**
-	 * Gets help path
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 * @return path of the help
-	 */
-	function getHelpPath(item) {
-		// Get from help id
-		var myId = _getHelpId(item);
-		if (myId) {
-			var lang = $translate.use();
-			// load content
-			return 'resources/helps/' + myId + '-' + lang + '.json';
-		}
+            /**
+             * Gets help path
+             * 
+             * @memberof $help
+             * @params item {Object} an item to show help for
+             * @return path of the help
+             */
+            function getHelpPath(item) {
+                // Get from help id
+                var myId = _getHelpId(item || _currentItem);
+                if (myId) {
+                    var lang = $translate.use();
+                    // load content
+                    return 'resources/helps/' + myId + '-' + lang + '.json';
+                }
 
-		return null;
-	}
+                return null;
+            }
 
-	/**
-	 * Check if there exist a help on item
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 * @return path if the item if exist help or false
-	 */
-	function hasHelp(item) {
-		return getHelpPath(item);
-	}
+            /**
+             * Check if there exist a help on item
+             * 
+             * @memberof $help
+             * @params item {Object} an item to show help for
+             * @return path if the item if exist help or false
+             */
+            function hasHelp(item) {
+                return !!_getHelpId(item);
+            }
 
-	/**
-	 * Display help for an item
-	 * 
-	 * This function change current item automatically and display help for it.
-	 * 
-	 * @memberof $help
-	 * @params item {Object} an item to show help for
-	 */
-	function openHelp(item) {
-		if (!hasHelp(item)) {
-			return;
-		}
-		if (_currentItem === item) {
-			$rootScope.showHelp = !$rootScope.showHelp;
-			return;
-		}
-		setCurrentItem(item);
-		$rootScope.showHelp = true;
-	}
+            /**
+             * Display help for an item
+             * 
+             * This function change current item automatically and display help for it.
+             * 
+             * @memberof $help
+             * @params item {Object} an item to show help for
+             */
+            function openHelp(item) {
+                if (!hasHelp(item)) {
+                    return;
+                }
+                if (_currentItem === item) {
+                    $rootScope.showHelp = !$rootScope.showHelp;
+                    return;
+                }
+                setCurrentItem(item);
+                $rootScope.showHelp = true;
+            }
 
-	/*
-	 * Service structure
-	 */
-	return {
-		tip : tip,
-		tips : tips,
-                
-		currentItem : currentItem,
-		setCurrentItem : setCurrentItem,
-		openHelp : openHelp,
-		hasHelp : hasHelp,
-		getHelpPath : getHelpPath
-	};
-});
+            /*
+             * Service structure
+             */
+            return {
+                tip: tip,
+                tips: tips,
+
+                currentItem: currentItem,
+                setCurrentItem: setCurrentItem,
+                openHelp: openHelp,
+                hasHelp: hasHelp,
+                getHelpPath: getHelpPath
+            };
+        });
 
   /*
    * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6692,7 +6686,7 @@ angular.module('mblowfish-core')
                   if (!$rootScope.app.user.owner) {
                       return $q.reject('not allowed');
                   }
-                  if (!$rootScope.app.config.local.languages) {
+                  if (!$rootScope.app.config.languages) {
                       $rootScope.app.config.languages = [];
                   } else {
                       var languages = $rootScope.app.config.languages;
@@ -8371,17 +8365,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   'use strict';
 
   $templateCache.put('views/dialogs/mb-alert.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-confirm.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-prompt.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
@@ -8506,7 +8500,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <wb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</wb-icon> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label translate>Language</label> <md-select ng-model=app.config.local.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <wb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</wb-icon> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.config.local.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.config.local.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.config.local.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> <span translate>Month Day Year, </span> <span translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> <span translate>Year Month Day, </span> <span translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> <span translate>Year Month Day, </span> <span translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
@@ -8536,7 +8530,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading flex> <wb-content wb-model=helpContent></wb-content> </md-content>"
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent></wb-group> </md-content>"
   );
 
 
