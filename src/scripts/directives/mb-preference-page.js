@@ -34,7 +34,7 @@ angular
  * 
  */
 .directive('mbPreferencePage', function($compile, $controller, $preferences, $wbUtil,
-        $rootScope) {
+        $rootScope, $mdTheming) {
 
     var bodyElementSelector = 'div#mb-preference-body';
     var placeholderElementSelector = 'div#mb-preference-placeholder';
@@ -51,8 +51,8 @@ angular
         $wbUtil
         .getTemplateFor(page)
         .then(function(template) {
-            var element = angular
-            .element('<div md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
+            var element = angular.element(template);
+            $mdTheming(element);
 
             // 3- bind controller
             var link = $compile(element);
@@ -90,9 +90,9 @@ angular
      */
     function postLink(scope, element) {
         // Get Anchor
-        var _anchor = element //
-        .children(bodyElementSelector) //
-        .children(placeholderElementSelector);
+        var _anchor = element; //
+//        .children(bodyElementSelector) //
+//        .children(placeholderElementSelector);
         // TODO: maso, 2018: check auncher exist
         scope.$watch('mbPreferenceId', function(id) {
             if (id) {

@@ -3959,7 +3959,7 @@ angular
  * 
  */
 .directive('mbPreferencePage', function($compile, $controller, $preferences, $wbUtil,
-        $rootScope) {
+        $rootScope, $mdTheming) {
 
     var bodyElementSelector = 'div#mb-preference-body';
     var placeholderElementSelector = 'div#mb-preference-placeholder';
@@ -3976,8 +3976,8 @@ angular
         $wbUtil
         .getTemplateFor(page)
         .then(function(template) {
-            var element = angular
-            .element('<div md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch >' + template + '</div>');
+            var element = angular.element(template);
+            $mdTheming(element);
 
             // 3- bind controller
             var link = $compile(element);
@@ -4015,9 +4015,9 @@ angular
      */
     function postLink(scope, element) {
         // Get Anchor
-        var _anchor = element //
-        .children(bodyElementSelector) //
-        .children(placeholderElementSelector);
+        var _anchor = element; //
+//        .children(bodyElementSelector) //
+//        .children(placeholderElementSelector);
         // TODO: maso, 2018: check auncher exist
         scope.$watch('mbPreferenceId', function(id) {
             if (id) {
@@ -8325,7 +8325,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-preference-page.html',
-    "<div> <div id=mb-preference-body> <div id=mb-preference-placeholder> </div> </div> </div>"
+    "<div id=mb-preference-body layout=row layout-margin flex> </div>"
   );
 
 
@@ -8380,7 +8380,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<md-content ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id> </mb-preference-page> </md-content>"
+    "<div layout=column ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
   );
 
 
