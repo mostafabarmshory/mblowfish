@@ -34,66 +34,66 @@ angular.module('mblowfish-core')
  */
 .directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-	// **********************************************************
-	// Private Methods
-	// **********************************************************
-	function postLink(scope, element, attr, ctrls) {
-		scope.app = $rootScope.app;
-		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+    // **********************************************************
+    // Private Methods
+    // **********************************************************
+    function postLink(scope, element, attr, ctrls) {
+        scope.app = $rootScope.app;
+        var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-		function render() {
-		    if(!ngModelCtrl.$modelValue){
-		        scope.date = null;
-		        return;
-		    }
-			var date = moment //
-			.utc(ngModelCtrl.$modelValue) //
-			.local();
-			if (date.isValid()) {
-				scope.date = date;
-				return;
-			}
-			// TODO: maso, 2018: handle invalid date
-		}
+        function render() {
+            if(!ngModelCtrl.$modelValue){
+                scope.date = null;
+                return;
+            }
+            var date = moment //
+            .utc(ngModelCtrl.$modelValue) //
+            .local();
+            if (date.isValid()) {
+                scope.date = date;
+                return;
+            }
+            // TODO: maso, 2018: handle invalid date
+        }
 
-		function setValue() {
-		    if(!scope.date) {
-	            ngModelCtrl.$setViewValue(null);
-	            return;
-		    }
-			var date = moment(scope.date) //
-			.utc() //
-			.format('YYYY-MM-DD HH:mm:ss');
-			ngModelCtrl.$setViewValue(date);
-		}
+        function setValue() {
+            if(!scope.date) {
+                ngModelCtrl.$setViewValue(null);
+                return;
+            }
+            var date = moment(scope.date) //
+            .utc() //
+            .format('YYYY-MM-DD HH:mm:ss');
+            ngModelCtrl.$setViewValue(date);
+        }
 
-		ngModelCtrl.$render = render;
-		scope.$watch('date', setValue);
-	}
+        ngModelCtrl.$render = render;
+        scope.$watch('date', setValue);
+    }
 
 
-	return {
-		replace : false,
-		template : function(){
-			if($rootScope.app.calendar === 'Gregorian'){
-				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-			}
-			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-		},
-		restrict : 'E',
-		scope : {
-			minDate : '=mbMinDate',
-			maxDate : '=mbMaxDate',
-	        placeholder: '@mbPlaceholder',
-	        hideIcons: '@?mbHideIcons',
-			//		        currentView: '@mdCurrentView',
-			//		        dateFilter: '=mdDateFilter',
-			//		        isOpen: '=?mdIsOpen',
-			//		        debounceInterval: '=mdDebounceInterval',
-			//		        dateLocale: '=mdDateLocale'
-		},
-		require : [ 'ngModel' ],
-		priority : 210, // Run before ngAria
-		link : postLink
-	};
+    return {
+        replace : false,
+        template : function(){
+            if($rootScope.app.calendar === 'Gregorian'){
+                return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+            }
+            return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+        },
+        restrict : 'E',
+        scope : {
+            minDate : '=mbMinDate',
+            maxDate : '=mbMaxDate',
+            placeholder: '@mbPlaceholder',
+            hideIcons: '@?mbHideIcons'
+            //		        currentView: '@mdCurrentView',
+            //		        dateFilter: '=mdDateFilter',
+            //		        isOpen: '=?mdIsOpen',
+            //		        debounceInterval: '=mdDebounceInterval',
+            //		        dateLocale: '=mdDateLocale'
+        },
+        require : [ 'ngModel' ],
+        priority : 210, // Run before ngAria
+        link : postLink
+    };
 });

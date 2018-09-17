@@ -33,53 +33,53 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbTree', function($animate, $rootScope) {
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			mbSection: '='
-		},
-		templateUrl: 'views/directives/mb-tree.html',
-		link: function($scope, $element, $attr) {
-			// TODO: maso, 2017:
-			/**
-			 * Checks if the section is visible
-			 */
-			function isVisible(section){
-				if(!$element.has('li').length){
-					return false;
-				}
-				if(section.hidden){
-					return !$rootScope.$eval(section.hidden);
-				}
-				return true;
-			}
-			$scope.isVisible = isVisible;
-		},
-		controller : function($scope) {
-			// Current section
-			var openedSection = null;
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            mbSection: '='
+        },
+        templateUrl: 'views/directives/mb-tree.html',
+        link: function($scope, $element) {
+            // TODO: maso, 2017:
+            /**
+             * Checks if the section is visible
+             */
+            function isVisible(section){
+                if(!$element.has('li').length){
+                    return false;
+                }
+                if(section.hidden){
+                    return !$rootScope.$eval(section.hidden);
+                }
+                return true;
+            }
+            $scope.isVisible = isVisible;
+        },
+        controller : function($scope) {
+            // Current section
+            var openedSection = null;
 
 
-			/**
-			 * Check if the opened section is the section.
-			 */
-			function isOpen(section) {
-				return openedSection === section;
-			}
+            /**
+             * Check if the opened section is the section.
+             */
+            function isOpen(section) {
+                return openedSection === section;
+            }
 
-			/**
-			 * Toggle opened section
-			 * 
-			 * We just put the section in the tree openedSection and update all
-			 * UI.
-			 */
-			function toggle(section) {
-				openedSection = (openedSection === section) ? null : section;
-			}
+            /**
+             * Toggle opened section
+             * 
+             * We just put the section in the tree openedSection and update all
+             * UI.
+             */
+            function toggle(section) {
+                openedSection = (openedSection === section) ? null : section;
+            }
 
-			$scope.isOpen = isOpen;
-			$scope.toggle = toggle;
-		}
-	};
+            $scope.isOpen = isOpen;
+            $scope.toggle = toggle;
+        }
+    };
 });

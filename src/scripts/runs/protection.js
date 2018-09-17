@@ -22,12 +22,12 @@
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
+/*
+ * Help dialog 
  */
 .run(function($help, $rootScope, $route) {
     // Watch current state
-    var callWatch = $rootScope.$watch(function(){
+    $rootScope.$watch(function(){
         return $route.current;
     }, 
     function(val){

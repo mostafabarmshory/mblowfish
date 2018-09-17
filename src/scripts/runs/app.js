@@ -47,7 +47,7 @@ angular.module('mblowfish-core')
                 title: 'Help',
                 description: 'Display help in sidenav',
                 visible: function () {
-                    return $help.hasHelp($route.current);;
+                    return $help.hasHelp($route.current);
                 },
                 action: function () {
                     $help.openHelp($route.current);
@@ -70,7 +70,7 @@ angular.module('mblowfish-core')
                 controller: 'AmdNavigatorCtrl',
                 templateUrl: 'views/sidenavs/mb-navigator.html',
                 locked: true,
-                position: 'start',
+                position: 'start'
             });
             $sidenav.newSidenav({
                 id: 'help',

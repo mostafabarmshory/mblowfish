@@ -34,184 +34,181 @@ angular.module('mblowfish-core')
  */
 .service('$navigator', function($q, $route, $mdDialog, $location, $window) {
 
-	var _items = [];
-	var _groups = [];
+    var _items = [];
+    var _groups = [];
 
-	function loadAllItems(pagination) {
-		setTimeout(function() {
-			deferred.notify('about to search items.');
-			deferred.resolve(items(pagination));
-		}, 100);
-		return deferred.promise;
-	}
+    /**
+     * Gets list of all items in the navigation
+     *
+     * Returns all items added into the navigation list.
+     *
+     * Note: this is an unsynchronized function and the return value is a promiss
+     */
+    function items(pagination){
+        var items = _items;
+        if(pagination){
+            // Filter items
+            if(pagination.param._px_fk){
+                items = [];
+                // group
+                if(pagination.param._px_fk === 'group'){
+                    angular.forEach(_items, function(item){
+                        if(item.groups &&
+                                angular.isArray(item.groups) &&
+                                item.groups.indexOf(pagination.param._px_fv) > -1){
+                            items.push(item);
+                        }
+                    });
+                }
+                // TODO: maso, support others
+            }
+            // TODO: maso, support sort
+        }
+        return items;
+    }
 
-	/**
-	 * Gets list of all items in the navigation
-	 *
-	 * Returns all items added into the navigation list.
-	 *
-	 * Note: this is an unsynchronized function and the return value is a promiss
-	 */
-	function items(pagination){
-		var items = _items;
-		if(pagination){
-			// Filter items
-			if(pagination.param._px_fk){
-				items = [];
-				// group
-				if(pagination.param._px_fk === 'group'){
-					angular.forEach(_items, function(item){
-						if(item.groups &&
-								angular.isArray(item.groups) &&
-								item.groups.indexOf(pagination.param._px_fv) > -1){
-							items.push(item);
-						}
-					});
-				}
-				// TODO: maso, support others
-			}
-			// TODO: maso, support sort
-		}
-		return items;
-	}
+    /**
+     * Adding the item into the navigation list
+     *
+     * Note: this is an unsynchronized function and the return value is a promiss
+     */
+    function newItem(item){
+        item.priority = item.priority || 100;
+        _items.push(item);
+        return this;
+    }
 
-	/**
-	 * Adding the item into the navigation list
-	 *
-	 * Note: this is an unsynchronized function and the return value is a promiss
-	 */
-	function newItem(item){
-		item.priority = item.priority || 100;
-		_items.push(item);
-		return this;
-	}
+    /**
+     * Remove the item from navigation list
+     *
+     * Note: this is an unsynchronized function and the return value is a promiss
+     */
+    function removeItem(item) {
+        var index = _items.indexOf(item);
+        if (index > -1) {
+            _items.splice(index, 1);
+        }
+        return this;
+    }
 
-	/**
-	 * Remove the item from navigation list
-	 *
-	 * Note: this is an unsynchronized function and the return value is a promiss
-	 */
-	function removeItem(item) {
-		var index = _items.indexOf(item);
-		if (index > -1) {
-			_items.splice(index, 1);
-		}
-		return this;
-	}
+    /**
+     * List all groups
+     */
+    function groups(/*paginationParam*/){
+        return _groups;
+    }
 
-	/**
-	 * List all groups
-	 */
-	function groups(paginationParam){
-		return _groups;
-	}
+    /**
+     * Create new group
+     *
+     * Note: if group with the same id exist, it will bet updated
+     */
+    function newGroup(group){
+        if(!(group.id in _groups)){
+            _groups[group.id] = {
+                    id: group.id
+            };
+        }
+        angular.merge(_groups[group.id], group);
+    }
 
-	/**
-	 * Create new group
-	 *
-	 * Note: if group with the same id exist, it will bet updated
-	 */
-	function newGroup(group){
-		if(!(group.id in _groups)){
-			_groups[group.id] = {
-					id: group.id
-			};
-		}
-		angular.merge(_groups[group.id], group);
-	}
-
-	/**
-	 * Getting the group
-	 *
-	 * If the group is not register before, new empty will be created.
-	 */
-	function group(groupId){
-		if(!(groupId in _groups)){
-			_groups[groupId] = {
-					id: groupId
-			};
-		}
-		return _groups[groupId];
-	}
+    /**
+     * Getting the group
+     *
+     * If the group is not register before, new empty will be created.
+     */
+    function group(groupId){
+        if(!(groupId in _groups)){
+            _groups[groupId] = {
+                    id: groupId
+            };
+        }
+        return _groups[groupId];
+    }
 
 
-	/**
-	 * Open an dialog view
-	 *
-	 * A dialogs needs:
-	 *
-	 * <ul>
-	 * <li>templateUrl</li>
-	 * <li>config (optinal)</li>
-	 * </ul>
-	 *
-	 * templateUrl is an html template.
-	 *
-	 * the config element is bind into the scope of the template automatically.
-	 *
-	 * @param dialog
-	 * @returns promiss
-	 */
-	function openDialog(dialog) {
-		var dialogCnf = {};
-		angular.extend(dialogCnf, {
-			controller : 'AmdNavigatorDialogCtrl',
-			parent : angular.element(document.body),
-			clickOutsideToClose : true,
-			fullscreen: true,
-			multiple:true
-		}, dialog);
-		if (!dialogCnf.config) {
-			dialogCnf.config = {};
-		}
-		if(!dialogCnf.locals){
-			dialogCnf.locals = {};
-		}
-		dialogCnf.locals.config = dialogCnf.config;
-		return $mdDialog.show(dialogCnf);
-	}
+    /**
+     * Open an dialog view
+     *
+     * A dialogs needs:
+     *
+     * <ul>
+     * <li>templateUrl</li>
+     * <li>config (optinal)</li>
+     * </ul>
+     *
+     * templateUrl is an html template.
+     *
+     * the config element is bind into the scope of the template automatically.
+     *
+     * @param dialog
+     * @returns promiss
+     */
+    function openDialog(dialog) {
+        var dialogCnf = {};
+        angular.extend(dialogCnf, {
+            controller : 'AmdNavigatorDialogCtrl',
+            parent : angular.element(document.body),
+            clickOutsideToClose : true,
+            fullscreen: true,
+            multiple:true
+        }, dialog);
+        if (!dialogCnf.config) {
+            dialogCnf.config = {};
+        }
+        if(!dialogCnf.locals){
+            dialogCnf.locals = {};
+        }
+        dialogCnf.locals.config = dialogCnf.config;
+        return $mdDialog.show(dialogCnf);
+    }
 
-	/**
-	 * Open a page
-	 *
-	 * @param page
-	 */
-	function openPage(page, params){
-		//TODO: support page parameters
-		if(page && page.toLowerCase().startsWith("http")){
-			$window.open(page);
-		}
-		if(params){
-			$location.path(page).search(params);
-		}else{
-			$location.path(page);
-		}
-	}
+    /**
+     * Open a page
+     *
+     * @param page
+     */
+    function openPage(page, params){
+        //TODO: support page parameters
+        if(page && page.toLowerCase().startsWith('http')){
+            $window.open(page);
+        }
+        if(params){
+            $location.path(page).search(params);
+        }else{
+            $location.path(page);
+        }
+    }
 
-	/**
-	 * Check page is the current one
-	 *
-	 * If the input page is selected and loaded before return true;
-	 *
-	 * @param page String the page path
-	 * @return boolean true if page is selected.
-	 */
-	function isPageSelected(page){
-		// XXX: maso, 2017: check if page is the current one
-		return false;
-	}
+    /**
+     * Check page is the current one
+     *
+     * If the input page is selected and loaded before return true;
+     *
+     * @param page String the page path
+     * @return boolean true if page is selected.
+     */
+    function isPageSelected(/*page*/){
+        // XXX: maso, 2017: check if page is the current one
+        return false;
+    }
 
-	return {
-		loadAllItems : loadAllItems,
-		openDialog : openDialog,
-		openPage: openPage,
-		isPageSelected: isPageSelected,
-		// Itmes
-		items : items,
-		newItem: newItem,
-		// Group
-		groups: groups,
-		newGroup: newGroup,
-		group: group
-	};
+    function loadAllItems(pagination) {
+        $q.resolve(items(pagination));
+    }
+
+    return {
+        loadAllItems : loadAllItems,
+        openDialog : openDialog,
+        openPage: openPage,
+        isPageSelected: isPageSelected,
+        // Itmes
+        items : items,
+        newItem: newItem,
+        deleteItem: removeItem,
+        // Group
+        groups: groups,
+        newGroup: newGroup,
+        group: group
+    };
 });

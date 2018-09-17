@@ -55,7 +55,7 @@ angular.module('mblowfish-core')
 			group.items.push(action);
 		}
 		if (action.scope) {
-			action.scope.$on("$destroy", function() {
+			action.scope.$on('$destroy', function() {
 				_removeAction(action);
 			});
 		}
@@ -125,6 +125,6 @@ angular.module('mblowfish-core')
 		// groups
 		groups : _groups,
 		newGroup : _newGroup,
-		group : _group,
+		group : _group
 	};
 });

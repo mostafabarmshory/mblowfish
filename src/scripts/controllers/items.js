@@ -39,7 +39,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
     this.state = STATE_IDEAL;
-    
+
 
     /**
      * List of all loaded items
@@ -92,7 +92,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
-    
+
     /**
      * Reload the controller
      * 
@@ -109,13 +109,13 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     };
 
     this.__init = function(){
-    	this.state=STATE_INIT;
+        this.state=STATE_INIT;
         delete this.requests;
         this.items = [];
         // start the controller
         this.state=STATE_IDEAL;
-    }
-    
+    };
+
     /**
      * Loads next page
      * 
@@ -141,7 +141,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             if(!this.lastResponse.hasMore()){
                 return $q.resolve();
             }
-            this.queryParameter.setPage(lastResponse.next());
+            this.queryParameter.setPage(this.lastResponse.next());
         }
 
         // Get new items
@@ -211,6 +211,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         {
             // TODO: maso, 2018: crate action from reload
         }
+        return actions;
     };
 
     /**
@@ -265,7 +266,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @param queryParameter to apply search
      * @return promiss to get items
      */
-    this.getItems = function(queryParameter){
+    this.getItems = function(/*queryParameter*/){
 
     };
 
@@ -317,7 +318,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         ctrl.reload();
     }, true);
     this.__init();
-    
+
 }
 
 /*

@@ -37,6 +37,7 @@
     "grunt-wiredep": "^2.0.0",
     "jasmine-core": "^2.99.1",
     "jit-grunt": "^0.9.1",
+    "jsdoc": "^3.5.5",
     "jshint-stylish": "^1.0.0",
     "karma": "^1.7.0",
     "karma-chrome-launcher": "^2.2.0",

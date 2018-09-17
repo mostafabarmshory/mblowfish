@@ -27,13 +27,13 @@ angular.module('mblowfish-core')
  */
 .run(function($resource) {
 
-//    TODO: maso, 2018: replace with class
-	function getSelection(){
-		if(!this.__selections){
-			this.__selections = angular.isArray(this.value) ? this.value : [];
-		}
-		return this.__selections;
-	}
+//  TODO: maso, 2018: replace with class
+    function getSelection(){
+        if(!this.__selections){
+            this.__selections = angular.isArray(this.value) ? this.value : [];
+        }
+        return this.__selections;
+    }
 
     function getIndexOf(list, item) {
         if(!angular.isDefined(item.id)) {
@@ -46,149 +46,141 @@ angular.module('mblowfish-core')
         }
     }
 
-	function setSelected(item, selected) {
-		var selectionList = this.getSelection();
-		var index = getIndexOf(selectionList,item);
-		if(selected) {
-			// add to selection
-			if(index >= 0){
-				return;
-			}
-			selectionList.push(item);
-		} else {
-			// remove from selection
-			if (index > -1) {
-				array.splice(index, 1);
-			}
-		}
-	}
+    function setSelected(item, selected) {
+        var selectionList = this.getSelection();
+        var index = getIndexOf(selectionList,item);
+        if(selected) {
+            // add to selection
+            if(index >= 0){
+                return;
+            }
+            selectionList.push(item);
+        } else {
+            // remove from selection
+            if (index > -1) {
+                selectionList.splice(index, 1);
+            }
+        }
+    }
 
-	function isSelected(item){
-		var selectionList = this.getSelection();
-		return getIndexOf(selectionList,item) >= 0;
-	}
-	
-	
-	
-	
-	/**
-	 * @ngdoc Resources
-	 * @name Account
-	 * @description Get an account from resource
-	 * 
-	 * Enable user to select an account
-	 */
-	$resource.newPage({
-		label : 'Account',
-		type : 'account',
-		templateUrl : 'views/resources/mb-accounts.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = false;
-			this.value = $scope.value;
-			this.setSelected = function(item) {
-				$scope.$parent.setValue(item);
-			};
-			this.isSelected = function(item){
-				return item === this.value || item.id === this.value.id;
-			};
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'account' ]
-	});
-
-	/**
-	 * @ngdoc Resources
-	 * @name Accounts
-	 * @description Gets list of accounts
-	 * 
-	 * Display a list of accounts and allow user to select them.
-	 */
-	$resource.newPage({
-		label : 'Accounts',
-		type : 'account-list',
-		templateUrl : 'views/resources/mb-accounts.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function(item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'accounts' ]
-	});
+    function isSelected(item){
+        var selectionList = this.getSelection();
+        return getIndexOf(selectionList,item) >= 0;
+    }
 
 
-	
-	
-	
-	
-	
-	
-	
-	// Resource for role-list
-	$resource.newPage({
-		label : 'Role List',
-		type : 'role-list',
-		templateUrl : 'views/resources/mb-roles.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function(item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'roles' ]
-	});
-	
-	
-	// Resource for group-list
-	$resource.newPage({
-		label : 'Group List',
-		type : 'group-list',
-		templateUrl : 'views/resources/mb-groups.html',
-		/*
-		 * @ngInject
-		 */
-		controller : function($scope) {
-			// TODO: maso, 2018: load selected item
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function(item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs : 'resourceCtrl',
-		priority : 8,
-		tags : [ 'groups' ]
-	});
+
+
+    /**
+     * @ngdoc Resources
+     * @name Account
+     * @description Get an account from resource
+     * 
+     * Enable user to select an account
+     */
+    $resource.newPage({
+        label : 'Account',
+        type : 'account',
+        templateUrl : 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = false;
+            this.value = $scope.value;
+            this.setSelected = function(item) {
+                $scope.$parent.setValue(item);
+            };
+            this.isSelected = function(item){
+                return item === this.value || item.id === this.value.id;
+            };
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'account' ]
+    });
+
+    /**
+     * @ngdoc Resources
+     * @name Accounts
+     * @description Gets list of accounts
+     * 
+     * Display a list of accounts and allow user to select them.
+     */
+    $resource.newPage({
+        label : 'Accounts',
+        type : 'account-list',
+        templateUrl : 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function(item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'accounts' ]
+    });
+
+    // Resource for role-list
+    $resource.newPage({
+        label : 'Role List',
+        type : 'role-list',
+        templateUrl : 'views/resources/mb-roles.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function(item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'roles' ]
+    });
+
+
+    // Resource for group-list
+    $resource.newPage({
+        label : 'Group List',
+        type : 'group-list',
+        templateUrl : 'views/resources/mb-groups.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function(item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs : 'resourceCtrl',
+        priority : 8,
+        tags : [ 'groups' ]
+    });
 
 });
