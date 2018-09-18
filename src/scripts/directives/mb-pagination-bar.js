@@ -49,7 +49,7 @@ angular.module('mblowfish-core')
 		/*
 		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
 		 */
-		function reload(){
+		function __reload(){
 			if(!angular.isDefined(attrs.mbReload)){
 				return;
 			}
@@ -68,7 +68,7 @@ angular.module('mblowfish-core')
 
 		function searchQuery(searchText){
 			scope.mbModel.setQuery(searchText);
-			scope.mbReload();
+			__reload();
 		}
 
 		function focusToElementById(id){
@@ -83,10 +83,8 @@ angular.module('mblowfish-core')
 		scope.focusToElement=focusToElementById;
 		// configure scope:
 		scope.search = searchQuery;
+		scope.__reload = __reload;
 		scope.query=query;
-		if(angular.isFunction(scope.mbReload)){
-			scope.reload = reload;
-		}
 		if(angular.isFunction(scope.mbExport)){
 			scope.exportData = exportData;
 		}
@@ -95,7 +93,7 @@ angular.module('mblowfish-core')
 		}
 
 		scope.$watch('query', function(){
-			reload();
+			__reload();
 		}, true);
 
 	}
@@ -112,7 +110,7 @@ angular.module('mblowfish-core')
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
 			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
 			 */
-			mbReload : '@',
+			mbReload : '@?',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
 			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
