@@ -33,16 +33,16 @@
 		    	ng-click="selectUserObject()"> select user </md-button>
 		</md-list-item>
 		<md-list-item class="md-3-line" ng-show="user">
-			<img ng-src="/api/user/{{user.id}}/avatar" class="md-avatar"/>
+			<img ng-src="/api/v2/user/accounts/{{user.id}}/avatar" class="md-avatar"/>
 			<div class="md-list-item-text" 
 				layout="column">
-				<h3>{{user.first_name}} - {{user.last_name}}</h3>
+				<h3>{{user.login}}</h3>
 				<h4>
-					<span ng-show="user.active">
-						<span translate>Active</span>,
+					<span ng-show="user.is_active">
+						<span translate>Active</span>
 					</span>
-					<span ng-hide="user.active">
-						<span translate>Unactive</span>,
+					<span ng-hide="user.is_active">
+						<span translate>Unactive</span>
 					</span>
 				</h4>
 				<p>

@@ -86,37 +86,6 @@ angular.module('mblowfish-core', [ //
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-//'use strict';
-//
-//angular.module('mblowfish-core')
-//
-//.config(function($translateProvider) {
-////	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
-//	$translateProvider.useLoader('MbLanguageLoader');
-//	$translateProvider.preferredLanguage('fa');
-//});
-// TODO: maso, 2018: remove this file
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 'use strict';
 
 angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
@@ -987,7 +956,7 @@ angular.module('mblowfish-core')
         };
         // Configure welcome page. It will be added as one of the first pages of
         // setting stepper
-        var inlineTemplate = '<wb-content wb-model=\'model\' flex style=\'overflow: auto;\'></wb-content>';
+        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\'></wb-group>';
         var welcomePage = {
                 id: 'welcome',
                 title: 'Welcome',
@@ -3152,12 +3121,16 @@ angular.module('mblowfish-core')
 		/*
 		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
 		 */
-		function reload(){
+		function __reload(){
 			if(!angular.isDefined(attrs.mbReload)){
 				return;
 			}
-			// Call the callback for the first time:
-			$parse(attrs.mbReload)(scope);
+			if(angular.isFunction(attrs.mbReload)){
+				attrs.mbReload();
+			}else{				
+				// Call the callback for the first time:
+				$parse(attrs.mbReload)(scope);
+			}
 		}
 		/**
 		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
@@ -3171,7 +3144,7 @@ angular.module('mblowfish-core')
 
 		function searchQuery(searchText){
 			scope.mbModel.setQuery(searchText);
-			scope.mbReload();
+			__reload();
 		}
 
 		function focusToElementById(id){
@@ -3186,10 +3159,8 @@ angular.module('mblowfish-core')
 		scope.focusToElement=focusToElementById;
 		// configure scope:
 		scope.search = searchQuery;
+		scope.__reload = __reload;
 		scope.query=query;
-		if(angular.isFunction(scope.mbReload)){
-			scope.reload = reload;
-		}
 		if(angular.isFunction(scope.mbExport)){
 			scope.exportData = exportData;
 		}
@@ -3198,7 +3169,7 @@ angular.module('mblowfish-core')
 		}
 
 		scope.$watch('query', function(){
-			reload();
+			__reload();
 		}, true);
 
 	}
@@ -3215,7 +3186,7 @@ angular.module('mblowfish-core')
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
 			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
 			 */
-			mbReload : '@',
+			mbReload : '@?',
 			/*
 			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
 			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
@@ -3949,97 +3920,98 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular
-.module('mblowfish-core')
-/**
- * @ngdoc Directives
- * @name mb-preference-page
- * @description Preference page
- * 
- * Preference page
- * 
- */
-.directive('mbPreferencePage', function($compile, $controller, $preferences, $wbUtil,
-        $rootScope, $mdTheming) {
+        .module('mblowfish-core')
+        /**
+         * @ngdoc Directives
+         * @name mb-preference-page
+         * @description Preference page
+         * 
+         * Preference page
+         * 
+         */
+        .directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
+                $rootScope, $mdTheming) {
 
-    var bodyElementSelector = 'div#mb-preference-body';
-    var placeholderElementSelector = 'div#mb-preference-placeholder';
-    /**
-     * 
-     */
-    function loadPreference($scope, page, anchor) {
-        // 1- create scope
-        var childScope = $scope.$new(false, $scope);
-        childScope.app = $rootScope.app;
-        // childScope.wbModel = model;
+            var bodyElementSelector = 'div#mb-preference-body';
+            var placeholderElementSelector = 'div#mb-preference-placeholder';
+            /**
+             * 
+             */
+            function loadPreference($scope, page, anchor) {
+                // 1- create scope
+                var childScope = $scope.$new(false, $scope);
+                childScope.app = $rootScope.app;
+                // childScope.wbModel = model;
 
-        // 2- create element
-        $wbUtil
-        .getTemplateFor(page)
-        .then(function(template) {
-            var element = angular.element(template);
-            $mdTheming(element);
+                // 2- create element
+                $wbUtil
+                        .getTemplateFor(page)
+                        .then(function (template) {
+                            var element = angular.element(template);
+                            $mdTheming(element);
 
-            // 3- bind controller
-            var link = $compile(element);
-            if (angular
-                    .isDefined(page.controller)) {
-                var locals = {
-                        $scope : childScope,
-                        $element : element
-                        // TODO: maso, 2018:
-                };
-                var controller = $controller(
-                        page.controller, locals);
-                if (page.controllerAs) {
-                    childScope[page.controllerAs] = controller;
-                }
-                element
-                .data(
-                        '$ngControllerController',
-                        controller);
+                            // 3- bind controller
+                            var link = $compile(element);
+                            if (angular
+                                    .isDefined(page.controller)) {
+                                var locals = {
+                                    $scope: childScope,
+                                    $element: element
+                                            // TODO: maso, 2018:
+                                };
+                                var controller = $controller(
+                                        page.controller, locals);
+                                if (page.controllerAs) {
+                                    childScope[page.controllerAs] = controller;
+                                }
+                                element
+                                        .data(
+                                                '$ngControllerController',
+                                                controller);
+                            }
+
+                            // Load preferences
+                            anchor.empty();
+                            anchor.append(link(childScope));
+                        });
             }
 
-            // Load preferences
-            anchor.empty();
-            anchor.append(link(childScope));
-        });
-    }
-
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @returns
-     */
-    function postLink(scope, element) {
-        // Get Anchor
-        var _anchor = element; //
+            /**
+             * Adding preloader.
+             * 
+             * @param scope
+             * @param element
+             * @param attr
+             * @returns
+             */
+            function postLink(scope, element) {
+                // Get Anchor
+                var _anchor = element; //
 //        .children(bodyElementSelector) //
 //        .children(placeholderElementSelector);
-        // TODO: maso, 2018: check auncher exist
-        scope.$watch('mbPreferenceId', function(id) {
-            if (id) {
-                $preferences.page(id).then(function(page) {
-                    loadPreference(scope, page, _anchor);
-                }, function() {
-                    // TODO: maso, 2017: handle errors
+                // TODO: maso, 2018: check auncher exist
+                scope.$watch('mbPreferenceId', function (id) {
+                    if (id) {
+                        $preferences.page(id)
+                                .then(function (page) {
+                                    loadPreference(scope, page, _anchor);
+                                }, function () {
+                                    // TODO: maso, 2017: handle errors
+                                });
+                    }
                 });
             }
-        });
-    }
 
-    return {
-        restrict : 'E',
-        templateUrl : 'views/directives/mb-preference-page.html',
-        replace : true,
-        scope : {
-            mbPreferenceId : '='
-        },
-        link : postLink
-    };
-});
+            return {
+                restrict: 'E',
+                templateUrl: 'views/directives/mb-preference-page.html',
+                replace: true,
+                scope: {
+                    mbPreferenceId: '='
+                },
+                link: postLink
+            };
+        });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4762,69 +4734,6 @@ angular.module('mblowfish-core')
 	
 	return actionGroup;
 });
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Factories
- * @name MbLanguageLoader
- * @description Language loader factory
- * 
- * Loads translation table of given language (if language is registered before). Then finds 
- * translation table from config (if exist) and merge this table with previouse table. If there
- * is no config
- * It loads languages and their translation tables from config. If it 
- * 
- * @param $q
- * @param $app
- * @param $http
- * @param $translate
- * @returns
- */
-.factory('MbLanguageLoader', function ($q, $translate, $rootScope) {
-    return function (option) {
-        // Fetch translations from config of SPA.
-        var spaTranslate = $translate.getTranslationTable(option.key);
-        var translate = spaTranslate ? spaTranslate : {};
-        // Fetch translations from config on server
-        var langs = $rootScope.app.config.local.languages;
-        if (langs) {
-            angular.forEach(langs, function (lang) {
-                if (lang.key === option.key) {
-                    angular.forEach(lang.map, function (value, key) {
-                        translate[key] = value;
-                    });
-                }
-            });
-            return $q.resolve(translate);
-        } else {
-            return $q.reject('Language not found');
-        }
-    };
-});
-
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
@@ -8315,7 +8224,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{mbTitle}}</h2> <md-button ng-if=reload class=md-icon-button aria-label=Reload ng-click=reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy==key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!=key\">radio_button_unchecked</wb-icon> {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div> </div>"
+    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action()> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy==key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!=key\">radio_button_unchecked</wb-icon> {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div> </div>"
   );
 
 
@@ -8380,7 +8289,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<div layout=column ng-cloak flex> <table layout=row> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
+    "<div layout=column ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
   );
 
 
@@ -8415,7 +8324,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-language.html',
-    "<div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex>           <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site' | translate}}:</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
+    "<div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site' | translate}}:</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
   );
 
 
