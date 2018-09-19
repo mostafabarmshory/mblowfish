@@ -3,7 +3,7 @@
 	layout-padding
 	flex>
     <md-grid-list
-        md-cols-gt-md="4" md-cols="2" md-cols-md="3"
+        md-cols-gt-md="3" md-cols="3" md-cols-md="1"
         md-row-height="4:3"
         md-gutter-gt-md="16px" md-gutter-md="8px" md-gutter="4px">
 		<md-grid-tile
@@ -13,12 +13,12 @@
 		    md-rowspan-gt-sm="{{tile.rowspan}}"
 		    ng-click="openPreference(tile.page)"
 		    style="cursor: pointer;">
-			<md-grid-tile-header>
+			<md-grid-tile-header >
 				<h3 style="text-align: center;font-weight: bold">
 					<wb-icon>{{tile.page.icon}}</wb-icon>
 					<span translate="">{{tile.page.title}}</span>
 				</h3>
-			</md-grid-tile-header>
+			</md-grid-tile-header >
 		   <p 
 				style="text-align: justify;"
 				layout-padding
