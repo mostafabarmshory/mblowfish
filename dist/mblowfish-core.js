@@ -3125,12 +3125,7 @@ angular.module('mblowfish-core')
 			if(!angular.isDefined(attrs.mbReload)){
 				return;
 			}
-			if(angular.isFunction(attrs.mbReload)){
-				attrs.mbReload();
-			}else{				
-				// Call the callback for the first time:
-				$parse(attrs.mbReload)(scope);
-			}
+			$parse(attrs.mbReload)(scope.$parent);
 		}
 		/**
 		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
