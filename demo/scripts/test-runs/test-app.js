@@ -30,6 +30,12 @@ angular.module('app')//
 .run(function($navigator, $toolbar, $rootScope){
 		// add category
 	$navigator.newGroup({
+		id: 'navigation-bar',
+		title: 'Navigation Bar',
+		icon: 'navigation',
+		priority : 20
+	});
+	$navigator.newGroup({
 		id: 'tables',
 		title: 'Tables',
 		icon: 'label',
