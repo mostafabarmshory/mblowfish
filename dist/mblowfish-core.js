@@ -6278,16 +6278,16 @@ angular.module('mblowfish-core')
 	 * @param name
 	 * @returns
 	 */
-	function exportList(objectRef, findMethod, paginatorParameter, type, name) {
+	function exportList(objectRef, findMethod, QueryParameter, type, name) {
 		var params = new QueryParameter();
 		// TODO: maso, 2017: adding funnction to clone params
 		//
 		// Example: params = new QueryParameter(old);
-		params.put('_px_q ', paginatorParameter.get('_px_q'));
-		params.put('_px_sk ', paginatorParameter.get('_px_sk'));
-		params.put('_px_so ', paginatorParameter.get('_px_so'));
-		params.put('_px_fk ', paginatorParameter.get('_px_fk'));
-		params.put('_px_fv ', paginatorParameter.get('_px_fv'));
+		params.put('_px_q ', QueryParameter.get('_px_q'));
+		params.put('_px_sk ', QueryParameter.get('_px_sk'));
+		params.put('_px_so ', QueryParameter.get('_px_so'));
+		params.put('_px_fk ', QueryParameter.get('_px_fk'));
+		params.put('_px_fv ', QueryParameter.get('_px_fv'));
 		params.setPage(0);
 
 		var dataString = '';

@@ -28,8 +28,8 @@ angular.module('app')
 .controller('TestPaginationBarCtrl', function($scope, $resource, $navigator, $amdExport, $usr,
         QueryParameter) {
 	// 
-	var paginatorParameter = new QueryParameter();
-	paginatorParameter.setOrder('id', 'a');
+	var QueryParameter = new QueryParameter();
+	QueryParameter.setOrder('id', 'a');
 	var requests = null;
 	var ctrl = {
 			state: 'relax',
@@ -39,11 +39,11 @@ angular.module('app')
 	/**
 	 * جستجوی درخواست‌ها
 	 * 
-	 * @param paginatorParameter
+	 * @param QueryParameter
 	 * @returns
 	 */
 	function find(query) {
-		paginatorParameter.setQuery(query);
+		QueryParameter.setQuery(query);
 		reload();
 	}
 
@@ -60,7 +60,7 @@ angular.module('app')
 			return;
 		}
 		if (requests) {
-			paginatorParameter.setPage(requests.next());
+			QueryParameter.setPage(requests.next());
 		}
 		// start state (device list)
 		ctrl.status = 'working';
@@ -105,7 +105,7 @@ angular.module('app')
 		// TODO: work and complete
 		ctrl.status = 'working';
 		return $amdExport.list( $usr, $usr.getAccounts, 
-				paginatorParameter, 'csv', 'exampel')//
+				QueryParameter, 'csv', 'exampel')//
 		.then(function(){
 			ctrl.status = 'ok';
 		}, function(){
@@ -118,7 +118,7 @@ angular.module('app')
 	$scope.items = [];
 	$scope.ctrl = ctrl;
 	// Pagination toolbar
-	$scope.paginatorParameter = paginatorParameter;
+	$scope.QueryParameter = QueryParameter;
 	$scope.search = find;
 	$scope.nextPage = nextPage;
 	$scope.reload = reload;

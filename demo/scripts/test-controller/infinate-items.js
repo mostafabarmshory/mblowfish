@@ -87,7 +87,7 @@ angular.module('app')
 	$scope.ctrl = ctrl;
 	$scope.reload = reload;
 	
-	$scope.paginatorParameter = new QueryParameter();
+	$scope.QueryParameter = new QueryParameter();
 	$scope.sortKeys = [
 		'id', 
 		'name'
