@@ -50,15 +50,11 @@ angular.module('mblowfish-core', [ //
 	'seen-cms',
 //	AM-WB
 	'am-wb-core', 
-	'am-wb-common', //
 	'am-wb-seen-core',
-//	'am-wb-seen-monitors',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'infinite-scroll', // https://github.com/sroze/ngInfiniteScroll
-	'nvd3',//
 	'ng-appcache',//
 	'ngFileSaver',//
 	'mdSteppers',//
@@ -4665,7 +4661,7 @@ angular.module('mblowfish-core')
                   if (this.action) {
                       $injector.invoke(this.action, this);
                   } else if (this.url){
-                      $navigator.openPage('/');
+                      $navigator.openPage(this.url);
                   }
                   if ($event) {
                       $event.stopPropagation();
@@ -8284,12 +8280,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<div layout=column ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
+    "<div layout=column ng-cloak flex> <table layout=row> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
   );
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=4 md-cols=2 md-cols-md=3 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile.page) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=3 md-cols=3 md-cols-md=1 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile.page) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
   );
 
 
