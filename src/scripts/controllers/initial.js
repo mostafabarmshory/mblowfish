@@ -48,7 +48,7 @@ angular.module('mblowfish-core')
  * NOTE: the controller works with an stepper and $mdStepper (id:
  * setting-stepper)
  */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $routeParams) {
+.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $routeParams) {
 
     /*
      * ID of the stepper
@@ -140,7 +140,9 @@ angular.module('mblowfish-core')
                     // TODO: hadi: Use $language to get current Language
                     $http.get('resources/welcome/'+$translate.use()+'.json')//
                     .then(function(res){
-                        $scope.model = res.data || {};
+                        //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
+                        //$scope.model = $wbUtil.clean(res.data || {});
+                        $scope.model = $wbUtil.clean(res.data) || {};
                     });
                 },
                 description: 'Welcome. Please login to continue.',
@@ -160,7 +162,8 @@ angular.module('mblowfish-core')
                     // TODO: hadi: Use $language to get current Language
                     $http.get('resources/congratulate/'+$translate.use()+'.json')//
                     .then(function(res){
-                        $scope.model = res.data || {};
+                        //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
+                        $scope.model = $wbUtil.clean(res.data) || {};
                     });
                     _setInitialized(true);
                 },

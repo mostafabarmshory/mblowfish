@@ -81,7 +81,7 @@ module.exports = function(config) {
       'bower_components/handsontable/dist/handsontable.js',
       'bower_components/ngHandsontable/dist/ngHandsontable.js',
       'bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js',
-      'bower_components/jspanel4x/dist/jspanel.js',
+      'bower_components/jspanel4/dist/jspanel.js',
       'bower_components/am-wb-core/dist/am-wb-core.js',
       'bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js',
       'bower_components/angular-uuid/uuid.min.js',
