@@ -65,22 +65,22 @@ angular.module('app')
 		// start state (device list)
 		ctrl.status = 'working';
 		var items={
-			"items": [
+			'items': [
 				{
-					"id": 2,
-					"name": "hadi",
-					"description": "hadi@mansour.com"
+					'id': 2,
+					'name': 'hadi',
+					'description': 'hadi@mansour.com'
 				},
 				{
-					"id": 1,
-					"name": "admin",
-					"description": "admin@dpq.co.ir"
+					'id': 1,
+					'name': 'admin',
+					'description': 'admin@dpq.co.ir'
 				}
 			],
-			"counts": 2,
-			"current_page": 1,
-			"items_per_page": 50,
-			"page_number": 1
+			'counts': 2,
+			'current_page': 1,
+			'items_per_page': 50,
+			'page_number': 1
 		};
 		requests = items;
 		ctrl.items = ctrl.items.concat(requests.items);
@@ -101,7 +101,6 @@ angular.module('app')
 		if (ctrl.status === 'working') {
 			return;
 		}
-		console.log('export data list!!');
 		// TODO: work and complete
 		ctrl.status = 'working';
 		return $amdExport.list( $usr, $usr.getAccounts, 
@@ -112,7 +111,6 @@ angular.module('app')
 			ctrl.status = 'ok';
 			alert('Fail to export data');
 		});
-		return 'ok';
 	}
 
 	$scope.items = [];
