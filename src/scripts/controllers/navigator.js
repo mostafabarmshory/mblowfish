@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AvaNavigatorCtrl
+ * @name AmdNavigatorCtrl
  * @description Navigator controller
  * 
  */
