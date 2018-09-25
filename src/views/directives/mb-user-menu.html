@@ -10,9 +10,9 @@
             <img
                 height="32px"
                 class="img-circle"
-                style="border-radius: 50%"
-                ng-src="{{app.user.current.avatar}}">
-            <span>{{app.user.current.first_name}} {{app.user.current.last_name}}</span>
+                style="border-radius: 50%; vertical-align: middle;"
+                ng-src="/api/v2/user/accounts/{{app.user.current.id}}/avatar">
+            <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span>
             <wb-icon class="material-icons">keyboard_arrow_down</wb-icon>
         </md-button>
         <md-menu-content width="3">

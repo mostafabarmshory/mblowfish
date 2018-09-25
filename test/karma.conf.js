@@ -39,9 +39,9 @@ module.exports = function(config) {
           */
             //Add IE Emulation
             var result = availableBrowser;
-            if (availableBrowser.indexOf('IE')>-1) {
-              result.push('IE9');
-            }
+//            if (availableBrowser.indexOf('IE')>-1) {
+//              result.push('IE9');
+//            }
             return result;
           }
       },
@@ -56,9 +56,6 @@ module.exports = function(config) {
       'bower_components/angular-sanitize/angular-sanitize.js',
       'bower_components/angular-messages/angular-messages.js',
       'bower_components/angular-route/angular-route.js',
-      'bower_components/d3/d3.js',
-      'bower_components/nvd3/build/nv.d3.js',
-      'bower_components/angular-nvd3/dist/angular-nvd3.js',
       'bower_components/moment/moment.js',
       'bower_components/moment-jalaali/build/moment-jalaali.js',
       'bower_components/mustache.js/mustache.js',
@@ -71,8 +68,6 @@ module.exports = function(config) {
       'bower_components/angular-aria/angular-aria.js',
       'bower_components/angular-material/angular-material.js',
       'bower_components/angular-translate/angular-translate.js',
-      'bower_components/tinycolor/tinycolor.js',
-      'bower_components/md-color-picker/dist/mdColorPicker.min.js',
       'bower_components/tinymce/tinymce.js',
       'bower_components/angular-ui-tinymce/src/tinymce.js',
       'bower_components/angular-material-expansion-panel/dist/md-expansion-panel.js',
@@ -83,16 +78,16 @@ module.exports = function(config) {
       'bower_components/zeroclipboard/dist/ZeroClipboard.js',
       'bower_components/handsontable/dist/handsontable.js',
       'bower_components/ngHandsontable/dist/ngHandsontable.js',
+      'bower_components/tinycolor/tinycolor.js',
+      'bower_components/md-color-picker/dist/mdColorPicker.min.js',
       'bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js',
-      'bower_components/jspanel4/dist/jspanel.js',
+      'bower_components/jspanel4x/dist/jspanel.js',
       'bower_components/am-wb-core/dist/am-wb-core.js',
-      'bower_components/angular-xeditable/dist/js/xeditable.js',
-      'bower_components/angular-youtube-mb/src/angular-youtube-embed.js',
-      'bower_components/am-wb-common/dist/am-wb-common.js',
-      'bower_components/ngstorage/ngStorage.js',
-      'bower_components/ngInfiniteScroll/build/ng-infinite-scroll.js',
-      'bower_components/ng-appcache/dist/appcache.js',
       'bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js',
+      'bower_components/angular-uuid/uuid.min.js',
+      'bower_components/am-wb-seen-core/dist/am-wb-seen-core.js',
+      'bower_components/ngstorage/ngStorage.js',
+      'bower_components/ng-appcache/dist/appcache.js',
       'bower_components/angular-recaptcha/release/angular-recaptcha.js',
       'bower_components/material-steppers/dist/material-steppers.js',
       'bower_components/blob-polyfill/Blob.js',

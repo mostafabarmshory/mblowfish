@@ -9,7 +9,9 @@
 		"confirm": true,
 		"alert": true,
 		"toast": true,
-		"prompt": true
+		"prompt": true,
+		"machina": true,
+		"moment": true
 	},
 	"extends": "eslint:recommended",
 	"parserOptions": {

@@ -34,14 +34,14 @@ angular.module('mblowfish-core')
      * @name openHelp
      * @params item {object} item which is target of the help system
      */
-	window.openHelp = function(item){
-	    return $help.openHelp(item);
-	}
+    window.openHelp = function(item){
+        return $help.openHelp(item);
+    };
 
-	// Hadi 1396-12-22: کد زیر توی amh بود.
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-	
+    // Hadi 1396-12-22: کد زیر توی amh بود.
+    window.alert = $notification.alert;
+    window.confirm = $notification.confirm;
+    window.prompt = $notification.prompt;
+    window.toast = $notification.toast;
+
 });

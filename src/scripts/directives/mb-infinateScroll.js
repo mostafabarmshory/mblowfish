@@ -26,28 +26,51 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mb-infinate-scroll
- * @description Infinet scroll 
+ * @description Infinet scroll
  * 
  * 
- * Manage scroll of list 
+ * Manage scroll of list
  */
-.directive('mbInfinateScroll', function($parse) {
-	// FIXME: maso, 2017: tipo in diractive name (infinite)
-	function postLink(scope, elem, attrs) {
-		// adding infinite scroll class
-		elem.addClass('mb-infinate-scroll');
-		elem.on('scroll', function(){
-			var raw = elem[0];
-			if (raw.scrollTop + raw.offsetHeight  + 5 >= raw.scrollHeight) {
-				$parse(attrs.mbInfinateScroll)(scope);
-			}
-	 	});
-		// Call the callback for the first time:
-		$parse(attrs.mbInfinateScroll)(scope);
-	}
+.directive('mbInfinateScroll', function ($parse, $q, $timeout) {
+    // FIXME: maso, 2017: tipo in diractive name (infinite)
+    function postLink(scope, elem, attrs) {
+        var raw = elem[0];
 
-	return {
-		restrict : 'A',
-		link : postLink
-	};
+        /*
+         * Load next page
+         */
+        function loadNextPage() {
+            // Call the callback for the first time:
+            var value = $parse(attrs.mbInfinateScroll)(scope);
+            return $q.when(value)//
+            .then(function (value) {
+                if (value) {
+                    return $timeout(function () {
+                        if (raw.scrollHeight <= raw.offsetHeight) {
+                            return loadNextPage();
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        /*
+         * Check scroll state and update list
+         */
+        function scrollChange() {
+            if (raw.scrollTop + raw.offsetHeight + 5 >= raw.scrollHeight) {
+                loadNextPage();
+            }
+        }
+
+        // adding infinite scroll class
+        elem.addClass('mb-infinate-scroll');
+        elem.on('scroll', scrollChange);
+        loadNextPage();
+    }
+
+    return {
+        restrict : 'A',
+        link : postLink
+    };
 });

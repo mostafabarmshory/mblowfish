@@ -1,5 +1,6 @@
 <div 
-	layout="column" 
+	layout="column"
+        layout-padding
 	ng-cloak
 	flex>
 	<md-input-container class="md-icon-float md-block">
@@ -51,17 +52,20 @@
 			<md-option 
 				value="jMM-jDD-jYYYY"
 				translate>
-				{{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}}
+                            <span translate>Month  Day  Year,   </span> <span translate>Ex.   </span>
+                            {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}}
 			</md-option>
 			<md-option 
 				value="jYYYY-jMM-jDD"
 				translate>
-				{{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}}
+                            <span translate>Year  Month  Day,   </span> <span translate>Ex.   </span>
+                            {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}}
 			</md-option>
 			<md-option 
 				value="jYYYY jMMMM jDD"
 				translate>
-				{{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}}
+                            <span translate>Year  Month  Day,   </span> <span translate>Ex.   </span>
+                            {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}}
 			</md-option>
 		</md-select>
 	</md-input-container>

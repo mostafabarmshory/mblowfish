@@ -25,10 +25,6 @@
   transform: rotate(180deg);
 }
 
-.top-corner-round {
-  border-radius: 5px 5px 0px 0px;
-}
-
 .wrapper-stack-toolbar-container {
   overflow: hidden;
   position: relative;

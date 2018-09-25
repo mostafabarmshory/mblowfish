@@ -32,6 +32,92 @@ angular.module('app') //
 	// add routes
 	$routeProvider //
 	.otherwise('/test/preloading')
+	// Navigation bar
+	.when('/navbar/pages', {
+		templateUrl : 'views/navigation-bar/pages.html',
+		navigate : true,
+		groups : [ 'navigation-bar' ],
+		name : 'Pages',
+		icon : 'load',
+		/*
+		 * @ngInject
+		 */
+		integerate: function ($route, $actions){
+			$actions.group('navigationPathMenu').clear();
+			$actions.newAction({
+				id: 'nav-pages',
+				title: 'Pages',
+				type: 'link',
+				priority : 10,
+				visible : true,
+				url: 'navbar/pages',
+				groups: ['navigationPathMenu']
+			});
+		}
+	})
+	.when('/navbar/pages/1', {
+		templateUrl : 'views/navigation-bar/page-1.html',
+		navigate : true,
+		groups : [ 'navigation-bar' ],
+		name : 'Page 1',
+		icon : 'load',
+		/*
+		 * @ngInject
+		 */
+		integerate: function ($route, $actions){
+			$actions.group('navigationPathMenu').clear();
+			$actions.newAction({
+				id: 'nav-pages',
+				title: 'Pages',
+				type: 'link',
+				priority : 10,
+				visible : true,
+				url: 'navbar/pages',
+				groups: ['navigationPathMenu']
+			});
+			$actions.newAction({
+				id: 'nav-page-1',
+				title: 'Page 1',
+				type: 'link',
+				priority : 10,
+				visible : true,
+				url: 'navbar/pages/1',
+				groups: ['navigationPathMenu']
+			});
+		}
+	})
+	.when('/navbar/pages/2', {
+		templateUrl : 'views/navigation-bar/page-2.html',
+		navigate : true,
+		groups : [ 'navigation-bar' ],
+		name : 'Page 2',
+		icon : 'load',
+		/*
+		 * @ngInject
+		 */
+		integerate: function ($route, $actions){
+			$actions.group('navigationPathMenu').clear();
+			$actions.newAction({
+				id: 'nav-pages',
+				title: 'Pages',
+				type: 'link',
+				priority : 10,
+				visible : true,
+				url: 'navbar/pages',
+				groups: ['navigationPathMenu']
+			});
+			$actions.newAction({
+				id: 'nav-page-2',
+				title: 'Page 2',
+				type: 'link',
+				priority : 10,
+				visible : true,
+				url: 'navbar/pages/2',
+				groups: ['navigationPathMenu']
+			});
+		}
+	})
+	
 	.when('/test/infinate-scrole', {
 		controller : 'InfinateItemsCtrl',
 		templateUrl : 'views/amd-test-infinate-scroll.html',
@@ -39,7 +125,7 @@ angular.module('app') //
 		groups : [ 'example', 'example2' ],
 		name : 'Infinate scroll test',
 		icon : 'load',
-		helpId: 'preloading-test'
+		helpId: 'preloading-test',
 	})
 	.when('/test/preloading', {
 		templateUrl : 'views/amd-test-preload.html',
@@ -204,6 +290,17 @@ angular.module('app') //
         navigate : true,
         groups : [ 'resources' ],
         name : 'Select resource',
+        icon : 'load',
+    })
+    
+    // Theme
+    .when('/test/themes', {
+        templateUrl : 'views/mb-test-themes.html',
+        controller: 'TestThemeCtrl',
+        controllerAs: 'ctrl',
+        navigate : true,
+        groups : [ 'themes' ],
+        name : 'Load and check themes',
         icon : 'load',
     })
 	;

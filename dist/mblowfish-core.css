@@ -25,10 +25,6 @@
   transform: rotate(180deg);
 }
 
-.top-corner-round {
-  border-radius: 5px 5px 0px 0px;
-}
-
 .wrapper-stack-toolbar-container {
   overflow: hidden;
   position: relative;
@@ -203,7 +199,7 @@
  */
 .mb-navigation-path-bar-item {
 	padding: 1px;
-	margin: 0px;
+	margin: auto;
 	margin-left: 2px;
 	margin-right: 2px;
 	cursor: pointer;
@@ -404,5 +400,5 @@ table.mb-table-description tr td:first-child {
  */
 .amd-user-menu-button {
 	margin: 0px;
-	padding: 0px;
+	padding: 4px;
 }

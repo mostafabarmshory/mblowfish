@@ -29,14 +29,14 @@
 			layout="column" 
 			layout-margin>
 	        <md-input-container>
-	            <label translate>Username</label>
+	            <label translate="">Username</label>
 	            <input ng-model="credit.login" name="username" required>
 	            <div ng-messages="ctrl.myForm.username.$error">
-					<div ng-message="required" translate>This field is required.</div>
+					<div ng-message="required" translate="">This field is required.</div>
 		        </div>
 	        </md-input-container>
 	        <md-input-container>
-	            <label translate>Password</label>
+	            <label translate="">Password</label>
 	            <input ng-model="credit.password" type="password" name="password" required>
 	            <div ng-messages="ctrl.myForm.password.$error">
 					<div ng-message="required" translate>This field is required.</div>
@@ -44,12 +44,12 @@
 	        </md-input-container>
 			<!-- adding captcha -->
 			<div
-				ng-if="app.captcha.engine==='recaptcha'"
+				ng-if="app.options['captcha.engine']==='recaptcha'"
 			    vc-recaptcha
 			    ng-model="credit.g_recaptcha_response"
 			    theme="app.captcha.theme || 'light'"
 			    type="app.captcha.type || 'image'"
-			    key="app.captcha.recaptcha.key"
+			    key="app.options['captcha.engine.recaptcha.key']"
 			    lang="app.setting.local || app.config.local || 'en'">
 			</div>
 	        <input hide type="submit" />
@@ -81,7 +81,7 @@
 		    	width="150px" height="150px" ng-show="!uploadAvatar"
 		    	ng-src="{{app.user.current.avatar}}" />
 		    <h3>{{app.user.current.login}}</h3>
-        	<p translate>you are loged in. go to one of the following options.</p>
+        	<p translate="">you are logged in. go to one of the following options.</p>
         </div>
         <div ng-show="!app.user.anonymous" 
         	layout="column" layout-align="none"

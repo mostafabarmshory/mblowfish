@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AvaNavigatorCtrl
+ * @name AmdNavigatorCtrl
  * @description Navigator controller
  * 
  */
@@ -40,7 +40,7 @@ angular.module('mblowfish-core')
 		/* 
 		 * Push navigation states
 		 */
-		angular.forEach($route.routes, function(config, route) {
+		angular.forEach($route.routes, function(config/*, route*/) {
 			if (config.navigate) {
 				// init conifg
 				config.type = 'link';

@@ -35,7 +35,7 @@ angular.module('mblowfish-core')
 	$rootScope.showHelp = false;
 	var lastLoaded;
 
-
+        
 	/**
 	 * load help content for the item
 	 * 
@@ -77,19 +77,13 @@ angular.module('mblowfish-core')
 	});
 
 	/*
-	 * Watch current state changes
-	 */
-	$scope.$watch(function(){
-		if($route.current){
-			return $route.current.$$route;
-		}
-		return null;
-	}, _loadHelpContent);
-
-	/*
 	 * Watch for current item in help service
 	 */
 	$scope.$watch(function(){
 		return $help.currentItem();
-	}, _loadHelpContent);
+	}, function() {
+            if ($rootScope.showHelp) {
+                _loadHelpContent();
+            }
+        });
 });

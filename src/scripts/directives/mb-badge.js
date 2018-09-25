@@ -34,7 +34,7 @@ angular.module('mblowfish-core')
 .directive('mbBadge', function($mdTheming, $rootScope) {
 	
 	function __badge_toRGB(color){
-		var split = (color || '').split('-')
+		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
@@ -59,14 +59,14 @@ angular.module('mblowfish-core')
 				element.css(where, __badge_toRGB(color));
 			}
 		}
-		function getPosition(){
-				return {
-					top: element.prop('offsetTop'),
-					left: element.prop('offsetLeft'),
-					width: element.prop('offsetWidth'),
-					height: element.prop('offsetHeight')
-				};
-		}
+//		function getPosition(){
+//				return {
+//					top: element.prop('offsetTop'),
+//					left: element.prop('offsetLeft'),
+//					width: element.prop('offsetWidth'),
+//					height: element.prop('offsetHeight')
+//				};
+//		}
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
 		}, function(value){
@@ -84,7 +84,7 @@ angular.module('mblowfish-core')
 		replace: true,
 		transclude: true,
 		link: postLink,
-		template: function(element, attributes) {
+		template: function(/*element, attributes*/) {
 			return '<div class="mb-badge" ng-transclude></div>';
 		}
 	};
@@ -95,7 +95,7 @@ angular.module('mblowfish-core')
 
 	
 	function __badge_toRGB(color){
-		var split = (color || '').split('-')
+		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
@@ -146,11 +146,11 @@ angular.module('mblowfish-core')
 				'left' : value.left + value.width - 20 + offset + 'px',
 				'top' : value.top + value.height - 20 + offset + 'px'
 			});
-		};
+		}
 
-		function update () {
-			position(getPosition());
-		};
+//		function update () {
+//			position(getPosition());
+//		}
 		
 		badge.addClass('mb-badge');
 		badge.css('position', 'absolute');
@@ -184,6 +184,6 @@ angular.module('mblowfish-core')
 	return {
         priority: 100,
 		restrict: 'A',
-		link: postLink,
+		link: postLink
 	};
 });

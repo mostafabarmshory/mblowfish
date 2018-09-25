@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * 
  * Option is user configurations
  */
-.service('$options', function($q, $navigator) {
+.service('$options', function($q) {
 	var _pages = [ ];
 
 	/**
@@ -49,7 +49,6 @@ angular.module('mblowfish-core')
 	 * @return {promiss<config>} return config
 	 */
 	function getPage(pageId){
-		var page = null;
 		for(var i = 0; i < _pages.length; i++){
 			if(_pages[i].id === pageId){
 				return $q.when(_pages[i]);

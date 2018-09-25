@@ -39,7 +39,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
     this.state = STATE_IDEAL;
-    
+
 
     /**
      * List of all loaded items
@@ -92,7 +92,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
-    
+
     /**
      * Reload the controller
      * 
@@ -104,13 +104,16 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.reload = function(){
         // relaod data
+        this.__init();
+        return this.loadNextPage();
+    };
+
+    this.__init = function(){
         this.state=STATE_INIT;
         delete this.requests;
         this.items = [];
-
         // start the controller
         this.state=STATE_IDEAL;
-        return this.loadNextPage();
     };
 
     /**
@@ -138,7 +141,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             if(!this.lastResponse.hasMore()){
                 return $q.resolve();
             }
-            this.queryParameter.setPage(lastResponse.next());
+            this.queryParameter.setPage(this.lastResponse.next());
         }
 
         // Get new items
@@ -152,7 +155,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             ctrl.error = error;
         })//
         .finally(function(){
-            ctrl.state = STATE_BUSY;
+            ctrl.state = STATE_IDEAL;
         });
     };
 
@@ -208,6 +211,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         {
             // TODO: maso, 2018: crate action from reload
         }
+        return actions;
     };
 
     /**
@@ -262,7 +266,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @param queryParameter to apply search
      * @return promiss to get items
      */
-    this.getItems = function(queryParameter){
+    this.getItems = function(/*queryParameter*/){
 
     };
 
@@ -273,7 +277,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @return promiss to get item
      */
     this.getItem = function(id){
-
+        return {
+            id: id
+        };
     };
 
     /**
@@ -288,9 +294,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     this.addItem = function(){
         // Controllers are supposed to override the function
         var item = {
-                id: random(),
+                id: Math.random(),
                 title: 'test item'
-        }
+        };
         return $q.accept(item);
     };
 
@@ -305,6 +311,13 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         // Controllers are supposed to override the function
     };
 
+    var ctrl = this;
+    $scope.$watch(function(){
+        return ctrl.queryParameter;
+    }, function(){
+        ctrl.reload();
+    }, true);
+    this.__init();
 
 }
 

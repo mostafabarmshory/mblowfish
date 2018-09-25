@@ -2,7 +2,7 @@
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -11,7 +11,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -36,8 +36,8 @@ angular.module('mblowfish-core')
  * 
  * @usage To load the application add this directive to the index.html.
  *        All internal elements will be removed after the module loaded.
- *        <hljs lang="html"> <body> <amd-panel> <div
- *        class="amd-preloader"> Loading.... </div> </amd-panel> ....
+ *        <hljs lang='html'> <body> <amd-panel> <div
+ *        class='amd-preloader'> Loading.... </div> </amd-panel> ....
  *        </body> </hljs>
  * 
  */
@@ -55,7 +55,7 @@ angular.module('mblowfish-core')
 		return route.protect;
 	}
 
-	function postLink($scope, $element, $attr) {
+	function postLink($scope) {
 		// State machin to controlle the view
 		var stateMachine = new machina.Fsm({
 			/* 
@@ -64,7 +64,7 @@ angular.module('mblowfish-core')
 			 * setup behavior, etc. It receives the same
 			 * arguments (options) as the constructor function.
 			 */
-			initialize: function (options) {
+			initialize: function (/*options*/) {
 				// your setup code goes here...
 				$scope.status = this.initialState;
 			},
@@ -189,20 +189,20 @@ angular.module('mblowfish-core')
 				if (!route) {
 					return;
 				}
-				this.handle("routeChange", route);
+				this.handle('routeChange', route);
 			},
 			/*
 			 * Handle application state change
 			 */
 			appStateChange: function (state) {
-				this.handle("appStateChange", state);
+				this.handle('appStateChange', state);
 			},
 			/*
 			 * Handle user state change
 			 */
 			userStateChange: function (userIsAnonymous) {
 				this.userState = userIsAnonymous;
-				this.handle("userStateChange", userIsAnonymous);
+				this.handle('userStateChange', userIsAnonymous);
 			},
 
 			/*
@@ -221,7 +221,7 @@ angular.module('mblowfish-core')
 		});
 
 		// I'd like to know when the transition event occurs
-		stateMachine.on("transition", function () {
+		stateMachine.on('transition', function () {
 			if (stateMachine.state.startsWith('ready')) {
 				$scope.status = 'ready';
 				return;
@@ -237,7 +237,7 @@ angular.module('mblowfish-core')
 				stateMachine.routeChange(route.$$route);
 				// Run state integeration
 				if (route.$$route && angular.isFunction(route.$$route.integerate)) {
-					var value = $injector.invoke(route.$$route.integerate, route.$$route);
+					$injector.invoke(route.$$route.integerate, route.$$route);
 				}
 			} else {
 				stateMachine.routeChange(route);

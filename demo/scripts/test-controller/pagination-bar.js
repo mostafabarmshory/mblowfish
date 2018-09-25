@@ -27,24 +27,9 @@ angular.module('app')
  */
 .controller('TestPaginationBarCtrl', function($scope, $resource, $navigator, $amdExport, $usr,
         QueryParameter) {
-	// Integerate with dashboard
-	$navigator.scopePath($scope)//
-	.add({
-		title: 'Example',
-	})//
-	.add({
-		title: 'Pagination',
-	})//
-	.add({
-		title: 'Pagination bars',
-		active: function(){
-			$navigator.openPage('/test/pagination');
-		}
-	});
-
 	// 
-	var paginatorParameter = new QueryParameter();
-	paginatorParameter.setOrder('id', 'a');
+	var QueryParameter = new QueryParameter();
+	QueryParameter.setOrder('id', 'a');
 	var requests = null;
 	var ctrl = {
 			state: 'relax',
@@ -54,11 +39,11 @@ angular.module('app')
 	/**
 	 * جستجوی درخواست‌ها
 	 * 
-	 * @param paginatorParameter
+	 * @param QueryParameter
 	 * @returns
 	 */
 	function find(query) {
-		paginatorParameter.setQuery(query);
+		QueryParameter.setQuery(query);
 		reload();
 	}
 
@@ -75,27 +60,27 @@ angular.module('app')
 			return;
 		}
 		if (requests) {
-			paginatorParameter.setPage(requests.next());
+			QueryParameter.setPage(requests.next());
 		}
 		// start state (device list)
 		ctrl.status = 'working';
 		var items={
-			"items": [
+			'items': [
 				{
-					"id": 2,
-					"name": "hadi",
-					"description": "hadi@mansour.com"
+					'id': 2,
+					'name': 'hadi',
+					'description': 'hadi@mansour.com'
 				},
 				{
-					"id": 1,
-					"name": "admin",
-					"description": "admin@dpq.co.ir"
+					'id': 1,
+					'name': 'admin',
+					'description': 'admin@dpq.co.ir'
 				}
 			],
-			"counts": 2,
-			"current_page": 1,
-			"items_per_page": 50,
-			"page_number": 1
+			'counts': 2,
+			'current_page': 1,
+			'items_per_page': 50,
+			'page_number': 1
 		};
 		requests = items;
 		ctrl.items = ctrl.items.concat(requests.items);
@@ -116,24 +101,22 @@ angular.module('app')
 		if (ctrl.status === 'working') {
 			return;
 		}
-		console.log('export data list!!');
 		// TODO: work and complete
 		ctrl.status = 'working';
 		return $amdExport.list( $usr, $usr.getAccounts, 
-				paginatorParameter, 'csv', 'exampel')//
+				QueryParameter, 'csv', 'exampel')//
 		.then(function(){
 			ctrl.status = 'ok';
 		}, function(){
 			ctrl.status = 'ok';
 			alert('Fail to export data');
 		});
-		return 'ok';
 	}
 
 	$scope.items = [];
 	$scope.ctrl = ctrl;
 	// Pagination toolbar
-	$scope.paginatorParameter = paginatorParameter;
+	$scope.QueryParameter = QueryParameter;
 	$scope.search = find;
 	$scope.nextPage = nextPage;
 	$scope.reload = reload;

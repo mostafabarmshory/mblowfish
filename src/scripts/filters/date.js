@@ -23,27 +23,27 @@
 
 angular.module('mblowfish-core')
 
-	/**
-	 * @ngdoc Filters
-	 * @name mbDate
-	 * @description # Format date
-	 */
-	.filter('mbDate', function($rootScope) {
-		return function(inputDate, format) {
-		    if(!inputDate){
-		        return '';
-		    }
-			try {
-				var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-				if($rootScope.app.calendar !== 'Jalaali'){
-					mf = mf.replace('j', '');
-				}
-				var date = moment //
-					.utc(inputDate) //
-					.local();
-				return date.format(mf);
-			} catch (ex) {
-				return '-' + ex.message;
-			}
-		};
-	});
+/**
+ * @ngdoc Filters
+ * @name mbDate
+ * @description # Format date
+ */
+.filter('mbDate', function($rootScope) {
+    return function(inputDate, format) {
+        if(!inputDate){
+            return '';
+        }
+        try {
+            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
+            if($rootScope.app.calendar !== 'Jalaali'){
+                mf = mf.replace('j', '');
+            }
+            var date = moment //
+            .utc(inputDate) //
+            .local();
+            return date.format(mf);
+        } catch (ex) {
+            return '-' + ex.message;
+        }
+    };
+});

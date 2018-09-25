@@ -32,17 +32,13 @@ angular.module('mblowfish-core')
  * Display and link section item
  * 
  */
-.directive('mbTreeLink', function($animate) {
+.directive('mbTreeLink', function() {
 	return {
 		restrict : 'E',
-//		replace: true,
 		scope: {
 			mbSection: '='
 		},
 		templateUrl: 'views/directives/mb-tree-link.html',
-		link: function(scope, element, attr) {
-			// TODO: maso, 2017:
-		},
 		controller : function($scope, $navigator) {
 			/**
 			 * Check if page is selected.
@@ -61,13 +57,9 @@ angular.module('mblowfish-core')
 			 * Run action of section
 			 */
 			$scope.focusSection = function(section) {
-//				$mdSidenav('left').close();
-//				ssSideNavSharedService.broadcast('_SIDENAV_CLICK_ITEM', item);
 				// XXX: maso, 2017: check action call
 				return $navigator.openPage(section.link);
 			};
-
-//			$scope.$state = $state;
 		}
 	};
 });

@@ -47,7 +47,7 @@ angular.module('mblowfish-core')
 	 */
 	actionGroup.prototype.clear = function(){
 		this.items = [];
-	}
+	};
 	
 	return actionGroup;
 });

@@ -19,13 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-//'use strict';
-//
-//angular.module('mblowfish-core')
-//
-//.config(function($translateProvider) {
-////	$translateProvider.useMissingTranslationHandler('AmhLanguageHandlerFactory');
-//	$translateProvider.useLoader('MbLanguageLoader');
-//	$translateProvider.preferredLanguage('fa');
-//});
-// TODO: maso, 2018: remove this file
+'use strict';
+
+angular.module('app')
+/**
+ * 
+ */
+.controller('TestThemeCtrl', function($scope, $rootScope) {
+
+    this.setTheme = function(theme) {
+        $rootScope.app.setting.theme = theme;
+    }
+    
+    this.clearTheme = function() {
+        $rootScope.app.setting.theme = null;
+    }
+    
+});
+

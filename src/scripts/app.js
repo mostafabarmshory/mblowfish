@@ -50,15 +50,11 @@ angular.module('mblowfish-core', [ //
 	'seen-cms',
 //	AM-WB
 	'am-wb-core', 
-	'am-wb-common', //
-//	'am-wb-seen-core',
-//	'am-wb-seen-monitors',
+	'am-wb-seen-core',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'infinite-scroll', // https://github.com/sroze/ngInfiniteScroll
-	'nvd3',//
 	'ng-appcache',//
 	'ngFileSaver',//
 	'mdSteppers',//

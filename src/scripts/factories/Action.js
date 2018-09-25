@@ -48,7 +48,7 @@
                   if (this.action) {
                       $injector.invoke(this.action, this);
                   } else if (this.url){
-                      $navigator.openPage('/');
+                      $navigator.openPage(this.url);
                   }
                   if ($event) {
                       $event.stopPropagation();

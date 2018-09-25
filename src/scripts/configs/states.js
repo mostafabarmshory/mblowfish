@@ -80,7 +80,7 @@ angular.module('mblowfish-core')
 		 * @ngInject
 		 */
 		helpId : function($routeParams) {
-			return 'preference-' + $routeParams.preferenceId;
+			return 'preferences-' + $routeParams.preferenceId;
 		},
 		/*
 		 * @ngInject
@@ -106,7 +106,8 @@ angular.module('mblowfish-core')
 	.when('/users/account', {
 		templateUrl : 'views/users/mb-account.html',
 		controller : 'MbAccountCtrl',
-		protect: true
+		protect: true,
+                helpId: 'mb-account'
 	})
 	/**
 	 * @ngdoc ngRoute
@@ -116,7 +117,8 @@ angular.module('mblowfish-core')
 	.when('/users/profile', {
 		templateUrl : 'views/users/mb-profile.html',
 		controller : 'MbProfileCtrl',
-		protect: true
+		protect: true,
+                helpId: 'mb-profile'
 	})
 	
 	// Reset forgotten password

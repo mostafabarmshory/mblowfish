@@ -32,19 +32,13 @@ angular.module('mblowfish-core')
  * Display tree heading
  * 
  */
-.directive('mbTreeHeading', function($animate) {
+.directive('mbTreeHeading', function(/*$animate*/) {
 	return {
         restrict: 'E',
         replace: true,
         scope: {
             mbSection: '='
         },
-		templateUrl: 'views/directives/mb-tree-heading.html',
-		link: function(scope, element, attr) {
-			// TODO: maso, 2017:
-		},
-		controller : function($scope) {
-			// TODO: maso, 2017:
-		}
+		templateUrl: 'views/directives/mb-tree-heading.html'
 	};
 });

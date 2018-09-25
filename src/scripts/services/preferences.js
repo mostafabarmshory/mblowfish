@@ -74,7 +74,7 @@ angular.module('mblowfish-core')
 		// get preferences
 		for (var i = 0, len = preferences.length; i < len; i++) {
 			if(preferences[i].id === id){
-				return $q.when(preferences[i])
+				return $q.when(preferences[i]);
 			}
 		}
 		// not found
@@ -109,6 +109,6 @@ angular.module('mblowfish-core')
 		'pages' : pages,
 		'page': page,
 		'newPage': newPage,
-		'openPage' : open,
+		'openPage' : open
 	};
 });

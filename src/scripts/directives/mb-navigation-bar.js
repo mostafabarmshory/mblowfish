@@ -37,18 +37,11 @@ angular.module('mblowfish-core')
  */
 .directive('mbNavigationBar' , function($actions, $navigator) {
 
-	return {
-		restrict : 'E',
-		replace: false,
-		templateUrl: 'views/directives/mb-navigation-bar.html',
-		link: postLink
-	};
 
 	/**
 	 * Init the bar
 	 */
-	function postLink(scope, element, attr) {
-		
+	function postLink(scope) {
 		scope.isVisible = function(menu){
 			// default value for visible is true
 			if(angular.isUndefined(menu.visible)){
@@ -62,12 +55,18 @@ angular.module('mblowfish-core')
 		
 		scope.goToHome = function(){
 			$navigator.openPage('');
-		}
+		};
 		
 		/*
 		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
 		 */
 		scope.pathMenu = $actions.group('navigationPathMenu');
-		
 	}
+	
+    return {
+        restrict : 'E',
+        replace: false,
+        templateUrl: 'views/directives/mb-navigation-bar.html',
+        link: postLink
+    };
 });

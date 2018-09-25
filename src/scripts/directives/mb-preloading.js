@@ -49,14 +49,14 @@ angular.module('mblowfish-core')
  * </code></pre>
  * 
  */
-.directive('mbPreloading', function($animate) {
+.directive('mbPreloading', function(/*$animate*/) {
 	var PRELOAD_CLASS = 'mb-preload';
 	var PRELOAD_ANIMATION_CLASS = 'mb-preload-animate';
 
 	/*
 	 * Init element for preloading
 	 */
-	function initPreloading(scope, element, attr) {
+	function initPreloading(scope, element/*, attr*/) {
 		element.addClass(PRELOAD_ANIMATION_CLASS);
 	}
 
