@@ -61,4 +61,6 @@ angular.module('mblowfish-core')
 	this.deleteItem = function(item) {
 		return $usr.deleteRole(item.id);
 	};
+    
+    this.init();
 });
