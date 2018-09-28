@@ -86,12 +86,11 @@ module.exports = function(grunt) {
             js : {
                 files : [
                     '<%= yeoman.app %>/scripts/**/*.js',
-                    '<%= yeoman.demo %>/scripts/**/*.js',
+                    '<%= yeoman.demo %>/scripts/**/*.js'
                     ],
                     tasks : [
                         'injector',
-                        'newer:jshint:all',
-                        'newer:jscs:all'
+                        'newer:jshint:all'
                         ],
                         options : {
                             livereload : '<%= connect.options.livereload %>'
@@ -102,7 +101,6 @@ module.exports = function(grunt) {
                 tasks : [
                     'injector',
                     'newer:jshint:test', // 
-                    'newer:jscs:test', //
                     'karma' ]
             },
             styles : {
@@ -268,38 +266,10 @@ module.exports = function(grunt) {
          * https://eslint.org/
          */
         eslint : {
+            options: {
+                configFile: '.eslintrc.json'
+            },
             target : [ '<%= yeoman.app %>/{,*/}*.js' ]
-        },
-
-        /*
-         * استایل کدها رو بررسی می‌کنه تا مطمئن بشیم که کدها خوش فرم نوشته شده
-         * اند. این یک نمونه تست هست که توش به نحوه نگارش کدها توجه می‌کنه. برای
-         * این کار از یک بسته به نام jscs استفاده شده است. برای کسب اطلاع بیشتر
-         * در مورد این بسته پیونده زیر رو ببینید:
-         * 
-         * http://jscs.info/
-         * 
-         * این برنامه رو با استفاده از افزونه grunt-jscs اجرا می‌کنیم. این
-         * افزونه امکان چک کردن تمام کدهای نوشته شده رو می‌ده. اطلاعات بیشتر در
-         * مورد این افزونه در مسییر زیر وجود داره:
-         * 
-         * https://github.com/jscs-dev/grunt-jscs
-         * 
-         * برای این بسته هم یه سری تنظیم‌ها در نظر گرفته شده که تو فایل .jscsrc
-         * وجود داره در صورت تمایل می‌تونید این تنظیم‌ها رو بر اساس نیازهای
-         * خودتون به روز کنید.
-         */
-        jscs : {
-            options : {
-                config : '.jscsrc',
-                verbose : true
-            },
-            all : {
-                src : [ 'Gruntfile.js', '<%= yeoman.app %>/{,*/}*.js' ]
-            },
-            test : {
-                src : [ 'test/spec/{,*/}*.js' ]
-            }
         },
 
         /*
@@ -319,8 +289,8 @@ module.exports = function(grunt) {
                     template : 'node_modules/angular-jsdoc/default',
                     tutorial : 'tutorials',
                     readme : 'README.md'
-                },
-            },
+                }
+            }
         },
 
         /*
@@ -367,19 +337,22 @@ module.exports = function(grunt) {
             },
             test : {
                 devDependencies : true,
-                src : '<%= karma.unit.configFile %>',
-                ignorePath : /\.\.\//,
-                fileTypes : {
-                    js : {
-                        block : /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
-                        detect : {
-                            js : /'(.*\.js)'/gi
-                        },
-                        replace : {
-                            js : '\'{{filePath}}\','
+                src : [
+                    '<%= karma.unit.configFile %>',
+                    '<%= karma.build.configFile %>'
+                    ],
+                    ignorePath : /\.\.\//,
+                    fileTypes : {
+                        js : {
+                            block : /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
+                            detect : {
+                                js : /'(.*\.js)'/gi
+                            },
+                            replace : {
+                                js : '\'{{filePath}}\','
+                            }
                         }
                     }
-                }
             }
         },
 
@@ -578,7 +551,7 @@ module.exports = function(grunt) {
                 processors : [ 
                     require('pixrem')(),
                     require('autoprefixer')({browsers: 'last 2 versions'})
-                ]
+                    ]
             },
             server : {
                 options : {
@@ -622,11 +595,15 @@ module.exports = function(grunt) {
          */
         karma : {
             unit : {
-                configFile : 'test/karma.conf.js',
+                configFile : 'test/karma.unit.conf.js',
+                singleRun : true
+            },
+            build : {
+                configFile : 'test/karma.build.conf.js',
                 singleRun : true
             },
             debug : {
-                configFile : 'test/karma.conf.js',
+                configFile : 'test/karma.unit.conf.js',
                 port : 9999,
                 singleRun : false,
                 browsers : [ 'Chrome' ]
@@ -665,27 +642,28 @@ module.exports = function(grunt) {
     grunt.registerTask('demo', 'Compile then start a connect web server',
             function(target) {
         if (target === 'dist') {
-            return grunt.task.run([ 'build', //
+            return grunt.task.run([ 
+                'build',
                 // added just before connect
-                'configureProxies:server', //
-                'connect:dist:keepalive' //
+                'configureProxies:server',
+                'connect:dist:keepalive'
                 ]);
         }
 
-        grunt.task.run([ //
-            'clean:server', //
-            'wiredep', //
-            'injector', //
-            'concurrent:server', //
-            'postcss:server', //
+        grunt.task.run([
+            'clean:server',
+            'wiredep',
+            'injector',
+            'concurrent:server',
+            'postcss:server',
             'configureProxies:server', // added just before connect
-            'connect:livereload', //
-            'watch' //
+            'connect:livereload',
+            'watch'
             ]);
     });
 
     grunt.registerTask('setversion', function(arg1) {
-        console.log('Attempting to update version to ' + arg1);
+        console.log(`Attempting to update version to ${arg1}`);
         var parsedJson= grunt.file.readJSON('bower.json');//read in the current
         parsedJson.version = arg1; //set the top level version field to arg1
         grunt.file.write('bower.json', JSON.stringify(parsedJson, null, 2));
@@ -726,14 +704,14 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', [ //
         'newer:jshint', //
-        'newer:jscs', //
         'newer:eslint', //
         'test', //
         'build' //
         ]);
 
     grunt.registerTask('release', [ //
-        'default', //
+        'default', 
+        'karma:build',
         'jsdoc'
         ]);
 };
