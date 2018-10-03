@@ -17,6 +17,7 @@ build-project:
     - bower install --allow-root
     - grunt test
     - find . -name lcov.info | xargs -d '\n' cat | node_modules/.bin/codacy-coverage -t $CODACY_PROJECT_TOKEN
+    - npm update caniuse-db
     - grunt release
 
   artifacts:

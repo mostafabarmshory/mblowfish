@@ -634,6 +634,8 @@ angular.module('mblowfish-core')
 	this.deleteItem = function(item){
 		return $usr.deleteAccount(item.id);
 	};
+    
+    this.init();
 });
 
 'use strict';
@@ -733,6 +735,8 @@ angular.module('mblowfish-core')
 	this.deleteItem = function(item) {
 		return $usr.deleteRole(item.id);
 	};
+	
+	this.init();
 });
 
 /*
@@ -1127,7 +1131,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      * @type string
      * @memberof AmdItemsCtrl
      */
-    this.state = 'init';
+    this.state = STATE_INIT;
 
     /**
      * Store last paginated response
@@ -1153,6 +1157,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
 
+
     /**
      * Reload the controller
      * 
@@ -1164,15 +1169,23 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.reload = function(){
         // relaod data
-        this.__init();
+        delete this.requests;
+        this.items = [];
         return this.loadNextPage();
     };
 
-    this.__init = function(){
-        this.state=STATE_INIT;
-        delete this.requests;
-        this.items = [];
-        // start the controller
+    /**
+     * Loads and init the controller
+     * 
+     * All childs must call this function at the end of the cycle
+     */
+    this.init = function(){
+        var ctrl = this;
+        $scope.$watch(function(){
+            return ctrl.queryParameter;
+        }, function(){
+            ctrl.reload();
+        }, true);
         this.state=STATE_IDEAL;
     };
 
@@ -1189,9 +1202,16 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         if(!angular.isFunction(this.getItems)){
             throw 'The controller dose not implement getItems function';
         }
+        
+        if (this.state === STATE_INIT) {
+            throw 'this.init() function is not called in the controller';
+        }
 
         // check state
         if (this.state !== STATE_IDEAL) {
+            if(this.lastQuery){
+                return this.lastQuery;
+            }
             throw 'Items controller is not in ideal state';
         }
         this.state = STATE_BUSY;
@@ -1206,7 +1226,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
 
         // Get new items
         var ctrl = this;
-        return this.getItems(this.queryParameter)//
+        this.lastQuery = this.getItems(this.queryParameter)//
         .then(function(response) {
             ctrl.lastResponse = response;
             ctrl.items = ctrl.items.concat(response.items);
@@ -1216,7 +1236,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         })//
         .finally(function(){
             ctrl.state = STATE_IDEAL;
+            delete ctrl.lastQuery;
         });
+        return this.lastQuery;
     };
 
 
@@ -1370,15 +1392,6 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
     this.deleteItem = function(/*item*/){
         // Controllers are supposed to override the function
     };
-
-    var ctrl = this;
-    $scope.$watch(function(){
-        return ctrl.queryParameter;
-    }, function(){
-        ctrl.reload();
-    }, true);
-    this.__init();
-
 }
 
 /*
@@ -2199,6 +2212,8 @@ angular.module('mblowfish-core')
 	this.deleteItem = function(item) {
 		return $usr.deleteRole(item.id);
 	};
+    
+    this.init();
 });
 
 /*
@@ -8310,7 +8325,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-brand.html',
-    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo ng-model=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon ng-model=app.config.favicon> </wb-ui-setting-image> </div>"
+    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.favicon> </wb-ui-setting-image> </div>"
   );
 
 

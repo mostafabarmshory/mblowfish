@@ -10,18 +10,10 @@
 }
 
 [dir='rtl'] .icon-rotate-180-for-rtl {
-  -webkit-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -o-transform: rotate(180deg);
   transform: rotate(180deg);
 }
 
 .icon-rotate-180 {
-  -webkit-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -o-transform: rotate(180deg);
   transform: rotate(180deg);
 }
 
@@ -40,7 +32,6 @@
 }
 
 .new-box-showing-animation {
-  -webkit-transition: transform cubic-bezier(.26,.69,0,1) 0.4s;
   transition: transform cubic-bezier(.26,.69,0,1) 0.4s;
 
 }

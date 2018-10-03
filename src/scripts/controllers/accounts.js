@@ -57,4 +57,6 @@ angular.module('mblowfish-core')
 	this.deleteItem = function(item){
 		return $usr.deleteAccount(item.id);
 	};
+    
+    this.init();
 });
