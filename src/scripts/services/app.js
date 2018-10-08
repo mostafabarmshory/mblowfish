@@ -238,8 +238,8 @@ angular.module('mblowfish-core') //
                     current: user
             };
             // load the first profile of user
-            if(user.profiles.length > 0){
-                app.user.profile = user.profiles[0];
+            if(angular.isArray(user.profiles)){
+                app.user.profile = user.profiles.length? user.profiles[0] : {};
             }
             // load user roles
             _loadingLog('loading user info', 'user information loaded successfully');
