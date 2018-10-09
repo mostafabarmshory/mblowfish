@@ -281,28 +281,28 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * 
- */
-.config(function ($mdThemingProvider) {
+        /**
+         * 
+         */
+        .config(function ($mdThemingProvider) {
 
-    // AMD default palette
-    $mdThemingProvider.definePalette('amdPrimaryPalette', {
-        '50' : '#FFFFFF',
-        '100' : 'rgb(255, 198, 197)',
-        '200' : '#E75753',
-        '300' : '#E75753',
-        '400' : '#E75753',
-        '500' : '#E75753',
-        '600' : '#E75753',
-        '700' : '#E75753',
-        '800' : '#E75753',
-        '900' : '#E75753',
-        'A100' : '#E75753',
-        'A200' : '#E75753',
-        'A400' : '#E75753',
-        'A700' : '#E75753'
-    });
+            // AMD default palette
+            $mdThemingProvider.definePalette('amdPrimaryPalette', {
+                '50': '#FFFFFF',
+                '100': 'rgb(255, 198, 197)',
+                '200': '#E75753',
+                '300': '#E75753',
+                '400': '#E75753',
+                '500': '#E75753',
+                '600': '#E75753',
+                '700': '#E75753',
+                '800': '#E75753',
+                '900': '#E75753',
+                'A100': '#E75753',
+                'A200': '#E75753',
+                'A400': '#E75753',
+                'A700': '#E75753'
+            });
 
     // Dark theme
     $mdThemingProvider
@@ -316,10 +316,19 @@ angular.module('mblowfish-core')
     .accentPalette('grey', {
         'default' : '700'
     })//
+    .warnPalette('red')
+    .backgroundPalette('grey')
+    
     .dark();
 
-    $mdThemingProvider.alwaysWatchTheme(true);
-});
+//            $mdThemingProvider.theme('dark')
+//                    .primaryPalette('purple')
+//                    .accentPalette('green')
+//                    .warnPalette('red')
+//                    .backgroundPalette('red');
+
+            $mdThemingProvider.alwaysWatchTheme(true);
+        });
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir

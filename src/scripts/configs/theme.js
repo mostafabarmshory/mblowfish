@@ -22,42 +22,45 @@
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * 
- */
-.config(function ($mdThemingProvider) {
+        /**
+         * 
+         */
+        .config(function ($mdThemingProvider) {
 
-    // AMD default palette
-    $mdThemingProvider.definePalette('amdPrimaryPalette', {
-        '50' : '#FFFFFF',
-        '100' : 'rgb(255, 198, 197)',
-        '200' : '#E75753',
-        '300' : '#E75753',
-        '400' : '#E75753',
-        '500' : '#E75753',
-        '600' : '#E75753',
-        '700' : '#E75753',
-        '800' : '#E75753',
-        '900' : '#E75753',
-        'A100' : '#E75753',
-        'A200' : '#E75753',
-        'A400' : '#E75753',
-        'A700' : '#E75753'
-    });
+            // AMD default palette
+            $mdThemingProvider.definePalette('amdPrimaryPalette', {
+                '50': '#FFFFFF',
+                '100': 'rgb(255, 198, 197)',
+                '200': '#E75753',
+                '300': '#E75753',
+                '400': '#E75753',
+                '500': '#E75753',
+                '600': '#E75753',
+                '700': '#E75753',
+                '800': '#E75753',
+                '900': '#E75753',
+                'A100': '#E75753',
+                'A200': '#E75753',
+                'A400': '#E75753',
+                'A700': '#E75753'
+            });
 
-    // Dark theme
-    $mdThemingProvider
-    .theme('dark')//
-    .primaryPalette('grey', {
-        'default' : '900',      
-        'hue-1': '700', 
-        'hue-2': '600', 
-        'hue-3': '500'
-    })//
-    .accentPalette('grey', {
-        'default' : '700'
-    })//
-    .dark();
+            // Dark theme
+            $mdThemingProvider
+                    .theme('dark')//
+                    .primaryPalette('grey', {
+                        'default': '900',
+                        'hue-1': '700',
+                        'hue-2': '600',
+                        'hue-3': '500'
+                    })//
+                    .accentPalette('grey', {
+                        'default': '700'
+                    })//
+                    .warnPalette('red')
+                    .backgroundPalette('grey')
 
-    $mdThemingProvider.alwaysWatchTheme(true);
-});
+                    .dark();
+
+            $mdThemingProvider.alwaysWatchTheme(true);
+        });
