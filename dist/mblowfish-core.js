@@ -281,45 +281,48 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-/**
- * 
- */
-.config(function ($mdThemingProvider) {
+        /**
+         * 
+         */
+        .config(function ($mdThemingProvider) {
 
-    // AMD default palette
-    $mdThemingProvider.definePalette('amdPrimaryPalette', {
-        '50' : '#FFFFFF',
-        '100' : 'rgb(255, 198, 197)',
-        '200' : '#E75753',
-        '300' : '#E75753',
-        '400' : '#E75753',
-        '500' : '#E75753',
-        '600' : '#E75753',
-        '700' : '#E75753',
-        '800' : '#E75753',
-        '900' : '#E75753',
-        'A100' : '#E75753',
-        'A200' : '#E75753',
-        'A400' : '#E75753',
-        'A700' : '#E75753'
-    });
+            // AMD default palette
+            $mdThemingProvider.definePalette('amdPrimaryPalette', {
+                '50': '#FFFFFF',
+                '100': 'rgb(255, 198, 197)',
+                '200': '#E75753',
+                '300': '#E75753',
+                '400': '#E75753',
+                '500': '#E75753',
+                '600': '#E75753',
+                '700': '#E75753',
+                '800': '#E75753',
+                '900': '#E75753',
+                'A100': '#E75753',
+                'A200': '#E75753',
+                'A400': '#E75753',
+                'A700': '#E75753'
+            });
 
-    // Dark theme
-    $mdThemingProvider
-    .theme('dark')//
-    .primaryPalette('grey', {
-        'default' : '900',      
-        'hue-1': '700', 
-        'hue-2': '600', 
-        'hue-3': '500'
-    })//
-    .accentPalette('grey', {
-        'default' : '700'
-    })//
-    .dark();
+            // Dark theme
+            $mdThemingProvider
+                    .theme('dark')//
+                    .primaryPalette('grey', {
+                        'default': '900',
+                        'hue-1': '700',
+                        'hue-2': '600',
+                        'hue-3': '500'
+                    })//
+                    .accentPalette('grey', {
+                        'default': '700'
+                    })//
+                    .warnPalette('red')
+                    .backgroundPalette('grey')
 
-    $mdThemingProvider.alwaysWatchTheme(true);
-});
+                    .dark();
+
+            $mdThemingProvider.alwaysWatchTheme(true);
+        });
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8205,17 +8208,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   'use strict';
 
   $templateCache.put('views/dialogs/mb-alert.html',
-    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-confirm.html',
-    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-prompt.html',
-    "<md-dialog layout=column layout-padding ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
