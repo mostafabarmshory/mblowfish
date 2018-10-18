@@ -1100,8 +1100,28 @@ angular.module('mblowfish-core')
  * There are two types of function in the controller: view and data related. All
  * data functions are considered to be overried by extensions.
  * 
+ * ## Add new item
+ * 
+ * To create and add new mode item, add a function and return created model
+ * as promisse or an object.
+ * 
+ * For example;
+ * 
+ * <code><pre>
+ *  this.createModel = function(){};
+ * </pre></code>
+ * 
+ * ## Delete item
+ * 
+ * To delete and remove item from view, sub class must overrid the following function:
+ * 
+ * <code><pre>
+ *  this.deleteModel = function(item){ ... }
+ * </pre></code>
+ * 
+ * @ngInject
  */
-function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
+function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
     var STATE_INIT = 'init';
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
@@ -1172,9 +1192,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.reload = function(){
         // relaod data
-        delete this.requests;
         delete this.lastResponse;
         this.items = [];
+        this.queryParameter.setPage(1);
         return this.loadNextPage();
     };
 
@@ -1201,7 +1221,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         if(!angular.isFunction(this.getItems)){
             throw 'The controller dose not implement getItems function';
         }
-        
+
         if (this.state === STATE_INIT) {
             throw 'this.init() function is not called in the controller';
         }
@@ -1285,8 +1305,18 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         var actions = this._actions;
         // TODO: maso, 2018: add flag to cache 
         // add item action
-        if(angular.isFunction(this.addItem)){
-            // TODO: maso, 2018: crate action from add item
+        var ctrl = this;
+        if(angular.isFunction(this.createModel)){
+            // maso, 2018: crate action from add item
+            actions.push(new Action({
+                action: function(){
+                    var model = ctrl.createModel();
+                    $q.when(model)
+                    .then(function(item){
+                        ctrl.items.push(item);
+                    });
+                }
+            }));
         }
         // reload items action
         {
@@ -1305,11 +1335,33 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             this._actions = [];
         }
         // TODO: maso, 2018: assert the action is MbAction
-        this._actions = this._actions.concat(action);
+        if(!(action instanceof Action)){
+            action = new Action(action);
+        }
+        this._actions = this._actions.push(action);
     };
 
 
-
+    /**
+     * Deletes item
+     * 
+     * @memberof AmdItemsCtrl
+     * @param item
+     * @return promiss to delete item
+     */
+    this.deleteItem = function(item){
+        // TODO: maso, 2018: update state of the controller to busy
+        var ctrl = this;
+        var index;
+        $notification.confirm('Delete item?')
+        .then(function(){
+            index = ctrl.items.indexOf(item);
+            return ctrl.deleteModel(item);
+        })
+        .then(function(){
+            ctrl.items.splice(index, 1);
+        });
+    };
 
 
 
@@ -1380,17 +1432,8 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         };
         return $q.accept(item);
     };
+    
 
-    /**
-     * Deletes item
-     * 
-     * @memberof AmdItemsCtrl
-     * @param item
-     * @return promiss to delete item
-     */
-    this.deleteItem = function(/*item*/){
-        // Controllers are supposed to override the function
-    };
 }
 
 /*
