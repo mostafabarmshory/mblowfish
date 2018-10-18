@@ -105,8 +105,9 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.reload = function(){
         // relaod data
-        delete this.requests;
+        delete this.lastResponse;
         this.items = [];
+        this.queryParameter.setPage(1);
         return this.loadNextPage();
     };
 
@@ -117,11 +118,6 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
      */
     this.init = function(){
         var ctrl = this;
-        $scope.$watch(function(){
-            return ctrl.queryParameter;
-        }, function(){
-            ctrl.reload();
-        }, true);
         this.state=STATE_IDEAL;
     };
 
@@ -138,7 +134,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         if(!angular.isFunction(this.getItems)){
             throw 'The controller dose not implement getItems function';
         }
-        
+
         if (this.state === STATE_INIT) {
             throw 'this.init() function is not called in the controller';
         }
@@ -150,7 +146,6 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             }
             throw 'Items controller is not in ideal state';
         }
-        this.state = STATE_BUSY;
 
         // set next page
         if (this.lastResponse) {
@@ -161,6 +156,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
         }
 
         // Get new items
+        this.state = STATE_BUSY;
         var ctrl = this;
         this.lastQuery = this.getItems(this.queryParameter)//
         .then(function(response) {
