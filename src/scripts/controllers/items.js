@@ -157,7 +157,7 @@ function MbItemsCtrl($scope, $usr, $q, QueryParameter) {
             if(!this.lastResponse.hasMore()){
                 return $q.resolve();
             }
-            this.queryParameter.setPage(this.lastResponse.next());
+            this.queryParameter.setPage(this.lastResponse.getNextPageIndex());
         }
 
         // Get new items
