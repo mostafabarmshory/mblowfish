@@ -79,7 +79,7 @@ angular.module('mblowfish-core')
         var _toolbars = [];
 
         /*
-         * Remove all sidenaves
+         * Remove all toolbars
          */
         function _removeElements(pages, elements) {
             var cache = [];
