@@ -85,7 +85,9 @@ angular.module('mblowfish-core')
 	 */
 	function postLink(scope, element, attr) {
 		initPreloading(scope, element, attr);
-		scope.$watch(attr.mbPreloading, function(value) {
+		scope.$watch(function(){
+			return scope.$eval(attr.mbPreloading);
+		}, function(value) {
 			if (!value) {
 				removePreloading(scope, element, attr);
 			} else {

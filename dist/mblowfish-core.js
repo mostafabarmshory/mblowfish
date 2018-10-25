@@ -4152,7 +4152,9 @@ angular.module('mblowfish-core')
 	 */
 	function postLink(scope, element, attr) {
 		initPreloading(scope, element, attr);
-		scope.$watch(attr.mbPreloading, function(value) {
+		scope.$watch(function(){
+			return scope.$eval(attr.mbPreloading);
+		}, function(value) {
 			if (!value) {
 				removePreloading(scope, element, attr);
 			} else {
@@ -5721,7 +5723,6 @@ angular.module('mblowfish-core') //
         .then(function (content) {
             _loadingLog('loading configuration', 'fetch configuration content');
             app._acc = content;
-            ctrl.configs_loaded = true;
             // load config file
             return app._acc.downloadValue();
         }, function(error){
@@ -5734,6 +5735,7 @@ angular.module('mblowfish-core') //
             app.config = appConfig;
         })
         .finally(function(){
+            ctrl.configs_loaded = true;
             stateMachine.loaded();
         });
     }
@@ -5886,15 +5888,9 @@ angular.module('mblowfish-core') //
                     loadUserProperty(); 
                     loadOptions();
                 },
-                start: function () {
-                    this.transition(APP_STATE_LOADING);
-                },
-                network_error: function () {
-                    this.transition(APP_STATE_OFFLINE);
-                },
-                server_error: function(){
-                    this.transition(APP_STATE_FAIL);
-                }
+                start: APP_STATE_LOADING,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL
             },
             // tries to load all part of system
             loading: {
@@ -5909,18 +5905,12 @@ angular.module('mblowfish-core') //
                         this.transition(APP_STATE_READY_NOT_CONFIGURED);
                     }
                 },
-                server_error: function () {//
-                    this.transition(APP_STATE_FAIL);
-                },
-                network_error: function () {
-                    this.transition(APP_STATE_OFFLINE);
-                }
+                server_error: APP_STATE_FAIL,
+                network_error: APP_STATE_OFFLINE
             },
             // app is ready
             ready: {
-                network_error: function () {
-                    this.transition(APP_STATE_OFFLINE);
-                }
+                network_error: APP_STATE_OFFLINE
             },
             // app is ready with no config
             ready_not_configured: {
@@ -5929,9 +5919,7 @@ angular.module('mblowfish-core') //
                         this.transition(APP_STATE_READY);
                     }
                 },
-                network_error: function () {
-                    this.transition(APP_STATE_OFFLINE);
-                }
+                network_error: APP_STATE_OFFLINE
             },
             // server error
             fail: {},
