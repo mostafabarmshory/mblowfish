@@ -36,7 +36,7 @@ angular.module('mblowfish-core')
                     return $rootScope.app.user.owner;
                 },
                 action: function () {
-                    return $navigator.openPage('/preferences');
+                    return $navigator.openPage('preferences');
                 },
                 groups: ['mb.toolbar.menu']
             });

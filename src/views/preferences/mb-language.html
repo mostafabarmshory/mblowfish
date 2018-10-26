@@ -6,7 +6,7 @@
 	
 	<div layout="column"
 		layout-align="center start">	
-		<p>{{'Select default language of site' | translate}}:</p>
+		<p>{{'Select default language of site:' | translate}}</p>
 		<md-checkbox ng-repeat="lang in languages"
 			style="margin: 8px;"
 			ng-checked="myLanguage.key === lang.key"
@@ -15,6 +15,4 @@
 			{{lang.title | translate}}
 	    </md-checkbox>
 	</div>
-	
-	
 </div>

@@ -24,6 +24,9 @@
 'use strict';
 
 angular.module('app', [ 'mblowfish-core' ])//
+.config(function($localStorageProvider) {
+	$localStorageProvider.setKeyPrefix('demo.');
+})
 .run(function($app, $toolbar, $sidenav) {
 
 	// Load application
