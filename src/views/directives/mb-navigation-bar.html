@@ -5,7 +5,7 @@
 	<div layout="row">
 		<md-button ng-click="goToHome()"
 			class="mb-navigation-path-bar-item mb-navigation-path-bar-item-home">
-			<md-tooltip ng-if="menu.tooltip">{{'home' | translate}}</md-tooltip>
+			<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{'home' | translate}}</md-tooltip>
 			<wb-icon>home</wb-icon>
 		</md-button>
 	</div>
@@ -17,7 +17,7 @@
 			ng-href="{{menu.url}}"
 			ng-click="menu.exec($event);"
 			class="mb-navigation-path-bar-item">
-			<md-tooltip ng-if="menu.tooltip">{{menu.description}}</md-tooltip>
+			<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{menu.description}}</md-tooltip>
 			<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
 			{{menu.title | translate}} 
 		</md-button>
