@@ -54,7 +54,7 @@
  * 
  * @ngInject
  */
-function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
+function MbItemsCtrl(/*$scope, $usr,*/ $q, $notification, QueryParameter, Action) {
     var STATE_INIT = 'init';
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
@@ -152,7 +152,7 @@ function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
     this.loadNextPage = function() {
         // Check functions
         if(!angular.isFunction(this.getItems)){
-            throw 'The controller dose not implement getItems function';
+            throw 'The controller does not implement getItems function';
         }
 
         if (this.state === STATE_INIT) {
@@ -295,19 +295,6 @@ function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
             ctrl.items.splice(index, 1);
         });
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Gets object schema
