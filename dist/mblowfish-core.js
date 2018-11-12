@@ -5044,13 +5044,13 @@ angular.module('mblowfish-core')
 
 	oldWatch = $rootScope.$watch('app.state.status', function(status) {
 		if (status.startsWith('ready')) {
-			// Remove the watch
 			// check for update
-//			return appcache//
-//			.checkUpdate()//
-//			.then(doUpdate);
+			return appcache//
+			.checkUpdate()//
+			.then(doUpdate);
 			// Test
-			updateApplication();
+//			updateApplication();
+			// Remove the watch
 			oldWatch();
 		}
 	});
