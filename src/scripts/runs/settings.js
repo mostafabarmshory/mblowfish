@@ -58,7 +58,7 @@ angular.module('mblowfish-core')
 	})
 	.newPage({
 		id: 'update',
-		templateUrl : 'views/preferences/update.html',
+		templateUrl : 'views/preferences/mb-update.html',
 		title: 'Update application',
 		description: 'Settings of updating process and how to update the application.',
 		icon: 'autorenew'
