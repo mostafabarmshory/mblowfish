@@ -1,18 +1,24 @@
 <div 
 	layout="column"
-        layout-padding
+	layout-padding
 	ng-cloak
 	flex>
-        <md-switch 
-                class="md-secondary" 
-                ng-model="app.config.update.hideMessage">
-                <p translate>Show update message to customers</p>
-        </md-switch>
-
-        <md-switch 
-                class="md-secondary" 
-                ng-model="app.config.update.autoCheck">
-                <p translate>Check update automaticlly</p>
-        </md-switch>
+	<md-switch 
+		class="md-secondary" 
+		ng-model="app.config.update.showMessage">
+		<p translate>Show update message to customers</p>
+	</md-switch>
+	<md-switch 
+		class="md-secondary" 
+		ng-model="app.config.update.autoReload"
+		ng-disabled="!app.config.update.showMessage">
+		<p translate>Reload the page automatically on update</p>
+	</md-switch>
+	
+<!-- 	<md-switch  -->
+<!-- 		class="md-secondary"  -->
+<!-- 		ng-model="app.config.update.autoCheck"> -->
+<!-- 		<p translate>Check update automatically</p> -->
+<!-- 	</md-switch> -->
 </div>
 	

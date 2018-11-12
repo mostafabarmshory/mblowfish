@@ -25,33 +25,53 @@ angular.module('mblowfish-core')
 /*
  * دریچه‌های محاوره‌ای
  */
-.run(function (appcache, $window, $rootScope) {
+.run(function(appcache, $window, $rootScope) {
 
-    var oldWatch;
-    
-    function reload(){
-	$window.location.reload();
-    }
+	var oldWatch;
 
-    // Check update
-    function doUpdate() {
-	appcache.swapCache()//
-		.then(function () {
-		    var updateSetting = $rootScope.app.config.update;
-		    if (updateSetting !== undefined && updateSetting.hideMessage) {
-			reload();
-		    } else {
-			confirm('Application is updated. Reload for new version?')//
-				.then(reload);
-		    }
-		});
-    }
-
-    oldWatch = $rootScope.$watch('app.state.status', function () {
-	if (status === 'ready') {
-	    oldWatch();
-	    return appcache.checkUpdate()//
-		    .then(doUpdate);
+	/*
+	 * Reload the page
+	 * 
+	 * @deprecated use page service
+	 */
+	function reload() {
+		$window.location.reload();
 	}
-    });
+
+	/*
+	 * Reload the application
+	 */
+	function updateApplication() {
+		var setting = $rootScope.app.config.update || {};
+		if (setting.showMessage) {
+			if(setting.autoReload) {
+				alert('Application is update. Page will be reload automatically.')//
+				.then(reload);
+			} else {
+				confirm('Application is update. Reload the page for new version?')//
+				.then(reload);
+			}
+		} else {
+			toast('Application is updated.');
+		}
+	}
+
+	// Check update
+	function doUpdate() {
+		appcache.swapCache()//
+		.then(updateApplication());
+	}
+
+	oldWatch = $rootScope.$watch('app.state.status', function(status) {
+		if (status.startsWith('ready')) {
+			// Remove the watch
+			// check for update
+//			return appcache//
+//			.checkUpdate()//
+//			.then(doUpdate);
+			// Test
+			updateApplication();
+			oldWatch();
+		}
+	});
 });
