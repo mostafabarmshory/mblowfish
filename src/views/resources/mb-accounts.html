@@ -1,7 +1,7 @@
 <div  
 	ng-controller="MbAccountsCtrl as ctrl"
 	ng-init="ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')"
-	mb-preloading="ctrl.loading"
+	mb-preloading="ctrl.state === 'busy'"
 	layout="column"
 	flex>
 	<!-- Action bar -->

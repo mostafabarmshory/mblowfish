@@ -1,8 +1,9 @@
 <div 
-	flex 
+	ng-controller="MbRolesCtrl as ctrl"
+	ng-init="ctrl.setDataQuery('{id, name, descriptionS}')"
+	mb-preloading="ctrl.state === 'busy'"
 	layout="column"
-	ng-init=""
-	ng-controller="MbRolesCtrl as ctrl">
+	flex>
 	<!-- Action bar -->
 	<mb-pagination-bar
 		mb-model="ctrl.queryParameter"
