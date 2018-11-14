@@ -91,6 +91,7 @@ angular.module('mblowfish-core')
             this.value = $scope.value;
             this.setSelected = function(item) {
                 $scope.$parent.setValue(item);
+                $scope.$parent.answer();
             };
             this.isSelected = function(item){
                 return item === this.value || item.id === this.value.id;
