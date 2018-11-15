@@ -961,7 +961,7 @@ angular.module('mblowfish-core')
         };
         // Configure welcome page. It will be added as one of the first pages of
         // setting stepper
-        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\'></wb-group>';
+        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
         var welcomePage = {
                 id: 'welcome',
                 title: 'Welcome',
@@ -1121,7 +1121,7 @@ angular.module('mblowfish-core')
  * 
  * @ngInject
  */
-function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
+function MbItemsCtrl(/*$scope, $usr,*/ $q, $notification, QueryParameter, Action) {
     var STATE_INIT = 'init';
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
@@ -1219,7 +1219,7 @@ function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
     this.loadNextPage = function() {
         // Check functions
         if(!angular.isFunction(this.getItems)){
-            throw 'The controller dose not implement getItems function';
+            throw 'The controller does not implement getItems function';
         }
 
         if (this.state === STATE_INIT) {
@@ -1362,19 +1362,6 @@ function MbItemsCtrl($scope, $usr, $q, $notification, QueryParameter, Action) {
             ctrl.items.splice(index, 1);
         });
     };
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Gets object schema
@@ -4910,87 +4897,87 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-        /**
-         * دریچه‌های محاوره‌ای
-         */
-        .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-            $actions.newAction({
-                id: 'mb.preferences',
-                priority: 15,
-                icon: 'settings',
-                title: 'Preferences',
-                description: 'Open preferences panel',
-                visible: function () {
-                    return $rootScope.app.user.owner;
-                },
-                action: function () {
-                    return $navigator.openPage('preferences');
-                },
-                groups: ['mb.toolbar.menu']
-            });
-            $actions.newAction({// help
-                id: 'mb.help',
-                priority: 15,
-                icon: 'help',
-                title: 'Help',
-                description: 'Display help in sidenav',
-                visible: function () {
-                    return $help.hasHelp($route.current);
-                },
-                action: function () {
-                    $help.openHelp($route.current);
-                },
-                groups: ['mb.toolbar.menu']
-            });
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+	$actions.newAction({
+		id: 'mb.preferences',
+		priority: 15,
+		icon: 'settings',
+		title: 'Preferences',
+		description: 'Open preferences panel',
+		visible: function () {
+			return $rootScope.app.user.owner;
+		},
+		action: function () {
+			return $navigator.openPage('preferences');
+		},
+		groups: ['mb.toolbar.menu']
+	});
+	$actions.newAction({// help
+		id: 'mb.help',
+		priority: 15,
+		icon: 'help',
+		title: 'Help',
+		description: 'Display help in sidenav',
+		visible: function () {
+			return $help.hasHelp($route.current);
+		},
+		action: function () {
+			$help.openHelp($route.current);
+		},
+		groups: ['mb.toolbar.menu']
+	});
 
-            $toolbar.newToolbar({
-                id: 'dashboard',
-                title: 'Dashboard toolbar',
-                description: 'Main dashboard toolbar',
-                controller: 'MbToolbarDashboardCtrl',
-                templateUrl: 'views/toolbars/mb-dashboard.html'
-            });
+	$toolbar.newToolbar({
+		id: 'dashboard',
+		title: 'Dashboard toolbar',
+		description: 'Main dashboard toolbar',
+		controller: 'MbToolbarDashboardCtrl',
+		templateUrl: 'views/toolbars/mb-dashboard.html'
+	});
 
-            $sidenav.newSidenav({
-                id: 'navigator',
-                title: 'Navigator',
-                description: 'Navigate all path and routs of the pandel',
-                controller: 'AmdNavigatorCtrl',
-                templateUrl: 'views/sidenavs/mb-navigator.html',
-                locked: true,
-                position: 'start'
-            });
-            $sidenav.newSidenav({
-                id: 'help',
-                title: 'Help',
-                description: 'System online help',
-                controller: 'MbHelpCtrl',
-                templateUrl: 'views/sidenavs/mb-help.html',
-                locked: true,
-                visible: function () {
-                    return $rootScope.showHelp;
-                },
-                position: 'end'
-            });
-            $sidenav.newSidenav({
-                id: 'settings',
-                title: 'Options',
-                description: 'User options',
-                controller: 'MbOptionsCtrl',
-                templateUrl: 'views/sidenavs/mb-options.html',
-                locked: false,
-                position: 'end'
-            });
-            $sidenav.newSidenav({
-                id: 'messages',
-                title: 'Messages',
-                description: 'User message queue',
-                controller: 'MessagesCtrl',
-                templateUrl: 'views/sidenavs/mb-messages.html',
-                locked: false,
-                position: 'start'
-            });
-        });
+	$sidenav.newSidenav({
+		id: 'navigator',
+		title: 'Navigator',
+		description: 'Navigate all path and routs of the pandel',
+		controller: 'AmdNavigatorCtrl',
+		templateUrl: 'views/sidenavs/mb-navigator.html',
+		locked: true,
+		position: 'start'
+	});
+	$sidenav.newSidenav({
+		id: 'help',
+		title: 'Help',
+		description: 'System online help',
+		controller: 'MbHelpCtrl',
+		templateUrl: 'views/sidenavs/mb-help.html',
+		locked: true,
+		visible: function () {
+			return $rootScope.showHelp;
+		},
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'settings',
+		title: 'Options',
+		description: 'User options',
+		controller: 'MbOptionsCtrl',
+		templateUrl: 'views/sidenavs/mb-options.html',
+		locked: false,
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'messages',
+		title: 'Messages',
+		description: 'User message queue',
+		controller: 'MessagesCtrl',
+		templateUrl: 'views/sidenavs/mb-messages.html',
+		locked: false,
+		position: 'start'
+	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5018,35 +5005,55 @@ angular.module('mblowfish-core')
 /*
  * دریچه‌های محاوره‌ای
  */
-.run(function (appcache, $window, $rootScope) {
+.run(function(appcache, $window, $rootScope) {
 
-    var oldWatch;
-    
-    function reload(){
-	$window.location.reload();
-    }
+	var oldWatch;
 
-    // Check update
-    function doUpdate() {
-	appcache.swapCache()//
-		.then(function () {
-		    var updateSetting = $rootScope.app.config.update;
-		    if (updateSetting !== undefined && updateSetting.hideMessage) {
-			reload();
-		    } else {
-			confirm('Application is updated. Reload for new version?')//
-				.then(reload);
-		    }
-		});
-    }
-
-    oldWatch = $rootScope.$watch('app.state.status', function () {
-	if (status === 'ready') {
-	    oldWatch();
-	    return appcache.checkUpdate()//
-		    .then(doUpdate);
+	/*
+	 * Reload the page
+	 * 
+	 * @deprecated use page service
+	 */
+	function reload() {
+		$window.location.reload();
 	}
-    });
+
+	/*
+	 * Reload the application
+	 */
+	function updateApplication() {
+		var setting = $rootScope.app.config.update || {};
+		if (setting.showMessage) {
+			if(setting.autoReload) {
+				alert('Application is update. Page will be reload automatically.')//
+				.then(reload);
+			} else {
+				confirm('Application is update. Reload the page for new version?')//
+				.then(reload);
+			}
+		} else {
+			toast('Application is updated.');
+		}
+	}
+
+	// Check update
+	function doUpdate() {
+		appcache.swapCache()//
+		.then(updateApplication());
+	}
+
+	oldWatch = $rootScope.$watch('app.state.status', function(status) {
+		if (status.startsWith('ready')) {
+			// check for update
+			return appcache//
+			.checkUpdate()//
+			.then(doUpdate);
+			// Test
+//			updateApplication();
+			// Remove the watch
+			oldWatch();
+		}
+	});
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -5220,6 +5227,7 @@ angular.module('mblowfish-core')
             this.value = $scope.value;
             this.setSelected = function(item) {
                 $scope.$parent.setValue(item);
+                $scope.$parent.answer();
             };
             this.isSelected = function(item){
                 return item === this.value || item.id === this.value.id;
@@ -5373,7 +5381,7 @@ angular.module('mblowfish-core')
 	})
 	.newPage({
 		id: 'update',
-		templateUrl : 'views/preferences/update.html',
+		templateUrl : 'views/preferences/mb-update.html',
 		title: 'Update application',
 		description: 'Settings of updating process and how to update the application.',
 		icon: 'autorenew'
@@ -7060,6 +7068,12 @@ angular.module('mblowfish-core')
 			config : {
 				message : message
 			}
+		})
+		// return true even it the page is canceled
+		.then(function(){
+			return true;
+		}, function(){
+			return true;
 		});
 	}
 
@@ -7572,7 +7586,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip>{{'home' | translate}}</md-tooltip> <wb-icon>home</wb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <wb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</wb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} </md-button>  </div> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{'home' | translate}}</md-tooltip> <wb-icon>home</wb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <wb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</wb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> {{menu.title | translate}} </md-button>  </div> </div>"
   );
 
 
@@ -7677,7 +7691,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-language.html',
-    "<div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site:' | translate}}</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
+    " <div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site:' | translate}}</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
   );
 
 
@@ -7686,23 +7700,23 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/preferences/update.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.hideMessage> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoCheck> <p translate>Check update automaticlly</p> </md-switch> </div>"
+  $templateCache.put('views/preferences/mb-update.html',
+    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate>Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate>Reload the page automatically on update</p> </md-switch> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=ctrl.loading layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-groups.html',
-    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, name, descriptionS}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-roles.html',
-    "<div flex layout=column ng-init=\"\" ng-controller=\"MbRolesCtrl as ctrl\">  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2>Empty role list</h2> <p>There is no role match with the query</p> </div> </md-content> </div>"
+    "<div ng-controller=\"MbRolesCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, name, descriptionS}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -7732,7 +7746,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
   );
 
 

@@ -56,6 +56,12 @@ angular.module('mblowfish-core')
 			config : {
 				message : message
 			}
+		})
+		// return true even it the page is canceled
+		.then(function(){
+			return true;
+		}, function(){
+			return true;
 		});
 	}
 

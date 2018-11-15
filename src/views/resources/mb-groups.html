@@ -1,6 +1,7 @@
 <div 
 	ng-controller="MbGroupsCtrl as ctrl"
-	ng-init=""
+	ng-init="ctrl.setDataQuery('{id, name, descriptionS}')"
+	mb-preloading="ctrl.state === 'busy'"
 	layout="column"
 	flex>
 	<!-- Action bar -->
@@ -40,11 +41,5 @@
 			</md-list-item>
 			<!-- حالت لود را تعیین می‌کند. -->
 		</md-list>
-		<div
-			layout="column"
-			layout-align="center center"
-			ng-if="ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)">
-			<h2 translate="">No item found</h2>
-		</div>
 	</md-content>
 </div>

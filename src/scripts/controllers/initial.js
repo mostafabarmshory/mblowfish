@@ -128,7 +128,7 @@ angular.module('mblowfish-core')
         };
         // Configure welcome page. It will be added as one of the first pages of
         // setting stepper
-        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\'></wb-group>';
+        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
         var welcomePage = {
                 id: 'welcome',
                 title: 'Welcome',
