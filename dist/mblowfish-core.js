@@ -961,7 +961,7 @@ angular.module('mblowfish-core')
         };
         // Configure welcome page. It will be added as one of the first pages of
         // setting stepper
-        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\'></wb-group>';
+        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
         var welcomePage = {
                 id: 'welcome',
                 title: 'Welcome',
@@ -4897,87 +4897,87 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-        /**
-         * دریچه‌های محاوره‌ای
-         */
-        .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-            $actions.newAction({
-                id: 'mb.preferences',
-                priority: 15,
-                icon: 'settings',
-                title: 'Preferences',
-                description: 'Open preferences panel',
-                visible: function () {
-                    return $rootScope.app.user.owner;
-                },
-                action: function () {
-                    return $navigator.openPage('preferences');
-                },
-                groups: ['mb.toolbar.menu']
-            });
-            $actions.newAction({// help
-                id: 'mb.help',
-                priority: 15,
-                icon: 'help',
-                title: 'Help',
-                description: 'Display help in sidenav',
-                visible: function () {
-                    return $help.hasHelp($route.current);
-                },
-                action: function () {
-                    $help.openHelp($route.current);
-                },
-                groups: ['mb.toolbar.menu']
-            });
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+	$actions.newAction({
+		id: 'mb.preferences',
+		priority: 15,
+		icon: 'settings',
+		title: 'Preferences',
+		description: 'Open preferences panel',
+		visible: function () {
+			return $rootScope.app.user.owner;
+		},
+		action: function () {
+			return $navigator.openPage('preferences');
+		},
+		groups: ['mb.toolbar.menu']
+	});
+	$actions.newAction({// help
+		id: 'mb.help',
+		priority: 15,
+		icon: 'help',
+		title: 'Help',
+		description: 'Display help in sidenav',
+		visible: function () {
+			return $help.hasHelp($route.current);
+		},
+		action: function () {
+			$help.openHelp($route.current);
+		},
+		groups: ['mb.toolbar.menu']
+	});
 
-            $toolbar.newToolbar({
-                id: 'dashboard',
-                title: 'Dashboard toolbar',
-                description: 'Main dashboard toolbar',
-                controller: 'MbToolbarDashboardCtrl',
-                templateUrl: 'views/toolbars/mb-dashboard.html'
-            });
+	$toolbar.newToolbar({
+		id: 'dashboard',
+		title: 'Dashboard toolbar',
+		description: 'Main dashboard toolbar',
+		controller: 'MbToolbarDashboardCtrl',
+		templateUrl: 'views/toolbars/mb-dashboard.html'
+	});
 
-            $sidenav.newSidenav({
-                id: 'navigator',
-                title: 'Navigator',
-                description: 'Navigate all path and routs of the pandel',
-                controller: 'AmdNavigatorCtrl',
-                templateUrl: 'views/sidenavs/mb-navigator.html',
-                locked: true,
-                position: 'start'
-            });
-            $sidenav.newSidenav({
-                id: 'help',
-                title: 'Help',
-                description: 'System online help',
-                controller: 'MbHelpCtrl',
-                templateUrl: 'views/sidenavs/mb-help.html',
-                locked: true,
-                visible: function () {
-                    return $rootScope.showHelp;
-                },
-                position: 'end'
-            });
-            $sidenav.newSidenav({
-                id: 'settings',
-                title: 'Options',
-                description: 'User options',
-                controller: 'MbOptionsCtrl',
-                templateUrl: 'views/sidenavs/mb-options.html',
-                locked: false,
-                position: 'end'
-            });
-            $sidenav.newSidenav({
-                id: 'messages',
-                title: 'Messages',
-                description: 'User message queue',
-                controller: 'MessagesCtrl',
-                templateUrl: 'views/sidenavs/mb-messages.html',
-                locked: false,
-                position: 'start'
-            });
-        });
+	$sidenav.newSidenav({
+		id: 'navigator',
+		title: 'Navigator',
+		description: 'Navigate all path and routs of the pandel',
+		controller: 'AmdNavigatorCtrl',
+		templateUrl: 'views/sidenavs/mb-navigator.html',
+		locked: true,
+		position: 'start'
+	});
+	$sidenav.newSidenav({
+		id: 'help',
+		title: 'Help',
+		description: 'System online help',
+		controller: 'MbHelpCtrl',
+		templateUrl: 'views/sidenavs/mb-help.html',
+		locked: true,
+		visible: function () {
+			return $rootScope.showHelp;
+		},
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'settings',
+		title: 'Options',
+		description: 'User options',
+		controller: 'MbOptionsCtrl',
+		templateUrl: 'views/sidenavs/mb-options.html',
+		locked: false,
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'messages',
+		title: 'Messages',
+		description: 'User message queue',
+		controller: 'MessagesCtrl',
+		templateUrl: 'views/sidenavs/mb-messages.html',
+		locked: false,
+		position: 'start'
+	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5227,6 +5227,7 @@ angular.module('mblowfish-core')
             this.value = $scope.value;
             this.setSelected = function(item) {
                 $scope.$parent.setValue(item);
+                $scope.$parent.answer();
             };
             this.isSelected = function(item){
                 return item === this.value || item.id === this.value.id;
@@ -7705,17 +7706,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=ctrl.loading layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-groups.html',
-    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2 translate=\"\">No item found</h2> </div> </md-content> </div>"
+    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, name, descriptionS}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-roles.html',
-    "<div flex layout=column ng-init=\"\" ng-controller=\"MbRolesCtrl as ctrl\">  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> <div layout=column layout-align=\"center center\" ng-if=\"ctrl.state === 'ideal' &&(!ctrl.items || ctrl.items.length == 0)\"> <h2>Empty role list</h2> <p>There is no role match with the query</p> </div> </md-content> </div>"
+    "<div ng-controller=\"MbRolesCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, name, descriptionS}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
