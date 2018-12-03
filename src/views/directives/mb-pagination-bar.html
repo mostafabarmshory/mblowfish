@@ -45,6 +45,7 @@
       <md-menu ng-show="mbMoreActions.length">
         <md-button
           class="md-icon-button"
+          aria-label="Menu"
           ng-click="$mdOpenMenu($event)">
           <wb-icon>more_vert</wb-icon>
         </md-button>
@@ -52,7 +53,8 @@
           <md-menu-item
             ng-repeat="item in mbMoreActions">
             <md-button
-              ng-click="item.action()">
+              ng-click="item.action()"
+              aria-label="{{item.title}}">
               <wb-icon ng-show="item.icon">{{item.icon}}</wb-icon>
               <span translate="">{{ item.title }}</span>
             </md-button>
@@ -116,8 +118,8 @@
         <md-menu-content width="4">
           <md-menu-item ng-repeat="key in mbSortKeys">
             <md-button ng-click="query.sortBy=key">
-              <wb-icon ng-if="query.sortBy==key">check_circle</wb-icon>
-              <wb-icon ng-if="query.sortBy!=key">radio_button_unchecked</wb-icon>
+              <wb-icon ng-if="query.sortBy===key">check_circle</wb-icon>
+              <wb-icon ng-if="query.sortBy!==key">radio_button_unchecked</wb-icon>
               {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}}
             </md-button>
           </md-menu-item>
