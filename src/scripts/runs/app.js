@@ -54,6 +54,24 @@ angular.module('mblowfish-core')
 		},
 		groups: ['mb.toolbar.menu']
 	});
+		$actions.newAction({
+		icon: 'person_outline',
+		title: 'Profile',
+		description: 'User profile',
+		groups:['mb.user'],
+		action: function(){
+			return $navigator.openPage("users/profile");
+		}
+	});
+	$actions.newAction({
+		icon: 'person',
+		title: 'Account',
+		description: 'User account',
+		groups:['mb.user'],
+		action: function(){
+			return $navigator.openPage("users/account");
+		}
+	});
 
 	$toolbar.newToolbar({
 		id: 'dashboard',
