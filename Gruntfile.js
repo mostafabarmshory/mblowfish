@@ -180,8 +180,7 @@ module.exports = function(grunt) {
                         }
 
                         // Setup the proxy
-                        middlewares
-                        .push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+                        middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
 
                         // Serve static files
                         options.base.forEach(function(base) {
@@ -332,6 +331,7 @@ module.exports = function(grunt) {
          */
         wiredep : {
             app : {
+                devDependencies : true,
                 src : [ 'demo/index.html' ],
                 ignorePath : /\.\.\//
             },

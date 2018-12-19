@@ -206,7 +206,7 @@ angular.module('mblowfish-core') //
             return {};
         })
         .then(function (appConfig) {
-            app.config = appConfig;
+            app.config = angular.isObject(appConfig) ? appConfig : {};
         })
         .finally(function(){
             ctrl.configs_loaded = true;
