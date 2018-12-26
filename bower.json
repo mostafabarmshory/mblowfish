@@ -21,7 +21,7 @@
 		"seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#2.0.x",
 
 		"am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#2.4.x",
-		"am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#2.0.x",
+		"am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#2.4.x",
 
 
 		"ngstorage": "0.3.x",
@@ -34,7 +34,8 @@
 		"machina": "2.0.x"
 	},
 	"resolutions": {
-		"angular": "1.7.x"
+		"angular": "1.7.x",
+                "am-wb-core": "2.4.x"
 	},
 	"devDependencies": {
 		"angular-mocks": "1.7.x"
