@@ -4212,26 +4212,31 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 
-/**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- * 
- * 
- */
-.directive('mbTitledBlock', function() {
-	return {
-		replace:true,
+	/**
+	 * @ngdoc Directives
+	 * @name mb-titled-block
+	 * @descritpion Title block
+	 * 
+	 * 
+	 */
+	.directive('mbTitledBlock', function () {
+	    return {
+		replace: true,
 		restrict: 'E',
 		transclude: true,
 		scope: {
-			mbTitle: '@?',
-			mbIcon: '@?',
-			mbProgress: '<?'
+		    mbTitle: '@?',
+		    mbIcon: '@?',
+		    mbProgress: '<?',
+		    mbMoreActions: '='
 		},
+		/*
+		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+		 */
+		
 		templateUrl: 'views/directives/mb-titled-block.html'
-	};
-});
+	    };
+	});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -8007,7 +8012,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
   );
 
 

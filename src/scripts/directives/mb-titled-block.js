@@ -24,23 +24,28 @@
 angular.module('mblowfish-core')
 
 
-/**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- * 
- * 
- */
-.directive('mbTitledBlock', function() {
-	return {
-		replace:true,
+	/**
+	 * @ngdoc Directives
+	 * @name mb-titled-block
+	 * @descritpion Title block
+	 * 
+	 * 
+	 */
+	.directive('mbTitledBlock', function () {
+	    return {
+		replace: true,
 		restrict: 'E',
 		transclude: true,
 		scope: {
-			mbTitle: '@?',
-			mbIcon: '@?',
-			mbProgress: '<?'
+		    mbTitle: '@?',
+		    mbIcon: '@?',
+		    mbProgress: '<?',
+		    mbMoreActions: '='
 		},
+		/*
+		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+		 */
+		
 		templateUrl: 'views/directives/mb-titled-block.html'
-	};
-});
+	    };
+	});
