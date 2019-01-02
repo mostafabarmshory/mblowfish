@@ -5,20 +5,19 @@ cache:
   - node_modules
 
 build-project:
-  image: node:8
   coverage: /Lines\s*:\s*(\d+\.\d+)%/
   script:
-    # TODO: maso, 2018: install opera, firefox
+    - useradd -m -p 123 builder
+    # TODO: maso, 2018: install  iceweasel xvfb with no GUI 
     - apt-get update
-    - apt-get -yq install chromium
-    - apt-get -yq install git
+    - apt-get -yq install chromium git
     - npm install -g bower grunt-cli
     - npm install
     - bower install --allow-root
-    - grunt test
+    - chmod 777 -fR .
+    - su builder -c "grunt test"
     - find . -name lcov.info | xargs -d '\n' cat | node_modules/.bin/codacy-coverage -t $CODACY_PROJECT_TOKEN
-    - npm update caniuse-db
-    - grunt release
+    - su builder -c "grunt release"
 
   artifacts:
     paths:
