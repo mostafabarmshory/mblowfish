@@ -26,7 +26,7 @@ angular.module('am-wb-seen-core')
 /*
  * 
  */
-.controller('AmWbSeenCmsContentsCtrl', function($scope, $cms, $controller, uuid4) {
+.controller('AmWbSeenCmsContentsCtrl', function($scope, $cms, $q, $controller, uuid4) {
 
     /*
      * Extends collection controller

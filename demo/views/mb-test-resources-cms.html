@@ -1,16 +1,33 @@
 <md-content flex>
-	<h2>Select content file</h2>
-	<p>Content file is a URL from the server. You select this path:
-		{{selectedFile}}</p>
-	<div layout="row">
-		<md-input-container>
-			<label>File path</label>
-			<input ng-model="selectedFile">
-		</md-input-container>
-		<md-button
-			ng-click="ctrl.selectFile()">
-			<span translate>Select file</span>
-		</md-button>
-	</div>
+	<section>
+		<h2>Select content file</h2>
+		<p>Content file is a URL from the server. You select this path:
+			{{selectedFile}}</p>
+		<div layout="row">
+			<md-input-container>
+				<label>File path</label>
+				<input ng-model="selectedfile">
+			</md-input-container>
+			<md-button
+				ng-click="ctrl.selectResource('file')">
+				<span translate>Select file</span>
+			</md-button>
+		</div>
+	</section>
+	<section>
+		<h2>Select image</h2>
+		<p>There are many way to load image into the system. You can choose from
+		system resources as well.</p>
+		<div layout="row">
+			<md-input-container>
+				<label>Image URL</label>
+				<input ng-model="selectedimage">
+			</md-input-container>
+			<md-button
+				ng-click="ctrl.selectResource('image')">
+				<span translate>Select image</span>
+			</md-button>
+		</div>
+	</section>
 </md-content>
 

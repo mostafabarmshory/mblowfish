@@ -27,20 +27,17 @@ angular.module('app')
  */
 .controller('SelectResourcesCtrl', function($scope, $resource) {
 
-    /**
-     * Selects file and puts its URL in the scope
-     */
-    this.selectFile = function(){
-        return $resource.get('file',{
+    this.selectResource = function(type){
+        return $resource.get(type,{
             data: $scope.selectedFile,
             style:{
-                title: 'Select file',
-                description: 'Select a file path',
+                title: 'Select type:'+type,
+                description: 'Select a resource from the system',
                 icon: 'file'
             }
         })//
-        .then(function(selectedFile){
-            $scope.selectedFile = selectedFile;
+        .then(function(item){
+            $scope['selected'+type] = item;
         });
     };
 
