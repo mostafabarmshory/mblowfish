@@ -27,6 +27,22 @@ angular.module('app')
  */
 .controller('SelectResourcesCtrl', function($scope, $resource) {
 
+    /**
+     * Selects file and puts its URL in the scope
+     */
+    this.selectFile = function(){
+        return $resource.get('file',{
+            data: $scope.selectedFile,
+            style:{
+                title: 'Select file',
+                description: 'Select a file path',
+                icon: 'file'
+            }
+        })//
+        .then(function(selectedFile){
+            $scope.selectedFile = selectedFile;
+        });
+    };
 
     $scope.selectUserObject = function(){
         return $resource.get('account',{

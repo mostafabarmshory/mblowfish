@@ -1,0 +1,16 @@
+<md-content flex>
+	<h2>Select content file</h2>
+	<p>Content file is a URL from the server. You select this path:
+		{{selectedFile}}</p>
+	<div layout="row">
+		<md-input-container>
+			<label>File path</label>
+			<input ng-model="selectedFile">
+		</md-input-container>
+		<md-button
+			ng-click="ctrl.selectFile()">
+			<span translate>Select file</span>
+		</md-button>
+	</div>
+</md-content>
+
