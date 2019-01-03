@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 'use strict';
-angular.module('am-wb-seen-core')
+angular.module('mblowfish-core')
 /*
  * 
  */

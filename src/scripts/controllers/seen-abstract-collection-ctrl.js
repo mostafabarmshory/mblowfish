@@ -359,6 +359,6 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
 /*
  * Add to angular
  */
-angular.module('am-wb-seen-core')//
+angular.module('mblowfish-core')//
     .controller('AmWbSeenAbstractCollectionCtrl', SeenAbstractCollectionCtrl) //
     .controller('MbItemsCtrl', SeenAbstractCollectionCtrl);
