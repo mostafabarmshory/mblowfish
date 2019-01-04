@@ -27,6 +27,19 @@ angular.module('app')
  */
 .controller('SelectResourcesCtrl', function($scope, $resource) {
 
+    this.selectResource = function(type){
+        return $resource.get(type,{
+            data: $scope.selectedFile,
+            style:{
+                title: 'Select type:'+type,
+                description: 'Select a resource from the system',
+                icon: 'file'
+            }
+        })//
+        .then(function(item){
+            $scope['selected'+type] = item;
+        });
+    };
 
     $scope.selectUserObject = function(){
         return $resource.get('account',{
