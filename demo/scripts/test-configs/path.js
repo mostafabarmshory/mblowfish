@@ -291,6 +291,17 @@ angular.module('app') //
         groups : [ 'resources' ],
         name : 'Select resource',
         icon : 'load',
+        protect: true,
+    })
+    .when('/test/resources-cms', {
+        controller : 'SelectResourcesCtrl',
+        controllerAs: 'ctrl',
+        templateUrl : 'views/mb-test-resources-cms.html',
+        navigate : true,
+        groups : [ 'resources' ],
+        name : 'Select cms resource',
+        icon : 'load',
+        protect: true,
     })
     
     // Theme

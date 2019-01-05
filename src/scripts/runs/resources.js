@@ -25,7 +25,14 @@ angular.module('mblowfish-core')
 /*
  * Init application resources
  */
-.run(function($resource) {
+.run(function($resource, $location,  $controller ) {
+
+    function getDomain(){
+        return $location.protocol() + //
+        '://' + //
+        $location.host() + //
+        (($location.port() ? ':' + $location.port(): ''));
+    }
 
 //  TODO: maso, 2018: replace with class
     function getSelection(){
@@ -182,6 +189,147 @@ angular.module('mblowfish-core')
         controllerAs : 'resourceCtrl',
         priority : 8,
         tags : [ 'groups' ]
+    });
+
+
+
+    /**
+     * @ngdoc WB Resources
+     * @name cms-content-image
+     * @description Load an Image URL from contents
+     */
+    $resource.newPage({
+        type: 'cms-content-image',
+        icon: 'image',
+        label: 'Images',
+        templateUrl: 'views/resources/mb-cms-images.html',
+        controller: function($scope){
+
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
+
+            /**
+             * Sets the absolute mode
+             * 
+             * @param {boolean}
+             *            absolute mode of the controler
+             */
+            this.setAbsolute = function(absolute) {
+                this.absolute = absolute;
+            }
+
+            /**
+             * Checks if the mode is absolute
+             * 
+             * @return absolute mode of the controller
+             */
+            this.isAbsolute = function(){
+                return this.absolute;
+            }
+            
+            /*
+             * Sets value
+             */
+            this.setSelected = function(content){
+                var path = '/api/v2/cms/contents/'+content.id+'/content';
+                if(this.isAbsolute()){
+                    path = getDomain() + path;
+                }
+                this.value = path;
+                $scope.$parent.setValue(path);
+            }
+            
+            // init the controller
+            this.init()
+        },
+        controllerAs: 'ctrl',
+        priority: 10,
+        tags: ['image']
+    });
+    // TODO: maso, 2018: Add video resource
+    // TODO: maso, 2018: Add audio resource
+
+    /**
+     * @ngdoc WB Resources
+     * @name content-upload
+     * @description Upload a content and returns its URL
+     */
+    $resource.newPage({
+        type:'content-upload',
+        icon: 'file_upload',
+        label: 'Upload',
+        templateUrl: 'views/resources/mb-cms-content-upload.html',
+        /*
+         * @ngInject
+         */
+        controller: function($scope, $cms, uuid4) {
+
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
+
+            this.absolute = false;
+            this.files = [];
+
+            /**
+             * Sets the absolute mode
+             * 
+             * @param {boolean}
+             *            absolute mode of the controler
+             */
+            this.setAbsolute = function(absolute) {
+                this.absolute = absolute;
+            }
+
+            /**
+             * Checks if the mode is absolute
+             * 
+             * @return absolute mode of the controller
+             */
+            this.isAbsolute = function(){
+                return this.absolute;
+            }
+
+            /*
+             * Add answer to controller
+             */
+            var ctrl = this;
+            $scope.answer = function(){
+                // create data
+                var data = {};
+                data.name = this.name || uuid4.generate();
+                data.description = this.description || 'Auto loaded content';
+                var file = null;
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    file = ctrl.files[0].lfFile;
+                    data.title = file.name;
+                }
+                // upload data to server
+                return ctrl.uploadFile(data, file)//
+                .then(function(content) {
+                    var value = '/api/v2/cms/contents/' + content.id + '/content';
+                    if(ctrl.isAbsolute()){
+                        value = getDomain() + value;
+                    }
+                    return value;
+                })//
+                .catch(function(){
+                    alert('Failed to create or upload content');
+                });
+            };
+            // init the controller
+            this.init()
+        },
+        controllerAs: 'ctrl',
+        priority: 1,
+        tags: ['image', 'audio', 'vedio', 'file']
     });
 
 });
