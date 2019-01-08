@@ -39,6 +39,7 @@
 	},
 	"appPath": "src",
 	"backend": {
-         "host": "developer.webpich.com"
+         "host": "195.146.59.40",
+         "port": 8083
 	}
 }

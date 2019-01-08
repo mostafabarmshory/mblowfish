@@ -4,6 +4,31 @@
 	flex>
 	
 	<div layout-gt-sm="row" layout="column">
+		<mb-titled-block 
+			mb-title="Public Information"
+			mb-progress="ctrl.loadingProfile || ctrl.savingProfile"
+			flex-gt-sm="50" 
+			layout="column" 
+			layout-margin>
+			<img 
+		    	width="100%"
+		    	ng-src="/api/user/{{ctrl.user.id}}/avatar" 
+		    	ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbsha1}}?d=identicon&size=32"/>
+	    	<div 
+		    	layout="column" layout-align="center none"
+       			layout-gt-xs="row" layout-align-gt-xs="end center">
+		    	<md-button 
+		    		class="md-raised md-primary"
+		    		ng-click="ctrl.uploadAvatar()">
+					<sapn translate>Upload</sapn>
+		    	</md-button>
+		    	<md-button 
+		    		class="md-raised"
+		    		ng-click="ctrl.deleteAvatar()">
+					<sapn translate>Delete</sapn>
+		    	</md-button>
+		    </div>
+		</mb-titled-block>
 		<!-- Contacts -->
 		<mb-titled-block 
 			mb-title="{{'Public Information' | translate}}"

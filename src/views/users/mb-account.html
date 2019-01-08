@@ -5,51 +5,6 @@
 	flex>
 	
 	<div layout-gt-sm="row" layout="column">
-		<!-- آواتار -->
-		<section 
-			mb-preloading="ctrl.updatingAvatar"
-			flex-order="-1"
-			flex-gt-sm="50" 
-			layout="column" 
-			md-whiteframe="1"
-			layout-margin>
-			<h3 translate>User avatar</h3>
-		    <img style="border-radius: 50%"
-		    	width="200px" height="200px" ng-show="!uploadAvatar"
-		    	ng-src="/api/user/{{ctrl.user.id}}/avatar" />
-	    	<lf-ng-md-file-input 
-	    		ng-show="uploadAvatar"
-	 			lf-files="avatarFiles"
-	 			accept="image/*"
-	 			progress
-	 			preview
-	 			drag>
-	 		</lf-ng-md-file-input>
-		    <div layout="column" layout-align="center none"
-       			layout-gt-xs="row" layout-align-gt-xs="end center">
-		    	<md-button 
-		    		ng-show="!uploadAvatar"
-					class="md-raised md-primary"
-					ng-click="uploadAvatar=true">
-		    		<sapn translate>edit</sapn>
-		    	</md-button>
-		    	<md-button 
-		    		ng-show="uploadAvatar"
-					class="md-raised md-primary"
-					ng-click="updateAvatar(avatarFiles)">
-<!-- 		    		<wb-icon>save</wb-icon> -->
-		    		<sapn translate>save</sapn>
-		    	</md-button>
-		    	<md-button 
-		    		ng-show="uploadAvatar"
-		    		class="md-raised"
-		    		ng-click="uploadAvatar=false">
-<!-- 					<wb-icon>cancel</wb-icon> -->
-					<sapn translate>cancel</sapn>
-		    	</md-button>
-		    </div>
-		</section>
-	
 		<!-- صفحه حساب کاربری -->
 		<section 
 			flex-gt-sm="50"
