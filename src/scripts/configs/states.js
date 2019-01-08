@@ -122,25 +122,39 @@ angular.module('mblowfish-core')
         protect: true,
         helpId: 'mb-profile'
     })
+    /**
+     * @ngdoc ngRoute
+     * @name /users/password
+     * @description Manage current password of the account
+     * 
+     * Change the password of the current account.
+     */
+    .when('/users/password', {
+        templateUrl : 'views/users/mb-password.html',
+        controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
+        protect: true,
+        helpId: 'mb-profile'
+    })
 
     // Reset forgotten password
     .when('/users/reset-password', {
         templateUrl : 'views/users/mb-forgot-password.html',
-        controller : 'MbPasswordCtrl',
+        controller : 'MbAccountCtrl',
         controllerAs: 'ctrl',
         sidenavs: [],
         toolbars: []
     })//
     .when('/users/reset-password/token', {
         templateUrl : 'views/users/mb-recover-password.html',
-        controller : 'MbPasswordCtrl',
+        controller : 'MbAccountCtrl',
         controllerAs: 'ctrl',
         sidenavs: [],
         toolbars: []
     })//
     .when('/users/reset-password/token/:token', {
         templateUrl : 'views/users/mb-recover-password.html',
-        controller : 'MbPasswordCtrl',
+        controller : 'MbAccountCtrl',
         controllerAs: 'ctrl',
         sidenavs: [],
         toolbars: []
