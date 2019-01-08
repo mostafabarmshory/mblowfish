@@ -28,11 +28,13 @@ angular.module('mblowfish-core')
  * @description  Manages profile of a user
  * 
  */
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window) {
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
 
     var ctrl = {
             user: null,
-            profile: null
+            profile: null,
+            loadingProfile: false,
+            savingProfile: false
     };
 
     /**
@@ -54,9 +56,9 @@ angular.module('mblowfish-core')
         }
         ctrl.loadingProfile = true;
         return usr.getProfiles()//
-        .then(function (profile) {
-            ctrl.profile = profile;
-            return profile;
+        .then(function (profiles) {
+            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+            return ctrl.profile;
         }, function () {
             alert($translate.instant('Fial to load profile.'));
         })//
@@ -75,7 +77,8 @@ angular.module('mblowfish-core')
             return;
         }
         ctrl.savingProfile = true;
-        return ctrl.profile.update()//
+        var $promise = angular.isDefined(ctrl.profile.id) ? ctrl.profile.update() : ctrl.user.putProfile(ctrl.profile);
+        return $promise//
         .then(function () {
             toast($translate.instant('Save is successfull.'));
         }, function () {

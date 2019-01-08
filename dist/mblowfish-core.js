@@ -2006,11 +2006,13 @@ angular.module('mblowfish-core')
  * @description  Manages profile of a user
  * 
  */
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window) {
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
 
     var ctrl = {
             user: null,
-            profile: null
+            profile: null,
+            loadingProfile: false,
+            savingProfile: false
     };
 
     /**
@@ -2032,9 +2034,9 @@ angular.module('mblowfish-core')
         }
         ctrl.loadingProfile = true;
         return usr.getProfiles()//
-        .then(function (profile) {
-            ctrl.profile = profile;
-            return profile;
+        .then(function (profiles) {
+            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+            return ctrl.profile;
         }, function () {
             alert($translate.instant('Fial to load profile.'));
         })//
@@ -2053,7 +2055,8 @@ angular.module('mblowfish-core')
             return;
         }
         ctrl.savingProfile = true;
-        return ctrl.profile.update()//
+        var $promise = angular.isDefined(ctrl.profile.id) ? ctrl.profile.update() : ctrl.user.putProfile(ctrl.profile);
+        return $promise//
         .then(function () {
             toast($translate.instant('Save is successfull.'));
         }, function () {
@@ -8865,7 +8868,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content class=md-padding layout-padding flex amh-preloading=\"ctrl.loadUser || ctrl.loadProfile || ctrl.saveProfile\"> <div layout-gt-sm=row layout=column>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Contacts information</h3> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>Site</label> <input ng-model=ctrl.profile.site> </md-input-container> <md-input-container layout-fill> <label translate>Public email</label> <input name=email ng-model=ctrl.profile.email type=email> <div ng-messages=contactForm.email.$error> <div ng-message=email>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>Phone number</label> <input ng-model=ctrl.profile.phone> </md-input-container> <md-input-container layout-fill> <label translate>Mobile number</label> <input ng-model=ctrl.profile.mobile> </md-input-container> </form> </section>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Social networks information</h3> <form name=socialForm layout=column layout-padding> <md-input-container layout-fill> <label translate>LinkedId</label> <input ng-model=ctrl.profile.linkedin> </md-input-container> <md-input-container layout-fill> <label translate>Telegram</label> <input ng-model=ctrl.profile.telegram> </md-input-container> <md-input-container layout-fill> <label translate>Facebook</label> <input ng-model=ctrl.profile.facebook> </md-input-container> </form> </section> </div> <div layout-gt-sm=row layout=column>  <section layout=column md-whiteframe=1 layout-fill layout-margin> <h3 translate>Overall profile info</h3> <div name=overalForm layout=column layout-padding> <label layout-fill ng-repeat=\"(key, value) in ctrl.profile\" ng-if=value> <span translate>{{key}}</span>: {{value}} </label> </div> </section> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()>  <sapn translate>update</sapn> </md-button> </div> </md-content>"
+    "<md-content class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <mb-titled-block mb-title=\"{{'Public Information' | translate}}\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" flex-gt-sm=50 layout=column layout-margin> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate>Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate>Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate>Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate>Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate>Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
   );
 
 
