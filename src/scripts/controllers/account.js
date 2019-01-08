@@ -29,11 +29,7 @@ angular.module('mblowfish-core')
  * @description Manages account of users.
  * 
  * Manages current user action:
- * 
- * - login
- * - logout
- * - change password
- * - recover password
+ *  - login - logout - change password - recover password
  */
 .controller('MbAccountCtrl', function($scope, $rootScope, $app, $translate, $window, $usr, $errorHandler) {
 
@@ -46,7 +42,7 @@ angular.module('mblowfish-core')
     this.updatingAvatar= false;
     this.loadingUser= false;
     this.savingUser= false;
-
+    
     /**
      * Call login process for current user
      * 
@@ -111,7 +107,7 @@ angular.module('mblowfish-core')
                 'new' : data.newPass,
                 'password': data.newPass
         };
-//      return $usr.resetPassword(param)//
+// return $usr.resetPassword(param)//
         $usr.putCredential(param)
         .then(function(){
             $app.logout();
@@ -144,7 +140,8 @@ angular.module('mblowfish-core')
         ctrl.updatingAvatar = true;
         return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
         .then(function(){
-            // TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
+            // TODO: hadi 1397-03-02: only reload avatar image by clear and set
+            // (again) avatar address in view
             // clear address before upload and set it again after upload.
             $window.location.reload();
             toast($translate.instant('Your avatar updated successfully.'));
@@ -239,8 +236,8 @@ angular.module('mblowfish-core')
 
     // support old systems
     var ctrl = this;
-    $scope.login = function(){
-        ctrl.login();
+    $scope.login = function(cridet, form){
+        ctrl.login(cridet, form);
     };
     $scope.logout = function(){
         ctrl.logout();

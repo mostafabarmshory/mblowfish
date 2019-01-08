@@ -84,7 +84,7 @@ angular.module('mblowfish-core')
             return;
         }
         this.savingProfile = true;
-        var $promise = angular.isDefined(ctrl.profile.id) ? ctrl.profile.update() : ctrl.user.putProfile(ctrl.profile);
+        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
         var ctrl = this;
         return $promise//
         .then(function () {

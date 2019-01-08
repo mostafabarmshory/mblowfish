@@ -69,12 +69,15 @@
 	        		flex-order="-1" 
 	        		flex-order-gt-xs="1" 
 	        		class="md-primary md-raised" 
-	        		ng-click="ctrl.login(credit)">
+	        		ng-click="ctrl.login(credit, ctrl.myForm)">
 	        		<span translate>Login</span>
 	        </div>
 		</form>
-        <div layout-margin ng-show="!app.user.anonymous" 
-        	layout="column" layout-align="none center">
+        <div 
+        	layout-margin 
+        	ng-show="!app.user.anonymous" 
+        	layout="column" 
+        	layout-align="none center">
         	<img
 		    	width="150px" height="150px" ng-show="!uploadAvatar"
 		    	ng-src="{{app.user.current.avatar}}" />
@@ -99,7 +102,7 @@
         		flex-order-gt-xs="-1" 
         		class="md-raised">
         		<wb-icon>account_circle</wb-icon> 
-        		{{'account' | translate}}
+        		<span translate>Account</span>
         	</md-button>
         </div>
 	</div>
