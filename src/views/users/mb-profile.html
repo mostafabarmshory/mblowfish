@@ -6,26 +6,55 @@
 	<div layout-gt-sm="row" layout="column">
 		<mb-titled-block 
 			mb-title="Public Information"
-			mb-progress="ctrl.loadingProfile || ctrl.savingProfile"
+			mb-progress="ctrl.avatarLoading"
 			flex-gt-sm="50" 
-			layout="column" 
+			layout="column"
 			layout-margin>
-			<img 
-		    	width="100%"
-		    	ng-src="/api/user/{{ctrl.user.id}}/avatar" 
-		    	ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbsha1}}?d=identicon&size=32"/>
+			<div
+				layout="row"
+				layout-align="center start">
+				<lf-ng-md-file-input 
+		    		ng-if="ctrl.avatarState === 'edit'"
+		 			lf-files="ctrl.avatarFiles"
+		 			accept="image/*"
+		 			progress
+		 			preview
+		 			drag>
+		 		</lf-ng-md-file-input>
+				<img 
+		    		ng-if="ctrl.avatarState === 'normal'"
+			    	width="60%"
+			    	ng-src="/api/v2/user/accounts/{{ctrl.user.id}}/avatar" 
+			    	ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbsha1}}?d=identicon&size=32"/>
+		    </div>
 	    	<div 
 		    	layout="column" layout-align="center none"
-       			layout-gt-xs="row" layout-align-gt-xs="end center">
+       			layout-gt-xs="row" layout-align-gt-xs="end center"
+       			ng-if="ctrl.avatarState === 'normal'">
 		    	<md-button 
 		    		class="md-raised md-primary"
-		    		ng-click="ctrl.uploadAvatar()">
-					<sapn translate>Upload</sapn>
+		    		ng-click="ctrl.editAvatar()">
+					<sapn translate>Edit</sapn>
 		    	</md-button>
 		    	<md-button 
-		    		class="md-raised"
+		    		class="md-raised md-accent"
 		    		ng-click="ctrl.deleteAvatar()">
 					<sapn translate>Delete</sapn>
+		    	</md-button>
+		    </div>
+	    	<div 
+		    	layout="column" layout-align="center none"
+       			layout-gt-xs="row" layout-align-gt-xs="end center"
+       			ng-if="ctrl.avatarState === 'edit'">
+		    	<md-button 
+		    		class="md-raised md-primary"
+		    		ng-click="ctrl.uploadAvatar(ctrl.avatarFiles)">
+					<sapn translate>Save</sapn>
+		    	</md-button>
+		    	<md-button 
+		    		class="md-raised md-accent"
+		    		ng-click="ctrl.cancelEditAvatar()">
+					<sapn translate>Cancele</sapn>
 		    	</md-button>
 		    </div>
 		</mb-titled-block>

@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Controllers
  * @name MbProfileCtrl
- * @description  Manages profile of a user
+ * @description Manages profile of a user
  * 
  */
 .controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
@@ -36,8 +36,15 @@ angular.module('mblowfish-core')
     this.loadingProfile = false;
     this.savingProfile = false;
 
+    /*
+     * - normal
+     * - edit
+     */
+    this.avatarState = 'normal';
+
     /**
      * Loads user data
+     * 
      * @returns
      */
     this.loadUser = function() {
@@ -92,6 +99,43 @@ angular.module('mblowfish-core')
 
     this.back = function() {
         $window.history.back();
+    }
+    
+    this.deleteAvatar = function(){
+        var ctrl = this;
+        confirm('Delete the avatar?')
+        .then(function(){
+            ctrl.avatarState = 'working';
+            return ctrl.user.deleteAvatar();
+        })
+        .finally(function(){
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.uploadAvatar = function(files){
+        if (!angular.isArray(files) || !files.length) {
+        }
+        var file = null;
+        file = files[0].lfFile;
+        this.avatarLoading = true;
+        var ctrl = this;
+        this.user.uploadAvatar(file)
+        .then(function(){
+            // TODO: reload the page
+        })
+        .finally(function(){
+            ctrl.avatarLoading = false;
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.editAvatar = function(){
+        this.avatarState = 'edit';
+    }
+    
+    this.cancelEditAvatar = function(){
+        this.avatarState = 'normal';
     }
 
     /*
