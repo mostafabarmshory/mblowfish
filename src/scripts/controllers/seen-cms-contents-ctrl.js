@@ -31,10 +31,9 @@ angular.module('mblowfish-core')
     /*
      * Extends collection controller
      */
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl',
-            {
+    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
         $scope : $scope
-            }));
+    }));
 
     // Override the schema function
     this.getSchema = function () {
