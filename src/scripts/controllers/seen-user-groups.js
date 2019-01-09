@@ -29,37 +29,31 @@ angular.module('mblowfish-core')
  * @description Manages list of groups
  * 
  */
-.controller('MbGroupsCtrl', function($scope, $usr, $q, $controller) {
-	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope : $scope
-	}));
+.controller('MbGroupsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
 
-	// Overried the function
-	this.getSchema = function() {
-		return $q.resolve({
-			name : 'group',
-			properties : [ {
-				name : 'Id',
-				type : 'int'
-			} ]
-		});
-	};
-	// get accounts
-	this.getItems = function(parameterQuery) {
-		return $usr.getGroups(parameterQuery);
-	};
-	// get an account
-	this.getItem = function(id) {
-		return $usr.getGroup(id);
-	};
-	// // Add item
-	// this.addItem = function(){
-	// return $usr.newAccount(item);
-	// };
-	// delete account
-	this.deleteItem = function(item) {
-		return $usr.deleteRole(item.id);
-	};
-	
-	this.init();
+    // Overried the function
+    this.getSchema = function () {
+        return $usr.groupSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getGroups(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getGroup(id);
+    };
+    // Add item
+    this.addItem = function () {
+        return $usr.newAccount(item);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteRole(item.id);
+    };
+
+    this.init();
 });

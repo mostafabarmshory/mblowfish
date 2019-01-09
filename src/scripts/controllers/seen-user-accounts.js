@@ -30,33 +30,27 @@ angular.module('mblowfish-core')
  * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller, $q) {
-	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope: $scope
-	}));
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
 
-	// Overried the function
-	this.getSchema = function(){
-		return $q.resolve({
-			name: 'account',
-			properties: [{
-				name: 'Id',
-				type: 'int'
-			}]
-		});
-	};
-	// get accounts
-	this.getItems = function(parameterQuery){
-		return $usr.getAccounts(parameterQuery);
-	};
-	// get an account
-	this.getItem = function(id){
-		return $usr.getAccount(id);
-	};
-	// delete account
-	this.deleteItem = function(item){
-		return $usr.deleteAccount(item.id);
-	};
-    
+    // Overried the function
+    this.getSchema = function () {
+        return $usr.accountSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getAccounts(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getAccount(id);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteAccount(item.id);
+    };
+
     this.init();
 });

@@ -30,21 +30,16 @@ angular.module('mblowfish-core')
  * This controller is used in accounts list.
  * 
  */
-.controller('MbProfilesCtrl', function ($scope, $usr, $controller, $q) {
+.controller('MbProfilesCtrl', function ($scope, $usr, $controller) {
 	angular.extend(this, $controller('MbItemsCtrl', {
 		$scope: $scope
 	}));
 
 	// Overried the function
 	this.getSchema = function(){
-		return $q.resolve({
-			name: 'account',
-			properties: [{
-				name: 'Id',
-				type: 'int'
-			}]
-		});
+		return $usr.profileSchema();
 	};
+	
 	// get accounts
 	this.getItems = function(parameterQuery){
 		return $usr.getAccounts(parameterQuery);

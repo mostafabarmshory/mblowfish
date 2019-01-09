@@ -25,7 +25,7 @@
 		    		ng-if="ctrl.avatarState === 'normal'"
 			    	width="60%"
 			    	ng-src="/api/v2/user/accounts/{{ctrl.user.id}}/avatar" 
-			    	ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbsha1}}?d=identicon&size=32"/>
+			    	ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32"/>
 		    </div>
 	    	<div 
 		    	layout="column" layout-align="center none"
