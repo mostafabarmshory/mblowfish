@@ -39,7 +39,6 @@
 	},
 	"appPath": "src",
 	"backend": {
-         "host": "localhost",
-         "port": 8083
+         "host": "www.viraweb123.ir"
 	}
 }

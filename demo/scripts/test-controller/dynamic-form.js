@@ -25,41 +25,14 @@ angular.module('app')
 /**
  * 
  */
-.controller('TitledBlockCtrl', function($scope) {
-	
-	var ctrl = {
-			myTitle: 'Title',
-			myIcon: 'assignment_turned_in',
-			progress: false
-	}
-	
-	/**
-	 * Update the object in scope
-	 */
-	function setTitle(t) {
-		$scope.myTitle = t;
-	}
-	
-	/**
-	 * Update the object in scope
-	 */
-	function setIcon(ic) {
-		$scope.myIcon = ic;
-	}
-	
-	function toggleProgress(){
-		ctrl.progress = !ctrl.progress;
-	}
-
-	$scope.setTitle = setTitle;
-	$scope.setIcon = setIcon;
-	$scope.toggleProgress = toggleProgress;
-	$scope.ctrl = ctrl;
-        $scope.moreActions = [{
-		    title: 'New category',
-		    icon: 'add',
-		    action: setTitle
-		}];
-
-	
+.controller('DynamicFormCtrl', function($scope) {
+    $scope.properties = [{
+	    name: 'x',
+	    title: 'Latitude',
+	    description: 'Description'
+    },{
+	    name: 'y',
+	    title: 'Longitude',
+	    description: 'Description'
+    }];
 });

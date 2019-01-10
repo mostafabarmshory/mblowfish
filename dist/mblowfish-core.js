@@ -2188,7 +2188,11 @@ angular.module('mblowfish-core')
     // Load account information
     this.loadUser();
 });
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> 711d9d5deec2bc5d585e546cee1c2c38ba17e365
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -2904,6 +2908,67 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name AmdRolesCtrl
+ * @description Manages list of roles
+ * 
+ * 
+ */
+.controller('MbRolesCtrl', function ($scope, $usr, $q, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
+
+    // Override the function
+    this.getSchema = function () {
+        return $usr.roleSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getRoles(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getRole(id);
+    };
+    // Add item
+    this.addItem = function () {
+        return $usr.newRole(item);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteRole(item.id);
+    };
+
+    this.init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
 angular.module('mblowfish-core')
 
 
@@ -3404,6 +3469,72 @@ angular.module('mblowfish-core')
         link : postLink
     };
 });
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+	/**
+	 * @ngdoc Directives
+	 * @name mbDynamicForm
+	 * @description Get a list of properties and fill them
+	 */
+	.directive('mbDynamicForm', function () {
+
+	    /**
+	     * Adding preloader.
+	     * 
+	     * @param scope
+	     * @param element
+	     * @param attr
+	     * @param ctrls
+	     * @returns
+	     */
+	    function postLink(scope, element, attrs, ctrls) {
+		// Load ngModel
+		var ngModelCtrl = ctrls[0];
+		scope.values = {};
+		ngModelCtrl.$render = function () {
+		    scope.values = ngModelCtrl.$viewValue || {};
+		};
+		
+		scope.modelChanged = function (key, value) {
+		    scope.values[key] = value;
+		    ngModelCtrl.$setViewValue(scope.values);
+		};
+	    }
+
+	    return {
+		restrict: 'E',
+		require: ['ngModel'],
+		templateUrl: 'views/directives/mb-dynamic-form.html',
+		scope: {
+		    mbParameters: '='
+		},
+		link: postLink
+	    };
+	});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -8814,6 +8945,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/directives/mb-dynamic-form.html',
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
+  );
+
+
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
     "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
@@ -8840,7 +8976,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
   );
 
 

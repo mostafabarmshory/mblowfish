@@ -180,6 +180,15 @@ angular.module('app') //
 		name : 'Titled Block',
 		icon : 'apps',
 	})
+	
+	.when('/test/dynamic-form', {
+		controller : 'DynamicFormCtrl',
+		templateUrl : 'views/mb-dynamic-form.html',
+		navigate : true,
+		groups : [ 'example' ],
+		name : 'Dynamic form',
+		icon : 'apps'
+	})
 
 	.when('/test/table/general', {
 		controller : 'TablesClassTestCtrl',
