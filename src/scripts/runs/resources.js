@@ -203,6 +203,9 @@ angular.module('mblowfish-core')
         icon: 'image',
         label: 'Images',
         templateUrl: 'views/resources/mb-cms-images.html',
+        /*
+         * @ngInject
+         */
         controller: function($scope){
 
             /*

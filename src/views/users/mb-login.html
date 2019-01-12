@@ -25,7 +25,7 @@
 		</div>
 		<form ng-show="app.user.anonymous"
 			name="ctrl.myForm"
-			ng-submit="login(credit)" 
+			ng-submit="ctrl.login(credit)" 
 			layout="column" 
 			layout-margin>
 	        <md-input-container>
@@ -61,39 +61,40 @@
 	        		style="text-decoration: none;"  
 	        		ui-sref="forget" 
 	        		flex-order="1" 
-	        		flex-order-gt-xs="-1">{{'forgot your password?' | translate}}</a>
+	        		flex-order-gt-xs="-1">
+	        		<span translate>Forgot your password?</span>
+	        	</a>
 	        	<md-button 
 	        		ng-disabled="ctrl.myForm.$invalid"
 	        		flex-order="-1" 
 	        		flex-order-gt-xs="1" 
 	        		class="md-primary md-raised" 
-	        		ng-click="login(credit)">{{'login' | translate}}</md-button>
-<!-- 	        	<md-button  -->
-<!-- 	        		ng-href="users/signup" -->
-<!-- 	        		flex-order="0"  -->
-<!-- 	        		flex-order-gt-xs="0"  -->
-<!-- 	        		class="md-raised"> {{ 'sign up' | translate }} </md-button> -->
+	        		ng-click="ctrl.login(credit, ctrl.myForm)">
+	        		<span translate>Login</span>
 	        </div>
 		</form>
-        <div layout-margin ng-show="!app.user.anonymous" 
-        	layout="column" layout-align="none center">
+        <div 
+        	layout-margin 
+        	ng-show="!app.user.anonymous" 
+        	layout="column" 
+        	layout-align="none center">
         	<img
 		    	width="150px" height="150px" ng-show="!uploadAvatar"
 		    	ng-src="{{app.user.current.avatar}}" />
 		    <h3>{{app.user.current.login}}</h3>
-        	<p translate="">you are logged in. go to one of the following options.</p>
+        	<p translate>you are logged in. go to one of the following options.</p>
         </div>
         <div ng-show="!app.user.anonymous" 
         	layout="column" layout-align="none"
         	layout-gt-xs="row" layout-align-gt-xs="center center"
         	layout-margin>
         	<md-button 
-        		ng-click="cancel()"
+        		ng-click="ctrl.cancel()"
         		flex-order="0" 
         		flex-order-gt-xs="0" 
         		class="md-raised">
         		<wb-icon>settings_backup_restore</wb-icon> 
-        		{{'back' | translate}}
+        		<span translate>Back</span>
         	</md-button>
         	<md-button 
         		ng-href="users/account"
@@ -101,7 +102,7 @@
         		flex-order-gt-xs="-1" 
         		class="md-raised">
         		<wb-icon>account_circle</wb-icon> 
-        		{{'account' | translate}}
+        		<span translate>Account</span>
         	</md-button>
         </div>
 	</div>

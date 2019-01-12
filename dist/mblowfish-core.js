@@ -168,123 +168,142 @@ angular.module('mblowfish-core')
  * 
  */
 .config(function($routeProvider, $locationProvider) {
-	$routeProvider//
-	
-	// Preferences
-	/**
-	 * @ngdoc ngRoute
-	 * @name /initialization
-	 * @description Initial page
-	 */
-	.when('/initialization', {
-		templateUrl : 'views/mb-initial.html',
-		controller : 'MbInitialCtrl',
-		controllerAs: 'ctrl',
-		/*
-		 * @ngInject
-		 */
-		protect : function($rootScope) {
-			// TODO: maso, 2018: replace with roles core_owner, Pluf_owner
-			return !$rootScope.app.user.owner;
-		},
-		sidenavs: [],
-		toolbars: []
-	})
-	/**
-	 * @ngdoc ngRoute
-	 * @name /preferences
-	 * @description preferences pages
-	 */
-	.when('/preferences', {
-		templateUrl : 'views/mb-preferences.html',
-		controller : 'MbPreferencesCtrl',
-		controllerAs: 'ctrl',
-		helpId : 'preferences',
-		/*
-		 * @ngInject
-		 */
-		protect : function($rootScope) {
-			return !$rootScope.app.user.owner;
-		}
-	}) //
-	/**
-	 * @ngdoc ngRoute
-	 * @name /preferences/:page
-	 * @description Preferences page
-	 * 
-	 * Display a preferences page to manage a part of settings. Here is list of
-	 * default pages: - google-analytic - brand - update - pageNotFound
-	 */
-	.when('/preferences/:preferenceId', {
-		templateUrl : 'views/mb-preference.html',
-		controller : 'MbPreferenceCtrl',
-		/*
-		 * @ngInject
-		 */
-		helpId : function($routeParams) {
-			return 'preferences-' + $routeParams.preferenceId;
-		},
-		/*
-		 * @ngInject
-		 */
-		protect : function($rootScope) {
-			return !$rootScope.app.user.owner;
-		}
-	})
-	
-	// Users
-	// Login
-	.when('/users/login', {
-		templateUrl : 'views/users/mb-login.html',
-		controller : 'MbAccountCtrl',
-		sidenavs: [],
-		toolbars: []
-	})
-	/**
-	 * @ngdoc ngRoute
-	 * @name /users/account
-	 * @description Details of the current account
-	 */
-	.when('/users/account', {
-		templateUrl : 'views/users/mb-account.html',
-		controller : 'MbAccountCtrl',
-		protect: true,
-                helpId: 'mb-account'
-	})
-	/**
-	 * @ngdoc ngRoute
-	 * @name /users/profile
-	 * @description Profile of the current account
-	 */
-	.when('/users/profile', {
-		templateUrl : 'views/users/mb-profile.html',
-		controller : 'MbProfileCtrl',
-		protect: true,
-                helpId: 'mb-profile'
-	})
-	
-	// Reset forgotten password
-	.when('/users/reset-password', {
-		templateUrl : 'views/users/mb-forgot-password.html',
-		controller : 'MbPasswordCtrl',
-		sidenavs: [],
-		toolbars: []
-	})//
-	.when('/users/reset-password/token', {
-		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl',
-		sidenavs: [],
-		toolbars: []
-	})//
-	.when('/users/reset-password/token/:token', {
-		templateUrl : 'views/users/mb-recover-password.html',
-		controller : 'MbPasswordCtrl',
-		sidenavs: [],
-		toolbars: []
-	})//
-	; //
+    $routeProvider//
 
-	$locationProvider.html5Mode(true);
+    // Preferences
+    /**
+     * @ngdoc ngRoute
+     * @name /initialization
+     * @description Initial page
+     */
+    .when('/initialization', {
+        templateUrl : 'views/mb-initial.html',
+        controller : 'MbInitialCtrl',
+        controllerAs: 'ctrl',
+        /*
+         * @ngInject
+         */
+        protect : function($rootScope) {
+            // TODO: maso, 2018: replace with roles core_owner, Pluf_owner
+            return !$rootScope.app.user.owner;
+        },
+        sidenavs: [],
+        toolbars: []
+    })
+    /**
+     * @ngdoc ngRoute
+     * @name /preferences
+     * @description preferences pages
+     */
+    .when('/preferences', {
+        templateUrl : 'views/mb-preferences.html',
+        controller : 'MbPreferencesCtrl',
+        controllerAs: 'ctrl',
+        helpId : 'preferences',
+        /*
+         * @ngInject
+         */
+        protect : function($rootScope) {
+            return !$rootScope.app.user.owner;
+        }
+    }) //
+    /**
+     * @ngdoc ngRoute
+     * @name /preferences/:page
+     * @description Preferences page
+     * 
+     * Display a preferences page to manage a part of settings. Here is list of
+     * default pages: - google-analytic - brand - update - pageNotFound
+     */
+    .when('/preferences/:preferenceId', {
+        templateUrl : 'views/mb-preference.html',
+        controller : 'MbPreferenceCtrl',
+        /*
+         * @ngInject
+         */
+        helpId : function($routeParams) {
+            return 'preferences-' + $routeParams.preferenceId;
+        },
+        /*
+         * @ngInject
+         */
+        protect : function($rootScope) {
+            return !$rootScope.app.user.owner;
+        }
+    })
+
+    // Users
+    // Login
+    .when('/users/login', {
+        templateUrl : 'views/users/mb-login.html',
+        controller : 'MbAccountCtrl',
+        sidenavs: [],
+        toolbars: []
+    })
+    /**
+     * @ngdoc ngRoute
+     * @name /users/account
+     * @description Details of the current account
+     */
+    .when('/users/account', {
+        templateUrl : 'views/users/mb-account.html',
+        controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
+        protect: true,
+        helpId: 'mb-account'
+    })
+    /**
+     * @ngdoc ngRoute
+     * @name /users/profile
+     * @description Profile of the current account
+     */
+    .when('/users/profile', {
+        templateUrl : 'views/users/mb-profile.html',
+        controller : 'MbProfileCtrl',
+        controllerAs: 'ctrl',
+        protect: true,
+        helpId: 'mb-profile'
+    })
+    /**
+     * @ngdoc ngRoute
+     * @name /users/password
+     * @description Manage current password of the account
+     * 
+     * Change the password of the current account.
+     */
+    .when('/users/password', {
+        templateUrl : 'views/users/mb-password.html',
+        controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
+        protect: true,
+        helpId: 'mb-profile'
+    })
+
+    // Reset forgotten password
+    .when('/users/reset-password', {
+        templateUrl : 'views/users/mb-forgot-password.html',
+        controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
+        sidenavs: [],
+        toolbars: []
+    })//
+    .when('/users/reset-password/token', {
+        templateUrl : 'views/users/mb-recover-password.html',
+        controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
+        sidenavs: [],
+        toolbars: []
+    })//
+    .when('/users/reset-password/token/:token', {
+        templateUrl : 'views/users/mb-recover-password.html',
+        controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
+        sidenavs: [],
+        toolbars: []
+    })//
+    ; //
+
+    $locationProvider.html5Mode(true);
 });
 
 /*
@@ -384,226 +403,244 @@ angular.module('mblowfish-core')
  * @name MbAccountCtrl
  * @description Manages account of users.
  * 
- * Manages current user action
+ * Manages current user action:
+ *  - login - logout - change password - recover password
  */
 .controller('MbAccountCtrl', function($scope, $rootScope, $app, $translate, $window, $usr, $errorHandler) {
 
-	var ctrl = {
-			loginProcess: false,
-			loginState: null,
-			logoutProcess: false,
-			logoutState: null,
-			changingPassword: false,
-			changePassState: null,
-			updatingAvatar: false,
-			loadingUser: false,
-			savingUser: false
-	};
+    this.loginProcess = false;
+    this.loginState= null;
+    this.logoutProcess= false;
+    this.logoutState= null;
+    this.changingPassword= false;
+    this.changePassState= null;
+    this.updatingAvatar= false;
+    this.loadingUser= false;
+    this.savingUser= false;
+    
+    /**
+     * Call login process for current user
+     * 
+     * @memberof AmhUserAccountCtrl
+     * @name login
+     * @param {object}
+     *            cridet username and password
+     * @param {string}
+     *            cridet.login username
+     * @param {stirng}
+     *            cridig.password Password
+     * @returns {promiss} to do the login
+     */
+    this.login = function(cridet, form) {
+        if(ctrl.loginProcess){
+            return false;
+        }
+        ctrl.loginProcess= true;
+        return $app.login(cridet)//
+        .then(function(){
+            ctrl.loginState = 'success';
+            $scope.loginMessage = null;
+        }, function(error){
+            ctrl.loginState = 'fail';
+            $scope.loginMessage = $errorHandler.handleError(error, form);
+        })
+        .finally(function(){
+            ctrl.loginProcess = false;
+        });
+    }
 
-	/**
-	 * Call login process for current user
-	 * 
-	 * @memberof AmhUserAccountCtrl
-	 * @name login
-	 * @param {object}
-	 *            cridet username and password
-	 * @param {string}
-	 *            cridet.login username
-	 * @param {stirng}
-	 *            cridig.password Password
-	 * @returns {promiss} to do the login
-	 */
-	function login(cridet, form) {
-		if(ctrl.loginProcess){
-			return false;
-		}
-		ctrl.loginProcess= true;
-		return $app.login(cridet)//
-		.then(function(){
-			ctrl.loginState = 'success';
-			$scope.loginMessage = null;
-		}, function(error){
-			ctrl.loginState = 'fail';
-			$scope.loginMessage = $errorHandler.handleError(error, form);
-		})
-		.finally(function(){
-			ctrl.loginProcess = false;
-		});
-	}
+    this.logout = function() {
+        if(ctrl.logoutProcess){
+            return false;
+        }
+        ctrl.logoutProcess= true;
+        return $app.logout()//
+        .then(function(){
+            ctrl.logoutState = 'success';
+        }, function(){
+            ctrl.logoutState = 'fail';
+        })
+        .finally(function(){
+            ctrl.logoutProcess = false;
+        });
+    }
 
-	function logout() {
-		if(ctrl.logoutProcess){
-			return false;
-		}
-		ctrl.logoutProcess= true;
-		return $app.logout()//
-		.then(function(){
-			ctrl.logoutState = 'success';
-		}, function(){
-			ctrl.logoutState = 'fail';
-		})
-		.finally(function(){
-			ctrl.logoutProcess = false;
-		});
-	}
-
-	/**
-	 * Change password of the current user
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to change password
-	 */
-	function changePassword(data, form) {
-		if(ctrl.changingPassword){
-			return;
-		}
-		ctrl.changingPassword = true;
-		var param = {
-				'old' : data.oldPass,
-				'new' : data.newPass,
-				'password': data.newPass
-		};
-//		return $usr.resetPassword(param)//
-		$usr.putCredential(param)
-		.then(function(){
-			$app.logout();
-			ctrl.changePassState = 'success';
-			$scope.changePassMessage = null;
-			toast($translate.instant('Password is changed successfully. Login with new password.'));
-		}, function(error){
-			ctrl.changePassState = 'fail';
-			$scope.changePassMessage = $errorHandler.handleError(error, form);
-                        alert($translate.instant('Failed to change the password.'));
-		})//
-		.finally(function(){
-			ctrl.changingPassword = false;
-		});
-	}
+    /**
+     * Change password of the current user
+     * 
+     * @name load
+     * @memberof MbAccountCtrl
+     * @returns {promiss} to change password
+     */
+    this.changePassword = function(data, form) {
+        if(ctrl.changingPassword){
+            return;
+        }
+        ctrl.changingPassword = true;
+        var param = {
+                'old' : data.oldPass,
+                'new' : data.newPass,
+                'password': data.newPass
+        };
+// return $usr.resetPassword(param)//
+        $usr.putCredential(param)
+        .then(function(){
+            $app.logout();
+            ctrl.changePassState = 'success';
+            $scope.changePassMessage = null;
+            toast($translate.instant('Password is changed successfully. Login with new password.'));
+        }, function(error){
+            ctrl.changePassState = 'fail';
+            $scope.changePassMessage = $errorHandler.handleError(error, form);
+            alert($translate.instant('Failed to change the password.'));
+        })//
+        .finally(function(){
+            ctrl.changingPassword = false;
+        });
+    }
 
 
-	/**
-	 * Update avatar of the current user
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to update avatar
-	 */
-	function updateAvatar(avatarFiles){
-		// XXX: maso, 1395: reset avatar
-		if(ctrl.updatingAvatar){
-			return;
-		}
-		ctrl.updatingAvatar = true;
-		return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
-		.then(function(){
-			// TODO: hadi 1397-03-02: only reload avatar image by clear and set (again) avatar address in view
-			// clear address before upload and set it again after upload.
-			$window.location.reload();
-                        toast($translate.instant('Your avatar updated successfully.'));
-		}, function(){
-			alert($translate.instant('Failed to update avatar'));
-		})//
-		.finally(function(){
-			ctrl.updatingAvatar = false;
-		});
-	}
+    /**
+     * Update avatar of the current user
+     * 
+     * @name load
+     * @memberof MbAccountCtrl
+     * @returns {promiss} to update avatar
+     */
+    this.updateAvatar = function(avatarFiles){
+        // XXX: maso, 1395: reset avatar
+        if(ctrl.updatingAvatar){
+            return;
+        }
+        ctrl.updatingAvatar = true;
+        return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
+        .then(function(){
+            // TODO: hadi 1397-03-02: only reload avatar image by clear and set
+            // (again) avatar address in view
+            // clear address before upload and set it again after upload.
+            $window.location.reload();
+            toast($translate.instant('Your avatar updated successfully.'));
+        }, function(){
+            alert($translate.instant('Failed to update avatar'));
+        })//
+        .finally(function(){
+            ctrl.updatingAvatar = false;
+        });
+    }
 
-	function back() {
-		$window.history.back();
-	}
-
-
-	/**
-	 * Loads user data
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to load user data
-	 */
-	function loadUser(){
-		if(ctrl.loadingUser){
-			return;
-		}
-		ctrl.loadingUser = true;
-		return $usr.getAccount('current')//
-		.then(function(user){
-			ctrl.user = user;
-		}, function(error){
-			ctrl.error = error;
-		})//
-		.finally(function(){
-			ctrl .loadingUser = false;
-		});
-	}
+    this.back = function () {
+        $window.history.back();
+    }
 
 
-	/**
-	 * Save current user
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to save
-	 */
-	function saveUser(form){
-		if(ctrl.savingUser){
-			return;
-		}
-		ctrl.savingUser = true;
-		return ctrl.user.update()//
-		.then(function(user){
-			ctrl.user = user;
-			$scope.saveUserMessage = null; 
-                        toast($translate.instant('Your information updated successfully.'));
-		}, function(error){
-			$scope.saveUserMessage = $errorHandler.handleError(error, form);
-                        alert($translate.instant('Failed to update.'));
-		})//
-		.finally(function(){
-			ctrl.savingUser = false;
-		});
-	}
+    /**
+     * Loads user data
+     * 
+     * @name load
+     * @memberof MbAccountCtrl
+     * @returns {promiss} to load user data
+     */
+    this.loadUser = function(){
+        if(ctrl.loadingUser){
+            return;
+        }
+        ctrl.loadingUser = true;
+        return $usr.getAccount('current')//
+        .then(function(user){
+            ctrl.user = user;
+        }, function(error){
+            ctrl.error = error;
+        })//
+        .finally(function(){
+            ctrl .loadingUser = false;
+        });
+    }
 
-	// TODO: maso, 2017: getting from server
-	// Account property descriptor
-	$scope.apds = [ {
-		key : 'first_name',
-		title : 'First name',
-		type : 'string'
-	}, {
-		key : 'last_name',
-		title : 'Last name',
-		type : 'string'
-	}, {
-		key : 'language',
-		title : 'language',
-		type : 'string'
-	}, {
-		key : 'timezone',
-		title : 'timezone',
-		type : 'string'
-	} ];
 
-	$scope.$watch(function(){
-		return $rootScope.app.user;
-	}, function(usrStruct){
-		$scope.appUser = usrStruct;
-	}, true);
+    /**
+     * Save current user
+     * 
+     * @name load
+     * @memberof MbAccountCtrl
+     * @returns {promiss} to save
+     */
+    this.saveUser = function(form){
+        if(ctrl.savingUser){
+            return;
+        }
+        ctrl.savingUser = true;
+        return ctrl.user.update()//
+        .then(function(user){
+            ctrl.user = user;
+            $scope.saveUserMessage = null; 
+            toast($translate.instant('Your information updated successfully.'));
+        }, function(error){
+            $scope.saveUserMessage = $errorHandler.handleError(error, form);
+            alert($translate.instant('Failed to update.'));
+        })//
+        .finally(function(){
+            ctrl.savingUser = false;
+        });
+    }
 
-	// Bind to scope
-	$scope.ctrl = ctrl;
-	$scope.login = login;
-	$scope.logout = logout;
-	$scope.changePassword = changePassword;
-	$scope.updateAvatar = updateAvatar;
-	$scope.load = loadUser;
-	$scope.reload = loadUser;
-	$scope.saveUser = saveUser;
+    // TODO: maso, 2017: getting from server
+    // Account property descriptor
+    $scope.apds = [ {
+        key : 'first_name',
+        title : 'First name',
+        type : 'string'
+    }, {
+        key : 'last_name',
+        title : 'Last name',
+        type : 'string'
+    }, {
+        key : 'language',
+        title : 'language',
+        type : 'string'
+    }, {
+        key : 'timezone',
+        title : 'timezone',
+        type : 'string'
+    } ];
 
-	$scope.back = back;
-	$scope.cancel = back;
+    $scope.$watch(function(){
+        return $rootScope.app.user;
+    }, function(usrStruct){
+        $scope.appUser = usrStruct;
+    }, true);
 
-	loadUser();
+    // support old systems
+    var ctrl = this;
+    $scope.login = function(cridet, form){
+        ctrl.login(cridet, form);
+    };
+    $scope.logout = function(){
+        ctrl.logout();
+    };
+    $scope.changePassword = function(){
+        ctrl.changePassword();
+    };
+    $scope.updateAvatar = function(){
+        ctrl.updateAvatar();
+    };
+    $scope.load = function(){
+        ctrl.loadUser();
+    };
+    $scope.reload = function(){
+        ctrl.loadUser();
+    };
+    $scope.saveUser = function(){
+        ctrl.saveUser();
+    };
+
+    $scope.back = function(){
+        ctrl.back();
+    };
+    $scope.cancel = function(){
+        ctrl.back();
+    };
+
+    this.loadUser();
 });
 
 
@@ -1762,109 +1799,121 @@ angular.module('mblowfish-core')
 	});
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name MbPasswordCtrl
- * @description Store user password
- * 
- * این کنترلر داده‌های یوزرنیم پسورد و ایمیل را از
- * کاربر دریافت و در سیستم ذخیره می‌نماید
- * همچنین در صورت برخورد با مشکل پیام‌های مناسب نمایش می‌دهد
- * 
- * 
- */
-.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
-
-    var ctrl = {
-            sendingToken: false,
-            sendTokenState: null,
-            changingPass: false,
-            changingPassState: null
-    };
-
-    $scope.data = {};
-    $scope.data.token = $routeParams.token;
-
-    function sendToken(data, form) {
-        if(ctrl.sendingToken){
-            return false;
-        }
-        ctrl.sendingToken = true;
-        data.callback = $location.absUrl() + '/token/{{token}}';
-        return $usr.resetPassword(data)//
-        .then(function() {
-            ctrl.sendTokenState = 'success';
-            $scope.sendingTokenMessage = null;
-        }, function(error){
-            ctrl.sendTokenState = 'fail';
-            $scope.sendingTokenMessage = $errorHandler.handleError(error, form);
-        })//
-        .finally(function(){
-            ctrl.sendingToken = false;
-        });
-    }
-
-    function changePassword(param, form) {
-        if(ctrl.changingPass){
-            return false;
-        }
-        ctrl.changingPass = true;
-        var data = {
-                'token' : param.token,
-                'new' : param.password
-        };
-        return $usr.resetPassword(data)//
-        .then(function() {
-            ctrl.changePassState = 'success';
-            $scope.changePassMessage = null;
-            $navigator.openView('users/login');
-        }, function(error){
-            ctrl.changePassState = 'fail';
-            $scope.changePassMessage = $errorHandler.handleError(error, form);
-        })//
-        .finally(function(){
-            ctrl.changingPass = false;
-        });
-    }
-
-    function back() {
-        $window.history.back();
-    }
-
-    $scope.ctrl = ctrl;
-
-    $scope.sendToken = sendToken;
-    $scope.changePassword = changePassword;
-
-    $scope.cancel = back;
-
-});
-
+///*
+// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+// * 
+// * Permission is hereby granted, free of charge, to any person obtaining a copy
+// * of this software and associated documentation files (the "Software"), to deal
+// * in the Software without restriction, including without limitation the rights
+// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// * copies of the Software, and to permit persons to whom the Software is
+// * furnished to do so, subject to the following conditions:
+// * 
+// * The above copyright notice and this permission notice shall be included in all
+// * copies or substantial portions of the Software.
+// * 
+// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// * SOFTWARE.
+// */
+//'use strict';
+//
+//angular.module('mblowfish-core')
+//
+///**
+// * @ngdoc Controllers
+// * @name MbPasswordCtrl
+// * @description Store user password
+// * 
+// * This controller is used to update password and email of the current account.
+// * 
+// */
+//.controller('MbPasswordCtrl', function($scope, $usr, $location, $navigator, $routeParams, $window, $errorHandler) {
+//
+//    this.sendingToken = false;
+//    this.sendTokenState = null;
+//    this.changingPass = false;
+//    this.changingPassState = null;
+//
+//    $scope.data = {};
+//    $scope.data.token = $routeParams.token;
+//
+//    /**
+//     * Send request to the server to recover new version
+//     * 
+//     */
+//    this.sendToken = function(data, form) {
+//        if(ctrl.sendingToken){
+//            return false;
+//        }
+//        ctrl.sendingToken = true;
+//        data.callback = $location.absUrl() + '/token/{{token}}';
+//        return $usr.resetPassword(data)//
+//        .then(function() {
+//            ctrl.sendTokenState = 'success';
+//            $scope.sendingTokenMessage = null;
+//        }, function(error){
+//            ctrl.sendTokenState = 'fail';
+//            $scope.sendingTokenMessage = $errorHandler.handleError(error, form);
+//        })//
+//        .finally(function(){
+//            ctrl.sendingToken = false;
+//        });
+//    }
+//
+//    /**
+//     * Change password of the current user.
+//     * 
+//     */
+//    this.changePassword = function(param, form) {
+//        if(ctrl.changingPass){
+//            return false;
+//        }
+//        ctrl.changingPass = true;
+//        var data = {
+//                'oldPass' : param.old,
+//                'newPass' : param.newPass,
+//                'token' : param.token,
+//                'new' : param.password
+//        };
+//        return $usr.resetPassword(data)//
+//        .then(function() {
+//            ctrl.changePassState = 'success';
+//            $scope.changePassMessage = null;
+//            $navigator.openView('users/login');
+//        }, function(error){
+//            ctrl.changePassState = 'fail';
+//            $scope.changePassMessage = $errorHandler.handleError(error, form);
+//        })//
+//        .finally(function(){
+//            ctrl.changingPass = false;
+//        });
+//    }
+//
+//    this.back = function() {
+//        $window.history.back();
+//    }
+//
+//    /*
+//     * Support old system
+//     */
+//    var ctrl = this;
+//    $scope.sendToken = function(){
+//        ctrl.sendToken();
+//    };
+//    $scope.changePassword = function(){
+//        ctrl.changePassword();
+//    };
+//    $scope.cancel = function(){
+//        ctrl.back();
+//    };
+//
+//});
+//
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2003,38 +2052,47 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Controllers
  * @name MbProfileCtrl
- * @description  Manages profile of a user
+ * @description Manages profile of a user
  * 
  */
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window) {
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
+    
+    // set initial data
+    this.user = null;
+    this.profile = null;
+    this.loadingProfile = false;
+    this.savingProfile = false;
 
-    var ctrl = {
-            user: null,
-            profile: null
-    };
+    /*
+     * - normal
+     * - edit
+     */
+    this.avatarState = 'normal';
 
     /**
      * Loads user data
+     * 
      * @returns
      */
-    function loadUser() {
-        ctrl.user = $rootScope.app.user.current;//
-        if (!ctrl.user) {
+    this.loadUser = function() {
+        this.user = $rootScope.app.user.current;//
+        if (!this.user) {
             alert($translate.instant('Fail to load user.'));
-        } else {
-            loadProfile(ctrl.user);
-        }
-    }
-
-    function loadProfile(usr) {
-        if (ctrl.loadinProfile) {
             return;
         }
-        ctrl.loadingProfile = true;
-        return usr.getProfiles()//
-        .then(function (profile) {
-            ctrl.profile = profile;
-            return profile;
+        this.loadProfile();
+    }
+
+    this.loadProfile = function() {
+        if (this.loadinProfile) {
+            return;
+        }
+        this.loadingProfile = true;
+        var ctrl = this;
+        return this.user.getProfiles()//
+        .then(function (profiles) {
+            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+            return ctrl.profile;
         }, function () {
             alert($translate.instant('Fial to load profile.'));
         })//
@@ -2048,12 +2106,14 @@ angular.module('mblowfish-core')
      * 
      * @returns
      */
-    function save() {
-        if (ctrl.savingProfile) {
+    this.save = function() {
+        if (this.savingProfile) {
             return;
         }
-        ctrl.savingProfile = true;
-        return ctrl.profile.update()//
+        this.savingProfile = true;
+        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
+        var ctrl = this;
+        return $promise//
         .then(function () {
             toast($translate.instant('Save is successfull.'));
         }, function () {
@@ -2064,86 +2124,69 @@ angular.module('mblowfish-core')
         });
     }
 
-    function back() {
+    this.back = function() {
         $window.history.back();
     }
-
-    $scope.ctrl = ctrl;
-    $scope.load = loadUser;
-    $scope.reload = loadUser;
-    $scope.save = save;
-    $scope.back = back;
-    $scope.cancel = back;
-
-    loadUser();
-
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name AmdRolesCtrl
- * @description Manages list of roles
- * 
- * 
- */
-.controller('MbRolesCtrl', function($scope, $usr, $q, $controller) {
-	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope : $scope
-	}));
-
-	// Overried the function
-	this.getSchema = function() {
-		return $q.resolve({
-			name : 'role',
-			properties : [ {
-				name : 'Id',
-				type : 'int'
-			} ]
-		});
-	};
-	// get accounts
-	this.getItems = function(parameterQuery) {
-		return $usr.getRoles(parameterQuery);
-	};
-	// get an account
-	this.getItem = function(id) {
-		return $usr.getRole(id);
-	};
-	// // Add item
-	// this.addItem = function(){
-	// return $usr.newAccount(item);
-	// };
-	// delete account
-	this.deleteItem = function(item) {
-		return $usr.deleteRole(item.id);
-	};
     
-    this.init();
+    this.deleteAvatar = function(){
+        var ctrl = this;
+        confirm('Delete the avatar?')
+        .then(function(){
+            ctrl.avatarState = 'working';
+            return ctrl.user.deleteAvatar();
+        })
+        .finally(function(){
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.uploadAvatar = function(files){
+        if (!angular.isArray(files) || !files.length) {
+        }
+        var file = null;
+        file = files[0].lfFile;
+        this.avatarLoading = true;
+        var ctrl = this;
+        this.user.uploadAvatar(file)
+        .then(function(){
+            // TODO: reload the page
+        })
+        .finally(function(){
+            ctrl.avatarLoading = false;
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.editAvatar = function(){
+        this.avatarState = 'edit';
+    }
+    
+    this.cancelEditAvatar = function(){
+        this.avatarState = 'normal';
+    }
+
+    /*
+     * To support old version of the controller
+     */
+    var ctrl = this;
+    $scope.load = function(){
+        ctrl.loadUser();
+    };
+    $scope.reload = function(){
+        ctrl.loadUser();
+    };
+    $scope.save = function(){
+        ctrl.save();
+    };
+    $scope.back = function(){
+        ctrl.back();
+    };
+    $scope.cancel =  function(){
+        ctrl.back();
+    };
+    
+    // Load account information
+    this.loadUser();
 });
 
 /*
@@ -2216,7 +2259,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * is related to view.
      * 
      * @type array
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.items = [];
 
@@ -2233,7 +2276,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * </ul>
      * 
      * @type string
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.state = STATE_INIT;
 
@@ -2245,7 +2288,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * stored in this variable.
      * 
      * @type PaginatedCollection
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.lastResponse = null;
 
@@ -2256,7 +2299,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * layer.
      * 
      * @type QueryParameter
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
@@ -2268,7 +2311,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * Remove all old items and reload the controller state. If the controller
      * is in progress, then cancel the old promiss and start the new job.
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @returns promiss to reload
      */
     this.reload = function(){
@@ -2294,7 +2337,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * 
      * Load next page and add to the current items.
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @returns promiss to load next page
      */
     this.loadNextPage = function() {
@@ -2348,11 +2391,12 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * By setting this the controller is not sync and you have to reload the
      * controller. It is better to set the data query at the start time.
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @param graphql
      */
     this.setDataQuery = function(grqphql){
-        this.grqphql = grqphql;
+        this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+        // TODO: maso, 2018: check if refresh is required
     };
 
     /**
@@ -2426,7 +2470,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
     /**
      * Deletes item
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @param item
      * @return promiss to delete item
      */
@@ -2447,7 +2491,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
     /**
      * Gets object schema
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @return promise to get schema
      */
     this.getSchema = function(){
@@ -2489,7 +2533,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * This is default implementation of the data access function. Controllers
      * are supposed to override the function
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @return promiss to add and return an item
      */
     this.addItem = function(){
@@ -2539,39 +2583,32 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.controller('AmWbSeenCmsContentsCtrl', function($scope, $cms, $q, $controller, uuid4) {
+.controller('AmWbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
 
     /*
      * Extends collection controller
      */
     angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
-        $scope: $scope
+        $scope : $scope
     }));
 
     // Override the schema function
-    this.getSchema = function(){
-        // TODO: maso, 2018:
-        return $q.resolve({
-            name: 'content',
-            properties: [{
-                name: 'Id',
-                type: 'int'
-            }]
-        });
+    this.getSchema = function () {
+        return $cms.contentSchema();
     };
 
     // get contents
-    this.getItems = function(parameterQuery){
+    this.getItems = function (parameterQuery) {
         return $cms.getContents(parameterQuery);
     };
 
     // get a content
-    this.getItem = function(id){
+    this.getItem = function (id) {
         return $cms.getContent(id);
     };
 
     // delete account
-    this.deleteItem = function(content){
+    this.deleteItem = function (content) {
         return $cms.deleteContent(content.id);
     };
 
@@ -2585,16 +2622,17 @@ angular.module('mblowfish-core')
      * <li>upload content value</li>
      * </ul>
      * 
-     * This function change the state of the controller into the working.
+     * This function change the state of the controller into the
+     * working.
      */
     this.uploadFile = function (content, file) {
         /*
          * upload file
          */
-        function uploadContentValue(newContent){
+        function uploadContentValue(newContent) {
             if (file) {
                 return newContent.uploadValue(file)//
-                .then(function(){
+                .then(function () {
                     return newContent;
                 });
             }
@@ -2640,21 +2678,133 @@ angular.module('mblowfish-core')
  * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller, $q) {
+.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
+
+    // Overried the function
+    this.getSchema = function () {
+        return $usr.accountSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getAccounts(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getAccount(id);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteAccount(item.id);
+    };
+
+    this.init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name AmdGroupsCtrl
+ * @description Manages list of groups
+ * 
+ */
+.controller('MbGroupsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
+
+    // Overried the function
+    this.getSchema = function () {
+        return $usr.groupSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getGroups(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getGroup(id);
+    };
+    // Add item
+    this.addItem = function () {
+        return $usr.newAccount(item);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteRole(item.id);
+    };
+
+    this.init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name AmdAccountsCtrl
+ * @description Manages and display list of accounts
+ * 
+ * This controller is used in accounts list.
+ * 
+ */
+.controller('MbProfilesCtrl', function ($scope, $usr, $controller) {
 	angular.extend(this, $controller('MbItemsCtrl', {
 		$scope: $scope
 	}));
 
 	// Overried the function
 	this.getSchema = function(){
-		return $q.resolve({
-			name: 'account',
-			properties: [{
-				name: 'Id',
-				type: 'int'
-			}]
-		});
+		return $usr.profileSchema();
 	};
+	
 	// get accounts
 	this.getItems = function(parameterQuery){
 		return $usr.getAccounts(parameterQuery);
@@ -2698,43 +2848,38 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdGroupsCtrl
- * @description Manages list of groups
+ * @name AmdRolesCtrl
+ * @description Manages list of roles
+ * 
  * 
  */
-.controller('MbGroupsCtrl', function($scope, $usr, $q, $controller) {
-	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope : $scope
-	}));
+.controller('MbRolesCtrl', function ($scope, $usr, $q, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
 
-	// Overried the function
-	this.getSchema = function() {
-		return $q.resolve({
-			name : 'group',
-			properties : [ {
-				name : 'Id',
-				type : 'int'
-			} ]
-		});
-	};
-	// get accounts
-	this.getItems = function(parameterQuery) {
-		return $usr.getGroups(parameterQuery);
-	};
-	// get an account
-	this.getItem = function(id) {
-		return $usr.getGroup(id);
-	};
-	// // Add item
-	// this.addItem = function(){
-	// return $usr.newAccount(item);
-	// };
-	// delete account
-	this.deleteItem = function(item) {
-		return $usr.deleteRole(item.id);
-	};
-	
-	this.init();
+    // Override the function
+    this.getSchema = function () {
+        return $usr.roleSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getRoles(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getRole(id);
+    };
+    // Add item
+    this.addItem = function () {
+        return $usr.newRole(item);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteRole(item.id);
+    };
+
+    this.init();
 });
 
 /*
@@ -3259,6 +3404,72 @@ angular.module('mblowfish-core')
         link : postLink
     };
 });
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+	/**
+	 * @ngdoc Directives
+	 * @name mbDynamicForm
+	 * @description Get a list of properties and fill them
+	 */
+	.directive('mbDynamicForm', function () {
+
+	    /**
+	     * Adding preloader.
+	     * 
+	     * @param scope
+	     * @param element
+	     * @param attr
+	     * @param ctrls
+	     * @returns
+	     */
+	    function postLink(scope, element, attrs, ctrls) {
+		// Load ngModel
+		var ngModelCtrl = ctrls[0];
+		scope.values = {};
+		ngModelCtrl.$render = function () {
+		    scope.values = ngModelCtrl.$viewValue || {};
+		};
+		
+		scope.modelChanged = function (key, value) {
+		    scope.values[key] = value;
+		    ngModelCtrl.$setViewValue(scope.values);
+		};
+	    }
+
+	    return {
+		restrict: 'E',
+		require: ['ngModel'],
+		templateUrl: 'views/directives/mb-dynamic-form.html',
+		scope: {
+		    mbParameters: '='
+		},
+		link: postLink
+	    };
+	});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5318,6 +5529,79 @@ angular.module('mblowfish-core')
 	    };
 	});
 /*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+/* jslint todo: true */
+/* jslint xxx: true */
+/* jshint -W100 */
+'use strict';
+
+angular.module('mblowfish-core')
+
+.filter('currencyFilter', function (numberFilter, translateFilter) {
+
+    return function (price, unit) {
+
+        if (!price) {
+            return translateFilter('free');
+        }
+        if (unit === 'iran-rial' || unit === 'iran-tooman') {
+            return numberFilter(price) + ' '
+                    + translateFilter(unit);
+        } else if (unit === 'bahrain-dinar') {
+            return numberFilter(price) + ' '
+                    + translateFilter('bahrain-dinar');
+        } else if (unit === 'euro') {
+            return numberFilter(price) + ' '
+                    + translateFilter('euro');
+        } else if (unit === 'dollar') {
+            return translateFilter('dollar') + ' '
+                    + numberFilter(price);
+        } else if (unit === 'pound') {
+            return translateFilter('pound') + ' '
+                    + numberFilter(price);
+        } else if (unit === 'iraq-dinar') {
+            return numberFilter(price) + ' '
+                    + translateFilter('iraq-dinar');
+        } else if (unit === 'kuwait-dinar') {
+            return numberFilter(price) + ' '
+                    + translateFilter('kuwait-dinar');
+        } else if (unit === 'oman-rial') {
+            return numberFilter(price) + ' '
+                    + translateFilter('oman-rial');
+        } else if (unit === 'turkish-lira') {
+            return numberFilter(price) + ' '
+                    + translateFilter('turkish-lira');
+        } else if (unit === 'uae-dirham') {
+            return numberFilter(price) + ' '
+                    + translateFilter('uae-dirham');
+        } else {
+            return numberFilter(price) + ' ?';
+        }
+    };
+});
+
+
+
+/*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5980,6 +6264,9 @@ angular.module('mblowfish-core')
         icon: 'image',
         label: 'Images',
         templateUrl: 'views/resources/mb-cms-images.html',
+        /*
+         * @ngInject
+         */
         controller: function($scope){
 
             /*
@@ -8596,6 +8883,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/directives/mb-dynamic-form.html',
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
+  );
+
+
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
     "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
@@ -8622,7 +8914,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
   );
 
 
@@ -8647,7 +8939,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-user-menu.html',
-    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%; vertical-align: middle\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate=\"\"> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title| translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span translate=\"\">Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span translate=\"\">Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span translate=\"\">Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
+    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%; vertical-align: middle\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate=\"\"> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title| translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span translate=\"\">Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span translate=\"\">Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span translate=\"\">Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
   );
 
 
@@ -8722,7 +9014,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img ng-src=/api/v2/user/accounts/{{user.id}}/avatar class=\"md-avatar\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.active> <span translate=\"\">Active</span>, </span> <span ng-hide=user.active> <span translate=\"\">Inactive</span>, </span> </h4> <p> <span translate=\"\">Joined</span>: {{user.date_joined}}, <span translate=\"\">Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.is_active> <span translate>Active</span>, </span> <span ng-show=!user.is_active> <span translate>Inactive</span>, </span> </h4> <p> <span translate>Joined</span>: {{user.date_joined}}, <span translate>Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -8737,12 +9029,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-groups.html',
-    "<div ng-controller=\"MbGroupsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, name, descriptionS}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-roles.html',
-    "<div ng-controller=\"MbRolesCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, name, descriptionS}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbRolesCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -8777,7 +9069,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-account.html',
-    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.updatingAvatar flex-order=-1 flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>User avatar</h3> <img style=\"border-radius: 50%\" width=200px height=200px ng-show=!uploadAvatar ng-src=\"/api/user/{{ctrl.user.id}}/avatar\"> <lf-ng-md-file-input ng-show=uploadAvatar lf-files=avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-show=!uploadAvatar class=\"md-raised md-primary\" ng-click=\"uploadAvatar=true\"> <sapn translate>edit</sapn> </md-button> <md-button ng-show=uploadAvatar class=\"md-raised md-primary\" ng-click=updateAvatar(avatarFiles)>  <sapn translate>save</sapn> </md-button> <md-button ng-show=uploadAvatar class=md-raised ng-click=\"uploadAvatar=false\">  <sapn translate>cancel</sapn> </md-button> </div> </section>  <section flex-gt-sm=50 md-whiteframe=1 layout=column layout-margin> <h3 translate>Account information</h3> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>EMail</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </section> </div> <div layout-gt-sm=row layout=column>  <section mb-preloading=ctrl.savingUser flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>General settings</h3> <form name=generalForm ng-submit=saveUser(generalForm) layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.savingUser && saveUserMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container ng-repeat=\"apd in apds\" layout-fill> <label translate>{{apd.title}}</label> <input ng-model=ctrl.user[apd.key]> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=saveUser(generalForm)> <sapn translate>update</sapn> </md-button> </div> </form> </section>  <section mb-preloading=ctrl.changingPassword flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Password settings</h3> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </section> </div> </md-content>"
+    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt=row>  <mb-titled-block mb-title=Account mb-progress=ctrl.avatarLoading flex-gt-sm=50> <div layout=column> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </div> </mb-titled-block> </div> </md-content>"
   );
 
 
@@ -8787,12 +9079,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-login.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=login(credit) layout=column layout-margin> <md-input-container> <label translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.options['captcha.engine']==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=\"app.options['captcha.engine.recaptcha.key']\" lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?' | translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login' | translate}}</md-button>      </div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate=\"\">you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> {{'back' | translate}} </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> {{'account' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=ctrl.login(credit) layout=column layout-margin> <md-input-container> <label translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.options['captcha.engine']==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=\"app.options['captcha.engine.recaptcha.key']\" lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1> <span translate>Forgot your password?</span> </a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, ctrl.myForm)\"> <span translate>Login</span> </md-button></div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> <span translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> <span translate>Account</span> </md-button> </div> </div> </md-content>"
+  );
+
+
+  $templateCache.put('views/users/mb-password.html',
+    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content class=md-padding layout-padding flex amh-preloading=\"ctrl.loadUser || ctrl.loadProfile || ctrl.saveProfile\"> <div layout-gt-sm=row layout=column>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Contacts information</h3> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>Site</label> <input ng-model=ctrl.profile.site> </md-input-container> <md-input-container layout-fill> <label translate>Public email</label> <input name=email ng-model=ctrl.profile.email type=email> <div ng-messages=contactForm.email.$error> <div ng-message=email>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>Phone number</label> <input ng-model=ctrl.profile.phone> </md-input-container> <md-input-container layout-fill> <label translate>Mobile number</label> <input ng-model=ctrl.profile.mobile> </md-input-container> </form> </section>  <section flex-gt-sm=50 layout=column md-whiteframe=1 layout-margin> <h3 translate>Social networks information</h3> <form name=socialForm layout=column layout-padding> <md-input-container layout-fill> <label translate>LinkedId</label> <input ng-model=ctrl.profile.linkedin> </md-input-container> <md-input-container layout-fill> <label translate>Telegram</label> <input ng-model=ctrl.profile.telegram> </md-input-container> <md-input-container layout-fill> <label translate>Facebook</label> <input ng-model=ctrl.profile.facebook> </md-input-container> </form> </section> </div> <div layout-gt-sm=row layout=column>  <section layout=column md-whiteframe=1 layout-fill layout-margin> <h3 translate>Overall profile info</h3> <div name=overalForm layout=column layout-padding> <label layout-fill ng-repeat=\"(key, value) in ctrl.profile\" ng-if=value> <span translate>{{key}}</span>: {{value}} </label> </div> </section> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()>  <sapn translate>update</sapn> </md-button> </div> </md-content>"
+    "<md-content class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column> <mb-titled-block mb-title=Avatar mb-progress=ctrl.avatarLoading flex-gt-sm=50 layout=column layout-margin> <div layout=row layout-align=\"center start\"> <lf-ng-md-file-input ng-if=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img ng-if=\"ctrl.avatarState === 'normal'\" width=60% ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate>Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate>Delete</sapn> </md-button> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate>Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate>Cancele</sapn> </md-button> </div> </mb-titled-block>  <mb-titled-block mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" flex-gt-sm=50 layout=column layout-margin> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate>Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate>Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate>Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate>Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate>Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
   );
 
 

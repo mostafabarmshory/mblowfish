@@ -25,38 +25,47 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Controllers
  * @name MbProfileCtrl
- * @description  Manages profile of a user
+ * @description Manages profile of a user
  * 
  */
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window) {
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
+    
+    // set initial data
+    this.user = null;
+    this.profile = null;
+    this.loadingProfile = false;
+    this.savingProfile = false;
 
-    var ctrl = {
-            user: null,
-            profile: null
-    };
+    /*
+     * - normal
+     * - edit
+     */
+    this.avatarState = 'normal';
 
     /**
      * Loads user data
+     * 
      * @returns
      */
-    function loadUser() {
-        ctrl.user = $rootScope.app.user.current;//
-        if (!ctrl.user) {
+    this.loadUser = function() {
+        this.user = $rootScope.app.user.current;//
+        if (!this.user) {
             alert($translate.instant('Fail to load user.'));
-        } else {
-            loadProfile(ctrl.user);
-        }
-    }
-
-    function loadProfile(usr) {
-        if (ctrl.loadinProfile) {
             return;
         }
-        ctrl.loadingProfile = true;
-        return usr.getProfiles()//
-        .then(function (profile) {
-            ctrl.profile = profile;
-            return profile;
+        this.loadProfile();
+    }
+
+    this.loadProfile = function() {
+        if (this.loadinProfile) {
+            return;
+        }
+        this.loadingProfile = true;
+        var ctrl = this;
+        return this.user.getProfiles()//
+        .then(function (profiles) {
+            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+            return ctrl.profile;
         }, function () {
             alert($translate.instant('Fial to load profile.'));
         })//
@@ -70,12 +79,14 @@ angular.module('mblowfish-core')
      * 
      * @returns
      */
-    function save() {
-        if (ctrl.savingProfile) {
+    this.save = function() {
+        if (this.savingProfile) {
             return;
         }
-        ctrl.savingProfile = true;
-        return ctrl.profile.update()//
+        this.savingProfile = true;
+        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
+        var ctrl = this;
+        return $promise//
         .then(function () {
             toast($translate.instant('Save is successfull.'));
         }, function () {
@@ -86,17 +97,67 @@ angular.module('mblowfish-core')
         });
     }
 
-    function back() {
+    this.back = function() {
         $window.history.back();
     }
+    
+    this.deleteAvatar = function(){
+        var ctrl = this;
+        confirm('Delete the avatar?')
+        .then(function(){
+            ctrl.avatarState = 'working';
+            return ctrl.user.deleteAvatar();
+        })
+        .finally(function(){
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.uploadAvatar = function(files){
+        if (!angular.isArray(files) || !files.length) {
+        }
+        var file = null;
+        file = files[0].lfFile;
+        this.avatarLoading = true;
+        var ctrl = this;
+        this.user.uploadAvatar(file)
+        .then(function(){
+            // TODO: reload the page
+        })
+        .finally(function(){
+            ctrl.avatarLoading = false;
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.editAvatar = function(){
+        this.avatarState = 'edit';
+    }
+    
+    this.cancelEditAvatar = function(){
+        this.avatarState = 'normal';
+    }
 
-    $scope.ctrl = ctrl;
-    $scope.load = loadUser;
-    $scope.reload = loadUser;
-    $scope.save = save;
-    $scope.back = back;
-    $scope.cancel = back;
-
-    loadUser();
-
+    /*
+     * To support old version of the controller
+     */
+    var ctrl = this;
+    $scope.load = function(){
+        ctrl.loadUser();
+    };
+    $scope.reload = function(){
+        ctrl.loadUser();
+    };
+    $scope.save = function(){
+        ctrl.save();
+    };
+    $scope.back = function(){
+        ctrl.back();
+    };
+    $scope.cancel =  function(){
+        ctrl.back();
+    };
+    
+    // Load account information
+    this.loadUser();
 });

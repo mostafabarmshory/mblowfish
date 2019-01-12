@@ -68,7 +68,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * is related to view.
      * 
      * @type array
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.items = [];
 
@@ -85,7 +85,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * </ul>
      * 
      * @type string
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.state = STATE_INIT;
 
@@ -97,7 +97,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * stored in this variable.
      * 
      * @type PaginatedCollection
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.lastResponse = null;
 
@@ -108,7 +108,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * layer.
      * 
      * @type QueryParameter
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
@@ -120,7 +120,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * Remove all old items and reload the controller state. If the controller
      * is in progress, then cancel the old promiss and start the new job.
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @returns promiss to reload
      */
     this.reload = function(){
@@ -146,7 +146,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * 
      * Load next page and add to the current items.
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @returns promiss to load next page
      */
     this.loadNextPage = function() {
@@ -200,11 +200,12 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * By setting this the controller is not sync and you have to reload the
      * controller. It is better to set the data query at the start time.
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @param graphql
      */
     this.setDataQuery = function(grqphql){
-        this.grqphql = grqphql;
+        this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+        // TODO: maso, 2018: check if refresh is required
     };
 
     /**
@@ -278,7 +279,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
     /**
      * Deletes item
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @param item
      * @return promiss to delete item
      */
@@ -299,7 +300,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
     /**
      * Gets object schema
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @return promise to get schema
      */
     this.getSchema = function(){
@@ -341,7 +342,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * This is default implementation of the data access function. Controllers
      * are supposed to override the function
      * 
-     * @memberof AmdItemsCtrl
+     * @memberof SeenAbstractCollectionCtrl
      * @return promiss to add and return an item
      */
     this.addItem = function(){

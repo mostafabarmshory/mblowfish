@@ -30,37 +30,31 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.controller('MbRolesCtrl', function($scope, $usr, $q, $controller) {
-	angular.extend(this, $controller('MbItemsCtrl', {
-		$scope : $scope
-	}));
+.controller('MbRolesCtrl', function ($scope, $usr, $q, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
 
-	// Overried the function
-	this.getSchema = function() {
-		return $q.resolve({
-			name : 'role',
-			properties : [ {
-				name : 'Id',
-				type : 'int'
-			} ]
-		});
-	};
-	// get accounts
-	this.getItems = function(parameterQuery) {
-		return $usr.getRoles(parameterQuery);
-	};
-	// get an account
-	this.getItem = function(id) {
-		return $usr.getRole(id);
-	};
-	// // Add item
-	// this.addItem = function(){
-	// return $usr.newAccount(item);
-	// };
-	// delete account
-	this.deleteItem = function(item) {
-		return $usr.deleteRole(item.id);
-	};
-    
+    // Override the function
+    this.getSchema = function () {
+        return $usr.roleSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getRoles(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getRole(id);
+    };
+    // Add item
+    this.addItem = function () {
+        return $usr.newRole(item);
+    };
+    // delete account
+    this.deleteItem = function (item) {
+        return $usr.deleteRole(item.id);
+    };
+
     this.init();
 });

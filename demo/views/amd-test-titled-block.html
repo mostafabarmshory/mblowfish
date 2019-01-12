@@ -7,10 +7,10 @@
 		Toggle progress
 	</md-button>
 	
-	<amd-titled-block
-		amd-title="{{ctrl.myTitle | translate}}"
+	<mb-titled-block
+		mb-title="{{ctrl.myTitle | translate}}"
 		mb-infinate-scroll="ctrl.progress"
-		amd-icon="{{ctrl.myIcon}}">
+		mb-icon="{{ctrl.myIcon}}">
 		<p>It is an empty titled block. Value of following text field defines title and icon of it.</p>
 		<div layout="row">			
 			<span style="width: 50px">Title: </span>
@@ -34,12 +34,46 @@
 				{{ ctrl.myIcon}}
 			</am-wb-inline>
 		</div>
-	</amd-titled-block>
+	</mb-titled-block>
+	<mb-titled-block
+		mb-title="{{ctrl.myTitle | translate}}"
+                mb-progress="ctrl.showProgress"
+		mb-infinate-scroll="ctrl.progress"
+		mb-icon="{{ctrl.myIcon}}"
+		mb-more-actions="moreActions">
+		<p>It is an empty titled block. Value of following text field defines title and icon of it.</p>
+		<div layout="row">			
+			<span style="width: 50px">Title: </span>
+			<am-wb-inline flex
+				ng-model="ctrl.myTitle"
+				am-wb-inline-type="text"
+				am-wb-inline-label="Title of block"
+				am-wb-inline-enable="true"
+				mb-inline-on-seve="setTitle(ctrl.myTitle)">
+				{{ ctrl.myTitle }}
+			</am-wb-inline>
+		</div>
+		<div layout="row">			
+			<span style="width: 50px">Icon: </span>
+			<am-wb-inline flex
+				ng-model="ctrl.myIcon"
+				am-wb-inline-type="text"
+				am-wb-inline-label="Icon of block"
+				am-wb-inline-enable="true"
+				mb-inline-on-seve="setIcon(ctrl.myIcon)">
+				{{ ctrl.myIcon}}
+			</am-wb-inline>
+		</div>
+                <md-button 
+                    class="md-raised md-primary" 
+                    ng-click="ctrl.showProgress = !ctrl.showProgress">Toggle progress</md-button>
+                
+	</mb-titled-block>
 	
-	<amd-titled-block
-		amd-title="No icon block">
+	<mb-titled-block
+		mb-title="No icon block">
 		<h2>Empty Titled Block</h2>
 		<p>It is an empty titled block. Value of following text field defines title and icon of it.</p>
-	</amd-titled-block>
+	</mb-titled-block>
 	
 </md-content>

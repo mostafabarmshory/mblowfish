@@ -26,39 +26,32 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.controller('AmWbSeenCmsContentsCtrl', function($scope, $cms, $q, $controller, uuid4) {
+.controller('AmWbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
 
     /*
      * Extends collection controller
      */
     angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
-        $scope: $scope
+        $scope : $scope
     }));
 
     // Override the schema function
-    this.getSchema = function(){
-        // TODO: maso, 2018:
-        return $q.resolve({
-            name: 'content',
-            properties: [{
-                name: 'Id',
-                type: 'int'
-            }]
-        });
+    this.getSchema = function () {
+        return $cms.contentSchema();
     };
 
     // get contents
-    this.getItems = function(parameterQuery){
+    this.getItems = function (parameterQuery) {
         return $cms.getContents(parameterQuery);
     };
 
     // get a content
-    this.getItem = function(id){
+    this.getItem = function (id) {
         return $cms.getContent(id);
     };
 
     // delete account
-    this.deleteItem = function(content){
+    this.deleteItem = function (content) {
         return $cms.deleteContent(content.id);
     };
 
@@ -72,16 +65,17 @@ angular.module('mblowfish-core')
      * <li>upload content value</li>
      * </ul>
      * 
-     * This function change the state of the controller into the working.
+     * This function change the state of the controller into the
+     * working.
      */
     this.uploadFile = function (content, file) {
         /*
          * upload file
          */
-        function uploadContentValue(newContent){
+        function uploadContentValue(newContent) {
             if (file) {
                 return newContent.uploadValue(file)//
-                .then(function(){
+                .then(function () {
                     return newContent;
                 });
             }

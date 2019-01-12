@@ -25,7 +25,7 @@ angular.module('app')
 /**
  * 
  */
-.controller('TitledBlockCtrl', function($scope, editableOptions) {
+.controller('TitledBlockCtrl', function($scope) {
 	
 	var ctrl = {
 			myTitle: 'Title',
@@ -55,5 +55,11 @@ angular.module('app')
 	$scope.setIcon = setIcon;
 	$scope.toggleProgress = toggleProgress;
 	$scope.ctrl = ctrl;
+        $scope.moreActions = [{
+		    title: 'New category',
+		    icon: 'add',
+		    action: setTitle
+		}];
+
 	
 });

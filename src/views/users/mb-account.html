@@ -4,162 +4,27 @@
 	layout-padding
 	flex>
 	
-	<div layout-gt-sm="row" layout="column">
-		<!-- آواتار -->
-		<section 
-			mb-preloading="ctrl.updatingAvatar"
-			flex-order="-1"
-			flex-gt-sm="50" 
-			layout="column" 
-			md-whiteframe="1"
-			layout-margin>
-			<h3 translate>User avatar</h3>
-		    <img style="border-radius: 50%"
-		    	width="200px" height="200px" ng-show="!uploadAvatar"
-		    	ng-src="/api/user/{{ctrl.user.id}}/avatar" />
-	    	<lf-ng-md-file-input 
-	    		ng-show="uploadAvatar"
-	 			lf-files="avatarFiles"
-	 			accept="image/*"
-	 			progress
-	 			preview
-	 			drag>
-	 		</lf-ng-md-file-input>
-		    <div layout="column" layout-align="center none"
-       			layout-gt-xs="row" layout-align-gt-xs="end center">
-		    	<md-button 
-		    		ng-show="!uploadAvatar"
-					class="md-raised md-primary"
-					ng-click="uploadAvatar=true">
-		    		<sapn translate>edit</sapn>
-		    	</md-button>
-		    	<md-button 
-		    		ng-show="uploadAvatar"
-					class="md-raised md-primary"
-					ng-click="updateAvatar(avatarFiles)">
-<!-- 		    		<wb-icon>save</wb-icon> -->
-		    		<sapn translate>save</sapn>
-		    	</md-button>
-		    	<md-button 
-		    		ng-show="uploadAvatar"
-		    		class="md-raised"
-		    		ng-click="uploadAvatar=false">
-<!-- 					<wb-icon>cancel</wb-icon> -->
-					<sapn translate>cancel</sapn>
-		    	</md-button>
-		    </div>
-		</section>
-	
+	<div layout-gt="row">
 		<!-- صفحه حساب کاربری -->
-		<section 
-			flex-gt-sm="50"
-			md-whiteframe="1"
-			layout="column" 
-			layout-margin>
-			<h3 translate>Account information</h3>
-		    <md-input-container>
-		        <label translate>ID</label>
-		        <input ng-model="ctrl.user.id"  disabled>
-		    </md-input-container>
-		    <md-input-container>
-		        <label translate>Username</label>
-		        <input ng-model="ctrl.user.login"  disabled>
-		    </md-input-container>
-		    <md-input-container>
-		        <label translate>EMail</label>
-		        <input ng-model="ctrl.user.email" type="email"  disabled>
-		    </md-input-container>
-		</section>
-	</div>
-	
-	<div layout-gt-sm="row" layout="column">
-		<!-- Account -->
-		<section
-			mb-preloading="ctrl.savingUser" 
-			flex-gt-sm="50"
-			layout="column" 
-			md-whiteframe="1"
-			layout-margin>
-			<h3 translate>General settings</h3>
-			<form
-				name="generalForm"
-				ng-submit="saveUser(generalForm)" 
-				layout="column" 
-				layout-padding>
-				<input hide type="submit" />
-				<div style="text-align: center;"
-					layout-margin
-					ng-show="!ctrl.savingUser && saveUserMessage"> 
-					<p><span md-colors="{color:'warn'}" translate>{{changePassMessage}}</span></p>
-				</div>
-			    <md-input-container ng-repeat="apd in apds" layout-fill>
-			        <label translate>{{apd.title}}</label>
-			        <input ng-model="ctrl.user[apd.key]">
+		<mb-titled-block 
+			mb-title="Account"
+			mb-progress="ctrl.avatarLoading"
+			flex-gt-sm="50">
+			<div
+				layout="column">
+			    <md-input-container>
+			        <label translate>ID</label>
+			        <input ng-model="ctrl.user.id"  disabled>
 			    </md-input-container>
-			    <div layout="column" layout-align="center none"
-        			layout-gt-xs="row" layout-align-gt-xs="end center">
-			    	<md-button 
-			    		 class="md-raised md-primary"
-			    		 ng-click="saveUser(generalForm)">
-			    		<sapn translate>update</sapn>
-			    	</md-button>
-			    </div>
-			</form>
-		</section>
-		
-		<!-- Password -->
-		<section 
-			mb-preloading="ctrl.changingPassword"
-			flex-gt-sm="50"
-			layout="column" 
-			md-whiteframe="1"
-			layout-margin>
-			<h3 translate>Password settings</h3>
-			<p translate>Insert current password and new password to change it.</p>
-			<form
-				name="ctrl.passForm"
-				ng-submit="changePassword(data, ctrl.passForm)" 
-				layout="column" 
-				layout-padding>
-				<input hide type="submit" />
-				<div style="text-align: center;"
-					layout-margin
-					ng-show="!ctrl.changingPassword && changePassMessage"> 
-					<p><span md-colors="{color:'warn'}" translate>{{changePassMessage}}</span></p>
-				</div>
-				<md-input-container layout-fill>
-					<label translate>current password</label>
-					<input name="oldPass" ng-model="data.oldPass" type="password" required/>
-					<div ng-messages="ctrl.passForm.oldPass.$error">
-		              	<div ng-message="required">This is required.</div>
-		            </div>
+			    <md-input-container>
+			        <label translate>Username</label>
+			        <input ng-model="ctrl.user.login"  disabled>
 			    </md-input-container>
-				<md-input-container layout-fill>
-					<label translate>new password</label>
-					<input name="newPass" ng-model="data.newPass" type="password" required/>
-					<div ng-messages="ctrl.passForm.newPass.$error">
-		              	<div ng-message="required">This is required.</div>
-		            </div>
-			     </md-input-container>
-			     <md-input-container layout-fill>
-					<label translate>repeat new password</label>
-					<input name="newPass2" ng-model="newPass2" type="password" compare-to="data.newPass" required/>
-					<div ng-messages="ctrl.passForm.newPass2.$error">
-		              	<div ng-message="required">This is required.</div>
-		              	<div ng-message="compareTo">password is not match.</div>
-		            </div>
-			     </md-input-container>
-			     <div layout="column" layout-align="center none"
-        			layout-gt-xs="row" layout-align-gt-xs="end center">
-			    	<md-button 
-			    		 class="md-raised md-primary"
-			    		 ng-click="changePassword(data, ctrl.passForm)"
-			    		 ng-disabled="ctrl.passForm.$invalid">
-			    		<span translate="">Change password</span>
-			    	</md-button>
-			     </div>
-			</form>
-		</section>
+			    <md-input-container>
+			        <label translate>Email</label>
+			        <input ng-model="ctrl.user.email" type="email"  disabled>
+			    </md-input-container>
+			</div>
+		</mb-titled-block>
 	</div>
-
 </md-content>

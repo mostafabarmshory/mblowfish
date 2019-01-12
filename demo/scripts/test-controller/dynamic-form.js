@@ -20,37 +20,19 @@
  * SOFTWARE.
  */
 'use strict';
-angular.module('mblowfish-core')
 
+angular.module('app')
 /**
- * @ngdoc Controllers
- * @name AmdAccountsCtrl
- * @description Manages and display list of accounts
- * 
- * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('MbItemsCtrl', {
-        $scope : $scope
-    }));
-
-    // Overried the function
-    this.getSchema = function () {
-        return $usr.accountSchema();
-    };
-    // get accounts
-    this.getItems = function (parameterQuery) {
-        return $usr.getAccounts(parameterQuery);
-    };
-    // get an account
-    this.getItem = function (id) {
-        return $usr.getAccount(id);
-    };
-    // delete account
-    this.deleteItem = function (item) {
-        return $usr.deleteAccount(item.id);
-    };
-
-    this.init();
+.controller('DynamicFormCtrl', function($scope) {
+    $scope.properties = [{
+	    name: 'x',
+	    title: 'Latitude',
+	    description: 'Description'
+    },{
+	    name: 'y',
+	    title: 'Longitude',
+	    description: 'Description'
+    }];
 });

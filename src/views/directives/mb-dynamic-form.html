@@ -1,0 +1,11 @@
+<div 
+    layout="column"
+    ng-repeat="prop in mbParameters track by $index">
+
+    <md-input-container>
+        <label>{{prop.title}}</label>
+        <input 
+            ng-model="values[prop.name]"
+            ng-change="modelChanged(prop.name, values[prop.name])">
+    </md-input-container>
+</div>
