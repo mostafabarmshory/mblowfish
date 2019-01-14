@@ -237,6 +237,7 @@ angular.module('mblowfish-core')
     .when('/users/login', {
         templateUrl : 'views/users/mb-login.html',
         controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
         sidenavs: [],
         toolbars: []
     })
