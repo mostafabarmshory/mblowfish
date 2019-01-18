@@ -237,6 +237,7 @@ angular.module('mblowfish-core')
     .when('/users/login', {
         templateUrl : 'views/users/mb-login.html',
         controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
         sidenavs: [],
         toolbars: []
     })
@@ -5725,101 +5726,110 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-	$actions.newAction({
-		id: 'mb.preferences',
-		priority: 15,
-		icon: 'settings',
-		title: 'Preferences',
-		description: 'Open preferences panel',
-		visible: function () {
-			return $rootScope.app.user.owner;
-		},
-		action: function () {
-			return $navigator.openPage('preferences');
-		},
-		groups: ['mb.toolbar.menu']
-	});
-	$actions.newAction({// help
-		id: 'mb.help',
-		priority: 15,
-		icon: 'help',
-		title: 'Help',
-		description: 'Display help in sidenav',
-		visible: function () {
-			return $help.hasHelp($route.current);
-		},
-		action: function () {
-			$help.openHelp($route.current);
-		},
-		groups: ['mb.toolbar.menu']
-	});
-		$actions.newAction({
-		icon: 'person_outline',
-		title: 'Profile',
-		description: 'User profile',
-		groups:['mb.user'],
-		action: function(){
-			return $navigator.openPage("users/profile");
-		}
-	});
-	$actions.newAction({
-		icon: 'person',
-		title: 'Account',
-		description: 'User account',
-		groups:['mb.user'],
-		action: function(){
-			return $navigator.openPage("users/account");
-		}
-	});
+    $actions.newAction({
+        id : 'mb.preferences',
+        priority : 15,
+        icon : 'settings',
+        title : 'Preferences',
+        description : 'Open preferences panel',
+        visible : function () {
+            return $rootScope.app.user.owner;
+        },
+        action : function () {
+            return $navigator.openPage('preferences');
+        },
+        groups : [ 'mb.toolbar.menu' ]
+    });
+    $actions.newAction({// help
+        id : 'mb.help',
+        priority : 15,
+        icon : 'help',
+        title : 'Help',
+        description : 'Display help in sidenav',
+        visible : function () {
+            return $help.hasHelp($route.current);
+        },
+        action : function () {
+            $help.openHelp($route.current);
+        },
+        groups : [ 'mb.toolbar.menu' ]
+    });
+    $actions.newAction({
+        icon : 'account_circle',
+        title : 'Profile',
+        description : 'User profile',
+        groups : [ 'mb.user' ],
+        action : function () {
+            return $navigator.openPage('users/profile');
+        }
+    });
+    $actions.newAction({
+        icon : 'account_box',
+        title : 'Account',
+        description : 'User account',
+        groups : [ 'mb.user' ],
+        action : function () {
+            return $navigator.openPage('users/account');
+        }
+    });
+    $actions.newAction({
+        icon : 'fingerprint',
+        title : 'Password',
+        description : 'Manage password',
+        groups : [ 'mb.user' ],
+        action : function () {
+            return $navigator.openPage('users/password');
+        }
+    });
 
-	$toolbar.newToolbar({
-		id: 'dashboard',
-		title: 'Dashboard toolbar',
-		description: 'Main dashboard toolbar',
-		controller: 'MbToolbarDashboardCtrl',
-		templateUrl: 'views/toolbars/mb-dashboard.html'
-	});
+    $toolbar.newToolbar({
+        id : 'dashboard',
+        title : 'Dashboard toolbar',
+        description : 'Main dashboard toolbar',
+        controller : 'MbToolbarDashboardCtrl',
+        templateUrl : 'views/toolbars/mb-dashboard.html'
+    });
 
-	$sidenav.newSidenav({
-		id: 'navigator',
-		title: 'Navigator',
-		description: 'Navigate all path and routs of the pandel',
-		controller: 'AmdNavigatorCtrl',
-		templateUrl: 'views/sidenavs/mb-navigator.html',
-		locked: true,
-		position: 'start'
-	});
-	$sidenav.newSidenav({
-		id: 'help',
-		title: 'Help',
-		description: 'System online help',
-		controller: 'MbHelpCtrl',
-		templateUrl: 'views/sidenavs/mb-help.html',
-		locked: true,
-		visible: function () {
-			return $rootScope.showHelp;
-		},
-		position: 'end'
-	});
-	$sidenav.newSidenav({
-		id: 'settings',
-		title: 'Options',
-		description: 'User options',
-		controller: 'MbOptionsCtrl',
-		templateUrl: 'views/sidenavs/mb-options.html',
-		locked: false,
-		position: 'end'
-	});
-	$sidenav.newSidenav({
-		id: 'messages',
-		title: 'Messages',
-		description: 'User message queue',
-		controller: 'MessagesCtrl',
-		templateUrl: 'views/sidenavs/mb-messages.html',
-		locked: false,
-		position: 'start'
-	});
-});
+    $sidenav.newSidenav({
+        id : 'navigator',
+        title : 'Navigator',
+        description : 'Navigate all path and routs of the pandel',
+        controller : 'AmdNavigatorCtrl',
+        templateUrl : 'views/sidenavs/mb-navigator.html',
+        locked : true,
+        position : 'start'
+    });
+    $sidenav.newSidenav({
+        id : 'help',
+        title : 'Help',
+        description : 'System online help',
+        controller : 'MbHelpCtrl',
+        templateUrl : 'views/sidenavs/mb-help.html',
+        locked : true,
+        visible : function () {
+            return $rootScope.showHelp;
+        },
+        position : 'end'
+    });
+    $sidenav.newSidenav({
+        id : 'settings',
+        title : 'Options',
+        description : 'User options',
+        controller : 'MbOptionsCtrl',
+        templateUrl : 'views/sidenavs/mb-options.html',
+        locked : false,
+        position : 'end'
+    });
+    $sidenav.newSidenav({
+        id : 'messages',
+        title : 'Messages',
+        description : 'User message queue',
+        controller : 'MessagesCtrl',
+        templateUrl : 'views/sidenavs/mb-messages.html',
+        locked : false,
+        position : 'start'
+    });
+        });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -8914,7 +8924,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3>{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3 translate=\"\">{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
   );
 
 
@@ -9014,7 +9024,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.is_active> <span translate>Active</span>, </span> <span ng-show=!user.is_active> <span translate>Inactive</span>, </span> </h4> <p> <span translate>Joined</span>: {{user.date_joined}}, <span translate>Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.is_active> <span translate>Active</span>, </span> <span ng-show=!user.is_active> <span translate>Inactive</span>, </span> </h4> <p> <span translate>Joined</span>: {{user.date_joined}}, <span translate>Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -9089,7 +9099,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column> <mb-titled-block mb-title=Avatar mb-progress=ctrl.avatarLoading flex-gt-sm=50 layout=column layout-margin> <div layout=row layout-align=\"center start\"> <lf-ng-md-file-input ng-if=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img ng-if=\"ctrl.avatarState === 'normal'\" width=60% ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate>Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate>Delete</sapn> </md-button> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate>Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate>Cancele</sapn> </md-button> </div> </mb-titled-block>  <mb-titled-block mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" flex-gt-sm=50 layout=column layout-margin> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate>First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate>Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate>Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate>Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate>Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate>Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
+    "<md-content class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column> <mb-titled-block mb-title=Avatar mb-progress=ctrl.avatarLoading flex-gt-sm=50 layout=column layout-margin> <div layout=row layout-align=\"center start\"> <lf-ng-md-file-input ng-if=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img ng-if=\"ctrl.avatarState === 'normal'\" width=60% ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancele</sapn> </md-button> </div> </mb-titled-block>  <mb-titled-block mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" flex-gt-sm=50 layout=column layout-margin> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
   );
 
 
