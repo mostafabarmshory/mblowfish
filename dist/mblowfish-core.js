@@ -237,6 +237,7 @@ angular.module('mblowfish-core')
     .when('/users/login', {
         templateUrl : 'views/users/mb-login.html',
         controller : 'MbAccountCtrl',
+        controllerAs: 'ctrl',
         sidenavs: [],
         toolbars: []
     })
@@ -5725,60 +5726,69 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-	$actions.newAction({
-		id: 'mb.preferences',
-		priority: 15,
-		icon: 'settings',
-		title: 'Preferences',
-		description: 'Open preferences panel',
-		visible: function () {
-			return $rootScope.app.user.owner;
-		},
-		action: function () {
-			return $navigator.openPage('preferences');
-		},
-		groups: ['mb.toolbar.menu']
-	});
-	$actions.newAction({// help
-		id: 'mb.help',
-		priority: 15,
-		icon: 'help',
-		title: 'Help',
-		description: 'Display help in sidenav',
-		visible: function () {
-			return $help.hasHelp($route.current);
-		},
-		action: function () {
-			$help.openHelp($route.current);
-		},
-		groups: ['mb.toolbar.menu']
-	});
-		$actions.newAction({
-		icon: 'person_outline',
-		title: 'Profile',
-		description: 'User profile',
-		groups:['mb.user'],
-		action: function(){
-			return $navigator.openPage("users/profile");
-		}
-	});
-	$actions.newAction({
-		icon: 'person',
-		title: 'Account',
-		description: 'User account',
-		groups:['mb.user'],
-		action: function(){
-			return $navigator.openPage("users/account");
-		}
-	});
+    $actions.newAction({
+        id : 'mb.preferences',
+        priority : 15,
+        icon : 'settings',
+        title : 'Preferences',
+        description : 'Open preferences panel',
+        visible : function () {
+            return $rootScope.app.user.owner;
+        },
+        action : function () {
+            return $navigator.openPage('preferences');
+        },
+        groups : [ 'mb.toolbar.menu' ]
+    });
+    $actions.newAction({// help
+        id : 'mb.help',
+        priority : 15,
+        icon : 'help',
+        title : 'Help',
+        description : 'Display help in sidenav',
+        visible : function () {
+            return $help.hasHelp($route.current);
+        },
+        action : function () {
+            $help.openHelp($route.current);
+        },
+        groups : [ 'mb.toolbar.menu' ]
+    });
+    $actions.newAction({
+        icon : 'account_circle',
+        title : 'Profile',
+        description : 'User profile',
+        groups : [ 'mb.user' ],
+        action : function () {
+            return $navigator.openPage('users/profile');
+        }
+    });
+    $actions.newAction({
+        icon : 'account_box',
+        title : 'Account',
+        description : 'User account',
+        groups : [ 'mb.user' ],
+        action : function () {
+            return $navigator.openPage('users/account');
+        }
+    });
+    $actions.newAction({
+        icon : 'fingerprint',
+        title : 'Password',
+        description : 'Manage password',
+        groups : [ 'mb.user' ],
+        action : function () {
+            return $navigator.openPage('users/password');
+        }
+    });
 
-	$toolbar.newToolbar({
-		id: 'dashboard',
-		title: 'Dashboard toolbar',
-		description: 'Main dashboard toolbar',
-		controller: 'MbToolbarDashboardCtrl',
-		templateUrl: 'views/toolbars/mb-dashboard.html'
-	});
+    $toolbar.newToolbar({
+        id : 'dashboard',
+        title : 'Dashboard toolbar',
+        description : 'Main dashboard toolbar',
+        controller : 'MbToolbarDashboardCtrl',
+        templateUrl : 'views/toolbars/mb-dashboard.html'
+    });
 
 	$sidenav.newSidenav({
 		id: 'navigator',
