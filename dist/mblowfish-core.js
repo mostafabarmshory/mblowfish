@@ -5790,46 +5790,46 @@ angular.module('mblowfish-core')
         templateUrl : 'views/toolbars/mb-dashboard.html'
     });
 
-    $sidenav.newSidenav({
-        id : 'navigator',
-        title : 'Navigator',
-        description : 'Navigate all path and routs of the pandel',
-        controller : 'AmdNavigatorCtrl',
-        templateUrl : 'views/sidenavs/mb-navigator.html',
-        locked : true,
-        position : 'start'
-    });
-    $sidenav.newSidenav({
-        id : 'help',
-        title : 'Help',
-        description : 'System online help',
-        controller : 'MbHelpCtrl',
-        templateUrl : 'views/sidenavs/mb-help.html',
-        locked : true,
-        visible : function () {
-            return $rootScope.showHelp;
-        },
-        position : 'end'
-    });
-    $sidenav.newSidenav({
-        id : 'settings',
-        title : 'Options',
-        description : 'User options',
-        controller : 'MbOptionsCtrl',
-        templateUrl : 'views/sidenavs/mb-options.html',
-        locked : false,
-        position : 'end'
-    });
-    $sidenav.newSidenav({
-        id : 'messages',
-        title : 'Messages',
-        description : 'User message queue',
-        controller : 'MessagesCtrl',
-        templateUrl : 'views/sidenavs/mb-messages.html',
-        locked : false,
-        position : 'start'
-    });
-        });
+	$sidenav.newSidenav({
+		id: 'navigator',
+		title: 'Navigator',
+		description: 'Navigate all path and routs of the pandel',
+		controller: 'AmdNavigatorCtrl',
+		templateUrl: 'views/sidenavs/mb-navigator.html',
+		locked: true,
+		position: 'start'
+	});
+	$sidenav.newSidenav({
+		id: 'help',
+		title: 'Help',
+		description: 'System online help',
+		controller: 'MbHelpCtrl',
+		templateUrl: 'views/sidenavs/mb-help.html',
+		locked: true,
+		visible: function () {
+			return $rootScope.showHelp;
+		},
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'settings',
+		title: 'Options',
+		description: 'User options',
+		controller: 'MbOptionsCtrl',
+		templateUrl: 'views/sidenavs/mb-options.html',
+		locked: false,
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'messages',
+		title: 'Messages',
+		description: 'User message queue',
+		controller: 'MessagesCtrl',
+		templateUrl: 'views/sidenavs/mb-messages.html',
+		locked: false,
+		position: 'start'
+	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -8894,7 +8894,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
   );
 
 
@@ -9024,7 +9024,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.is_active> <span translate>Active</span>, </span> <span ng-show=!user.is_active> <span translate>Inactive</span>, </span> </h4> <p> <span translate>Joined</span>: {{user.date_joined}}, <span translate>Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.is_active> <span translate>Active</span>, </span> <span ng-show=!user.is_active> <span translate>Inactive</span>, </span> </h4> <p> <span translate>Joined</span>: {{user.date_joined}}, <span translate>Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
