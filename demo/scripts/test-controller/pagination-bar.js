@@ -91,6 +91,8 @@ angular.module('app')
 		requests = null;
 		ctrl.items = [];
 		nextPage();
+		
+		toast('page is reloaded');
 	}
 
 	function add(){
