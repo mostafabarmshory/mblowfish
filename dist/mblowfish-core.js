@@ -2406,20 +2406,25 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * @return array of getProperties to use in search, sort and filter
      */
     this.getProperties = function(){
-        if(!angular.isFunction(this.getSchema)){
-            return [];
-        }
-        if(angular.isDefined(this._schema)){
-            // TODO: maso, 2018: 
-            return this._schema;
-        }
+    	this._schema = this._schema || [];
+    	
+    	// Check if the process is in progress
+    	if(this._properties_lock || // process is locked
+    			!angular.isFunction(this.getSchema) || // impossible to load schema
+    			this._schema.length) { // schema is loaded
+    		return this._schema;
+    	}
+    	
+        /*
+         * Load schema
+         */
         var ctrl = this;
-        $q.when(this.getSchema())
+        this._properties_lock = $q.when(this.getSchema())
         .then(function(schema){
             ctrl._schema = schema;
         });
         // view must check later
-        return [];
+        return this._schema;
     };
 
     /**
@@ -3860,103 +3865,103 @@ angular.module('mblowfish-core')
  */
 .directive('mbPaginationBar',  function($window,$timeout,$mdMenu, $parse) {
 
-	function postLink(scope, element, attrs) {
+    function postLink(scope, element, attrs) {
 
-		var query = {
-				sortDesc: true,
-				sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-						searchTerm: null
-		};
-		/*
-		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
-		 */
-		function __reload(){
-			if(!angular.isDefined(attrs.mbReload)){
-				return;
-			}
-			$parse(attrs.mbReload)(scope.$parent);
-		}
-		/**
-		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
-		 */
-		function exportData(){
-			if(!angular.isFunction(scope.mbExport)){
-				return;
-			}
-			scope.mbExport(scope.mbModel);
-		}
+        var query = {
+                sortDesc: true,
+                sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+                        searchTerm: null
+        };
+        /*
+         * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
+         */
+        function __reload(){
+            if(!angular.isDefined(attrs.mbReload)){
+                return;
+            }
+            $parse(attrs.mbReload)(scope.$parent);
+        }
+        /**
+         * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
+         */
+        function exportData(){
+            if(!angular.isFunction(scope.mbExport)){
+                return;
+            }
+            scope.mbExport(scope.mbModel);
+        }
 
-		function searchQuery(searchText){
-			scope.mbModel.setQuery(searchText);
-			__reload();
-		}
+        function searchQuery(searchText){
+            scope.mbModel.setQuery(searchText);
+            __reload();
+        }
 
-		function focusToElementById(id){
-			$timeout(function(){
-				var searchControl;
-				searchControl=$window.document.getElementById(id);
-				searchControl.focus();
-			}, 50 );
-		}
+        function focusToElementById(id){
+            $timeout(function(){
+                var searchControl;
+                searchControl=$window.document.getElementById(id);
+                searchControl.focus();
+            }, 50 );
+        }
 
-		scope.showBoxOne=false;
-		scope.focusToElement=focusToElementById;
-		// configure scope:
-		scope.search = searchQuery;
-		scope.__reload = __reload;
-		scope.query=query;
-		if(angular.isFunction(scope.mbExport)){
-			scope.exportData = exportData;
-		}
-		if(typeof scope.mbEnableSearch === 'undefined'){
-			scope.mbEnableSearch = true;
-		}
+        scope.showBoxOne=false;
+        scope.focusToElement=focusToElementById;
+        // configure scope:
+        scope.search = searchQuery;
+        scope.__reload = __reload;
+        scope.query=query;
+        if(angular.isFunction(scope.mbExport)){
+            scope.exportData = exportData;
+        }
+        if(typeof scope.mbEnableSearch === 'undefined'){
+            scope.mbEnableSearch = true;
+        }
 
-		scope.$watch('query', function(){
-			__reload();
-		}, true);
+        scope.$watch('query', function(){
+            __reload();
+        }, true);
 
-	}
+    }
 
-	return {
-		restrict : 'E',
-		templateUrl: 'views/directives/mb-pagination-bar.html',
-		scope : {
-			/*
-			 * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
-			 */
-			mbModel : '=',
-			/*
-			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
-			 * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
-			 */
-			mbReload : '@?',
-			/*
-			 * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
-			 * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
-			 */
-			mbExport : '=',
-			/*
-			 * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
-			 * بشن.
-			 */
-			mbSortKeys: '=',
+    return {
+        restrict : 'E',
+        templateUrl: 'views/directives/mb-pagination-bar.html',
+        scope : {
+            /*
+             * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
+             */
+            mbModel : '=',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
+             * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
+             */
+            mbReload : '@?',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
+             * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
+             */
+            mbExport : '=',
+            /*
+             * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
+             * بشن.
+             */
+            mbSortKeys: '=',
 
-			/* titles corresponding to sort keys */
-			mbSortKeysTitles: '=?',
+            /* titles corresponding to sort keys */
+            mbSortKeysTitles: '=?',
 
-			/*
-			 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-			 */
-			mbMoreActions: '=',
+            /*
+             * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+             */
+            mbMoreActions: '=',
 
-			mbTitle: '@?',
-			mbIcon: '@?',
+            mbTitle: '@?',
+            mbIcon: '@?',
 
-			mbEnableSearch: '=?'
-		},
-		link : postLink
-	};
+            mbEnableSearch: '=?'
+        },
+        link : postLink
+    };
 });
 
 /*
@@ -8894,7 +8899,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
   );
 
 
@@ -9024,7 +9029,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h3>{{user.profiles[0].first_name}} - {{user.profiles[0].last_name}}</h3> <h4> <span ng-show=user.is_active> <span translate>Active</span>, </span> <span ng-show=!user.is_active> <span translate>Inactive</span>, </span> </h4> <p> <span translate>Joined</span>: {{user.date_joined}}, <span translate>Last Login</span>: {{user.last_login}}, </p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -9064,7 +9069,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-navigator.html',
-    "<md-toolbar class=md-whiteframe-z2 layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
+    "<md-toolbar class=md-whiteframe-z2 layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
   );
 
 

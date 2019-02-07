@@ -214,20 +214,25 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * @return array of getProperties to use in search, sort and filter
      */
     this.getProperties = function(){
-        if(!angular.isFunction(this.getSchema)){
-            return [];
-        }
-        if(angular.isDefined(this._schema)){
-            // TODO: maso, 2018: 
-            return this._schema;
-        }
+    	this._schema = this._schema || [];
+    	
+    	// Check if the process is in progress
+    	if(this._properties_lock || // process is locked
+    			!angular.isFunction(this.getSchema) || // impossible to load schema
+    			this._schema.length) { // schema is loaded
+    		return this._schema;
+    	}
+    	
+        /*
+         * Load schema
+         */
         var ctrl = this;
-        $q.when(this.getSchema())
+        this._properties_lock = $q.when(this.getSchema())
         .then(function(schema){
             ctrl._schema = schema;
         });
         // view must check later
-        return [];
+        return this._schema;
     };
 
     /**
