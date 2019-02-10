@@ -1,0 +1,216 @@
+<div 
+	ng-switch="mbInlineType">
+
+	<!-- IMAGE -->
+<!-- 	<div  -->
+<!-- 		ng-switch-when="image" -->
+<!-- 		class="overlay-parent" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}" -->
+<!-- 		style="overflow: hidden;"> -->
+<!-- 		<ng-transclude ng-click="updateImage()"></ng-transclude> -->
+<!-- 		<div ng-show="$parent.mbInlineEnable" -->
+<!-- 			layout="row" layout-align="center center"  -->
+<!-- 			class="overlay-bottom" -->
+<!-- 			md-colors="{backgroundColor: 'primary-700'}"> -->
+<!--     		<md-button class="md-icon-button"  -->
+<!-- 				aria-label="Change image" -->
+<!-- 				ng-click="updateImage()">  -->
+<!-- 				<wb-icon>photo_camera</md-icon> -->
+<!-- 			</md-button> -->
+<!-- 	  	</div> -->
+<!-- 	</div> -->
+	
+	<!-- 	TEXT -->
+<!-- 	<div ng-switch-when="text"  -->
+<!-- 		editable-text="$parent.myDataModel" -->
+<!-- 		edit-disabled="{{mbInlineEnable === false}}" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		class="overlay-parent" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+
+	<!-- 	TEXTAREA -->
+<!-- 	<div ng-switch-when="textarea"  -->
+<!-- 		editable-textarea="$parent.myDataModel" -->
+<!-- 		edit-disabled="{{mbInlineEnable === false}}" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	EMAIL -->
+<!-- 	<div ng-switch-when="email"  -->
+<!-- 		editable-email="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	TEL -->
+<!-- 	<div ng-switch-when="tel"  -->
+<!-- 		editable-tel="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	NUMBER -->
+<!-- 	<div ng-switch-when="number"  -->
+<!-- 		editable-number="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	RANGE -->
+<!-- 	<div ng-switch-when="range"  -->
+<!-- 		editable-range="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	URL -->
+<!-- 	<div ng-switch-when="url"  -->
+<!-- 		editable-url="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	SEARCH -->
+<!-- 	<div ng-switch-when="search"  -->
+<!-- 		editable-search="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	COLOR -->
+<!-- 	<div ng-switch-when="color"  -->
+<!-- 		editable-color="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	DATE -->
+<!-- 	<div ng-switch-when="date"  -->
+<!-- 		editable-date="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	TIME -->
+<!-- 	<div ng-switch-when="time"  -->
+<!-- 		editable-time="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 	</div> -->
+	
+	<!-- 	MONTH -->
+<!-- 	<div ng-switch-when="month"  -->
+<!-- 		editable-month="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	WEEK -->
+<!-- 	<div ng-switch-when="week"  -->
+<!-- 		editable-week="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	PASSWORD -->
+<!-- 	<div ng-switch-when="password"  -->
+<!-- 		editable-password="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	DATETIME -->
+<!-- 	<div ng-switch-when="datetime"  -->
+<!-- 		editable-datetime-local="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+	
+	<!-- 	FILE -->
+<!-- 	<div ="file"  -->
+<!-- 		editable-file="$parent.myDataModel" -->
+<!-- 		onbeforesave="$parent.ok($data)" -->
+<!-- 		layout="column" -->
+<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
+<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
+<!-- 		<ng-transclude flex></ng-transclude> -->
+<!-- 	</div> -->
+
+	<!-- Default editor -->
+	<div
+		ng-switch-default>
+		<input 
+			type="text" 
+			wb-on-enter="ctrlInline.save()" 
+			wb-on-esc="ctrlInline.cancel()" 
+			ng-model="ctrlInline.model" 
+			ng-show="ctrlInline.editMode">
+		<button 
+			ng-if="mbInlineCancelButton && ctrlInline.editMode"
+			ng-click="ctrlInline.cancel()">cancel</button>
+		<button 
+			ng-if="mbInlineSaveButton && ctrlInline.editMode"
+			ng-click="ctrlInline.save()">save</button>
+		<ng-transclude 
+			ng-hide="ctrlInline.editMode" 
+			ng-click="ctrlInline.edit()"
+			flex></ng-transclude>
+	</div>
+	
+	<!-- Show error message -->
+	<div 
+		ng-messages="errorObject">
+		<div 
+			ng-message="error" 
+			class="md-input-message-animation" 
+			style="margin: 0px;"
+			translate>{{errorObject.errorMessage}}</div>
+	</div>
+</div>
