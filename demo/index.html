@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="styles/container.css">
 <link rel="stylesheet" href="styles/dialogs.css">
 <link rel="stylesheet" href="styles/infinate-scroll.css">
+<link rel="stylesheet" href="styles/inline.css">
 <link rel="stylesheet" href="styles/main.css">
 <link rel="stylesheet" href="styles/navigation-path-bar.css">
 <link rel="stylesheet" href="styles/preload.css">
@@ -49,6 +50,15 @@
 <link rel="stylesheet" href="styles/test-preloader.css">
 <!-- endinjector -->
 <!-- endbuild -->
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag
+</script>
 
 </head>
 <body md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
@@ -61,7 +71,6 @@
         to improve your experience.</p>
     <![endif]-->
 	<mb-panel>
-	<div class="mb-preloader">Loading....</div>
 	</mb-panel>
 
 	<!-- build:js(src) scripts/vendor.js -->
@@ -154,6 +163,7 @@
 	<script src="scripts/directives/mb-dynamic-tabs.js"></script>
 	<script src="scripts/directives/mb-error-messages.js"></script>
 	<script src="scripts/directives/mb-infinateScroll.js"></script>
+	<script src="scripts/directives/mb-inline.js"></script>
 	<script src="scripts/directives/mb-navigation-bar.js"></script>
 	<script src="scripts/directives/mb-pagination-bar.js"></script>
 	<script src="scripts/directives/mb-panel-sidenav-anchor.js"></script>

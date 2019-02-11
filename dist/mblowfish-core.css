@@ -135,6 +135,55 @@
 	overflow-x: auto;
 	overflow-y: auto;
 }
+.editable-click, 
+a.editable-click, 
+.editable-click:hover, 
+a.editable-click:hover {
+	border: inherit;
+	text-decoration: inherit;
+	color: inherit;
+}
+
+.editable-empty:hover {
+	color: inherit;
+}
+
+.my-editable {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	min-height: 30px;
+    cursor: pointer;
+}
+
+/* .my-editable>hr { */
+/* 	-webkit-transition: width 1.5s; For Safari 3.1 to 6.0 */
+/* 	transition: width 1.5s; */
+/* 	transition-delay: 700ms; */
+/* 	width: 0; */
+/* 	height: 2px; */
+/* 	border: none; */
+/* } */
+
+/* .my-editable:hover>hr { */
+/* 	width: 90%; */
+/* } */
+
+.my-editable {
+	position: relative;
+}
+
+.my-editable[editable-text]:hover,
+.my-editable[editable-textarea]:hover,
+.my-editable[editable-email]:hover,
+.my-editable[editable-tel]:hover,
+.my-editable[editable-url]:hover,
+.my-editable[editable-search]:hover,
+.my-editable[editable-password]:hover {
+	cursor: pointer;
+}
+
+
 /*
  * main area. it is main panel in center of panel.
  * To customize style this panel dont change this css. Do your changes in your application. 

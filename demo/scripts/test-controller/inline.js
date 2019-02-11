@@ -25,7 +25,7 @@ angular.module('app')
 /**
  * 
  */
-.controller('InlineEditCtrl', function($scope, editableOptions) {
+.controller('InlineEditCtrl', function($scope) {
 
 	/**
 	 * Update the object in scope
@@ -59,11 +59,11 @@ angular.module('app')
 			file: null
 	}; 
 	
-	$scope.toggleXEdit = function(){
-		editableOptions.isDisabled = !editableOptions.isDisabled;
-		$scope.editable = !editableOptions.isDisabled; 
-	};
+//	$scope.toggleXEdit = function(){
+//		editableOptions.isDisabled = !editableOptions.isDisabled;
+//		$scope.editable = !editableOptions.isDisabled; 
+//	};
 	
-	$scope.editable = !editableOptions.isDisabled;
+	$scope.editable = true;
 	
 });

@@ -58,5 +58,5 @@ angular.module('mblowfish-core', [ //
 	'ng-appcache',//
 	'ngFileSaver',//
 	'mdSteppers',//
-	'angular-material-persian-datepicker'
+	'angular-material-persian-datepicker',
 ]);

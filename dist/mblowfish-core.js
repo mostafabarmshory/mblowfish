@@ -58,7 +58,7 @@ angular.module('mblowfish-core', [ //
 	'ng-appcache',//
 	'ngFileSaver',//
 	'mdSteppers',//
-	'angular-material-persian-datepicker'
+	'angular-material-persian-datepicker',
 ]);
 
 /*
@@ -3774,6 +3774,147 @@ angular.module('mblowfish-core')
  */
 'use strict';
 
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-inline
+ * @description Inline editing field
+ */
+.directive('mbInline', function($q, $parse, $resource) {
+
+    /**
+     * Link data and view
+     */
+    function postLink(scope, elem, attr, ctrls) {
+
+        var ngModel = ctrls[1];
+        var ctrl = ctrls[0];
+
+        scope.myDataModel = {};
+        scope.errorObject = {};
+        
+        scope.mbInlineType = attr.mbInlineType;
+        scope.mbInlineLabel = attr.mbInlineLabel;
+        scope.mbInlineDescription = attr.mbInlineDescription;
+        
+        scope.$watch(attr.mbInlineEnable, function(value){
+            scope.mbInlineEnable = value;
+        });
+        scope.$watch(attr.mbInlineSaveButton, function(value){
+            scope.mbInlineSaveButton = value;
+        });
+        scope.$watch(attr.mbInlineCancelButton, function(value){
+            scope.mbInlineCancelButton = value;
+        });
+
+        ngModel.$render = function(){
+            ctrl.model = ngModel.$viewValue;
+        };
+
+        ctrl.saveModel = function(d){
+            ngModel.$setViewValue(d);
+            if(attr.mbInlineOnSave){
+                scope.$data = d;
+                var value = $parse(attr.mbInlineOnSave)(scope);
+                $q.when(value)//
+                .then(function(){
+                    scope.errorObject = {
+                            'error': false,
+                            'errorMessage' : null
+                    };
+                }, function(error){
+                    scope.errorObject = {
+                            'error': true,
+                            'errorMessage': val
+                    };
+                });
+            }
+        };
+    }
+
+    return {
+        restrict : 'E',
+        transclude : true,
+        replace: true,
+        require: ['mbInline', '^ngModel'],
+        scope: true,
+        /*
+         * @ngInject
+         */
+        controller: function($scope){
+            this.edit = function(){
+                this.editMode = true;
+            };
+
+            this.setEditMode = function(editMode){
+                this.editMode = editMode;
+            };
+
+            this.getEditMode = function(){
+                return this.editMode;
+            };
+
+            this.save = function(){
+                this.saveModel(this.model);
+                this.setEditMode(false);
+            };
+
+            this.cancel = function(){
+                this.setEditMode(false);
+            };
+
+
+            /*
+             * Select image url
+             */
+            this.updateImage = function(){
+                if(!$scope.mbInlineEnable){
+                    return;
+                }
+                return $resource.get('image', {
+                    style : {
+                        icon: 'image',
+                        title : $scope.mbInlineLabel || 'Select image',
+                        description: $scope.mbInlineDescription || 'Select a file from resources or cancel'
+                    },
+                    data : this.model
+                }) //
+                .then(function(url){
+                    ctrl.model = url;
+                    ctrl.save();
+                });
+            };
+        },
+        controllerAs: 'ctrlInline',
+        templateUrl : 'views/directives/mb-inline.html',
+        link: postLink
+    };
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -5731,110 +5872,110 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-    $actions.newAction({
-        id : 'mb.preferences',
-        priority : 15,
-        icon : 'settings',
-        title : 'Preferences',
-        description : 'Open preferences panel',
-        visible : function () {
-            return $rootScope.app.user.owner;
-        },
-        action : function () {
-            return $navigator.openPage('preferences');
-        },
-        groups : [ 'mb.toolbar.menu' ]
-    });
-    $actions.newAction({// help
-        id : 'mb.help',
-        priority : 15,
-        icon : 'help',
-        title : 'Help',
-        description : 'Display help in sidenav',
-        visible : function () {
-            return $help.hasHelp($route.current);
-        },
-        action : function () {
-            $help.openHelp($route.current);
-        },
-        groups : [ 'mb.toolbar.menu' ]
-    });
-    $actions.newAction({
-        icon : 'account_circle',
-        title : 'Profile',
-        description : 'User profile',
-        groups : [ 'mb.user' ],
-        action : function () {
-            return $navigator.openPage('users/profile');
-        }
-    });
-    $actions.newAction({
-        icon : 'account_box',
-        title : 'Account',
-        description : 'User account',
-        groups : [ 'mb.user' ],
-        action : function () {
-            return $navigator.openPage('users/account');
-        }
-    });
-    $actions.newAction({
-        icon : 'fingerprint',
-        title : 'Password',
-        description : 'Manage password',
-        groups : [ 'mb.user' ],
-        action : function () {
-            return $navigator.openPage('users/password');
-        }
-    });
+	$actions.newAction({
+		id : 'mb.preferences',
+		priority : 15,
+		icon : 'settings',
+		title : 'Preferences',
+		description : 'Open preferences panel',
+		visible : function () {
+			return $rootScope.app.user.owner;
+		},
+		action : function () {
+			return $navigator.openPage('preferences');
+		},
+		groups : [ 'mb.toolbar.menu' ]
+	});
+	$actions.newAction({// help
+		id : 'mb.help',
+		priority : 15,
+		icon : 'help',
+		title : 'Help',
+		description : 'Display help in sidenav',
+		visible : function () {
+			return $help.hasHelp($route.current);
+		},
+		action : function () {
+			$help.openHelp($route.current);
+		},
+		groups : [ 'mb.toolbar.menu' ]
+	});
+	$actions.newAction({
+		icon : 'account_circle',
+		title : 'Profile',
+		description : 'User profile',
+		groups : [ 'mb.user' ],
+		action : function () {
+			return $navigator.openPage('users/profile');
+		}
+	});
+	$actions.newAction({
+		icon : 'account_box',
+		title : 'Account',
+		description : 'User account',
+		groups : [ 'mb.user' ],
+		action : function () {
+			return $navigator.openPage('users/account');
+		}
+	});
+	$actions.newAction({
+		icon : 'fingerprint',
+		title : 'Password',
+		description : 'Manage password',
+		groups : [ 'mb.user' ],
+		action : function () {
+			return $navigator.openPage('users/password');
+		}
+	});
 
-    $toolbar.newToolbar({
-        id : 'dashboard',
-        title : 'Dashboard toolbar',
-        description : 'Main dashboard toolbar',
-        controller : 'MbToolbarDashboardCtrl',
-        templateUrl : 'views/toolbars/mb-dashboard.html'
-    });
+	$toolbar.newToolbar({
+		id : 'dashboard',
+		title : 'Dashboard toolbar',
+		description : 'Main dashboard toolbar',
+		controller : 'MbToolbarDashboardCtrl',
+		templateUrl : 'views/toolbars/mb-dashboard.html'
+	});
 
-    $sidenav.newSidenav({
-        id : 'navigator',
-        title : 'Navigator',
-        description : 'Navigate all path and routs of the pandel',
-        controller : 'AmdNavigatorCtrl',
-        templateUrl : 'views/sidenavs/mb-navigator.html',
-        locked : true,
-        position : 'start'
-    });
-    $sidenav.newSidenav({
-        id : 'help',
-        title : 'Help',
-        description : 'System online help',
-        controller : 'MbHelpCtrl',
-        templateUrl : 'views/sidenavs/mb-help.html',
-        locked : true,
-        visible : function () {
-            return $rootScope.showHelp;
-        },
-        position : 'end'
-    });
-    $sidenav.newSidenav({
-        id : 'settings',
-        title : 'Options',
-        description : 'User options',
-        controller : 'MbOptionsCtrl',
-        templateUrl : 'views/sidenavs/mb-options.html',
-        locked : false,
-        position : 'end'
-    });
-    $sidenav.newSidenav({
-        id : 'messages',
-        title : 'Messages',
-        description : 'User message queue',
-        controller : 'MessagesCtrl',
-        templateUrl : 'views/sidenavs/mb-messages.html',
-        locked : false,
-        position : 'start'
-    });
-        });
+	$sidenav.newSidenav({
+		id : 'navigator',
+		title : 'Navigator',
+		description : 'Navigate all path and routs of the pandel',
+		controller : 'AmdNavigatorCtrl',
+		templateUrl : 'views/sidenavs/mb-navigator.html',
+		locked : true,
+		position : 'start'
+	});
+	$sidenav.newSidenav({
+		id : 'help',
+		title : 'Help',
+		description : 'System online help',
+		controller : 'MbHelpCtrl',
+		templateUrl : 'views/sidenavs/mb-help.html',
+		locked : true,
+		visible : function () {
+			return $rootScope.showHelp;
+		},
+		position : 'end'
+	});
+	$sidenav.newSidenav({
+		id : 'settings',
+		title : 'Options',
+		description : 'User options',
+		controller : 'MbOptionsCtrl',
+		templateUrl : 'views/sidenavs/mb-options.html',
+		locked : false,
+		position : 'end'
+	});
+	$sidenav.newSidenav({
+		id : 'messages',
+		title : 'Messages',
+		description : 'User message queue',
+		controller : 'MessagesCtrl',
+		templateUrl : 'views/sidenavs/mb-messages.html',
+		locked : false,
+		position : 'start'
+	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5938,19 +6079,25 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 .run(function($window, $rootScope, $location) {
-	if ($window.ga) {
-		// initialize google analytics
-		$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-			if (!value) {
-				return;
-			}
-			$window.ga('create', value, 'auto');
-			// track pageview on state change
-			$rootScope.$on('$routeChangeStart', function(/* event */) {
-				$window.ga('send', 'pageview', $location.path());
-			});
-		});
-	}
+    if ($window.gtag) {
+        // initialize google analytics
+        $rootScope.$watch('app.config.googleAnalytic.property', function(value){
+            if (!value) {
+                return;
+            }
+
+            $window.gtag('js', new Date());
+            $window.gtag('config', value);
+            // track page view on state change
+            $rootScope.$on('$routeChangeStart', function(/* event */) {
+                $window.gtag('config', value, {
+//                  page_title: 'homepage',
+//                  page_location: 'LOCATION',
+                    page_path: $location.path()
+                });
+            });
+        });
+    }
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8905,6 +9052,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
     "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
+  );
+
+
+  $templateCache.put('views/directives/mb-inline.html',
+    "<div ng-switch=mbInlineType>                                                                                                                                                                       <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=errorObject> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\" translate>{{errorObject.errorMessage}}</div> </div> </div>"
   );
 
 
