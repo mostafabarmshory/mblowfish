@@ -29,113 +29,27 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MessagesCtrl', function($scope,/*$monitor*/ QueryParameter, $rootScope) {
+.controller('MessagesCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
 
-	var queryParameter = new QueryParameter();
-	queryParameter.setOrder('id', 'd');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
+    // Overried the function
+    this.getSchema = function () {
+        return $usr.messageSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getMessages(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getMessage(id);
+    };
+    // delete account
+    this.deleteModel = function (item) {
+        return item.delete();
+    };
 
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param queryParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		queryParameter.setQuery(query);
-		return reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			queryParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-                var currentUser = $rootScope.app.user.current;
-		return currentUser.getMessages(queryParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
-		});
-	}
-
-
-	/**
-	 * درخواست مورد نظر را از سیستم حذف می‌کند.
-	 * 
-	 * @param request
-	 * @returns promiss
-	 */
-	function remove(pobject) {
-		return pobject.delete()//
-		.then(function(){
-			var index = ctrl.items.indexOf(pobject);
-			if (index > -1) {
-				ctrl.items .splice(index, 1);
-			}
-			if(ctrl.items.length === 0){
-				reload();
-			}
-		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-//		ctrl.status = 'relax';
-		return nextPage();
-	}
-
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-
-	$scope.items = [];
-	$scope.reload = reload;
-	$scope.search = find;
-	$scope.nextMessages = nextPage;
-	$scope.remove = remove;
-	$scope.ctrl = ctrl;
-	$scope.qp = queryParameter;
-
-	// watch messages
-        // TODO: Masood, 2018: $monitor should be updated based on version 2.
-//	var handler;
-//	$monitor.monitor('message', 'count')//
-//	.then(function(monitor){
-//		handler = monitor.watch(function(){
-//			reload();
-//		});
-//	});
-//	$scope.$on('$destroy', handler);
-	/*
-	 * مقداردهی اولیه
-	 */
-	reload();
+    this.init();
 });
