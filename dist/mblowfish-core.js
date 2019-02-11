@@ -47,6 +47,7 @@ angular.module('mblowfish-core', [ //
 //	Seen
 	'seen-core',
 	'seen-tenant',
+	'seen-monitor',
 	'seen-cms',
 //	AM-WB
 	'am-wb-core', 
@@ -1541,115 +1542,29 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MessagesCtrl', function($scope,/*$monitor*/ QueryParameter, $rootScope) {
+.controller('MessagesCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbItemsCtrl', {
+        $scope : $scope
+    }));
 
-	var queryParameter = new QueryParameter();
-	queryParameter.setOrder('id', 'd');
-	var requests = null;
-	var ctrl = {
-			state: 'relax',
-			items: []
-	};
+    // Overried the function
+    this.getSchema = function () {
+        return $usr.messageSchema();
+    };
+    // get accounts
+    this.getItems = function (parameterQuery) {
+        return $usr.getMessages(parameterQuery);
+    };
+    // get an account
+    this.getItem = function (id) {
+        return $usr.getMessage(id);
+    };
+    // delete account
+    this.deleteModel = function (item) {
+        return item.delete();
+    };
 
-
-	/**
-	 * جستجوی درخواست‌ها
-	 * 
-	 * @param queryParameter
-	 * @returns promiss
-	 */
-	function find(query) {
-		queryParameter.setQuery(query);
-		return reload();
-	}
-
-	/**
-	 * لود کردن داده‌های صفحه بعد
-	 * 
-	 * @returns promiss
-	 */
-	function nextPage() {
-		if (ctrl.status === 'working') {
-			return;
-		}
-		if (requests && !requests.hasMore()) {
-			return;
-		}
-		if (requests) {
-			queryParameter.setPage(requests.next());
-		}
-		// start state (device list)
-		ctrl.status = 'working';
-                var currentUser = $rootScope.app.user.current;
-		return currentUser.getMessages(queryParameter)//
-		.then(function(items) {
-			requests = items;
-			ctrl.items = ctrl.items.concat(requests.items);
-			ctrl.status = 'relax';
-		}, function() {
-			ctrl.status = 'fail';
-		});
-	}
-
-
-	/**
-	 * درخواست مورد نظر را از سیستم حذف می‌کند.
-	 * 
-	 * @param request
-	 * @returns promiss
-	 */
-	function remove(pobject) {
-		return pobject.delete()//
-		.then(function(){
-			var index = ctrl.items.indexOf(pobject);
-			if (index > -1) {
-				ctrl.items .splice(index, 1);
-			}
-			if(ctrl.items.length === 0){
-				reload();
-			}
-		});
-	}
-
-	/**
-	 * تمام حالت‌های کنترل ررا بدوباره مقدار دهی می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function reload(){
-		requests = null;
-		ctrl.items = [];
-//		ctrl.status = 'relax';
-		return nextPage();
-	}
-
-	/*
-	 * تمام امکاناتی که در لایه نمایش ارائه می‌شود در اینجا نام گذاری
-	 * شده است.
-	 */
-
-	$scope.items = [];
-	$scope.reload = reload;
-	$scope.search = find;
-	$scope.nextMessages = nextPage;
-	$scope.remove = remove;
-	$scope.ctrl = ctrl;
-	$scope.qp = queryParameter;
-
-	// watch messages
-        // TODO: Masood, 2018: $monitor should be updated based on version 2.
-//	var handler;
-//	$monitor.monitor('message', 'count')//
-//	.then(function(monitor){
-//		handler = monitor.watch(function(){
-//			reload();
-//		});
-//	});
-//	$scope.$on('$destroy', handler);
-	/*
-	 * مقداردهی اولیه
-	 */
-	reload();
+    this.init();
 });
 
 'use strict';
@@ -2960,7 +2875,7 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav/*, $monitor*/) {
+.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav, $monitor) {
 	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
 	
 	function toggleNavigationSidenav(){
@@ -2974,17 +2889,15 @@ angular.module('mblowfish-core')
 	$scope.toggleNavigationSidenav = toggleNavigationSidenav;
 	$scope.toggleMessageSidenav = toggleMessageSidenav;
 	
-	// watch messages
-        // TODO: Masood, 2018: $monitor should be updated based on version 2.
-//	var handler;
-//	$monitor.monitor('message', 'count')//
-//	.then(function(monitor){
-//		handler = monitor.watch(function(a, old, n){
-//			$scope.messageCount = n;
-//		});
-//		monitor.refresh();
-//	});
-//	$scope.$on('$destroy', handler);
+	
+	function getMessageCount() {
+	    $monitor.getMetric('message.count')
+		    .then(function (metric) {
+			$scope.messageCount = metric.value;
+		    });
+	}
+	
+	getMessageCount();
 });
 /* 
  * The MIT License (MIT)
@@ -5971,6 +5884,7 @@ angular.module('mblowfish-core')
 		title : 'Messages',
 		description : 'User message queue',
 		controller : 'MessagesCtrl',
+		controllerAs: 'ctrl',
 		templateUrl : 'views/sidenavs/mb-messages.html',
 		locked : false,
 		position : 'start'
@@ -9216,7 +9130,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-messages.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <h4 translate=\"\">Messages</h4> </div> </md-toolbar> <md-content mb-preloading=\"ctrl.status === 'working'\" mb-infinate-scroll=nextMessages() flex layout-fill> <md-list> <md-list-item class=md-2-line ng-repeat=\"message in ctrl.items\"> <wb-icon ng-class=\"\">mail</wb-icon> <div class=md-list-item-text> <p>{{message.message}}</p> </div> <md-button class=\"md-secondary md-icon-button\" ng-click=remove(message) aria-label=remove> <wb-icon>delete</wb-icon> </md-button> </md-list-item> </md-list> </md-content>"
+    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-title=Messages mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"message in ctrl.items track by message.id\" class=md-3-line> <wb-icon ng-class=\"\">mail</wb-icon> <div class=md-list-item-text> <p>{{::message.message}}</p> </div> <md-button class=\"md-secondary md-icon-button\" ng-click=ctrl.deleteItem(message) aria-label=remove> <wb-icon>delete</wb-icon> </md-button> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
