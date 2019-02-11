@@ -51,6 +51,15 @@
 <!-- endinjector -->
 <!-- endbuild -->
 
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = gtag
+</script>
+
 </head>
 <body md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
 	md-theme-watch
@@ -62,7 +71,6 @@
         to improve your experience.</p>
     <![endif]-->
 	<mb-panel>
-	<div class="mb-preloader">Loading....</div>
 	</mb-panel>
 
 	<!-- build:js(src) scripts/vendor.js -->

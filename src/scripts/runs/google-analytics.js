@@ -24,17 +24,23 @@
 angular.module('mblowfish-core')
 
 .run(function($window, $rootScope, $location) {
-	if ($window.ga) {
-		// initialize google analytics
-		$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-			if (!value) {
-				return;
-			}
-			$window.ga('create', value, 'auto');
-			// track pageview on state change
-			$rootScope.$on('$routeChangeStart', function(/* event */) {
-				$window.ga('send', 'pageview', $location.path());
-			});
-		});
-	}
+    if ($window.gtag) {
+        // initialize google analytics
+        $rootScope.$watch('app.config.googleAnalytic.property', function(value){
+            if (!value) {
+                return;
+            }
+
+            $window.gtag('js', new Date());
+            $window.gtag('config', value);
+            // track page view on state change
+            $rootScope.$on('$routeChangeStart', function(/* event */) {
+                $window.gtag('config', value, {
+//                  page_title: 'homepage',
+//                  page_location: 'LOCATION',
+                    page_path: $location.path()
+                });
+            });
+        });
+    }
 });
