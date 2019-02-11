@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav/*, $monitor*/) {
+.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav, $monitor) {
 	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
 	
 	function toggleNavigationSidenav(){
@@ -43,15 +43,13 @@ angular.module('mblowfish-core')
 	$scope.toggleNavigationSidenav = toggleNavigationSidenav;
 	$scope.toggleMessageSidenav = toggleMessageSidenav;
 	
-	// watch messages
-        // TODO: Masood, 2018: $monitor should be updated based on version 2.
-//	var handler;
-//	$monitor.monitor('message', 'count')//
-//	.then(function(monitor){
-//		handler = monitor.watch(function(a, old, n){
-//			$scope.messageCount = n;
-//		});
-//		monitor.refresh();
-//	});
-//	$scope.$on('$destroy', handler);
+	
+	function getMessageCount() {
+	    $monitor.getMetric('message.count')
+		    .then(function (metric) {
+			$scope.messageCount = metric.value;
+		    });
+	}
+	
+	getMessageCount();
 });
