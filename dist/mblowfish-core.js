@@ -5992,6 +5992,63 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
+/*
+ * Enable crisp chat
+ */
+.run(function($window, $rootScope, $location) {
+	var crispLoaded = false;
+	
+	function loadCrisp(id){
+		$window.$crisp=[];
+		$window.CRISP_WEBSITE_ID = id;
+		{ // load crisp 
+			var d=document;
+			var s=d.createElement('script');
+			s.src='https://client.crisp.chat/l.js';
+			s.async=1;
+			d.getElementsByTagName('head')[0].appendChild(s);
+		}
+		crispLoaded = true;
+	}
+	
+	/*
+	 * Watch system configuration
+	 */
+    $rootScope.$watch('app.config.crisp.id', function(value){
+        if (!value) {
+            return;
+        }
+        
+        if(!crispLoaded){
+        	loadCrisp(value);
+        }
+    });
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
 .run(function($window, $rootScope, $location) {
     if ($window.gtag) {
         // initialize google analytics
@@ -6530,6 +6587,14 @@ angular.module('mblowfish-core')
 		description : 'Enable google analytic for your application.',
 		icon : 'timeline',
 		tags : [ 'analysis' ]
+	})
+	.newPage({
+		id : 'crisp-chat',
+		title : 'CRISP chat',
+		templateUrl : 'views/preferences/mb-crisp-chat.html',
+		description : 'Give your customer messaging experience a human touch with CRISP.',
+		icon : 'chat',
+		tags : [ 'chat' ]
 	})
 	.newPage({
 		id: 'update',
@@ -9071,6 +9136,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/mb-brand.html',
     "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.favicon> </wb-ui-setting-image> </div>"
+  );
+
+
+  $templateCache.put('views/preferences/mb-crisp-chat.html',
+    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>CRISP site ID</label> <input required md-no-asterisk name=property ng-model=\"app.config.crisp.id\"> </md-input-container> </div>"
   );
 
 
