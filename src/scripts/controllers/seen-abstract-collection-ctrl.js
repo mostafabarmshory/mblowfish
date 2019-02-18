@@ -241,27 +241,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * @return list of actions
      */
     this.getActions = function(){
-        var actions = this._actions;
-        // TODO: maso, 2018: add flag to cache 
-        // add item action
-        var ctrl = this;
-        if(angular.isFunction(this.createModel)){
-            // maso, 2018: crate action from add item
-            actions.push(new Action({
-                action: function(){
-                    var model = ctrl.createModel();
-                    $q.when(model)
-                    .then(function(item){
-                        ctrl.items.push(item);
-                    });
-                }
-            }));
-        }
-        // reload items action
-        {
-            // TODO: maso, 2018: crate action from reload
-        }
-        return actions;
+        return this._actions || [];
     };
 
     /**
@@ -277,7 +257,8 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
         if(!(action instanceof Action)){
             action = new Action(action);
         }
-        this._actions = this._actions.push(action);
+        this._actions.push(action);
+        return this;
     };
 
 
