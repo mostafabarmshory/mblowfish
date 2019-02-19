@@ -2166,6 +2166,8 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
     this.state = STATE_IDEAL;
+    
+    this.actions = [];
 
 
     /**
@@ -2321,7 +2323,9 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * @return array of getProperties to use in search, sort and filter
      */
     this.getProperties = function(){
-    	this._schema = this._schema || [];
+        if(!angular.isArray(this._schema)){
+            this._schema = [];
+        };
     	
     	// Check if the process is in progress
     	if(this._properties_lock || // process is locked
@@ -2348,27 +2352,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * @return list of actions
      */
     this.getActions = function(){
-        var actions = this._actions;
-        // TODO: maso, 2018: add flag to cache 
-        // add item action
-        var ctrl = this;
-        if(angular.isFunction(this.createModel)){
-            // maso, 2018: crate action from add item
-            actions.push(new Action({
-                action: function(){
-                    var model = ctrl.createModel();
-                    $q.when(model)
-                    .then(function(item){
-                        ctrl.items.push(item);
-                    });
-                }
-            }));
-        }
-        // reload items action
-        {
-            // TODO: maso, 2018: crate action from reload
-        }
-        return actions;
+        return this.actions;
     };
 
     /**
@@ -2377,14 +2361,15 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
      * @param action to add to list
      */
     this.addAction = function(action) {
-        if(!angular.isDefined(this._actions)){
-            this._actions = [];
+        if(!angular.isDefined(this.actions)){
+            this.actions = [];
         }
         // TODO: maso, 2018: assert the action is MbAction
         if(!(action instanceof Action)){
             action = new Action(action);
         }
-        this._actions = this._actions.push(action);
+        this.actions.push(action);
+        return this;
     };
 
 
@@ -2790,10 +2775,6 @@ angular.module('mblowfish-core')
     // get an account
     this.getItem = function (id) {
         return $usr.getRole(id);
-    };
-    // Add item
-    this.addItem = function () {
-        return $usr.newRole(item);
     };
     // delete account
     this.deleteItem = function (item) {

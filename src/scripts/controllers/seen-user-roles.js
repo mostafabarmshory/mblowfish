@@ -47,10 +47,6 @@ angular.module('mblowfish-core')
     this.getItem = function (id) {
         return $usr.getRole(id);
     };
-    // Add item
-    this.addItem = function () {
-        return $usr.newRole(item);
-    };
     // delete account
     this.deleteItem = function (item) {
         return $usr.deleteRole(item.id);
