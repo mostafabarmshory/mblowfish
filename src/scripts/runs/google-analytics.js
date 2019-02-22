@@ -24,23 +24,71 @@
 angular.module('mblowfish-core')
 
 .run(function($window, $rootScope, $location) {
-    if ($window.gtag) {
-        // initialize google analytics
-        $rootScope.$watch('app.config.googleAnalytic.property', function(value){
-            if (!value) {
-                return;
-            }
+	var scriptIsLoaded = false;
+	var watcherIsLoaded = false;
+	var googleValue;
 
-            $window.gtag('js', new Date());
-            $window.gtag('config', value);
-            // track page view on state change
-            $rootScope.$on('$routeChangeStart', function(/* event */) {
-                $window.gtag('config', value, {
-//                  page_title: 'homepage',
-//                  page_location: 'LOCATION',
-                    page_path: $location.path()
-                });
-            });
-        });
-    }
+	/*
+	   <!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  window.gtag = gtag
+		</script>
+	 */
+	function loadScript(value){
+		googleValue = value; 
+		if(!scriptIsLoaded){
+			var script=document.createElement('script');
+			script.src='https://www.googletagmanager.com/gtag/js';
+			script.async=1;
+			script.onload = function(){
+				$window.dataLayer = $window.dataLayer || [];
+				function gtag(){
+					$window.dataLayer.push(arguments);
+				};
+				$window.gtag = gtag
+				$window.gtag('js', new Date());
+				$window.gtag('config', value);
+			};
+			document.getElementsByTagName('head')[0].appendChild(script);
+			scriptIsLoaded = true;
+			return;
+		}
+		$window.gtag('js', new Date());
+		$window.gtag('config', value);
+	}
+
+	function loadWatchers() {
+		if(watcherIsLoaded){
+			return;
+		}
+		$rootScope.$on('$routeChangeStart', handleRouteChange);
+		watcherIsLoaded = true;
+	}
+
+	function createEvent(){
+		var event = {
+//				page_title: 'homepage',
+//				page_location: 'LOCATION',
+				page_path: $location.path()
+		};
+		return event;
+	}
+
+	function handleRouteChange(){
+		var event = createEvent();
+		$window.gtag('config', googleValue, event);
+	}
+
+	// initialize google analytics
+	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
+		if (!value) {
+			return;
+		}
+
+		loadScript(value);
+		loadWatchers();
+	});
 });

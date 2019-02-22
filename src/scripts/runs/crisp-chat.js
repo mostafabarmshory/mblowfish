@@ -28,30 +28,26 @@ angular.module('mblowfish-core')
  */
 .run(function($window, $rootScope, $location) {
 	var crispLoaded = false;
-	
+
 	function loadCrisp(id){
 		$window.$crisp=[];
 		$window.CRISP_WEBSITE_ID = id;
-		{ // load crisp 
-			var d=document;
-			var s=d.createElement('script');
-			s.src='https://client.crisp.chat/l.js';
-			s.async=1;
-			d.getElementsByTagName('head')[0].appendChild(s);
+		if(!crispLoaded){ // load crisp 
+			var script=document.createElement('script');
+			script.src='https://client.crisp.chat/l.js';
+			script.async=1;
+			document.getElementsByTagName('head')[0].appendChild(script);
 		}
 		crispLoaded = true;
 	}
-	
+
 	/*
 	 * Watch system configuration
 	 */
-    $rootScope.$watch('app.config.crisp.id', function(value){
-        if (!value) {
-            return;
-        }
-        
-        if(!crispLoaded){
-        	loadCrisp(value);
-        }
-    });
+	$rootScope.$watch('app.config.crisp.id', function(value){
+		if (!value) {
+			return;
+		}
+		loadCrisp(value);
+	});
 });
