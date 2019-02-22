@@ -24,95 +24,91 @@
 'use strict';
 
 angular
-        .module('mblowfish-core')
-        /**
-         * @ngdoc Directives
-         * @name mb-preference-page
-         * @description Preference page
-         * 
-         * Preference page
-         * 
-         */
-        .directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
-                $rootScope, $mdTheming) {
+.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name mb-preference-page
+ * @description Preference page
+ * 
+ * Preference page
+ * 
+ */
+.directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
+        $rootScope, $mdTheming) {
 
-            var bodyElementSelector = 'div#mb-preference-body';
-            var placeholderElementSelector = 'div#mb-preference-placeholder';
-            /**
-             * 
-             */
-            function loadPreference($scope, page, anchor) {
-                // 1- create scope
-                var childScope = $scope.$new(false, $scope);
-                childScope.app = $rootScope.app;
-                // childScope.wbModel = model;
+    var bodyElementSelector = 'div#mb-preference-body';
+    var placeholderElementSelector = 'div#mb-preference-placeholder';
+    /**
+     * 
+     */
+    function loadPreference($scope, page, anchor) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope.app = $rootScope.app;
+        // childScope.wbModel = model;
 
-                // 2- create element
-                $wbUtil
-                        .getTemplateFor(page)
-                        .then(function (template) {
-                            var element = angular.element(template);
-                            $mdTheming(element);
+        // 2- create element
+        $wbUtil.getTemplateFor(page)
+        .then(function (template) {
+            var element = angular.element(template);
 
-                            // 3- bind controller
-                            var link = $compile(element);
-                            if (angular
-                                    .isDefined(page.controller)) {
-                                var locals = {
-                                    $scope: childScope,
-                                    $element: element
-                                            // TODO: maso, 2018:
-                                };
-                                var controller = $controller(
-                                        page.controller, locals);
-                                if (page.controllerAs) {
-                                    childScope[page.controllerAs] = controller;
-                                }
-                                element
-                                        .data(
-                                                '$ngControllerController',
-                                                controller);
-                            }
-
-                            // Load preferences
-                            anchor.empty();
-                            anchor.append(link(childScope));
-                        });
+            // 3- bind controller
+            var link = $compile(element);
+            if (angular.isDefined(page.controller)) {
+                var locals = {
+                        $scope: childScope,
+                        $element: element
+                        // TODO: maso, 2018:
+                };
+                var controller = $controller(
+                        page.controller, locals);
+                if (page.controllerAs) {
+                    childScope[page.controllerAs] = controller;
+                }
+                element.data('$ngControllerController', controller);
             }
 
-            /**
-             * Adding preloader.
-             * 
-             * @param scope
-             * @param element
-             * @param attr
-             * @returns
-             */
-            function postLink(scope, element) {
-                // Get Anchor
-                var _anchor = element; //
-//        .children(bodyElementSelector) //
-//        .children(placeholderElementSelector);
-                // TODO: maso, 2018: check auncher exist
-                scope.$watch('mbPreferenceId', function (id) {
-                    if (id) {
-                        $preferences.page(id)
-                                .then(function (page) {
-                                    loadPreference(scope, page, _anchor);
-                                }, function () {
-                                    // TODO: maso, 2017: handle errors
-                                });
-                    }
+            // Load preferences
+            anchor.empty();
+            anchor.append(link(childScope));
+            
+            $mdTheming(element);
+        });
+    }
+
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @returns
+     */
+    function postLink(scope, element) {
+        // Get Anchor
+        var _anchor = element; //
+//      .children(bodyElementSelector) //
+//      .children(placeholderElementSelector);
+        // TODO: maso, 2018: check auncher exist
+        scope.$watch('mbPreferenceId', function (id) {
+            if (id) {
+                $preferences.page(id)
+                .then(function (page) {
+                    loadPreference(scope, page, _anchor);
+                }, function () {
+                    // TODO: maso, 2017: handle errors
                 });
             }
-
-            return {
-                restrict: 'E',
-                templateUrl: 'views/directives/mb-preference-page.html',
-                replace: true,
-                scope: {
-                    mbPreferenceId: '='
-                },
-                link: postLink
-            };
         });
+    }
+
+    return {
+        restrict: 'E',
+        templateUrl: 'views/directives/mb-preference-page.html',
+        replace: true,
+        scope: {
+            mbPreferenceId: '='
+        },
+        link: postLink
+    };
+});
