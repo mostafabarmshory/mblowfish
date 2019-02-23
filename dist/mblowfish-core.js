@@ -715,61 +715,61 @@ angular.module('mblowfish-core')
  * Watches total system and update help data.
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
-	$rootScope.showHelp = false;
-	var lastLoaded;
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help, $wbUtil) {
+    $rootScope.showHelp = false;
+    var lastLoaded;
 
-        
-	/**
-	 * load help content for the item
-	 * 
-	 * @name loadHelpContent
-	 * @memberof MbHelpCtrl
-	 * @params item {object} an item to display help for
-	 */
-	function _loadHelpContent(item) {
-		if($scope.helpLoading){
-			// maso, 2018: cancle old loading
-			return $scope.helpLoading;
-		}
-		var path = $help.getHelpPath(item);
-		// load content
-		if(path && path !== lastLoaded){
-			$scope.helpLoading = $http.get(path) //
-			.then(function(res) {
-				$scope.helpContent = res.data;
-				lastLoaded = path;
-			})//
-			.finally(function(){
-				$scope.helpLoading = false;
-			});
-		}
-		return $scope.helpLoading;
-	}
 
-	$scope.closeHelp = function(){
-		$rootScope.showHelp = false;
-	};
+    /**
+     * load help content for the item
+     * 
+     * @name loadHelpContent
+     * @memberof MbHelpCtrl
+     * @params item {object} an item to display help for
+     */
+    function _loadHelpContent(item) {
+        if($scope.helpLoading){
+            // maso, 2018: cancle old loading
+            return $scope.helpLoading;
+        }
+        var path = $help.getHelpPath(item);
+        // load content
+        if(path && path !== lastLoaded){
+            $scope.helpLoading = $http.get(path) //
+            .then(function(res) {
+                $scope.helpContent = $wbUtil.clean(res.data);
+                lastLoaded = path;
+            })//
+            .finally(function(){
+                $scope.helpLoading = false;
+            });
+        }
+        return $scope.helpLoading;
+    }
 
-	/*
-	 * If user want to display help, content will be loaded.
-	 */
-	$scope.$watch('showHelp', function(value){
-		if(value) {
-			return _loadHelpContent();
-		}
-	});
+    $scope.closeHelp = function(){
+        $rootScope.showHelp = false;
+    };
 
-	/*
-	 * Watch for current item in help service
-	 */
-	$scope.$watch(function(){
-		return $help.currentItem();
-	}, function() {
-            if ($rootScope.showHelp) {
-                _loadHelpContent();
-            }
-        });
+    /*
+     * If user want to display help, content will be loaded.
+     */
+    $scope.$watch('showHelp', function(value){
+        if(value) {
+            return _loadHelpContent();
+        }
+    });
+
+    /*
+     * Watch for current item in help service
+     */
+    $scope.$watch(function(){
+        return $help.currentItem();
+    }, function() {
+        if ($rootScope.showHelp) {
+            _loadHelpContent();
+        }
+    });
 });
 //TODO: should be moved to mblowfish-core
 
@@ -4751,98 +4751,94 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular
-        .module('mblowfish-core')
-        /**
-         * @ngdoc Directives
-         * @name mb-preference-page
-         * @description Preference page
-         * 
-         * Preference page
-         * 
-         */
-        .directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
-                $rootScope, $mdTheming) {
+.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name mb-preference-page
+ * @description Preference page
+ * 
+ * Preference page
+ * 
+ */
+.directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
+        $rootScope, $mdTheming) {
 
-            var bodyElementSelector = 'div#mb-preference-body';
-            var placeholderElementSelector = 'div#mb-preference-placeholder';
-            /**
-             * 
-             */
-            function loadPreference($scope, page, anchor) {
-                // 1- create scope
-                var childScope = $scope.$new(false, $scope);
-                childScope.app = $rootScope.app;
-                // childScope.wbModel = model;
+    var bodyElementSelector = 'div#mb-preference-body';
+    var placeholderElementSelector = 'div#mb-preference-placeholder';
+    /**
+     * 
+     */
+    function loadPreference($scope, page, anchor) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope.app = $rootScope.app;
+        // childScope.wbModel = model;
 
-                // 2- create element
-                $wbUtil
-                        .getTemplateFor(page)
-                        .then(function (template) {
-                            var element = angular.element(template);
-                            $mdTheming(element);
+        // 2- create element
+        $wbUtil.getTemplateFor(page)
+        .then(function (template) {
+            var element = angular.element(template);
 
-                            // 3- bind controller
-                            var link = $compile(element);
-                            if (angular
-                                    .isDefined(page.controller)) {
-                                var locals = {
-                                    $scope: childScope,
-                                    $element: element
-                                            // TODO: maso, 2018:
-                                };
-                                var controller = $controller(
-                                        page.controller, locals);
-                                if (page.controllerAs) {
-                                    childScope[page.controllerAs] = controller;
-                                }
-                                element
-                                        .data(
-                                                '$ngControllerController',
-                                                controller);
-                            }
-
-                            // Load preferences
-                            anchor.empty();
-                            anchor.append(link(childScope));
-                        });
+            // 3- bind controller
+            var link = $compile(element);
+            if (angular.isDefined(page.controller)) {
+                var locals = {
+                        $scope: childScope,
+                        $element: element
+                        // TODO: maso, 2018:
+                };
+                var controller = $controller(
+                        page.controller, locals);
+                if (page.controllerAs) {
+                    childScope[page.controllerAs] = controller;
+                }
+                element.data('$ngControllerController', controller);
             }
 
-            /**
-             * Adding preloader.
-             * 
-             * @param scope
-             * @param element
-             * @param attr
-             * @returns
-             */
-            function postLink(scope, element) {
-                // Get Anchor
-                var _anchor = element; //
-//        .children(bodyElementSelector) //
-//        .children(placeholderElementSelector);
-                // TODO: maso, 2018: check auncher exist
-                scope.$watch('mbPreferenceId', function (id) {
-                    if (id) {
-                        $preferences.page(id)
-                                .then(function (page) {
-                                    loadPreference(scope, page, _anchor);
-                                }, function () {
-                                    // TODO: maso, 2017: handle errors
-                                });
-                    }
+            // Load preferences
+            anchor.empty();
+            anchor.append(link(childScope));
+            
+            $mdTheming(element);
+        });
+    }
+
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @returns
+     */
+    function postLink(scope, element) {
+        // Get Anchor
+        var _anchor = element; //
+//      .children(bodyElementSelector) //
+//      .children(placeholderElementSelector);
+        // TODO: maso, 2018: check auncher exist
+        scope.$watch('mbPreferenceId', function (id) {
+            if (id) {
+                $preferences.page(id)
+                .then(function (page) {
+                    loadPreference(scope, page, _anchor);
+                }, function () {
+                    // TODO: maso, 2017: handle errors
                 });
             }
-
-            return {
-                restrict: 'E',
-                templateUrl: 'views/directives/mb-preference-page.html',
-                replace: true,
-                scope: {
-                    mbPreferenceId: '='
-                },
-                link: postLink
-            };
         });
+    }
+
+    return {
+        restrict: 'E',
+        templateUrl: 'views/directives/mb-preference-page.html',
+        replace: true,
+        scope: {
+            mbPreferenceId: '='
+        },
+        link: postLink
+    };
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7602,161 +7598,161 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-        /**
-         * @ngdoc Services
-         * @name $help
-         * @description A help management service
-         * 
-         * Manage application help.
-         * 
-         * Set help id for an item:
-         * 
-         * <pre><code>
-         * 	var item = {
-         * 		...
-         * 		helpId: 'help-id'
-         * 	};
-         * 	$help.openHelp(item);
-         * </code></pre>
-         * 
-         * 
-         * 
-         * Open help for an item:
-         * 
-         * <pre><code>
-         * $help.openHelp(item);
-         * </code></pre>
-         * 
-         */
-        .service('$help', function ($q, $rootScope, $translate, $injector) {
+/**
+ * @ngdoc Services
+ * @name $help
+ * @description A help management service
+ * 
+ * Manage application help.
+ * 
+ * Set help id for an item:
+ * 
+ * <pre><code>
+ * 	var item = {
+ * 		...
+ * 		helpId: 'help-id'
+ * 	};
+ * 	$help.openHelp(item);
+ * </code></pre>
+ * 
+ * 
+ * 
+ * Open help for an item:
+ * 
+ * <pre><code>
+ * $help.openHelp(item);
+ * </code></pre>
+ * 
+ */
+.service('$help', function ($q, $rootScope, $translate, $injector) {
 
-            var _tips = [];
-            var _currentItem = null;
+    var _tips = [];
+    var _currentItem = null;
 
-            /*
-             * Get help id
-             */
-            function _getHelpId(item) {
-                if (!item) {
-                    return null;
-                }
-                var id = item.helpId;
-                if (angular.isFunction(item.helpId)) {
-                    return $injector.invoke(item.helpId, item);
-                }
-                return id;
-            }
+    /*
+     * Get help id
+     */
+    function _getHelpId(item) {
+        if (!item) {
+            return null;
+        }
+        var id = item.helpId;
+        if (angular.isFunction(item.helpId)) {
+            return $injector.invoke(item.helpId, item);
+        }
+        return id;
+    }
 
-            /**
-             * Adds new tip
-             * 
-             * New tip is added into the tips list.
-             * 
-             * @memberof $help
-             * @param {object}
-             *            tipData - Data of a tipe
-             */
-            function tip(tipData) {
-                _tips.push(tipData);
-                return this;
-            }
+    /**
+     * Adds new tip
+     * 
+     * New tip is added into the tips list.
+     * 
+     * @memberof $help
+     * @param {object}
+     *            tipData - Data of a tipe
+     */
+    function tip(tipData) {
+        _tips.push(tipData);
+        return this;
+    }
 
-            /**
-             * List of tips
-             * 
-             * @memberof $help
-             * @return {promise<Array>} of tips
-             */
-            function tips() {
-                return $q.resolve({
-                    items: _tips
-                });
-            }
-
-            /**
-             * Gets current item in help system
-             * 
-             * @memberof $help
-             * @return {Object} current item
-             */
-            function currentItem() {
-                return _currentItem;
-            }
-
-            /**
-             * Sets current item in help system
-             * 
-             * @memberof $help
-             * @params item {Object} target of the help system
-             */
-            function setCurrentItem(item) {
-                _currentItem = item;
-            }
-
-            /**
-             * Gets help path
-             * 
-             * @memberof $help
-             * @params item {Object} an item to show help for
-             * @return path of the help
-             */
-            function getHelpPath(item) {
-                // Get from help id
-                var myId = _getHelpId(item || _currentItem);
-                if (myId) {
-                    var lang = $translate.use();
-                    // load content
-                    return 'resources/helps/' + myId + '-' + lang + '.json';
-                }
-
-                return null;
-            }
-
-            /**
-             * Check if there exist a help on item
-             * 
-             * @memberof $help
-             * @params item {Object} an item to show help for
-             * @return path if the item if exist help or false
-             */
-            function hasHelp(item) {
-                return !!_getHelpId(item);
-            }
-
-            /**
-             * Display help for an item
-             * 
-             * This function change current item automatically and display help for it.
-             * 
-             * @memberof $help
-             * @params item {Object} an item to show help for
-             */
-            function openHelp(item) {
-                if (!hasHelp(item)) {
-                    return;
-                }
-                if (_currentItem === item) {
-                    $rootScope.showHelp = !$rootScope.showHelp;
-                    return;
-                }
-                setCurrentItem(item);
-                $rootScope.showHelp = true;
-            }
-
-            /*
-             * Service structure
-             */
-            return {
-                tip: tip,
-                tips: tips,
-
-                currentItem: currentItem,
-                setCurrentItem: setCurrentItem,
-                openHelp: openHelp,
-                hasHelp: hasHelp,
-                getHelpPath: getHelpPath
-            };
+    /**
+     * List of tips
+     * 
+     * @memberof $help
+     * @return {promise<Array>} of tips
+     */
+    function tips() {
+        return $q.resolve({
+            items: _tips
         });
+    }
+
+    /**
+     * Gets current item in help system
+     * 
+     * @memberof $help
+     * @return {Object} current item
+     */
+    function currentItem() {
+        return _currentItem;
+    }
+
+    /**
+     * Sets current item in help system
+     * 
+     * @memberof $help
+     * @params item {Object} target of the help system
+     */
+    function setCurrentItem(item) {
+        _currentItem = item;
+    }
+
+    /**
+     * Gets help path
+     * 
+     * @memberof $help
+     * @params item {Object} an item to show help for
+     * @return path of the help
+     */
+    function getHelpPath(item) {
+        // Get from help id
+        var myId = _getHelpId(item || _currentItem);
+        if (myId) {
+            var lang = $translate.use();
+            // load content
+            return 'resources/helps/' + myId + '-' + lang + '.json';
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if there exist a help on item
+     * 
+     * @memberof $help
+     * @params item {Object} an item to show help for
+     * @return path if the item if exist help or false
+     */
+    function hasHelp(item) {
+        return !!_getHelpId(item);
+    }
+
+    /**
+     * Display help for an item
+     * 
+     * This function change current item automatically and display help for it.
+     * 
+     * @memberof $help
+     * @params item {Object} an item to show help for
+     */
+    function openHelp(item) {
+        if (!hasHelp(item)) {
+            return;
+        }
+        if (_currentItem === item) {
+            $rootScope.showHelp = !$rootScope.showHelp;
+            return;
+        }
+        setCurrentItem(item);
+        $rootScope.showHelp = true;
+    }
+
+    /*
+     * Service structure
+     */
+    return {
+        tip: tip,
+        tips: tips,
+
+        currentItem: currentItem,
+        setCurrentItem: setCurrentItem,
+        openHelp: openHelp,
+        hasHelp: hasHelp,
+        getHelpPath: getHelpPath
+    };
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -9182,7 +9178,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<div layout=column ng-cloak flex> <table layout=row> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
+    "<md-content layout=column ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </md-content>"
   );
 
 
@@ -9267,7 +9263,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent></wb-group> </md-content>"
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
   );
 
 
