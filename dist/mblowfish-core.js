@@ -3205,6 +3205,53 @@ angular.module('mblowfish-core')
         link: postLink
     };
 });
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-context-menu
+ * @description Set internal md-menu as context menu
+ * 
+ */
+.directive('mbContextMenu', function() {
+	return {
+		restrict : 'A',
+		require : 'mdMenu',
+		scope : true,
+		link : function(scope, element, attrs, menu) {
+			element.bind('contextmenu', function(event) {
+	            scope.$apply(function() {
+					menu.open(event);
+	            });
+	        });
+		}
+	};
+});
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -4678,6 +4725,124 @@ angular.module('mblowfish-core')
 		link: postLink
 	};
 });
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('ngMaterialHomeShop')
+
+	/**
+	 *
+	 */
+	.directive('mbPay', function ($bank, $parse, $location, $navigator) {
+
+	    function postLink(scope, elem, attrs) {
+
+		this.loadGates = function () {
+		    if (this.loadingGates) {
+			return;
+		    }
+		    this.loadingGates = true;
+		    var ctrl = this;
+		    return $bank.getBackends()//
+			    .then(function (gatesPag) {
+				scope.gates = gatesPag.items;
+				return gatesPag;
+			    })//
+			    .finally(function () {
+				ctrl.loadingGates = false;
+			    });
+		};
+
+		//function pay(backend, discountCode){
+		this.pay = function (backend, discountCode) {
+		    // create receipt and send to bank receipt page.
+		    var data = {
+			backend: backend.id,
+			callback: attrs.mbCallbackUrl ? attrs.mbCallbackUrl : $location.absUrl()
+		    };
+		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
+			data.discount_code = discountCode;
+		    }
+		    $parse(attrs.mbPay)(scope.$parent, {
+			$backend: backend,
+			$discount: discountCode,
+			$callback: data.callback,
+			$data: data
+		    })
+			    .then(function (receipt) {
+				$navigator.openPage('bank/receipts/' + receipt.id);
+			    });
+		};
+
+//		function checkDiscount(code){
+//			$discount.discount(code)//
+//			.then(function(discount){
+//				if(typeof discount.validation_code === 'undefined' || discount.validation_code === 0){
+//					$scope.discount_message = 'discount is valid';
+//				}else{
+//					switch(discount.validation_code){
+//					case 1:
+//						$scope.discount_message = 'discount is used before';
+//						break;
+//					case 2: 
+//						$scope.discount_message = 'discount is expired';
+//						break;
+//					case 3: 
+//						// discount is not owned by user.
+//						$scope.discount_message = 'discount is not valid';
+//						break;
+//					}
+//				}
+//			}, function(error){
+//				$scope.error = error.data.message;
+//				if(error.status === 404){				
+//					$scope.discount_message = 'discount is not found';
+//				}else{
+//					$scope.discount_message = 'unknown error while get discount info';
+//				}
+//			});
+//		}
+
+		this.loadGates();
+
+		scope.ctrl = this;
+	    }
+
+
+	    return {
+		replace: true,
+		restrict: 'E',
+		templateUrl: 'views/directives/mb-pay.html',
+		scope: {
+		    mbCallbackUrl: '@?',
+		    mbPay: '@',
+		    mbDiscountEnable: '='
+		},
+		link: postLink
+
+	    };
+	});
+
 /* 
  * The MIT License (MIT)
  * 
@@ -9032,6 +9197,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-panel.html',
     "<div id=mb-panel-root md-theme=\"{{app.setting.theme|| app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir === 'rtl', 'mb-ltr-direction': app.dir !== 'rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h3>Loading...</h3>   <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.options['captcha.engine'] === 'recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=\"app.options['captcha.engine.recaptcha.key']\" lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div> </div>"
+  );
+
+
+  $templateCache.put('views/directives/mb-pay.html',
+    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=ctrl.loadingGates md-mode=indeterminate class=md-primary md-color> </md-progress-linear> <p ng-if=\"gates && gates.length\" translate>Select gate to pay</p> <div layout=row layout-align=\"center center\" ng-if=!ctrl.loadingGates> <md-button ng-repeat=\"gate in gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> </div>"
   );
 
 

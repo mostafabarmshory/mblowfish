@@ -21,7 +21,7 @@
  */
 'use strict';
 
-angular.module('ngMaterialHomeShop')
+angular.module('mblowfish-core')
 
 	/**
 	 *
