@@ -23,39 +23,21 @@
 
 angular.module('mblowfish-core')
 
-.run(function($window, $rootScope, $location) {
-	var scriptIsLoaded = false;
+.run(function($window, $rootScope, $location, $wbLibs) {
 	var watcherIsLoaded = false;
 	var googleValue;
 
-	/*
-	   <!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js"></script>
-		<script>
-		  window.dataLayer = window.dataLayer || [];
-		  function gtag(){dataLayer.push(arguments);}
-		  window.gtag = gtag
-		</script>
-	 */
 	function loadScript(value){
-		googleValue = value; 
-		if(!scriptIsLoaded){
-			var script=document.createElement('script');
-			script.src='https://www.googletagmanager.com/gtag/js';
-			script.async=1;
-			script.onload = function(){
-				$window.dataLayer = $window.dataLayer || [];
-				function gtag(){
-					$window.dataLayer.push(arguments);
-				};
-				$window.gtag = gtag
-				$window.gtag('js', new Date());
-				$window.gtag('config', value);
+		$wbLibs.load('https://www.googletagmanager.com/gtag/js')
+		.then(function(){
+			$window.dataLayer = $window.dataLayer || [];
+			function gtag(){
+				$window.dataLayer.push(arguments);
 			};
-			document.getElementsByTagName('head')[0].appendChild(script);
-			scriptIsLoaded = true;
-			return;
-		}
+			$window.gtag = gtag
+			$window.gtag('js', new Date());
+			$window.gtag('config', value);
+		});
 		$window.gtag('js', new Date());
 		$window.gtag('config', value);
 	}

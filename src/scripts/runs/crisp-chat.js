@@ -26,20 +26,7 @@ angular.module('mblowfish-core')
 /*
  * Enable crisp chat
  */
-.run(function($window, $rootScope, $location) {
-	var crispLoaded = false;
-
-	function loadCrisp(id){
-		$window.$crisp=[];
-		$window.CRISP_WEBSITE_ID = id;
-		if(!crispLoaded){ // load crisp 
-			var script=document.createElement('script');
-			script.src='https://client.crisp.chat/l.js';
-			script.async=1;
-			document.getElementsByTagName('head')[0].appendChild(script);
-		}
-		crispLoaded = true;
-	}
+.run(function($window, $rootScope, $location, $wbLibs) {
 
 	/*
 	 * Watch system configuration
@@ -48,6 +35,9 @@ angular.module('mblowfish-core')
 		if (!value) {
 			return;
 		}
-		loadCrisp(value);
+		
+		$wbLibs.load('https://client.crisp.chat/l.js');
+		$window.$crisp=[];
+		$window.CRISP_WEBSITE_ID = id;
 	});
 });
