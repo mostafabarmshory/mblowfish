@@ -21,24 +21,35 @@
  */
 'use strict';
 
-angular.module('ngMaterialHomeShop')
+angular.module('mblowfish-core')
 
 	/**
 	 *
 	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator) {
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, QueryParameter) {
 
-	    function postLink(scope, elem, attrs) {
+	    var qp = new QueryParameter();
+
+	    function postLink(scope, elem, attrs, ctrls) {
+		var ngModelCtrl = ctrls[0];
+		var ctrl = this;
+		ngModelCtrl.$render = function () {
+		    ctrl.currency = ngModelCtrl.$modelValue;
+		    if (ctrl.currency) {
+			ctrl.loadGates();
+		    }
+		};
 
 		this.loadGates = function () {
 		    if (this.loadingGates) {
 			return;
 		    }
 		    this.loadingGates = true;
+		    qp.setFilter('currency', this.currency);
 		    var ctrl = this;
-		    return $bank.getBackends()//
+		    return $bank.getBackends(qp)//
 			    .then(function (gatesPag) {
-				scope.gates = gatesPag.items;
+				ctrl.gates = gatesPag.items;
 				return gatesPag;
 			    })//
 			    .finally(function () {
@@ -61,7 +72,7 @@ angular.module('ngMaterialHomeShop')
 			$discount: discountCode,
 			$callback: data.callback,
 			$data: data
-		    })
+		    })//
 			    .then(function (receipt) {
 				$navigator.openPage('bank/receipts/' + receipt.id);
 			    });
@@ -96,11 +107,10 @@ angular.module('ngMaterialHomeShop')
 //			});
 //		}
 
-		this.loadGates();
+		
 
 		scope.ctrl = this;
 	    }
-
 
 	    return {
 		replace: true,
@@ -111,7 +121,7 @@ angular.module('ngMaterialHomeShop')
 		    mbPay: '@',
 		    mbDiscountEnable: '='
 		},
-		link: postLink
-
+		link: postLink,
+		require: ['ngModel']
 	    };
 	});
