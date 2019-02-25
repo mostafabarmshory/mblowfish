@@ -38,6 +38,6 @@ angular.module('mblowfish-core')
 		
 		$wbLibs.load('https://client.crisp.chat/l.js');
 		$window.$crisp=[];
-		$window.CRISP_WEBSITE_ID = id;
+		$window.CRISP_WEBSITE_ID = value;
 	});
 });

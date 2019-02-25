@@ -38,8 +38,6 @@ angular.module('mblowfish-core')
 			$window.gtag('js', new Date());
 			$window.gtag('config', value);
 		});
-		$window.gtag('js', new Date());
-		$window.gtag('config', value);
 	}
 
 	function loadWatchers() {
@@ -52,8 +50,6 @@ angular.module('mblowfish-core')
 
 	function createEvent(){
 		var event = {
-//				page_title: 'homepage',
-//				page_location: 'LOCATION',
 				page_path: $location.path()
 		};
 		return event;
