@@ -4748,24 +4748,35 @@ angular.module('mblowfish-core')
  */
 'use strict';
 
-angular.module('ngMaterialHomeShop')
+angular.module('mblowfish-core')
 
 	/**
 	 *
 	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator) {
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, QueryParameter) {
 
-	    function postLink(scope, elem, attrs) {
+	    var qp = new QueryParameter();
+
+	    function postLink(scope, elem, attrs, ctrls) {
+		var ngModelCtrl = ctrls[0];
+		var ctrl = this;
+		ngModelCtrl.$render = function () {
+		    ctrl.currency = ngModelCtrl.$modelValue;
+		    if (ctrl.currency) {
+			ctrl.loadGates();
+		    }
+		};
 
 		this.loadGates = function () {
 		    if (this.loadingGates) {
 			return;
 		    }
 		    this.loadingGates = true;
+		    qp.setFilter('currency', this.currency);
 		    var ctrl = this;
-		    return $bank.getBackends()//
+		    return $bank.getBackends(qp)//
 			    .then(function (gatesPag) {
-				scope.gates = gatesPag.items;
+				ctrl.gates = gatesPag.items;
 				return gatesPag;
 			    })//
 			    .finally(function () {
@@ -4823,7 +4834,7 @@ angular.module('ngMaterialHomeShop')
 //			});
 //		}
 
-		this.loadGates();
+		
 
 		scope.ctrl = this;
 	    }
@@ -4838,7 +4849,8 @@ angular.module('ngMaterialHomeShop')
 		    mbPay: '@',
 		    mbDiscountEnable: '='
 		},
-		link: postLink
+		link: postLink,
+		require: ['ngModel']
 
 	    };
 	});
@@ -9201,7 +9213,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pay.html',
-    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=ctrl.loadingGates md-mode=indeterminate class=md-primary md-color> </md-progress-linear> <p ng-if=\"gates && gates.length\" translate>Select gate to pay</p> <div layout=row layout-align=\"center center\" ng-if=!ctrl.loadingGates> <md-button ng-repeat=\"gate in gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> </div>"
+    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=ctrl.loadingGates md-mode=indeterminate class=md-primary md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
   );
 
 
