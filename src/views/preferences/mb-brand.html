@@ -1,15 +1,16 @@
-<div 
+<div
 	layout="column" 
 	layout-margin
 	ng-cloak
 	flex>
-	<md-input-container class="md-block">
-	  <label translate>Title</label>
-	  <input 
-  		required 
-  		md-no-asterisk 
-  		name="title" 
-  		ng-model="app.config.title" />
+	<md-input-container 
+		class="md-block">
+		<label translate>Title</label>
+		<input 
+			required 
+			md-no-asterisk 
+			name="title" 
+			ng-model="app.config.title" />
 	</md-input-container>
 	<md-input-container class="md-block">
 	  <label translate>Description</label>
@@ -30,4 +31,4 @@
 	    wb-ui-setting-preview="true"
         ng-model="app.config.favicon">
 	</wb-ui-setting-image>
-</div>
+</md-content>

@@ -7,10 +7,10 @@
       <md-button
         ng-if="mbIcon"
         md-no-ink class="md-icon-button"
-        aria-label="{{mbIcon}}">
-        <wb-icon>{{mbIcon}}</wb-icon>
+        aria-label="{{::mbIcon}}">
+        <wb-icon>{{::mbIcon}}</wb-icon>
       </md-button>
-      <h2 flex md-truncate ng-if="mbTitle">{{mbTitle}}</h2>
+      <h2 flex md-truncate ng-if="mbTitle">{{::mbTitle}}</h2>
       <md-button
         ng-if="mbReload"
         class="md-icon-button"
@@ -54,9 +54,9 @@
             ng-repeat="item in mbMoreActions">
             <md-button
               ng-click="item.action()"
-              aria-label="{{item.title}}">
-              <wb-icon ng-show="item.icon">{{item.icon}}</wb-icon>
-              <span translate="">{{ item.title }}</span>
+              aria-label="{{::item.title}}">
+              <wb-icon ng-show="item.icon">{{::item.icon}}</wb-icon>
+              <span translate="">{{::item.title }}</span>
             </md-button>
           </md-menu-item>
         </md-menu-content>
@@ -83,7 +83,7 @@
       	class="md-block fit-input">
         <input
           id="searchInput"
-          placeholder="{{'Search'|translate}}"
+          placeholder="{{::'Search'|translate}}"
           ng-model="query.searchTerm"
           ng-model-options="{debounce:1000}">
       </md-input-container>
@@ -113,14 +113,14 @@
         	layout="row" 
         	style="text-transform: none;"
             ng-click="$mdMenu.open()">
-          <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3>
+          <h3>{{::mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3>
         </md-button>
         <md-menu-content width="4">
           <md-menu-item ng-repeat="key in mbSortKeys">
             <md-button ng-click="query.sortBy=key">
               <wb-icon ng-if="query.sortBy===key">check_circle</wb-icon>
               <wb-icon ng-if="query.sortBy!==key">radio_button_unchecked</wb-icon>
-              {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}}
+              {{::mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}}
             </md-button>
           </md-menu-item>
         </md-menu-content>
@@ -134,21 +134,21 @@
             ng-click="$mdMenu.open()">
           <wb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</wb-icon>
           <wb-icon ng-if="query.sortDesc">filter_list</wb-icon>
-          {{query.sortDesc?'Descending':'Ascending'|translate}}
+          {{::query.sortDesc?'Descending':'Ascending'|translate}}
         </md-button>
         <md-menu-content width="4">
           <md-menu-item>
             <md-button ng-click="query.sortDesc=false">
               <wb-icon ng-if="!query.sortDesc">check_circle</wb-icon>
               <wb-icon ng-if="query.sortDesc">radio_button_unchecked</wb-icon>
-              {{'Ascending'|translate}}
+              {{::'Ascending'|translate}}
             </md-button>
           </md-menu-item>
           <md-menu-item>
             <md-button ng-click="query.sortDesc=true">
               <wb-icon ng-if="query.sortDesc">check_circle</wb-icon>
               <wb-icon ng-if="!query.sortDesc">radio_button_unchecked</wb-icon>
-              {{'Descending'|translate}}
+              {{::'Descending'|translate}}
             </md-button>
           </md-menu-item>
         </md-menu-content>

@@ -26,32 +26,18 @@ angular.module('mblowfish-core')
 /*
  * Enable crisp chat
  */
-.run(function($window, $rootScope, $location) {
-	var crispLoaded = false;
-	
-	function loadCrisp(id){
-		$window.$crisp=[];
-		$window.CRISP_WEBSITE_ID = id;
-		{ // load crisp 
-			var d=document;
-			var s=d.createElement('script');
-			s.src='https://client.crisp.chat/l.js';
-			s.async=1;
-			d.getElementsByTagName('head')[0].appendChild(s);
-		}
-		crispLoaded = true;
-	}
-	
+.run(function($window, $rootScope, $location, $wbLibs) {
+
 	/*
 	 * Watch system configuration
 	 */
-    $rootScope.$watch('app.config.crisp.id', function(value){
-        if (!value) {
-            return;
-        }
-        
-        if(!crispLoaded){
-        	loadCrisp(value);
-        }
-    });
+	$rootScope.$watch('app.config.crisp.id', function(value){
+		if (!value) {
+			return;
+		}
+		
+		$wbLibs.load('https://client.crisp.chat/l.js');
+		$window.$crisp=[];
+		$window.CRISP_WEBSITE_ID = id;
+	});
 });

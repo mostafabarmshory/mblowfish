@@ -715,61 +715,61 @@ angular.module('mblowfish-core')
  * Watches total system and update help data.
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
-	$rootScope.showHelp = false;
-	var lastLoaded;
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help, $wbUtil) {
+    $rootScope.showHelp = false;
+    var lastLoaded;
 
-        
-	/**
-	 * load help content for the item
-	 * 
-	 * @name loadHelpContent
-	 * @memberof MbHelpCtrl
-	 * @params item {object} an item to display help for
-	 */
-	function _loadHelpContent(item) {
-		if($scope.helpLoading){
-			// maso, 2018: cancle old loading
-			return $scope.helpLoading;
-		}
-		var path = $help.getHelpPath(item);
-		// load content
-		if(path && path !== lastLoaded){
-			$scope.helpLoading = $http.get(path) //
-			.then(function(res) {
-				$scope.helpContent = res.data;
-				lastLoaded = path;
-			})//
-			.finally(function(){
-				$scope.helpLoading = false;
-			});
-		}
-		return $scope.helpLoading;
-	}
 
-	$scope.closeHelp = function(){
-		$rootScope.showHelp = false;
-	};
+    /**
+     * load help content for the item
+     * 
+     * @name loadHelpContent
+     * @memberof MbHelpCtrl
+     * @params item {object} an item to display help for
+     */
+    function _loadHelpContent(item) {
+        if($scope.helpLoading){
+            // maso, 2018: cancle old loading
+            return $scope.helpLoading;
+        }
+        var path = $help.getHelpPath(item);
+        // load content
+        if(path && path !== lastLoaded){
+            $scope.helpLoading = $http.get(path) //
+            .then(function(res) {
+                $scope.helpContent = $wbUtil.clean(res.data);
+                lastLoaded = path;
+            })//
+            .finally(function(){
+                $scope.helpLoading = false;
+            });
+        }
+        return $scope.helpLoading;
+    }
 
-	/*
-	 * If user want to display help, content will be loaded.
-	 */
-	$scope.$watch('showHelp', function(value){
-		if(value) {
-			return _loadHelpContent();
-		}
-	});
+    $scope.closeHelp = function(){
+        $rootScope.showHelp = false;
+    };
 
-	/*
-	 * Watch for current item in help service
-	 */
-	$scope.$watch(function(){
-		return $help.currentItem();
-	}, function() {
-            if ($rootScope.showHelp) {
-                _loadHelpContent();
-            }
-        });
+    /*
+     * If user want to display help, content will be loaded.
+     */
+    $scope.$watch('showHelp', function(value){
+        if(value) {
+            return _loadHelpContent();
+        }
+    });
+
+    /*
+     * Watch for current item in help service
+     */
+    $scope.$watch(function(){
+        return $help.currentItem();
+    }, function() {
+        if ($rootScope.showHelp) {
+            _loadHelpContent();
+        }
+    });
 });
 //TODO: should be moved to mblowfish-core
 
@@ -2162,295 +2162,341 @@ angular.module('mblowfish-core')
  * @ngInject
  */
 function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
-    var STATE_INIT = 'init';
-    var STATE_BUSY = 'busy';
-    var STATE_IDEAL = 'ideal';
-    this.state = STATE_IDEAL;
-    
-    this.actions = [];
+	var STATE_INIT = 'init';
+	var STATE_BUSY = 'busy';
+	var STATE_IDEAL = 'ideal';
+	this.state = STATE_IDEAL;
+
+	this.actions = [];
 
 
-    /**
-     * List of all loaded items
-     * 
-     * All loaded items will be stored into this variable for later usage. This
-     * is related to view.
-     * 
-     * @type array
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.items = [];
+	/**
+	 * List of all loaded items
+	 * 
+	 * All loaded items will be stored into this variable for later usage. This
+	 * is related to view.
+	 * 
+	 * @type array
+	 * @memberof SeenAbstractCollectionCtrl
+	 */
+	this.items = [];
 
-    /**
-     * State of the controller
-     * 
-     * Controller may be in several state in the lifecycle. The state of the
-     * controller will be stored in this variable.
-     * 
-     * <ul>
-     * <li>init: the controller is not ready</li>
-     * <li>busy: controller is busy to do something (e. loading list of data)</li>
-     * <li>ideal: controller is ideal and wait for user </li>
-     * </ul>
-     * 
-     * @type string
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.state = STATE_INIT;
+	/**
+	 * State of the controller
+	 * 
+	 * Controller may be in several state in the lifecycle. The state of the
+	 * controller will be stored in this variable.
+	 * 
+	 * <ul>
+	 * <li>init: the controller is not ready</li>
+	 * <li>busy: controller is busy to do something (e. loading list of data)</li>
+	 * <li>ideal: controller is ideal and wait for user </li>
+	 * </ul>
+	 * 
+	 * @type string
+	 * @memberof SeenAbstractCollectionCtrl
+	 */
+	this.state = STATE_INIT;
 
-    /**
-     * Store last paginated response
-     * 
-     * This is a collection controller and suppose the result of query to be a
-     * valid paginated collection. The last response from data layer will be
-     * stored in this variable.
-     * 
-     * @type PaginatedCollection
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.lastResponse = null;
+	/**
+	 * Store last paginated response
+	 * 
+	 * This is a collection controller and suppose the result of query to be a
+	 * valid paginated collection. The last response from data layer will be
+	 * stored in this variable.
+	 * 
+	 * @type PaginatedCollection
+	 * @memberof SeenAbstractCollectionCtrl
+	 */
+	this.lastResponse = null;
 
-    /**
-     * Query parameter
-     * 
-     * This is the query parameter which is used to query items from the data
-     * layer.
-     * 
-     * @type QueryParameter
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.queryParameter = new QueryParameter();
-    this.queryParameter.setOrder('id', 'd');
+	/**
+	 * Query parameter
+	 * 
+	 * This is the query parameter which is used to query items from the data
+	 * layer.
+	 * 
+	 * @type QueryParameter
+	 * @memberof SeenAbstractCollectionCtrl
+	 */
+	this.queryParameter = new QueryParameter();
+	this.queryParameter.setOrder('id', 'd');
 
+	/**
+	 * Gets the query parameter
+	 * 
+	 * NOTE: if you change the query parameter then you are responsible to
+	 * call reload the controller too.
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @returns QueryParameter
+	 */
+	this.getQueryParameter = function(){
+		return this.queryParameter;
+	}
 
-    /**
-     * Reload the controller
-     * 
-     * Remove all old items and reload the controller state. If the controller
-     * is in progress, then cancel the old promiss and start the new job.
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     * @returns promiss to reload
-     */
-    this.reload = function(){
-        // relaod data
-        delete this.lastResponse;
-        this.items = [];
-        this.queryParameter.setPage(1);
-        return this.loadNextPage();
-    };
+	/**
+	 * Checks if the state is busy
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @returns true if the state is ideal
+	 */
+	this.isBusy = function(){
+		return this.state === STATE_BUSY;
+	}
 
-    /**
-     * Loads and init the controller
-     * 
-     * All childs must call this function at the end of the cycle
-     */
-    this.init = function(){
-        var ctrl = this;
-        this.state=STATE_IDEAL;
-    };
+	/**
+	 * Checks if the state is ideal
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @returns true if the state is ideal
+	 */
+	this.isIdeal = function(){
+		return this.state === STATE_IDEAL;
+	}
 
-    /**
-     * Loads next page
-     * 
-     * Load next page and add to the current items.
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     * @returns promiss to load next page
-     */
-    this.loadNextPage = function() {
-        // Check functions
-        if(!angular.isFunction(this.getItems)){
-            throw 'The controller does not implement getItems function';
-        }
+	/**
+	 * Reload the controller
+	 * 
+	 * Remove all old items and reload the controller state. If the controller
+	 * is in progress, then cancel the old promiss and start the new job.
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @returns promiss to reload
+	 */
+	this.reload = function(){
+		// safe reload
+		var ctrl = this;
+		function safeReload(){
+			delete ctrl.lastResponse;
+			ctrl.items = [];
+			ctrl.queryParameter.setPage(1);
+			return ctrl.loadNextPage();
+		}
 
-        if (this.state === STATE_INIT) {
-            throw 'this.init() function is not called in the controller';
-        }
+		// check states
+		if(this.isBusy()){
+			return this.getLastQeury()
+			.then(safeReload);
+		}
+		return safeReload();
+	};
 
-        // check state
-        if (this.state !== STATE_IDEAL) {
-            if(this.lastQuery){
-                return this.lastQuery;
-            }
-            throw 'Items controller is not in ideal state';
-        }
+	/**
+	 * Loads and init the controller
+	 * 
+	 * All childs must call this function at the end of the cycle
+	 */
+	this.init = function(){
+		var ctrl = this;
+		this.state=STATE_IDEAL;
+	};
 
-        // set next page
-        if (this.lastResponse) {
-            if(!this.lastResponse.hasMore()){
-                return $q.resolve();
-            }
-            this.queryParameter.setPage(this.lastResponse.getNextPageIndex());
-        }
+	/**
+	 * Loads next page
+	 * 
+	 * Load next page and add to the current items.
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @returns promiss to load next page
+	 */
+	this.loadNextPage = function() {
+		// Check functions
+		if(!angular.isFunction(this.getItems)){
+			throw 'The controller does not implement getItems function';
+		}
 
-        // Get new items
-        this.state = STATE_BUSY;
-        var ctrl = this;
-        this.lastQuery = this.getItems(this.queryParameter)//
-        .then(function(response) {
-            ctrl.lastResponse = response;
-            ctrl.items = ctrl.items.concat(response.items);
-            ctrl.error = null;
-        }, function(error){
-            ctrl.error = error;
-        })//
-        .finally(function(){
-            ctrl.state = STATE_IDEAL;
-            delete ctrl.lastQuery;
-        });
-        return this.lastQuery;
-    };
+		if (this.state === STATE_INIT) {
+			throw 'this.init() function is not called in the controller';
+		}
 
+		// check state
+		if (this.state !== STATE_IDEAL) {
+			if(this.lastQuery){
+				return this.lastQuery;
+			}
+			throw 'Items controller is not in ideal state';
+		}
 
-    /**
-     * Set a GraphQl format of data
-     * 
-     * By setting this the controller is not sync and you have to reload the
-     * controller. It is better to set the data query at the start time.
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     * @param graphql
-     */
-    this.setDataQuery = function(grqphql){
-        this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
-        // TODO: maso, 2018: check if refresh is required
-    };
+		// set next page
+		if (this.lastResponse) {
+			if(!this.lastResponse.hasMore()){
+				return $q.resolve();
+			}
+			this.queryParameter.setPage(this.lastResponse.getNextPageIndex());
+		}
 
-    /**
-     * Get properties to sort
-     * 
-     * @return array of getProperties to use in search, sort and filter
-     */
-    this.getProperties = function(){
-        if(!angular.isArray(this._schema)){
-            this._schema = [];
-        };
-    	
-    	// Check if the process is in progress
-    	if(this._properties_lock || // process is locked
-    			!angular.isFunction(this.getSchema) || // impossible to load schema
-    			this._schema.length) { // schema is loaded
-    		return this._schema;
-    	}
-    	
-        /*
-         * Load schema
-         */
-        var ctrl = this;
-        this._properties_lock = $q.when(this.getSchema())
-        .then(function(schema){
-            ctrl._schema = schema;
-        });
-        // view must check later
-        return this._schema;
-    };
+		// Get new items
+		this.state = STATE_BUSY;
+		var ctrl = this;
+		this.lastQuery = this.getItems(this.queryParameter)//
+		.then(function(response) {
+			ctrl.lastResponse = response;
+			ctrl.items = ctrl.items.concat(response.items);
+			ctrl.error = null;
+		}, function(error){
+			ctrl.error = error;
+		})//
+		.finally(function(){
+			ctrl.state = STATE_IDEAL;
+			delete ctrl.lastQuery;
+		});
+		return this.lastQuery;
+	};
 
-    /**
-     * Load controller actions
-     * 
-     * @return list of actions
-     */
-    this.getActions = function(){
-        return this.actions;
-    };
-
-    /**
-     * Adds new action into the controller
-     * 
-     * @param action to add to list
-     */
-    this.addAction = function(action) {
-        if(!angular.isDefined(this.actions)){
-            this.actions = [];
-        }
-        // TODO: maso, 2018: assert the action is MbAction
-        if(!(action instanceof Action)){
-            action = new Action(action);
-        }
-        this.actions.push(action);
-        return this;
-    };
+	this.getLastQeury = function(){
+		return this.lastQuery;
+	};
 
 
-    /**
-     * Deletes item
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     * @param item
-     * @return promiss to delete item
-     */
-    this.deleteItem = function(item){
-        // TODO: maso, 2018: update state of the controller to busy
-        var ctrl = this;
-        var index;
-        confirm('Delete item?')
-        .then(function(){
-            index = ctrl.items.indexOf(item);
-            return ctrl.deleteModel(item);
-        })
-        .then(function(){
-            ctrl.items.splice(index, 1);
-        });
-    };
+	/**
+	 * Set a GraphQl format of data
+	 * 
+	 * By setting this the controller is not sync and you have to reload the
+	 * controller. It is better to set the data query at the start time.
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @param graphql
+	 */
+	this.setDataQuery = function(grqphql){
+		this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+		// TODO: maso, 2018: check if refresh is required
+	};
 
-    /**
-     * Gets object schema
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     * @return promise to get schema
-     */
-    this.getSchema = function(){
-        // Controllers are supposed to override the function
-        return $q.resolve({
-            name: 'Item',
-            properties:[{
-                id: 'int',
-                title: 'string'
-            }]
-        });
-    };
+	/**
+	 * Get properties to sort
+	 * 
+	 * @return array of getProperties to use in search, sort and filter
+	 */
+	this.getProperties = function(){
+		if(!angular.isArray(this._schema)){
+			this._schema = [];
+		};
 
-    /**
-     * Query and get items
-     * 
-     * @param queryParameter to apply search
-     * @return promiss to get items
-     */
-    this.getItems = function(/*queryParameter*/){
+		// Check if the process is in progress
+		if(this._properties_lock || // process is locked
+				!angular.isFunction(this.getSchema) || // impossible to load schema
+				this._schema.length) { // schema is loaded
+			return this._schema;
+		}
 
-    };
+		/*
+		 * Load schema
+		 */
+		var ctrl = this;
+		this._properties_lock = $q.when(this.getSchema())
+		.then(function(schema){
+			ctrl._schema = schema;
+		});
+		// view must check later
+		return this._schema;
+	};
 
-    /**
-     * Get item with id
-     * 
-     * @param id of the item
-     * @return promiss to get item
-     */
-    this.getItem = function(id){
-        return {
-            id: id
-        };
-    };
+	/**
+	 * Load controller actions
+	 * 
+	 * @return list of actions
+	 */
+	this.getActions = function(){
+		return this.actions;
+	};
 
-    /**
-     * Adds new item
-     * 
-     * This is default implementation of the data access function. Controllers
-     * are supposed to override the function
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     * @return promiss to add and return an item
-     */
-    this.addItem = function(){
-        // Controllers are supposed to override the function
-        var item = {
-                id: Math.random(),
-                title: 'test item'
-        };
-        return $q.accept(item);
-    };
-    
+	/**
+	 * Adds new action into the controller
+	 * 
+	 * @param action to add to list
+	 */
+	this.addAction = function(action) {
+		if(!angular.isDefined(this.actions)){
+			this.actions = [];
+		}
+		// TODO: maso, 2018: assert the action is MbAction
+		if(!(action instanceof Action)){
+			action = new Action(action);
+		}
+		this.actions.push(action);
+		return this;
+	};
+
+
+	/**
+	 * Deletes item
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @param item
+	 * @return promiss to delete item
+	 */
+	this.deleteItem = function(item){
+		// TODO: maso, 2018: update state of the controller to busy
+		var ctrl = this;
+		var index;
+		confirm('Delete item?')
+		.then(function(){
+			index = ctrl.items.indexOf(item);
+			return ctrl.deleteModel(item);
+		})
+		.then(function(){
+			ctrl.items.splice(index, 1);
+		});
+	};
+
+	/**
+	 * Gets object schema
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @return promise to get schema
+	 */
+	this.getSchema = function(){
+		// Controllers are supposed to override the function
+		return $q.resolve({
+			name: 'Item',
+			properties:[{
+				id: 'int',
+				title: 'string'
+			}]
+		});
+	};
+
+	/**
+	 * Query and get items
+	 * 
+	 * @param queryParameter to apply search
+	 * @return promiss to get items
+	 */
+	this.getItems = function(/*queryParameter*/){
+
+	};
+
+	/**
+	 * Get item with id
+	 * 
+	 * @param id of the item
+	 * @return promiss to get item
+	 */
+	this.getItem = function(id){
+		return {
+			id: id
+		};
+	};
+
+	/**
+	 * Adds new item
+	 * 
+	 * This is default implementation of the data access function. Controllers
+	 * are supposed to override the function
+	 * 
+	 * @memberof SeenAbstractCollectionCtrl
+	 * @return promiss to add and return an item
+	 */
+	this.addItem = function(){
+		// Controllers are supposed to override the function
+		var item = {
+				id: Math.random(),
+				title: 'test item'
+		};
+		return $q.accept(item);
+	};
+
 
 }
 
@@ -2458,8 +2504,8 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
  * Add to angular
  */
 angular.module('mblowfish-core')//
-    .controller('AmWbSeenAbstractCollectionCtrl', SeenAbstractCollectionCtrl) //
-    .controller('MbItemsCtrl', SeenAbstractCollectionCtrl);
+.controller('AmWbSeenAbstractCollectionCtrl', SeenAbstractCollectionCtrl) //
+.controller('MbItemsCtrl', SeenAbstractCollectionCtrl);
 
 /* 
  * The MIT License (MIT)
@@ -4725,6 +4771,134 @@ angular.module('mblowfish-core')
 		link: postLink
 	};
 });
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
+
+	/**
+	 *
+	 */
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, QueryParameter) {
+
+	    var qp = new QueryParameter();
+
+	    function postLink(scope, elem, attrs, ctrls) {
+		var ngModelCtrl = ctrls[0];
+		var ctrl = this;
+		ngModelCtrl.$render = function () {
+		    ctrl.currency = ngModelCtrl.$modelValue;
+		    if (ctrl.currency) {
+			ctrl.loadGates();
+		    }
+		};
+
+		this.loadGates = function () {
+		    if (this.loadingGates) {
+			return;
+		    }
+		    this.loadingGates = true;
+		    qp.setFilter('currency', this.currency);
+		    var ctrl = this;
+		    return $bank.getBackends(qp)//
+			    .then(function (gatesPag) {
+				ctrl.gates = gatesPag.items;
+				return gatesPag;
+			    })//
+			    .finally(function () {
+				ctrl.loadingGates = false;
+			    });
+		};
+
+		//function pay(backend, discountCode){
+		this.pay = function (backend, discountCode) {
+		    // create receipt and send to bank receipt page.
+		    var data = {
+			backend: backend.id,
+			callback: attrs.mbCallbackUrl ? attrs.mbCallbackUrl : $location.absUrl()
+		    };
+		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
+			data.discount_code = discountCode;
+		    }
+		    $parse(attrs.mbPay)(scope.$parent, {
+			$backend: backend,
+			$discount: discountCode,
+			$callback: data.callback,
+			$data: data
+		    })//
+			    .then(function (receipt) {
+				$navigator.openPage('bank/receipts/' + receipt.id);
+			    });
+		};
+
+//		function checkDiscount(code){
+//			$discount.discount(code)//
+//			.then(function(discount){
+//				if(typeof discount.validation_code === 'undefined' || discount.validation_code === 0){
+//					$scope.discount_message = 'discount is valid';
+//				}else{
+//					switch(discount.validation_code){
+//					case 1:
+//						$scope.discount_message = 'discount is used before';
+//						break;
+//					case 2: 
+//						$scope.discount_message = 'discount is expired';
+//						break;
+//					case 3: 
+//						// discount is not owned by user.
+//						$scope.discount_message = 'discount is not valid';
+//						break;
+//					}
+//				}
+//			}, function(error){
+//				$scope.error = error.data.message;
+//				if(error.status === 404){				
+//					$scope.discount_message = 'discount is not found';
+//				}else{
+//					$scope.discount_message = 'unknown error while get discount info';
+//				}
+//			});
+//		}
+
+		
+
+		scope.ctrl = this;
+	    }
+
+	    return {
+		replace: true,
+		restrict: 'E',
+		templateUrl: 'views/directives/mb-pay.html',
+		scope: {
+		    mbCallbackUrl: '@?',
+		    mbPay: '@',
+		    mbDiscountEnable: '='
+		},
+		link: postLink,
+		require: ['ngModel']
+	    };
+	});
+
 /* 
  * The MIT License (MIT)
  * 
@@ -4751,98 +4925,94 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular
-        .module('mblowfish-core')
-        /**
-         * @ngdoc Directives
-         * @name mb-preference-page
-         * @description Preference page
-         * 
-         * Preference page
-         * 
-         */
-        .directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
-                $rootScope, $mdTheming) {
+.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name mb-preference-page
+ * @description Preference page
+ * 
+ * Preference page
+ * 
+ */
+.directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
+        $rootScope, $mdTheming) {
 
-            var bodyElementSelector = 'div#mb-preference-body';
-            var placeholderElementSelector = 'div#mb-preference-placeholder';
-            /**
-             * 
-             */
-            function loadPreference($scope, page, anchor) {
-                // 1- create scope
-                var childScope = $scope.$new(false, $scope);
-                childScope.app = $rootScope.app;
-                // childScope.wbModel = model;
+    var bodyElementSelector = 'div#mb-preference-body';
+    var placeholderElementSelector = 'div#mb-preference-placeholder';
+    /**
+     * 
+     */
+    function loadPreference($scope, page, anchor) {
+        // 1- create scope
+        var childScope = $scope.$new(false, $scope);
+        childScope.app = $rootScope.app;
+        // childScope.wbModel = model;
 
-                // 2- create element
-                $wbUtil
-                        .getTemplateFor(page)
-                        .then(function (template) {
-                            var element = angular.element(template);
-                            $mdTheming(element);
+        // 2- create element
+        $wbUtil.getTemplateFor(page)
+        .then(function (template) {
+            var element = angular.element(template);
 
-                            // 3- bind controller
-                            var link = $compile(element);
-                            if (angular
-                                    .isDefined(page.controller)) {
-                                var locals = {
-                                    $scope: childScope,
-                                    $element: element
-                                            // TODO: maso, 2018:
-                                };
-                                var controller = $controller(
-                                        page.controller, locals);
-                                if (page.controllerAs) {
-                                    childScope[page.controllerAs] = controller;
-                                }
-                                element
-                                        .data(
-                                                '$ngControllerController',
-                                                controller);
-                            }
-
-                            // Load preferences
-                            anchor.empty();
-                            anchor.append(link(childScope));
-                        });
+            // 3- bind controller
+            var link = $compile(element);
+            if (angular.isDefined(page.controller)) {
+                var locals = {
+                        $scope: childScope,
+                        $element: element
+                        // TODO: maso, 2018:
+                };
+                var controller = $controller(
+                        page.controller, locals);
+                if (page.controllerAs) {
+                    childScope[page.controllerAs] = controller;
+                }
+                element.data('$ngControllerController', controller);
             }
 
-            /**
-             * Adding preloader.
-             * 
-             * @param scope
-             * @param element
-             * @param attr
-             * @returns
-             */
-            function postLink(scope, element) {
-                // Get Anchor
-                var _anchor = element; //
-//        .children(bodyElementSelector) //
-//        .children(placeholderElementSelector);
-                // TODO: maso, 2018: check auncher exist
-                scope.$watch('mbPreferenceId', function (id) {
-                    if (id) {
-                        $preferences.page(id)
-                                .then(function (page) {
-                                    loadPreference(scope, page, _anchor);
-                                }, function () {
-                                    // TODO: maso, 2017: handle errors
-                                });
-                    }
+            // Load preferences
+            anchor.empty();
+            anchor.append(link(childScope));
+            
+            $mdTheming(element);
+        });
+    }
+
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @returns
+     */
+    function postLink(scope, element) {
+        // Get Anchor
+        var _anchor = element; //
+//      .children(bodyElementSelector) //
+//      .children(placeholderElementSelector);
+        // TODO: maso, 2018: check auncher exist
+        scope.$watch('mbPreferenceId', function (id) {
+            if (id) {
+                $preferences.page(id)
+                .then(function (page) {
+                    loadPreference(scope, page, _anchor);
+                }, function () {
+                    // TODO: maso, 2017: handle errors
                 });
             }
-
-            return {
-                restrict: 'E',
-                templateUrl: 'views/directives/mb-preference-page.html',
-                replace: true,
-                scope: {
-                    mbPreferenceId: '='
-                },
-                link: postLink
-            };
         });
+    }
+
+    return {
+        restrict: 'E',
+        templateUrl: 'views/directives/mb-preference-page.html',
+        replace: true,
+        scope: {
+            mbPreferenceId: '='
+        },
+        link: postLink
+    };
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6023,34 +6193,20 @@ angular.module('mblowfish-core')
 /*
  * Enable crisp chat
  */
-.run(function($window, $rootScope, $location) {
-	var crispLoaded = false;
-	
-	function loadCrisp(id){
-		$window.$crisp=[];
-		$window.CRISP_WEBSITE_ID = id;
-		{ // load crisp 
-			var d=document;
-			var s=d.createElement('script');
-			s.src='https://client.crisp.chat/l.js';
-			s.async=1;
-			d.getElementsByTagName('head')[0].appendChild(s);
-		}
-		crispLoaded = true;
-	}
-	
+.run(function($window, $rootScope, $location, $wbLibs) {
+
 	/*
 	 * Watch system configuration
 	 */
-    $rootScope.$watch('app.config.crisp.id', function(value){
-        if (!value) {
-            return;
-        }
-        
-        if(!crispLoaded){
-        	loadCrisp(value);
-        }
-    });
+	$rootScope.$watch('app.config.crisp.id', function(value){
+		if (!value) {
+			return;
+		}
+		
+		$wbLibs.load('https://client.crisp.chat/l.js');
+		$window.$crisp=[];
+		$window.CRISP_WEBSITE_ID = id;
+	});
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6077,26 +6233,56 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-.run(function($window, $rootScope, $location) {
-    if ($window.gtag) {
-        // initialize google analytics
-        $rootScope.$watch('app.config.googleAnalytic.property', function(value){
-            if (!value) {
-                return;
-            }
+.run(function($window, $rootScope, $location, $wbLibs) {
+	var watcherIsLoaded = false;
+	var googleValue;
 
-            $window.gtag('js', new Date());
-            $window.gtag('config', value);
-            // track page view on state change
-            $rootScope.$on('$routeChangeStart', function(/* event */) {
-                $window.gtag('config', value, {
-//                  page_title: 'homepage',
-//                  page_location: 'LOCATION',
-                    page_path: $location.path()
-                });
-            });
-        });
-    }
+	function loadScript(value){
+		$wbLibs.load('https://www.googletagmanager.com/gtag/js')
+		.then(function(){
+			$window.dataLayer = $window.dataLayer || [];
+			function gtag(){
+				$window.dataLayer.push(arguments);
+			};
+			$window.gtag = gtag
+			$window.gtag('js', new Date());
+			$window.gtag('config', value);
+		});
+		$window.gtag('js', new Date());
+		$window.gtag('config', value);
+	}
+
+	function loadWatchers() {
+		if(watcherIsLoaded){
+			return;
+		}
+		$rootScope.$on('$routeChangeStart', handleRouteChange);
+		watcherIsLoaded = true;
+	}
+
+	function createEvent(){
+		var event = {
+//				page_title: 'homepage',
+//				page_location: 'LOCATION',
+				page_path: $location.path()
+		};
+		return event;
+	}
+
+	function handleRouteChange(){
+		var event = createEvent();
+		$window.gtag('config', googleValue, event);
+	}
+
+	// initialize google analytics
+	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
+		if (!value) {
+			return;
+		}
+
+		loadScript(value);
+		loadWatchers();
+	});
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7558,161 +7744,161 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-        /**
-         * @ngdoc Services
-         * @name $help
-         * @description A help management service
-         * 
-         * Manage application help.
-         * 
-         * Set help id for an item:
-         * 
-         * <pre><code>
-         * 	var item = {
-         * 		...
-         * 		helpId: 'help-id'
-         * 	};
-         * 	$help.openHelp(item);
-         * </code></pre>
-         * 
-         * 
-         * 
-         * Open help for an item:
-         * 
-         * <pre><code>
-         * $help.openHelp(item);
-         * </code></pre>
-         * 
-         */
-        .service('$help', function ($q, $rootScope, $translate, $injector) {
+/**
+ * @ngdoc Services
+ * @name $help
+ * @description A help management service
+ * 
+ * Manage application help.
+ * 
+ * Set help id for an item:
+ * 
+ * <pre><code>
+ * 	var item = {
+ * 		...
+ * 		helpId: 'help-id'
+ * 	};
+ * 	$help.openHelp(item);
+ * </code></pre>
+ * 
+ * 
+ * 
+ * Open help for an item:
+ * 
+ * <pre><code>
+ * $help.openHelp(item);
+ * </code></pre>
+ * 
+ */
+.service('$help', function ($q, $rootScope, $translate, $injector) {
 
-            var _tips = [];
-            var _currentItem = null;
+    var _tips = [];
+    var _currentItem = null;
 
-            /*
-             * Get help id
-             */
-            function _getHelpId(item) {
-                if (!item) {
-                    return null;
-                }
-                var id = item.helpId;
-                if (angular.isFunction(item.helpId)) {
-                    return $injector.invoke(item.helpId, item);
-                }
-                return id;
-            }
+    /*
+     * Get help id
+     */
+    function _getHelpId(item) {
+        if (!item) {
+            return null;
+        }
+        var id = item.helpId;
+        if (angular.isFunction(item.helpId)) {
+            return $injector.invoke(item.helpId, item);
+        }
+        return id;
+    }
 
-            /**
-             * Adds new tip
-             * 
-             * New tip is added into the tips list.
-             * 
-             * @memberof $help
-             * @param {object}
-             *            tipData - Data of a tipe
-             */
-            function tip(tipData) {
-                _tips.push(tipData);
-                return this;
-            }
+    /**
+     * Adds new tip
+     * 
+     * New tip is added into the tips list.
+     * 
+     * @memberof $help
+     * @param {object}
+     *            tipData - Data of a tipe
+     */
+    function tip(tipData) {
+        _tips.push(tipData);
+        return this;
+    }
 
-            /**
-             * List of tips
-             * 
-             * @memberof $help
-             * @return {promise<Array>} of tips
-             */
-            function tips() {
-                return $q.resolve({
-                    items: _tips
-                });
-            }
-
-            /**
-             * Gets current item in help system
-             * 
-             * @memberof $help
-             * @return {Object} current item
-             */
-            function currentItem() {
-                return _currentItem;
-            }
-
-            /**
-             * Sets current item in help system
-             * 
-             * @memberof $help
-             * @params item {Object} target of the help system
-             */
-            function setCurrentItem(item) {
-                _currentItem = item;
-            }
-
-            /**
-             * Gets help path
-             * 
-             * @memberof $help
-             * @params item {Object} an item to show help for
-             * @return path of the help
-             */
-            function getHelpPath(item) {
-                // Get from help id
-                var myId = _getHelpId(item || _currentItem);
-                if (myId) {
-                    var lang = $translate.use();
-                    // load content
-                    return 'resources/helps/' + myId + '-' + lang + '.json';
-                }
-
-                return null;
-            }
-
-            /**
-             * Check if there exist a help on item
-             * 
-             * @memberof $help
-             * @params item {Object} an item to show help for
-             * @return path if the item if exist help or false
-             */
-            function hasHelp(item) {
-                return !!_getHelpId(item);
-            }
-
-            /**
-             * Display help for an item
-             * 
-             * This function change current item automatically and display help for it.
-             * 
-             * @memberof $help
-             * @params item {Object} an item to show help for
-             */
-            function openHelp(item) {
-                if (!hasHelp(item)) {
-                    return;
-                }
-                if (_currentItem === item) {
-                    $rootScope.showHelp = !$rootScope.showHelp;
-                    return;
-                }
-                setCurrentItem(item);
-                $rootScope.showHelp = true;
-            }
-
-            /*
-             * Service structure
-             */
-            return {
-                tip: tip,
-                tips: tips,
-
-                currentItem: currentItem,
-                setCurrentItem: setCurrentItem,
-                openHelp: openHelp,
-                hasHelp: hasHelp,
-                getHelpPath: getHelpPath
-            };
+    /**
+     * List of tips
+     * 
+     * @memberof $help
+     * @return {promise<Array>} of tips
+     */
+    function tips() {
+        return $q.resolve({
+            items: _tips
         });
+    }
+
+    /**
+     * Gets current item in help system
+     * 
+     * @memberof $help
+     * @return {Object} current item
+     */
+    function currentItem() {
+        return _currentItem;
+    }
+
+    /**
+     * Sets current item in help system
+     * 
+     * @memberof $help
+     * @params item {Object} target of the help system
+     */
+    function setCurrentItem(item) {
+        _currentItem = item;
+    }
+
+    /**
+     * Gets help path
+     * 
+     * @memberof $help
+     * @params item {Object} an item to show help for
+     * @return path of the help
+     */
+    function getHelpPath(item) {
+        // Get from help id
+        var myId = _getHelpId(item || _currentItem);
+        if (myId) {
+            var lang = $translate.use();
+            // load content
+            return 'resources/helps/' + myId + '-' + lang + '.json';
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if there exist a help on item
+     * 
+     * @memberof $help
+     * @params item {Object} an item to show help for
+     * @return path if the item if exist help or false
+     */
+    function hasHelp(item) {
+        return !!_getHelpId(item);
+    }
+
+    /**
+     * Display help for an item
+     * 
+     * This function change current item automatically and display help for it.
+     * 
+     * @memberof $help
+     * @params item {Object} an item to show help for
+     */
+    function openHelp(item) {
+        if (!hasHelp(item)) {
+            return;
+        }
+        if (_currentItem === item) {
+            $rootScope.showHelp = !$rootScope.showHelp;
+            return;
+        }
+        setCurrentItem(item);
+        $rootScope.showHelp = true;
+    }
+
+    /*
+     * Service structure
+     */
+    return {
+        tip: tip,
+        tips: tips,
+
+        currentItem: currentItem,
+        setCurrentItem: setCurrentItem,
+        openHelp: openHelp,
+        hasHelp: hasHelp,
+        getHelpPath: getHelpPath
+    };
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -9073,12 +9259,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{mbIcon}}> <wb-icon>{{mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy===key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!==key\">radio_button_unchecked</wb-icon> {{mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div> </div>"
+    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title }}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-model-options={debounce:1000}> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{::mbSortKeysTitles?mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)]:query.sortBy|translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy=key\"> <wb-icon ng-if=\"query.sortBy===key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy!==key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles?mbSortKeysTitles[$index]:key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{::query.sortDesc?'Descending':'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc=false\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc=true\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-panel.html',
     "<div id=mb-panel-root md-theme=\"{{app.setting.theme|| app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir === 'rtl', 'mb-ltr-direction': app.dir !== 'rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h3>Loading...</h3>   <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div ng-if=\"app.options['captcha.engine'] === 'recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=\"app.options['captcha.engine.recaptcha.key']\" lang=\"app.setting.local || app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div> </div>"
+  );
+
+
+  $templateCache.put('views/directives/mb-pay.html',
+    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=ctrl.loadingGates md-mode=indeterminate class=md-primary md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
   );
 
 
@@ -9088,7 +9279,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{mbIcon}}</wb-icon> <h3 translate=\"\">{{mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{item.title}}> <wb-icon ng-show=item.icon>{{item.icon}}</wb-icon> <span translate=\"\">{{ item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
   );
 
 
@@ -9138,7 +9329,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<div layout=column ng-cloak flex> <table layout=row> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </div>"
+    "<md-content layout=column ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </md-content>"
   );
 
 
@@ -9223,7 +9414,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent></wb-group> </md-content>"
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <wb-icon>close</wb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
   );
 
 

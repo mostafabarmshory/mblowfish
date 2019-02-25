@@ -31,59 +31,59 @@ angular.module('mblowfish-core')
  * Watches total system and update help data.
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help) {
-	$rootScope.showHelp = false;
-	var lastLoaded;
+.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help, $wbUtil) {
+    $rootScope.showHelp = false;
+    var lastLoaded;
 
-        
-	/**
-	 * load help content for the item
-	 * 
-	 * @name loadHelpContent
-	 * @memberof MbHelpCtrl
-	 * @params item {object} an item to display help for
-	 */
-	function _loadHelpContent(item) {
-		if($scope.helpLoading){
-			// maso, 2018: cancle old loading
-			return $scope.helpLoading;
-		}
-		var path = $help.getHelpPath(item);
-		// load content
-		if(path && path !== lastLoaded){
-			$scope.helpLoading = $http.get(path) //
-			.then(function(res) {
-				$scope.helpContent = res.data;
-				lastLoaded = path;
-			})//
-			.finally(function(){
-				$scope.helpLoading = false;
-			});
-		}
-		return $scope.helpLoading;
-	}
 
-	$scope.closeHelp = function(){
-		$rootScope.showHelp = false;
-	};
+    /**
+     * load help content for the item
+     * 
+     * @name loadHelpContent
+     * @memberof MbHelpCtrl
+     * @params item {object} an item to display help for
+     */
+    function _loadHelpContent(item) {
+        if($scope.helpLoading){
+            // maso, 2018: cancle old loading
+            return $scope.helpLoading;
+        }
+        var path = $help.getHelpPath(item);
+        // load content
+        if(path && path !== lastLoaded){
+            $scope.helpLoading = $http.get(path) //
+            .then(function(res) {
+                $scope.helpContent = $wbUtil.clean(res.data);
+                lastLoaded = path;
+            })//
+            .finally(function(){
+                $scope.helpLoading = false;
+            });
+        }
+        return $scope.helpLoading;
+    }
 
-	/*
-	 * If user want to display help, content will be loaded.
-	 */
-	$scope.$watch('showHelp', function(value){
-		if(value) {
-			return _loadHelpContent();
-		}
-	});
+    $scope.closeHelp = function(){
+        $rootScope.showHelp = false;
+    };
 
-	/*
-	 * Watch for current item in help service
-	 */
-	$scope.$watch(function(){
-		return $help.currentItem();
-	}, function() {
-            if ($rootScope.showHelp) {
-                _loadHelpContent();
-            }
-        });
+    /*
+     * If user want to display help, content will be loaded.
+     */
+    $scope.$watch('showHelp', function(value){
+        if(value) {
+            return _loadHelpContent();
+        }
+    });
+
+    /*
+     * Watch for current item in help service
+     */
+    $scope.$watch(function(){
+        return $help.currentItem();
+    }, function() {
+        if ($rootScope.showHelp) {
+            _loadHelpContent();
+        }
+    });
 });

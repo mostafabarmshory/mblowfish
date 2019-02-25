@@ -1,15 +1,15 @@
 <div
     style="border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px; "
     md-whiteframe="4">
-    <md-toolbar
+    <md-toolbar class="md-hue-1"
         layout="row"
         style="border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px">
         <div 
             layout="row"
             layout-align="start center"
             class="md-toolbar-tools">
-            <wb-icon style="margin: 0" ng-if="mbIcon">{{mbIcon}}</wb-icon>
-            <h3 translate="">{{mbTitle}}</h3>
+            <wb-icon style="margin: 0" ng-if="mbIcon">{{::mbIcon}}</wb-icon>
+            <h3 translate="">{{::mbTitle}}</h3>
         </div>
         <md-menu 
             layout-align="end center"
@@ -25,9 +25,9 @@
                     ng-repeat="item in mbMoreActions">
                     <md-button
                         ng-click="item.action()"
-                        aria-label="{{item.title}}">
-                        <wb-icon ng-show="item.icon">{{item.icon}}</wb-icon>
-                        <span translate="">{{ item.title}}</span>
+                        aria-label="{{::item.title}}">
+                        <wb-icon ng-show="item.icon">{{::item.icon}}</wb-icon>
+                        <span translate="">{{::item.title}}</span>
                     </md-button>
                 </md-menu-item>
             </md-menu-content>
