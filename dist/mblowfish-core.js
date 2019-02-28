@@ -8371,7 +8371,8 @@ angular.module('mblowfish-core')
     function openDialog(dialog) {
         var dialogCnf = {};
         angular.extend(dialogCnf, {
-            controller : 'AmdNavigatorDialogCtrl',
+            controller : dialog.controller || 'AmdNavigatorDialogCtrl',
+            controllerAs: dialog.ctrl || 'ctrl',
             parent : angular.element(document.body),
             clickOutsideToClose : true,
             fullscreen: true,
