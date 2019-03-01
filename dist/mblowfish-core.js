@@ -6205,7 +6205,7 @@ angular.module('mblowfish-core')
 		
 		$wbLibs.load('https://client.crisp.chat/l.js');
 		$window.$crisp=[];
-		$window.CRISP_WEBSITE_ID = id;
+		$window.CRISP_WEBSITE_ID = value;
 	});
 });
 /*
@@ -6248,8 +6248,6 @@ angular.module('mblowfish-core')
 			$window.gtag('js', new Date());
 			$window.gtag('config', value);
 		});
-		$window.gtag('js', new Date());
-		$window.gtag('config', value);
 	}
 
 	function loadWatchers() {
@@ -6262,8 +6260,6 @@ angular.module('mblowfish-core')
 
 	function createEvent(){
 		var event = {
-//				page_title: 'homepage',
-//				page_location: 'LOCATION',
 				page_path: $location.path()
 		};
 		return event;
@@ -8375,7 +8371,8 @@ angular.module('mblowfish-core')
     function openDialog(dialog) {
         var dialogCnf = {};
         angular.extend(dialogCnf, {
-            controller : 'AmdNavigatorDialogCtrl',
+            controller : dialog.controller || 'AmdNavigatorDialogCtrl',
+            controllerAs: dialog.ctrl || 'ctrl',
             parent : angular.element(document.body),
             clickOutsideToClose : true,
             fullscreen: true,
