@@ -2168,18 +2168,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
 	this.state = STATE_IDEAL;
 
 	this.actions = [];
-
-
-	/**
-	 * List of all loaded items
-	 * 
-	 * All loaded items will be stored into this variable for later usage. This
-	 * is related to view.
-	 * 
-	 * @type array
-	 * @memberof SeenAbstractCollectionCtrl
-	 */
-	this.items = [];
+	
 
 	/**
 	 * State of the controller
@@ -2221,6 +2210,62 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
 	 */
 	this.queryParameter = new QueryParameter();
 	this.queryParameter.setOrder('id', 'd');
+
+
+	/**
+	 * List of all loaded items
+	 * 
+	 * All loaded items will be stored into this variable for later usage. This
+	 * is related to view.
+	 * 
+	 * @type array
+	 * @memberof SeenAbstractCollectionCtrl
+	 */
+	this.items = [];
+	
+	function differenceBy (source, filters, key) {
+		var result = source;
+		for(var i = 0; i < filters.length; i++){
+			result = _.remove(result, function(item){
+				return item[key] !== filters[i][key];
+			});
+		}
+		return result;
+	};
+	
+	/**
+	 * Add item to view
+	 */
+	this.pushViewItems = function(items) {
+		if(!angular.isDefined(items)){
+			return;
+		}
+		// Push new items
+		var deff = differenceBy(this.items, items, 'id');
+		this.items = _.union(items, deff);
+	};
+	
+	/**
+	 * remove item from view
+	 */
+	this.removeViewItems = function(items) {
+		this.items = differenceBy(this.items, items, 'id');
+	};
+	
+	this.updateViewItems = function(items) {
+		// XXX: maso, 2019: update view items
+	};
+	
+	this.getViewItems = function(){
+		return this.items;
+	};
+	
+	/**
+	 * Removes all items from view
+	 */
+	this.clearViewItems = function(){
+		this.items = [];
+	};
 
 	/**
 	 * Gets the query parameter
@@ -2269,7 +2314,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
 		var ctrl = this;
 		function safeReload(){
 			delete ctrl.lastResponse;
-			ctrl.items = [];
+			ctrl.clearViewItems();
 			ctrl.queryParameter.setPage(1);
 			return ctrl.loadNextPage();
 		}
@@ -2289,7 +2334,7 @@ function SeenAbstractCollectionCtrl($q, QueryParameter, Action) {
 	 */
 	this.init = function(){
 		var ctrl = this;
-		this.state=STATE_IDEAL;
+		this.state = STATE_IDEAL;
 	};
 
 	/**
