@@ -259,17 +259,17 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
     this.addItem = function(){
         var ctrl = this;
         $navigator.openDialog({
-            templateUrl: this.addDialog,
+            templateUrl: this._addDialog,
             config: {
                 model:{}
             }
         })//
         .then(function(model){
-            return ctrl.addItem(model);
+            return ctrl.addModel(model);
         })//
         .then(function(item){
             $dispatcher.dispatch(ctrl.eventType, {
-                action: 'create',
+                key: 'created',// CRUD
                 values: [item]
             });
         }, function(){
@@ -281,11 +281,16 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
      * Creates new item with the createItemDialog
      */
     this.deleteItem = function(item){
+        // XXX: maso, 2019: update state
         var ctrl = this;
+        var tempItem = _.clone(item);
         function _deleteInternal() {
             return ctrl.deleteModel(item)
             .then(function(){
-                // XXX: maso, 2019: update state
+                $dispatcher.dispatch(ctrl.eventType, {
+                    key: 'removed', // CRUD
+                    values: [tempItem]
+                });
             }, function(){
                 // XXX: maso, 2019: handle error
             });
@@ -415,10 +420,10 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
             if(!angular.isFunction(temp.action) && temp.dialog) {
                 this._addDialog = temp.dialog;
                 createAction.action = function(){
-                    ctrl.createNewItem();
+                    ctrl.addItem();
                 };
             }
-            if(angular.isFunction(temp.action)) {
+            if(angular.isFunction(createAction.action)) {
                 this.addAction(createAction);
             }
         }
@@ -515,15 +520,38 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
     };
 
     /*
+     * handle events
+     */
+    this.eventHandlerCallBack = function(){
+        if(this._eventHandlerCallBack){
+            return this._eventHandlerCallBack ;
+        }
+        var ctrl = this;
+        var callBack = function($event){
+            switch ($event.key) {
+            case 'created':
+                ctrl.pushViewItems($event.values);
+                break;
+            case 'updated':
+                ctrl.updateViewItems($event.values);
+                break;
+            case 'removed':
+                ctrl.removeViewItems($event.values);
+                break;
+            default:
+                break;
+            }
+        };
+        this._eventHandlerCallBack = callBack;
+        return this._eventHandlerCallBack ;
+    };
+    
+    /*
      * Listen to dispatcher for new event
      */
     this._setEventType = function(eventType) {
-        var ctrl = this;
         this.eventType = eventType;
-        this.eventHandler = function($event){
-            
-        };
-        $dispatcher.on(this.eventType, this.eventHandler);
+        $dispatcher.on(this.eventType, this.eventHandlerCallBack());
     };
     
 
@@ -533,7 +561,7 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
      * @memberof SeenAbstractCollectionCtrl
      */
     this.destroy = function() {
-        $dispatcher.off(this.eventType, this.eventHandler);
+        $dispatcher.off(this.eventType, this.eventHandlerCallBack());
     };
 }
 
