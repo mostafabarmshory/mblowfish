@@ -31,26 +31,33 @@ angular.module('mblowfish-core')
  * 
  */
 .controller('MbProfilesCtrl', function ($scope, $usr, $controller) {
-	angular.extend(this, $controller('MbItemsCtrl', {
+	angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
 		$scope: $scope
 	}));
 
 	// Overried the function
-	this.getSchema = function(){
+	this.getModelSchema = function(){
 		return $usr.profileSchema();
 	};
 	
 	// get accounts
-	this.getItems = function(parameterQuery){
-		return $usr.getAccounts(parameterQuery);
+	this.getModels = function(parameterQuery){
+		return $usr.getProfiles(parameterQuery);
 	};
+	
 	// get an account
-	this.getItem = function(id){
-		return $usr.getAccount(id);
+	this.getModel = function(id){
+		return $usr.getProfile(id);
 	};
+	
+	// add account profile
+	this.addModel = function(model){
+		return $usr.putProfile(model);
+	};
+	
 	// delete account
-	this.deleteItem = function(item){
-		return $usr.deleteAccount(item.id);
+	this.deleteModel = function(model){
+	    return $usr.deleteProfile(model.id);
 	};
     
     this.init();

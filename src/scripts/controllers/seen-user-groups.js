@@ -30,30 +30,36 @@ angular.module('mblowfish-core')
  * 
  */
 .controller('MbGroupsCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('MbItemsCtrl', {
+    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
     // Overried the function
-    this.getSchema = function () {
+    this.getModelSchema = function () {
         return $usr.groupSchema();
     };
-    // get accounts
-    this.getItems = function (parameterQuery) {
+    
+    // get groups
+    this.getModels = function (parameterQuery) {
         return $usr.getGroups(parameterQuery);
     };
-    // get an account
-    this.getItem = function (id) {
+    
+    // get a group
+    this.getModel = function (id) {
         return $usr.getGroup(id);
     };
-    // Add item
-    this.addItem = function () {
-        return $usr.newAccount(item);
+    
+    // Add group
+    this.addModel = function (model) {
+        return $usr.putGroup(model);
     };
-    // delete account
-    this.deleteItem = function (item) {
-        return $usr.deleteRole(item.id);
+    
+    // delete group
+    this.deleteModel = function (model) {
+        return $usr.deleteGroup(model.id);
     };
 
-    this.init();
+    this.init({
+        eventType: '/user/groups'
+    });
 });

@@ -36,22 +36,22 @@ angular.module('mblowfish-core')
     }));
 
     // Override the schema function
-    this.getSchema = function () {
+    this.getModelSchema = function () {
         return $cms.contentSchema();
     };
 
     // get contents
-    this.getItems = function (parameterQuery) {
+    this.getModels = function (parameterQuery) {
         return $cms.getContents(parameterQuery);
     };
 
     // get a content
-    this.getItem = function (id) {
+    this.getModel = function (id) {
         return $cms.getContent(id);
     };
 
     // delete account
-    this.deleteItem = function (content) {
+    this.deleteModel = function (content) {
         return $cms.deleteContent(content.id);
     };
 
@@ -87,5 +87,7 @@ angular.module('mblowfish-core')
         .then(uploadContentValue);
     }
 
-    this.init();
+    this.init({
+        eventType: '/cms/contents'
+    });
 });

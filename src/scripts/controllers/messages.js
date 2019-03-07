@@ -26,30 +26,37 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Controllers
  * @name MessagesCtrl
- * @description Dashboard
+ * @description Manages list of controllers
  * 
  */
 .controller('MessagesCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('MbItemsCtrl', {
+    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
     // Overried the function
-    this.getSchema = function () {
+    this.getModelSchema = function () {
         return $usr.messageSchema();
     };
+
     // get accounts
-    this.getItems = function (parameterQuery) {
+    this.getModels = function (parameterQuery) {
         return $usr.getMessages(parameterQuery);
     };
+
     // get an account
-    this.getItem = function (id) {
+    this.getModel = function (id) {
         return $usr.getMessage(id);
     };
+
     // delete account
     this.deleteModel = function (item) {
         return item.delete();
     };
 
-    this.init();
+    this.init({
+        eventType: '/user/messages',
+        // do not show dialog on delete
+        deleteConfirm: false,
+    });
 });
