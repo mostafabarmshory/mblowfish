@@ -427,7 +427,7 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
         this._setEventType(configs.eventType);
         
         // confirm delete
-        this.deleteConfirm = angular.isDefined(configs.deleteConfirm) && configs.deleteConfirm;
+        this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
         
         // init
         $scope.$on('$destroy', function(){
