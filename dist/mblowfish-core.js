@@ -2200,6 +2200,21 @@ angular.module('mblowfish-core')//
     this.getLastQeury = function(){
         return this.lastQuery;
     };
+    
+
+    /**
+     * Set a GraphQl format of data
+     * 
+     * By setting this the controller is not sync and you have to reload the
+     * controller. It is better to set the data query at the start time.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
+     * @param graphql
+     */
+    this.setDataQuery = function(grqphql){
+        this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+        // TODO: maso, 2018: check if refresh is required
+    };
 
     /**
      * Load controller actions
