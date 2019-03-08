@@ -31,25 +31,29 @@ angular.module('mblowfish-core')
  * 
  */
 .controller('MbRolesCtrl', function ($scope, $usr, $q, $controller) {
-    angular.extend(this, $controller('MbItemsCtrl', {
+
+    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
     // Override the function
-    this.getSchema = function () {
+    this.getModelSchema = function () {
         return $usr.roleSchema();
     };
+
     // get accounts
-    this.getItems = function (parameterQuery) {
+    this.getModels = function (parameterQuery) {
         return $usr.getRoles(parameterQuery);
     };
+
     // get an account
-    this.getItem = function (id) {
+    this.getModel = function (id) {
         return $usr.getRole(id);
     };
+
     // delete account
-    this.deleteItem = function (item) {
-        return $usr.deleteRole(item.id);
+    this.deleteModel = function (model) {
+        return $usr.deleteRole(model.id);
     };
 
     this.init();
