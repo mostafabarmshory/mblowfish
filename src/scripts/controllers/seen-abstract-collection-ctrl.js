@@ -21,6 +21,11 @@
  */
 
 
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
 /**
  * @ngdoc Controllers
  * @name SeenAbstractCollectionCtrl
@@ -52,10 +57,8 @@
  * - addItem: controller
  * - addModel: model
  * - addViewItem: view
- * 
- * @ngInject
  */
-function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
+.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
     'use strict';
 
     /*
@@ -446,6 +449,21 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
     this.getLastQeury = function(){
         return this.lastQuery;
     };
+    
+
+    /**
+     * Set a GraphQl format of data
+     * 
+     * By setting this the controller is not sync and you have to reload the
+     * controller. It is better to set the data query at the start time.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
+     * @param graphql
+     */
+    this.setDataQuery = function(grqphql){
+        this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+        // TODO: maso, 2018: check if refresh is required
+    };
 
     /**
      * Load controller actions
@@ -527,7 +545,7 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
             return this._eventHandlerCallBack ;
         }
         var ctrl = this;
-        var callBack = function($event){
+        this._eventHandlerCallBack = function($event){
             switch ($event.key) {
             case 'created':
                 ctrl.pushViewItems($event.values);
@@ -542,8 +560,7 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
                 break;
             }
         };
-        this._eventHandlerCallBack = callBack;
-        return this._eventHandlerCallBack ;
+        return this._eventHandlerCallBack;
     };
     
     /*
@@ -551,7 +568,7 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
      */
     this._setEventType = function(eventType) {
         this.eventType = eventType;
-        $dispatcher.on(this.eventType, this.eventHandlerCallBack());
+        this._eventHandlerCallbackId = $dispatcher.on(this.eventType, this.eventHandlerCallBack());
     };
     
 
@@ -561,13 +578,9 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
      * @memberof SeenAbstractCollectionCtrl
      */
     this.destroy = function() {
-        $dispatcher.off(this.eventType, this.eventHandlerCallBack());
+        if(this._eventHandlerCallbackId){
+            $dispatcher.off(this.eventType, this._eventHandlerCallbackId);
+            delete this._eventHandlerCallbackId;
+        }
     };
-}
-
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
-.controller('AmWbSeenAbstractCollectionCtrl', SeenAbstractCollectionCtrl) //
-.controller('MbItemsCtrl', SeenAbstractCollectionCtrl);
+});
