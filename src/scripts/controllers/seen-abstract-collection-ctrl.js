@@ -21,6 +21,11 @@
  */
 
 
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
 /**
  * @ngdoc Controllers
  * @name SeenAbstractCollectionCtrl
@@ -52,10 +57,8 @@
  * - addItem: controller
  * - addModel: model
  * - addViewItem: view
- * 
- * @ngInject
  */
-function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
+.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
     'use strict';
 
     /*
@@ -527,7 +530,7 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
             return this._eventHandlerCallBack ;
         }
         var ctrl = this;
-        var callBack = function($event){
+        this._eventHandlerCallBack = function($event){
             switch ($event.key) {
             case 'created':
                 ctrl.pushViewItems($event.values);
@@ -542,7 +545,6 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
                 break;
             }
         };
-        this._eventHandlerCallBack = callBack;
         return this._eventHandlerCallBack ;
     };
     
@@ -563,11 +565,4 @@ function SeenAbstractCollectionCtrl($scope, $q, $navigator, $window, $dispatcher
     this.destroy = function() {
         $dispatcher.off(this.eventType, this.eventHandlerCallBack());
     };
-}
-
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
-.controller('AmWbSeenAbstractCollectionCtrl', SeenAbstractCollectionCtrl) //
-.controller('MbItemsCtrl', SeenAbstractCollectionCtrl);
+});
