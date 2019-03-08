@@ -545,7 +545,7 @@ angular.module('mblowfish-core')//
                 break;
             }
         };
-        return this._eventHandlerCallBack ;
+        return this._eventHandlerCallBack;
     };
     
     /*
@@ -553,7 +553,7 @@ angular.module('mblowfish-core')//
      */
     this._setEventType = function(eventType) {
         this.eventType = eventType;
-        $dispatcher.on(this.eventType, this.eventHandlerCallBack());
+        this._eventHandlerCallbackId = $dispatcher.on(this.eventType, this.eventHandlerCallBack());
     };
     
 
@@ -563,6 +563,9 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      */
     this.destroy = function() {
-        $dispatcher.off(this.eventType, this.eventHandlerCallBack());
+        if(this._eventHandlerCallbackId){
+            $dispatcher.off(this.eventType, this._eventHandlerCallbackId);
+            delete this._eventHandlerCallbackId;
+        }
     };
 });
