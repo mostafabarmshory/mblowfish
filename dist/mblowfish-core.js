@@ -3835,120 +3835,120 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-/**
- * @ngdoc Directives
- * @name mb-pagination-bar
- * @property {Object}    mb-model           -Data model
- * @property {function}  mb-reload          -Reload function
- * @property {Array}     mb-sort-keys       -Array
- * @property {Array}     mb-more-actions    -Array
- * @property {string}    mb-title           -String
- * @property {string}    mb-icon            -String
- * @description Pagination bar
- *
- * Pagination parameters are a complex data structure and it is hard to manage
- * it. This is a toolbar to manage the pagination options.
- */
-.directive('mbPaginationBar',  function($window,$timeout,$mdMenu, $parse) {
+	/**
+	 * @ngdoc Directives
+	 * @name mb-pagination-bar
+	 * @property {Object}    mb-model           -Data model
+	 * @property {function}  mb-reload          -Reload function
+	 * @property {Array}     mb-sort-keys       -Array
+	 * @property {Array}     mb-more-actions    -Array
+	 * @property {string}    mb-title           -String
+	 * @property {string}    mb-icon            -String
+	 * @description Pagination bar
+	 *
+	 * Pagination parameters are a complex data structure and it is hard to manage
+	 * it. This is a toolbar to manage the pagination options.
+	 */
+	.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
 
-    function postLink(scope, element, attrs) {
+	    function postLink(scope, element, attrs) {
 
-        var query = {
-                sortDesc: true,
-                sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-                        searchTerm: null
-        };
-        /*
-         * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
-         */
-        function __reload(){
-            if(!angular.isDefined(attrs.mbReload)){
-                return;
-            }
-            $parse(attrs.mbReload)(scope.$parent);
-        }
-        /**
-         * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
-         */
-        function exportData(){
-            if(!angular.isFunction(scope.mbExport)){
-                return;
-            }
-            scope.mbExport(scope.mbModel);
-        }
+		var query = {
+		    sortDesc: true,
+		    sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+		    searchTerm: null
+		};
+		/*
+		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
+		 */
+		function __reload() {
+		    if (!angular.isDefined(attrs.mbReload)) {
+			return;
+		    }
+		    $parse(attrs.mbReload)(scope.$parent);
+		}
+		/**
+		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
+		 */
+		function exportData() {
+		    if (!angular.isFunction(scope.mbExport)) {
+			return;
+		    }
+		    scope.mbExport(scope.mbModel);
+		}
 
-        function searchQuery(searchText){
-            scope.mbModel.setQuery(searchText);
-            __reload();
-        }
+		function searchQuery(searchText) {
+		    scope.mbModel.setQuery(searchText);
+		    __reload();
+		}
 
-        function focusToElementById(id){
-            $timeout(function(){
-                var searchControl;
-                searchControl=$window.document.getElementById(id);
-                searchControl.focus();
-            }, 50 );
-        }
+		function focusToElementById(id) {
+		    $timeout(function () {
+			var searchControl;
+			searchControl = $window.document.getElementById(id);
+			searchControl.focus();
+		    }, 50);
+		}
 
-        scope.showBoxOne=false;
-        scope.focusToElement=focusToElementById;
-        // configure scope:
-        scope.search = searchQuery;
-        scope.__reload = __reload;
-        scope.query=query;
-        if(angular.isFunction(scope.mbExport)){
-            scope.exportData = exportData;
-        }
-        if(typeof scope.mbEnableSearch === 'undefined'){
-            scope.mbEnableSearch = true;
-        }
+		scope.showBoxOne = false;
+		scope.focusToElement = focusToElementById;
+		// configure scope:
+		scope.search = searchQuery;
+		scope.__reload = __reload;
+		scope.query = query;
+		if (angular.isFunction(scope.mbExport)) {
+		    scope.exportData = exportData;
+		}
+		if (typeof scope.mbEnableSearch === 'undefined') {
+		    scope.mbEnableSearch = true;
+		}
 
-        scope.$watch('query', function(){
-            __reload();
-        }, true);
+		scope.$watch('query', function () {
+		    searchQuery();
+		}, true);
 
-    }
+	    }
 
-    return {
-        restrict : 'E',
-        templateUrl: 'views/directives/mb-pagination-bar.html',
-        scope : {
-            /*
-             * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
-             */
-            mbModel : '=',
-            /*
-             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
-             * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
-             */
-            mbReload : '@?',
-            /*
-             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
-             * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
-             */
-            mbExport : '=',
-            /*
-             * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
-             * بشن.
-             */
-            mbSortKeys: '=',
+	    return {
+		restrict: 'E',
+		templateUrl: 'views/directives/mb-pagination-bar.html',
+		scope: {
+		    /*
+		     * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
+		     */
+		    mbModel: '=',
+		    /*
+		     * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
+		     * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
+		     */
+		    mbReload: '@?',
+		    /*
+		     * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
+		     * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
+		     */
+		    mbExport: '=',
+		    /*
+		     * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
+		     * بشن.
+		     */
+		    mbSortKeys: '=',
 
-            /* titles corresponding to sort keys */
-            mbSortKeysTitles: '=?',
+		    /* titles corresponding to sort keys */
+		    mbSortKeysTitles: '=?',
 
-            /*
-             * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-             */
-            mbMoreActions: '=',
+		    /*
+		     * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+		     */
+		    mbMoreActions: '=',
 
-            mbTitle: '@?',
-            mbIcon: '@?',
+		    mbTitle: '@?',
+		    mbIcon: '@?',
 
-            mbEnableSearch: '=?'
-        },
-        link : postLink
-    };
-});
+		    mbEnableSearch: '=?'
+		},
+		link: postLink
+	    };
+	});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4657,7 +4657,7 @@ angular.module('mblowfish-core')
 	/**
 	 *
 	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, QueryParameter) {
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, $translate, QueryParameter) {
 
 	    var qp = new QueryParameter();
 
@@ -4690,6 +4690,10 @@ angular.module('mblowfish-core')
 
 		//function pay(backend, discountCode){
 		this.pay = function (backend, discountCode) {
+		    if (this.paying) {
+			return;
+		    }
+		    this.paying = true;
 		    // create receipt and send to bank receipt page.
 		    var data = {
 			backend: backend.id,
@@ -4698,6 +4702,7 @@ angular.module('mblowfish-core')
 		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
 			data.discount_code = discountCode;
 		    }
+		    var ctrl = this;
 		    $parse(attrs.mbPay)(scope.$parent, {
 			$backend: backend,
 			$discount: discountCode,
@@ -4705,7 +4710,11 @@ angular.module('mblowfish-core')
 			$data: data
 		    })//
 			    .then(function (receipt) {
+				ctrl.paying = false;
 				$navigator.openPage('bank/receipts/' + receipt.id);
+			    }, function (error) {
+				ctrl.paying = false;
+				alert($translate.instant(error.data.message));
 			    });
 		};
 
@@ -9124,7 +9133,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pay.html',
-    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=ctrl.loadingGates md-mode=indeterminate class=md-primary md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
+    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=\"ctrl.loadingGates || ctrl.paying\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
   );
 
 
@@ -9134,7 +9143,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-warn md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
   );
 
 

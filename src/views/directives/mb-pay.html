@@ -19,7 +19,7 @@
         layout="column">
         <md-progress-linear
             style="min-width:50px;"
-            ng-if="ctrl.loadingGates"
+            ng-if="ctrl.loadingGates || ctrl.paying"
             md-mode="indeterminate"
             class="md-accent"
             md-color>

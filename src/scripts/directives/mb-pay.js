@@ -26,7 +26,7 @@ angular.module('mblowfish-core')
 	/**
 	 *
 	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, QueryParameter) {
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, $translate, QueryParameter) {
 
 	    var qp = new QueryParameter();
 
@@ -59,6 +59,10 @@ angular.module('mblowfish-core')
 
 		//function pay(backend, discountCode){
 		this.pay = function (backend, discountCode) {
+		    if (this.paying) {
+			return;
+		    }
+		    this.paying = true;
 		    // create receipt and send to bank receipt page.
 		    var data = {
 			backend: backend.id,
@@ -67,6 +71,7 @@ angular.module('mblowfish-core')
 		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
 			data.discount_code = discountCode;
 		    }
+		    var ctrl = this;
 		    $parse(attrs.mbPay)(scope.$parent, {
 			$backend: backend,
 			$discount: discountCode,
@@ -74,7 +79,11 @@ angular.module('mblowfish-core')
 			$data: data
 		    })//
 			    .then(function (receipt) {
+				ctrl.paying = false;
 				$navigator.openPage('bank/receipts/' + receipt.id);
+			    }, function (error) {
+				ctrl.paying = false;
+				alert($translate.instant(error.data.message));
 			    });
 		};
 
