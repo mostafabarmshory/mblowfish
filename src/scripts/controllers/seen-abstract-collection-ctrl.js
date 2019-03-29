@@ -283,7 +283,12 @@ angular.module('mblowfish-core')//
     /**
      * Creates new item with the createItemDialog
      */
-    this.deleteItem = function(item){
+    this.deleteItem = function(item, $event){
+        // prevent default evetn
+        if($event){
+            $event.preventDefault();
+            $event.stopPropagation();
+        }
         // XXX: maso, 2019: update state
         var ctrl = this;
         var tempItem = _.clone(item);
