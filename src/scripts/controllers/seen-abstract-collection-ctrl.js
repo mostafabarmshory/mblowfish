@@ -58,8 +58,15 @@ angular.module('mblowfish-core')//
  * - addModel: model
  * - addViewItem: view
  */
-.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
+.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
     'use strict';
+
+    /*
+     * Extends collection controller from MbAbstractCtrl 
+     */
+    angular.extend(this, $controller('MbAbstractCtrl', {
+        $scope : $scope
+    }));
 
     /*
      * util function
@@ -271,10 +278,7 @@ angular.module('mblowfish-core')//
             return ctrl.addModel(model);
         })//
         .then(function(item){
-            $dispatcher.dispatch(ctrl.eventType, {
-                key: 'created',// CRUD
-                values: [item]
-            });
+        	ctrl.fireCreated(ctrl.eventType, item);
         }, function(){
             $window.alert(ADD_ACTION_FAIL_MESSAGE);
         });
@@ -295,10 +299,7 @@ angular.module('mblowfish-core')//
         function _deleteInternal() {
             return ctrl.deleteModel(item)
             .then(function(){
-                $dispatcher.dispatch(ctrl.eventType, {
-                    key: 'removed', // CRUD
-                    values: [tempItem]
-                });
+            	ctrl.fireDeleted(ctrl.eventType, tempItem);
             }, function(){
                 // XXX: maso, 2019: handle error
             });
@@ -441,11 +442,6 @@ angular.module('mblowfish-core')//
         
         // confirm delete
         this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
-        
-        // init
-        $scope.$on('$destroy', function(){
-            ctrl.destroy();
-        });
     };
 
     /**
@@ -542,8 +538,13 @@ angular.module('mblowfish-core')//
         return this.state === STATE_IDEAL;
     };
 
-    /*
-     * handle events
+    /**
+     * Generate default event handler
+     * 
+     * If you are about to handle event with a custom function, please
+     * overrid this function.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.eventHandlerCallBack = function(){
         if(this._eventHandlerCallBack){
@@ -572,20 +573,15 @@ angular.module('mblowfish-core')//
      * Listen to dispatcher for new event
      */
     this._setEventType = function(eventType) {
+    	if(this.eventType === eventType){
+    		return;
+    	}
+    	var callback = this.eventHandlerCallBack();
+    	if(this.eventType){
+    		this.removeEventHandler(callback);
+    	}
         this.eventType = eventType;
-        this._eventHandlerCallbackId = $dispatcher.on(this.eventType, this.eventHandlerCallBack());
+        this.addEventHandler(this.eventType, callback);
     };
     
-
-    /**
-     * Remove all resources
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.destroy = function() {
-        if(this._eventHandlerCallbackId){
-            $dispatcher.off(this.eventType, this._eventHandlerCallbackId);
-            delete this._eventHandlerCallbackId;
-        }
-    };
 });
