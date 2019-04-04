@@ -39,7 +39,7 @@ angular.module('mblowfish-core')
         if (!angular.isDefined(data)) {
             data = {};
         }
-        return this;
+        angular.extend(this, data);
     };
 
     mbEvent.prototype.getType = function () {
