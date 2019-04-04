@@ -156,7 +156,9 @@ angular.module('mblowfish-core')//
     this.items = [];
 
     /**
-     * Add item to view
+     * Adds items to view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.pushViewItems = function(items) {
         if(!angular.isDefined(items)){
@@ -164,31 +166,54 @@ angular.module('mblowfish-core')//
         }
         // Push new items
         var deff = differenceBy(this.items, items, 'id');
-        this.items = _.union(items, deff);
+        // TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
+        // update the following part in the next version.
+        // this.items = _.concat(items, deff);
+        for(var i = 0; i < deff.length; i++){
+        	this.items.push(deff[i]);
+        }
     };
 
     /**
-     * Add item to view
+     * Adds items to view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.addViewItems = this.pushViewItems;
 
     /**
      * remove item from view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.removeViewItems = function(items) {
         this.items = differenceBy(this.items, items, 'id');
     };
 
+    /**
+     * Updates an item in the view with the given one
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
+     */
     this.updateViewItems = function(items) {
         // XXX: maso, 2019: update view items
     };
 
+    /**
+     * Returns list of all items in the view
+     * 
+     * NOTE: this is the main storage of the controller.
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
+     */
     this.getViewItems = function(){
         return this.items;
     };
 
     /**
      * Removes all items from view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.clearViewItems = function(){
         this.items = [];
