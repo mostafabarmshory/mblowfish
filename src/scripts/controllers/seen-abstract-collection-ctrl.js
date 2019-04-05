@@ -165,7 +165,7 @@ angular.module('mblowfish-core')//
             return;
         }
         // Push new items
-        var deff = differenceBy(this.items, items, 'id');
+        var deff = differenceBy(items, this.items, 'id');
         // TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
         // update the following part in the next version.
         // this.items = _.concat(items, deff);

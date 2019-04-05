@@ -2083,8 +2083,10 @@ angular.module('mblowfish-core')//
             return;
         }
         // Push new items
-        var deff = differenceBy(this.items, items, 'id');
-//        this.items = _.union(items, deff);
+        var deff = differenceBy(items, this.items, 'id');
+        // TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
+        // update the following part in the next version.
+        // this.items = _.concat(items, deff);
         for(var i = 0; i < deff.length; i++){
         	this.items.push(deff[i]);
         }
@@ -8834,62 +8836,79 @@ angular.module('mblowfish-core')
  */
 .service('$page', function($rootScope, $rootElement) {
 
-
-
+	// ------------------------------------------------------------------
+	// Utility function
+	//
+	//
+	// ------------------------------------------------------------------
 	/*
 	 * <!-- OG -->
 	 * <meta property="og:site_name" content="$title">
 	 */
-
+	
 	$rootScope.page = {
-		title: '',
-		description: '',
-		keywords: [],
-		links:[]
+			title: '',
+			description: '',
+			keywords: [],
+			links:[]
 	};
 	var page = $rootScope.page;
+	var headElement = $rootElement.find('head');
+	var bodyElement = $rootElement.find('body');
+	
+	/*
+	 * Get elements by name
+	 */
+	function getHeadElementByName(name){
+		var elements = headElement.find(name);
+		if(elements.length){
+			return angular.element(elements[0]);
+		}
+		// title element not found
+		var metaElement = angular.element('<' + name +'/>');
+		headElement.append(metaElement);
+		return metaElement;
+	}
+
+	// ------------------------------------------------------------------
+	// Utility function
+	//
+	//
+	// ------------------------------------------------------------------
 
 	/**
 	 * 
 	 * @param title
 	 * @returns
 	 */
-	function setTitle(title){
+	this.setTitle = function(title){
 		page.title = title;
-		var head = $rootElement.find('head');
-		var elements = head.find('title');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<title></title>');
-			head.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.text(title);
-		setMeta('twitter:title', title);
-		setMetaOg('og:title', title);
+		getHeadElementByName('title').text(title);
+		this.setMeta('twitter:title', title);
+		this.setMeta('og:title', title);
 		return this;
 	}
 
 	/**
+	 * Gets current page title
 	 * 
 	 * @returns
 	 */
-	function getTitle(){
+	this.getTitle = function (){
 		return page.title;
 	}
 
 	/**
+	 * Sets page description
 	 * 
 	 * @param description
 	 * @returns
 	 */
-	function setDescription(description){
+	this.setDescription = function (description){
 		page.description = description;
-		setMeta('description', description);
-		setMeta('twitter:description', description);
-		setMetaOg('og:description', description);
+		this.setMeta('description', description);
+		this.setMeta('twitter:description', description);
+		this.setMeta('og:description', description);
 		return this;
 	}
 
@@ -8897,8 +8916,7 @@ angular.module('mblowfish-core')
 	 * 
 	 * @returns
 	 */
-	function getDescription(){
-//		return getMeta('description');
+	this.getDescription = function (){
 		return page.description;
 	}
 
@@ -8907,40 +8925,57 @@ angular.module('mblowfish-core')
 	 * @param keywords
 	 * @returns
 	 */
-	function setKeywords(keywords){
+	this.setKeywords = function (keywords){
 		page.keywords = keywords;
-		setMeta('keywords', keywords);
+		this.setMeta('keywords', keywords);
 		return this;
 	}
 
 	/**
+	 * Gets current keywords
 	 * 
 	 * @returns
 	 */
-	function getKeywords(){
-//		return getMeta('keywords');
+	this.getKeywords = function (){
 		return page.keywords;
-	}
+	};
 	
-	function setFavicon(favicon){
-		updateLink('favicon-link', {
+	/**
+	 * Sets favicon
+	 */
+	this.setFavicon = function (favicon){
+		this.updateLink('favicon-link', {
 			href: favicon,
 			rel: 'icon'
 		});
-		setMeta('twitter:image', favicon);
-		setMetaOg('og:image', favicon);
 		return this;
-	}
+	};
+	
+	/**
+	 * Sets page cover
+	 */
+	this.setCover = function(imageUrl) {
+		this.setMeta('twitter:image', imageUrl);
+		this.setMeta('og:image', imageUrl);
+		return this;
+	};
+	
+	this.setCanonicalLink = function(url) {
+		this.setLink('canonical', {
+			href: url,
+			rel: 'canonical'
+		});
+		return this;
+	};
 
-	function updateLink(key, data){
+	this.updateLink = function(key, data){
 		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('link[key='+searchkey+']');
+		var elements = headElement.find('link[key='+searchkey+']');
 		var metaElement;
 		if(elements.length === 0){
 			// title element not found
 			metaElement = angular.element('<link key=\''+key+'\' />');
-			head.append(metaElement);
+			headElement.append(metaElement);
 		} else {
 			metaElement = angular.element(elements[0]);
 		}
@@ -8948,81 +8983,31 @@ angular.module('mblowfish-core')
 			metaElement.attr(property, data[property]);
 		}
 		return this;
-	}
+	};
+	
+	this.setLink = this.updateLink;
 
-	function setMeta(key, value){
+	this.setMeta = function (key, value){
 		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('meta[name='+searchkey+']');
+		var elements = headElement.find('meta[name='+searchkey+']');
 		var metaElement;
 		if(elements.length === 0){
 			// title element not found
 			metaElement = angular.element('<meta name=\''+key+'\' content=\'\' />');
-			head.append(metaElement);
+			headElement.append(metaElement);
 		} else {
 			metaElement = angular.element(elements[0]);
 		}
 		metaElement.attr('content', value);
 		return this;
-	}
-	
-	/**
-	 * Adds or set an OG meta tag to document.
-	 * Note: OG meta tag is differ than usual meta tags. Attributes of an OG meta tag are: property and content
-	 * while attributes of an usual meta tag are: name and content. 
-	 */
-	function setMetaOg(key, value){
-		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('meta[name='+searchkey+']');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<meta property=\''+key+'\' content=\'\' />');
-			head.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.attr('content', value);
-		return this;
-	}
-
-	/**
-	 * Adds or set an OG meta tag to document.
-	 * Note: OG meta tag is differ than usual meta tags. Attributes of an OG meta tag are: property and content
-	 * while attributes of an usual meta tag are: name and content. 
-	 */
-	function setMetaOg(key, value){
-		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('meta[name='+searchkey+']');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<meta property=\''+key+'\' content=\'\' />');
-			head.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.attr('content', value);
-		return this;
-	}
-	
-	/*
-	 * Service struct
-	 */
-	return {
-		// Init
-		setTitle: setTitle,
-		getTitle: getTitle,
-		setDescription: setDescription,
-		getDescription: getDescription,
-		setKeywords: setKeywords,
-		getKeywords: getKeywords,
-		setFavicon: setFavicon,
-		setMeta: setMeta,
-		setLink: updateLink
 	};
+	
+	this.setLanguage = function(language){
+		bodyElement.attr('lang', language);
+		return this;
+	};
+	
+	return this;
 });
 
 /*
