@@ -58,8 +58,15 @@ angular.module('mblowfish-core')//
  * - addModel: model
  * - addViewItem: view
  */
-.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
+.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
     'use strict';
+
+    /*
+     * Extends collection controller from MbAbstractCtrl 
+     */
+    angular.extend(this, $controller('MbAbstractCtrl', {
+        $scope : $scope
+    }));
 
     /*
      * util function
@@ -149,39 +156,64 @@ angular.module('mblowfish-core')//
     this.items = [];
 
     /**
-     * Add item to view
+     * Adds items to view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.pushViewItems = function(items) {
         if(!angular.isDefined(items)){
             return;
         }
         // Push new items
-        var deff = differenceBy(this.items, items, 'id');
-        this.items = _.union(items, deff);
+        var deff = differenceBy(items, this.items, 'id');
+        // TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
+        // update the following part in the next version.
+        // this.items = _.concat(items, deff);
+        for(var i = 0; i < deff.length; i++){
+        	this.items.push(deff[i]);
+        }
     };
 
     /**
-     * Add item to view
+     * Adds items to view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.addViewItems = this.pushViewItems;
 
     /**
      * remove item from view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.removeViewItems = function(items) {
         this.items = differenceBy(this.items, items, 'id');
     };
 
+    /**
+     * Updates an item in the view with the given one
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
+     */
     this.updateViewItems = function(items) {
         // XXX: maso, 2019: update view items
     };
 
+    /**
+     * Returns list of all items in the view
+     * 
+     * NOTE: this is the main storage of the controller.
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
+     */
     this.getViewItems = function(){
         return this.items;
     };
 
     /**
      * Removes all items from view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.clearViewItems = function(){
         this.items = [];
@@ -271,10 +303,7 @@ angular.module('mblowfish-core')//
             return ctrl.addModel(model);
         })//
         .then(function(item){
-            $dispatcher.dispatch(ctrl.eventType, {
-                key: 'created',// CRUD
-                values: [item]
-            });
+        	ctrl.fireCreated(ctrl.eventType, item);
         }, function(){
             $window.alert(ADD_ACTION_FAIL_MESSAGE);
         });
@@ -283,17 +312,19 @@ angular.module('mblowfish-core')//
     /**
      * Creates new item with the createItemDialog
      */
-    this.deleteItem = function(item){
+    this.deleteItem = function(item, $event){
+        // prevent default evetn
+        if($event){
+            $event.preventDefault();
+            $event.stopPropagation();
+        }
         // XXX: maso, 2019: update state
         var ctrl = this;
         var tempItem = _.clone(item);
         function _deleteInternal() {
             return ctrl.deleteModel(item)
             .then(function(){
-                $dispatcher.dispatch(ctrl.eventType, {
-                    key: 'removed', // CRUD
-                    values: [tempItem]
-                });
+            	ctrl.fireDeleted(ctrl.eventType, tempItem);
             }, function(){
                 // XXX: maso, 2019: handle error
             });
@@ -436,11 +467,6 @@ angular.module('mblowfish-core')//
         
         // confirm delete
         this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
-        
-        // init
-        $scope.$on('$destroy', function(){
-            ctrl.destroy();
-        });
     };
 
     /**
@@ -537,8 +563,13 @@ angular.module('mblowfish-core')//
         return this.state === STATE_IDEAL;
     };
 
-    /*
-     * handle events
+    /**
+     * Generate default event handler
+     * 
+     * If you are about to handle event with a custom function, please
+     * overrid this function.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.eventHandlerCallBack = function(){
         if(this._eventHandlerCallBack){
@@ -567,20 +598,15 @@ angular.module('mblowfish-core')//
      * Listen to dispatcher for new event
      */
     this._setEventType = function(eventType) {
+    	if(this.eventType === eventType){
+    		return;
+    	}
+    	var callback = this.eventHandlerCallBack();
+    	if(this.eventType){
+    		this.removeEventHandler(callback);
+    	}
         this.eventType = eventType;
-        this._eventHandlerCallbackId = $dispatcher.on(this.eventType, this.eventHandlerCallBack());
+        this.addEventHandler(this.eventType, callback);
     };
     
-
-    /**
-     * Remove all resources
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.destroy = function() {
-        if(this._eventHandlerCallbackId){
-            $dispatcher.off(this.eventType, this._eventHandlerCallbackId);
-            delete this._eventHandlerCallbackId;
-        }
-    };
 });

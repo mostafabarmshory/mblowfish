@@ -396,6 +396,173 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
+/**
+ * @ngdoc Controllers
+ * @name MbAbstractCtrl
+ * @description Generic controller which is used as base in the platform
+ * 
+ */
+.controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
+	'use strict';
+
+	this._hids = [];
+
+
+	//--------------------------------------------------------
+	// --Events--
+	//--------------------------------------------------------
+	var EventHandlerId = function(type, id, callback){
+		this.type = type;
+		this.id = id;
+		this.callback = callback;
+	};
+
+	/**
+	 * Add a callback for an specific type
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	this.addEventHandler = function(type, callback){
+		var callbackId = $dispatcher.on(type, callback);
+		this._hids.push(new EventHandlerId(type, callbackId, callback));
+	};
+	
+	/**
+	 * Remove a callback for an specific type
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	this.removeEventHandler = function(type, callback){
+		// XXX: maso, 2019: remove handler
+	};
+
+	/**
+	 * Fire an action is performed on items
+	 * 
+	 * Here is common list of action to dils with objects:
+	 * 
+	 * - created
+	 * - read
+	 * - updated
+	 * - deleted
+	 * 
+	 * to fire an item is created:
+	 * 
+	 * this.fireEvent(type, 'created', item);
+	 * 
+	 * to fire items created:
+	 * 
+	 * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
+	 * 
+	 * to fire list of items created
+	 * 
+	 * var items = [];
+	 * ...
+	 * this.fireEvent(type, 'created', items);
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireEvent = function(type, action, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
+		var source = this;
+		return $dispatcher.dispatch(type, new MbEvent({
+			source: source,
+			type: type,
+			key: action,
+			values: values
+		}));
+	};
+
+	/**
+	 * Fires items created
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireCreated = function(type, items){
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'created', values);
+	};
+
+	/**
+	 * Fires items read
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireRead = function(type, items){
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'read', values);
+	};
+
+	/**
+	 * Fires items updated
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireUpdated = function(type, items){
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'updated', values);
+	};
+
+	/**
+	 * Fires items deleted
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireDeleted = function(type, items){
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'deleted', values);
+	};
+
+
+	//--------------------------------------------------------
+	// --View--
+	//--------------------------------------------------------
+	/*
+	 * Remove all resources
+	 */
+	var ctrl = this;
+	$scope.$on('$destroy', function() {
+		for(var i = 0; i < ctrl._hids.length; i++){
+			var handlerId = ctrl._hids[i];
+			$dispatcher.off(handlerId.type, handlerId.id);
+		}
+		ctrl._hids = [];
+	});
+
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 'use strict';
 
 angular.module('mblowfish-core')
@@ -647,40 +814,40 @@ angular.module('mblowfish-core')
 
 
 
-'use strict';
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name AmdDashboardCtrl
- * @description Dashboard
- * 
- */
-.controller('AmdDashboardCtrl', function($scope, $navigator, $app) {
-    function toogleEditable(){
-        $scope.editable = !$scope.editable;
-    }
-
-    $navigator.scopePath($scope)//
-    .add({
-        title: 'Dashboard',
-        link: 'dashboard'
-    });
-
-    $app.scopeMenu($scope) //
-    .add({ // edit menu
-        priority : 15,
-        icon : 'edit',
-        label : 'Edit content',
-        tooltip : 'Toggle edit mode of the current contetn',
-        visible : function(){
-            return $scope.app.user.owner;
-        },
-        action : toogleEditable
-    });//
-
-});
+//'use strict';
+//
+//angular.module('mblowfish-core')
+//
+///**
+// * @ngdoc Controllers
+// * @name AmdDashboardCtrl
+// * @description Dashboard
+// * 
+// */
+//.controller('AmdDashboardCtrl', function($scope, /*$navigator,*/ $app) {
+//    function toogleEditable(){
+//        $scope.editable = !$scope.editable;
+//    }
+//
+////    $navigator.scopePath($scope)//
+////    .add({
+////        title: 'Dashboard',
+////        link: 'dashboard'
+////    });
+//
+//    $app.scopeMenu($scope) //
+//    .add({ // edit menu
+//        priority : 15,
+//        icon : 'edit',
+//        label : 'Edit content',
+//        tooltip : 'Toggle edit mode of the current contetn',
+//        visible : function(){
+//            return $scope.app.user.owner;
+//        },
+//        action : toogleEditable
+//    });//
+//
+//});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1585,169 +1752,169 @@ angular.module('mblowfish-core')
 	$scope.openPreference = openPreference;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name MbProfileCtrl
- * @description Manages profile of a user
- * 
- */
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
-    
-    // set initial data
-    this.user = null;
-    this.profile = null;
-    this.loadingProfile = false;
-    this.savingProfile = false;
-
-    /*
-     * - normal
-     * - edit
-     */
-    this.avatarState = 'normal';
-
-    /**
-     * Loads user data
-     * 
-     * @returns
-     */
-    this.loadUser = function() {
-        this.user = $rootScope.app.user.current;//
-        if (!this.user) {
-            alert($translate.instant('Fail to load user.'));
-            return;
-        }
-        this.loadProfile();
-    }
-
-    this.loadProfile = function() {
-        if (this.loadinProfile) {
-            return;
-        }
-        this.loadingProfile = true;
-        var ctrl = this;
-        return this.user.getProfiles()//
-        .then(function (profiles) {
-            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
-            return ctrl.profile;
-        }, function () {
-            alert($translate.instant('Fial to load profile.'));
-        })//
-        .finally(function () {
-            ctrl.loadingProfile = false;
-        });
-    }
-
-    /**
-     * Save current user
-     * 
-     * @returns
-     */
-    this.save = function() {
-        if (this.savingProfile) {
-            return;
-        }
-        this.savingProfile = true;
-        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
-        var ctrl = this;
-        return $promise//
-        .then(function () {
-            toast($translate.instant('Save is successfull.'));
-        }, function () {
-            alert($translate.instant('Fail to save item.'));
-        })//
-        .finally(function () {
-            ctrl.savingProfile = false;
-        });
-    }
-
-    this.back = function() {
-        $window.history.back();
-    }
-    
-    this.deleteAvatar = function(){
-        var ctrl = this;
-        confirm('Delete the avatar?')
-        .then(function(){
-            ctrl.avatarState = 'working';
-            return ctrl.user.deleteAvatar();
-        })
-        .finally(function(){
-            ctrl.avatarState = 'normal';
-        });
-    }
-    
-    this.uploadAvatar = function(files){
-        if (!angular.isArray(files) || !files.length) {
-        }
-        var file = null;
-        file = files[0].lfFile;
-        this.avatarLoading = true;
-        var ctrl = this;
-        this.user.uploadAvatar(file)
-        .then(function(){
-            // TODO: reload the page
-        })
-        .finally(function(){
-            ctrl.avatarLoading = false;
-            ctrl.avatarState = 'normal';
-        });
-    }
-    
-    this.editAvatar = function(){
-        this.avatarState = 'edit';
-    }
-    
-    this.cancelEditAvatar = function(){
-        this.avatarState = 'normal';
-    }
-
-    /*
-     * To support old version of the controller
-     */
-    var ctrl = this;
-    $scope.load = function(){
-        ctrl.loadUser();
-    };
-    $scope.reload = function(){
-        ctrl.loadUser();
-    };
-    $scope.save = function(){
-        ctrl.save();
-    };
-    $scope.back = function(){
-        ctrl.back();
-    };
-    $scope.cancel =  function(){
-        ctrl.back();
-    };
-    
-    // Load account information
-    this.loadUser();
-});
+///*
+// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+// * 
+// * Permission is hereby granted, free of charge, to any person obtaining a copy
+// * of this software and associated documentation files (the "Software"), to deal
+// * in the Software without restriction, including without limitation the rights
+// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// * copies of the Software, and to permit persons to whom the Software is
+// * furnished to do so, subject to the following conditions:
+// * 
+// * The above copyright notice and this permission notice shall be included in all
+// * copies or substantial portions of the Software.
+// * 
+// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// * SOFTWARE.
+// */
+//'use strict';
+//angular.module('mblowfish-core')
+//
+///**
+// * @ngdoc Controllers
+// * @name MbProfileCtrl
+// * @description Manages profile of a user
+// * 
+// */
+//.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
+//    
+//    // set initial data
+//    this.user = null;
+//    this.profile = null;
+//    this.loadingProfile = false;
+//    this.savingProfile = false;
+//
+//    /*
+//     * - normal
+//     * - edit
+//     */
+//    this.avatarState = 'normal';
+//
+//    /**
+//     * Loads user data
+//     * 
+//     * @returns
+//     */
+//    this.loadUser = function() {
+//        this.user = $rootScope.app.user.current;//
+//        if (!this.user) {
+//            alert($translate.instant('Fail to load user.'));
+//            return;
+//        }
+//        this.loadProfile();
+//    }
+//
+//    this.loadProfile = function() {
+//        if (this.loadinProfile) {
+//            return;
+//        }
+//        this.loadingProfile = true;
+//        var ctrl = this;
+//        return this.user.getProfiles()//
+//        .then(function (profiles) {
+//            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+//            return ctrl.profile;
+//        }, function () {
+//            alert($translate.instant('Fial to load profile.'));
+//        })//
+//        .finally(function () {
+//            ctrl.loadingProfile = false;
+//        });
+//    }
+//
+//    /**
+//     * Save current user
+//     * 
+//     * @returns
+//     */
+//    this.save = function() {
+//        if (this.savingProfile) {
+//            return;
+//        }
+//        this.savingProfile = true;
+//        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
+//        var ctrl = this;
+//        return $promise//
+//        .then(function () {
+//            toast($translate.instant('Save is successfull.'));
+//        }, function () {
+//            alert($translate.instant('Fail to save item.'));
+//        })//
+//        .finally(function () {
+//            ctrl.savingProfile = false;
+//        });
+//    }
+//
+//    this.back = function() {
+//        $window.history.back();
+//    }
+//    
+//    this.deleteAvatar = function(){
+//        var ctrl = this;
+//        confirm('Delete the avatar?')
+//        .then(function(){
+//            ctrl.avatarState = 'working';
+//            return ctrl.user.deleteAvatar();
+//        })
+//        .finally(function(){
+//            ctrl.avatarState = 'normal';
+//        });
+//    }
+//    
+//    this.uploadAvatar = function(files){
+//        if (!angular.isArray(files) || !files.length) {
+//        }
+//        var file = null;
+//        file = files[0].lfFile;
+//        this.avatarLoading = true;
+//        var ctrl = this;
+//        this.user.uploadAvatar(file)
+//        .then(function(){
+//            // TODO: reload the page
+//        })
+//        .finally(function(){
+//            ctrl.avatarLoading = false;
+//            ctrl.avatarState = 'normal';
+//        });
+//    }
+//    
+//    this.editAvatar = function(){
+//        this.avatarState = 'edit';
+//    }
+//    
+//    this.cancelEditAvatar = function(){
+//        this.avatarState = 'normal';
+//    }
+//
+//    /*
+//     * To support old version of the controller
+//     */
+//    var ctrl = this;
+//    $scope.load = function(){
+//        ctrl.loadUser();
+//    };
+//    $scope.reload = function(){
+//        ctrl.loadUser();
+//    };
+//    $scope.save = function(){
+//        ctrl.save();
+//    };
+//    $scope.back = function(){
+//        ctrl.back();
+//    };
+//    $scope.cancel =  function(){
+//        ctrl.back();
+//    };
+//    
+//    // Load account information
+//    this.loadUser();
+//});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1809,8 +1976,15 @@ angular.module('mblowfish-core')//
  * - addModel: model
  * - addViewItem: view
  */
-.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $q, $navigator, $window, $dispatcher, QueryParameter, Action) {
+.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
     'use strict';
+
+    /*
+     * Extends collection controller from MbAbstractCtrl 
+     */
+    angular.extend(this, $controller('MbAbstractCtrl', {
+        $scope : $scope
+    }));
 
     /*
      * util function
@@ -1900,39 +2074,64 @@ angular.module('mblowfish-core')//
     this.items = [];
 
     /**
-     * Add item to view
+     * Adds items to view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.pushViewItems = function(items) {
         if(!angular.isDefined(items)){
             return;
         }
         // Push new items
-        var deff = differenceBy(this.items, items, 'id');
-        this.items = _.union(items, deff);
+        var deff = differenceBy(items, this.items, 'id');
+        // TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
+        // update the following part in the next version.
+        // this.items = _.concat(items, deff);
+        for(var i = 0; i < deff.length; i++){
+        	this.items.push(deff[i]);
+        }
     };
 
     /**
-     * Add item to view
+     * Adds items to view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.addViewItems = this.pushViewItems;
 
     /**
      * remove item from view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.removeViewItems = function(items) {
         this.items = differenceBy(this.items, items, 'id');
     };
 
+    /**
+     * Updates an item in the view with the given one
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
+     */
     this.updateViewItems = function(items) {
         // XXX: maso, 2019: update view items
     };
 
+    /**
+     * Returns list of all items in the view
+     * 
+     * NOTE: this is the main storage of the controller.
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
+     */
     this.getViewItems = function(){
         return this.items;
     };
 
     /**
      * Removes all items from view
+     * 
+     * @memberof AmWbSeenAbstractCollectionCtrl
      */
     this.clearViewItems = function(){
         this.items = [];
@@ -2022,10 +2221,7 @@ angular.module('mblowfish-core')//
             return ctrl.addModel(model);
         })//
         .then(function(item){
-            $dispatcher.dispatch(ctrl.eventType, {
-                key: 'created',// CRUD
-                values: [item]
-            });
+        	ctrl.fireCreated(ctrl.eventType, item);
         }, function(){
             $window.alert(ADD_ACTION_FAIL_MESSAGE);
         });
@@ -2034,17 +2230,19 @@ angular.module('mblowfish-core')//
     /**
      * Creates new item with the createItemDialog
      */
-    this.deleteItem = function(item){
+    this.deleteItem = function(item, $event){
+        // prevent default evetn
+        if($event){
+            $event.preventDefault();
+            $event.stopPropagation();
+        }
         // XXX: maso, 2019: update state
         var ctrl = this;
         var tempItem = _.clone(item);
         function _deleteInternal() {
             return ctrl.deleteModel(item)
             .then(function(){
-                $dispatcher.dispatch(ctrl.eventType, {
-                    key: 'removed', // CRUD
-                    values: [tempItem]
-                });
+            	ctrl.fireDeleted(ctrl.eventType, tempItem);
             }, function(){
                 // XXX: maso, 2019: handle error
             });
@@ -2187,11 +2385,6 @@ angular.module('mblowfish-core')//
         
         // confirm delete
         this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
-        
-        // init
-        $scope.$on('$destroy', function(){
-            ctrl.destroy();
-        });
     };
 
     /**
@@ -2288,8 +2481,13 @@ angular.module('mblowfish-core')//
         return this.state === STATE_IDEAL;
     };
 
-    /*
-     * handle events
+    /**
+     * Generate default event handler
+     * 
+     * If you are about to handle event with a custom function, please
+     * overrid this function.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
      */
     this.eventHandlerCallBack = function(){
         if(this._eventHandlerCallBack){
@@ -2318,22 +2516,17 @@ angular.module('mblowfish-core')//
      * Listen to dispatcher for new event
      */
     this._setEventType = function(eventType) {
+    	if(this.eventType === eventType){
+    		return;
+    	}
+    	var callback = this.eventHandlerCallBack();
+    	if(this.eventType){
+    		this.removeEventHandler(callback);
+    	}
         this.eventType = eventType;
-        this._eventHandlerCallbackId = $dispatcher.on(this.eventType, this.eventHandlerCallBack());
+        this.addEventHandler(this.eventType, callback);
     };
     
-
-    /**
-     * Remove all resources
-     * 
-     * @memberof SeenAbstractCollectionCtrl
-     */
-    this.destroy = function() {
-        if(this._eventHandlerCallbackId){
-            $dispatcher.off(this.eventType, this._eventHandlerCallbackId);
-            delete this._eventHandlerCallbackId;
-        }
-    };
 });
 
 /* 
@@ -5635,6 +5828,81 @@ angular.module('mblowfish-core')
 
 
 angular.module('mblowfish-core')
+/**
+ * @ngdoc Factories
+ * @name MbEvent
+ * @description An event item
+ * 
+ * Events are used to propagate signals to the application. It is based on $dispatcher. 
+ * 
+ * NOTE: All platform events (from mb or children) are instance of this factory.
+ * 
+ */
+.factory('MbEvent', function () {
+
+    var mbEvent = function (data) {
+        if (!angular.isDefined(data)) {
+            data = {};
+        }
+        angular.extend(this, data);
+    };
+
+    mbEvent.prototype.getType = function () {
+        return this.type || 'unknown';
+    };
+    
+    mbEvent.prototype.getKey = function () {
+    	return this.key || 'unknown';
+    };
+    
+    mbEvent.prototype.getValues = function () {
+    	return this.values || [];
+    };
+    
+    mbEvent.prototype.isCreated = function () {
+    	return this.key === 'created';
+    };
+    
+    mbEvent.prototype.isRead = function () {
+    	return this.key === 'read';
+    };
+    
+    mbEvent.prototype.isUpdated = function () {
+    	return this.key === 'updated';
+    };
+    
+    mbEvent.prototype.isDeleted = function () {
+    	return this.key === 'deleted';
+    };
+
+    return mbEvent;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+
+angular.module('mblowfish-core')
 	/**
 	 * @ngdoc Factories
 	 * @name httpRequestInterceptor
@@ -8568,62 +8836,79 @@ angular.module('mblowfish-core')
  */
 .service('$page', function($rootScope, $rootElement) {
 
-
-
+	// ------------------------------------------------------------------
+	// Utility function
+	//
+	//
+	// ------------------------------------------------------------------
 	/*
 	 * <!-- OG -->
 	 * <meta property="og:site_name" content="$title">
 	 */
-
+	
 	$rootScope.page = {
-		title: '',
-		description: '',
-		keywords: [],
-		links:[]
+			title: '',
+			description: '',
+			keywords: [],
+			links:[]
 	};
 	var page = $rootScope.page;
+	var headElement = $rootElement.find('head');
+	var bodyElement = $rootElement.find('body');
+	
+	/*
+	 * Get elements by name
+	 */
+	function getHeadElementByName(name){
+		var elements = headElement.find(name);
+		if(elements.length){
+			return angular.element(elements[0]);
+		}
+		// title element not found
+		var metaElement = angular.element('<' + name +'/>');
+		headElement.append(metaElement);
+		return metaElement;
+	}
+
+	// ------------------------------------------------------------------
+	// Utility function
+	//
+	//
+	// ------------------------------------------------------------------
 
 	/**
 	 * 
 	 * @param title
 	 * @returns
 	 */
-	function setTitle(title){
+	this.setTitle = function(title){
 		page.title = title;
-		var head = $rootElement.find('head');
-		var elements = head.find('title');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<title></title>');
-			head.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.text(title);
-		setMeta('twitter:title', title);
-		setMetaOg('og:title', title);
+		getHeadElementByName('title').text(title);
+		this.setMeta('twitter:title', title);
+		this.setMeta('og:title', title);
 		return this;
 	}
 
 	/**
+	 * Gets current page title
 	 * 
 	 * @returns
 	 */
-	function getTitle(){
+	this.getTitle = function (){
 		return page.title;
 	}
 
 	/**
+	 * Sets page description
 	 * 
 	 * @param description
 	 * @returns
 	 */
-	function setDescription(description){
+	this.setDescription = function (description){
 		page.description = description;
-		setMeta('description', description);
-		setMeta('twitter:description', description);
-		setMetaOg('og:description', description);
+		this.setMeta('description', description);
+		this.setMeta('twitter:description', description);
+		this.setMeta('og:description', description);
 		return this;
 	}
 
@@ -8631,8 +8916,7 @@ angular.module('mblowfish-core')
 	 * 
 	 * @returns
 	 */
-	function getDescription(){
-//		return getMeta('description');
+	this.getDescription = function (){
 		return page.description;
 	}
 
@@ -8641,40 +8925,57 @@ angular.module('mblowfish-core')
 	 * @param keywords
 	 * @returns
 	 */
-	function setKeywords(keywords){
+	this.setKeywords = function (keywords){
 		page.keywords = keywords;
-		setMeta('keywords', keywords);
+		this.setMeta('keywords', keywords);
 		return this;
 	}
 
 	/**
+	 * Gets current keywords
 	 * 
 	 * @returns
 	 */
-	function getKeywords(){
-//		return getMeta('keywords');
+	this.getKeywords = function (){
 		return page.keywords;
-	}
+	};
 	
-	function setFavicon(favicon){
-		updateLink('favicon-link', {
+	/**
+	 * Sets favicon
+	 */
+	this.setFavicon = function (favicon){
+		this.updateLink('favicon-link', {
 			href: favicon,
 			rel: 'icon'
 		});
-		setMeta('twitter:image', favicon);
-		setMetaOg('og:image', favicon);
 		return this;
-	}
+	};
+	
+	/**
+	 * Sets page cover
+	 */
+	this.setCover = function(imageUrl) {
+		this.setMeta('twitter:image', imageUrl);
+		this.setMeta('og:image', imageUrl);
+		return this;
+	};
+	
+	this.setCanonicalLink = function(url) {
+		this.setLink('canonical', {
+			href: url,
+			rel: 'canonical'
+		});
+		return this;
+	};
 
-	function updateLink(key, data){
+	this.updateLink = function(key, data){
 		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('link[key='+searchkey+']');
+		var elements = headElement.find('link[key='+searchkey+']');
 		var metaElement;
 		if(elements.length === 0){
 			// title element not found
 			metaElement = angular.element('<link key=\''+key+'\' />');
-			head.append(metaElement);
+			headElement.append(metaElement);
 		} else {
 			metaElement = angular.element(elements[0]);
 		}
@@ -8682,81 +8983,31 @@ angular.module('mblowfish-core')
 			metaElement.attr(property, data[property]);
 		}
 		return this;
-	}
+	};
+	
+	this.setLink = this.updateLink;
 
-	function setMeta(key, value){
+	this.setMeta = function (key, value){
 		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('meta[name='+searchkey+']');
+		var elements = headElement.find('meta[name='+searchkey+']');
 		var metaElement;
 		if(elements.length === 0){
 			// title element not found
 			metaElement = angular.element('<meta name=\''+key+'\' content=\'\' />');
-			head.append(metaElement);
+			headElement.append(metaElement);
 		} else {
 			metaElement = angular.element(elements[0]);
 		}
 		metaElement.attr('content', value);
 		return this;
-	}
-	
-	/**
-	 * Adds or set an OG meta tag to document.
-	 * Note: OG meta tag is differ than usual meta tags. Attributes of an OG meta tag are: property and content
-	 * while attributes of an usual meta tag are: name and content. 
-	 */
-	function setMetaOg(key, value){
-		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('meta[name='+searchkey+']');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<meta property=\''+key+'\' content=\'\' />');
-			head.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.attr('content', value);
-		return this;
-	}
-
-	/**
-	 * Adds or set an OG meta tag to document.
-	 * Note: OG meta tag is differ than usual meta tags. Attributes of an OG meta tag are: property and content
-	 * while attributes of an usual meta tag are: name and content. 
-	 */
-	function setMetaOg(key, value){
-		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var head = $rootElement.find('head');
-		var elements = head.find('meta[name='+searchkey+']');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<meta property=\''+key+'\' content=\'\' />');
-			head.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.attr('content', value);
-		return this;
-	}
-	
-	/*
-	 * Service struct
-	 */
-	return {
-		// Init
-		setTitle: setTitle,
-		getTitle: getTitle,
-		setDescription: setDescription,
-		getDescription: getDescription,
-		setKeywords: setKeywords,
-		getKeywords: getKeywords,
-		setFavicon: setFavicon,
-		setMeta: setMeta,
-		setLink: updateLink
 	};
+	
+	this.setLanguage = function(language){
+		bodyElement.attr('lang', language);
+		return this;
+	};
+	
+	return this;
 });
 
 /*
