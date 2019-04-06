@@ -92,7 +92,7 @@ angular.module('mblowfish-core')
 		}
 
 		scope.$watch('query', function () {
-		    searchQuery();
+		    searchQuery(scope.query.searchTerm);
 		}, true);
 
 	    }
