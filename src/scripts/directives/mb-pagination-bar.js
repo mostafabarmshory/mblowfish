@@ -65,8 +65,8 @@ angular.module('mblowfish-core')
 		    scope.mbExport(scope.mbModel);
 		}
 
-		function searchQuery(searchText) {
-		    scope.mbModel.setQuery(searchText);
+		function searchQuery() {
+		    scope.mbModel.setQuery(scope.query.searchTerm);
 		    __reload();
 		}
 
@@ -77,11 +77,20 @@ angular.module('mblowfish-core')
 			searchControl.focus();
 		    }, 50);
 		}
+		
+		function setSortOrder () {
+		    scope.mbModel.clearSorters();
+		    var key = scope.query.sortBy;
+		    var order = scope.query.sortDesc ? 'd' : 'a';
+		    scope.mbModel.addSorter(key,order);
+		    __reload();
+		}
 
 		scope.showBoxOne = false;
 		scope.focusToElement = focusToElementById;
 		// configure scope:
-		scope.search = searchQuery;
+		scope.searchQuery = searchQuery;
+		scope.setSortOrder = setSortOrder;
 		scope.__reload = __reload;
 		scope.query = query;
 		if (angular.isFunction(scope.mbExport)) {
@@ -90,11 +99,6 @@ angular.module('mblowfish-core')
 		if (typeof scope.mbEnableSearch === 'undefined') {
 		    scope.mbEnableSearch = true;
 		}
-
-		scope.$watch('query', function () {
-		    searchQuery();
-		}, true);
-
 	    }
 
 	    return {
