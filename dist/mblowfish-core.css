@@ -272,6 +272,23 @@ a.editable-click:hover {
 
 
 
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Apr 9, 2019, 1:04:22 PM
+    Author     : masood
+*/
+@media print{
+   md-sidenav{
+       display:none !important;
+   }
+   #dashboard {
+       display:none !important;
+   }
+}
 .mb-sidenav-ontop {
 	z-index: 61;
 }
