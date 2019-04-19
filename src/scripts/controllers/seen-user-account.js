@@ -24,14 +24,14 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdAccountsCtrl
+ * @name MbSeenUserAccountCtrl
  * @description Manages and display list of accounts
  * 
  * This controller is used in accounts list.
  * 
  */
-.controller('MbSeenUserProfilesCtrl', function ($scope, $usr, $controller) {
-	angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserAccountCtrl', function ($scope, $usr, $controller) {
+	angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
 		$scope: $scope
 	}));
 
@@ -40,25 +40,37 @@ angular.module('mblowfish-core')
 		return $usr.profileSchema();
 	};
 	
-	// get accounts
-	this.getModels = function(parameterQuery){
-		return $usr.getProfiles(parameterQuery);
-	};
-	
 	// get an account
 	this.getModel = function(id){
 		return $usr.getProfile(id);
-	};
-	
-	// add account profile
-	this.addModel = function(model){
-		return $usr.putProfile(model);
 	};
 	
 	// delete account
 	this.deleteModel = function(model){
 	    return $usr.deleteProfile(model.id);
 	};
-    
-    this.init();
+	/*
+	 * Deletes avatar
+	 */
+	this.deleteModelBinary = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	/*
+	 * Upload AVATAR
+	 */
+	this.uploadModelBinary = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	/**
+	 * Get model binary path
+	 * 
+	 * @param item
+	 * @return promise to delete item
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getModelBinaryUrl = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
 });

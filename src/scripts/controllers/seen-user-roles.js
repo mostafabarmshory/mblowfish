@@ -25,14 +25,14 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdRolesCtrl
+ * @name MbSeenUserRolesCtrl
  * @description Manages list of roles
  * 
  * 
  */
-.controller('MbRolesCtrl', function ($scope, $usr, $q, $controller) {
+.controller('MbSeenUserRolesCtrl', function ($scope, $usr, $q, $controller) {
 
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 

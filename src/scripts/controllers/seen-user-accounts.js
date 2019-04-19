@@ -24,14 +24,14 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdAccountsCtrl
+ * @name MbSeenUserAccountsCtrl
  * @description Manages and display list of accounts
  * 
  * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserAccountsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
