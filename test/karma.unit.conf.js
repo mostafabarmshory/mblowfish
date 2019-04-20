@@ -106,7 +106,7 @@ module.exports = function(config) {
     // coverage reporter generates the coverage
     reporters: [
     	'progress', 
-    	'coverage'
+//    	'coverage'
     ],
     
     // optionally, configure the reporter

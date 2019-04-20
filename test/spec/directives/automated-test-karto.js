@@ -31,36 +31,15 @@
  */
 describe('Automate test ', function() {
 	'use strict';
-
-	var $controller;
-	var locals ={
-			$scope : null,
-			$app : {
-				logout: function(){
-					//Logout function
-				},
-				session : function() {
-					return {
-						then : function() {
-							// TODO: call the fucntion
-						}
-					};
-				}
-			},
-			// used in dialogs
-			config: {},
-	};
-
-	// load the controller's module
+	var $injector;
+	var $rootScope;
+	var $compile;
 	beforeEach(module('mblowfish-core'));
-
-	// Initialize the controller and a mock scope
-	beforeEach(inject(function(_$controller_, $rootScope) {
-		$controller = _$controller_;
-		locals.$scope = $rootScope.$new();
+	beforeEach(inject(function(_$injector_, _$rootScope_, _$compile_) {
+		$injector = _$injector_;
+		$rootScope = _$rootScope_;
+		$compile = _$compile_;
 	}));
-
-
 
 	/********************************************************************
 	 * Test space
@@ -69,57 +48,53 @@ describe('Automate test ', function() {
 	 * 
 	 */
 	function KoratObjectParser(){}
-	
+
 	/**
 	 * Applies finitization to the test space
 	 */
 	KoratObjectParser.prototype.getFinitization = function(testSpace){};
-	
-	
+
+
 	var KoratObjectHolder = function(refrence){
 		this.refrence = refrence;
 	}
-	
+
 	KoratObjectHolder.prototype.invokePredicate = function(){
 		// XXX: maso, 2019
 	}
-	
+
 	/**
 	 * 
 	 */
-	function KoratControllerTestSpace(controllerName){
-		this.controllerName = controllerName;
+	function KoratDirectiveTestSpace(directiveName){
+		this.directiveName = directiveName;
 		this.loaded = false;
 	}
 
-	KoratControllerTestSpace.prototype.load = function() {
-		// create an instance of controller
-		this.mainInstance = $controller(this.controllerName, locals);
-		expect(this.mainInstance).not.toBe(null);
+	KoratDirectiveTestSpace.prototype.load = function() {
+		// create an instance
+		var element = angular.element('<'+ this.directiveName +' ng-model="a"></' + this.directiveName+'>');
+		var scope = $rootScope.$new();
+		var compiledElement = $compile(element)(scope);
+		scope.$digest();
 
-		var objectParser = new KoratObjectParser();
-		
-		var finitization = objectParser.getFinitization(this.mainInstance);
-//		var predicate = objectParser.getPredicate(this.mainInstance);
-		
-		// XXX: maso, 2019: build test space
-//		this.intialize(finitization);
-		
+		this.mainInstance = compiledElement
+		expect(this.mainInstance).not.toBe(null);
 
 		this.loaded = true;
 	};
-	
-	KoratControllerTestSpace.prototype.hasNextCandidate = function() {
+
+	KoratDirectiveTestSpace.prototype.hasNextCandidate = function() {
 		this.checkPreconditions();
-		
+
 		return false
 	};
-	
-	KoratControllerTestSpace.prototype.nextCandidate = function() {
+
+	KoratDirectiveTestSpace.prototype.nextCandidate = function() {
 		this.checkPreconditions();
 	};
-	
-	KoratControllerTestSpace.prototype.checkPreconditions = function(){
+
+	KoratDirectiveTestSpace.prototype.checkPreconditions = function(){
 		if(!this.loaded) {
 			throw "The test space must be load befor any test";
 		}
@@ -128,40 +103,26 @@ describe('Automate test ', function() {
 	/***********************************************************************
 	 * Our controllers
 	 ***********************************************************************/
-	var controllers = [
-		// basics
-		'MbAbstractCtrl',
-
-		// features
-//		'AmdDashboardCtrl',
-//		'MbHelpCtrl',
-//		'MbInitialCtrl',
-		'AmdNavigatorDialogCtrl',
-		'AmdNavigatorCtrl',
-		'MbOptionsCtrl',
-		'MbPreferenceCtrl',
-		'MbPreferencesCtrl',
-
-		//seen
-		'MbSeenAbstractCollectionCtrl',
-		'MbSeenAbstractItemCtrl',
-		'MbSeenAbstractBinaryItemCtrl',
-		'MbSeenCmsContentsCtrl',
-		'MbSeenUserMessagesCtrl',
-		'MbSeenUserAccountCtrl',
-		'MbSeenUserAccountsCtrl',
-		'MbSeenUserGroupsCtrl',
-		'MbSeenUserProfilesCtrl',
-		'MbSeenUserRolesCtrl',
-		
-		'MbThemesCtrl',
-		'MbToolbarDashboardCtrl'
+	// XXX: requires ngModel
+	// XXX: this is attribute
+	var directivesName = [
+		'compare-to', 
+		'mb-badge',
+//		'mb-captcha', XXX: requres key for google and GET HTTP
+		'mb-context-menu',
+		'mb-datepicker', // XXX: requires ngModel
+		'mb-dynamic-form',
+		'mb-dynamic-tabs',
+		'mb-error-messages',
+//		'mb-infinate-scroll', 
+		'mb-panel',
+//		'mb-pay' XXX: requires ngModel
 		];
 
-	angular.forEach(controllers, function(ctrlName){
-		var testSpace  = new KoratControllerTestSpace(ctrlName);
+	angular.forEach(directivesName, function(directiveName){
+		var testSpace  = new KoratDirectiveTestSpace(directiveName);
 
-		it('of ' + ctrlName + ' should pass all test based on Korat', function() {
+		it('of ' + directiveName + ' should pass all test based on Korat', function() {
 			testSpace.load();
 			while (testSpace.hasNextCandidate()) {
 				var candidate = testSpace.nextCandidate();

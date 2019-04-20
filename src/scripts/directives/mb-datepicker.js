@@ -38,7 +38,7 @@ angular.module('mblowfish-core')
     // Private Methods
     // **********************************************************
     function postLink(scope, element, attr, ctrls) {
-        scope.app = $rootScope.app;
+        scope.app = $rootScope.app || {};
         var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
         function render() {
@@ -75,7 +75,8 @@ angular.module('mblowfish-core')
     return {
         replace : false,
         template : function(){
-            if($rootScope.app.calendar === 'Gregorian'){
+        	var app = $rootScope.app || {};
+            if(app.calendar === 'Gregorian'){
                 return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
             }
             return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
