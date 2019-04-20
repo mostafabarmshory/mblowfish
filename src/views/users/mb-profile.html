@@ -3,13 +3,10 @@
     layout-padding
     flex>
 
-    <div 
-    	layout-gt-sm="row" 
-    	layout="column">
+    <div layout-gt-sm="row" layout="column">
         <mb-titled-block 
             mb-title="Avatar"
-            ng-controller="MbAccountAvatarCtrl as avatarCtrl"
-            mb-progress="avatarCtrl.isBusy()"
+            mb-progress="ctrl.avatarLoading"
             flex-gt-sm="50" 
             layout="column"
             layout-margin>
@@ -17,52 +14,50 @@
                 layout="row"
                 layout-align="center start">
                 <lf-ng-md-file-input 
-                    ng-if="editAvatarEnable"
-                    lf-files="avatarFiles"
+                    ng-if="ctrl.avatarState === 'edit'"
+                    lf-files="ctrl.avatarFiles"
                     accept="image/*"
                     progress
                     preview
                     drag>
                 </lf-ng-md-file-input>
                 <img 
-                    ng-if="!editAvatarEnable"
+                    ng-if="ctrl.avatarState === 'normal'"
                     width="60%"
-                    ng-src="avatarCtrl.getItemUrl()" 
+                    ng-src="/api/v2/user/accounts/{{ctrl.user.id}}/avatar" 
                     ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32"/>
             </div>
             <div 
                 layout="column" layout-align="center none"
                 layout-gt-xs="row" layout-align-gt-xs="end center"
-                ng-if="!editAvatarEnable">
+                ng-if="ctrl.avatarState === 'normal'">
                 <md-button 
                     class="md-raised md-primary"
-                    ng-click="editAvatarEnable=true">
+                    ng-click="ctrl.editAvatar()">
                     <sapn translate="">Edit</sapn>
                 </md-button>
                 <md-button 
                     class="md-raised md-accent"
-                    ng-click="avatarCtrl.deleteItemBinary()">
+                    ng-click="ctrl.deleteAvatar()">
                     <sapn translate="">Delete</sapn>
                 </md-button>
             </div>
             <div 
                 layout="column" layout-align="center none"
                 layout-gt-xs="row" layout-align-gt-xs="end center"
-                ng-if="editAvatarEnable">
+                ng-if="ctrl.avatarState === 'edit'">
                 <md-button 
                     class="md-raised md-primary"
-                    ng-click="avatarCtrl.uploadItemBinary(avatarFiles)">
+                    ng-click="ctrl.uploadAvatar(ctrl.avatarFiles)">
                     <sapn translate="">Save</sapn>
                 </md-button>
                 <md-button 
                     class="md-raised md-accent"
-                    ng-click="editAvatarEnable=false">
+                    ng-click="ctrl.cancelEditAvatar()">
                     <sapn translate="">Cancele</sapn>
                 </md-button>
             </div>
         </mb-titled-block>
-        
-        
         <!-- Contacts -->
         <mb-titled-block 
             mb-title="Public Information"

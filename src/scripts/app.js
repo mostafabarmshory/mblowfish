@@ -75,4 +75,12 @@ angular.module('mblowfish-core', [ //
 .factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
 	'use strict';
 	return MbHttpRequestInterceptor;
-});
+})
+.controller('MessagesCtrl', function ($scope, $controller) {
+    'use strict';
+    angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
+        $scope : $scope
+    }));
+})
+
+;
