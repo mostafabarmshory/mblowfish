@@ -34,11 +34,13 @@ angular.module('mblowfish-core')
 	 * Rests settings of page (title, description, keywords and favicon) to values defined in branding
 	 */
 	function _initBranding() {
-		if($rootScope.app.config){			
-			$page.setTitle($rootScope.app.config.title);
-			$page.setDescription($rootScope.app.config.description);
-			$page.setKeywords($rootScope.app.config.keywords);
-			$page.setFavicon($rootScope.app.config.favicon || $rootScope.app.config.logo);
+
+		var app = $rootScope.app || {};
+		if( app.config){			
+			$page.setTitle(app.config.title);
+			$page.setDescription(app.config.description);
+			$page.setKeywords(app.config.keywords);
+			$page.setFavicon(app.config.favicon || app.config.logo);
 		}
 	}
 
@@ -46,7 +48,8 @@ angular.module('mblowfish-core')
 	 * If an item of settings of page does not set yet, sets it by value defined in branding
 	 */
 	function _fillUnsetFields() {
-		var config = $rootScope.app.config ? $rootScope.app.config : null;
+		var app = $rootScope.app || {};
+		var config = app.config ? app.config : null;
 		if(!config){
 			return;
 		}
@@ -64,12 +67,14 @@ angular.module('mblowfish-core')
 	});
 	$rootScope.$on('$routeChangeSuccess', function( /*event, current*/ ) {
 		var path = $location.absUrl();
-		$page.setMeta('twitter:url', path) //
+		$page
+		.setMeta('twitter:url', path) //
 		.setMeta('og:url', path);
 	});
 
 	$rootScope.$watch(function(){
-		var conf = $rootScope.app.config;
+		var app = $rootScope.app || {};
+		var conf = app.config;
 		if(!conf){
 			return conf;
 		}

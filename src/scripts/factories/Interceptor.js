@@ -19,25 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
 
 angular.module('mblowfish-core')
-	/**
-	 * @ngdoc Factories
-	 * @name httpRequestInterceptor
-	 * @description An interceptor to handle the error 401 of http response
-	 * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
-	 */
-	.factory('httpRequestInterceptor', function ($q, $injector) {
-	    return {
-		'responseError': function (rejection) {
-		    var app = $injector.get('$app');
-		    // do something on error
-		    if (rejection.status === 401) {
+/**
+ * @ngdoc Factories
+ * @name httpRequestInterceptor
+ * @description An interceptor to handle the error 401 of http response
+ * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
+ */
+.factory('MbHttpRequestInterceptor', function ($q, $injector) {
+	'use strict';
+	var httpRequestInterceptor = function(){};
+	httpRequestInterceptor.prototype.responseError = function (rejection) {
+		var app = $injector.get('$app');
+		// do something on error
+		if (rejection.status === 401) {
 			app.logout();
-		    }
-		    return $q.reject(rejection);
 		}
-	    };
-	});
+		return $q.reject(rejection);
+	};
+	return httpRequestInterceptor;
+});

@@ -57,7 +57,12 @@ angular.module('mblowfish-core')
 		function loadPage(index){
 			var jobs = [];
 			var pages2 = [];
-
+			
+			var mbTabs = $scope.mbTabs || [];
+			if(index > mbTabs.length || index < 0 || mbTabs.length == 0){
+				return;
+			}
+			var page = mbTabs[index];
 
 			// 1- Find element
 			var target = $element.find('#' + CHILDREN_AUNCHOR);
@@ -66,7 +71,6 @@ angular.module('mblowfish-core')
 			target.empty();
 
 			// 3- load pages
-			var page = $scope.mbTabs[index];
 			var template = $wbUtil.getTemplateFor(page);
 			if (angular.isDefined(template)) {
 				jobs.push(template.then(function(templateSrc) {

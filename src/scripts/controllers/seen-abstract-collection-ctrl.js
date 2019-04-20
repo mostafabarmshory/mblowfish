@@ -28,7 +28,7 @@ angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
- * @name SeenAbstractCollectionCtrl
+ * @name MbSeenAbstractCollectionCtrl
  * @description Generic controller of model collection of seen
  * 
  * This controller is used manages a collection of a virtual items. it is the
@@ -58,7 +58,7 @@ angular.module('mblowfish-core')//
  * - addModel: model
  * - addViewItem: view
  */
-.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+.controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
     'use strict';
 
     /*
@@ -107,7 +107,7 @@ angular.module('mblowfish-core')//
      * </ul>
      * 
      * @type string
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.state = STATE_INIT;
 
@@ -119,7 +119,7 @@ angular.module('mblowfish-core')//
      * stored in this variable.
      * 
      * @type PaginatedCollection
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.lastResponse = null;
 
@@ -130,7 +130,7 @@ angular.module('mblowfish-core')//
      * layer.
      * 
      * @type QueryParameter
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
@@ -151,14 +151,14 @@ angular.module('mblowfish-core')//
      * is related to view.
      * 
      * @type array
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.items = [];
 
     /**
      * Adds items to view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.pushViewItems = function(items) {
         if(!angular.isDefined(items)){
@@ -177,14 +177,14 @@ angular.module('mblowfish-core')//
     /**
      * Adds items to view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.addViewItems = this.pushViewItems;
 
     /**
      * remove item from view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.removeViewItems = function(items) {
         this.items = differenceBy(this.items, items, 'id');
@@ -193,7 +193,7 @@ angular.module('mblowfish-core')//
     /**
      * Updates an item in the view with the given one
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.updateViewItems = function(items) {
         // XXX: maso, 2019: update view items
@@ -204,7 +204,7 @@ angular.module('mblowfish-core')//
      * 
      * NOTE: this is the main storage of the controller.
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.getViewItems = function(){
         return this.items;
@@ -213,7 +213,7 @@ angular.module('mblowfish-core')//
     /**
      * Removes all items from view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.clearViewItems = function(){
         this.items = [];

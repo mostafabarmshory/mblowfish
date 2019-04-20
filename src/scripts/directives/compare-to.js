@@ -27,7 +27,7 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name compare-to
- * @description Compare two attrs.
+ * @description Compare two attributes.
  */
 .directive('compareTo', function(){
 	return {

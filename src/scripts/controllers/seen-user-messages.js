@@ -25,12 +25,12 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name MessagesCtrl
+ * @name MbSeenUserMessagesCtrl
  * @description Manages list of controllers
  * 
  */
-.controller('MessagesCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserMessagesCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 

@@ -26,12 +26,12 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.controller('AmWbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
+.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
 
     /*
      * Extends collection controller
      */
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
