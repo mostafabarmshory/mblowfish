@@ -82,5 +82,11 @@ angular.module('mblowfish-core', [ //
         $scope : $scope
     }));
 })
+.controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
+    'use strict';
+    angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
+        $scope : $scope
+    }));
+})
 
 ;
