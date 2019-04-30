@@ -8158,10 +8158,6 @@ angular.module('mblowfish-core') //
 		states: {
 			// Before the 'start' event occurs via $app.start().
 			waiting: {
-//				_onEnter: function(){
-//				loadUserProperty(); 
-//				loadOptions();
-//				},
 				start: APP_STATE_LOADING,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL
