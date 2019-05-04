@@ -77,13 +77,67 @@ angular.module('mblowfish-core')
 			searchControl.focus();
 		    }, 50);
 		}
-		
-		function setSortOrder () {
+
+		function setSortOrder() {
 		    scope.mbModel.clearSorters();
 		    var key = scope.query.sortBy;
 		    var order = scope.query.sortDesc ? 'd' : 'a';
-		    scope.mbModel.addSorter(key,order);
+		    scope.mbModel.addSorter(key, order);
 		    __reload();
+		}
+
+		/*
+		 * Add filter to the current filters
+		 */
+		function addFilter() {
+		    if (!scope.filters) {
+			scope.filters = [];
+		    }
+		    scope.filters.push({
+			key: '',
+			value: ''
+		    });
+		}
+
+		function putFilter(index) {
+		    scope.filters[index] = {
+			key: scope.filterKey,
+			value: scope.filterValue
+		    };
+		}
+
+		function applyFilter() {
+		    if (scope.filters && scope.filters.length > 0) {
+			scope.filters.forEach(function (filter) {
+			    scope.mbModel.addFilter(filter.key, filter.value);
+			});
+		    }
+		    __reload();
+		}
+
+		/*
+		 * Remove filter to the current filters
+		 */
+		function removeFilter(index) {
+		    scope.filters.splice(index, 1);
+		}
+		
+		function setFilterKey (key) {
+		    scope.filterKey = key;
+		    scope.showFilterValue=true;
+		}
+		
+		function setFilterValue (value,index) {
+		    scope.filterValue = value;
+		    putFilter(index);
+		}
+		
+		
+		//Fetch filters from children array of collection schema
+		function fetchFilterKeys() {
+		    scope.mbProperties.forEach(function (object) {
+			scope.filterKeys.push(object.name);
+		    });
 		}
 
 		scope.showBoxOne = false;
@@ -91,6 +145,12 @@ angular.module('mblowfish-core')
 		// configure scope:
 		scope.searchQuery = searchQuery;
 		scope.setSortOrder = setSortOrder;
+		scope.addFilter = addFilter;
+		scope.putFilter = putFilter;
+		scope.applyFilter = applyFilter;
+		scope.removeFilter = removeFilter;
+		scope.setFilterKey = setFilterKey;
+		scope.setFilterValue = setFilterValue;
 		scope.__reload = __reload;
 		scope.query = query;
 		if (angular.isFunction(scope.mbExport)) {
@@ -99,6 +159,16 @@ angular.module('mblowfish-core')
 		if (typeof scope.mbEnableSearch === 'undefined') {
 		    scope.mbEnableSearch = true;
 		}
+
+//		if (typeof scope.mbProperties !== 'undefined') {
+//		    fetchFilterKeys();
+//		}
+		scope.$watch('mbProperties', function(mbProperties){
+		    if(mbProperties){
+			scope.filterKeys = [];
+			fetchFilterKeys();
+		    }
+		});
 	    }
 
 	    return {
@@ -124,6 +194,10 @@ angular.module('mblowfish-core')
 		     * بشن.
 		     */
 		    mbSortKeys: '=',
+		    /*
+		     * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
+		     */
+		    mbProperties: '=?',
 
 		    /* titles corresponding to sort keys */
 		    mbSortKeysTitles: '=?',

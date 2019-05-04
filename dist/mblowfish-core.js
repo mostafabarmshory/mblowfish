@@ -59,7 +59,37 @@ angular.module('mblowfish-core', [ //
 	'ngFileSaver',//
 	'mdSteppers',//
 	'angular-material-persian-datepicker',
-]);
+])
+
+/*******************************************************
+ * Compatibility with old version
+ *******************************************************/ 
+.factory('Action', function (MbAction) {
+	'use strict';
+	return MbAction;
+})
+.factory('ActionGroup', function (MbActionGroup) {
+	'use strict';
+	return MbActionGroup;
+})
+.factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
+	'use strict';
+	return MbHttpRequestInterceptor;
+})
+.controller('MessagesCtrl', function ($scope, $controller) {
+    'use strict';
+    angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
+        $scope : $scope
+    }));
+})
+.controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
+    'use strict';
+    angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
+        $scope : $scope
+    }));
+})
+
+;
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1315,69 +1345,6 @@ angular.module('mblowfish-core')
 });
 
 'use strict';
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc Controllers
- * @name MessagesCtrl
- * @description Manages list of controllers
- * 
- */
-.controller('MessagesCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
-
-    // Overried the function
-    this.getModelSchema = function () {
-        return $usr.messageSchema();
-    };
-
-    // get accounts
-    this.getModels = function (parameterQuery) {
-        return $usr.getMessages(parameterQuery);
-    };
-
-    // get an account
-    this.getModel = function (id) {
-        return $usr.getMessage(id);
-    };
-
-    // delete account
-    this.deleteModel = function (item) {
-        return item.delete();
-    };
-
-    this.init({
-        eventType: '/user/messages',
-        // do not show dialog on delete
-        deleteConfirm: false,
-    });
-});
-
-'use strict';
 angular.module('mblowfish-core')
 
 /**
@@ -1391,7 +1358,7 @@ angular.module('mblowfish-core')
 		$mdDialog.hide();
 	};
 	$scope.cancel = function() {
-		$mdDialog.cancel();
+		$mdDialog.hide();
 	};
 	$scope.answer = function(a) {
 		$mdDialog.hide(a);
@@ -1751,169 +1718,173 @@ angular.module('mblowfish-core')
 	$scope.openPreference = openPreference;
 });
 
-///*
-// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-// * 
-// * Permission is hereby granted, free of charge, to any person obtaining a copy
-// * of this software and associated documentation files (the "Software"), to deal
-// * in the Software without restriction, including without limitation the rights
-// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// * copies of the Software, and to permit persons to whom the Software is
-// * furnished to do so, subject to the following conditions:
-// * 
-// * The above copyright notice and this permission notice shall be included in all
-// * copies or substantial portions of the Software.
-// * 
-// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// * SOFTWARE.
-// */
-//'use strict';
-//angular.module('mblowfish-core')
-//
-///**
-// * @ngdoc Controllers
-// * @name MbProfileCtrl
-// * @description Manages profile of a user
-// * 
-// */
-//.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
-//    
-//    // set initial data
-//    this.user = null;
-//    this.profile = null;
-//    this.loadingProfile = false;
-//    this.savingProfile = false;
-//
-//    /*
-//     * - normal
-//     * - edit
-//     */
-//    this.avatarState = 'normal';
-//
-//    /**
-//     * Loads user data
-//     * 
-//     * @returns
-//     */
-//    this.loadUser = function() {
-//        this.user = $rootScope.app.user.current;//
-//        if (!this.user) {
-//            alert($translate.instant('Fail to load user.'));
-//            return;
-//        }
-//        this.loadProfile();
-//    }
-//
-//    this.loadProfile = function() {
-//        if (this.loadinProfile) {
-//            return;
-//        }
-//        this.loadingProfile = true;
-//        var ctrl = this;
-//        return this.user.getProfiles()//
-//        .then(function (profiles) {
-//            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
-//            return ctrl.profile;
-//        }, function () {
-//            alert($translate.instant('Fial to load profile.'));
-//        })//
-//        .finally(function () {
-//            ctrl.loadingProfile = false;
-//        });
-//    }
-//
-//    /**
-//     * Save current user
-//     * 
-//     * @returns
-//     */
-//    this.save = function() {
-//        if (this.savingProfile) {
-//            return;
-//        }
-//        this.savingProfile = true;
-//        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
-//        var ctrl = this;
-//        return $promise//
-//        .then(function () {
-//            toast($translate.instant('Save is successfull.'));
-//        }, function () {
-//            alert($translate.instant('Fail to save item.'));
-//        })//
-//        .finally(function () {
-//            ctrl.savingProfile = false;
-//        });
-//    }
-//
-//    this.back = function() {
-//        $window.history.back();
-//    }
-//    
-//    this.deleteAvatar = function(){
-//        var ctrl = this;
-//        confirm('Delete the avatar?')
-//        .then(function(){
-//            ctrl.avatarState = 'working';
-//            return ctrl.user.deleteAvatar();
-//        })
-//        .finally(function(){
-//            ctrl.avatarState = 'normal';
-//        });
-//    }
-//    
-//    this.uploadAvatar = function(files){
-//        if (!angular.isArray(files) || !files.length) {
-//        }
-//        var file = null;
-//        file = files[0].lfFile;
-//        this.avatarLoading = true;
-//        var ctrl = this;
-//        this.user.uploadAvatar(file)
-//        .then(function(){
-//            // TODO: reload the page
-//        })
-//        .finally(function(){
-//            ctrl.avatarLoading = false;
-//            ctrl.avatarState = 'normal';
-//        });
-//    }
-//    
-//    this.editAvatar = function(){
-//        this.avatarState = 'edit';
-//    }
-//    
-//    this.cancelEditAvatar = function(){
-//        this.avatarState = 'normal';
-//    }
-//
-//    /*
-//     * To support old version of the controller
-//     */
-//    var ctrl = this;
-//    $scope.load = function(){
-//        ctrl.loadUser();
-//    };
-//    $scope.reload = function(){
-//        ctrl.loadUser();
-//    };
-//    $scope.save = function(){
-//        ctrl.save();
-//    };
-//    $scope.back = function(){
-//        ctrl.back();
-//    };
-//    $scope.cancel =  function(){
-//        ctrl.back();
-//    };
-//    
-//    // Load account information
-//    this.loadUser();
-//});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name MbProfileCtrl
+ * @description Manages profile of a user
+ * 
+ */
+// TODO: maso, 2019: replace with MbSeenAccountCtrl
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
+    
+    // set initial data
+    this.user = null;
+    this.profile = null;
+    this.loadingProfile = false;
+    this.savingProfile = false;
+
+    /*
+     * - normal
+     * - edit
+     */
+    this.avatarState = 'normal';
+
+    /**
+     * Loads user data
+     * 
+     * @returns
+     */
+    this.loadUser = function() {
+    	var app = $rootScope.app || {};
+    	var user = app.user || {};
+    	
+        this.user = user.current;//
+        if (!this.user) {
+            alert($translate.instant('Fail to load user.'));
+            return;
+        }
+        this.loadProfile();
+    }
+
+    this.loadProfile = function() {
+        if (this.loadinProfile) {
+            return;
+        }
+        this.loadingProfile = true;
+        var ctrl = this;
+        return this.user.getProfiles()//
+        .then(function (profiles) {
+            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+            return ctrl.profile;
+        }, function () {
+            alert($translate.instant('Fial to load profile.'));
+        })//
+        .finally(function () {
+            ctrl.loadingProfile = false;
+        });
+    }
+
+    /**
+     * Save current user
+     * 
+     * @returns
+     */
+    this.save = function() {
+        if (this.savingProfile) {
+            return;
+        }
+        this.savingProfile = true;
+        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
+        var ctrl = this;
+        return $promise//
+        .then(function () {
+            toast($translate.instant('Save is successfull.'));
+        }, function () {
+            alert($translate.instant('Fail to save item.'));
+        })//
+        .finally(function () {
+            ctrl.savingProfile = false;
+        });
+    }
+
+    this.back = function() {
+        $window.history.back();
+    }
+    
+    this.deleteAvatar = function(){
+        var ctrl = this;
+        confirm('Delete the avatar?')
+        .then(function(){
+            ctrl.avatarState = 'working';
+            return ctrl.user.deleteAvatar();
+        })
+        .finally(function(){
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.uploadAvatar = function(files){
+        if (!angular.isArray(files) || !files.length) {
+        }
+        var file = null;
+        file = files[0].lfFile;
+        this.avatarLoading = true;
+        var ctrl = this;
+        this.user.uploadAvatar(file)
+        .then(function(){
+            // TODO: reload the page
+        })
+        .finally(function(){
+            ctrl.avatarLoading = false;
+            ctrl.avatarState = 'normal';
+        });
+    }
+    
+    this.editAvatar = function(){
+        this.avatarState = 'edit';
+    }
+    
+    this.cancelEditAvatar = function(){
+        this.avatarState = 'normal';
+    }
+
+    /*
+     * To support old version of the controller
+     */
+    var ctrl = this;
+    $scope.load = function(){
+        ctrl.loadUser();
+    };
+    $scope.reload = function(){
+        ctrl.loadUser();
+    };
+    $scope.save = function(){
+        ctrl.save();
+    };
+    $scope.back = function(){
+        ctrl.back();
+    };
+    $scope.cancel =  function(){
+        ctrl.back();
+    };
+    
+    // Load account information
+    this.loadUser();
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2163,7 +2134,7 @@ angular.module('mblowfish-core')//
     /*
      * Extends collection controller from MbAbstractCtrl 
      */
-    angular.extend(this, $controller('MbAbstractCtrl', {
+    angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -2523,7 +2494,7 @@ angular.module('mblowfish-core')//
 
 
 
-
+    this.seen_abstract_collection_superInit = this.init;
 
     /**
      * Loads and init the controller
@@ -2531,6 +2502,9 @@ angular.module('mblowfish-core')//
      * All childs must call this function at the end of the cycle
      */
     this.init = function(configs){
+	if(angular.isFunction(this.seen_abstract_collection_superInit)){
+	    this.seen_abstract_collection_superInit(configs);
+	}
         var ctrl = this;
         this.state = STATE_IDEAL;
         if(!angular.isDefined(configs)){
@@ -2710,6 +2684,406 @@ angular.module('mblowfish-core')//
     
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
+/**
+ * @ngdoc Controllers
+ * @name MbSeenAbstractItemCtrl
+ * @description Generic controller of item of seen
+ * 
+ * There are three categories of actions;
+ * 
+ * - view
+ * - model
+ * - controller
+ * 
+ */
+.controller('MbSeenAbstractItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+	'use strict';
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
+	 */
+	angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
+		$scope : $scope
+	}));
+
+
+	// Messages
+	var DELETE_MODEL_MESSAGE = 'Delete the item?';
+	var Load_ACTION_FAIL_MESSAGE = 'Fail to load item';
+	var IMPLEMENT_BY_CHILDREN_ERROR = 'This method must be override in clild class';
+
+	/*
+	 * Extra actions
+	 */
+	this.actions = [];
+
+	/**
+	 * Is true if the controller is busy
+	 * 
+	 * @type boolean
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.busy = false;
+
+	/**
+	 * Is true if the controller is dirty
+	 * 
+	 * The controller is dirty if and only if a property of the item is changed by 
+	 * the view.
+	 * 
+	 * @type boolean
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.dirty = false;
+
+	// -------------------------------------------------------------------------
+	// Model
+	//
+	// We suppose that all model action be override by the new controllers.
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
+	/**
+	 * Deletes model
+	 * 
+	 * @param item
+	 * @return promiss to delete item
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.deleteModel = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+
+	/**
+	 * Gets item schema
+	 * 
+	 * @return promise to get schema
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getModelSchema = function(){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+
+	/**
+	 * Query and get items
+	 * 
+	 * @param queryParameter to apply search
+	 * @return promiss to get items
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getModel = function(id){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+
+	/**
+	 * Update current model
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 * @return promiss to add and return an item
+	 */
+	this.updateModel = function(model){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+
+
+	// -------------------------------------------------------------------------
+	// View
+	//
+	//
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
+	/**
+	 * Current item 
+	 * 
+	 * @type Object
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.item;
+
+	/**
+	 * Sets item to view
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.setItem = function(item) {
+		this.item = item;
+	};
+
+	/**
+	 * Get view item
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getItem = function(){
+		return this.item;
+	}
+
+	/**
+	 * get properties of the item
+	 * 
+	 * @return {boolean} true if the controller is busy
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getItemProperty = function(key, defaultValue) {
+
+	}
+
+	/**
+	 * Changes property of the model
+	 * 
+	 * @return {boolean} true if the controller is busy
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.setItemProperty = function(key, value) {
+
+	}
+
+	/**
+	 * Checks if the state of the controller is busy
+	 * 
+	 * @return {boolean} true if the controller is busy
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.isBusy = function() {
+		return this.busy;
+	}
+
+	/**
+	 * Checks if the state of the controller is dirty
+	 * 
+	 * @return {boolean} true if the controller is dirty
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.dirty = function(){
+		return this.dirty;
+	}
+
+	/**
+	 * Check if confirmation is required for critical tasks
+	 * 
+	 * @return {boolean} true if the confirmation is required
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.isConfirmationRequired = function(){
+		return this.confirmationRequired;
+	}
+
+	/**
+	 * Set confirmation
+	 * 
+	 * @params confirmationRequired {boolean}
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.setConfirmationRequired = function(confirmationRequired){
+		this.confirmationRequired = confirmationRequired;
+	}
+
+
+	/**
+	 * Creates new item with the createItemDialog
+	 */
+	this.deleteItem = function(item, $event){
+		// prevent default event
+		if($event){
+			$event.preventDefault();
+			$event.stopPropagation();
+		}
+
+		// XXX: maso, 2019: update state
+		var ctrl = this;
+		var tempItem = _.clone(item);
+		function _deleteInternal() {
+			ctrl.busy = true;
+			return ctrl.deleteModel(item)
+			.then(function(){
+				ctrl.fireDeleted(ctrl.eventType, tempItem);
+			}, function(){
+				// XXX: maso, 2019: handle error
+			})
+			.finally(function(){
+				ctrl.busy = false;
+			});
+		}
+		// delete the item
+		if(this.isConfirmationRequired()){
+			$window.confirm(DELETE_MODEL_MESSAGE)
+			.then(function(){
+				return _deleteInternal();
+			});
+		} else {
+			return _deleteInternal();
+		}
+	};
+
+	/**
+	 * Reload the controller
+	 * 
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 * @returns promise to reload
+	 */
+	this.reload = function(){
+		// safe reload
+		var ctrl = this;
+		function safeReload(){
+			ctrl.setItem(null);
+			return ctrl.loadItem(this.getItemId());
+		}
+
+		// attache to old promise
+		if(this.isBusy()){
+			return this.getLastPromis()
+			.then(safeReload);
+		}
+		
+		// create new promise
+		var promise = safeReload();
+		this.setLastPromis(promise);
+		return promise;
+	};
+
+	/**
+	 * Set a GraphQl format of data
+	 * 
+	 * By setting this the controller is not sync and you have to reload the
+	 * controller. It is better to set the data query at the start time.
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 * @param graphql
+	 */
+	this.setDataQuery = function(grqphql){
+		this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+		// TODO: maso, 2018: check if refresh is required
+	};
+
+	/**
+	 * Generate default event handler
+	 * 
+	 * If you are about to handle event with a custom function, please
+	 * override this function.
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.eventHandlerCallBack = function(){
+		if(this._eventHandlerCallBack){
+			return this._eventHandlerCallBack ;
+		}
+		var ctrl = this;
+		this._eventHandlerCallBack = function($event){
+			switch ($event.key) {
+			case 'updated':
+				ctrl.updateViewItems($event.values);
+				break;
+			case 'removed':
+				ctrl.removeViewItems($event.values);
+				break;
+			default:
+				break;
+			}
+		};
+		return this._eventHandlerCallBack;
+	};
+
+	/**
+	 * Sets controller event type
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.setEventType = function(eventType) {
+		if(this.eventType === eventType){
+			return;
+		}
+		var callback = this.eventHandlerCallBack();
+		if(this.eventType){
+			this.removeEventHandler(callback);
+		}
+		this.eventType = eventType;
+		this.addEventHandler(this.eventType, callback);
+	};
+	
+	
+	this.seen_abstract_item_supperInit = this.init;
+	/**
+	 * Loads and init the controller
+	 * 
+	 * NOTE: All children must call this function at the end of the cycle
+	 * 
+	 * Properties:
+	 * 
+	 * - confirmation: show confirmation dialog
+	 * - eventType: type of the events
+	 * - dataQuery: a query to data
+	 * - modelId:
+	 * - model
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.init = function(configs){
+	    if(this.seen_abstract_item_supperInit){
+		this.seen_abstract_item_supperInit(configs);
+	    }
+		var ctrl = this;
+		if(!angular.isDefined(configs)){
+			return;
+		}
+
+		// add path
+		this.setEventType(configs.eventType);
+
+		// confirm delete
+		this.setConfirmationRequired(!angular.isDefined(configs.confirmation) || configs.confirmation);
+		
+		// data query
+		if(config.dataQuery) {
+			this.setDataQuery(config.dataQuery);
+		}
+		
+		// model id
+		if(config.modelId) {
+			// TODO: load model
+		}
+		
+		// Modl
+		if(config.model){
+			// TODO: load model
+		}
+	};
+
+});
+
 /* 
  * The MIT License (MIT)
  * 
@@ -2803,6 +3177,103 @@ angular.module('mblowfish-core')
         eventType: '/cms/contents'
     });
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
+	/**
+	 * @ngdoc Controllers
+	 * @name MbSeenAbstractCollectionCtrl
+	 * @description Generic controller of model collection of seen
+	 * 
+	 * This controller is used manages a collection of a virtual items. it is the
+	 * base of all other collection controllers such as accounts, groups, etc.
+	 * 
+	 * There are two types of function in the controller: view and data related. All
+	 * data functions are considered to be override by extensions.
+	 * 
+	 * There are three categories of actions;
+	 * 
+	 * - view
+	 * - model
+	 * - controller
+	 * 
+	 * view actions are about to update view. For example adding an item into the view
+	 * or remove deleted item.
+	 * 
+	 * Model actions deal with model in the repository. These are equivalent to the view
+	 * actions but removes items from the storage.
+	 * 
+	 * However, controller function provide an interactive action to the user to performs
+	 * an action.
+	 * 
+	 * ## Add
+	 * 
+	 * - addItem: controller
+	 * - addModel: model
+	 * - addViewItem: view
+	 */
+	.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
+	    'use strict';
+
+	    /*
+	     * Extends collection controller from MbAbstractCtrl 
+	     */
+	    angular.extend(this, $controller('MbAbstractCtrl', {
+		$scope: $scope
+	    }));
+
+	    this.getSchema = function () {
+		if (!angular.isDefined(this.getModelSchema())) {
+		    return;
+		}
+		return this.getModelSchema()
+			.then(function (schema) {
+			    return schema;
+			});
+	    };
+	    
+	    //properties is the children of schema.
+	    this.getProperties = function () {
+		if(angular.isDefined(this.properties)){
+		    $q.resolve(this.properties);
+		}
+		var ctrl = this;
+		return this.getSchema()
+			.then(function (schema) {
+			    ctrl.properties = schema.children;
+			});
+	    };
+	    
+	    this.init = function(){
+		this.getProperties();
+	    };
+	});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3834,8 +4305,8 @@ angular.module('mblowfish-core')
 			mbParameters: '='
 		},
 		link: postLink
-	    };
-	});
+	};
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4408,13 +4879,67 @@ angular.module('mblowfish-core')
 			searchControl.focus();
 		    }, 50);
 		}
-		
-		function setSortOrder () {
+
+		function setSortOrder() {
 		    scope.mbModel.clearSorters();
 		    var key = scope.query.sortBy;
 		    var order = scope.query.sortDesc ? 'd' : 'a';
-		    scope.mbModel.addSorter(key,order);
+		    scope.mbModel.addSorter(key, order);
 		    __reload();
+		}
+
+		/*
+		 * Add filter to the current filters
+		 */
+		function addFilter() {
+		    if (!scope.filters) {
+			scope.filters = [];
+		    }
+		    scope.filters.push({
+			key: '',
+			value: ''
+		    });
+		}
+
+		function putFilter(index) {
+		    scope.filters[index] = {
+			key: scope.filterKey,
+			value: scope.filterValue
+		    };
+		}
+
+		function applyFilter() {
+		    if (scope.filters && scope.filters.length > 0) {
+			scope.filters.forEach(function (filter) {
+			    scope.mbModel.addFilter(filter.key, filter.value);
+			});
+		    }
+		    __reload();
+		}
+
+		/*
+		 * Remove filter to the current filters
+		 */
+		function removeFilter(index) {
+		    scope.filters.splice(index, 1);
+		}
+		
+		function setFilterKey (key) {
+		    scope.filterKey = key;
+		    scope.showFilterValue=true;
+		}
+		
+		function setFilterValue (value,index) {
+		    scope.filterValue = value;
+		    putFilter(index);
+		}
+		
+		
+		//Fetch filters from children array of collection schema
+		function fetchFilterKeys() {
+		    scope.mbProperties.forEach(function (object) {
+			scope.filterKeys.push(object.name);
+		    });
 		}
 
 		scope.showBoxOne = false;
@@ -4422,6 +4947,12 @@ angular.module('mblowfish-core')
 		// configure scope:
 		scope.searchQuery = searchQuery;
 		scope.setSortOrder = setSortOrder;
+		scope.addFilter = addFilter;
+		scope.putFilter = putFilter;
+		scope.applyFilter = applyFilter;
+		scope.removeFilter = removeFilter;
+		scope.setFilterKey = setFilterKey;
+		scope.setFilterValue = setFilterValue;
 		scope.__reload = __reload;
 		scope.query = query;
 		if (angular.isFunction(scope.mbExport)) {
@@ -4430,6 +4961,16 @@ angular.module('mblowfish-core')
 		if (typeof scope.mbEnableSearch === 'undefined') {
 		    scope.mbEnableSearch = true;
 		}
+
+//		if (typeof scope.mbProperties !== 'undefined') {
+//		    fetchFilterKeys();
+//		}
+		scope.$watch('mbProperties', function(mbProperties){
+		    if(mbProperties){
+			scope.filterKeys = [];
+			fetchFilterKeys();
+		    }
+		});
 	    }
 
 	    return {
@@ -4455,6 +4996,10 @@ angular.module('mblowfish-core')
 		     * بشن.
 		     */
 		    mbSortKeys: '=',
+		    /*
+		     * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
+		     */
+		    mbProperties: '=?',
 
 		    /* titles corresponding to sort keys */
 		    mbSortKeysTitles: '=?',
@@ -6250,8 +6795,10 @@ angular.module('mblowfish-core')
 		if (rejection.status === 401) {
 			app.logout();
 		}
-	    };
-	});
+		return $q.reject(rejection);
+	};
+	return httpRequestInterceptor;
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7790,10 +8337,6 @@ angular.module('mblowfish-core') //
 		states: {
 			// Before the 'start' event occurs via $app.start().
 			waiting: {
-//				_onEnter: function(){
-//				loadUserProperty(); 
-//				loadOptions();
-//				},
 				start: APP_STATE_LOADING,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL
@@ -8004,11 +8547,11 @@ angular.module('mblowfish-core') //
 		});
 	}
 
-    // Init
-    apps.start = start;
-    apps.login = login;
-    apps.logout = logout;
-    return apps;
+	// Init
+	apps.start = start;
+	apps.login = login;
+	apps.logout = logout;
+	return apps;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -9712,7 +10255,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div> </div>"
+    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> <span style=\"width: 10px\"></span>  <div layout=column>  <div ng-repeat=\"filter in filters track by $index\" layout=row> <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3 translate=\"\">Filter</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in filterKeys\"> <md-button ng-click=setFilterKey(key)> <wb-icon ng-if=\"filterKey === key\">check_circle</wb-icon> <wb-icon ng-if=\"filterKey !== key\">radio_button_unchecked</wb-icon> {{key}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <md-input-container ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filterValue ng-change=setFilterValue(filterValue,$index) ng-model-options=\"{debounce: {'default': 500, 'blur': 0, '*': 1000}, updateOn: 'default blur click'}\" required> </md-input-container> <md-button ng-click=removeFilter($index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> <div layout=row layout-align=\"end center\"> <md-button ng-if=filters ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div>  <span flex=\"\"></span> </div> </div> </div>"
   );
 
 

@@ -26,6 +26,13 @@
                 <wb-icon>sort</wb-icon>
             </md-button>
             <md-button
+                ng-show="filterKeys"
+                class="md-icon-button"
+                aria-label="Sort"
+                ng-click="showFilter = !showFilter">
+                <wb-icon>filter_list</wb-icon>
+            </md-button>
+            <md-button
                 ng-show="mbEnableSearch"
                 class="md-icon-button"
                 aria-label="Search"
@@ -155,6 +162,107 @@
                 </md-menu-content>
             </md-menu>
 
+            <span flex=""></span>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div
+        class="stack-toolbar new-box-showing-animation"
+        md-colors="{background: 'primary-hue-2'}"
+        ng-show="showFilter">
+        <div
+            layout="row"
+            class="md-toolbar-tools">
+            <md-button
+                style="min-width:0px"
+                ng-click="showFilter = false"
+                aria-label="Back">
+                <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
+            </md-button>
+
+
+            <h3 translate="">Filters</h3>
+
+            <span style="width: 10px"></span>
+
+            <!--menu and input field for every new filter-->
+            <div layout="column">
+                <!-- Menu including filter keys -->
+                <div
+                    ng-repeat="filter in filters track by $index"
+                    layout="row">
+                    <md-menu>
+                        <md-button 
+                            layout="row" 
+                            style="text-transform: none;"
+                            ng-click="$mdMenu.open()">
+                            <h3 translate="">Filter</h3>
+                        </md-button>
+                        <md-menu-content width="4">
+                            <md-menu-item ng-repeat="key in filterKeys">
+                                <md-button ng-click="setFilterKey(key)">
+                                    <wb-icon ng-if="filterKey === key">check_circle</wb-icon>
+                                    <wb-icon ng-if="filterKey !== key">radio_button_unchecked</wb-icon>
+                                    {{key}}
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                    <md-input-container
+                        ng-if="showFilterValue">
+                        <label translate="">Value</label>
+                        <input 
+                            ng-model="filterValue" 
+                            ng-change="setFilterValue(filterValue,$index)"
+                            ng-model-options="{debounce: {'default': 500, 'blur': 0, '*': 1000}, updateOn: 'default blur click'}"
+                            required>
+                    </md-input-container>
+                    <md-button
+                        ng-click="removeFilter($index)"
+                        class="md-icon-button">
+                        <wb-icon>delete</wb-icon>
+                    </md-button>
+                </div>
+            </div>
+            <div 
+                layout="row" 
+                layout-align="end center">
+                <md-button  
+                    ng-if="filters"
+                    ng-click="applyFilter()"
+                    class="md-icon-button">
+                    <wb-icon>done</wb-icon>
+                </md-button>
+                <md-button  
+                    ng-click="addFilter()"
+                    class="md-icon-button">
+                    <wb-icon>add</wb-icon>
+                </md-button>
+            </div>
+<!--            <div 
+                layout="row" 
+                ng-repeat="filter in ctrl.filters track by $index">
+                <md-input-container>
+                    <label translate="">Key</label>
+                    <input 
+                        ng-model="filter.key" 
+                        ng-model-options="{updateOn: 'change blur', debounce: 1000}"
+                        ng-change="ctrl.filterChanged($index)">
+                </md-input-container>
+                <md-input-container>
+                    <label translate="">Value</label>
+                    <input 
+                        ng-model="filter.value" 
+                        ng-model-options="{updateOn: 'change blur', debounce: 1000}"
+                        ng-change="ctrl.filterChanged($index)">
+                </md-input-container>
+                <md-button
+                    ng-click="ctrl.removeFilter($index)"
+                    class="md-icon-button">
+                    <wb-icon>delete</wb-icon>
+                </md-button>
+            </div>-->
             <span flex=""></span>
         </div>
     </div>

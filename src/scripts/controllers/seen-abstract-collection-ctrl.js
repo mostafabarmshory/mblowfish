@@ -64,7 +64,7 @@ angular.module('mblowfish-core')//
     /*
      * Extends collection controller from MbAbstractCtrl 
      */
-    angular.extend(this, $controller('MbAbstractCtrl', {
+    angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -424,7 +424,7 @@ angular.module('mblowfish-core')//
 
 
 
-
+    this.seen_abstract_collection_superInit = this.init;
 
     /**
      * Loads and init the controller
@@ -432,6 +432,9 @@ angular.module('mblowfish-core')//
      * All childs must call this function at the end of the cycle
      */
     this.init = function(configs){
+	if(angular.isFunction(this.seen_abstract_collection_superInit)){
+	    this.seen_abstract_collection_superInit(configs);
+	}
         var ctrl = this;
         this.state = STATE_IDEAL;
         if(!angular.isDefined(configs)){
