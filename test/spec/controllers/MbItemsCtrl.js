@@ -21,7 +21,7 @@
  */
 'use strict';
 
-describe('AmWbSeenAbstractCollectionCtrl ', function() {
+describe('MbSeenAbstractCollectionCtrl ', function() {
 
 	// load the controller's module
 	beforeEach(module('mblowfish-core'));
@@ -48,7 +48,7 @@ describe('AmWbSeenAbstractCollectionCtrl ', function() {
 	// Initialize the controller and a mock scope
 	beforeEach(inject(function($controller, $rootScope) {
 		scope = $rootScope.$new();
-		ctrl = $controller('AmWbSeenAbstractCollectionCtrl', {
+		ctrl = $controller('MbSeenAbstractCollectionCtrl', {
 			$scope : scope,
 			$app : app,
 			$navigator: navigator

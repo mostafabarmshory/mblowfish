@@ -25,11 +25,11 @@
 angular.module('mblowfish-core')
 /**
  * @ngdoc Factories
- * @name Action
+ * @name MbAction
  * @description An action item
  * 
  */
-.factory('Action', function ($injector, $navigator) {
+.factory('MbAction', function ($injector, $navigator) {
 
     var action = function (data) {
         if (!angular.isDefined(data)) {

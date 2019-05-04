@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
 /**
  * @ngdoc action-group
@@ -60,4 +59,34 @@ angular.module('mblowfish-core', [ //
 	'ngFileSaver',//
 	'mdSteppers',//
 	'angular-material-persian-datepicker',
-]);
+])
+
+/*******************************************************
+ * Compatibility with old version
+ *******************************************************/ 
+.factory('Action', function (MbAction) {
+	'use strict';
+	return MbAction;
+})
+.factory('ActionGroup', function (MbActionGroup) {
+	'use strict';
+	return MbActionGroup;
+})
+.factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
+	'use strict';
+	return MbHttpRequestInterceptor;
+})
+.controller('MessagesCtrl', function ($scope, $controller) {
+    'use strict';
+    angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
+        $scope : $scope
+    }));
+})
+.controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
+    'use strict';
+    angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
+        $scope : $scope
+    }));
+})
+
+;

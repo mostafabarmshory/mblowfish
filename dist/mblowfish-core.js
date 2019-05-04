@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
 /**
  * @ngdoc action-group
@@ -1946,7 +1945,189 @@ angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
- * @name SeenAbstractCollectionCtrl
+ * @name MbSeenAbstractBinaryItemCtrl
+ * @description Generic controller of model binary of seen
+ * 
+ * There are three categories of actions;
+ * 
+ * - view
+ * - model
+ * - controller
+ * 
+ */
+.controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+    'use strict';
+
+    /*
+     * Extends collection controller from MbAbstractCtrl 
+     */
+    angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
+        $scope : $scope
+    }));
+
+	// Messages
+    var DELETE_MODEL_BINARY_MESSAGE = 'Delete binary content?';
+	var IMPLEMENT_BY_CHILDREN_ERROR = 'This method must be override in clild class';
+
+	// -------------------------------------------------------------------------
+	// Model
+	//
+	// We suppose that all model action be override by the new controllers.
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
+	/**
+	 * Deletes model binary
+	 * 
+	 * @param item
+	 * @return promise to delete item
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.deleteModelBinary = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	/**
+	 * Upload model binary
+	 * 
+	 * @param item
+	 * @return promise to delete item
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.uploadModelBinary = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	/**
+	 * Get model binary path
+	 * 
+	 * @param item
+	 * @return promise to delete item
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getModelBinaryUrl = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	
+    
+    // -------------------------------------------------------------------------
+    // View
+    //
+    //
+    //
+    //
+    //
+    //
+    // -------------------------------------------------------------------------
+    this.itemUrl;
+
+    /**
+     * Sets itemUrl to view
+     * 
+     * @memberof SeenAbstractBinaryItemCtrl
+     */
+    this.setItemUrl = function(itemUrl) {
+        this.itemUrl = itemUrl;
+    };
+    
+    /**
+     * Get view itemUrl
+     * 
+     * @memberof SeenAbstractBinaryItemCtrl
+     */
+    this.getItemUrl = function(){
+    	return this.itemUrl;
+    };
+
+    /**
+     * Deletes item binary file
+     * 
+     * @memberof SeenAbstractBinaryItemCtrl
+     */
+    this.deleteItemBinary = function(){
+    	// prevent default event
+		if($event){
+			$event.preventDefault();
+			$event.stopPropagation();
+		}
+
+		// update state
+		var ctrl = this;
+		var item = this.getItem();
+		function _deleteInternal() {
+			ctrl.busy = true;
+			return ctrl.getModelBinaryUrl(item)
+			.then(function(){
+				ctrl.fireDeleted(ctrl.getModelBinaryUrl(item), item);
+			}, function(){
+				// XXX: maso, 2019: handle error
+			})
+			.finally(function(){
+				ctrl.busy = false;
+			});
+		}
+		
+		// TODO: maso, 2018: get current promise
+		// delete the item
+		if(this.isConfirmationRequired()){
+			$window.confirm(DELETE_MODEL_BINARY_MESSAGE)
+			.then(function(){
+				return _deleteInternal();
+			});
+		} else {
+			return _deleteInternal();
+		}
+    };
+
+    /*
+     * Extends init method
+     */
+    this.supperInit = this.init;
+    this.init = function(config){
+		var ctrl = this;
+		if(!angular.isDefined(configs)){
+			return;
+		}
+		this.setItemUrl(config.url);
+		this.supperInit(config);
+    };
+    
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
+/**
+ * @ngdoc Controllers
+ * @name MbSeenAbstractCollectionCtrl
  * @description Generic controller of model collection of seen
  * 
  * This controller is used manages a collection of a virtual items. it is the
@@ -1976,7 +2157,7 @@ angular.module('mblowfish-core')//
  * - addModel: model
  * - addViewItem: view
  */
-.controller('AmWbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+.controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
     'use strict';
 
     /*
@@ -2025,7 +2206,7 @@ angular.module('mblowfish-core')//
      * </ul>
      * 
      * @type string
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.state = STATE_INIT;
 
@@ -2037,7 +2218,7 @@ angular.module('mblowfish-core')//
      * stored in this variable.
      * 
      * @type PaginatedCollection
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.lastResponse = null;
 
@@ -2048,7 +2229,7 @@ angular.module('mblowfish-core')//
      * layer.
      * 
      * @type QueryParameter
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.queryParameter = new QueryParameter();
     this.queryParameter.setOrder('id', 'd');
@@ -2069,14 +2250,14 @@ angular.module('mblowfish-core')//
      * is related to view.
      * 
      * @type array
-     * @memberof SeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.items = [];
 
     /**
      * Adds items to view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.pushViewItems = function(items) {
         if(!angular.isDefined(items)){
@@ -2095,14 +2276,14 @@ angular.module('mblowfish-core')//
     /**
      * Adds items to view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.addViewItems = this.pushViewItems;
 
     /**
      * remove item from view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.removeViewItems = function(items) {
         this.items = differenceBy(this.items, items, 'id');
@@ -2111,7 +2292,7 @@ angular.module('mblowfish-core')//
     /**
      * Updates an item in the view with the given one
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.updateViewItems = function(items) {
         // XXX: maso, 2019: update view items
@@ -2122,7 +2303,7 @@ angular.module('mblowfish-core')//
      * 
      * NOTE: this is the main storage of the controller.
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.getViewItems = function(){
         return this.items;
@@ -2131,7 +2312,7 @@ angular.module('mblowfish-core')//
     /**
      * Removes all items from view
      * 
-     * @memberof AmWbSeenAbstractCollectionCtrl
+     * @memberof MbSeenAbstractCollectionCtrl
      */
     this.clearViewItems = function(){
         this.items = [];
@@ -2557,12 +2738,12 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.controller('AmWbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
+.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
 
     /*
      * Extends collection controller
      */
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -2648,14 +2829,91 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdAccountsCtrl
+ * @name MbSeenUserAccountCtrl
  * @description Manages and display list of accounts
  * 
  * This controller is used in accounts list.
  * 
  */
-.controller('MbAccountsCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserAccountCtrl', function ($scope, $usr, $controller) {
+	angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
+		$scope: $scope
+	}));
+
+	// Override the function
+	this.getModelSchema = function(){
+		return $usr.profileSchema();
+	};
+	
+	// get an account
+	this.getModel = function(id){
+		return $usr.getProfile(id);
+	};
+	
+	// delete account
+	this.deleteModel = function(model){
+	    return $usr.deleteProfile(model.id);
+	};
+	/*
+	 * Deletes avatar
+	 */
+	this.deleteModelBinary = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	/*
+	 * Upload AVATAR
+	 */
+	this.uploadModelBinary = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+	
+	/**
+	 * Get model binary path
+	 * 
+	 * @param item
+	 * @return promise to delete item
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.getModelBinaryUrl = function(item){
+		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name MbSeenUserAccountsCtrl
+ * @description Manages and display list of accounts
+ * 
+ * This controller is used in accounts list.
+ * 
+ */
+.controller('MbSeenUserAccountsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -2716,12 +2974,12 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdGroupsCtrl
+ * @name MbSeenUserGroupsCtrl
  * @description Manages list of groups
  * 
  */
-.controller('MbGroupsCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserGroupsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -2752,6 +3010,69 @@ angular.module('mblowfish-core')
 
     this.init({
         eventType: '/user/groups'
+    });
+});
+
+'use strict';
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+angular.module('mblowfish-core')
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbSeenUserMessagesCtrl
+ * @description Manages list of controllers
+ * 
+ */
+.controller('MbSeenUserMessagesCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
+        $scope : $scope
+    }));
+
+    // Overried the function
+    this.getModelSchema = function () {
+        return $usr.messageSchema();
+    };
+
+    // get accounts
+    this.getModels = function (parameterQuery) {
+        return $usr.getMessages(parameterQuery);
+    };
+
+    // get an account
+    this.getModel = function (id) {
+        return $usr.getMessage(id);
+    };
+
+    // delete account
+    this.deleteModel = function (item) {
+        return item.delete();
+    };
+
+    this.init({
+        eventType: '/user/messages',
+        // do not show dialog on delete
+        deleteConfirm: false,
     });
 });
 
@@ -2787,12 +3108,12 @@ angular.module('mblowfish-core')
  * This controller is used in accounts list.
  * 
  */
-.controller('MbProfilesCtrl', function ($scope, $usr, $controller) {
-	angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserProfilesCtrl', function ($scope, $usr, $controller) {
+	angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
 		$scope: $scope
 	}));
 
-	// Overried the function
+	// Override the function
 	this.getModelSchema = function(){
 		return $usr.profileSchema();
 	};
@@ -2847,14 +3168,14 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdRolesCtrl
+ * @name MbSeenUserRolesCtrl
  * @description Manages list of roles
  * 
  * 
  */
-.controller('MbRolesCtrl', function ($scope, $usr, $q, $controller) {
+.controller('MbSeenUserRolesCtrl', function ($scope, $usr, $q, $controller) {
 
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -3006,7 +3327,7 @@ angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name compare-to
- * @description Compare two attrs.
+ * @description Compare two attributes.
  */
 .directive('compareTo', function(){
 	return {
@@ -3059,16 +3380,16 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbBadge', function($mdTheming, $rootScope) {
-	
+
 	function __badge_toRGB(color){
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
-		
+
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
-		
+
 		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
 		if(typeof theme === 'undefined'){
 			theme = $mdTheming.THEMES['default'];
@@ -3080,19 +3401,19 @@ angular.module('mblowfish-core')
 
 	function postLink(scope, element, attributes) {
 		$mdTheming(element);
-		
+
 		function style(where, color) {
 			if (color) {
 				element.css(where, __badge_toRGB(color));
 			}
 		}
 //		function getPosition(){
-//				return {
-//					top: element.prop('offsetTop'),
-//					left: element.prop('offsetLeft'),
-//					width: element.prop('offsetWidth'),
-//					height: element.prop('offsetHeight')
-//				};
+//		return {
+//		top: element.prop('offsetTop'),
+//		left: element.prop('offsetLeft'),
+//		width: element.prop('offsetWidth'),
+//		height: element.prop('offsetHeight')
+//		};
 //		}
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
@@ -3105,7 +3426,7 @@ angular.module('mblowfish-core')
 			style('background-color', value);
 		});
 	}
-	
+
 	return {
 		restrict: 'E',
 		replace: true,
@@ -3120,16 +3441,16 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 .directive('mbBadge', function($mdTheming, $mdColors, $timeout, $window, $compile, $rootScope) {
 
-	
+
 	function __badge_toRGB(color){
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
-		
+
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
-		
+
 		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
 		if(typeof theme === 'undefined'){
 			theme = $mdTheming.THEMES['default'];
@@ -3151,34 +3472,34 @@ angular.module('mblowfish-core')
 		if (isNaN(offset)) {
 			offset = 10;
 		}
-		
+
 		function style(where, color) {
 			if (color) {
 				badge.css(where, __badge_toRGB(color));
 			}
 		}
 		function getPosition(){
-				return {
-					top: element.prop('offsetTop'),
-					left: element.prop('offsetLeft'),
-					width: element.prop('offsetWidth'),
-					height: element.prop('offsetHeight')
-				};
+			return {
+				top: element.prop('offsetTop'),
+				left: element.prop('offsetLeft'),
+				width: element.prop('offsetWidth'),
+				height: element.prop('offsetHeight')
+			};
 		}
 
 		function position(value) {
 			var top = element.prop('offsetTop');
 			badge.css({
 				'display' : attributes.mbBadge && top ? 'initial' : 'none',
-				'left' : value.left + value.width - 20 + offset + 'px',
-				'top' : value.top + value.height - 20 + offset + 'px'
+						'left' : value.left + value.width - 20 + offset + 'px',
+						'top' : value.top + value.height - 20 + offset + 'px'
 			});
 		}
 
 //		function update () {
-//			position(getPosition());
+//		position(getPosition());
 //		}
-		
+
 		badge.addClass('mb-badge');
 		badge.css('position', 'absolute');
 		parent.append(badge);
@@ -3198,18 +3519,18 @@ angular.module('mblowfish-core')
 			badge.text(value);
 			badge.css('display', value ? 'initial' : 'none');
 		});
-		
+
 		scope.$watch(getPosition, function(value) {
 			position(value);
 		}, true);
-		
+
 //		angular.element($window)
 //		.bind('resize', function(){
-//			update();
+//		update();
 //		});
 	}
 	return {
-        priority: 100,
+		priority: 100,
 		restrict: 'A',
 		link: postLink
 	};
@@ -3389,7 +3710,7 @@ angular.module('mblowfish-core')
     // Private Methods
     // **********************************************************
     function postLink(scope, element, attr, ctrls) {
-        scope.app = $rootScope.app;
+        scope.app = $rootScope.app || {};
         var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
         function render() {
@@ -3426,7 +3747,8 @@ angular.module('mblowfish-core')
     return {
         replace : false,
         template : function(){
-            if($rootScope.app.calendar === 'Gregorian'){
+        	var app = $rootScope.app || {};
+            if(app.calendar === 'Gregorian'){
                 return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
             }
             return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
@@ -3474,42 +3796,42 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
-	/**
-	 * @ngdoc Directives
-	 * @name mbDynamicForm
-	 * @description Get a list of properties and fill them
-	 */
-	.directive('mbDynamicForm', function () {
+/**
+ * @ngdoc Directives
+ * @name mbDynamicForm
+ * @description Get a list of properties and fill them
+ */
+.directive('mbDynamicForm', function () {
 
-	    /**
-	     * Adding preloader.
-	     * 
-	     * @param scope
-	     * @param element
-	     * @param attr
-	     * @param ctrls
-	     * @returns
-	     */
-	    function postLink(scope, element, attrs, ctrls) {
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @param ctrls
+	 * @returns
+	 */
+	function postLink(scope, element, attrs, ctrls) {
 		// Load ngModel
 		var ngModelCtrl = ctrls[0];
 		scope.values = {};
 		ngModelCtrl.$render = function () {
-		    scope.values = ngModelCtrl.$viewValue || {};
+			scope.values = ngModelCtrl.$viewValue || {};
 		};
-		
-		scope.modelChanged = function (key, value) {
-		    scope.values[key] = value;
-		    ngModelCtrl.$setViewValue(scope.values);
-		};
-	    }
 
-	    return {
+		scope.modelChanged = function (key, value) {
+			scope.values[key] = value;
+			ngModelCtrl.$setViewValue(scope.values);
+		};
+	}
+
+	return {
 		restrict: 'E',
 		require: ['ngModel'],
 		templateUrl: 'views/directives/mb-dynamic-form.html',
 		scope: {
-		    mbParameters: '='
+			mbParameters: '='
 		},
 		link: postLink
 	    };
@@ -3573,7 +3895,12 @@ angular.module('mblowfish-core')
 		function loadPage(index){
 			var jobs = [];
 			var pages2 = [];
-
+			
+			var mbTabs = $scope.mbTabs || [];
+			if(index > mbTabs.length || index < 0 || mbTabs.length == 0){
+				return;
+			}
+			var page = mbTabs[index];
 
 			// 1- Find element
 			var target = $element.find('#' + CHILDREN_AUNCHOR);
@@ -3582,7 +3909,6 @@ angular.module('mblowfish-core')
 			target.empty();
 
 			// 3- load pages
-			var page = $scope.mbTabs[index];
 			var template = $wbUtil.getTemplateFor(page);
 			if (angular.isDefined(template)) {
 				jobs.push(template.then(function(templateSrc) {
@@ -4760,6 +5086,9 @@ angular.module('mblowfish-core')
 			 * Handle application state change
 			 */
 			appStateChange: function (state) {
+				if(!state) {
+					return;
+				}
 				this.handle('appStateChange', state);
 			},
 			/*
@@ -5719,11 +6048,11 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 /**
  * @ngdoc Factories
- * @name Action
+ * @name MbAction
  * @description An action item
  * 
  */
-.factory('Action', function ($injector, $navigator) {
+.factory('MbAction', function ($injector, $navigator) {
 
     var action = function (data) {
         if (!angular.isDefined(data)) {
@@ -5779,11 +6108,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Factories
- * @name ActionGroup
+ * @name MbActionGroup
  * @description Groups of actions.
  * 
  */
-.factory('ActionGroup', function() {
+.factory('MbActionGroup', function() {
 	var actionGroup  = function(data) {
 		if(!angular.isDefined(data)){
 			data = {};
@@ -5803,7 +6132,7 @@ angular.module('mblowfish-core')
 	actionGroup.prototype.clear = function(){
 		this.items = [];
 	};
-	
+
 	return actionGroup;
 });
 
@@ -5903,25 +6232,23 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
 
 angular.module('mblowfish-core')
-	/**
-	 * @ngdoc Factories
-	 * @name httpRequestInterceptor
-	 * @description An interceptor to handle the error 401 of http response
-	 * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
-	 */
-	.factory('httpRequestInterceptor', function ($q, $injector) {
-	    return {
-		'responseError': function (rejection) {
-		    var app = $injector.get('$app');
-		    // do something on error
-		    if (rejection.status === 401) {
+/**
+ * @ngdoc Factories
+ * @name httpRequestInterceptor
+ * @description An interceptor to handle the error 401 of http response
+ * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
+ */
+.factory('MbHttpRequestInterceptor', function ($q, $injector) {
+	'use strict';
+	var httpRequestInterceptor = function(){};
+	httpRequestInterceptor.prototype.responseError = function (rejection) {
+		var app = $injector.get('$app');
+		// do something on error
+		if (rejection.status === 401) {
 			app.logout();
-		    }
-		    return $q.reject(rejection);
 		}
 	    };
 	});
@@ -6292,7 +6619,7 @@ angular.module('mblowfish-core')
 	}
 
 	oldWatch = $rootScope.$watch('app.state.status', function(status) {
-		if (status.startsWith('ready')) {
+		if (status && status.startsWith('ready')) {
 			// check for update
 			return appcache//
 			.checkUpdate()//
@@ -6455,11 +6782,13 @@ angular.module('mblowfish-core')
 	 * Rests settings of page (title, description, keywords and favicon) to values defined in branding
 	 */
 	function _initBranding() {
-		if($rootScope.app.config){			
-			$page.setTitle($rootScope.app.config.title);
-			$page.setDescription($rootScope.app.config.description);
-			$page.setKeywords($rootScope.app.config.keywords);
-			$page.setFavicon($rootScope.app.config.favicon || $rootScope.app.config.logo);
+
+		var app = $rootScope.app || {};
+		if( app.config){			
+			$page.setTitle(app.config.title);
+			$page.setDescription(app.config.description);
+			$page.setKeywords(app.config.keywords);
+			$page.setFavicon(app.config.favicon || app.config.logo);
 		}
 	}
 
@@ -6467,7 +6796,8 @@ angular.module('mblowfish-core')
 	 * If an item of settings of page does not set yet, sets it by value defined in branding
 	 */
 	function _fillUnsetFields() {
-		var config = $rootScope.app.config ? $rootScope.app.config : null;
+		var app = $rootScope.app || {};
+		var config = app.config ? app.config : null;
 		if(!config){
 			return;
 		}
@@ -6485,12 +6815,14 @@ angular.module('mblowfish-core')
 	});
 	$rootScope.$on('$routeChangeSuccess', function( /*event, current*/ ) {
 		var path = $location.absUrl();
-		$page.setMeta('twitter:url', path) //
+		$page
+		.setMeta('twitter:url', path) //
 		.setMeta('og:url', path);
 	});
 
 	$rootScope.$watch(function(){
-		var conf = $rootScope.app.config;
+		var app = $rootScope.app || {};
+		var conf = app.config;
 		if(!conf){
 			return conf;
 		}
@@ -7185,490 +7517,492 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
 
-    var apps = this;
+	var apps = this;
 
-    // Constants
-    var APP_PREFIX = 'angular-material-blowfish-';
-    var APP_CNF_MIMETYPE = 'application/amd-cnf';
-    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-    var OPTIONS_GRAPHQL = '{items{id, key,value}}';
+	// Constants
+	var APP_PREFIX = 'angular-material-blowfish-';
+	var APP_CNF_MIMETYPE = 'application/amd-cnf';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
-    // the state machine
-    var stateMachine;
+	// the state machine
+	var stateMachine;
 
-    // states
-    var APP_STATE_WAITING = 'waiting';
-    var APP_STATE_LOADING = 'loading';
+	// states
+	var APP_STATE_WAITING = 'waiting';
+	var APP_STATE_LOADING = 'loading';
 
-    // final states
-    var APP_STATE_READY = 'ready';
-    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-    var APP_STATE_OFFLINE = 'offline';
-    var APP_STATE_FAIL = 'fail';
+	// final states
+	var APP_STATE_READY = 'ready';
+	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+	var APP_STATE_OFFLINE = 'offline';
+	var APP_STATE_FAIL = 'fail';
 
-    var APP_EVENT_LOADED = 'loaded';
-    var APP_EVENT_START = 'start';
-    var APP_EVENT_NOT_FOUND = 'resource_not_found';
-    var APP_EVENT_SERVER_ERROR = 'server_error';
-    var APP_EVENT_NET_ERROR = 'network_error';
-
-
-    var optionsQuery = new QueryParameter()//
-    .put('graphql', OPTIONS_GRAPHQL);
-    // All the things that are set up by $app service
-    var app = {
-            state: {
-                // all states: waiting, loading, offline, app_not_configured,
-                // ready, fail
-                status: 'loading',
-                stage: 'starting',
-                message: null
-            },
-            logs: [],
-            user: {
-                current: {},
-                profile : {},
-                anonymous: true,
-                administrator: false,
-                owner: false,
-                member: false,
-                authorized: false
-            },
-            config: {},
-            setting: {},
-            options: {}
-    };
-    $rootScope.app = app;
-
-    /*
-     * متغیرهای مدیریت تنظیم‌ها
-     * 
-     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-     * کارهای تکراری جلوگیری کنیم.
-     * 
-     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-     * دهد.
-     */
-    var appConfigLock = false;
-    var appConfigDirty = false;
-    // Some controlling variables required in the state machine
-    var ctrl = {
-            user_loaded: false,
-            options_loaded: false,
-            configs_loaded: false
-    };
-
-    /*
-     * Attaches loading logs
-     */
-    function _loadingLog(stage, message) {
-        app.state.stage = stage;
-        app.state.message = message;
-        if (message) {
-            app.logs.push(message);
-        }
-    }
-
-    /*
-     * Bind list of roles to app data
-     */
-    function _loadRolesOfUser(roles) {
-        for (var i = 0; i < roles.length; i++) {
-            var role = roles[i];
-            app.user[role.application + '_' + role.code_name] = true;
-        }
-    }
-
-    /**
-     * تنظیم‌های نرم افزار را لود می‌کند.
-     * 
-     * @returns promiss
-     */
-    function loadApplicationConfig() {
-        _loadingLog('loading configuration', 'fetch configuration document');
-
-        ctrl.configs_loaded = false;
-        ctrl.configs_fail = false;
-
-        $cms.getContent(APP_PREFIX + app.key) //
-        .then(function (content) {
-            _loadingLog('loading configuration', 'fetch configuration content');
-            app._acc = content;
-            // load config file
-            return app._acc.downloadValue();
-        }, function(error){
-            ctrl.configs_fail = true;
-            stateMachine.error(error);
-            // return empty config
-            return {};
-        })
-        .then(function (appConfig) {
-            app.config = angular.isObject(appConfig) ? appConfig : {};
-        })
-        .finally(function(){
-            ctrl.configs_loaded = true;
-            stateMachine.loaded();
-        });
-    }
-
-    /*
-     * Loads current user informations
-     * 
-     * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-     * نرم افزار پر می‌شود.
-     * 
-     * If there is a role x.y (where x is application code and y is code name)
-     * in role list then the following var is added in user:
-     * 
-     * app.user.x_y
-     * 
-     */
-    function loadUserProperty() {
-        _loadingLog('loading user info', 'fetch user information');
-        return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-        .then(function (user) {
-            // load user info
-            ctrl.user_loaded = true;
-            // app user data
-            app.user = {
-                    anonymous: !user.id || user.id === 0,
-                    current: user
-            };
-            // load the first profile of user
-            if(angular.isArray(user.profiles)){
-                app.user.profile = user.profiles.length? user.profiles[0] : {};
-            }
-            // load user roles
-            _loadingLog('loading user info', 'user information loaded successfully');
-            _loadingLog('loading user info', 'check user permissions');
-            if (!app.user.anonymous) {
-                _loadRolesOfUser(user.roles);
-                for (var i = 0; i < user.groups.length; i++) {
-                    _loadRolesOfUser(user.groups[i].roles);
-                }
-                //
-                if (!user.isAnonymous()) {
-                    app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-                    app.user.administrator = app.user.owner;
-                } else {
-                    app.user.anonymous = true;
-                }
-            }
-            stateMachine.loaded();
-        }, function(error){
-            ctrl.user_loaded = false;
-            stateMachine.error(error);
-        });
-    }
-
-    /*
-     * Loads options
-     */
-    function loadOptions() {
-        // TODO: Masood, 2018: options should be get from server. Now, its api
-        // doesn't exist.
-        _loadingLog('loading options', 'fetch options document');
-        // get the options from server and save in app.options.
-        app.options = {};
-        return $tenant.getSettings(optionsQuery)
-        .then(function (res) {
-            for (var i = 0; i < res.items.length; i++) {
-                var item = res.items[i];
-                app.options[item.key] = item.value;
-            }
-            ctrl.options_loaded = true;
-            stateMachine.loaded();
-        }, function(error){
-            stateMachine.error(error);
-        });
-    }
-
-    /*
-     * Loads local storage
-     */
-    function loadSetting() {
-        _loadingLog('loading setting from local storage', 'fetch settings');
-        /*
-         * TODO: masood, 2018: The lines below is an alternative for lines above
-         * but not recommended.
-         * 
-         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-         */
-        app.setting = $localStorage.$default({
-            dashboardModel: {}
-        });
-        _loadingLog('setting loaded', 'fetch settings');
-    }
+	var APP_EVENT_LOADED = 'loaded';
+	var APP_EVENT_START = 'start';
+	var APP_EVENT_NOT_FOUND = 'resource_not_found';
+	var APP_EVENT_SERVER_ERROR = 'server_error';
+	var APP_EVENT_NET_ERROR = 'network_error';
 
 
-    /*
-     * Stores app configuration on the back end
-     */
-    function storeApplicationConfig() {
-        appConfigDirty = true;
-        if(appConfigLock){
-            return;
-        }
-        if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
-            return $q.reject({
-                data: {
-                    message: 'fail'
-                }
-            });
-        }
-        appConfigLock = true;
-        var promise;
-        if (app._acc) { // content loaded
-            appConfigDirty = false;
-            promise = app._acc.uploadValue(app.config);
-        } else { // create content
-            promise = $cms.putContent({
-                name: APP_PREFIX + app.key,
-                mimetype: APP_CNF_MIMETYPE
-            }).then(function (content) {
-                appConfigDirty = false;
-                app._acc = content;
-                stateMachine.loaded();
-                return app._acc.uploadValue(app.config);
-            }, function (error) {
-                stateMachine.error(error);
-            });
-        } //
-        return promise //
-        .finally(function () {
-            appConfigLock = false;
-            if (appConfigDirty) {
-                return storeApplicationConfig();
-            }
-        });
-    }
+	var optionsQuery = new QueryParameter()//
+	.put('graphql', OPTIONS_GRAPHQL);
+	// All the things that are set up by $app service
+	var app = {
+			state: {
+				// all states: waiting, loading, offline, app_not_configured,
+				// ready, fail
+				status: 'loading',
+				stage: 'starting',
+				message: null
+			},
+			logs: [],
+			user: {
+				current: {},
+				profile : {},
+				anonymous: true,
+				administrator: false,
+				owner: false,
+				member: false,
+				authorized: false
+			},
+			config: {},
+			setting: {},
+			options: {}
+	};
+	$rootScope.app = app;
 
-    /*
-     * State machine to handle life cycle of the system.
-     */
-    stateMachine = new machina.Fsm({
-        initialize: function (/* options */) {
-            app.state.status = APP_STATE_WAITING;
-        },
-        namespace: 'webpich.$app',
-        initialState: APP_STATE_WAITING,
-        states: {
-            // Before the 'start' event occurs via $app.start().
-            waiting: {
-                _onEnter: function(){
-                    loadUserProperty(); 
-                    loadOptions();
-                },
-                start: APP_STATE_LOADING,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL
-            },
-            // tries to load all part of system
-            loading: {
-                _onEnter: function () {
-                    loadSetting(); 
-                    loadApplicationConfig(); 
-                },
-                loaded: function () {
-                    if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-                        this.transition(APP_STATE_READY);
-                    } else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
-                        this.transition(APP_STATE_READY_NOT_CONFIGURED);
-                    }
-                },
-                server_error: APP_STATE_FAIL,
-                network_error: APP_STATE_OFFLINE
-            },
-            // app is ready
-            ready: {
-                network_error: APP_STATE_OFFLINE
-            },
-            // app is ready with no config
-            ready_not_configured: {
-                loaded: function () {
-                    if(ctrl.configs_loaded){
-                        this.transition(APP_STATE_READY);
-                    }
-                },
-                network_error: APP_STATE_OFFLINE
-            },
-            // server error
-            fail: {},
-            // net error
-            offline: {}
-        },
+	/*
+	 * متغیرهای مدیریت تنظیم‌ها
+	 * 
+	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+	 * کارهای تکراری جلوگیری کنیم.
+	 * 
+	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+	 * دهد.
+	 */
+	var appConfigLock = false;
+	var appConfigDirty = false;
+	// Some controlling variables required in the state machine
+	var ctrl = {
+			user_loaded: false,
+			options_loaded: false,
+			configs_loaded: false
+	};
 
-        /*
-         * This handle load event of app
-         * 
-         * If a part of the app loaded then this handler fire an event and
-         * update the app state.
-         */
-        loaded: function () {
-            this.handle(APP_EVENT_LOADED);
-        },
+	/*
+	 * Attaches loading logs
+	 */
+	function _loadingLog(stage, message) {
+		app.state.stage = stage;
+		app.state.message = message;
+		if (message) {
+			app.logs.push(message);
+		}
+	}
 
-        /*
-         * Fires start event
-         */
-        start: function () {
-            this.handle(APP_EVENT_START);
-        },
+	/*
+	 * Bind list of roles to app data
+	 */
+	function _loadRolesOfUser(roles) {
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			app.user[role.application + '_' + role.code_name] = true;
+		}
+	}
 
-        /*
-         * Handle HTTP response error.
-         * 
-         * If the is an error in loading and storing configuration then this
-         * function checks and fire an event.
-         */
-        error: function ($error) {
-            if ($error.status === 404) {
-                this.handle(APP_EVENT_NOT_FOUND);
-            } else if ($error.status === 500) {
-                this.handle(APP_EVENT_SERVER_ERROR);
-            } else if ($error.status === -1) {
-                this.handle(APP_EVENT_NET_ERROR);
-            }
-        }
-    });
+	/**
+	 * تنظیم‌های نرم افزار را لود می‌کند.
+	 * 
+	 * @returns promiss
+	 */
+	function loadApplicationConfig() {
+		_loadingLog('loading configuration', 'fetch configuration document');
+
+		ctrl.configs_loaded = false;
+		ctrl.configs_fail = false;
+
+		$cms.getContent(APP_PREFIX + app.key) //
+		.then(function (content) {
+			_loadingLog('loading configuration', 'fetch configuration content');
+			app._acc = content;
+			// load config file
+			return app._acc.downloadValue();
+		}, function(error){
+			ctrl.configs_fail = true;
+			stateMachine.error(error);
+			// return empty config
+			return {};
+		})
+		.then(function (appConfig) {
+			app.config = angular.isObject(appConfig) ? appConfig : {};
+		})
+		.finally(function(){
+			ctrl.configs_loaded = true;
+			stateMachine.loaded();
+		});
+	}
+
+	/*
+	 * Loads current user informations
+	 * 
+	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+	 * نرم افزار پر می‌شود.
+	 * 
+	 * If there is a role x.y (where x is application code and y is code name)
+	 * in role list then the following var is added in user:
+	 * 
+	 * app.user.x_y
+	 * 
+	 */
+	function loadUserProperty() {
+		_loadingLog('loading user info', 'fetch user information');
+		return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
+		.then(function (user) {
+			// load user info
+			ctrl.user_loaded = true;
+			// app user data
+			app.user = {
+					anonymous: !user.id || user.id === 0,
+					current: user
+			};
+			// load the first profile of user
+			if(angular.isArray(user.profiles)){
+				app.user.profile = user.profiles.length? user.profiles[0] : {};
+			}
+			// load user roles
+			_loadingLog('loading user info', 'user information loaded successfully');
+			_loadingLog('loading user info', 'check user permissions');
+			if (!app.user.anonymous) {
+				_loadRolesOfUser(user.roles);
+				for (var i = 0; i < user.groups.length; i++) {
+					_loadRolesOfUser(user.groups[i].roles);
+				}
+				//
+				if (!user.isAnonymous()) {
+					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+					app.user.administrator = app.user.owner;
+				} else {
+					app.user.anonymous = true;
+				}
+			}
+			stateMachine.loaded();
+		}, function(error){
+			ctrl.user_loaded = false;
+			stateMachine.error(error);
+		});
+	}
+
+	/*
+	 * Loads options
+	 */
+	function loadOptions() {
+		// TODO: Masood, 2018: options should be get from server. Now, its api
+		// doesn't exist.
+		_loadingLog('loading options', 'fetch options document');
+		// get the options from server and save in app.options.
+		app.options = {};
+		return $tenant.getSettings(optionsQuery)
+		.then(function (res) {
+			for (var i = 0; i < res.items.length; i++) {
+				var item = res.items[i];
+				app.options[item.key] = item.value;
+			}
+			ctrl.options_loaded = true;
+			stateMachine.loaded();
+		}, function(error){
+			stateMachine.error(error);
+		});
+	}
+
+	/*
+	 * Loads local storage
+	 */
+	function loadSetting() {
+		_loadingLog('loading setting from local storage', 'fetch settings');
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 */
+		app.setting = $localStorage.$default({
+			dashboardModel: {}
+		});
+		_loadingLog('setting loaded', 'fetch settings');
+	}
 
 
-    // I'd like to know when the transition event occurs
-    stateMachine.on('transition', function () {
-        _loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
-        app.state.status = stateMachine.state;
-    });
+	/*
+	 * Stores app configuration on the back end
+	 */
+	function storeApplicationConfig() {
+		appConfigDirty = true;
+		if(appConfigLock){
+			return;
+		}
+		if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+			return $q.reject({
+				data: {
+					message: 'fail'
+				}
+			});
+		}
+		appConfigLock = true;
+		var promise;
+		if (app._acc) { // content loaded
+			appConfigDirty = false;
+			promise = app._acc.uploadValue(app.config);
+		} else { // create content
+			promise = $cms.putContent({
+				name: APP_PREFIX + app.key,
+				mimetype: APP_CNF_MIMETYPE
+			}).then(function (content) {
+				appConfigDirty = false;
+				app._acc = content;
+				stateMachine.loaded();
+				return app._acc.uploadValue(app.config);
+			}, function (error) {
+				stateMachine.error(error);
+			});
+		} //
+		return promise //
+		.finally(function () {
+			appConfigLock = false;
+			if (appConfigDirty) {
+				return storeApplicationConfig();
+			}
+		});
+	}
 
-    /*
-     * watch direction and update app.dir
-     */
-    $rootScope.$watch(function () {
-        if (!app.config.local) {
-            app.config.local = {};
-        }
-        return app.setting.dir || app.config.local.dir;
-    }, function (value) {
-        app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-        // version of app.js;
-    });
-    /*
-     * watch local and update language
-     */
-    $rootScope.$watch(function () {
-        // TODO: maso, 2018: remove this part in the next release
-        if (!angular.isObject(app.config.local)) {
-            app.config.local = {};
-        }
-        // Check language
-        return app.setting.local || app.config.local.language || 'en';
-    }, function (key) {
-        // 0- set app local
-        app.local = key;
-        // 1- change language
-        $translate.use(key);
-        // 2- chnage date format
-        // Change moment's locale so the 'L'-format is adjusted.
-        // For example the 'L'-format is DD-MM-YYYY for Dutch
-        moment.loadPersian();
-        moment.locale(key);
-        // Set month and week names for the general $mdDateLocale service
-        var localeDate = moment.localeData();
-        $mdDateLocale.months = localeDate._months;
-        $mdDateLocale.shortMonths = localeDate._monthsShort;
-        $mdDateLocale.days = localeDate._weekdays;
-        $mdDateLocale.shortDays = localeDate._weekdaysMin;
-        // Optionaly let the week start on the day as defined by moment's locale
-        // data
-        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-    });
+	/*
+	 * State machine to handle life cycle of the system.
+	 */
+	stateMachine = new machina.Fsm({
+		initialize: function (/* options */) {
+			app.state.status = APP_STATE_WAITING;
+		},
+		namespace: 'webpich.$app',
+		initialState: APP_STATE_WAITING,
+		states: {
+			// Before the 'start' event occurs via $app.start().
+			waiting: {
+//				_onEnter: function(){
+//				loadUserProperty(); 
+//				loadOptions();
+//				},
+				start: APP_STATE_LOADING,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL
+			},
+			// tries to load all part of system
+			loading: {
+				_onEnter: function () {
+					loadUserProperty(); 
+					loadOptions();
+					loadSetting(); 
+					loadApplicationConfig(); 
+				},
+				loaded: function () {
+					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+						this.transition(APP_STATE_READY);
+					} else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
+						this.transition(APP_STATE_READY_NOT_CONFIGURED);
+					}
+				},
+				server_error: APP_STATE_FAIL,
+				network_error: APP_STATE_OFFLINE
+			},
+			// app is ready
+			ready: {
+				network_error: APP_STATE_OFFLINE
+			},
+			// app is ready with no config
+			ready_not_configured: {
+				loaded: function () {
+					if(ctrl.configs_loaded){
+						this.transition(APP_STATE_READY);
+					}
+				},
+				network_error: APP_STATE_OFFLINE
+			},
+			// server error
+			fail: {},
+			// net error
+			offline: {}
+		},
 
-    /*
-     * watch calendar
-     */
-    $rootScope.$watch(function () {
-        return app.setting.calendar || app.config.calendar || 'Gregorian';
-    }, function (key) {
-        // 0- set app local
-        app.calendar = key;
-    });
+		/*
+		 * This handle load event of app
+		 * 
+		 * If a part of the app loaded then this handler fire an event and
+		 * update the app state.
+		 */
+		loaded: function () {
+			this.handle(APP_EVENT_LOADED);
+		},
 
-    /*
-     * watch application configuration and update app state
-     */
-    $rootScope.$watch('app.config', function () {
-        if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
-            // TODO: maso, 2018: delay to save
-            storeApplicationConfig();
-        }
-    }, true);
+		/*
+		 * Fires start event
+		 */
+		start: function () {
+			this.handle(APP_EVENT_START);
+		},
 
-    /**
-     * Start the application
-     * 
-     * this function is called when the app get started.
-     * 
-     * @memberof $app
-     */
-    function start(key) {
-        app.key = key;
-        stateMachine.start();
-    }
+		/*
+		 * Handle HTTP response error.
+		 * 
+		 * If the is an error in loading and storing configuration then this
+		 * function checks and fire an event.
+		 */
+		error: function ($error) {
+			if ($error.status === 404) {
+				this.handle(APP_EVENT_NOT_FOUND);
+			} else if ($error.status === 500) {
+				this.handle(APP_EVENT_SERVER_ERROR);
+			} else if ($error.status === -1) {
+				this.handle(APP_EVENT_NET_ERROR);
+			}
+		}
+	});
 
-    /**
-     * Logins into the backend
-     * 
-     * @memberof $app
-     * @param {object}
-     *            credential of the user
-     */
-    function login(credential) {
-        if (!app.user.anonymous) {
-            return $q.resolve(app.user.current);
-        }
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/login',
-            data: $httpParamSerializerJQLike(credential),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        }).then(function () {
-            loadUserProperty();
-        });
-    }
 
-    /**
-     * Application logout
-     * 
-     * Logout and clean user data, this will change state of the application.
-     * 
-     * @memberof $app
-     */
-    function logout() {
-        var oldUser = $rootScope.app.user;
-        if (oldUser.anonymous) {
-            return $q.resolve(oldUser);
-        }
-        $rootScope.app.user = {};
-        stateMachine.loaded();
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/logout',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(function () {
-            loadUserProperty();
-        }, function () {
-            // TODO: maso, 2018: fail to logout?!
-            $rootScope.app.user = oldUser;
-            stateMachine.loaded();
-        });
-    }
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function () {
+		_loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
+		app.state.status = stateMachine.state;
+	});
+
+	/*
+	 * watch direction and update app.dir
+	 */
+	$rootScope.$watch(function () {
+		if (!app.config.local) {
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
+	}, function (value) {
+		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
+		// version of app.js;
+	});
+	/*
+	 * watch local and update language
+	 */
+	$rootScope.$watch(function () {
+		// TODO: maso, 2018: remove this part in the next release
+		if (!angular.isObject(app.config.local)) {
+			app.config.local = {};
+		}
+		// Check language
+		return app.setting.local || app.config.local.language || 'en';
+	}, function (key) {
+		// 0- set app local
+		app.local = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	});
+
+	/*
+	 * watch calendar
+	 */
+	$rootScope.$watch(function () {
+		return app.setting.calendar || app.config.calendar || 'Gregorian';
+	}, function (key) {
+		// 0- set app local
+		app.calendar = key;
+	});
+
+	/*
+	 * watch application configuration and update app state
+	 */
+	$rootScope.$watch('app.config', function () {
+		if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
+			// TODO: maso, 2018: delay to save
+			storeApplicationConfig();
+		}
+	}, true);
+
+	/**
+	 * Start the application
+	 * 
+	 * this function is called when the app get started.
+	 * 
+	 * @memberof $app
+	 */
+	function start(key) {
+		app.key = key;
+		stateMachine.start();
+	}
+
+	/**
+	 * Logins into the backend
+	 * 
+	 * @memberof $app
+	 * @param {object}
+	 *            credential of the user
+	 */
+	function login(credential) {
+		if (!app.user.anonymous) {
+			return $q.resolve(app.user.current);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(function () {
+			loadUserProperty();
+		});
+	}
+
+	/**
+	 * Application logout
+	 * 
+	 * Logout and clean user data, this will change state of the application.
+	 * 
+	 * @memberof $app
+	 */
+	function logout() {
+		var oldUser = $rootScope.app.user;
+		if (oldUser.anonymous) {
+			return $q.resolve(oldUser);
+		}
+		$rootScope.app.user = {};
+		stateMachine.loaded();
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(function () {
+			loadUserProperty();
+		}, function () {
+			// TODO: maso, 2018: fail to logout?!
+			$rootScope.app.user = oldUser;
+			stateMachine.loaded();
+		});
+	}
 
     // Init
     apps.start = start;

@@ -24,11 +24,11 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Factories
- * @name ActionGroup
+ * @name MbActionGroup
  * @description Groups of actions.
  * 
  */
-.factory('ActionGroup', function() {
+.factory('MbActionGroup', function() {
 	var actionGroup  = function(data) {
 		if(!angular.isDefined(data)){
 			data = {};
@@ -48,6 +48,6 @@ angular.module('mblowfish-core')
 	actionGroup.prototype.clear = function(){
 		this.items = [];
 	};
-	
+
 	return actionGroup;
 });

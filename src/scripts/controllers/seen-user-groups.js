@@ -25,12 +25,12 @@ angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
- * @name AmdGroupsCtrl
+ * @name MbSeenUserGroupsCtrl
  * @description Manages list of groups
  * 
  */
-.controller('MbGroupsCtrl', function ($scope, $usr, $controller) {
-    angular.extend(this, $controller('AmWbSeenAbstractCollectionCtrl', {
+.controller('MbSeenUserGroupsCtrl', function ($scope, $usr, $controller) {
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
         $scope : $scope
     }));
 

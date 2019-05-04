@@ -195,6 +195,9 @@ angular.module('mblowfish-core')
 			 * Handle application state change
 			 */
 			appStateChange: function (state) {
+				if(!state) {
+					return;
+				}
 				this.handle('appStateChange', state);
 			},
 			/*

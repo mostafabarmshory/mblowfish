@@ -24,43 +24,43 @@
 'use strict';
 
 angular.module('mblowfish-core')
-	/**
-	 * @ngdoc Directives
-	 * @name mbDynamicForm
-	 * @description Get a list of properties and fill them
-	 */
-	.directive('mbDynamicForm', function () {
+/**
+ * @ngdoc Directives
+ * @name mbDynamicForm
+ * @description Get a list of properties and fill them
+ */
+.directive('mbDynamicForm', function () {
 
-	    /**
-	     * Adding preloader.
-	     * 
-	     * @param scope
-	     * @param element
-	     * @param attr
-	     * @param ctrls
-	     * @returns
-	     */
-	    function postLink(scope, element, attrs, ctrls) {
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @param ctrls
+	 * @returns
+	 */
+	function postLink(scope, element, attrs, ctrls) {
 		// Load ngModel
 		var ngModelCtrl = ctrls[0];
 		scope.values = {};
 		ngModelCtrl.$render = function () {
-		    scope.values = ngModelCtrl.$viewValue || {};
+			scope.values = ngModelCtrl.$viewValue || {};
 		};
-		
-		scope.modelChanged = function (key, value) {
-		    scope.values[key] = value;
-		    ngModelCtrl.$setViewValue(scope.values);
-		};
-	    }
 
-	    return {
+		scope.modelChanged = function (key, value) {
+			scope.values[key] = value;
+			ngModelCtrl.$setViewValue(scope.values);
+		};
+	}
+
+	return {
 		restrict: 'E',
 		require: ['ngModel'],
 		templateUrl: 'views/directives/mb-dynamic-form.html',
 		scope: {
-		    mbParameters: '='
+			mbParameters: '='
 		},
 		link: postLink
-	    };
-	});
+	};
+});

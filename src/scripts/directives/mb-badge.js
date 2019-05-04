@@ -32,16 +32,16 @@ angular.module('mblowfish-core')
  * 
  */
 .directive('mbBadge', function($mdTheming, $rootScope) {
-	
+
 	function __badge_toRGB(color){
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
-		
+
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
-		
+
 		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
 		if(typeof theme === 'undefined'){
 			theme = $mdTheming.THEMES['default'];
@@ -53,19 +53,19 @@ angular.module('mblowfish-core')
 
 	function postLink(scope, element, attributes) {
 		$mdTheming(element);
-		
+
 		function style(where, color) {
 			if (color) {
 				element.css(where, __badge_toRGB(color));
 			}
 		}
 //		function getPosition(){
-//				return {
-//					top: element.prop('offsetTop'),
-//					left: element.prop('offsetLeft'),
-//					width: element.prop('offsetWidth'),
-//					height: element.prop('offsetHeight')
-//				};
+//		return {
+//		top: element.prop('offsetTop'),
+//		left: element.prop('offsetLeft'),
+//		width: element.prop('offsetWidth'),
+//		height: element.prop('offsetHeight')
+//		};
 //		}
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
@@ -78,7 +78,7 @@ angular.module('mblowfish-core')
 			style('background-color', value);
 		});
 	}
-	
+
 	return {
 		restrict: 'E',
 		replace: true,
@@ -93,16 +93,16 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 .directive('mbBadge', function($mdTheming, $mdColors, $timeout, $window, $compile, $rootScope) {
 
-	
+
 	function __badge_toRGB(color){
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
 		}
-		
+
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
-		
+
 		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
 		if(typeof theme === 'undefined'){
 			theme = $mdTheming.THEMES['default'];
@@ -124,34 +124,34 @@ angular.module('mblowfish-core')
 		if (isNaN(offset)) {
 			offset = 10;
 		}
-		
+
 		function style(where, color) {
 			if (color) {
 				badge.css(where, __badge_toRGB(color));
 			}
 		}
 		function getPosition(){
-				return {
-					top: element.prop('offsetTop'),
-					left: element.prop('offsetLeft'),
-					width: element.prop('offsetWidth'),
-					height: element.prop('offsetHeight')
-				};
+			return {
+				top: element.prop('offsetTop'),
+				left: element.prop('offsetLeft'),
+				width: element.prop('offsetWidth'),
+				height: element.prop('offsetHeight')
+			};
 		}
 
 		function position(value) {
 			var top = element.prop('offsetTop');
 			badge.css({
 				'display' : attributes.mbBadge && top ? 'initial' : 'none',
-				'left' : value.left + value.width - 20 + offset + 'px',
-				'top' : value.top + value.height - 20 + offset + 'px'
+						'left' : value.left + value.width - 20 + offset + 'px',
+						'top' : value.top + value.height - 20 + offset + 'px'
 			});
 		}
 
 //		function update () {
-//			position(getPosition());
+//		position(getPosition());
 //		}
-		
+
 		badge.addClass('mb-badge');
 		badge.css('position', 'absolute');
 		parent.append(badge);
@@ -171,18 +171,18 @@ angular.module('mblowfish-core')
 			badge.text(value);
 			badge.css('display', value ? 'initial' : 'none');
 		});
-		
+
 		scope.$watch(getPosition, function(value) {
 			position(value);
 		}, true);
-		
+
 //		angular.element($window)
 //		.bind('resize', function(){
-//			update();
+//		update();
 //		});
 	}
 	return {
-        priority: 100,
+		priority: 100,
 		restrict: 'A',
 		link: postLink
 	};
