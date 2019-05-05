@@ -29,6 +29,7 @@ angular.module('mblowfish-core')
 	 * @property {Object}    mb-model           -Data model
 	 * @property {function}  mb-reload          -Reload function
 	 * @property {Array}     mb-sort-keys       -Array
+	 * @property {Array}     mb-properties      -Array
 	 * @property {Array}     mb-more-actions    -Array
 	 * @property {string}    mb-title           -String
 	 * @property {string}    mb-icon            -String
@@ -136,10 +137,6 @@ angular.module('mblowfish-core')
 			__reload();
 		    }
 		}
-
-//		function setFilterKey () {
-//		    scope.showFilterValue=true;
-//		}
 
 		function setFilterValue(value, index) {
 		    scope.filterValue = value;
