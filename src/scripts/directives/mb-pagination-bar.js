@@ -99,40 +99,54 @@ angular.module('mblowfish-core')
 		    });
 		}
 
-		function putFilter(index) {
+		function putFilter(filter, index) {
 		    scope.filters[index] = {
-			key: scope.filterKey,
-			value: scope.filterValue
+			key: filter.key,
+			value: filter.value
 		    };
 		}
 
 		function applyFilter() {
+		    scope.reload = false;
+		    scope.mbModel.clearFilters();
 		    if (scope.filters && scope.filters.length > 0) {
 			scope.filters.forEach(function (filter) {
-			    scope.mbModel.addFilter(filter.key, filter.value);
+			    if (filter.key !== '' && filter.value && filter.value !== '') {
+				scope.mbModel.addFilter(filter.key, filter.value);
+				scope.reload = true;
+			    }
 			});
 		    }
-		    __reload();
+		    if (scope.reload) {
+			__reload();
+		    }
 		}
 
 		/*
 		 * Remove filter to the current filters
 		 */
-		function removeFilter(index) {
+		function removeFilter(filter, index) {
+		    Object.keys(scope.mbModel.filterMap).forEach(function (key) {
+			if (key === filter.key) {
+			    scope.mbModel.removeFilter(scope.filters[index].key);
+			}
+		    });
 		    scope.filters.splice(index, 1);
+		    if (scope.filters.length === 0) {
+			__reload();
+		    }
 		}
-		
-		function setFilterKey (key) {
-		    scope.filterKey = key;
-		    scope.showFilterValue=true;
-		}
-		
-		function setFilterValue (value,index) {
+
+//		function setFilterKey () {
+//		    scope.showFilterValue=true;
+//		}
+
+		function setFilterValue(value, index) {
 		    scope.filterValue = value;
 		    putFilter(index);
 		}
-		
-		
+
+
 		//Fetch filters from children array of collection schema
 		function fetchFilterKeys() {
 		    scope.mbProperties.forEach(function (object) {
@@ -149,7 +163,7 @@ angular.module('mblowfish-core')
 		scope.putFilter = putFilter;
 		scope.applyFilter = applyFilter;
 		scope.removeFilter = removeFilter;
-		scope.setFilterKey = setFilterKey;
+		//scope.setFilterKey = setFilterKey;
 		scope.setFilterValue = setFilterValue;
 		scope.__reload = __reload;
 		scope.query = query;
@@ -163,8 +177,8 @@ angular.module('mblowfish-core')
 //		if (typeof scope.mbProperties !== 'undefined') {
 //		    fetchFilterKeys();
 //		}
-		scope.$watch('mbProperties', function(mbProperties){
-		    if(mbProperties){
+		scope.$watch('mbProperties', function (mbProperties) {
+		    if (mbProperties) {
 			scope.filterKeys = [];
 			fetchFilterKeys();
 		    }
