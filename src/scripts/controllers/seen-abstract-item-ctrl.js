@@ -44,7 +44,7 @@ angular.module('mblowfish-core')//
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
 	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
+	angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
 		$scope : $scope
 	}));
 
@@ -348,6 +348,8 @@ angular.module('mblowfish-core')//
 		this.addEventHandler(this.eventType, callback);
 	};
 	
+	
+	this.seen_abstract_item_supperInit = this.init;
 	/**
 	 * Loads and init the controller
 	 * 
@@ -364,6 +366,9 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 */
 	this.init = function(configs){
+	    if(this.seen_abstract_item_supperInit){
+		this.seen_abstract_item_supperInit(configs);
+	    }
 		var ctrl = this;
 		if(!angular.isDefined(configs)){
 			return;

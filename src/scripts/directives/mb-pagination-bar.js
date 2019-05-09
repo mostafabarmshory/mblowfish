@@ -29,6 +29,7 @@ angular.module('mblowfish-core')
 	 * @property {Object}    mb-model           -Data model
 	 * @property {function}  mb-reload          -Reload function
 	 * @property {Array}     mb-sort-keys       -Array
+	 * @property {Array}     mb-properties      -Array
 	 * @property {Array}     mb-more-actions    -Array
 	 * @property {string}    mb-title           -String
 	 * @property {string}    mb-icon            -String
@@ -77,13 +78,77 @@ angular.module('mblowfish-core')
 			searchControl.focus();
 		    }, 50);
 		}
-		
-		function setSortOrder () {
+
+		function setSortOrder() {
 		    scope.mbModel.clearSorters();
 		    var key = scope.query.sortBy;
 		    var order = scope.query.sortDesc ? 'd' : 'a';
-		    scope.mbModel.addSorter(key,order);
+		    scope.mbModel.addSorter(key, order);
 		    __reload();
+		}
+
+		/*
+		 * Add filter to the current filters
+		 */
+		function addFilter() {
+		    if (!scope.filters) {
+			scope.filters = [];
+		    }
+		    scope.filters.push({
+			key: '',
+			value: ''
+		    });
+		}
+
+		function putFilter(filter, index) {
+		    scope.filters[index] = {
+			key: filter.key,
+			value: filter.value
+		    };
+		}
+
+		function applyFilter() {
+		    scope.reload = false;
+		    scope.mbModel.clearFilters();
+		    if (scope.filters && scope.filters.length > 0) {
+			scope.filters.forEach(function (filter) {
+			    if (filter.key !== '' && filter.value && filter.value !== '') {
+				scope.mbModel.addFilter(filter.key, filter.value);
+				scope.reload = true;
+			    }
+			});
+		    }
+		    if (scope.reload) {
+			__reload();
+		    }
+		}
+
+		/*
+		 * Remove filter to the current filters
+		 */
+		function removeFilter(filter, index) {
+		    Object.keys(scope.mbModel.filterMap).forEach(function (key) {
+			if (key === filter.key) {
+			    scope.mbModel.removeFilter(scope.filters[index].key);
+			}
+		    });
+		    scope.filters.splice(index, 1);
+		    if (scope.filters.length === 0) {
+			__reload();
+		    }
+		}
+
+		function setFilterValue(value, index) {
+		    scope.filterValue = value;
+		    putFilter(index);
+		}
+
+
+		//Fetch filters from children array of collection schema
+		function fetchFilterKeys() {
+		    scope.mbProperties.forEach(function (object) {
+			scope.filterKeys.push(object.name);
+		    });
 		}
 
 		scope.showBoxOne = false;
@@ -91,6 +156,12 @@ angular.module('mblowfish-core')
 		// configure scope:
 		scope.searchQuery = searchQuery;
 		scope.setSortOrder = setSortOrder;
+		scope.addFilter = addFilter;
+		scope.putFilter = putFilter;
+		scope.applyFilter = applyFilter;
+		scope.removeFilter = removeFilter;
+		//scope.setFilterKey = setFilterKey;
+		scope.setFilterValue = setFilterValue;
 		scope.__reload = __reload;
 		scope.query = query;
 		if (angular.isFunction(scope.mbExport)) {
@@ -99,6 +170,16 @@ angular.module('mblowfish-core')
 		if (typeof scope.mbEnableSearch === 'undefined') {
 		    scope.mbEnableSearch = true;
 		}
+
+//		if (typeof scope.mbProperties !== 'undefined') {
+//		    fetchFilterKeys();
+//		}
+		scope.$watch('mbProperties', function (mbProperties) {
+		    if (mbProperties) {
+			scope.filterKeys = [];
+			fetchFilterKeys();
+		    }
+		});
 	    }
 
 	    return {
@@ -124,6 +205,10 @@ angular.module('mblowfish-core')
 		     * بشن.
 		     */
 		    mbSortKeys: '=',
+		    /*
+		     * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
+		     */
+		    mbProperties: '=?',
 
 		    /* titles corresponding to sort keys */
 		    mbSortKeysTitles: '=?',

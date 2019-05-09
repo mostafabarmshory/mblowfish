@@ -12,7 +12,7 @@ angular.module('mblowfish-core')
 		$mdDialog.hide();
 	};
 	$scope.cancel = function() {
-		$mdDialog.cancel();
+		$mdDialog.hide();
 	};
 	$scope.answer = function(a) {
 		$mdDialog.hide(a);
