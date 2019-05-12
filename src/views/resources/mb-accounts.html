@@ -1,5 +1,5 @@
 <div  
-	ng-controller="MbAccountsCtrl as ctrl"
+	ng-controller="MbSeenUserAccountsCtrl as ctrl"
 	ng-init="ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')"
 	mb-preloading="ctrl.state === 'busy'"
 	layout="column"
@@ -8,7 +8,7 @@
 	<mb-pagination-bar
 		mb-model="ctrl.queryParameter"
 		mb-reload="ctrl.reload()"
-		mb-sort-keys="ctrl.getSortKeys()"
+		mb-properties="ctrl.getProperties()"
 		mb-more-actions="ctrl.getMoreActions()">
 	</mb-pagination-bar>
 	<md-content

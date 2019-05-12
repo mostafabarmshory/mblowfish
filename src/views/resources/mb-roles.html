@@ -1,5 +1,5 @@
 <div 
-	ng-controller="MbRolesCtrl as ctrl"
+	ng-controller="MbSeenUserRolesCtrl as ctrl"
 	mb-preloading="ctrl.state === 'busy'"
 	layout="column"
 	flex>
@@ -7,7 +7,7 @@
 	<mb-pagination-bar
 		mb-model="ctrl.queryParameter"
 		mb-reload="ctrl.reload()"
-		mb-sort-keys="ctrl.getProperties()"
+		mb-properties="ctrl.getProperties()"
 		mb-more-actions="ctrl.getActions()">
 	</mb-pagination-bar>
 	
