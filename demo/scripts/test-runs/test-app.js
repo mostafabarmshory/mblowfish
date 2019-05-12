@@ -104,9 +104,15 @@ angular.module('app')//
     });
     $navigator.newGroup({
         id: 'themes',
-        title: 'THemes',
+        title: 'Themes',
         icon: 'color_lens',
         priority : 60
+    });
+    $navigator.newGroup({
+    	id: 'content',
+    	title: 'Content',
+    	icon: 'color_lens',
+    	priority : 60
     });
 	
 	$navigator.newItem({
