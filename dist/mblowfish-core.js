@@ -4825,212 +4825,214 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-	/**
-	 * @ngdoc Directives
-	 * @name mb-pagination-bar
-	 * @property {Object}    mb-model           -Data model
-	 * @property {function}  mb-reload          -Reload function
-	 * @property {Array}     mb-sort-keys       -Array
-	 * @property {Array}     mb-more-actions    -Array
-	 * @property {string}    mb-title           -String
-	 * @property {string}    mb-icon            -String
-	 * @description Pagination bar
-	 *
-	 * Pagination parameters are a complex data structure and it is hard to manage
-	 * it. This is a toolbar to manage the pagination options.
-	 */
-	.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
+/**
+ * @ngdoc Directives
+ * @name mb-pagination-bar
+ * @property {Object}    mb-model           -Data model
+ * @property {function}  mb-reload          -Reload function
+ * @property {Array}     mb-sort-keys       -Array
+ * @property {Array}     mb-properties      -Array
+ * @property {Array}     mb-more-actions    -Array
+ * @property {string}    mb-title           -String
+ * @property {string}    mb-icon            -String
+ * @description Pagination bar
+ *
+ * Pagination parameters are a complex data structure and it is hard to manage
+ * it. This is a toolbar to manage the pagination options. mb-reload get a function 
+ * as reload. mb-sort-keys get an array of keys which is used in sort section of 
+ * pagination bar and the sort could be done based on this keys. mb-properties get
+ * an array of keys which is used in filter section of pagination bar. really mb-properties
+ * gets children array of schema of a collection. The controller of collection is 
+ * responsible to get the schema of a collection and pass it's children array to this 
+ * attribute of directive. The directive itself do the required work to set the values
+ * in filter section.
+ * 
+ */
+.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
 
-	    function postLink(scope, element, attrs) {
+    function postLink(scope, element, attrs) {
 
-		var query = {
-		    sortDesc: true,
-		    sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-		    searchTerm: null
-		};
-		/*
-		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
-		 */
-		function __reload() {
-		    if (!angular.isDefined(attrs.mbReload)) {
-			return;
-		    }
-		    $parse(attrs.mbReload)(scope.$parent);
-		}
-		/**
-		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
-		 */
-		function exportData() {
-		    if (!angular.isFunction(scope.mbExport)) {
-			return;
-		    }
-		    scope.mbExport(scope.mbModel);
-		}
+        var query = {
+                sortDesc: true,
+                sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+                        searchTerm: null
+        };
+        /*
+         * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
+         */
+        function __reload() {
+            if (!angular.isDefined(attrs.mbReload)) {
+                return;
+            }
+            $parse(attrs.mbReload)(scope.$parent);
+        }
+        /**
+         * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
+         */
+        function exportData() {
+            if (!angular.isFunction(scope.mbExport)) {
+                return;
+            }
+            scope.mbExport(scope.mbModel);
+        }
 
-		function searchQuery() {
-		    scope.mbModel.setQuery(scope.query.searchTerm);
-		    __reload();
-		}
+        function searchQuery() {
+            scope.mbModel.setQuery(scope.query.searchTerm);
+            __reload();
+        }
 
-		function focusToElementById(id) {
-		    $timeout(function () {
-			var searchControl;
-			searchControl = $window.document.getElementById(id);
-			searchControl.focus();
-		    }, 50);
-		}
+        function focusToElementById(id) {
+            $timeout(function () {
+                var searchControl;
+                searchControl = $window.document.getElementById(id);
+                searchControl.focus();
+            }, 50);
+        }
 
-		function setSortOrder() {
-		    scope.mbModel.clearSorters();
-		    var key = scope.query.sortBy;
-		    var order = scope.query.sortDesc ? 'd' : 'a';
-		    scope.mbModel.addSorter(key, order);
-		    __reload();
-		}
+        function setSortOrder() {
+            scope.mbModel.clearSorters();
+            var key = scope.query.sortBy;
+            var order = scope.query.sortDesc ? 'd' : 'a';
+            scope.mbModel.addSorter(key, order);
+            __reload();
+        }
 
-		/*
-		 * Add filter to the current filters
-		 */
-		function addFilter() {
-		    if (!scope.filters) {
-			scope.filters = [];
-		    }
-		    scope.filters.push({
-			key: '',
-			value: ''
-		    });
-		}
+        /*
+         * Add filter to the current filters
+         */
+        function addFilter() {
+            if (!scope.filters) {
+                scope.filters = [];
+            }
+            scope.filters.push({
+                key: '',
+                value: ''
+            });
+        }
 
-		function putFilter(filter, index) {
-		    scope.filters[index] = {
-			key: filter.key,
-			value: filter.value
-		    };
-		}
+        function putFilter(filter, index) {
+            scope.filters[index] = {
+                    key: filter.key,
+                    value: filter.value
+            };
+        }
 
-		function applyFilter() {
-		    scope.reload = false;
-		    scope.mbModel.clearFilters();
-		    if (scope.filters && scope.filters.length > 0) {
-			scope.filters.forEach(function (filter) {
-			    if (filter.key !== '' && filter.value && filter.value !== '') {
-				scope.mbModel.addFilter(filter.key, filter.value);
-				scope.reload = true;
-			    }
-			});
-		    }
-		    if (scope.reload) {
-			__reload();
-		    }
-		}
+        function applyFilter() {
+            scope.reload = false;
+            scope.mbModel.clearFilters();
+            if (scope.filters && scope.filters.length > 0) {
+                scope.filters.forEach(function (filter) {
+                    if (filter.key !== '' && filter.value && filter.value !== '') {
+                        scope.mbModel.addFilter(filter.key, filter.value);
+                        scope.reload = true;
+                    }
+                });
+            }
+            if (scope.reload) {
+                __reload();
+            }
+        }
 
-		/*
-		 * Remove filter to the current filters
-		 */
-		function removeFilter(filter, index) {
-		    Object.keys(scope.mbModel.filterMap).forEach(function (key) {
-			if (key === filter.key) {
-			    scope.mbModel.removeFilter(scope.filters[index].key);
-			}
-		    });
-		    scope.filters.splice(index, 1);
-		    if (scope.filters.length === 0) {
-			__reload();
-		    }
-		}
+        /*
+         * Remove filter to the current filters
+         */
+        function removeFilter(filter, index) {
+            Object.keys(scope.mbModel.filterMap).forEach(function (key) {
+                if (key === filter.key) {
+                    scope.mbModel.removeFilter(scope.filters[index].key);
+                }
+            });
+            scope.filters.splice(index, 1);
+            if (scope.filters.length === 0) {
+                __reload();
+            }
+        }
 
-//		function setFilterKey () {
-//		    scope.showFilterValue=true;
-//		}
-
-		function setFilterValue(value, index) {
-		    scope.filterValue = value;
-		    putFilter(index);
-		}
+        function setFilterValue(value, index) {
+            scope.filterValue = value;
+            putFilter(index);
+        }
 
 
-		//Fetch filters from children array of collection schema
-		function fetchFilterKeys() {
-		    scope.mbProperties.forEach(function (object) {
-			scope.filterKeys.push(object.name);
-		    });
-		}
+        //Fetch filters from children array of collection schema
+        function fetchFilterKeys() {
+            scope.mbProperties.forEach(function (object) {
+                scope.filterKeys.push(object.name);
+            });
+        }
 
-		scope.showBoxOne = false;
-		scope.focusToElement = focusToElementById;
-		// configure scope:
-		scope.searchQuery = searchQuery;
-		scope.setSortOrder = setSortOrder;
-		scope.addFilter = addFilter;
-		scope.putFilter = putFilter;
-		scope.applyFilter = applyFilter;
-		scope.removeFilter = removeFilter;
-		//scope.setFilterKey = setFilterKey;
-		scope.setFilterValue = setFilterValue;
-		scope.__reload = __reload;
-		scope.query = query;
-		if (angular.isFunction(scope.mbExport)) {
-		    scope.exportData = exportData;
-		}
-		if (typeof scope.mbEnableSearch === 'undefined') {
-		    scope.mbEnableSearch = true;
-		}
+        scope.showBoxOne = false;
+        scope.focusToElement = focusToElementById;
+        // configure scope:
+        scope.searchQuery = searchQuery;
+        scope.setSortOrder = setSortOrder;
+        scope.addFilter = addFilter;
+        scope.putFilter = putFilter;
+        scope.applyFilter = applyFilter;
+        scope.removeFilter = removeFilter;
+        //scope.setFilterKey = setFilterKey;
+        scope.setFilterValue = setFilterValue;
+        scope.__reload = __reload;
+        scope.query = query;
+        if (angular.isFunction(scope.mbExport)) {
+            scope.exportData = exportData;
+        }
+        if (typeof scope.mbEnableSearch === 'undefined') {
+            scope.mbEnableSearch = true;
+        }
 
-//		if (typeof scope.mbProperties !== 'undefined') {
-//		    fetchFilterKeys();
-//		}
-		scope.$watch('mbProperties', function (mbProperties) {
-		    if (mbProperties) {
-			scope.filterKeys = [];
-			fetchFilterKeys();
-		    }
-		});
-	    }
+        scope.$watch('mbProperties', function (mbProperties) {
+            if (angular.isArray(mbProperties)) {
+                scope.filterKeys = [];
+                fetchFilterKeys();
+            }
+        });
+    }
 
-	    return {
-		restrict: 'E',
-		templateUrl: 'views/directives/mb-pagination-bar.html',
-		scope: {
-		    /*
-		     * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
-		     */
-		    mbModel: '=',
-		    /*
-		     * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
-		     * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
-		     */
-		    mbReload: '@?',
-		    /*
-		     * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
-		     * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
-		     */
-		    mbExport: '=',
-		    /*
-		     * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
-		     * بشن.
-		     */
-		    mbSortKeys: '=',
-		    /*
-		     * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
-		     */
-		    mbProperties: '=?',
+    return {
+        restrict: 'E',
+        templateUrl: 'views/directives/mb-pagination-bar.html',
+        scope: {
+            /*
+             * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
+             */
+            mbModel: '=',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
+             * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
+             */
+            mbReload: '@?',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
+             * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
+             */
+            mbExport: '=',
+            /*
+             * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
+             * بشن.
+             */
+            mbSortKeys: '=',
+            /*
+             * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
+             */
+            mbProperties: '=?',
 
-		    /* titles corresponding to sort keys */
-		    mbSortKeysTitles: '=?',
+            /* titles corresponding to sort keys */
+            mbSortKeysTitles: '=?',
 
-		    /*
-		     * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-		     */
-		    mbMoreActions: '=',
+            /*
+             * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+             */
+            mbMoreActions: '=',
 
-		    mbTitle: '@?',
-		    mbIcon: '@?',
+            mbTitle: '@?',
+            mbIcon: '@?',
 
-		    mbEnableSearch: '=?'
-		},
-		link: postLink
-	    };
-	});
+            mbEnableSearch: '=?'
+        },
+        link: postLink
+    };
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -10394,7 +10396,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -10404,17 +10406,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-cms-images.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-groups.html',
-    "<div ng-controller=\"MbGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-roles.html',
-    "<div ng-controller=\"MbRolesCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserRolesCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 

@@ -4,12 +4,11 @@
 	mb-preloading="ctrl.state === 'busy'"
 	layout="column"
 	flex>
-	<!-- Action bar -->
 	<mb-pagination-bar
 		mb-model="ctrl.queryParameter"
+		mb-properties="ctrl.properties"
 		mb-reload="ctrl.reload()"
-		mb-properties="ctrl.getProperties()"
-		mb-more-actions="ctrl.getMoreActions()">
+		mb-more-actions="ctrl.getActions()">
 	</mb-pagination-bar>
 	<md-content
 		mb-infinate-scroll="ctrl.loadNextPage()"

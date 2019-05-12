@@ -2,11 +2,10 @@
 	layout="column"
 	mb-preloading="ctrl.state === 'busy'"
 	flex>
-	<!-- Action bar -->
 	<mb-pagination-bar
 		mb-model="ctrl.queryParameter"
+		mb-properties="ctrl.properties"
 		mb-reload="ctrl.reload()"
-		mb-sort-keys="ctrl.getProperties()"
 		mb-more-actions="ctrl.getActions()">
 	</mb-pagination-bar>
 	<md-content
