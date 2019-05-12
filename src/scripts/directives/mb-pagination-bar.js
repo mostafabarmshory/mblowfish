@@ -36,7 +36,15 @@ angular.module('mblowfish-core')
 	 * @description Pagination bar
 	 *
 	 * Pagination parameters are a complex data structure and it is hard to manage
-	 * it. This is a toolbar to manage the pagination options.
+	 * it. This is a toolbar to manage the pagination options. mb-reload get a function 
+	 * as reload. mb-sort-keys get an array of keys which is used in sort section of 
+	 * pagination bar and the sort could be done based on this keys. mb-properties get
+	 * an array of keys which is used in filter section of pagination bar. really mb-properties
+	 * gets children array of schema of a collection. The controller of collection is 
+	 * responsible to get the schema of a collection and pass it's children array to this 
+	 * attribute of directive. The directive itself do the required work to set the values
+	 * in filter section.
+	 * 
 	 */
 	.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
 
@@ -170,10 +178,7 @@ angular.module('mblowfish-core')
 		if (typeof scope.mbEnableSearch === 'undefined') {
 		    scope.mbEnableSearch = true;
 		}
-
-//		if (typeof scope.mbProperties !== 'undefined') {
-//		    fetchFilterKeys();
-//		}
+		
 		scope.$watch('mbProperties', function (mbProperties) {
 		    if (mbProperties) {
 			scope.filterKeys = [];
