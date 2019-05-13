@@ -138,7 +138,9 @@ angular.module('mblowfish-core') //
 			},
 			config: {},
 			setting: {},
-			options: {}
+			options: {},
+			local: 'en', // Default local and language
+			language: 'en', // Default local and language
 	};
 	$rootScope.app = app;
 
@@ -465,6 +467,7 @@ angular.module('mblowfish-core') //
 	}, function (key) {
 		// 0- set app local
 		app.local = key;
+		app.language = key;
 		// 1- change language
 		$translate.use(key);
 		// 2- chnage date format

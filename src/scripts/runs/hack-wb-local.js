@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,17 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Filters
- * @name mbDate
- * @description # Format date
- */
-.filter('mbDate', function($wbLocal) {
-    return function(inputDate, format) {
-        return $wbLocal.format(inputDate, format);
-    };
+angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
+	'use strict';
+	
+	/*
+	 * format date based on application settings
+	 */
+	$wbLocal.formatDate = function(inputDate, format){
+		if(!inputDate){
+            return '';
+        }
+        try {
+            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
+            if($rootScope.app.calendar !== 'Jalaali'){
+                mf = mf.replace('j', '');
+            }
+            var date = moment //
+	            .utc(inputDate) //
+	            .local();
+            return date.format(mf);
+        } catch (ex) {
+            return '-' + ex.message;
+        }
+	};
+	
+	/*
+	 * maso, 2019: overrid get language
+	 */
+	$wbLocal.getLanguage = function(){
+		return $rootScope.app.language;
+	};
+	
+	/*
+	 * XXX: maso, 2019: overrid get currency
+	 */
 });

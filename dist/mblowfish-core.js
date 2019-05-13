@@ -5165,7 +5165,7 @@ angular.module('mblowfish-core')
             return _loadPage(
                     $scope,
                     page,
-                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column">',
+                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column" itemtype="http://schema.org/WebPage">',
             '</md-sidenav>').then(
                     function (pageElement) {
                         _sidenaves.push(pageElement);
@@ -6836,20 +6836,20 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/* jslint todo: true */
-/* jslint xxx: true */
-/* jshint -W100 */
-'use strict';
 
 angular.module('mblowfish-core')
-
+/*
+ * TODO: maso, 2019: add filter document
+ */
 .filter('currencyFilter', function (numberFilter, translateFilter) {
+	'use strict';
 
     return function (price, unit) {
 
         if (!price) {
             return translateFilter('free');
         }
+        // TODO: maso, 2019: set unit with system default currency if is null
         if (unit === 'iran-rial' || unit === 'iran-tooman') {
             return numberFilter(price) + ' '
                     + translateFilter(unit);
@@ -6918,71 +6918,10 @@ angular.module('mblowfish-core')
  * @name mbDate
  * @description # Format date
  */
-.filter('mbDate', function($rootScope) {
+.filter('mbDate', function($wbLocal) {
     return function(inputDate, format) {
-        if(!inputDate){
-            return '';
-        }
-        try {
-            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-            if($rootScope.app.calendar !== 'Jalaali'){
-                mf = mf.replace('j', '');
-            }
-            var date = moment //
-            .utc(inputDate) //
-            .local();
-            return date.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
+        return $wbLocal.format(inputDate, format);
     };
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($notification, $help) {
-
-    /**
-     * Display help for an item
-     * 
-     * @memberof window
-     * @name openHelp
-     * @params item {object} item which is target of the help system
-     */
-    window.openHelp = function(item){
-        return $help.openHelp(item);
-    };
-
-    // Hadi 1396-12-22: کد زیر توی amh بود.
-    window.alert = $notification.alert;
-    window.confirm = $notification.confirm;
-    window.prompt = $notification.prompt;
-    window.toast = $notification.toast;
-
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7308,6 +7247,106 @@ angular.module('mblowfish-core')
 		loadScript(value);
 		loadWatchers();
 	});
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
+	'use strict';
+	
+	/*
+	 * format date based on application settings
+	 */
+	$wbLocal.formatDate = function(inputDate, format){
+		if(!inputDate){
+            return '';
+        }
+        try {
+            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
+            if($rootScope.app.calendar !== 'Jalaali'){
+                mf = mf.replace('j', '');
+            }
+            var date = moment //
+	            .utc(inputDate) //
+	            .local();
+            return date.format(mf);
+        } catch (ex) {
+            return '-' + ex.message;
+        }
+	};
+	
+	/*
+	 * maso, 2019: overrid get language
+	 */
+	$wbLocal.getLanguage = function(){
+		return $rootScope.app.language;
+	};
+	
+	/*
+	 * XXX: maso, 2019: overrid get currency
+	 */
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core')
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function($notification, $help) {
+	'use strict';
+
+    /*
+     * Display help for an item
+     */
+    window.openHelp = function(item){
+        return $help.openHelp(item);
+    };
+
+    // Hadi 1396-12-22: update alerts
+    window.alert = $notification.alert;
+    window.confirm = $notification.confirm;
+    window.prompt = $notification.prompt;
+    window.toast = $notification.toast;
+
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8133,7 +8172,9 @@ angular.module('mblowfish-core') //
 			},
 			config: {},
 			setting: {},
-			options: {}
+			options: {},
+			local: 'en', // Default local and language
+			language: 'en', // Default local and language
 	};
 	$rootScope.app = app;
 
@@ -8460,6 +8501,7 @@ angular.module('mblowfish-core') //
 	}, function (key) {
 		// 0- set app local
 		app.local = key;
+		app.language = key;
 		// 1- change language
 		$translate.use(key);
 		// 2- chnage date format

@@ -19,26 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
 angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
 .run(function($notification, $help) {
+	'use strict';
 
-    /**
+    /*
      * Display help for an item
-     * 
-     * @memberof window
-     * @name openHelp
-     * @params item {object} item which is target of the help system
      */
     window.openHelp = function(item){
         return $help.openHelp(item);
     };
 
-    // Hadi 1396-12-22: کد زیر توی amh بود.
+    // Hadi 1396-12-22: update alerts
     window.alert = $notification.alert;
     window.confirm = $notification.confirm;
     window.prompt = $notification.prompt;
