@@ -30,6 +30,6 @@ angular.module('mblowfish-core')
  */
 .filter('mbDate', function($wbLocal) {
     return function(inputDate, format) {
-        return $wbLocal.format(inputDate, format);
+        return $wbLocal.formatDate(inputDate, format);
     };
 });
