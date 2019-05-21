@@ -51,7 +51,8 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-safaritechpreview-launcher": "0.0.6",
     "pixrem": "^4.0.1",
-    "time-grunt": "^1.0.0"
+    "time-grunt": "^1.0.0",
+    "grunt-strip-code": "^1.0.6"
   },
   "engines": {
     "node": ">=0.10.0"
