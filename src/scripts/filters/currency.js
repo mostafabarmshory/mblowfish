@@ -19,20 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/* jslint todo: true */
-/* jslint xxx: true */
-/* jshint -W100 */
-'use strict';
 
 angular.module('mblowfish-core')
-
+/*
+ * TODO: maso, 2019: add filter document
+ */
 .filter('currencyFilter', function (numberFilter, translateFilter) {
+	'use strict';
 
     return function (price, unit) {
 
         if (!price) {
             return translateFilter('free');
         }
+        // TODO: maso, 2019: set unit with system default currency if is null
         if (unit === 'iran-rial' || unit === 'iran-tooman') {
             return numberFilter(price) + ' '
                     + translateFilter(unit);

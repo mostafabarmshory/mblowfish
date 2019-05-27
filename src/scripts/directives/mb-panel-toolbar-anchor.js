@@ -110,7 +110,7 @@ angular.module('mblowfish-core')
                 }
             }
 
-            var prefix = page.raw ? '' : '<md-toolbar id="{{_page.id}}" ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+            var prefix = page.raw ? '' : '<md-toolbar id="{{_page.id}}" ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch" itemscope itemtype="http://schema.org/WPHeader">';
             var postfix = page.raw ? '' : '</md-toolbar>';
             return _loadPage($scope, page, prefix, postfix)
             .then(function(pageElement) {

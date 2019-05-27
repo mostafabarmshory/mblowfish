@@ -646,7 +646,25 @@ module.exports = function(grunt) {
 						]
 				}
 			}
-		}
+		},
+
+        strip_code: {
+            options:{
+                blocks: [
+                    {
+                        start_block: '/* start-test-block */',
+                        end_block: '/* end-test-block */'
+                    },
+                    {
+                        start_block: '<!-- start-html-test-code -->',
+                        end_block: '<!-- end-html-test-code -->'
+                    }
+                ]
+            },
+            your_target: {
+                src: 'dist/*.js'
+            }
+        },
 	});
 
 	grunt.registerTask('demo', 'Compile then start a connect web server',
@@ -709,6 +727,7 @@ module.exports = function(grunt) {
 		'concat:dist', //
 		'ngAnnotate', //
 		'copy:dist', //
+		'strip_code', //
 		'uglify', //
 		'cssmin' //
 		]);

@@ -1355,7 +1355,7 @@ angular.module('mblowfish-core')
 .controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
 	$scope.config = config;
 	$scope.hide = function() {
-		$mdDialog.hide();
+		$mdDialog.cancel();
 	};
 	$scope.cancel = function() {
 		$mdDialog.cancel();
@@ -2134,7 +2134,7 @@ angular.module('mblowfish-core')//
     /*
      * Extends collection controller from MbAbstractCtrl 
      */
-    angular.extend(this, $controller('MbAbstractCtrl', {
+    angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
         $scope : $scope
     }));
 
@@ -2494,7 +2494,7 @@ angular.module('mblowfish-core')//
 
 
 
-
+    this.seen_abstract_collection_superInit = this.init;
 
     /**
      * Loads and init the controller
@@ -2502,6 +2502,9 @@ angular.module('mblowfish-core')//
      * All childs must call this function at the end of the cycle
      */
     this.init = function(configs){
+	if(angular.isFunction(this.seen_abstract_collection_superInit)){
+	    this.seen_abstract_collection_superInit(configs);
+	}
         var ctrl = this;
         this.state = STATE_IDEAL;
         if(!angular.isDefined(configs)){
@@ -2727,7 +2730,7 @@ angular.module('mblowfish-core')//
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
 	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
+	angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
 		$scope : $scope
 	}));
 
@@ -3031,6 +3034,8 @@ angular.module('mblowfish-core')//
 		this.addEventHandler(this.eventType, callback);
 	};
 	
+	
+	this.seen_abstract_item_supperInit = this.init;
 	/**
 	 * Loads and init the controller
 	 * 
@@ -3047,6 +3052,9 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 */
 	this.init = function(configs){
+	    if(this.seen_abstract_item_supperInit){
+		this.seen_abstract_item_supperInit(configs);
+	    }
 		var ctrl = this;
 		if(!angular.isDefined(configs)){
 			return;
@@ -3169,6 +3177,105 @@ angular.module('mblowfish-core')
         eventType: '/cms/contents'
     });
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * Add to angular
+ */
+angular.module('mblowfish-core')//
+
+	/**
+	 * @ngdoc Controllers
+	 * @name MbSeenAbstractCollectionCtrl
+	 * @description Generic controller of model collection of seen
+	 * 
+	 * This controller is used manages a collection of a virtual items. it is the
+	 * base of all other collection controllers such as accounts, groups, etc.
+	 * 
+	 * There are two types of function in the controller: view and data related. All
+	 * data functions are considered to be override by extensions.
+	 * 
+	 * There are three categories of actions;
+	 * 
+	 * - view
+	 * - model
+	 * - controller
+	 * 
+	 * view actions are about to update view. For example adding an item into the view
+	 * or remove deleted item.
+	 * 
+	 * Model actions deal with model in the repository. These are equivalent to the view
+	 * actions but removes items from the storage.
+	 * 
+	 * However, controller function provide an interactive action to the user to performs
+	 * an action.
+	 * 
+	 * ## Add
+	 * 
+	 * - addItem: controller
+	 * - addModel: model
+	 * - addViewItem: view
+	 */
+	.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
+	    'use strict';
+
+	    /*
+	     * Extends collection controller from MbAbstractCtrl 
+	     */
+	    angular.extend(this, $controller('MbAbstractCtrl', {
+		$scope: $scope
+	    }));
+
+	    this.getSchema = function () {
+		if (!angular.isDefined(this.getModelSchema)) {
+		    return;
+		}
+		return this.getModelSchema()
+			.then(function (schema) {
+			    return schema;
+			});
+	    };
+
+	    //properties is the children of schema.
+	    this.getProperties = function () {
+		if (angular.isDefined(this.properties)) {
+		    $q.resolve(this.properties);
+		}
+		var ctrl = this;
+		if (angular.isDefined(ctrl.getModelSchema)) {
+		    return this.getSchema()
+			    .then(function (schema) {
+				ctrl.properties = schema.children;
+			    });
+		}
+	    };
+
+	    this.init = function () {
+		this.getProperties();
+	    };
+	});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4720,124 +4827,214 @@ angular.module('mblowfish-core')
 
 angular.module('mblowfish-core')
 
-	/**
-	 * @ngdoc Directives
-	 * @name mb-pagination-bar
-	 * @property {Object}    mb-model           -Data model
-	 * @property {function}  mb-reload          -Reload function
-	 * @property {Array}     mb-sort-keys       -Array
-	 * @property {Array}     mb-more-actions    -Array
-	 * @property {string}    mb-title           -String
-	 * @property {string}    mb-icon            -String
-	 * @description Pagination bar
-	 *
-	 * Pagination parameters are a complex data structure and it is hard to manage
-	 * it. This is a toolbar to manage the pagination options.
-	 */
-	.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
+/**
+ * @ngdoc Directives
+ * @name mb-pagination-bar
+ * @property {Object}    mb-model           -Data model
+ * @property {function}  mb-reload          -Reload function
+ * @property {Array}     mb-sort-keys       -Array
+ * @property {Array}     mb-properties      -Array
+ * @property {Array}     mb-more-actions    -Array
+ * @property {string}    mb-title           -String
+ * @property {string}    mb-icon            -String
+ * @description Pagination bar
+ *
+ * Pagination parameters are a complex data structure and it is hard to manage
+ * it. This is a toolbar to manage the pagination options. mb-reload get a function 
+ * as reload. mb-sort-keys get an array of keys which is used in sort section of 
+ * pagination bar and the sort could be done based on this keys. mb-properties get
+ * an array of keys which is used in filter section of pagination bar. really mb-properties
+ * gets children array of schema of a collection. The controller of collection is 
+ * responsible to get the schema of a collection and pass it's children array to this 
+ * attribute of directive. The directive itself do the required work to set the values
+ * in filter section.
+ * 
+ */
+.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
 
-	    function postLink(scope, element, attrs) {
+    function postLink(scope, element, attrs) {
 
-		var query = {
-		    sortDesc: true,
-		    sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-		    searchTerm: null
-		};
-		/*
-		 * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
-		 */
-		function __reload() {
-		    if (!angular.isDefined(attrs.mbReload)) {
-			return;
-		    }
-		    $parse(attrs.mbReload)(scope.$parent);
-		}
-		/**
-		 * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
-		 */
-		function exportData() {
-		    if (!angular.isFunction(scope.mbExport)) {
-			return;
-		    }
-		    scope.mbExport(scope.mbModel);
-		}
+        var query = {
+                sortDesc: true,
+                sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+                        searchTerm: null
+        };
+        /*
+         * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
+         */
+        function __reload() {
+            if (!angular.isDefined(attrs.mbReload)) {
+                return;
+            }
+            $parse(attrs.mbReload)(scope.$parent);
+        }
+        /**
+         * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
+         */
+        function exportData() {
+            if (!angular.isFunction(scope.mbExport)) {
+                return;
+            }
+            scope.mbExport(scope.mbModel);
+        }
 
-		function searchQuery() {
-		    scope.mbModel.setQuery(scope.query.searchTerm);
-		    __reload();
-		}
+        function searchQuery() {
+            scope.mbModel.setQuery(scope.query.searchTerm);
+            __reload();
+        }
 
-		function focusToElementById(id) {
-		    $timeout(function () {
-			var searchControl;
-			searchControl = $window.document.getElementById(id);
-			searchControl.focus();
-		    }, 50);
-		}
-		
-		function setSortOrder () {
-		    scope.mbModel.clearSorters();
-		    var key = scope.query.sortBy;
-		    var order = scope.query.sortDesc ? 'd' : 'a';
-		    scope.mbModel.addSorter(key,order);
-		    __reload();
-		}
+        function focusToElementById(id) {
+            $timeout(function () {
+                var searchControl;
+                searchControl = $window.document.getElementById(id);
+                searchControl.focus();
+            }, 50);
+        }
 
-		scope.showBoxOne = false;
-		scope.focusToElement = focusToElementById;
-		// configure scope:
-		scope.searchQuery = searchQuery;
-		scope.setSortOrder = setSortOrder;
-		scope.__reload = __reload;
-		scope.query = query;
-		if (angular.isFunction(scope.mbExport)) {
-		    scope.exportData = exportData;
-		}
-		if (typeof scope.mbEnableSearch === 'undefined') {
-		    scope.mbEnableSearch = true;
-		}
-	    }
+        function setSortOrder() {
+            scope.mbModel.clearSorters();
+            var key = scope.query.sortBy;
+            var order = scope.query.sortDesc ? 'd' : 'a';
+            scope.mbModel.addSorter(key, order);
+            __reload();
+        }
 
-	    return {
-		restrict: 'E',
-		templateUrl: 'views/directives/mb-pagination-bar.html',
-		scope: {
-		    /*
-		     * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
-		     */
-		    mbModel: '=',
-		    /*
-		     * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
-		     * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
-		     */
-		    mbReload: '@?',
-		    /*
-		     * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
-		     * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
-		     */
-		    mbExport: '=',
-		    /*
-		     * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
-		     * بشن.
-		     */
-		    mbSortKeys: '=',
+        /*
+         * Add filter to the current filters
+         */
+        function addFilter() {
+            if (!scope.filters) {
+                scope.filters = [];
+            }
+            scope.filters.push({
+                key: '',
+                value: ''
+            });
+        }
 
-		    /* titles corresponding to sort keys */
-		    mbSortKeysTitles: '=?',
+        function putFilter(filter, index) {
+            scope.filters[index] = {
+                    key: filter.key,
+                    value: filter.value
+            };
+        }
 
-		    /*
-		     * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-		     */
-		    mbMoreActions: '=',
+        function applyFilter() {
+            scope.reload = false;
+            scope.mbModel.clearFilters();
+            if (scope.filters && scope.filters.length > 0) {
+                scope.filters.forEach(function (filter) {
+                    if (filter.key !== '' && filter.value && filter.value !== '') {
+                        scope.mbModel.addFilter(filter.key, filter.value);
+                        scope.reload = true;
+                    }
+                });
+            }
+            if (scope.reload) {
+                __reload();
+            }
+        }
 
-		    mbTitle: '@?',
-		    mbIcon: '@?',
+        /*
+         * Remove filter to the current filters
+         */
+        function removeFilter(filter, index) {
+            Object.keys(scope.mbModel.filterMap).forEach(function (key) {
+                if (key === filter.key) {
+                    scope.mbModel.removeFilter(scope.filters[index].key);
+                }
+            });
+            scope.filters.splice(index, 1);
+            if (scope.filters.length === 0) {
+                __reload();
+            }
+        }
 
-		    mbEnableSearch: '=?'
-		},
-		link: postLink
-	    };
-	});
+        function setFilterValue(value, index) {
+            scope.filterValue = value;
+            putFilter(index);
+        }
+
+
+        //Fetch filters from children array of collection schema
+        function fetchFilterKeys() {
+            scope.mbProperties.forEach(function (object) {
+                scope.filterKeys.push(object.name);
+            });
+        }
+
+        scope.showBoxOne = false;
+        scope.focusToElement = focusToElementById;
+        // configure scope:
+        scope.searchQuery = searchQuery;
+        scope.setSortOrder = setSortOrder;
+        scope.addFilter = addFilter;
+        scope.putFilter = putFilter;
+        scope.applyFilter = applyFilter;
+        scope.removeFilter = removeFilter;
+        //scope.setFilterKey = setFilterKey;
+        scope.setFilterValue = setFilterValue;
+        scope.__reload = __reload;
+        scope.query = query;
+        if (angular.isFunction(scope.mbExport)) {
+            scope.exportData = exportData;
+        }
+        if (typeof scope.mbEnableSearch === 'undefined') {
+            scope.mbEnableSearch = true;
+        }
+
+        scope.$watch('mbProperties', function (mbProperties) {
+            if (angular.isArray(mbProperties)) {
+                scope.filterKeys = [];
+                fetchFilterKeys();
+            }
+        });
+    }
+
+    return {
+        restrict: 'E',
+        templateUrl: 'views/directives/mb-pagination-bar.html',
+        scope: {
+            /*
+             * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
+             */
+            mbModel: '=',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
+             * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
+             */
+            mbReload: '@?',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
+             * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
+             */
+            mbExport: '=',
+            /*
+             * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
+             * بشن.
+             */
+            mbSortKeys: '=',
+            /*
+             * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
+             */
+            mbProperties: '=?',
+
+            /* titles corresponding to sort keys */
+            mbSortKeysTitles: '=?',
+
+            /*
+             * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+             */
+            mbMoreActions: '=',
+
+            mbTitle: '@?',
+            mbIcon: '@?',
+
+            mbEnableSearch: '=?'
+        },
+        link: postLink
+    };
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4970,7 +5167,7 @@ angular.module('mblowfish-core')
             return _loadPage(
                     $scope,
                     page,
-                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column">',
+                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column" itemscope itemtype="http://schema.org/WebPage">',
             '</md-sidenav>').then(
                     function (pageElement) {
                         _sidenaves.push(pageElement);
@@ -5166,7 +5363,7 @@ angular.module('mblowfish-core')
                 }
             }
 
-            var prefix = page.raw ? '' : '<md-toolbar id="{{_page.id}}" ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch">';
+            var prefix = page.raw ? '' : '<md-toolbar id="{{_page.id}}" ng-show="_visible()" md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch layout="column" layout-gt-xs="row" layout-align="space-between stretch" itemscope itemtype="http://schema.org/WPHeader">';
             var postfix = page.raw ? '' : '</md-toolbar>';
             return _loadPage($scope, page, prefix, postfix)
             .then(function(pageElement) {
@@ -6641,20 +6838,20 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/* jslint todo: true */
-/* jslint xxx: true */
-/* jshint -W100 */
-'use strict';
 
 angular.module('mblowfish-core')
-
+/*
+ * TODO: maso, 2019: add filter document
+ */
 .filter('currencyFilter', function (numberFilter, translateFilter) {
+	'use strict';
 
     return function (price, unit) {
 
         if (!price) {
             return translateFilter('free');
         }
+        // TODO: maso, 2019: set unit with system default currency if is null
         if (unit === 'iran-rial' || unit === 'iran-tooman') {
             return numberFilter(price) + ' '
                     + translateFilter(unit);
@@ -6723,71 +6920,10 @@ angular.module('mblowfish-core')
  * @name mbDate
  * @description # Format date
  */
-.filter('mbDate', function($rootScope) {
+.filter('mbDate', function($wbLocal) {
     return function(inputDate, format) {
-        if(!inputDate){
-            return '';
-        }
-        try {
-            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-            if($rootScope.app.calendar !== 'Jalaali'){
-                mf = mf.replace('j', '');
-            }
-            var date = moment //
-            .utc(inputDate) //
-            .local();
-            return date.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
+        return $wbLocal.formatDate(inputDate, format);
     };
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($notification, $help) {
-
-    /**
-     * Display help for an item
-     * 
-     * @memberof window
-     * @name openHelp
-     * @params item {object} item which is target of the help system
-     */
-    window.openHelp = function(item){
-        return $help.openHelp(item);
-    };
-
-    // Hadi 1396-12-22: کد زیر توی amh بود.
-    window.alert = $notification.alert;
-    window.confirm = $notification.confirm;
-    window.prompt = $notification.prompt;
-    window.toast = $notification.toast;
-
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7113,6 +7249,106 @@ angular.module('mblowfish-core')
 		loadScript(value);
 		loadWatchers();
 	});
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
+	'use strict';
+	
+	/*
+	 * format date based on application settings
+	 */
+	$wbLocal.formatDate = function(inputDate, format){
+		if(!inputDate){
+            return '';
+        }
+        try {
+            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
+            if($rootScope.app.calendar !== 'Jalaali'){
+                mf = mf.replace('j', '');
+            }
+            var date = moment //
+	            .utc(inputDate) //
+	            .local();
+            return date.format(mf);
+        } catch (ex) {
+            return '-' + ex.message;
+        }
+	};
+	
+	/*
+	 * maso, 2019: overrid get language
+	 */
+	$wbLocal.getLanguage = function(){
+		return $rootScope.app.language;
+	};
+	
+	/*
+	 * XXX: maso, 2019: overrid get currency
+	 */
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core')
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function($notification, $help) {
+	'use strict';
+
+    /*
+     * Display help for an item
+     */
+    window.openHelp = function(item){
+        return $help.openHelp(item);
+    };
+
+    // Hadi 1396-12-22: update alerts
+    window.alert = $notification.alert;
+    window.confirm = $notification.confirm;
+    window.prompt = $notification.prompt;
+    window.toast = $notification.toast;
+
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7885,496 +8121,497 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
 
-    var apps = this;
+	var apps = this;
 
-    // Constants
-    var APP_PREFIX = 'angular-material-blowfish-';
-    var APP_CNF_MIMETYPE = 'application/amd-cnf';
-    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-    var OPTIONS_GRAPHQL = '{items{id, key,value}}';
+	// Constants
+	var APP_PREFIX = 'angular-material-blowfish-';
+	var APP_CNF_MIMETYPE = 'application/amd-cnf';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
 
-    // the state machine
-    var stateMachine;
+	// the state machine
+	var stateMachine;
 
-    // states
-    var APP_STATE_WAITING = 'waiting';
-    var APP_STATE_LOADING = 'loading';
+	// states
+	var APP_STATE_WAITING = 'waiting';
+	var APP_STATE_LOADING = 'loading';
 
-    // final states
-    var APP_STATE_READY = 'ready';
-    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-    var APP_STATE_OFFLINE = 'offline';
-    var APP_STATE_FAIL = 'fail';
+	// final states
+	var APP_STATE_READY = 'ready';
+	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+	var APP_STATE_OFFLINE = 'offline';
+	var APP_STATE_FAIL = 'fail';
 
-    var APP_EVENT_LOADED = 'loaded';
-    var APP_EVENT_START = 'start';
-    var APP_EVENT_NOT_FOUND = 'resource_not_found';
-    var APP_EVENT_SERVER_ERROR = 'server_error';
-    var APP_EVENT_NET_ERROR = 'network_error';
-
-
-    var optionsQuery = new QueryParameter()//
-    .put('graphql', OPTIONS_GRAPHQL);
-    // All the things that are set up by $app service
-    var app = {
-            state: {
-                // all states: waiting, loading, offline, app_not_configured,
-                // ready, fail
-                status: 'loading',
-                stage: 'starting',
-                message: null
-            },
-            logs: [],
-            user: {
-                current: {},
-                profile : {},
-                anonymous: true,
-                administrator: false,
-                owner: false,
-                member: false,
-                authorized: false
-            },
-            config: {},
-            setting: {},
-            options: {}
-    };
-    $rootScope.app = app;
-
-    /*
-     * متغیرهای مدیریت تنظیم‌ها
-     * 
-     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-     * کارهای تکراری جلوگیری کنیم.
-     * 
-     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-     * دهد.
-     */
-    var appConfigLock = false;
-    var appConfigDirty = false;
-    // Some controlling variables required in the state machine
-    var ctrl = {
-            user_loaded: false,
-            options_loaded: false,
-            configs_loaded: false
-    };
-
-    /*
-     * Attaches loading logs
-     */
-    function _loadingLog(stage, message) {
-        app.state.stage = stage;
-        app.state.message = message;
-        if (message) {
-            app.logs.push(message);
-        }
-    }
-
-    /*
-     * Bind list of roles to app data
-     */
-    function _loadRolesOfUser(roles) {
-        for (var i = 0; i < roles.length; i++) {
-            var role = roles[i];
-            app.user[role.application + '_' + role.code_name] = true;
-        }
-    }
-
-    /**
-     * تنظیم‌های نرم افزار را لود می‌کند.
-     * 
-     * @returns promiss
-     */
-    function loadApplicationConfig() {
-        _loadingLog('loading configuration', 'fetch configuration document');
-
-        ctrl.configs_loaded = false;
-        ctrl.configs_fail = false;
-
-        $cms.getContent(APP_PREFIX + app.key) //
-        .then(function (content) {
-            _loadingLog('loading configuration', 'fetch configuration content');
-            app._acc = content;
-            // load config file
-            return app._acc.downloadValue();
-        }, function(error){
-            ctrl.configs_fail = true;
-            stateMachine.error(error);
-            // return empty config
-            return {};
-        })
-        .then(function (appConfig) {
-            app.config = angular.isObject(appConfig) ? appConfig : {};
-        })
-        .finally(function(){
-            ctrl.configs_loaded = true;
-            stateMachine.loaded();
-        });
-    }
-
-    /*
-     * Loads current user informations
-     * 
-     * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-     * نرم افزار پر می‌شود.
-     * 
-     * If there is a role x.y (where x is application code and y is code name)
-     * in role list then the following var is added in user:
-     * 
-     * app.user.x_y
-     * 
-     */
-    function loadUserProperty() {
-        _loadingLog('loading user info', 'fetch user information');
-        return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-        .then(function (user) {
-            // load user info
-            ctrl.user_loaded = true;
-            // app user data
-            app.user = {
-                    anonymous: !user.id || user.id === 0,
-                    current: user
-            };
-            // load the first profile of user
-            if(angular.isArray(user.profiles)){
-                app.user.profile = user.profiles.length? user.profiles[0] : {};
-            }
-            // load user roles
-            _loadingLog('loading user info', 'user information loaded successfully');
-            _loadingLog('loading user info', 'check user permissions');
-            if (!app.user.anonymous) {
-                _loadRolesOfUser(user.roles);
-                for (var i = 0; i < user.groups.length; i++) {
-                    _loadRolesOfUser(user.groups[i].roles);
-                }
-                //
-                if (!user.isAnonymous()) {
-                    app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-                    app.user.administrator = app.user.owner;
-                } else {
-                    app.user.anonymous = true;
-                }
-            }
-            stateMachine.loaded();
-        }, function(error){
-            ctrl.user_loaded = false;
-            stateMachine.error(error);
-        });
-    }
-
-    /*
-     * Loads options
-     */
-    function loadOptions() {
-        // TODO: Masood, 2018: options should be get from server. Now, its api
-        // doesn't exist.
-        _loadingLog('loading options', 'fetch options document');
-        // get the options from server and save in app.options.
-        app.options = {};
-        return $tenant.getSettings(optionsQuery)
-        .then(function (res) {
-            for (var i = 0; i < res.items.length; i++) {
-                var item = res.items[i];
-                app.options[item.key] = item.value;
-            }
-            ctrl.options_loaded = true;
-            stateMachine.loaded();
-        }, function(error){
-            stateMachine.error(error);
-        });
-    }
-
-    /*
-     * Loads local storage
-     */
-    function loadSetting() {
-        _loadingLog('loading setting from local storage', 'fetch settings');
-        /*
-         * TODO: masood, 2018: The lines below is an alternative for lines above
-         * but not recommended.
-         * 
-         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-         */
-        app.setting = $localStorage.$default({
-            dashboardModel: {}
-        });
-        _loadingLog('setting loaded', 'fetch settings');
-    }
+	var APP_EVENT_LOADED = 'loaded';
+	var APP_EVENT_START = 'start';
+	var APP_EVENT_NOT_FOUND = 'resource_not_found';
+	var APP_EVENT_SERVER_ERROR = 'server_error';
+	var APP_EVENT_NET_ERROR = 'network_error';
 
 
-    /*
-     * Stores app configuration on the back end
-     */
-    function storeApplicationConfig() {
-        appConfigDirty = true;
-        if(appConfigLock){
-            return;
-        }
-        if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
-            return $q.reject({
-                data: {
-                    message: 'fail'
-                }
-            });
-        }
-        appConfigLock = true;
-        var promise;
-        if (app._acc) { // content loaded
-            appConfigDirty = false;
-            promise = app._acc.uploadValue(app.config);
-        } else { // create content
-            promise = $cms.putContent({
-                name: APP_PREFIX + app.key,
-                mimetype: APP_CNF_MIMETYPE
-            }).then(function (content) {
-                appConfigDirty = false;
-                app._acc = content;
-                stateMachine.loaded();
-                return app._acc.uploadValue(app.config);
-            }, function (error) {
-                stateMachine.error(error);
-            });
-        } //
-        return promise //
-        .finally(function () {
-            appConfigLock = false;
-            if (appConfigDirty) {
-                return storeApplicationConfig();
-            }
-        });
-    }
+	var optionsQuery = new QueryParameter()//
+	.put('graphql', OPTIONS_GRAPHQL);
+	// All the things that are set up by $app service
+	var app = {
+			state: {
+				// all states: waiting, loading, offline, app_not_configured,
+				// ready, fail
+				status: 'loading',
+				stage: 'starting',
+				message: null
+			},
+			logs: [],
+			user: {
+				current: {},
+				profile : {},
+				anonymous: true,
+				administrator: false,
+				owner: false,
+				member: false,
+				authorized: false
+			},
+			config: {},
+			setting: {},
+			options: {},
+			local: 'en', // Default local and language
+			language: 'en', // Default local and language
+	};
+	$rootScope.app = app;
 
-    /*
-     * State machine to handle life cycle of the system.
-     */
-    stateMachine = new machina.Fsm({
-        initialize: function (/* options */) {
-            app.state.status = APP_STATE_WAITING;
-        },
-        namespace: 'webpich.$app',
-        initialState: APP_STATE_WAITING,
-        states: {
-            // Before the 'start' event occurs via $app.start().
-            waiting: {
-                _onEnter: function(){
-                    loadUserProperty(); 
-                    loadOptions();
-                },
-                start: APP_STATE_LOADING,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL
-            },
-            // tries to load all part of system
-            loading: {
-                _onEnter: function () {
-                    loadSetting(); 
-                    loadApplicationConfig(); 
-                },
-                loaded: function () {
-                    if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-                        this.transition(APP_STATE_READY);
-                    } else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
-                        this.transition(APP_STATE_READY_NOT_CONFIGURED);
-                    }
-                },
-                server_error: APP_STATE_FAIL,
-                network_error: APP_STATE_OFFLINE
-            },
-            // app is ready
-            ready: {
-                network_error: APP_STATE_OFFLINE
-            },
-            // app is ready with no config
-            ready_not_configured: {
-                loaded: function () {
-                    if(ctrl.configs_loaded){
-                        this.transition(APP_STATE_READY);
-                    }
-                },
-                network_error: APP_STATE_OFFLINE
-            },
-            // server error
-            fail: {},
-            // net error
-            offline: {}
-        },
+	/*
+	 * متغیرهای مدیریت تنظیم‌ها
+	 * 
+	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+	 * کارهای تکراری جلوگیری کنیم.
+	 * 
+	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+	 * دهد.
+	 */
+	var appConfigLock = false;
+	var appConfigDirty = false;
+	// Some controlling variables required in the state machine
+	var ctrl = {
+			user_loaded: false,
+			options_loaded: false,
+			configs_loaded: false
+	};
 
-        /*
-         * This handle load event of app
-         * 
-         * If a part of the app loaded then this handler fire an event and
-         * update the app state.
-         */
-        loaded: function () {
-            this.handle(APP_EVENT_LOADED);
-        },
+	/*
+	 * Attaches loading logs
+	 */
+	function _loadingLog(stage, message) {
+		app.state.stage = stage;
+		app.state.message = message;
+		if (message) {
+			app.logs.push(message);
+		}
+	}
 
-        /*
-         * Fires start event
-         */
-        start: function () {
-            this.handle(APP_EVENT_START);
-        },
+	/*
+	 * Bind list of roles to app data
+	 */
+	function _loadRolesOfUser(roles) {
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			app.user[role.application + '_' + role.code_name] = true;
+		}
+	}
 
-        /*
-         * Handle HTTP response error.
-         * 
-         * If the is an error in loading and storing configuration then this
-         * function checks and fire an event.
-         */
-        error: function ($error) {
-            if ($error.status === 404) {
-                this.handle(APP_EVENT_NOT_FOUND);
-            } else if ($error.status === 500) {
-                this.handle(APP_EVENT_SERVER_ERROR);
-            } else if ($error.status === -1) {
-                this.handle(APP_EVENT_NET_ERROR);
-            }
-        }
-    });
+	/**
+	 * تنظیم‌های نرم افزار را لود می‌کند.
+	 * 
+	 * @returns promiss
+	 */
+	function loadApplicationConfig() {
+		_loadingLog('loading configuration', 'fetch configuration document');
+
+		ctrl.configs_loaded = false;
+		ctrl.configs_fail = false;
+
+		$cms.getContent(APP_PREFIX + app.key) //
+		.then(function (content) {
+			_loadingLog('loading configuration', 'fetch configuration content');
+			app._acc = content;
+			// load config file
+			return app._acc.downloadValue();
+		}, function(error){
+			ctrl.configs_fail = true;
+			stateMachine.error(error);
+			// return empty config
+			return {};
+		})
+		.then(function (appConfig) {
+			app.config = angular.isObject(appConfig) ? appConfig : {};
+		})
+		.finally(function(){
+			ctrl.configs_loaded = true;
+			stateMachine.loaded();
+		});
+	}
+
+	/*
+	 * Loads current user informations
+	 * 
+	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
+	 * نرم افزار پر می‌شود.
+	 * 
+	 * If there is a role x.y (where x is application code and y is code name)
+	 * in role list then the following var is added in user:
+	 * 
+	 * app.user.x_y
+	 * 
+	 */
+	function loadUserProperty() {
+		_loadingLog('loading user info', 'fetch user information');
+		return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
+		.then(function (user) {
+			// load user info
+			ctrl.user_loaded = true;
+			// app user data
+			app.user = {
+					anonymous: !user.id || user.id === 0,
+					current: user
+			};
+			// load the first profile of user
+			if(angular.isArray(user.profiles)){
+				app.user.profile = user.profiles.length? user.profiles[0] : {};
+			}
+			// load user roles
+			_loadingLog('loading user info', 'user information loaded successfully');
+			_loadingLog('loading user info', 'check user permissions');
+			if (!app.user.anonymous) {
+				_loadRolesOfUser(user.roles);
+				for (var i = 0; i < user.groups.length; i++) {
+					_loadRolesOfUser(user.groups[i].roles);
+				}
+				//
+				if (!user.isAnonymous()) {
+					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
+					app.user.administrator = app.user.owner;
+				} else {
+					app.user.anonymous = true;
+				}
+			}
+			stateMachine.loaded();
+		}, function(error){
+			ctrl.user_loaded = false;
+			stateMachine.error(error);
+		});
+	}
+
+	/*
+	 * Loads options
+	 */
+	function loadOptions() {
+		// TODO: Masood, 2018: options should be get from server. Now, its api
+		// doesn't exist.
+		_loadingLog('loading options', 'fetch options document');
+		// get the options from server and save in app.options.
+		app.options = {};
+		return $tenant.getSettings(optionsQuery)
+		.then(function (res) {
+			for (var i = 0; i < res.items.length; i++) {
+				var item = res.items[i];
+				app.options[item.key] = item.value;
+			}
+			ctrl.options_loaded = true;
+			stateMachine.loaded();
+		}, function(error){
+			stateMachine.error(error);
+		});
+	}
+
+	/*
+	 * Loads local storage
+	 */
+	function loadSetting() {
+		_loadingLog('loading setting from local storage', 'fetch settings');
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 */
+		app.setting = $localStorage.$default({
+			dashboardModel: {}
+		});
+		_loadingLog('setting loaded', 'fetch settings');
+	}
 
 
-    // I'd like to know when the transition event occurs
-    stateMachine.on('transition', function () {
-        _loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
-        app.state.status = stateMachine.state;
-    });
+	/*
+	 * Stores app configuration on the back end
+	 */
+	function storeApplicationConfig() {
+		appConfigDirty = true;
+		if(appConfigLock){
+			return;
+		}
+		if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+			return $q.reject({
+				data: {
+					message: 'fail'
+				}
+			});
+		}
+		appConfigLock = true;
+		var promise;
+		if (app._acc) { // content loaded
+			appConfigDirty = false;
+			promise = app._acc.uploadValue(app.config);
+		} else { // create content
+			promise = $cms.putContent({
+				name: APP_PREFIX + app.key,
+				mimetype: APP_CNF_MIMETYPE
+			}).then(function (content) {
+				appConfigDirty = false;
+				app._acc = content;
+				stateMachine.loaded();
+				return app._acc.uploadValue(app.config);
+			}, function (error) {
+				stateMachine.error(error);
+			});
+		} //
+		return promise //
+		.finally(function () {
+			appConfigLock = false;
+			if (appConfigDirty) {
+				return storeApplicationConfig();
+			}
+		});
+	}
 
-    /*
-     * watch direction and update app.dir
-     */
-    $rootScope.$watch(function () {
-        if (!app.config.local) {
-            app.config.local = {};
-        }
-        return app.setting.dir || app.config.local.dir;
-    }, function (value) {
-        app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-        // version of app.js;
-    });
-    /*
-     * watch local and update language
-     */
-    $rootScope.$watch(function () {
-        // TODO: maso, 2018: remove this part in the next release
-        if (!angular.isObject(app.config.local)) {
-            app.config.local = {};
-        }
-        // Check language
-        return app.setting.local || app.config.local.language || 'en';
-    }, function (key) {
-        // 0- set app local
-        app.local = key;
-        // 1- change language
-        $translate.use(key);
-        // 2- chnage date format
-        // Change moment's locale so the 'L'-format is adjusted.
-        // For example the 'L'-format is DD-MM-YYYY for Dutch
-        moment.loadPersian();
-        moment.locale(key);
-        // Set month and week names for the general $mdDateLocale service
-        var localeDate = moment.localeData();
-        $mdDateLocale.months = localeDate._months;
-        $mdDateLocale.shortMonths = localeDate._monthsShort;
-        $mdDateLocale.days = localeDate._weekdays;
-        $mdDateLocale.shortDays = localeDate._weekdaysMin;
-        // Optionaly let the week start on the day as defined by moment's locale
-        // data
-        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-    });
+	/*
+	 * State machine to handle life cycle of the system.
+	 */
+	stateMachine = new machina.Fsm({
+		initialize: function (/* options */) {
+			app.state.status = APP_STATE_WAITING;
+		},
+		namespace: 'webpich.$app',
+		initialState: APP_STATE_WAITING,
+		states: {
+			// Before the 'start' event occurs via $app.start().
+			waiting: {
+				start: APP_STATE_LOADING,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL
+			},
+			// tries to load all part of system
+			loading: {
+				_onEnter: function () {
+					loadUserProperty(); 
+					loadOptions();
+					loadSetting(); 
+					loadApplicationConfig(); 
+				},
+				loaded: function () {
+					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
+						this.transition(APP_STATE_READY);
+					} else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
+						this.transition(APP_STATE_READY_NOT_CONFIGURED);
+					}
+				},
+				server_error: APP_STATE_FAIL,
+				network_error: APP_STATE_OFFLINE
+			},
+			// app is ready
+			ready: {
+				network_error: APP_STATE_OFFLINE
+			},
+			// app is ready with no config
+			ready_not_configured: {
+				loaded: function () {
+					if(ctrl.configs_loaded){
+						this.transition(APP_STATE_READY);
+					}
+				},
+				network_error: APP_STATE_OFFLINE
+			},
+			// server error
+			fail: {},
+			// net error
+			offline: {}
+		},
 
-    /*
-     * watch calendar
-     */
-    $rootScope.$watch(function () {
-        return app.setting.calendar || app.config.calendar || 'Gregorian';
-    }, function (key) {
-        // 0- set app local
-        app.calendar = key;
-    });
+		/*
+		 * This handle load event of app
+		 * 
+		 * If a part of the app loaded then this handler fire an event and
+		 * update the app state.
+		 */
+		loaded: function () {
+			this.handle(APP_EVENT_LOADED);
+		},
 
-    /*
-     * watch application configuration and update app state
-     */
-    $rootScope.$watch('app.config', function () {
-        if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
-            // TODO: maso, 2018: delay to save
-            storeApplicationConfig();
-        }
-    }, true);
+		/*
+		 * Fires start event
+		 */
+		start: function () {
+			this.handle(APP_EVENT_START);
+		},
 
-    /**
-     * Start the application
-     * 
-     * this function is called when the app get started.
-     * 
-     * @memberof $app
-     */
-    function start(key) {
-        app.key = key;
-        stateMachine.start();
-    }
+		/*
+		 * Handle HTTP response error.
+		 * 
+		 * If the is an error in loading and storing configuration then this
+		 * function checks and fire an event.
+		 */
+		error: function ($error) {
+			if ($error.status === 404) {
+				this.handle(APP_EVENT_NOT_FOUND);
+			} else if ($error.status === 500) {
+				this.handle(APP_EVENT_SERVER_ERROR);
+			} else if ($error.status === -1) {
+				this.handle(APP_EVENT_NET_ERROR);
+			}
+		}
+	});
 
-    /**
-     * Logins into the backend
-     * 
-     * @memberof $app
-     * @param {object}
-     *            credential of the user
-     */
-    function login(credential) {
-        if (!app.user.anonymous) {
-            return $q.resolve(app.user.current);
-        }
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/login',
-            data: $httpParamSerializerJQLike(credential),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        }).then(function () {
-            loadUserProperty();
-        });
-    }
 
-    /**
-     * Application logout
-     * 
-     * Logout and clean user data, this will change state of the application.
-     * 
-     * @memberof $app
-     */
-    function logout() {
-        var oldUser = $rootScope.app.user;
-        if (oldUser.anonymous) {
-            return $q.resolve(oldUser);
-        }
-        $rootScope.app.user = {};
-        stateMachine.loaded();
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/logout',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(function () {
-            loadUserProperty();
-        }, function () {
-            // TODO: maso, 2018: fail to logout?!
-            $rootScope.app.user = oldUser;
-            stateMachine.loaded();
-        });
-    }
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function () {
+		_loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
+		app.state.status = stateMachine.state;
+	});
 
-    // Init
-    apps.start = start;
-    apps.login = login;
-    apps.logout = logout;
-    return apps;
+	/*
+	 * watch direction and update app.dir
+	 */
+	$rootScope.$watch(function () {
+		if (!app.config.local) {
+			app.config.local = {};
+		}
+		return app.setting.dir || app.config.local.dir;
+	}, function (value) {
+		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
+		// version of app.js;
+	});
+	/*
+	 * watch local and update language
+	 */
+	$rootScope.$watch(function () {
+		// TODO: maso, 2018: remove this part in the next release
+		if (!angular.isObject(app.config.local)) {
+			app.config.local = {};
+		}
+		// Check language
+		return app.setting.local || app.config.local.language || 'en';
+	}, function (key) {
+		// 0- set app local
+		app.local = key;
+		app.language = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	});
+
+	/*
+	 * watch calendar
+	 */
+	$rootScope.$watch(function () {
+		return app.setting.calendar || app.config.calendar || 'Gregorian';
+	}, function (key) {
+		// 0- set app local
+		app.calendar = key;
+	});
+
+	/*
+	 * watch application configuration and update app state
+	 */
+	$rootScope.$watch('app.config', function () {
+		if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
+			// TODO: maso, 2018: delay to save
+			storeApplicationConfig();
+		}
+	}, true);
+
+	/**
+	 * Start the application
+	 * 
+	 * this function is called when the app get started.
+	 * 
+	 * @memberof $app
+	 */
+	function start(key) {
+		app.key = key;
+		stateMachine.start();
+	}
+
+	/**
+	 * Logins into the backend
+	 * 
+	 * @memberof $app
+	 * @param {object}
+	 *            credential of the user
+	 */
+	function login(credential) {
+		if (!app.user.anonymous) {
+			return $q.resolve(app.user.current);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(function () {
+			loadUserProperty();
+		});
+	}
+
+	/**
+	 * Application logout
+	 * 
+	 * Logout and clean user data, this will change state of the application.
+	 * 
+	 * @memberof $app
+	 */
+	function logout() {
+		var oldUser = $rootScope.app.user;
+		if (oldUser.anonymous) {
+			return $q.resolve(oldUser);
+		}
+		$rootScope.app.user = {};
+		stateMachine.loaded();
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(function () {
+			loadUserProperty();
+		}, function () {
+			// TODO: maso, 2018: fail to logout?!
+			$rootScope.app.user = oldUser;
+			stateMachine.loaded();
+		});
+	}
+
+	// Init
+	apps.start = start;
+	apps.login = login;
+	apps.logout = logout;
+	return apps;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -10078,7 +10315,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> <span flex=\"\"></span> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
   );
 
 
@@ -10203,7 +10440,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -10213,17 +10450,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-cms-images.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-groups.html',
-    "<div ng-controller=\"MbGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-roles.html',
-    "<div ng-controller=\"MbRolesCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getProperties() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserRolesCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
@@ -10253,7 +10490,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\"> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <wb-icon>menu</wb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span translate=\"\">Display list of messages</span> </md-tooltip> <wb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</wb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <wb-icon ng-if=menu.icon>{{menu.icon}}</wb-icon> </md-button> </div>"
   );
 
 

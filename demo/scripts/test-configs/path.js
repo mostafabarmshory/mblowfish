@@ -323,5 +323,16 @@ angular.module('app') //
         name : 'Load and check themes',
         icon : 'load',
     })
+    
+    // Content
+    .when('/test/content/wbgroup', {
+    	templateUrl : 'views/amd-test-wb-group.html',
+    	controller: 'TestContentWeburgerCtrl',
+    	controllerAs: 'ctrl',
+    	navigate : true,
+    	groups : [ 'content' ],
+    	name : 'Load empty content',
+    	icon : 'load',
+    })
 	;
 });

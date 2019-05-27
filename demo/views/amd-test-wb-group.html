@@ -1,0 +1,41 @@
+<div>
+	<div
+		layout="column"
+		flex>
+		<section 
+			layout="row" 
+			layout-align="center center">
+	        <md-button
+	            class="wb-group-button left"
+	            ng-click="editable = !editable">
+	            <wb-icon wb-icon-name="{{action.icon || 'edit'}}"></wb-icon>
+	        </md-button>
+	        <md-button
+	            ng-repeat="action in actions"
+	            ng-click="runAction(action)">
+	            <wb-icon icon="{{action.icon}}"></wb-icon>
+	        </md-button>
+	        <md-button
+	            ng-repeat="action in actions"
+	            ng-click="runAction(action)">
+	            <wb-icon size="48">{{action.icon}}</wb-icon>
+	        </md-button>
+	        <md-button
+	            ng-repeat="action in actions"
+	            ng-click="runAction(action)">
+	            <wb-icon size="48" style="fill: red;">{{action.icon}}</wb-icon>
+	        </md-button>
+	    </section>
+	 <md-content
+	     flex>
+	     <wb-group
+	     	wb-on-model-under-cursor="ctrl.widgetUnderCursor($event)"
+	         wb-on-model-select="ctrl.loadSettings($event)"
+	         wb-editable="ctrl.editable"
+	         ng-model="ctrl.model"
+	         flex>
+	     </wb-group>
+	 </md-content>
+	</div>
+	<div style="width: 200px;background: black"></div>
+</div>

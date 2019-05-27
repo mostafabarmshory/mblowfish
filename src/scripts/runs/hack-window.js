@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,17 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
 angular.module('mblowfish-core')
-
 /**
- * @ngdoc Filters
- * @name mbDate
- * @description # Format date
+ * دریچه‌های محاوره‌ای
  */
-.filter('mbDate', function($wbLocal) {
-    return function(inputDate, format) {
-        return $wbLocal.formatDate(inputDate, format);
+.run(function($notification, $help) {
+	'use strict';
+
+    /*
+     * Display help for an item
+     */
+    window.openHelp = function(item){
+        return $help.openHelp(item);
     };
+
+    // Hadi 1396-12-22: update alerts
+    window.alert = $notification.alert;
+    window.confirm = $notification.confirm;
+    window.prompt = $notification.prompt;
+    window.toast = $notification.toast;
+
 });
