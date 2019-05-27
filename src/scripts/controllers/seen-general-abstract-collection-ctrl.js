@@ -69,7 +69,7 @@ angular.module('mblowfish-core')//
 	    }));
 
 	    this.getSchema = function () {
-		if (!angular.isDefined(this.getModelSchema())) {
+		if (!angular.isDefined(this.getModelSchema)) {
 		    return;
 		}
 		return this.getModelSchema()
@@ -77,20 +77,22 @@ angular.module('mblowfish-core')//
 			    return schema;
 			});
 	    };
-	    
+
 	    //properties is the children of schema.
 	    this.getProperties = function () {
-		if(angular.isDefined(this.properties)){
+		if (angular.isDefined(this.properties)) {
 		    $q.resolve(this.properties);
 		}
 		var ctrl = this;
-		return this.getSchema()
-			.then(function (schema) {
-			    ctrl.properties = schema.children;
-			});
+		if (angular.isDefined(ctrl.getModelSchema)) {
+		    return this.getSchema()
+			    .then(function (schema) {
+				ctrl.properties = schema.children;
+			    });
+		}
 	    };
-	    
-	    this.init = function(){
+
+	    this.init = function () {
 		this.getProperties();
 	    };
 	});
