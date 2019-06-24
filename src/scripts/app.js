@@ -53,7 +53,6 @@ angular.module('mblowfish-core', [ //
 	'am-wb-seen-core',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'ngStorage', // https://github.com/gsklee/ngStorage
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
 	'ng-appcache',//
 	'ngFileSaver',//
