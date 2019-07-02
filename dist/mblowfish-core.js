@@ -10385,7 +10385,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<md-content ng-cloak flex> <dive layout=row> <wb-icon wb-icon-name={{::preference.icon}} size=128> </wb-icon> <div> <h1 translate>{{::preference.title}}</h1> <p translate>{{::preference.description}}</p> </div>  <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </dive></md-content>"
+    "<md-content ng-cloak flex> <div layout=row layout-align=\"start center\"> <wb-icon wb-icon-name={{::preference.icon}} size=128> </wb-icon> <div flex> <h1 translate>{{::preference.title}}</h1> <p translate>{{::preference.description}}</p> </div> </div> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </md-content>"
   );
 
 

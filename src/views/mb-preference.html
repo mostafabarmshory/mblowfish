@@ -1,13 +1,15 @@
 <md-content
 	ng-cloak
 	flex>
-	<dive
-		layout="row">
+	<div
+		layout="row"
+		layout-align="start center">
 		<wb-icon 
 			wb-icon-name="{{::preference.icon}}" 
 			size="128">
 		</wb-icon>
-		<div>
+		<div
+			flex>
 			<h1 translate>{{::preference.title}}</h1>
 			<p translate>{{::preference.description}}</p>
 		</div>
