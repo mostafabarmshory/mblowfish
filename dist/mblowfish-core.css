@@ -156,19 +156,6 @@ a.editable-click:hover {
     cursor: pointer;
 }
 
-/* .my-editable>hr { */
-/* 	-webkit-transition: width 1.5s; For Safari 3.1 to 6.0 */
-/* 	transition: width 1.5s; */
-/* 	transition-delay: 700ms; */
-/* 	width: 0; */
-/* 	height: 2px; */
-/* 	border: none; */
-/* } */
-
-/* .my-editable:hover>hr { */
-/* 	width: 90%; */
-/* } */
-
 .my-editable {
 	position: relative;
 }
