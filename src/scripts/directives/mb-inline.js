@@ -119,11 +119,12 @@ angular.module('mblowfish-core')
                 if(!$scope.mbInlineEnable){
                     return;
                 }
+                var ctrl = this;
                 return $resource.get('image', {
                     style : {
                         icon: 'image',
                         title : $scope.mbInlineLabel || 'Select image',
-                        description: $scope.mbInlineDescription || 'Select a file from resources or cancel'
+                        description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
                     },
                     data : this.model
                 }) //
