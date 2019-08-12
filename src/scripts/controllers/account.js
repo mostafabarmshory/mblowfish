@@ -258,10 +258,10 @@ angular.module('mblowfish-core')
         ctrl.saveUser();
     };
 
-    $scope.back = function(){
+    this.back = function(){
         ctrl.back();
     };
-    $scope.cancel = function(){
+    this.cancel = function(){
         ctrl.back();
     };
 
