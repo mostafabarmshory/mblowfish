@@ -4,6 +4,14 @@
 	flex>
 	<md-button class="md-raised md-accent" ng-click="toggleXEdit()">{{editable ? 'Disable' : 'Enable'}} Editing</md-button>
 	<mb-inline
+		ng-model="object.img"
+		mb-inline-type="image"
+		mb-inline-label="Object image"
+		mb-inline-enable="editable"
+		mb-inline-on-save="onSave()">
+		<img ng-src="{{object.img || 'images/travel.jpg'}}" />
+	</mb-inline>
+	<mb-inline
 		ng-model="object.attr"
 		mb-inline-type="text"
 		mb-inline-label="Object attribute"

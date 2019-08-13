@@ -2,24 +2,27 @@
 	ng-switch="mbInlineType">
 
 	<!-- IMAGE -->
-<!-- 	<div  -->
-<!-- 		ng-switch-when="image" -->
-<!-- 		class="overlay-parent" -->
-<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
-<!-- 		md-colors="::{borderColor: 'primary-100'}" -->
-<!-- 		style="overflow: hidden;"> -->
-<!-- 		<ng-transclude ng-click="updateImage()"></ng-transclude> -->
-<!-- 		<div ng-show="$parent.mbInlineEnable" -->
-<!-- 			layout="row" layout-align="center center"  -->
-<!-- 			class="overlay-bottom" -->
-<!-- 			md-colors="{backgroundColor: 'primary-700'}"> -->
-<!--     		<md-button class="md-icon-button"  -->
-<!-- 				aria-label="Change image" -->
-<!-- 				ng-click="updateImage()">  -->
-<!-- 				<wb-icon>photo_camera</md-icon> -->
-<!-- 			</md-button> -->
-<!-- 	  	</div> -->
-<!-- 	</div> -->
+	<div 
+		ng-switch-when="image"
+		class="overlay-parent"
+		ng-class="{'my-editable' : $parent.mbInlineEnable}" 
+		md-colors="::{borderColor: 'primary-100'}"
+		style="overflow: hidden;"
+		ng-click="ctrlInline.updateImage()"
+		ng-transclude>
+		<div 
+			ng-show="$parent.mbInlineEnable"
+			layout="row" layout-align="center center" 
+			class="overlay-bottom"
+			md-colors="{backgroundColor: 'primary-700'}">
+    		<md-button 
+    			class="md-icon-button" 
+				aria-label="Change image"
+				ng-click="ctrlInline.updateImage()"> 
+				<wb-icon>photo_camera</md-icon>
+			</md-button>
+	  	</div>
+	</div>
 	
 	<!-- 	TEXT -->
 <!-- 	<div ng-switch-when="text"  -->

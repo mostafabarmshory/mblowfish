@@ -42,7 +42,6 @@ angular.module('mblowfish-core', [ //
 	'ngAnimate', 
 	'ngCookies',
 	'ngSanitize', //
-	'ngRoute', //
 //	Seen
 	'seen-core',
 	'seen-tenant',
@@ -53,7 +52,6 @@ angular.module('mblowfish-core', [ //
 	'am-wb-seen-core',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'ngStorage', // https://github.com/gsklee/ngStorage
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
 	'ng-appcache',//
 	'ngFileSaver',//
@@ -831,10 +829,7 @@ angular.module('mblowfish-core')
         ctrl.saveUser();
     };
 
-    $scope.back = function(){
-        ctrl.back();
-    };
-    $scope.cancel = function(){
+    this.cancel = function(){
         ctrl.back();
     };
 
@@ -4709,11 +4704,12 @@ angular.module('mblowfish-core')
                 if(!$scope.mbInlineEnable){
                     return;
                 }
+                var ctrl = this;
                 return $resource.get('image', {
                     style : {
                         icon: 'image',
                         title : $scope.mbInlineLabel || 'Select image',
-                        description: $scope.mbInlineDescription || 'Select a file from resources or cancel'
+                        description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
                     },
                     data : this.model
                 }) //
@@ -8383,7 +8379,15 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-
+	
+	/*
+	 * Check a module to see if it is enable or not
+	 */
+	//TODO: Masood, 2019: Improve the function to check based on tenant setting
+	function isEnable (moduleName) {
+	    return true;
+	}
+	 
 	/*
 	 * State machine to handle life cycle of the system.
 	 */
@@ -8611,6 +8615,7 @@ angular.module('mblowfish-core') //
 	apps.start = start;
 	apps.login = login;
 	apps.logout = logout;
+	apps.isEnable = isEnable;
 	return apps;
 });
 /*
@@ -10305,7 +10310,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div ng-switch=mbInlineType>                                                                                                                                                                       <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=errorObject> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\" translate>{{errorObject.errorMessage}}</div> </div> </div>"
+    "<div ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>                                                                                                                                                    <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=errorObject> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\" translate>{{errorObject.errorMessage}}</div> </div> </div>"
   );
 
 
@@ -10335,7 +10340,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div style=\"margin: 8px\" ng-transclude></div> </div>"
+    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div style=\"margin: 8px; padding: 8px\" ng-transclude></div> </div>"
   );
 
 
@@ -10385,7 +10390,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<md-content layout=column ng-cloak flex> <table> <tr> <td> <wb-icon wb-icon-name={{preference.icon}} size=128> </wb-icon> </td> <td> <h1 translate>{{preference.title}}</h1> <p translate>{{preference.description}}</p> </td> </tr> </table> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </md-content>"
+    "<md-content ng-cloak flex> <div layout=row layout-align=\"start center\"> <wb-icon wb-icon-name={{::preference.icon}} size=128> </wb-icon> <div flex> <h1 translate>{{::preference.title}}</h1> <p translate>{{::preference.description}}</p> </div> </div> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </md-content>"
   );
 
 
