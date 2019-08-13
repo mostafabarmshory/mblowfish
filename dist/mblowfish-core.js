@@ -830,10 +830,7 @@ angular.module('mblowfish-core')
         ctrl.saveUser();
     };
 
-    $scope.back = function(){
-        ctrl.back();
-    };
-    $scope.cancel = function(){
+    this.cancel = function(){
         ctrl.back();
     };
 
@@ -8383,7 +8380,15 @@ angular.module('mblowfish-core') //
 			}
 		});
 	}
-
+	
+	/*
+	 * Check a module to see if it is enable or not
+	 */
+	//TODO: Masood, 2019: Improve the function to check based on tenant setting
+	function isEnable (moduleName) {
+	    return true;
+	}
+	 
 	/*
 	 * State machine to handle life cycle of the system.
 	 */
@@ -8611,6 +8616,7 @@ angular.module('mblowfish-core') //
 	apps.start = start;
 	apps.login = login;
 	apps.logout = logout;
+	apps.isEnable = isEnable;
 	return apps;
 });
 /*
