@@ -42,7 +42,6 @@ angular.module('mblowfish-core', [ //
 	'ngAnimate', 
 	'ngCookies',
 	'ngSanitize', //
-	'ngRoute', //
 //	Seen
 	'seen-core',
 	'seen-tenant',
