@@ -4,14 +4,14 @@
     <md-toolbar class="md-hue-1"
         layout="row"
         style="border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px">
-        <div 
+        <div
             layout="row"
             layout-align="start center"
             class="md-toolbar-tools">
             <wb-icon style="margin: 0" ng-if="mbIcon">{{::mbIcon}}</wb-icon>
             <h3 translate="">{{::mbTitle}}</h3>
         </div>
-        <md-menu 
+        <md-menu
             layout-align="end center"
             ng-show="mbMoreActions.length">
             <md-button
@@ -33,14 +33,14 @@
             </md-menu-content>
         </md-menu>
     </md-toolbar>
-    <md-progress-linear
-        ng-if="mbProgress"
-        style="margin: 0px; padding: 0px"
+
+    <div>
+      <md-progress-linear
+        ng-style="{'visibility': mbProgress?'visible':'hidden'}"
         md-mode="indeterminate"
-        class="md-accent"
-        md-color>
-    </md-progress-linear>
-    <div 
-        style="margin: 8px; padding: 8px;"
-        ng-transclude></div>
+        class="md-primary">
+      </md-progress-linear>
+
+      <div ng-transclude style="padding: 12px"></div>
+    </div>
 </div>
