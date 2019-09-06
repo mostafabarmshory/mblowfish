@@ -1,57 +1,57 @@
-<md-content 
+<md-content
     class="md-padding"
     layout-padding
     flex>
 
     <div layout-gt-sm="row" layout="column">
-        <mb-titled-block 
+        <mb-titled-block
             mb-title="Avatar"
             mb-progress="ctrl.avatarLoading"
-            flex-gt-sm="50" 
+            flex-gt-sm="50"
             layout="column"
             layout-margin>
             <div
                 layout="row"
                 layout-align="center start">
-                <lf-ng-md-file-input 
-                    ng-if="ctrl.avatarState === 'edit'"
+                <lf-ng-md-file-input
+                    ng-show="ctrl.avatarState === 'edit'"
                     lf-files="ctrl.avatarFiles"
                     accept="image/*"
                     progress
                     preview
                     drag>
                 </lf-ng-md-file-input>
-                <img 
+                <img
                     ng-if="ctrl.avatarState === 'normal'"
                     width="60%"
-                    ng-src="/api/v2/user/accounts/{{ctrl.user.id}}/avatar" 
+                    ng-src="/api/v2/user/accounts/{{ctrl.user.id}}/avatar"
                     ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32"/>
             </div>
-            <div 
+            <div
                 layout="column" layout-align="center none"
                 layout-gt-xs="row" layout-align-gt-xs="end center"
                 ng-if="ctrl.avatarState === 'normal'">
-                <md-button 
+                <md-button
                     class="md-raised md-primary"
                     ng-click="ctrl.editAvatar()">
                     <sapn translate="">Edit</sapn>
                 </md-button>
-                <md-button 
+                <md-button
                     class="md-raised md-accent"
                     ng-click="ctrl.deleteAvatar()">
                     <sapn translate="">Delete</sapn>
                 </md-button>
             </div>
-            <div 
+            <div
                 layout="column" layout-align="center none"
                 layout-gt-xs="row" layout-align-gt-xs="end center"
                 ng-if="ctrl.avatarState === 'edit'">
-                <md-button 
+                <md-button
                     class="md-raised md-primary"
                     ng-click="ctrl.uploadAvatar(ctrl.avatarFiles)">
                     <sapn translate="">Save</sapn>
                 </md-button>
-                <md-button 
+                <md-button
                     class="md-raised md-accent"
                     ng-click="ctrl.cancelEditAvatar()">
                     <sapn translate="">Cancele</sapn>
@@ -59,15 +59,15 @@
             </div>
         </mb-titled-block>
         <!-- Contacts -->
-        <mb-titled-block 
+        <mb-titled-block
             mb-title="Public Information"
             mb-progress="ctrl.loadingProfile || ctrl.savingProfile"
-            flex-gt-sm="50" 
-            layout="column" 
+            flex-gt-sm="50"
+            layout="column"
             layout-margin>
             <form
                 name="contactForm"
-                layout="column" 
+                layout="column"
                 layout-padding>
                 <md-input-container layout-fill>
                     <label translate="">First Name</label>
@@ -90,9 +90,9 @@
                     <input ng-model="ctrl.profile.timezone">
                 </md-input-container>
             </form>
-            <div layout="column" 
+            <div layout="column"
                  layout-align="center none"
-                 layout-gt-xs="row" 
+                 layout-gt-xs="row"
                  layout-align-gt-xs="end center">
                 <md-button
                     class="md-raised md-primary"
