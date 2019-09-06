@@ -167,7 +167,6 @@ angular.module('mblowfish-core')
 
     // re-labeling lf-ng-md-file component for multi languages support
     angular.element(function () {
-      console.log('page loading completed');
 
       var elm = angular.element('.lf-ng-md-file-input-drag-text');
       if (elm[0]) {
