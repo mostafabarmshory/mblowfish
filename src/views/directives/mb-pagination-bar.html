@@ -1,9 +1,9 @@
-<div layout="column">
-    <div class="wrapper-stack-toolbar-container">
+<div layout="column" >
+    <div class="wrapper-stack-toolbar-container" style="border-radius: 0px">
         <!-- Action bar -->
         <div
             md-colors="{background: 'primary-hue-1'}">
-            <div 
+            <div
                 class="md-toolbar-tools">
                 <md-button
                     ng-if="mbIcon"
@@ -85,9 +85,9 @@
                     <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
                 </md-button>
 
-                <md-input-container 
-                    flex md-theme="dark" 
-                    md-no-float 
+                <md-input-container
+                    flex md-theme="dark"
+                    md-no-float
                     class="md-block fit-input">
                     <input
                         id="searchInput"
@@ -118,8 +118,8 @@
 
                 <!-- Menu including sort keys -->
                 <md-menu>
-                    <md-button 
-                        layout="row" 
+                    <md-button
+                        layout="row"
                         style="text-transform: none;"
                         ng-click="$mdMenu.open()">
                         <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3>
@@ -137,8 +137,8 @@
 
                 <!-- Menu including sort type:asce and desc -->
                 <md-menu>
-                    <md-button 
-                        layout="row" 
+                    <md-button
+                        layout="row"
                         style="text-transform: none;"
                         ng-click="$mdMenu.open()">
                         <wb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</wb-icon>
@@ -183,15 +183,15 @@
                     </md-button>
                     <h3 translate="">Filters</h3>
                 </div>
-                <div 
+                <div
                     layout="row">
-                    <md-button  
+                    <md-button
                         ng-if="filters && filters.length"
                         ng-click="applyFilter()"
                         class="md-icon-button">
                         <wb-icon>done</wb-icon>
                     </md-button>
-                    <md-button  
+                    <md-button
                         ng-click="addFilter()"
                         class="md-icon-button">
                         <wb-icon>add</wb-icon>
@@ -201,7 +201,7 @@
         </div>
     </div>
     <!--menu and input field for every new filter-->
-    <div 
+    <div
         layout="column"
         md-colors="{background: 'primary-hue-1'}"
         ng-show="showFilter && filters.length>0"
@@ -212,14 +212,14 @@
             layout="row"
             layout-align="space-between center"
             style="padding-top: 0px;padding-bottom: 0px">
-            <div 
+            <div
                 layout="row"
                 style="width: 50%">
                 <md-input-container
                     style="padding: 0px;margin: 0px;width: 20%">
                     <label translate="">Key</label>
-                    <md-select 
-                        name="filter" 
+                    <md-select
+                        name="filter"
                         ng-model="filter.key"
                         ng-change="showFilterValue=true;"
                         required>
@@ -235,8 +235,8 @@
                     style="padding: 0px;margin: 0px;"
                     ng-if="showFilterValue">
                     <label translate="">Value</label>
-                    <input 
-                        ng-model="filter.value" 
+                    <input
+                        ng-model="filter.value"
                         required>
                 </md-input-container>
             </div>

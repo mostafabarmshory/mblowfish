@@ -189,4 +189,5 @@ angular.module('mblowfish-core')
       }
 
     });
+
   });
