@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,11 +26,11 @@ angular.module('mblowfish-core')
  * @ngdoc Controllers
  * @name MbProfileCtrl
  * @description Manages profile of a user
- * 
+ *
  */
 // TODO: maso, 2019: replace with MbSeenAccountCtrl
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
-    
+  .controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
+
     // set initial data
     this.user = null;
     this.profile = null;
@@ -45,123 +45,149 @@ angular.module('mblowfish-core')
 
     /**
      * Loads user data
-     * 
+     *
      * @returns
      */
-    this.loadUser = function() {
-    	var app = $rootScope.app || {};
-    	var user = app.user || {};
-    	
-        this.user = user.current;//
-        if (!this.user) {
-            alert($translate.instant('Fail to load user.'));
-            return;
-        }
-        this.loadProfile();
+    this.loadUser = function () {
+      var app = $rootScope.app || {};
+      var user = app.user || {};
+
+      this.user = user.current;//
+      if (!this.user) {
+        alert($translate.instant('Fail to load user.'));
+        return;
+      }
+      this.loadProfile();
     }
 
-    this.loadProfile = function() {
-        if (this.loadinProfile) {
-            return;
-        }
-        this.loadingProfile = true;
-        var ctrl = this;
-        return this.user.getProfiles()//
+    this.loadProfile = function () {
+      if (this.loadinProfile) {
+        return;
+      }
+      this.loadingProfile = true;
+      var ctrl = this;
+      return this.user.getProfiles()//
         .then(function (profiles) {
-            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
-            return ctrl.profile;
+          ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+          return ctrl.profile;
         }, function () {
-            alert($translate.instant('Fial to load profile.'));
+          alert($translate.instant('Fail to load profile.'));
         })//
         .finally(function () {
-            ctrl.loadingProfile = false;
+          ctrl.loadingProfile = false;
         });
     }
 
     /**
      * Save current user
-     * 
+     *
      * @returns
      */
-    this.save = function() {
-        if (this.savingProfile) {
-            return;
-        }
-        this.savingProfile = true;
-        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
-        var ctrl = this;
-        return $promise//
+    this.save = function () {
+      if (this.savingProfile) {
+        return;
+      }
+      this.savingProfile = true;
+      var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
+      var ctrl = this;
+      return $promise//
         .then(function () {
-            toast($translate.instant('Save is successfull.'));
+          toast($translate.instant('Save is successfull.'));
         }, function () {
-            alert($translate.instant('Fail to save item.'));
+          alert($translate.instant('Fail to save item.'));
         })//
         .finally(function () {
-            ctrl.savingProfile = false;
+          ctrl.savingProfile = false;
         });
     }
 
-    this.back = function() {
-        $window.history.back();
+    this.back = function () {
+      $window.history.back();
     }
-    
-    this.deleteAvatar = function(){
-        var ctrl = this;
-        confirm('Delete the avatar?')
-        .then(function(){
-            ctrl.avatarState = 'working';
-            return ctrl.user.deleteAvatar();
+
+    this.deleteAvatar = function () {
+      var ctrl = this;
+      confirm($translate.instant('Delete the avatar?'))
+        .then(function () {
+          ctrl.avatarState = 'working';
+          return ctrl.user.deleteAvatar();
         })
-        .finally(function(){
-            ctrl.avatarState = 'normal';
+        .finally(function () {
+          ctrl.avatarState = 'normal';
         });
     }
-    
-    this.uploadAvatar = function(files){
-        if (!angular.isArray(files) || !files.length) {
-        }
-        var file = null;
-        file = files[0].lfFile;
-        this.avatarLoading = true;
-        var ctrl = this;
-        this.user.uploadAvatar(file)
-        .then(function(){
-            // TODO: reload the page
+
+    this.uploadAvatar = function (files) {
+      if (!angular.isArray(files) || !files.length) {
+      }
+      var file = null;
+      file = files[0].lfFile;
+      this.avatarLoading = true;
+      var ctrl = this;
+      this.user.uploadAvatar(file)
+        .then(function () {
+          // TODO: reload the page
         })
-        .finally(function(){
-            ctrl.avatarLoading = false;
-            ctrl.avatarState = 'normal';
+        .finally(function () {
+          ctrl.avatarLoading = false;
+          ctrl.avatarState = 'normal';
         });
     }
-    
-    this.editAvatar = function(){
-        this.avatarState = 'edit';
+
+    this.editAvatar = function () {
+      this.avatarState = 'edit';
     }
-    
-    this.cancelEditAvatar = function(){
-        this.avatarState = 'normal';
+
+    this.cancelEditAvatar = function () {
+      this.avatarState = 'normal';
     }
 
     /*
      * To support old version of the controller
      */
     var ctrl = this;
-    $scope.load = function(){
-        ctrl.loadUser();
+    $scope.load = function () {
+      ctrl.loadUser();
     };
-    $scope.reload = function(){
-        ctrl.loadUser();
+    $scope.reload = function () {
+      ctrl.loadUser();
     };
-    $scope.save = function(){
-        ctrl.save();
+    $scope.save = function () {
+      ctrl.save();
     };
-    $scope.back = function(){
-        ctrl.back();
+    $scope.back = function () {
+      ctrl.back();
     };
-    $scope.cancel =  function(){
-        ctrl.back();
+    $scope.cancel = function () {
+      ctrl.back();
     };
-    
+
     // Load account information
     this.loadUser();
-});
+
+    // re-labeling lf-ng-md-file component for multi languages support
+    angular.element(function () {
+
+      var elm = angular.element('.lf-ng-md-file-input-drag-text');
+      if (elm[0]) {
+        elm.text($translate.instant('Drag & Drop File Here'));
+      }
+
+      elm = angular.element('.lf-ng-md-file-input-button-brower');
+      if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+         elm[0].childNodes[1].data=' '+$translate.instant('Browse');
+      }
+
+      elm = angular.element('.lf-ng-md-file-input-button-remove');
+      if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+        elm[0].childNodes[1].data=$translate.instant('Remove');
+      }
+
+      elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+      if (elm[0]) {
+        elm.text($translate.instant('Select File'));
+      }
+
+    });
+
+  });
