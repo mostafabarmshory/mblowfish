@@ -27,7 +27,7 @@
   },
   "resolutions": {
     "angular": "1.7.x",
-    "am-wb-core": "2.4.x"
+    "am-wb-core": "2.5.x"
   },
   "devDependencies": {
     "angular-mocks": "1.7.x"
