@@ -7527,10 +7527,17 @@ angular.module('mblowfish-core')
 /*
  * Init application resources
  */
+<<<<<<< HEAD
 .run(function ($resource, $location, $controller) {
 
     function getDomain() {
         return $location.protocol() + //
+=======
+  .run(function ($resource, $location, $controller) {
+
+    function getDomain() {
+      return $location.protocol() + //
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
         '://' + //
         $location.host() + //
         (($location.port() ? ':' + $location.port() : ''));
@@ -7538,6 +7545,7 @@ angular.module('mblowfish-core')
 
 //  TODO: maso, 2018: replace with class
     function getSelection() {
+<<<<<<< HEAD
         if (!this.__selections) {
             this.__selections = angular.isArray(this.value) ? this.value : [];
         }
@@ -7552,10 +7560,27 @@ angular.module('mblowfish-core')
             if (list[i].id === item.id) {
                 return i;
             }
+=======
+      if (!this.__selections) {
+        this.__selections = angular.isArray(this.value) ? this.value : [];
+      }
+      return this.__selections;
+    }
+
+    function getIndexOf(list, item) {
+      if (!angular.isDefined(item.id)) {
+        return list.indexOf(item);
+      }
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === item.id) {
+          return i;
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
         }
+      }
     }
 
     function setSelected(item, selected) {
+<<<<<<< HEAD
         var selectionList = this.getSelection();
         var index = getIndexOf(selectionList, item);
         if (selected) {
@@ -7569,12 +7594,32 @@ angular.module('mblowfish-core')
             if (index > -1) {
                 selectionList.splice(index, 1);
             }
+=======
+      var selectionList = this.getSelection();
+      var index = getIndexOf(selectionList, item);
+      if (selected) {
+        // add to selection
+        if (index >= 0) {
+          return;
         }
+        selectionList.push(item);
+      } else {
+        // remove from selection
+        if (index > -1) {
+          selectionList.splice(index, 1);
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
+        }
+      }
     }
 
     function isSelected(item) {
+<<<<<<< HEAD
         var selectionList = this.getSelection();
         return getIndexOf(selectionList, item) >= 0;
+=======
+      var selectionList = this.getSelection();
+      return getIndexOf(selectionList, item) >= 0;
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
     }
 
 
@@ -7586,6 +7631,7 @@ angular.module('mblowfish-core')
      * Enable user to select an account
      */
     $resource.newPage({
+<<<<<<< HEAD
         label: 'Account',
         type: 'account',
         templateUrl: 'views/resources/mb-accounts.html',
@@ -7607,6 +7653,29 @@ angular.module('mblowfish-core')
         controllerAs: 'resourceCtrl',
         priority: 8,
         tags: ['account']
+=======
+      label: 'Account',
+      type: 'account',
+      templateUrl: 'views/resources/mb-accounts.html',
+      /*
+       * @ngInject
+       */
+      controller: function ($scope) {
+        // TODO: maso, 2018: load selected item
+        $scope.multi = false;
+        this.value = $scope.value;
+        this.setSelected = function (item) {
+          $scope.$parent.setValue(item);
+          $scope.$parent.answer();
+        };
+        this.isSelected = function (item) {
+          return item === this.value || item.id === this.value.id;
+        };
+      },
+      controllerAs: 'resourceCtrl',
+      priority: 8,
+      tags: ['account']
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
     });
 
     /**
@@ -7617,6 +7686,7 @@ angular.module('mblowfish-core')
      * Display a list of accounts and allow user to select them.
      */
     $resource.newPage({
+<<<<<<< HEAD
         label: 'Accounts',
         type: 'account-list',
         templateUrl: 'views/resources/mb-accounts.html',
@@ -7638,10 +7708,34 @@ angular.module('mblowfish-core')
         controllerAs: 'resourceCtrl',
         priority: 8,
         tags: ['accounts']
+=======
+      label: 'Accounts',
+      type: 'account-list',
+      templateUrl: 'views/resources/mb-accounts.html',
+      /*
+       * @ngInject
+       */
+      controller: function ($scope) {
+        // TODO: maso, 2018: load selected item
+        $scope.multi = true;
+        this.value = $scope.value;
+        this.setSelected = function (item, selected) {
+          this._setSelected(item, selected);
+          $scope.$parent.setValue(this.getSelection());
+        };
+        this._setSelected = setSelected;
+        this.isSelected = isSelected;
+        this.getSelection = getSelection;
+      },
+      controllerAs: 'resourceCtrl',
+      priority: 8,
+      tags: ['accounts']
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
     });
 
     // Resource for role-list
     $resource.newPage({
+<<<<<<< HEAD
         label: 'Role List',
         type: 'role-list',
         templateUrl: 'views/resources/mb-roles.html',
@@ -7663,11 +7757,35 @@ angular.module('mblowfish-core')
         controllerAs: 'resourceCtrl',
         priority: 8,
         tags: ['roles']
+=======
+      label: 'Role List',
+      type: 'role-list',
+      templateUrl: 'views/resources/mb-roles.html',
+      /*
+       * @ngInject
+       */
+      controller: function ($scope) {
+        // TODO: maso, 2018: load selected item
+        $scope.multi = true;
+        this.value = $scope.value;
+        this.setSelected = function (item, selected) {
+          this._setSelected(item, selected);
+          $scope.$parent.setValue(this.getSelection());
+        };
+        this._setSelected = setSelected;
+        this.isSelected = isSelected;
+        this.getSelection = getSelection;
+      },
+      controllerAs: 'resourceCtrl',
+      priority: 8,
+      tags: ['roles']
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
     });
 
 
     // Resource for group-list
     $resource.newPage({
+<<<<<<< HEAD
         label: 'Group List',
         type: 'group-list',
         templateUrl: 'views/resources/mb-groups.html',
@@ -7689,6 +7807,29 @@ angular.module('mblowfish-core')
         controllerAs: 'resourceCtrl',
         priority: 8,
         tags: ['groups']
+=======
+      label: 'Group List',
+      type: 'group-list',
+      templateUrl: 'views/resources/mb-groups.html',
+      /*
+       * @ngInject
+       */
+      controller: function ($scope) {
+        // TODO: maso, 2018: load selected item
+        $scope.multi = true;
+        this.value = $scope.value;
+        this.setSelected = function (item, selected) {
+          this._setSelected(item, selected);
+          $scope.$parent.setValue(this.getSelection());
+        };
+        this._setSelected = setSelected;
+        this.isSelected = isSelected;
+        this.getSelection = getSelection;
+      },
+      controllerAs: 'resourceCtrl',
+      priority: 8,
+      tags: ['groups']
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
     });
 
 
@@ -7698,22 +7839,37 @@ angular.module('mblowfish-core')
      * @description Load an Image URL from contents
      */
     $resource.newPage({
-        type: 'cms-content-image',
-        icon: 'image',
-        label: 'Images',
-        templateUrl: 'views/resources/mb-cms-images.html',
+      type: 'cms-content-image',
+      icon: 'image',
+      label: 'Images',
+      templateUrl: 'views/resources/mb-cms-images.html',
+      /*
+       * @ngInject
+       */
+      controller: function ($scope) {
+
         /*
-         * @ngInject
+         * Extends collection controller
          */
+<<<<<<< HEAD
         controller: function ($scope) {
+=======
+        angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+          $scope: $scope
+        }));
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
 
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
+        /**
+         * Sets the absolute mode
+         *
+         * @param {boolean}
+         *            absolute mode of the controler
+         */
+        this.setAbsolute = function (absolute) {
+          this.absolute = absolute;
+        }
 
+<<<<<<< HEAD
             /**
              * Sets the absolute mode
              *
@@ -7751,6 +7907,35 @@ angular.module('mblowfish-core')
         controllerAs: 'ctrl',
         priority: 10,
         tags: ['image']
+=======
+        /**
+         * Checks if the mode is absolute
+         *
+         * @return absolute mode of the controller
+         */
+        this.isAbsolute = function () {
+          return this.absolute;
+        }
+
+        /*
+         * Sets value
+         */
+        this.setSelected = function (content) {
+          var path = '/api/v2/cms/contents/' + content.id + '/content';
+          if (this.isAbsolute()) {
+            path = getDomain() + path;
+          }
+          this.value = path;
+          $scope.$parent.setValue(path);
+        }
+
+        // init the controller
+        this.init()
+      },
+      controllerAs: 'ctrl',
+      priority: 10,
+      tags: ['image']
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
     });
     // TODO: maso, 2018: Add video resource
     // TODO: maso, 2018: Add audio resource
@@ -7761,25 +7946,47 @@ angular.module('mblowfish-core')
      * @description Upload a content and returns its URL
      */
     $resource.newPage({
+<<<<<<< HEAD
         type: 'content-upload',
         icon: 'file_upload',
         label: 'Upload',
         templateUrl: 'views/resources/mb-cms-content-upload.html',
+=======
+      type: 'content-upload',
+      icon: 'file_upload',
+      label: 'Upload',
+      templateUrl: 'views/resources/mb-cms-content-upload.html',
+      /*
+       * @ngInject
+       */
+      controller: function ($scope, $cms, $translate, uuid4) {
+
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
         /*
-         * @ngInject
+         * Extends collection controller
          */
+<<<<<<< HEAD
         controller: function ($scope, $cms, $translate, uuid4) {
+=======
+        angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+          $scope: $scope
+        }));
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
 
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
+        this.absolute = false;
+        this.files = [];
 
-            this.absolute = false;
-            this.files = [];
+        /**
+         * Sets the absolute mode
+         *
+         * @param {boolean}
+         *            absolute mode of the controler
+         */
+        this.setAbsolute = function (absolute) {
+          this.absolute = absolute;
+        }
 
+<<<<<<< HEAD
             /**
              * Sets the absolute mode
              *
@@ -7892,6 +8099,80 @@ angular.module('mblowfish-core')
     });
 
 });
+=======
+        /**
+         * Checks if the mode is absolute
+         *
+         * @return absolute mode of the controller
+         */
+        this.isAbsolute = function () {
+          return this.absolute;
+        }
+
+        /*
+         * Add answer to controller
+         */
+        var ctrl = this;
+        $scope.answer = function () {
+          // create data
+          var data = {};
+          data.name = this.name || uuid4.generate();
+          data.description = this.description || 'Auto loaded content';
+          var file = null;
+          if (angular.isArray(ctrl.files) && ctrl.files.length) {
+            file = ctrl.files[0].lfFile;
+            data.title = file.name;
+          }
+          // upload data to server
+          return ctrl.uploadFile(data, file)//
+            .then(function (content) {
+              var value = '/api/v2/cms/contents/' + content.id + '/content';
+              if (ctrl.isAbsolute()) {
+                value = getDomain() + value;
+              }
+              return value;
+            })//
+            .catch(function () {
+              alert('Failed to create or upload content');
+            });
+        };
+        // init the controller
+        this.init();
+
+        // re-labeling lf-ng-md-file component for multi languages support
+        angular.element(function () {
+          //console.log('re-labeling lf-ng-md-file drag and drop component for multi languages support ');
+
+          var elm = angular.element('.lf-ng-md-file-input-drag-text');
+          if (elm[0]) {
+            elm.text($translate.instant('Drag & Drop File Here'));
+          }
+
+          elm = angular.element('.lf-ng-md-file-input-button-brower');
+          if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+            elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+          }
+
+          elm = angular.element('.lf-ng-md-file-input-button-remove');
+          if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+            elm[0].childNodes[1].data = $translate.instant('Remove');
+          }
+
+          elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+          if (elm[0]) {
+            elm.text($translate.instant('Select File'));
+          }
+
+        });
+
+      },
+      controllerAs: 'ctrl',
+      priority: 1,
+      tags: ['image', 'audio', 'vedio', 'file']
+    });
+
+  });
+>>>>>>> c41f5ca0f1fdfc9cc110b66bbb3c3c47cd156dcb
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
