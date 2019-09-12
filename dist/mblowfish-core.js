@@ -1715,17 +1715,17 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1741,11 +1741,11 @@ angular.module('mblowfish-core')
  * @ngdoc Controllers
  * @name MbProfileCtrl
  * @description Manages profile of a user
- * 
+ *
  */
 // TODO: maso, 2019: replace with MbSeenAccountCtrl
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
-    
+  .controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
+
     // set initial data
     this.user = null;
     this.profile = null;
@@ -1760,126 +1760,152 @@ angular.module('mblowfish-core')
 
     /**
      * Loads user data
-     * 
+     *
      * @returns
      */
-    this.loadUser = function() {
-    	var app = $rootScope.app || {};
-    	var user = app.user || {};
-    	
-        this.user = user.current;//
-        if (!this.user) {
-            alert($translate.instant('Fail to load user.'));
-            return;
-        }
-        this.loadProfile();
+    this.loadUser = function () {
+      var app = $rootScope.app || {};
+      var user = app.user || {};
+
+      this.user = user.current;//
+      if (!this.user) {
+        alert($translate.instant('Fail to load user.'));
+        return;
+      }
+      this.loadProfile();
     }
 
-    this.loadProfile = function() {
-        if (this.loadinProfile) {
-            return;
-        }
-        this.loadingProfile = true;
-        var ctrl = this;
-        return this.user.getProfiles()//
+    this.loadProfile = function () {
+      if (this.loadinProfile) {
+        return;
+      }
+      this.loadingProfile = true;
+      var ctrl = this;
+      return this.user.getProfiles()//
         .then(function (profiles) {
-            ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
-            return ctrl.profile;
+          ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
+          return ctrl.profile;
         }, function () {
-            alert($translate.instant('Fial to load profile.'));
+          alert($translate.instant('Fail to load profile.'));
         })//
         .finally(function () {
-            ctrl.loadingProfile = false;
+          ctrl.loadingProfile = false;
         });
     }
 
     /**
      * Save current user
-     * 
+     *
      * @returns
      */
-    this.save = function() {
-        if (this.savingProfile) {
-            return;
-        }
-        this.savingProfile = true;
-        var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
-        var ctrl = this;
-        return $promise//
+    this.save = function () {
+      if (this.savingProfile) {
+        return;
+      }
+      this.savingProfile = true;
+      var $promise = angular.isDefined(this.profile.id) ? this.profile.update() : this.user.putProfile(this.profile);
+      var ctrl = this;
+      return $promise//
         .then(function () {
-            toast($translate.instant('Save is successfull.'));
+          toast($translate.instant('Save is successfull.'));
         }, function () {
-            alert($translate.instant('Fail to save item.'));
+          alert($translate.instant('Fail to save item.'));
         })//
         .finally(function () {
-            ctrl.savingProfile = false;
+          ctrl.savingProfile = false;
         });
     }
 
-    this.back = function() {
-        $window.history.back();
+    this.back = function () {
+      $window.history.back();
     }
-    
-    this.deleteAvatar = function(){
-        var ctrl = this;
-        confirm('Delete the avatar?')
-        .then(function(){
-            ctrl.avatarState = 'working';
-            return ctrl.user.deleteAvatar();
+
+    this.deleteAvatar = function () {
+      var ctrl = this;
+      confirm($translate.instant('Delete the avatar?'))
+        .then(function () {
+          ctrl.avatarState = 'working';
+          return ctrl.user.deleteAvatar();
         })
-        .finally(function(){
-            ctrl.avatarState = 'normal';
+        .finally(function () {
+          ctrl.avatarState = 'normal';
         });
     }
-    
-    this.uploadAvatar = function(files){
-        if (!angular.isArray(files) || !files.length) {
-        }
-        var file = null;
-        file = files[0].lfFile;
-        this.avatarLoading = true;
-        var ctrl = this;
-        this.user.uploadAvatar(file)
-        .then(function(){
-            // TODO: reload the page
+
+    this.uploadAvatar = function (files) {
+      if (!angular.isArray(files) || !files.length) {
+      }
+      var file = null;
+      file = files[0].lfFile;
+      this.avatarLoading = true;
+      var ctrl = this;
+      this.user.uploadAvatar(file)
+        .then(function () {
+          // TODO: reload the page
         })
-        .finally(function(){
-            ctrl.avatarLoading = false;
-            ctrl.avatarState = 'normal';
+        .finally(function () {
+          ctrl.avatarLoading = false;
+          ctrl.avatarState = 'normal';
         });
     }
-    
-    this.editAvatar = function(){
-        this.avatarState = 'edit';
+
+    this.editAvatar = function () {
+      this.avatarState = 'edit';
     }
-    
-    this.cancelEditAvatar = function(){
-        this.avatarState = 'normal';
+
+    this.cancelEditAvatar = function () {
+      this.avatarState = 'normal';
     }
 
     /*
      * To support old version of the controller
      */
     var ctrl = this;
-    $scope.load = function(){
-        ctrl.loadUser();
+    $scope.load = function () {
+      ctrl.loadUser();
     };
-    $scope.reload = function(){
-        ctrl.loadUser();
+    $scope.reload = function () {
+      ctrl.loadUser();
     };
-    $scope.save = function(){
-        ctrl.save();
+    $scope.save = function () {
+      ctrl.save();
     };
-    $scope.back = function(){
-        ctrl.back();
+    $scope.back = function () {
+      ctrl.back();
     };
-    $scope.cancel =  function(){
-        ctrl.back();
+    $scope.cancel = function () {
+      ctrl.back();
     };
-    
+
     // Load account information
     this.loadUser();
-});
+
+    // re-labeling lf-ng-md-file component for multi languages support
+    angular.element(function () {
+
+      var elm = angular.element('.lf-ng-md-file-input-drag-text');
+      if (elm[0]) {
+        elm.text($translate.instant('Drag & Drop File Here'));
+      }
+
+      elm = angular.element('.lf-ng-md-file-input-button-brower');
+      if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+         elm[0].childNodes[1].data=' '+$translate.instant('Browse');
+      }
+
+      elm = angular.element('.lf-ng-md-file-input-button-remove');
+      if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+        elm[0].childNodes[1].data=$translate.instant('Remove');
+      }
+
+      elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+      if (elm[0]) {
+        elm.text($translate.instant('Select File'));
+      }
+
+    });
+
+  });
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6071,17 +6097,17 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -6099,8 +6125,8 @@ angular.module('mblowfish-core')
 	 * @ngdoc Directives
 	 * @name mb-titled-block
 	 * @descritpion Title block
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	.directive('mbTitledBlock', function () {
 	    return {
@@ -6116,10 +6142,11 @@ angular.module('mblowfish-core')
 		/*
 		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 		 */
-		
+
 		templateUrl: 'views/directives/mb-titled-block.html'
 	    };
 	});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7475,17 +7502,17 @@ angular.module('mblowfish-core')
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -7500,29 +7527,29 @@ angular.module('mblowfish-core')
 /*
  * Init application resources
  */
-.run(function($resource, $location,  $controller ) {
+.run(function ($resource, $location, $controller) {
 
-    function getDomain(){
+    function getDomain() {
         return $location.protocol() + //
         '://' + //
         $location.host() + //
-        (($location.port() ? ':' + $location.port(): ''));
+        (($location.port() ? ':' + $location.port() : ''));
     }
 
 //  TODO: maso, 2018: replace with class
-    function getSelection(){
-        if(!this.__selections){
+    function getSelection() {
+        if (!this.__selections) {
             this.__selections = angular.isArray(this.value) ? this.value : [];
         }
         return this.__selections;
     }
 
     function getIndexOf(list, item) {
-        if(!angular.isDefined(item.id)) {
+        if (!angular.isDefined(item.id)) {
             return list.indexOf(item);
         }
-        for(var i = 0; i < list.length; i++){
-            if(list[i].id === item.id){
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === item.id) {
                 return i;
             }
         }
@@ -7530,10 +7557,10 @@ angular.module('mblowfish-core')
 
     function setSelected(item, selected) {
         var selectionList = this.getSelection();
-        var index = getIndexOf(selectionList,item);
-        if(selected) {
+        var index = getIndexOf(selectionList, item);
+        if (selected) {
             // add to selection
-            if(index >= 0){
+            if (index >= 0) {
                 return;
             }
             selectionList.push(item);
@@ -7545,64 +7572,62 @@ angular.module('mblowfish-core')
         }
     }
 
-    function isSelected(item){
+    function isSelected(item) {
         var selectionList = this.getSelection();
-        return getIndexOf(selectionList,item) >= 0;
+        return getIndexOf(selectionList, item) >= 0;
     }
-
-
 
 
     /**
      * @ngdoc Resources
      * @name Account
      * @description Get an account from resource
-     * 
+     *
      * Enable user to select an account
      */
     $resource.newPage({
-        label : 'Account',
-        type : 'account',
-        templateUrl : 'views/resources/mb-accounts.html',
+        label: 'Account',
+        type: 'account',
+        templateUrl: 'views/resources/mb-accounts.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = false;
             this.value = $scope.value;
-            this.setSelected = function(item) {
+            this.setSelected = function (item) {
                 $scope.$parent.setValue(item);
                 $scope.$parent.answer();
             };
-            this.isSelected = function(item){
+            this.isSelected = function (item) {
                 return item === this.value || item.id === this.value.id;
             };
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'account' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['account']
     });
 
     /**
      * @ngdoc Resources
      * @name Accounts
      * @description Gets list of accounts
-     * 
+     *
      * Display a list of accounts and allow user to select them.
      */
     $resource.newPage({
-        label : 'Accounts',
-        type : 'account-list',
-        templateUrl : 'views/resources/mb-accounts.html',
+        label: 'Accounts',
+        type: 'account-list',
+        templateUrl: 'views/resources/mb-accounts.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = true;
             this.value = $scope.value;
-            this.setSelected = function(item, selected) {
+            this.setSelected = function (item, selected) {
                 this._setSelected(item, selected);
                 $scope.$parent.setValue(this.getSelection());
             };
@@ -7610,24 +7635,24 @@ angular.module('mblowfish-core')
             this.isSelected = isSelected;
             this.getSelection = getSelection;
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'accounts' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['accounts']
     });
 
     // Resource for role-list
     $resource.newPage({
-        label : 'Role List',
-        type : 'role-list',
-        templateUrl : 'views/resources/mb-roles.html',
+        label: 'Role List',
+        type: 'role-list',
+        templateUrl: 'views/resources/mb-roles.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = true;
             this.value = $scope.value;
-            this.setSelected = function(item, selected) {
+            this.setSelected = function (item, selected) {
                 this._setSelected(item, selected);
                 $scope.$parent.setValue(this.getSelection());
             };
@@ -7635,25 +7660,25 @@ angular.module('mblowfish-core')
             this.isSelected = isSelected;
             this.getSelection = getSelection;
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'roles' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['roles']
     });
 
 
     // Resource for group-list
     $resource.newPage({
-        label : 'Group List',
-        type : 'group-list',
-        templateUrl : 'views/resources/mb-groups.html',
+        label: 'Group List',
+        type: 'group-list',
+        templateUrl: 'views/resources/mb-groups.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = true;
             this.value = $scope.value;
-            this.setSelected = function(item, selected) {
+            this.setSelected = function (item, selected) {
                 this._setSelected(item, selected);
                 $scope.$parent.setValue(this.getSelection());
             };
@@ -7661,11 +7686,10 @@ angular.module('mblowfish-core')
             this.isSelected = isSelected;
             this.getSelection = getSelection;
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'groups' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['groups']
     });
-
 
 
     /**
@@ -7681,7 +7705,7 @@ angular.module('mblowfish-core')
         /*
          * @ngInject
          */
-        controller: function($scope){
+        controller: function ($scope) {
 
             /*
              * Extends collection controller
@@ -7692,35 +7716,35 @@ angular.module('mblowfish-core')
 
             /**
              * Sets the absolute mode
-             * 
+             *
              * @param {boolean}
              *            absolute mode of the controler
              */
-            this.setAbsolute = function(absolute) {
+            this.setAbsolute = function (absolute) {
                 this.absolute = absolute;
             }
 
             /**
              * Checks if the mode is absolute
-             * 
+             *
              * @return absolute mode of the controller
              */
-            this.isAbsolute = function(){
+            this.isAbsolute = function () {
                 return this.absolute;
             }
-            
+
             /*
              * Sets value
              */
-            this.setSelected = function(content){
-                var path = '/api/v2/cms/contents/'+content.id+'/content';
-                if(this.isAbsolute()){
+            this.setSelected = function (content) {
+                var path = '/api/v2/cms/contents/' + content.id + '/content';
+                if (this.isAbsolute()) {
                     path = getDomain() + path;
                 }
                 this.value = path;
                 $scope.$parent.setValue(path);
             }
-            
+
             // init the controller
             this.init()
         },
@@ -7737,14 +7761,14 @@ angular.module('mblowfish-core')
      * @description Upload a content and returns its URL
      */
     $resource.newPage({
-        type:'content-upload',
+        type: 'content-upload',
         icon: 'file_upload',
         label: 'Upload',
         templateUrl: 'views/resources/mb-cms-content-upload.html',
         /*
          * @ngInject
          */
-        controller: function($scope, $cms, uuid4) {
+        controller: function ($scope, $cms, $translate, uuid4) {
 
             /*
              * Extends collection controller
@@ -7758,20 +7782,20 @@ angular.module('mblowfish-core')
 
             /**
              * Sets the absolute mode
-             * 
+             *
              * @param {boolean}
              *            absolute mode of the controler
              */
-            this.setAbsolute = function(absolute) {
+            this.setAbsolute = function (absolute) {
                 this.absolute = absolute;
             }
 
             /**
              * Checks if the mode is absolute
-             * 
+             *
              * @return absolute mode of the controller
              */
-            this.isAbsolute = function(){
+            this.isAbsolute = function () {
                 return this.absolute;
             }
 
@@ -7779,7 +7803,7 @@ angular.module('mblowfish-core')
              * Add answer to controller
              */
             var ctrl = this;
-            $scope.answer = function(){
+            $scope.answer = function () {
                 // create data
                 var data = {};
                 data.name = this.name || uuid4.generate();
@@ -7791,26 +7815,84 @@ angular.module('mblowfish-core')
                 }
                 // upload data to server
                 return ctrl.uploadFile(data, file)//
-                .then(function(content) {
+                .then(function (content) {
                     var value = '/api/v2/cms/contents/' + content.id + '/content';
-                    if(ctrl.isAbsolute()){
+                    if (ctrl.isAbsolute()) {
                         value = getDomain() + value;
                     }
                     return value;
                 })//
-                .catch(function(){
+                .catch(function () {
                     alert('Failed to create or upload content');
                 });
             };
             // init the controller
-            this.init()
+            this.init();
+
+            // re-labeling lf-ng-md-file component for multi languages support
+            angular.element(function () {
+                var elm = angular.element('.lf-ng-md-file-input-drag-text');
+                if (elm[0]) {
+                    elm.text($translate.instant('Drag & Drop File Here'));
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-brower');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-remove');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = $translate.instant('Remove');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+                if (elm[0]) {
+                    elm.text($translate.instant('Select File'));
+                }
+            });
         },
         controllerAs: 'ctrl',
         priority: 1,
         tags: ['image', 'audio', 'vedio', 'file']
     });
 
+
+
+
+    /**
+     * @ngdoc WB Resources
+     * @name file-local
+     * @description Select a local file and return the object
+     * 
+     * This is used to select local file. It may be used in any part of the system. For example,
+     * to upload as content.
+     */
+    $resource.newPage({
+        type: 'local-file',
+        icon: 'file_upload',
+        label: 'Local file',
+        templateUrl: 'views/resources/mb-local-file.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope, $q, style) {
+            var ctrl = this;
+            $scope.style = style;
+            $scope.answer = function () {
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    return $q.resolve(ctrl.files[0].lfFile);
+                }
+                return $q.reject('No file selected');
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 1,
+        tags: ['local-file']
+    });
+
 });
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -10320,7 +10402,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
   );
 
 
@@ -10340,7 +10422,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <div> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div ng-transclude style=\"padding: 12px\"></div> </div> </div>"
+    "<div layout=column style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 12px\"></div> </div>"
   );
 
 
@@ -10450,17 +10532,22 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-cms-content-upload.html',
-    "<div layout=column flex> <lf-ng-md-file-input lf-files=ctrl.files accept=image/* progress preview drag flex> </lf-ng-md-file-input>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
+    "<div layout=column flex> <lf-ng-md-file-input lf-files=ctrl.files accept=image/* progress preview drag flex> </lf-ng-md-file-input>  <md-content layout-padding> <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-cms-images.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content> <md-content>  <div layout-padding layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-groups.html',
     "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-local-file.html',
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
   );
 
 
@@ -10515,17 +10602,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-password.html',
-    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
+    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate>Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column> <mb-titled-block mb-title=Avatar mb-progress=ctrl.avatarLoading flex-gt-sm=50 layout=column layout-margin> <div layout=row layout-align=\"center start\"> <lf-ng-md-file-input ng-if=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img ng-if=\"ctrl.avatarState === 'normal'\" width=60% ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancele</sapn> </md-button> </div> </mb-titled-block>  <mb-titled-block mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" flex-gt-sm=50 layout=column layout-margin> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
+    "<md-content layout=row class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column style=\"width: 100%; height: fit-content\">  <mb-titled-block flex-gt-sm=50 mb-title=Avatar mb-progress=ctrl.avatarLoading layout=column layout-margin> <div flex layout=column layout-fill> <div layout=row style=\"flex-grow: 1; min-height: 100px\" layout-align=\"center none\"> <lf-ng-md-file-input style=\"flex-grow: 1; padding: 10px\" ng-show=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img style=\"max-width: 300px; max-height: 300px\" ng-if=\"ctrl.avatarState === 'normal'\" ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div style=\"flex-grow:0; min-height: 40px\"> <div layout=column layout-align=\"center none\" style=\"flex-grow: 0\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div style=\"flex-grow: 0\" layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancel</sapn> </md-button> </div> </div> </div> </mb-titled-block>  <mb-titled-block flex-gt-sm=50 mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" layout=column> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-recover-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 }]);

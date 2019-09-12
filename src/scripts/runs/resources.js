@@ -25,10 +25,10 @@ angular.module('mblowfish-core')
 /*
  * Init application resources
  */
-  .run(function ($resource, $location, $controller) {
+.run(function ($resource, $location, $controller) {
 
     function getDomain() {
-      return $location.protocol() + //
+        return $location.protocol() + //
         '://' + //
         $location.host() + //
         (($location.port() ? ':' + $location.port() : ''));
@@ -36,43 +36,43 @@ angular.module('mblowfish-core')
 
 //  TODO: maso, 2018: replace with class
     function getSelection() {
-      if (!this.__selections) {
-        this.__selections = angular.isArray(this.value) ? this.value : [];
-      }
-      return this.__selections;
+        if (!this.__selections) {
+            this.__selections = angular.isArray(this.value) ? this.value : [];
+        }
+        return this.__selections;
     }
 
     function getIndexOf(list, item) {
-      if (!angular.isDefined(item.id)) {
-        return list.indexOf(item);
-      }
-      for (var i = 0; i < list.length; i++) {
-        if (list[i].id === item.id) {
-          return i;
+        if (!angular.isDefined(item.id)) {
+            return list.indexOf(item);
         }
-      }
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === item.id) {
+                return i;
+            }
+        }
     }
 
     function setSelected(item, selected) {
-      var selectionList = this.getSelection();
-      var index = getIndexOf(selectionList, item);
-      if (selected) {
-        // add to selection
-        if (index >= 0) {
-          return;
+        var selectionList = this.getSelection();
+        var index = getIndexOf(selectionList, item);
+        if (selected) {
+            // add to selection
+            if (index >= 0) {
+                return;
+            }
+            selectionList.push(item);
+        } else {
+            // remove from selection
+            if (index > -1) {
+                selectionList.splice(index, 1);
+            }
         }
-        selectionList.push(item);
-      } else {
-        // remove from selection
-        if (index > -1) {
-          selectionList.splice(index, 1);
-        }
-      }
     }
 
     function isSelected(item) {
-      var selectionList = this.getSelection();
-      return getIndexOf(selectionList, item) >= 0;
+        var selectionList = this.getSelection();
+        return getIndexOf(selectionList, item) >= 0;
     }
 
 
@@ -84,27 +84,27 @@ angular.module('mblowfish-core')
      * Enable user to select an account
      */
     $resource.newPage({
-      label: 'Account',
-      type: 'account',
-      templateUrl: 'views/resources/mb-accounts.html',
-      /*
-       * @ngInject
-       */
-      controller: function ($scope) {
-        // TODO: maso, 2018: load selected item
-        $scope.multi = false;
-        this.value = $scope.value;
-        this.setSelected = function (item) {
-          $scope.$parent.setValue(item);
-          $scope.$parent.answer();
-        };
-        this.isSelected = function (item) {
-          return item === this.value || item.id === this.value.id;
-        };
-      },
-      controllerAs: 'resourceCtrl',
-      priority: 8,
-      tags: ['account']
+        label: 'Account',
+        type: 'account',
+        templateUrl: 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = false;
+            this.value = $scope.value;
+            this.setSelected = function (item) {
+                $scope.$parent.setValue(item);
+                $scope.$parent.answer();
+            };
+            this.isSelected = function (item) {
+                return item === this.value || item.id === this.value.id;
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['account']
     });
 
     /**
@@ -115,78 +115,78 @@ angular.module('mblowfish-core')
      * Display a list of accounts and allow user to select them.
      */
     $resource.newPage({
-      label: 'Accounts',
-      type: 'account-list',
-      templateUrl: 'views/resources/mb-accounts.html',
-      /*
-       * @ngInject
-       */
-      controller: function ($scope) {
-        // TODO: maso, 2018: load selected item
-        $scope.multi = true;
-        this.value = $scope.value;
-        this.setSelected = function (item, selected) {
-          this._setSelected(item, selected);
-          $scope.$parent.setValue(this.getSelection());
-        };
-        this._setSelected = setSelected;
-        this.isSelected = isSelected;
-        this.getSelection = getSelection;
-      },
-      controllerAs: 'resourceCtrl',
-      priority: 8,
-      tags: ['accounts']
+        label: 'Accounts',
+        type: 'account-list',
+        templateUrl: 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['accounts']
     });
 
     // Resource for role-list
     $resource.newPage({
-      label: 'Role List',
-      type: 'role-list',
-      templateUrl: 'views/resources/mb-roles.html',
-      /*
-       * @ngInject
-       */
-      controller: function ($scope) {
-        // TODO: maso, 2018: load selected item
-        $scope.multi = true;
-        this.value = $scope.value;
-        this.setSelected = function (item, selected) {
-          this._setSelected(item, selected);
-          $scope.$parent.setValue(this.getSelection());
-        };
-        this._setSelected = setSelected;
-        this.isSelected = isSelected;
-        this.getSelection = getSelection;
-      },
-      controllerAs: 'resourceCtrl',
-      priority: 8,
-      tags: ['roles']
+        label: 'Role List',
+        type: 'role-list',
+        templateUrl: 'views/resources/mb-roles.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['roles']
     });
 
 
     // Resource for group-list
     $resource.newPage({
-      label: 'Group List',
-      type: 'group-list',
-      templateUrl: 'views/resources/mb-groups.html',
-      /*
-       * @ngInject
-       */
-      controller: function ($scope) {
-        // TODO: maso, 2018: load selected item
-        $scope.multi = true;
-        this.value = $scope.value;
-        this.setSelected = function (item, selected) {
-          this._setSelected(item, selected);
-          $scope.$parent.setValue(this.getSelection());
-        };
-        this._setSelected = setSelected;
-        this.isSelected = isSelected;
-        this.getSelection = getSelection;
-      },
-      controllerAs: 'resourceCtrl',
-      priority: 8,
-      tags: ['groups']
+        label: 'Group List',
+        type: 'group-list',
+        templateUrl: 'views/resources/mb-groups.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['groups']
     });
 
 
@@ -196,59 +196,59 @@ angular.module('mblowfish-core')
      * @description Load an Image URL from contents
      */
     $resource.newPage({
-      type: 'cms-content-image',
-      icon: 'image',
-      label: 'Images',
-      templateUrl: 'views/resources/mb-cms-images.html',
-      /*
-       * @ngInject
-       */
-      controller: function ($scope) {
-
+        type: 'cms-content-image',
+        icon: 'image',
+        label: 'Images',
+        templateUrl: 'views/resources/mb-cms-images.html',
         /*
-         * Extends collection controller
+         * @ngInject
          */
-        angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-          $scope: $scope
-        }));
+        controller: function ($scope) {
 
-        /**
-         * Sets the absolute mode
-         *
-         * @param {boolean}
-         *            absolute mode of the controler
-         */
-        this.setAbsolute = function (absolute) {
-          this.absolute = absolute;
-        }
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
 
-        /**
-         * Checks if the mode is absolute
-         *
-         * @return absolute mode of the controller
-         */
-        this.isAbsolute = function () {
-          return this.absolute;
-        }
+            /**
+             * Sets the absolute mode
+             *
+             * @param {boolean}
+             *            absolute mode of the controler
+             */
+            this.setAbsolute = function (absolute) {
+                this.absolute = absolute;
+            }
 
-        /*
-         * Sets value
-         */
-        this.setSelected = function (content) {
-          var path = '/api/v2/cms/contents/' + content.id + '/content';
-          if (this.isAbsolute()) {
-            path = getDomain() + path;
-          }
-          this.value = path;
-          $scope.$parent.setValue(path);
-        }
+            /**
+             * Checks if the mode is absolute
+             *
+             * @return absolute mode of the controller
+             */
+            this.isAbsolute = function () {
+                return this.absolute;
+            }
 
-        // init the controller
-        this.init()
-      },
-      controllerAs: 'ctrl',
-      priority: 10,
-      tags: ['image']
+            /*
+             * Sets value
+             */
+            this.setSelected = function (content) {
+                var path = '/api/v2/cms/contents/' + content.id + '/content';
+                if (this.isAbsolute()) {
+                    path = getDomain() + path;
+                }
+                this.value = path;
+                $scope.$parent.setValue(path);
+            }
+
+            // init the controller
+            this.init()
+        },
+        controllerAs: 'ctrl',
+        priority: 10,
+        tags: ['image']
     });
     // TODO: maso, 2018: Add video resource
     // TODO: maso, 2018: Add audio resource
@@ -259,104 +259,134 @@ angular.module('mblowfish-core')
      * @description Upload a content and returns its URL
      */
     $resource.newPage({
-      type: 'content-upload',
-      icon: 'file_upload',
-      label: 'Upload',
-      templateUrl: 'views/resources/mb-cms-content-upload.html',
-      /*
-       * @ngInject
-       */
-      controller: function ($scope, $cms, $translate, uuid4) {
-
+        type: 'content-upload',
+        icon: 'file_upload',
+        label: 'Upload',
+        templateUrl: 'views/resources/mb-cms-content-upload.html',
         /*
-         * Extends collection controller
+         * @ngInject
          */
-        angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-          $scope: $scope
-        }));
+        controller: function ($scope, $cms, $translate, uuid4) {
 
-        this.absolute = false;
-        this.files = [];
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
 
-        /**
-         * Sets the absolute mode
-         *
-         * @param {boolean}
-         *            absolute mode of the controler
-         */
-        this.setAbsolute = function (absolute) {
-          this.absolute = absolute;
-        }
+            this.absolute = false;
+            this.files = [];
 
-        /**
-         * Checks if the mode is absolute
-         *
-         * @return absolute mode of the controller
-         */
-        this.isAbsolute = function () {
-          return this.absolute;
-        }
+            /**
+             * Sets the absolute mode
+             *
+             * @param {boolean}
+             *            absolute mode of the controler
+             */
+            this.setAbsolute = function (absolute) {
+                this.absolute = absolute;
+            }
 
-        /*
-         * Add answer to controller
-         */
-        var ctrl = this;
-        $scope.answer = function () {
-          // create data
-          var data = {};
-          data.name = this.name || uuid4.generate();
-          data.description = this.description || 'Auto loaded content';
-          var file = null;
-          if (angular.isArray(ctrl.files) && ctrl.files.length) {
-            file = ctrl.files[0].lfFile;
-            data.title = file.name;
-          }
-          // upload data to server
-          return ctrl.uploadFile(data, file)//
-            .then(function (content) {
-              var value = '/api/v2/cms/contents/' + content.id + '/content';
-              if (ctrl.isAbsolute()) {
-                value = getDomain() + value;
-              }
-              return value;
-            })//
-            .catch(function () {
-              alert('Failed to create or upload content');
+            /**
+             * Checks if the mode is absolute
+             *
+             * @return absolute mode of the controller
+             */
+            this.isAbsolute = function () {
+                return this.absolute;
+            }
+
+            /*
+             * Add answer to controller
+             */
+            var ctrl = this;
+            $scope.answer = function () {
+                // create data
+                var data = {};
+                data.name = this.name || uuid4.generate();
+                data.description = this.description || 'Auto loaded content';
+                var file = null;
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    file = ctrl.files[0].lfFile;
+                    data.title = file.name;
+                }
+                // upload data to server
+                return ctrl.uploadFile(data, file)//
+                .then(function (content) {
+                    var value = '/api/v2/cms/contents/' + content.id + '/content';
+                    if (ctrl.isAbsolute()) {
+                        value = getDomain() + value;
+                    }
+                    return value;
+                })//
+                .catch(function () {
+                    alert('Failed to create or upload content');
+                });
+            };
+            // init the controller
+            this.init();
+
+            // re-labeling lf-ng-md-file component for multi languages support
+            angular.element(function () {
+                var elm = angular.element('.lf-ng-md-file-input-drag-text');
+                if (elm[0]) {
+                    elm.text($translate.instant('Drag & Drop File Here'));
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-brower');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-remove');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = $translate.instant('Remove');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+                if (elm[0]) {
+                    elm.text($translate.instant('Select File'));
+                }
             });
-        };
-        // init the controller
-        this.init();
-
-        // re-labeling lf-ng-md-file component for multi languages support
-        angular.element(function () {
-          //console.log('re-labeling lf-ng-md-file drag and drop component for multi languages support ');
-
-          var elm = angular.element('.lf-ng-md-file-input-drag-text');
-          if (elm[0]) {
-            elm.text($translate.instant('Drag & Drop File Here'));
-          }
-
-          elm = angular.element('.lf-ng-md-file-input-button-brower');
-          if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-            elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
-          }
-
-          elm = angular.element('.lf-ng-md-file-input-button-remove');
-          if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-            elm[0].childNodes[1].data = $translate.instant('Remove');
-          }
-
-          elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-          if (elm[0]) {
-            elm.text($translate.instant('Select File'));
-          }
-
-        });
-
-      },
-      controllerAs: 'ctrl',
-      priority: 1,
-      tags: ['image', 'audio', 'vedio', 'file']
+        },
+        controllerAs: 'ctrl',
+        priority: 1,
+        tags: ['image', 'audio', 'vedio', 'file']
     });
 
-  });
+
+
+
+    /**
+     * @ngdoc WB Resources
+     * @name file-local
+     * @description Select a local file and return the object
+     * 
+     * This is used to select local file. It may be used in any part of the system. For example,
+     * to upload as content.
+     */
+    $resource.newPage({
+        type: 'local-file',
+        icon: 'file_upload',
+        label: 'Local file',
+        templateUrl: 'views/resources/mb-local-file.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope, $q, style) {
+            var ctrl = this;
+            $scope.style = style;
+            $scope.answer = function () {
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    return $q.resolve(ctrl.files[0].lfFile);
+                }
+                return $q.reject('No file selected');
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 1,
+        tags: ['local-file']
+    });
+
+});

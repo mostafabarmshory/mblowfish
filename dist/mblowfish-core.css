@@ -126,6 +126,13 @@
 		border-radius: 8px;
 	}
 }
+.lf-ng-md-file-input .lf-ng-md-file-input-preview-container .lf-ng-md-file-input-drag-text-container .lf-ng-md-file-input-drag-text {
+  font-size: x-large !important;;
+  font-weight: bold !important;
+  color: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+}
+
 /*
  *  This class is add to the domes where you are interested to adding
  * infinate scroll.
