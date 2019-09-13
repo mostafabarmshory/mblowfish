@@ -43,15 +43,15 @@
 		        </div>
 	        </md-input-container>
 			<!-- adding captcha -->
-			<div
-				ng-if="app.options['captcha.engine']==='recaptcha'"
-			    vc-recaptcha
-			    ng-model="credit.g_recaptcha_response"
-			    theme="app.captcha.theme || 'light'"
-			    type="app.captcha.type || 'image'"
-			    key="app.options['captcha.engine.recaptcha.key']"
-			    lang="app.setting.local || app.config.local || 'en'">
-			</div>
+            <div
+                vc-recaptcha
+                ng-if="__tenant.settings['captcha.engine'] === 'recaptcha'"
+                key="__tenant.settings['captcha.engine.recaptcha.key']"
+                ng-model="credit.g_recaptcha_response"
+                theme="__app.configs.captcha.theme || 'light'"
+                type="__app.configs.captcha.type || 'image'"
+                lang="__app.setting.local || __app.config.local || 'en'">
+            </div>
 	        <input hide type="submit" />
 	        <div layout="column" layout-align="center none"
 	        	layout-gt-xs="row" layout-align-gt-xs="end center"
