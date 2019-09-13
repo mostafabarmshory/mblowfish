@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 angular.module('mblowfish-core') //
 
 /**
@@ -75,6 +74,8 @@ angular.module('mblowfish-core') //
  * 
  * Configuration is a CMS file.
  * 
+ * NOTE: base application data is created in run/app.js
+ * 
  * 
  * @property {object} app - Application repository.
  * @property {string} app.dir - Application direction which is updated
@@ -85,504 +86,605 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant) {
+    'use strict';
 
-	var apps = this;
+    /***************************************************************************
+     * utils
+     **************************************************************************/
+    /*
+     * Bind list of roles to app data
+     */
+    function rolesToPermissions(roles) {
+        var permissions = [];
+        for (var i = 0; i < roles.length; i++) {
+            var role = roles[i];
+            permissions[role.application + '_' + role.code_name] = true;
+        }
+        return permissions;
+    }
 
-	// Constants
-	var APP_PREFIX = 'angular-material-blowfish-';
-	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
+    function keyValueToMap(keyvals) {
+        var map = [];
+        for (var i = 0; i < keyvals.length; i++) {
+            var keyval = keyvals[i];
+            map[keyval.key] = keyval.value;
+        }
+        return map;
+    }
 
-	// the state machine
-	var stateMachine;
+    function parseBooleanValue(value) {
+        value = value.toLowerCase();
+        switch (value) {
+        case true:
+        case 'true':
+        case '1':
+        case 'on':
+        case 'yes':
+            return true
+        default:
+            return false
+        }
+    }
 
-	// states
-	var APP_STATE_WAITING = 'waiting';
-	var APP_STATE_LOADING = 'loading';
+    /***************************************************************************
+     * applicaiton data
+     **************************************************************************/
+    var appConfigurationContent = null;
 
-	// final states
-	var APP_STATE_READY = 'ready';
-	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-	var APP_STATE_OFFLINE = 'offline';
-	var APP_STATE_FAIL = 'fail';
+    /*
+     * متغیرهای مدیریت تنظیم‌ها
+     * 
+     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+     * کارهای تکراری جلوگیری کنیم.
+     * 
+     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+     * دهد.
+     */
+    var appConfigLock = false;
+    var appConfigDirty = false;
 
-	var APP_EVENT_LOADED = 'loaded';
-	var APP_EVENT_START = 'start';
-	var APP_EVENT_NOT_FOUND = 'resource_not_found';
-	var APP_EVENT_SERVER_ERROR = 'server_error';
-	var APP_EVENT_NET_ERROR = 'network_error';
+    // the state machine
+    var stateMachine;
 
-
-	var optionsQuery = new QueryParameter()//
-	.put('graphql', OPTIONS_GRAPHQL);
-	// All the things that are set up by $app service
-	var app = {
-			state: {
-				// all states: waiting, loading, offline, app_not_configured,
-				// ready, fail
-				status: 'loading',
-				stage: 'starting',
-				message: null
-			},
-			logs: [],
-			user: {
-				current: {},
-				profile : {},
-				anonymous: true,
-				administrator: false,
-				owner: false,
-				member: false,
-				authorized: false
-			},
-			config: {},
-			setting: {},
-			options: {},
-			local: 'en', // Default local and language
-			language: 'en', // Default local and language
-	};
-	$rootScope.app = app;
-
-	/*
-	 * متغیرهای مدیریت تنظیم‌ها
-	 * 
-	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-	 * کارهای تکراری جلوگیری کنیم.
-	 * 
-	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-	 * دهد.
-	 */
-	var appConfigLock = false;
-	var appConfigDirty = false;
-	// Some controlling variables required in the state machine
-	var ctrl = {
-			user_loaded: false,
-			options_loaded: false,
-			configs_loaded: false
-	};
-
-	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
-		}
-	}
-
-	/*
-	 * Bind list of roles to app data
-	 */
-	function _loadRolesOfUser(roles) {
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			app.user[role.application + '_' + role.code_name] = true;
-		}
-	}
-
-	/**
-	 * تنظیم‌های نرم افزار را لود می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function loadApplicationConfig() {
-		_loadingLog('loading configuration', 'fetch configuration document');
-
-		ctrl.configs_loaded = false;
-		ctrl.configs_fail = false;
-
-		$cms.getContent(APP_PREFIX + app.key) //
-		.then(function (content) {
-			_loadingLog('loading configuration', 'fetch configuration content');
-			app._acc = content;
-			// load config file
-			return app._acc.downloadValue();
-		}, function(error){
-			ctrl.configs_fail = true;
-			stateMachine.error(error);
-			// return empty config
-			return {};
-		})
-		.then(function (appConfig) {
-			app.config = angular.isObject(appConfig) ? appConfig : {};
-		})
-		.finally(function(){
-			ctrl.configs_loaded = true;
-			stateMachine.loaded();
-		});
-	}
-
-	/*
-	 * Loads current user informations
-	 * 
-	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-	 * نرم افزار پر می‌شود.
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name)
-	 * in role list then the following var is added in user:
-	 * 
-	 * app.user.x_y
-	 * 
-	 */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-		.then(function (user) {
-			// load user info
-			ctrl.user_loaded = true;
-			// app user data
-			app.user = {
-					anonymous: !user.id || user.id === 0,
-					current: user
-			};
-			// load the first profile of user
-			if(angular.isArray(user.profiles)){
-				app.user.profile = user.profiles.length? user.profiles[0] : {};
-			}
-			// load user roles
-			_loadingLog('loading user info', 'user information loaded successfully');
-			_loadingLog('loading user info', 'check user permissions');
-			if (!app.user.anonymous) {
-				_loadRolesOfUser(user.roles);
-				for (var i = 0; i < user.groups.length; i++) {
-					_loadRolesOfUser(user.groups[i].roles);
-				}
-				//
-				if (!user.isAnonymous()) {
-					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-					app.user.administrator = app.user.owner;
-				} else {
-					app.user.anonymous = true;
-				}
-			}
-			stateMachine.loaded();
-		}, function(error){
-			ctrl.user_loaded = false;
-			stateMachine.error(error);
-		});
-	}
-
-	/*
-	 * Loads options
-	 */
-	function loadOptions() {
-		// TODO: Masood, 2018: options should be get from server. Now, its api
-		// doesn't exist.
-		_loadingLog('loading options', 'fetch options document');
-		// get the options from server and save in app.options.
-		app.options = {};
-		return $tenant.getSettings(optionsQuery)
-		.then(function (res) {
-			for (var i = 0; i < res.items.length; i++) {
-				var item = res.items[i];
-				app.options[item.key] = item.value;
-			}
-			ctrl.options_loaded = true;
-			stateMachine.loaded();
-		}, function(error){
-			stateMachine.error(error);
-		});
-	}
-
-	/*
-	 * Loads local storage
-	 */
-	function loadSetting() {
-		_loadingLog('loading setting from local storage', 'fetch settings');
-		/*
-		 * TODO: masood, 2018: The lines below is an alternative for lines above
-		 * but not recommended.
-		 * 
-		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-		 */
-		app.setting = $localStorage.$default({
-			dashboardModel: {}
-		});
-		_loadingLog('setting loaded', 'fetch settings');
-	}
+    // Constants
+    var APP_CNF_MIMETYPE = 'application/amd-cnf';
+    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+    var TENANT_GRAPHQL = '{id,title,description,'+
+        'account'+USER_DETAIL_GRAPHQL +
+        'configurations{key,value}' +
+        'settings{key,value}' +
+    '}';
 
 
-	/*
-	 * Stores app configuration on the back end
-	 */
-	function storeApplicationConfig() {
-		appConfigDirty = true;
-		if(appConfigLock){
-			return;
-		}
-		if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
-			return $q.reject({
-				data: {
-					message: 'fail'
-				}
-			});
-		}
-		appConfigLock = true;
-		var promise;
-		if (app._acc) { // content loaded
-			appConfigDirty = false;
-			promise = app._acc.uploadValue(app.config);
-		} else { // create content
-			promise = $cms.putContent({
-				name: APP_PREFIX + app.key,
-				mimetype: APP_CNF_MIMETYPE
-			}).then(function (content) {
-				appConfigDirty = false;
-				app._acc = content;
-				stateMachine.loaded();
-				return app._acc.uploadValue(app.config);
-			}, function (error) {
-				stateMachine.error(error);
-			});
-		} //
-		return promise //
-		.finally(function () {
-			appConfigLock = false;
-			if (appConfigDirty) {
-				return storeApplicationConfig();
-			}
-		});
-	}
-	
-	/*
-	 * Check a module to see if it is enable or not
-	 */
-	//TODO: Masood, 2019: Improve the function to check based on tenant setting
-	function isEnable (moduleName) {
-	    return true;
-	}
-	 
-	/*
-	 * State machine to handle life cycle of the system.
-	 */
-	stateMachine = new machina.Fsm({
-		initialize: function (/* options */) {
-			app.state.status = APP_STATE_WAITING;
-		},
-		namespace: 'webpich.$app',
-		initialState: APP_STATE_WAITING,
-		states: {
-			// Before the 'start' event occurs via $app.start().
-			waiting: {
-				start: APP_STATE_LOADING,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL
-			},
-			// tries to load all part of system
-			loading: {
-				_onEnter: function () {
-					loadUserProperty(); 
-					loadOptions();
-					loadSetting(); 
-					loadApplicationConfig(); 
-				},
-				loaded: function () {
-					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-						this.transition(APP_STATE_READY);
-					} else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
-						this.transition(APP_STATE_READY_NOT_CONFIGURED);
-					}
-				},
-				server_error: APP_STATE_FAIL,
-				network_error: APP_STATE_OFFLINE
-			},
-			// app is ready
-			ready: {
-				network_error: APP_STATE_OFFLINE
-			},
-			// app is ready with no config
-			ready_not_configured: {
-				loaded: function () {
-					if(ctrl.configs_loaded){
-						this.transition(APP_STATE_READY);
-					}
-				},
-				network_error: APP_STATE_OFFLINE
-			},
-			// server error
-			fail: {},
-			// net error
-			offline: {}
-		},
+    /**
+     * Handles internal service events
+     */
+    function handleEvent(key, data){
+        // update internal state machine
+        stateMachine.handle(key, data);
+    }
 
-		/*
-		 * This handle load event of app
-		 * 
-		 * If a part of the app loaded then this handler fire an event and
-		 * update the app state.
-		 */
-		loaded: function () {
-			this.handle(APP_EVENT_LOADED);
-		},
+    /**
+     * Sets state of the service
+     * 
+     * NOTE: must be used locally
+     */
+    function setApplicationState(state){
+        // create event
+        var $event = {};
+        $event.oldValue = $rootScope.__app.state;
+        $event.value = state;
 
-		/*
-		 * Fires start event
-		 */
-		start: function () {
-			this.handle(APP_EVENT_START);
-		},
+        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
 
-		/*
-		 * Handle HTTP response error.
-		 * 
-		 * If the is an error in loading and storing configuration then this
-		 * function checks and fire an event.
-		 */
-		error: function ($error) {
-			if ($error.status === 404) {
-				this.handle(APP_EVENT_NOT_FOUND);
-			} else if ($error.status === 500) {
-				this.handle(APP_EVENT_SERVER_ERROR);
-			} else if ($error.status === -1) {
-				this.handle(APP_EVENT_NET_ERROR);
-			}
-		}
-	});
+        app.state.status = state;
+        $rootScope.__app.state = state;
+        // TODO: maso, 2019: fire the state is changed
+    }
+
+    function setApplicationDirection(dir) {
+        if(!$rootScope.__app.state !== APP_STATE_READY){
+            return;
+        }
+        if($rootScope.__app.dir === dir){
+            return;
+        }
+        app.dir = dir; 
+        $rootScope.__app.dir = dir;
+    }
+
+    function setApplicationLanguage(key) {
+        // 0- set app local
+        app.local = key;
+        app.language = key;
+        // 1- change language
+        $translate.use(key);
+        // 2- chnage date format
+        // Change moment's locale so the 'L'-format is adjusted.
+        // For example the 'L'-format is DD-MM-YYYY for Dutch
+        moment.loadPersian();
+        moment.locale(key);
+        // Set month and week names for the general $mdDateLocale service
+        var localeDate = moment.localeData();
+        $mdDateLocale.months = localeDate._months;
+        $mdDateLocale.shortMonths = localeDate._monthsShort;
+        $mdDateLocale.days = localeDate._weekdays;
+        $mdDateLocale.shortDays = localeDate._weekdaysMin;
+        // Optionaly let the week start on the day as defined by moment's locale
+        // data
+        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+    }
+
+    function setApplicationCalendar(key) {
+        // 0- set app local
+        app.calendar = key;
+    }
+
+    function parsTenantConfiguration(configs){
+        $rootScope.__tenant.configs = keyValueToMap(configs);
+
+        // load domains
+        var domains = {};
+        var regex = new RegExp('^module\.(?<module>.*)\.enable$', 'i');
+        for(var i = 0; i < configs.length; i++){
+            var config = configs[i];
+            var match = regex.exec(config.key);
+            if(match) {
+                var key = match.groups['module'].toLowerCase();
+                domains[key] = parseBooleanValue(config.value);
+            }
+        }
+        $rootScope.__tenant.domains = domains;
+    }
+
+    function parsTenantSettings(settings){
+        $rootScope.__tenant.settings = keyValueToMap(settings);
+        app.options = $rootScope.__app.settings;
+    }
+
+    function parsAccount(account){
+        var anonymous = !account.id || account.id === 0;
+
+        // app user data
+        app.user = {
+                anonymous: anonymous,
+                current: new UserAccount(account)
+        };
+        // load basic information of account
+        $rootScope.__account.anonymous = anonymous;
+        $rootScope.__account.id = account.id;
+        $rootScope.__account.login = account.login;
+        $rootScope.__account.email = account.email;
+
+        if(anonymous) {
+            // legacy
+            app.user.profile = {};
+            app.user.roles = {};
+            app.user.groups = {};
+            // update app
+            $rootScope.__account.profile = {};
+            $rootScope.__account.roles = {};
+            $rootScope.__account.groups = {};
+            return;
+        }
+        // load the first profile of user
+        if(angular.isArray(account.profiles)){
+            var profile = account.profiles.length? account.profiles[0] : {};
+            app.user.profile = profile;
+            $rootScope.__account.profile = profile;
+        }
+        // load user roles, groups and permissions
+        var permissions = rolesToPermissions(account.roles || []);
+        var groupMap = {};
+        var groups = account.groups || [];
+        for (var i = 0; i < groups.length; i++) {
+            var group = groups[i];
+            groupMap[group.name] = true;
+            _.assign(permissions, rolesToPermissions(group.roles || []));
+        }
+        _.assign(app.user, permissions);
+        $rootScope.__account.permissions = permissions;
+        $rootScope.__account.roles = account.roles || [];
+        $rootScope.__account.groups = account.groups || [];
+    }
+
+    /**
+     * Load application configuration
+     */
+    function parsAppConfiguration(config){
+        config = angular.isObject(config) ? config : {};
+        app.config = config;
+        $rootScope.__app.configs = config;
+    }
+
+    function parsAppSettings(settings){
+        app.setting = settings;
+        $rootScope.__app.settings = settings;
+    }
+
+    /*
+     * Loads current user informations
+     * 
+     * If there is a role x.y (where x is application code and y is code name)
+     * in role list then the following var is added in user:
+     * 
+     * app.user.x_y
+     * 
+     */
+    function loadUserProperty() {
+        _loadingLog('loading user info', 'fetch user information');
+        return $usr.getAccount('current', {
+            graphql: USER_DETAIL_GRAPHQL
+        }) //
+        .then(parsAccount);
+    }
+
+    function loadRemoteData(){
+        _loadingLog('loading', 'fetch remote storage');
+
+        // application config
+        var pLoadAppConfig = $cms.getContent($rootScope.__app.key) //
+        .then(function (content) {
+            appConfigurationContent = content;
+            return appConfigurationContent.downloadValue();
+        })
+        .then(parsAppConfiguration);
+
+        // load current tenant
+        var pCurrentTenant = $tenant.getTenant('current', {
+            graphql: TENANT_GRAPHQL
+        })
+        .then(function(data){
+            parsTenantConfiguration(data.configurations || []);
+            parsTenantSettings(data.settings || []);
+            parsAccount(data.account || []);
+        });
+        return $q.all([pLoadAppConfig, pCurrentTenant]);
+    }
+
+    function loadLocalData(){
+        _loadingLog('loading setting from local storage', 'fetch settings');
+        /*
+         * TODO: masood, 2018: The lines below is an alternative for lines above
+         * but not recommended.
+         * 
+         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+         */
+        var settings = $localStorage.$default({
+            dashboardModel: {}
+        });
+        return $q.resolve(settings)
+        .then(parsAppSettings);
+    }
+
+    function loadApplication(){
+        return $q.all([
+            loadRemoteData(),
+            loadLocalData()])
+            .finally(function(){
+                // TODO: maso, check if all things are ok
+                if($rootScope.__app.isOffline){
+                    handleEvent(APP_EVENT_NET_ERROR);
+                    return;
+                }
+                if($rootScope.__app.isRemoteDataLoaded){
+                    handleEvent(APP_EVENT_SERVER_ERROR);
+                    return;
+                }
+                if($rootScope.__app.isApplicationConfigLoaded){
+                    handleEvent(APP_EVENT_APP_CONFIG_ERROR);
+                    return;
+                }
+                handleEvent(APP_EVENT_LOADED);
+            });
+    }
+
+    /**
+     * Start the application
+     * 
+     * this function is called when the app get started.
+     * 
+     * @memberof $app
+     */
+    function start(key) {
+        app.key = key;
+        $rootScope.__app.key = 'angular-material-blowfish-' + key;
+
+        // handle internal events
+        handleEvent(APP_EVENT_START);
+    }
+
+    /***************************************************************************
+     * 
+     **************************************************************************/
 
 
-	// I'd like to know when the transition event occurs
-	stateMachine.on('transition', function () {
-		_loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
-		app.state.status = stateMachine.state;
-	});
 
-	/*
-	 * watch direction and update app.dir
-	 */
-	$rootScope.$watch(function () {
-		if (!app.config.local) {
-			app.config.local = {};
-		}
-		return app.setting.dir || app.config.local.dir;
-	}, function (value) {
-		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-		// version of app.js;
-	});
-	/*
-	 * watch local and update language
-	 */
-	$rootScope.$watch(function () {
-		// TODO: maso, 2018: remove this part in the next release
-		if (!angular.isObject(app.config.local)) {
-			app.config.local = {};
-		}
-		// Check language
-		return app.setting.local || app.config.local.language || 'en';
-	}, function (key) {
-		// 0- set app local
-		app.local = key;
-		app.language = key;
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	});
+    // states
+    var APP_STATE_WAITING = 'waiting';
+    var APP_STATE_LOADING = 'loading';
 
-	/*
-	 * watch calendar
-	 */
-	$rootScope.$watch(function () {
-		return app.setting.calendar || app.config.calendar || 'Gregorian';
-	}, function (key) {
-		// 0- set app local
-		app.calendar = key;
-	});
+    // final states
+    var APP_STATE_READY = 'ready';
+    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+    var APP_STATE_OFFLINE = 'offline';
+    var APP_STATE_FAIL = 'fail';
 
-	/*
-	 * watch application configuration and update app state
-	 */
-	$rootScope.$watch('app.config', function () {
-		if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
-			// TODO: maso, 2018: delay to save
-			storeApplicationConfig();
-		}
-	}, true);
+    var APP_EVENT_LOADED = 'loaded';
+    var APP_EVENT_START = 'start';
+    var APP_EVENT_SERVER_ERROR = 'server_error';
+    var APP_EVENT_NET_ERROR = 'network_error';
+    var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
 
-	/**
-	 * Start the application
-	 * 
-	 * this function is called when the app get started.
-	 * 
-	 * @memberof $app
-	 */
-	function start(key) {
-		app.key = key;
-		stateMachine.start();
-	}
 
-	/**
-	 * Logins into the backend
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 *            credential of the user
-	 */
-	function login(credential) {
-		if (!app.user.anonymous) {
-			return $q.resolve(app.user.current);
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function () {
-			loadUserProperty();
-		});
-	}
+    // All the things that are set up by $app service
+    var app = {
+            state: {
+                // all states: waiting, loading, offline, app_not_configured,
+                // ready, fail
+                status: 'loading',
+                stage: 'starting',
+                message: null
+            },
+            logs: [],
+            user: {
+                current: {},
+                profile : {},
+                anonymous: true,
+                administrator: false,
+                owner: false,
+                member: false,
+                authorized: false
+            },
+            // application settings
+            config: {},
+            // user settings
+            setting: {},
 
-	/**
-	 * Application logout
-	 * 
-	 * Logout and clean user data, this will change state of the application.
-	 * 
-	 * @memberof $app
-	 */
-	function logout() {
-		var oldUser = $rootScope.app.user;
-		if (oldUser.anonymous) {
-			return $q.resolve(oldUser);
-		}
-		$rootScope.app.user = {};
-		stateMachine.loaded();
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		})
-		.then(function () {
-			loadUserProperty();
-		}, function () {
-			// TODO: maso, 2018: fail to logout?!
-			$rootScope.app.user = oldUser;
-			stateMachine.loaded();
-		});
-	}
+            /*
+             * NOTE: this part is deprecated use tenant
+             */
+            // tenant settings
+            options: {},
 
-	// Init
-	apps.start = start;
-	apps.login = login;
-	apps.logout = logout;
-	apps.isEnable = isEnable;
-	return apps;
+            local: 'en', // Default local and language
+            language: 'en', // Default local and language
+    };
+    $rootScope.app = app;
+
+
+    /*
+     * Attaches loading logs
+     */
+    function _loadingLog(stage, message) {
+        app.state.stage = stage;
+        app.state.message = message;
+        if (message) {
+            app.logs.push(message);
+        }
+    }
+
+    /*
+     * Stores app configuration on the back end
+     */
+    function storeApplicationConfig() {
+        if (app.state.status !== APP_STATE_READY) {
+            return;
+        }
+        appConfigDirty = true;
+        if(appConfigLock){
+            return;
+        }
+        if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+            return $q.reject({
+                data: {
+                    message: 'fail'
+                }
+            });
+        }
+        appConfigLock = true;
+        var promise;
+        if (app._acc) { // content loaded
+            appConfigDirty = false;
+            promise = app._acc.uploadValue(app.config);
+        } else { // create content
+            promise = $cms.putContent({
+                name: $rootScope.__app.key,
+                mimetype: APP_CNF_MIMETYPE
+            }).then(function (content) {
+                appConfigDirty = false;
+                app._acc = content;
+                stateMachine.loaded();
+                return app._acc.uploadValue(app.config);
+            }, function (error) {
+                stateMachine.error(error);
+            });
+        } //
+        return promise //
+        .finally(function () {
+            appConfigLock = false;
+            if (appConfigDirty) {
+                return storeApplicationConfig();
+            }
+        });
+    }
+
+    /*
+     * Check a module to see if it is enable or not
+     */
+    // TODO: Masood, 2019: Improve the function to check based on tenant setting
+    function isEnable (moduleName) {
+        return $rootScope.__tenant.domains[moduleName];
+    }
+
+    /**
+     * Logins into the backend
+     * 
+     * @memberof $app
+     * @param {object}
+     *            credential of the user
+     */
+    function login(credential) {
+        if (!app.user.anonymous) {
+            return $q.resolve(app.user.current);
+        }
+        return $http({
+            method: 'POST',
+            url: '/api/v2/user/login',
+            data: $httpParamSerializerJQLike(credential),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }).then(function () {
+            loadUserProperty();
+        });
+    }
+
+    /**
+     * Application logout
+     * 
+     * Logout and clean user data, this will change state of the application.
+     * 
+     * @memberof $app
+     */
+    function logout() {
+        var oldUser = $rootScope.app.user;
+        if (oldUser.anonymous) {
+            return $q.resolve(oldUser);
+        }
+        $rootScope.app.user = {};
+        stateMachine.loaded();
+        return $http({
+            method: 'POST',
+            url: '/api/v2/user/logout',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(function () {
+            loadUserProperty();
+        }, function () {
+            // TODO: maso, 2018: fail to logout?!
+            $rootScope.app.user = oldUser;
+            stateMachine.loaded();
+        });
+    }
+
+
+    /*
+     * State machine to handle life cycle of the system.
+     */
+    stateMachine = new machina.Fsm({
+        namespace: 'webpich.$app',
+        initialState: APP_STATE_WAITING,
+        initialize: function (/* options */) {
+            setApplicationState(APP_STATE_WAITING);
+        },
+        states: {
+            // Before the 'start' event occurs via $app.start().
+            waiting: {
+                start: APP_STATE_LOADING,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL
+            },
+            // tries to load all part of system
+            loading: {
+                _onEnter: function () {
+                    loadApplication();
+                },
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // app is ready
+            ready: {
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // app is ready with no config
+            ready_not_configured: {
+                _onEnter: function () {
+                    loadDefaultApplicationConfig();
+                },
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // server error
+            fail: {
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // net error
+            offline: {
+                _onEnter: function () {
+                    offlineReloadDelay = 3000;
+                    $timeout(loadApplication, offlineReloadDelay);
+                },
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            }
+        },
+    });
+
+    // I'd like to know when the transition event occurs
+    stateMachine.on('transition', function () {
+        setApplicationState(stateMachine.state);
+    });
+
+    /*
+     * watch direction and update app.dir
+     */
+    $rootScope.$watch(function () {
+        if (!app.config.local) {
+            app.config.local = {};
+        }
+        return app.setting.dir || app.config.local.dir;
+    }, setApplicationDirection);
+
+    /*
+     * watch local and update language
+     */
+    $rootScope.$watch(function () {
+        // TODO: maso, 2018: remove this part in the next release
+        if (!angular.isObject(app.config.local)) {
+            app.config.local = {};
+        }
+        // Check language
+        return app.setting.local || app.config.local.language || 'en';
+    }, setApplicationLanguage);
+
+    /*
+     * watch calendar
+     */
+    $rootScope.$watch(function () {
+        return app.setting.calendar || app.config.calendar || 'Gregorian';
+    }, setApplicationCalendar);
+
+    /*
+     * watch application configuration and update app state
+     */
+    $rootScope.$watch('app.config', storeApplicationConfig, true);
+
+    // Init
+    this.start = start;
+    this.login = login;
+    this.logout = logout;
+    this.isEnable = isEnable;
+
+    // test 
+    // TODO: remove in deploy
+    this.__parsTenantConfiguration = parsTenantConfiguration;
+
+    return this;
 });

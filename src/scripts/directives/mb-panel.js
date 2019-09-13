@@ -247,11 +247,11 @@ angular.module('mblowfish-core')
 			}
 		});
 
-		$rootScope.$watch('app.state.status', function (appState) {
+		$rootScope.$watch('__app.state', function (appState) {
 			stateMachine.appStateChange(appState);
 		});
 
-		$scope.$watch('app.user.anonymous', function (val) {
+		$scope.$watch('__account.anonymous', function (val) {
 			stateMachine.userStateChange(val);
 		});
 
