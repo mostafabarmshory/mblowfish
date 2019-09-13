@@ -86,7 +86,7 @@ angular.module('mblowfish-core')
      * @memberof $language
      */
     function newLanguage(lang) {
-        if (!$rootScope.app.user.owner) {
+        if (!$rootScope.__account.permissions.tenant_owner) {
             return $q.reject('not allowed');
         }
         if (!$rootScope.app.config.languages) {
@@ -112,7 +112,7 @@ angular.module('mblowfish-core')
      * @return {promise} promise of deleted language
      */
     function deleteLanguage(lang) {
-        if (!$rootScope.app.user.owner) {
+        if (!$rootScope.__account.permissions.tenant_owner) {
             return $q.reject('not allowed');
         }
         var languages = $rootScope.app.config.languages;

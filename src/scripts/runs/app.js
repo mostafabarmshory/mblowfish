@@ -26,6 +26,52 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+    /***************************************************************************
+     * New app state
+     * 
+     * Application state is saved in the root scope
+     **************************************************************************/
+    /*
+     * Store application state
+     */
+    $rootScope.__app = {
+            state: 'waiting',
+            key: '',
+            configs: {},
+            settings: {},
+            language: 'en'
+    };
+
+    /*
+     * Store tenant sate
+     */
+    $rootScope.__tenant = {
+            id:0,
+            title: 'notitle',
+            description: 'nodescription',
+            configs:{},
+            settings:{},
+            domains:{}
+    };
+
+    /*
+     * Store account state
+     */
+    $rootScope.__account ={
+            anonymous: true,
+            id: 0,
+            login: '',
+            profile : {},
+            roles:{},
+            groups:{},
+            permissions:{},
+            messages:[]
+    }
+
+
+    /***************************************************************************
+     * Application actions
+     **************************************************************************/
 	$actions.newAction({
 		id : 'mb.preferences',
 		priority : 15,
@@ -33,7 +79,7 @@ angular.module('mblowfish-core')
 		title : 'Preferences',
 		description : 'Open preferences panel',
 		visible : function () {
-			return $rootScope.app.user.owner;
+			return $rootScope.__account.permissions.tenant_owner;
 		},
 		action : function () {
 			return $navigator.openPage('preferences');

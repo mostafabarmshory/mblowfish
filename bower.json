@@ -4,7 +4,7 @@
   "description": "Material blowfish is an application framework",
   "homepage": "https://github.com/mblowfish/mblowfish-core",
   "license": "MIT",
-  "version": "2.2.15",
+  "version": "2.2.16",
   "main": [
     "dist/mblowfish-core.js",
     "dist/mblowfish-core.css"
@@ -15,8 +15,8 @@
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#2.0.x",
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#2.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#2.0.x",
-    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#2.4.x",
-    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#2.4.x",
+    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#2.5.x",
+    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#2.5.x",
     "ng-appcache": "2.0.x",
     "lf-ng-md-file-input": "1.5.x",
     "angular-recaptcha": "4.1.x",
@@ -27,13 +27,13 @@
   },
   "resolutions": {
     "angular": "1.7.x",
-    "am-wb-core": "2.4.x"
+    "am-wb-core": "2.5.x"
   },
   "devDependencies": {
     "angular-mocks": "1.7.x"
   },
   "appPath": "src",
   "backend": {
-    "host": "test.viraweb123.ir"
+    "host": "egov.mrfruity.ir"
   }
 }

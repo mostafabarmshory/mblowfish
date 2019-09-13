@@ -265,7 +265,7 @@ angular.module('app') //
 	     * @ngInject
 	     */
 	    protect: function($rootScope){
-	        if(!$rootScope.app.user.owner){
+	        if(!$rootScope.__account.permissions.tenant_owner){
 	            alert('You are not owner');
 	            return true;
 	        }

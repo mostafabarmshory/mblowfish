@@ -212,8 +212,7 @@ angular.module('mblowfish-core')
          * @ngInject
          */
         protect : function($rootScope) {
-            // TODO: maso, 2018: replace with roles core_owner, Pluf_owner
-            return !$rootScope.app.user.owner;
+            return !$rootScope.__account.permissions.tenant_owner;
         },
         sidenavs: [],
         toolbars: []
@@ -232,7 +231,7 @@ angular.module('mblowfish-core')
          * @ngInject
          */
         protect : function($rootScope) {
-            return !$rootScope.app.user.owner;
+            return !$rootScope.__account.permissions.tenant_owner;
         }
     }) //
     /**
@@ -256,7 +255,7 @@ angular.module('mblowfish-core')
          * @ngInject
          */
         protect : function($rootScope) {
-            return !$rootScope.app.user.owner;
+            return !$rootScope.__account.permissions.tenant_owner;
         }
     })
 
@@ -1715,17 +1714,17 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1741,11 +1740,11 @@ angular.module('mblowfish-core')
  * @ngdoc Controllers
  * @name MbProfileCtrl
  * @description Manages profile of a user
- * 
+ *
  */
-// TODO: maso, 2019: replace with MbSeenAccountCtrl
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile) {
-    
+//TODO: maso, 2019: replace with MbSeenAccountCtrl
+.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile, $usr) {
+
     // set initial data
     this.user = null;
     this.profile = null;
@@ -1760,22 +1759,18 @@ angular.module('mblowfish-core')
 
     /**
      * Loads user data
-     * 
+     *
      * @returns
      */
-    this.loadUser = function() {
-    	var app = $rootScope.app || {};
-    	var user = app.user || {};
-    	
-        this.user = user.current;//
-        if (!this.user) {
-            alert($translate.instant('Fail to load user.'));
-            return;
-        }
-        this.loadProfile();
+    this.loadUser = function () {
+        $usr.getAccount($rootScope.__account.id)
+        .then(function(account){
+            ctrl.user = account;
+            return ctrl.loadProfile();
+        });
     }
 
-    this.loadProfile = function() {
+    this.loadProfile = function () {
         if (this.loadinProfile) {
             return;
         }
@@ -1786,7 +1781,7 @@ angular.module('mblowfish-core')
             ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
             return ctrl.profile;
         }, function () {
-            alert($translate.instant('Fial to load profile.'));
+            alert($translate.instant('Fail to load profile.'));
         })//
         .finally(function () {
             ctrl.loadingProfile = false;
@@ -1795,10 +1790,10 @@ angular.module('mblowfish-core')
 
     /**
      * Save current user
-     * 
+     *
      * @returns
      */
-    this.save = function() {
+    this.save = function () {
         if (this.savingProfile) {
             return;
         }
@@ -1816,23 +1811,23 @@ angular.module('mblowfish-core')
         });
     }
 
-    this.back = function() {
+    this.back = function () {
         $window.history.back();
     }
-    
-    this.deleteAvatar = function(){
+
+    this.deleteAvatar = function () {
         var ctrl = this;
-        confirm('Delete the avatar?')
-        .then(function(){
+        confirm($translate.instant('Delete the avatar?'))
+        .then(function () {
             ctrl.avatarState = 'working';
             return ctrl.user.deleteAvatar();
         })
-        .finally(function(){
+        .finally(function () {
             ctrl.avatarState = 'normal';
         });
     }
-    
-    this.uploadAvatar = function(files){
+
+    this.uploadAvatar = function (files) {
         if (!angular.isArray(files) || !files.length) {
         }
         var file = null;
@@ -1840,20 +1835,20 @@ angular.module('mblowfish-core')
         this.avatarLoading = true;
         var ctrl = this;
         this.user.uploadAvatar(file)
-        .then(function(){
+        .then(function () {
             // TODO: reload the page
         })
-        .finally(function(){
+        .finally(function () {
             ctrl.avatarLoading = false;
             ctrl.avatarState = 'normal';
         });
     }
-    
-    this.editAvatar = function(){
+
+    this.editAvatar = function () {
         this.avatarState = 'edit';
     }
-    
-    this.cancelEditAvatar = function(){
+
+    this.cancelEditAvatar = function () {
         this.avatarState = 'normal';
     }
 
@@ -1861,24 +1856,50 @@ angular.module('mblowfish-core')
      * To support old version of the controller
      */
     var ctrl = this;
-    $scope.load = function(){
+    $scope.load = function () {
         ctrl.loadUser();
     };
-    $scope.reload = function(){
+    $scope.reload = function () {
         ctrl.loadUser();
     };
-    $scope.save = function(){
+    $scope.save = function () {
         ctrl.save();
     };
-    $scope.back = function(){
+    $scope.back = function () {
         ctrl.back();
     };
-    $scope.cancel =  function(){
+    $scope.cancel = function () {
         ctrl.back();
     };
-    
+
     // Load account information
     this.loadUser();
+
+    // re-labeling lf-ng-md-file component for multi languages support
+    angular.element(function () {
+
+        var elm = angular.element('.lf-ng-md-file-input-drag-text');
+        if (elm[0]) {
+            elm.text($translate.instant('Drag & Drop File Here'));
+        }
+
+        elm = angular.element('.lf-ng-md-file-input-button-brower');
+        if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+            elm[0].childNodes[1].data=' '+$translate.instant('Browse');
+        }
+
+        elm = angular.element('.lf-ng-md-file-input-button-remove');
+        if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+            elm[0].childNodes[1].data=$translate.instant('Remove');
+        }
+
+        elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+        if (elm[0]) {
+            elm.text($translate.instant('Select File'));
+        }
+
+    });
+
 });
 
 /*
@@ -5697,11 +5718,11 @@ angular.module('mblowfish-core')
 			}
 		});
 
-		$rootScope.$watch('app.state.status', function (appState) {
+		$rootScope.$watch('__app.state', function (appState) {
 			stateMachine.appStateChange(appState);
 		});
 
-		$scope.$watch('app.user.anonymous', function (val) {
+		$scope.$watch('__account.anonymous', function (val) {
 			stateMachine.userStateChange(val);
 		});
 
@@ -6071,17 +6092,17 @@ angular.module('mblowfish-core')
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -6099,8 +6120,8 @@ angular.module('mblowfish-core')
 	 * @ngdoc Directives
 	 * @name mb-titled-block
 	 * @descritpion Title block
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	.directive('mbTitledBlock', function () {
 	    return {
@@ -6116,10 +6137,11 @@ angular.module('mblowfish-core')
 		/*
 		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 		 */
-		
+
 		templateUrl: 'views/directives/mb-titled-block.html'
 	    };
 	});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6949,6 +6971,52 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+    /***************************************************************************
+     * New app state
+     * 
+     * Application state is saved in the root scope
+     **************************************************************************/
+    /*
+     * Store application state
+     */
+    $rootScope.__app = {
+            state: 'waiting',
+            key: '',
+            configs: {},
+            settings: {},
+            language: 'en'
+    };
+
+    /*
+     * Store tenant sate
+     */
+    $rootScope.__tenant = {
+            id:0,
+            title: 'notitle',
+            description: 'nodescription',
+            configs:{},
+            settings:{},
+            domains:{}
+    };
+
+    /*
+     * Store account state
+     */
+    $rootScope.__account ={
+            anonymous: true,
+            id: 0,
+            login: '',
+            profile : {},
+            roles:{},
+            groups:{},
+            permissions:{},
+            messages:[]
+    }
+
+
+    /***************************************************************************
+     * Application actions
+     **************************************************************************/
 	$actions.newAction({
 		id : 'mb.preferences',
 		priority : 15,
@@ -6956,7 +7024,7 @@ angular.module('mblowfish-core')
 		title : 'Preferences',
 		description : 'Open preferences panel',
 		visible : function () {
-			return $rootScope.app.user.owner;
+			return $rootScope.__account.permissions.tenant_owner;
 		},
 		action : function () {
 			return $navigator.openPage('preferences');
@@ -7475,17 +7543,17 @@ angular.module('mblowfish-core')
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -7500,29 +7568,29 @@ angular.module('mblowfish-core')
 /*
  * Init application resources
  */
-.run(function($resource, $location,  $controller ) {
+.run(function ($resource, $location, $controller) {
 
-    function getDomain(){
+    function getDomain() {
         return $location.protocol() + //
         '://' + //
         $location.host() + //
-        (($location.port() ? ':' + $location.port(): ''));
+        (($location.port() ? ':' + $location.port() : ''));
     }
 
 //  TODO: maso, 2018: replace with class
-    function getSelection(){
-        if(!this.__selections){
+    function getSelection() {
+        if (!this.__selections) {
             this.__selections = angular.isArray(this.value) ? this.value : [];
         }
         return this.__selections;
     }
 
     function getIndexOf(list, item) {
-        if(!angular.isDefined(item.id)) {
+        if (!angular.isDefined(item.id)) {
             return list.indexOf(item);
         }
-        for(var i = 0; i < list.length; i++){
-            if(list[i].id === item.id){
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === item.id) {
                 return i;
             }
         }
@@ -7530,10 +7598,10 @@ angular.module('mblowfish-core')
 
     function setSelected(item, selected) {
         var selectionList = this.getSelection();
-        var index = getIndexOf(selectionList,item);
-        if(selected) {
+        var index = getIndexOf(selectionList, item);
+        if (selected) {
             // add to selection
-            if(index >= 0){
+            if (index >= 0) {
                 return;
             }
             selectionList.push(item);
@@ -7545,64 +7613,62 @@ angular.module('mblowfish-core')
         }
     }
 
-    function isSelected(item){
+    function isSelected(item) {
         var selectionList = this.getSelection();
-        return getIndexOf(selectionList,item) >= 0;
+        return getIndexOf(selectionList, item) >= 0;
     }
-
-
 
 
     /**
      * @ngdoc Resources
      * @name Account
      * @description Get an account from resource
-     * 
+     *
      * Enable user to select an account
      */
     $resource.newPage({
-        label : 'Account',
-        type : 'account',
-        templateUrl : 'views/resources/mb-accounts.html',
+        label: 'Account',
+        type: 'account',
+        templateUrl: 'views/resources/mb-accounts.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = false;
             this.value = $scope.value;
-            this.setSelected = function(item) {
+            this.setSelected = function (item) {
                 $scope.$parent.setValue(item);
                 $scope.$parent.answer();
             };
-            this.isSelected = function(item){
+            this.isSelected = function (item) {
                 return item === this.value || item.id === this.value.id;
             };
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'account' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['account']
     });
 
     /**
      * @ngdoc Resources
      * @name Accounts
      * @description Gets list of accounts
-     * 
+     *
      * Display a list of accounts and allow user to select them.
      */
     $resource.newPage({
-        label : 'Accounts',
-        type : 'account-list',
-        templateUrl : 'views/resources/mb-accounts.html',
+        label: 'Accounts',
+        type: 'account-list',
+        templateUrl: 'views/resources/mb-accounts.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = true;
             this.value = $scope.value;
-            this.setSelected = function(item, selected) {
+            this.setSelected = function (item, selected) {
                 this._setSelected(item, selected);
                 $scope.$parent.setValue(this.getSelection());
             };
@@ -7610,24 +7676,24 @@ angular.module('mblowfish-core')
             this.isSelected = isSelected;
             this.getSelection = getSelection;
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'accounts' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['accounts']
     });
 
     // Resource for role-list
     $resource.newPage({
-        label : 'Role List',
-        type : 'role-list',
-        templateUrl : 'views/resources/mb-roles.html',
+        label: 'Role List',
+        type: 'role-list',
+        templateUrl: 'views/resources/mb-roles.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = true;
             this.value = $scope.value;
-            this.setSelected = function(item, selected) {
+            this.setSelected = function (item, selected) {
                 this._setSelected(item, selected);
                 $scope.$parent.setValue(this.getSelection());
             };
@@ -7635,25 +7701,25 @@ angular.module('mblowfish-core')
             this.isSelected = isSelected;
             this.getSelection = getSelection;
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'roles' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['roles']
     });
 
 
     // Resource for group-list
     $resource.newPage({
-        label : 'Group List',
-        type : 'group-list',
-        templateUrl : 'views/resources/mb-groups.html',
+        label: 'Group List',
+        type: 'group-list',
+        templateUrl: 'views/resources/mb-groups.html',
         /*
          * @ngInject
          */
-        controller : function($scope) {
+        controller: function ($scope) {
             // TODO: maso, 2018: load selected item
             $scope.multi = true;
             this.value = $scope.value;
-            this.setSelected = function(item, selected) {
+            this.setSelected = function (item, selected) {
                 this._setSelected(item, selected);
                 $scope.$parent.setValue(this.getSelection());
             };
@@ -7661,11 +7727,10 @@ angular.module('mblowfish-core')
             this.isSelected = isSelected;
             this.getSelection = getSelection;
         },
-        controllerAs : 'resourceCtrl',
-        priority : 8,
-        tags : [ 'groups' ]
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['groups']
     });
-
 
 
     /**
@@ -7681,7 +7746,7 @@ angular.module('mblowfish-core')
         /*
          * @ngInject
          */
-        controller: function($scope){
+        controller: function ($scope) {
 
             /*
              * Extends collection controller
@@ -7692,35 +7757,35 @@ angular.module('mblowfish-core')
 
             /**
              * Sets the absolute mode
-             * 
+             *
              * @param {boolean}
              *            absolute mode of the controler
              */
-            this.setAbsolute = function(absolute) {
+            this.setAbsolute = function (absolute) {
                 this.absolute = absolute;
             }
 
             /**
              * Checks if the mode is absolute
-             * 
+             *
              * @return absolute mode of the controller
              */
-            this.isAbsolute = function(){
+            this.isAbsolute = function () {
                 return this.absolute;
             }
-            
+
             /*
              * Sets value
              */
-            this.setSelected = function(content){
-                var path = '/api/v2/cms/contents/'+content.id+'/content';
-                if(this.isAbsolute()){
+            this.setSelected = function (content) {
+                var path = '/api/v2/cms/contents/' + content.id + '/content';
+                if (this.isAbsolute()) {
                     path = getDomain() + path;
                 }
                 this.value = path;
                 $scope.$parent.setValue(path);
             }
-            
+
             // init the controller
             this.init()
         },
@@ -7737,14 +7802,14 @@ angular.module('mblowfish-core')
      * @description Upload a content and returns its URL
      */
     $resource.newPage({
-        type:'content-upload',
+        type: 'content-upload',
         icon: 'file_upload',
         label: 'Upload',
         templateUrl: 'views/resources/mb-cms-content-upload.html',
         /*
          * @ngInject
          */
-        controller: function($scope, $cms, uuid4) {
+        controller: function ($scope, $cms, $translate, uuid4) {
 
             /*
              * Extends collection controller
@@ -7758,20 +7823,20 @@ angular.module('mblowfish-core')
 
             /**
              * Sets the absolute mode
-             * 
+             *
              * @param {boolean}
              *            absolute mode of the controler
              */
-            this.setAbsolute = function(absolute) {
+            this.setAbsolute = function (absolute) {
                 this.absolute = absolute;
             }
 
             /**
              * Checks if the mode is absolute
-             * 
+             *
              * @return absolute mode of the controller
              */
-            this.isAbsolute = function(){
+            this.isAbsolute = function () {
                 return this.absolute;
             }
 
@@ -7779,7 +7844,7 @@ angular.module('mblowfish-core')
              * Add answer to controller
              */
             var ctrl = this;
-            $scope.answer = function(){
+            $scope.answer = function () {
                 // create data
                 var data = {};
                 data.name = this.name || uuid4.generate();
@@ -7791,26 +7856,84 @@ angular.module('mblowfish-core')
                 }
                 // upload data to server
                 return ctrl.uploadFile(data, file)//
-                .then(function(content) {
+                .then(function (content) {
                     var value = '/api/v2/cms/contents/' + content.id + '/content';
-                    if(ctrl.isAbsolute()){
+                    if (ctrl.isAbsolute()) {
                         value = getDomain() + value;
                     }
                     return value;
                 })//
-                .catch(function(){
+                .catch(function () {
                     alert('Failed to create or upload content');
                 });
             };
             // init the controller
-            this.init()
+            this.init();
+
+            // re-labeling lf-ng-md-file component for multi languages support
+            angular.element(function () {
+                var elm = angular.element('.lf-ng-md-file-input-drag-text');
+                if (elm[0]) {
+                    elm.text($translate.instant('Drag & Drop File Here'));
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-brower');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-remove');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = $translate.instant('Remove');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+                if (elm[0]) {
+                    elm.text($translate.instant('Select File'));
+                }
+            });
         },
         controllerAs: 'ctrl',
         priority: 1,
         tags: ['image', 'audio', 'vedio', 'file']
     });
 
+
+
+
+    /**
+     * @ngdoc WB Resources
+     * @name file-local
+     * @description Select a local file and return the object
+     * 
+     * This is used to select local file. It may be used in any part of the system. For example,
+     * to upload as content.
+     */
+    $resource.newPage({
+        type: 'local-file',
+        icon: 'file_upload',
+        label: 'Local file',
+        templateUrl: 'views/resources/mb-local-file.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope, $q, style) {
+            var ctrl = this;
+            $scope.style = style;
+            $scope.answer = function () {
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    return $q.resolve(ctrl.files[0].lfFile);
+                }
+                return $q.reject('No file selected');
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 1,
+        tags: ['local-file']
+    });
+
 });
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -8051,7 +8174,6 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 angular.module('mblowfish-core') //
 
 /**
@@ -8107,6 +8229,8 @@ angular.module('mblowfish-core') //
  * 
  * Configuration is a CMS file.
  * 
+ * NOTE: base application data is created in run/app.js
+ * 
  * 
  * @property {object} app - Application repository.
  * @property {string} app.dir - Application direction which is updated
@@ -8117,506 +8241,648 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-		$httpParamSerializerJQLike, $mdDateLocale, $localStorage, QueryParameter, $tenant) {
+        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant) {
+    'use strict';
 
-	var apps = this;
+    /***************************************************************************
+     * utils
+     **************************************************************************/
+    /*
+     * Bind list of roles to app data
+     */
+    function rolesToPermissions(roles) {
+        var permissions = [];
+        for (var i = 0; i < roles.length; i++) {
+            var role = roles[i];
+            permissions[role.application + '_' + role.code_name] = true;
+        }
+        return permissions;
+    }
 
-	// Constants
-	var APP_PREFIX = 'angular-material-blowfish-';
-	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-	var OPTIONS_GRAPHQL = '{items{id, key,value}}';
+    function keyValueToMap(keyvals) {
+        var map = [];
+        for (var i = 0; i < keyvals.length; i++) {
+            var keyval = keyvals[i];
+            map[keyval.key] = keyval.value;
+        }
+        return map;
+    }
 
-	// the state machine
-	var stateMachine;
+    function parseBooleanValue(value) {
+        value = value.toLowerCase();
+        switch (value) {
+        case true:
+        case 'true':
+        case '1':
+        case 'on':
+        case 'yes':
+            return true
+        default:
+            return false
+        }
+    }
 
-	// states
-	var APP_STATE_WAITING = 'waiting';
-	var APP_STATE_LOADING = 'loading';
+    /***************************************************************************
+     * applicaiton data
+     **************************************************************************/
+    var appConfigurationContent = null;
 
-	// final states
-	var APP_STATE_READY = 'ready';
-	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-	var APP_STATE_OFFLINE = 'offline';
-	var APP_STATE_FAIL = 'fail';
+    /*
+     * متغیرهای مدیریت تنظیم‌ها
+     * 
+     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
+     * کارهای تکراری جلوگیری کنیم.
+     * 
+     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
+     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
+     * دهد.
+     */
+    var appConfigLock = false;
+    var appConfigDirty = false;
 
-	var APP_EVENT_LOADED = 'loaded';
-	var APP_EVENT_START = 'start';
-	var APP_EVENT_NOT_FOUND = 'resource_not_found';
-	var APP_EVENT_SERVER_ERROR = 'server_error';
-	var APP_EVENT_NET_ERROR = 'network_error';
+    // the state machine
+    var stateMachine;
 
-
-	var optionsQuery = new QueryParameter()//
-	.put('graphql', OPTIONS_GRAPHQL);
-	// All the things that are set up by $app service
-	var app = {
-			state: {
-				// all states: waiting, loading, offline, app_not_configured,
-				// ready, fail
-				status: 'loading',
-				stage: 'starting',
-				message: null
-			},
-			logs: [],
-			user: {
-				current: {},
-				profile : {},
-				anonymous: true,
-				administrator: false,
-				owner: false,
-				member: false,
-				authorized: false
-			},
-			config: {},
-			setting: {},
-			options: {},
-			local: 'en', // Default local and language
-			language: 'en', // Default local and language
-	};
-	$rootScope.app = app;
-
-	/*
-	 * متغیرهای مدیریت تنظیم‌ها
-	 * 
-	 * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-	 * کارهای تکراری جلوگیری کنیم.
-	 * 
-	 * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-	 * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-	 * دهد.
-	 */
-	var appConfigLock = false;
-	var appConfigDirty = false;
-	// Some controlling variables required in the state machine
-	var ctrl = {
-			user_loaded: false,
-			options_loaded: false,
-			configs_loaded: false
-	};
-
-	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		app.state.stage = stage;
-		app.state.message = message;
-		if (message) {
-			app.logs.push(message);
-		}
-	}
-
-	/*
-	 * Bind list of roles to app data
-	 */
-	function _loadRolesOfUser(roles) {
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			app.user[role.application + '_' + role.code_name] = true;
-		}
-	}
-
-	/**
-	 * تنظیم‌های نرم افزار را لود می‌کند.
-	 * 
-	 * @returns promiss
-	 */
-	function loadApplicationConfig() {
-		_loadingLog('loading configuration', 'fetch configuration document');
-
-		ctrl.configs_loaded = false;
-		ctrl.configs_fail = false;
-
-		$cms.getContent(APP_PREFIX + app.key) //
-		.then(function (content) {
-			_loadingLog('loading configuration', 'fetch configuration content');
-			app._acc = content;
-			// load config file
-			return app._acc.downloadValue();
-		}, function(error){
-			ctrl.configs_fail = true;
-			stateMachine.error(error);
-			// return empty config
-			return {};
-		})
-		.then(function (appConfig) {
-			app.config = angular.isObject(appConfig) ? appConfig : {};
-		})
-		.finally(function(){
-			ctrl.configs_loaded = true;
-			stateMachine.loaded();
-		});
-	}
-
-	/*
-	 * Loads current user informations
-	 * 
-	 * اطلاعات کاربر جاری از سرور دریافت شده و بر اساس اطلاعات مورد نیاز در سطح
-	 * نرم افزار پر می‌شود.
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name)
-	 * in role list then the following var is added in user:
-	 * 
-	 * app.user.x_y
-	 * 
-	 */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		return $usr.getAccount('current', {graphql: USER_DETAIL_GRAPHQL}) //
-		.then(function (user) {
-			// load user info
-			ctrl.user_loaded = true;
-			// app user data
-			app.user = {
-					anonymous: !user.id || user.id === 0,
-					current: user
-			};
-			// load the first profile of user
-			if(angular.isArray(user.profiles)){
-				app.user.profile = user.profiles.length? user.profiles[0] : {};
-			}
-			// load user roles
-			_loadingLog('loading user info', 'user information loaded successfully');
-			_loadingLog('loading user info', 'check user permissions');
-			if (!app.user.anonymous) {
-				_loadRolesOfUser(user.roles);
-				for (var i = 0; i < user.groups.length; i++) {
-					_loadRolesOfUser(user.groups[i].roles);
-				}
-				//
-				if (!user.isAnonymous()) {
-					app.user.owner = app.user.tenant_owner || app.user.core_owner || app.user.Pluf_owner || app.user.Core_owner;
-					app.user.administrator = app.user.owner;
-				} else {
-					app.user.anonymous = true;
-				}
-			}
-			stateMachine.loaded();
-		}, function(error){
-			ctrl.user_loaded = false;
-			stateMachine.error(error);
-		});
-	}
-
-	/*
-	 * Loads options
-	 */
-	function loadOptions() {
-		// TODO: Masood, 2018: options should be get from server. Now, its api
-		// doesn't exist.
-		_loadingLog('loading options', 'fetch options document');
-		// get the options from server and save in app.options.
-		app.options = {};
-		return $tenant.getSettings(optionsQuery)
-		.then(function (res) {
-			for (var i = 0; i < res.items.length; i++) {
-				var item = res.items[i];
-				app.options[item.key] = item.value;
-			}
-			ctrl.options_loaded = true;
-			stateMachine.loaded();
-		}, function(error){
-			stateMachine.error(error);
-		});
-	}
-
-	/*
-	 * Loads local storage
-	 */
-	function loadSetting() {
-		_loadingLog('loading setting from local storage', 'fetch settings');
-		/*
-		 * TODO: masood, 2018: The lines below is an alternative for lines above
-		 * but not recommended.
-		 * 
-		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-		 */
-		app.setting = $localStorage.$default({
-			dashboardModel: {}
-		});
-		_loadingLog('setting loaded', 'fetch settings');
-	}
+    // Constants
+    var APP_CNF_MIMETYPE = 'application/amd-cnf';
+    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+    var TENANT_GRAPHQL = '{id,title,description,'+
+        'account'+USER_DETAIL_GRAPHQL +
+        'configurations{key,value}' +
+        'settings{key,value}' +
+    '}';
 
 
-	/*
-	 * Stores app configuration on the back end
-	 */
-	function storeApplicationConfig() {
-		appConfigDirty = true;
-		if(appConfigLock){
-			return;
-		}
-		if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
-			return $q.reject({
-				data: {
-					message: 'fail'
-				}
-			});
-		}
-		appConfigLock = true;
-		var promise;
-		if (app._acc) { // content loaded
-			appConfigDirty = false;
-			promise = app._acc.uploadValue(app.config);
-		} else { // create content
-			promise = $cms.putContent({
-				name: APP_PREFIX + app.key,
-				mimetype: APP_CNF_MIMETYPE
-			}).then(function (content) {
-				appConfigDirty = false;
-				app._acc = content;
-				stateMachine.loaded();
-				return app._acc.uploadValue(app.config);
-			}, function (error) {
-				stateMachine.error(error);
-			});
-		} //
-		return promise //
-		.finally(function () {
-			appConfigLock = false;
-			if (appConfigDirty) {
-				return storeApplicationConfig();
-			}
-		});
-	}
-	
-	/*
-	 * Check a module to see if it is enable or not
-	 */
-	//TODO: Masood, 2019: Improve the function to check based on tenant setting
-	function isEnable (moduleName) {
-	    return true;
-	}
-	 
-	/*
-	 * State machine to handle life cycle of the system.
-	 */
-	stateMachine = new machina.Fsm({
-		initialize: function (/* options */) {
-			app.state.status = APP_STATE_WAITING;
-		},
-		namespace: 'webpich.$app',
-		initialState: APP_STATE_WAITING,
-		states: {
-			// Before the 'start' event occurs via $app.start().
-			waiting: {
-				start: APP_STATE_LOADING,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL
-			},
-			// tries to load all part of system
-			loading: {
-				_onEnter: function () {
-					loadUserProperty(); 
-					loadOptions();
-					loadSetting(); 
-					loadApplicationConfig(); 
-				},
-				loaded: function () {
-					if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_loaded) {
-						this.transition(APP_STATE_READY);
-					} else if (ctrl.user_loaded && ctrl.options_loaded && ctrl.configs_fail) {
-						this.transition(APP_STATE_READY_NOT_CONFIGURED);
-					}
-				},
-				server_error: APP_STATE_FAIL,
-				network_error: APP_STATE_OFFLINE
-			},
-			// app is ready
-			ready: {
-				network_error: APP_STATE_OFFLINE
-			},
-			// app is ready with no config
-			ready_not_configured: {
-				loaded: function () {
-					if(ctrl.configs_loaded){
-						this.transition(APP_STATE_READY);
-					}
-				},
-				network_error: APP_STATE_OFFLINE
-			},
-			// server error
-			fail: {},
-			// net error
-			offline: {}
-		},
+    /**
+     * Handles internal service events
+     */
+    function handleEvent(key, data){
+        // update internal state machine
+        stateMachine.handle(key, data);
+    }
 
-		/*
-		 * This handle load event of app
-		 * 
-		 * If a part of the app loaded then this handler fire an event and
-		 * update the app state.
-		 */
-		loaded: function () {
-			this.handle(APP_EVENT_LOADED);
-		},
+    /**
+     * Sets state of the service
+     * 
+     * NOTE: must be used locally
+     */
+    function setApplicationState(state){
+        // create event
+        var $event = {};
+        $event.oldValue = $rootScope.__app.state;
+        $event.value = state;
 
-		/*
-		 * Fires start event
-		 */
-		start: function () {
-			this.handle(APP_EVENT_START);
-		},
+        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
 
-		/*
-		 * Handle HTTP response error.
-		 * 
-		 * If the is an error in loading and storing configuration then this
-		 * function checks and fire an event.
-		 */
-		error: function ($error) {
-			if ($error.status === 404) {
-				this.handle(APP_EVENT_NOT_FOUND);
-			} else if ($error.status === 500) {
-				this.handle(APP_EVENT_SERVER_ERROR);
-			} else if ($error.status === -1) {
-				this.handle(APP_EVENT_NET_ERROR);
-			}
-		}
-	});
+        app.state.status = state;
+        $rootScope.__app.state = state;
+        // TODO: maso, 2019: fire the state is changed
+    }
+
+    function setApplicationDirection(dir) {
+        if(!$rootScope.__app.state !== APP_STATE_READY){
+            return;
+        }
+        if($rootScope.__app.dir === dir){
+            return;
+        }
+        app.dir = dir; 
+        $rootScope.__app.dir = dir;
+    }
+
+    function setApplicationLanguage(key) {
+        // 0- set app local
+        app.local = key;
+        app.language = key;
+        // 1- change language
+        $translate.use(key);
+        // 2- chnage date format
+        // Change moment's locale so the 'L'-format is adjusted.
+        // For example the 'L'-format is DD-MM-YYYY for Dutch
+        moment.loadPersian();
+        moment.locale(key);
+        // Set month and week names for the general $mdDateLocale service
+        var localeDate = moment.localeData();
+        $mdDateLocale.months = localeDate._months;
+        $mdDateLocale.shortMonths = localeDate._monthsShort;
+        $mdDateLocale.days = localeDate._weekdays;
+        $mdDateLocale.shortDays = localeDate._weekdaysMin;
+        // Optionaly let the week start on the day as defined by moment's locale
+        // data
+        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+    }
+
+    function setApplicationCalendar(key) {
+        // 0- set app local
+        app.calendar = key;
+    }
+
+    function parsTenantConfiguration(configs){
+        $rootScope.__tenant.configs = keyValueToMap(configs);
+
+        // load domains
+        var domains = {};
+        var regex = new RegExp('^module\.(?<module>.*)\.enable$', 'i');
+        for(var i = 0; i < configs.length; i++){
+            var config = configs[i];
+            var match = regex.exec(config.key);
+            if(match) {
+                var key = match.groups['module'].toLowerCase();
+                domains[key] = parseBooleanValue(config.value);
+            }
+        }
+        $rootScope.__tenant.domains = domains;
+    }
+
+    function parsTenantSettings(settings){
+        $rootScope.__tenant.settings = keyValueToMap(settings);
+        app.options = $rootScope.__app.settings;
+    }
+
+    function parsAccount(account){
+        var anonymous = !account.id || account.id === 0;
+
+        // app user data
+        app.user = {
+                anonymous: anonymous,
+                current: new UserAccount(account)
+        };
+        // load basic information of account
+        $rootScope.__account.anonymous = anonymous;
+        $rootScope.__account.id = account.id;
+        $rootScope.__account.login = account.login;
+        $rootScope.__account.email = account.email;
+
+        if(anonymous) {
+            // legacy
+            app.user.profile = {};
+            app.user.roles = {};
+            app.user.groups = {};
+            // update app
+            $rootScope.__account.profile = {};
+            $rootScope.__account.roles = {};
+            $rootScope.__account.groups = {};
+            return;
+        }
+        // load the first profile of user
+        if(angular.isArray(account.profiles)){
+            var profile = account.profiles.length? account.profiles[0] : {};
+            app.user.profile = profile;
+            $rootScope.__account.profile = profile;
+        }
+        // load user roles, groups and permissions
+        var permissions = rolesToPermissions(account.roles || []);
+        var groupMap = {};
+        var groups = account.groups || [];
+        for (var i = 0; i < groups.length; i++) {
+            var group = groups[i];
+            groupMap[group.name] = true;
+            _.assign(permissions, rolesToPermissions(group.roles || []));
+        }
+        _.assign(app.user, permissions);
+        $rootScope.__account.permissions = permissions;
+        $rootScope.__account.roles = account.roles || [];
+        $rootScope.__account.groups = account.groups || [];
+    }
+
+    /**
+     * Load application configuration
+     */
+    function parsAppConfiguration(config){
+        config = angular.isObject(config) ? config : {};
+        app.config = config;
+        $rootScope.__app.configs = config;
+    }
+
+    function parsAppSettings(settings){
+        app.setting = settings;
+        $rootScope.__app.settings = settings;
+    }
+
+    /*
+     * Loads current user informations
+     * 
+     * If there is a role x.y (where x is application code and y is code name)
+     * in role list then the following var is added in user:
+     * 
+     * app.user.x_y
+     * 
+     */
+    function loadUserProperty() {
+        _loadingLog('loading user info', 'fetch user information');
+        return $usr.getAccount('current', {
+            graphql: USER_DETAIL_GRAPHQL
+        }) //
+        .then(parsAccount);
+    }
+
+    function loadRemoteData(){
+        _loadingLog('loading', 'fetch remote storage');
+
+        // application config
+        var pLoadAppConfig = $cms.getContent($rootScope.__app.key) //
+        .then(function (content) {
+            appConfigurationContent = content;
+            return appConfigurationContent.downloadValue();
+        })
+        .then(parsAppConfiguration);
+
+        // load current tenant
+        var pCurrentTenant = $tenant.getTenant('current', {
+            graphql: TENANT_GRAPHQL
+        })
+        .then(function(data){
+            parsTenantConfiguration(data.configurations || []);
+            parsTenantSettings(data.settings || []);
+            parsAccount(data.account || []);
+        });
+        return $q.all([pLoadAppConfig, pCurrentTenant]);
+    }
+
+    function loadLocalData(){
+        _loadingLog('loading setting from local storage', 'fetch settings');
+        /*
+         * TODO: masood, 2018: The lines below is an alternative for lines above
+         * but not recommended.
+         * 
+         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+         */
+        var settings = $localStorage.$default({
+            dashboardModel: {}
+        });
+        return $q.resolve(settings)
+        .then(parsAppSettings);
+    }
+
+    function loadApplication(){
+        return $q.all([
+            loadRemoteData(),
+            loadLocalData()])
+            .finally(function(){
+                // TODO: maso, check if all things are ok
+                if($rootScope.__app.isOffline){
+                    handleEvent(APP_EVENT_NET_ERROR);
+                    return;
+                }
+                if($rootScope.__app.isRemoteDataLoaded){
+                    handleEvent(APP_EVENT_SERVER_ERROR);
+                    return;
+                }
+                if($rootScope.__app.isApplicationConfigLoaded){
+                    handleEvent(APP_EVENT_APP_CONFIG_ERROR);
+                    return;
+                }
+                handleEvent(APP_EVENT_LOADED);
+            });
+    }
+
+    /**
+     * Start the application
+     * 
+     * this function is called when the app get started.
+     * 
+     * @memberof $app
+     */
+    function start(key) {
+        app.key = key;
+        $rootScope.__app.key = 'angular-material-blowfish-' + key;
+
+        // handle internal events
+        handleEvent(APP_EVENT_START);
+    }
+
+    /***************************************************************************
+     * 
+     **************************************************************************/
 
 
-	// I'd like to know when the transition event occurs
-	stateMachine.on('transition', function () {
-		_loadingLog('$app event handling', '$app state is changed from ' + app.state.status  + ' to '+ stateMachine.state);
-		app.state.status = stateMachine.state;
-	});
 
-	/*
-	 * watch direction and update app.dir
-	 */
-	$rootScope.$watch(function () {
-		if (!app.config.local) {
-			app.config.local = {};
-		}
-		return app.setting.dir || app.config.local.dir;
-	}, function (value) {
-		app.dir = value; // (app.setting.dir || app.config.local.dir)//old
-		// version of app.js;
-	});
-	/*
-	 * watch local and update language
-	 */
-	$rootScope.$watch(function () {
-		// TODO: maso, 2018: remove this part in the next release
-		if (!angular.isObject(app.config.local)) {
-			app.config.local = {};
-		}
-		// Check language
-		return app.setting.local || app.config.local.language || 'en';
-	}, function (key) {
-		// 0- set app local
-		app.local = key;
-		app.language = key;
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	});
+    // states
+    var APP_STATE_WAITING = 'waiting';
+    var APP_STATE_LOADING = 'loading';
 
-	/*
-	 * watch calendar
-	 */
-	$rootScope.$watch(function () {
-		return app.setting.calendar || app.config.calendar || 'Gregorian';
-	}, function (key) {
-		// 0- set app local
-		app.calendar = key;
-	});
+    // final states
+    var APP_STATE_READY = 'ready';
+    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+    var APP_STATE_OFFLINE = 'offline';
+    var APP_STATE_FAIL = 'fail';
 
-	/*
-	 * watch application configuration and update app state
-	 */
-	$rootScope.$watch('app.config', function () {
-		if (app.state.status === APP_STATE_READY || app.state.status === APP_STATE_READY_NOT_CONFIGURED) {
-			// TODO: maso, 2018: delay to save
-			storeApplicationConfig();
-		}
-	}, true);
+    var APP_EVENT_LOADED = 'loaded';
+    var APP_EVENT_START = 'start';
+    var APP_EVENT_SERVER_ERROR = 'server_error';
+    var APP_EVENT_NET_ERROR = 'network_error';
+    var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
 
-	/**
-	 * Start the application
-	 * 
-	 * this function is called when the app get started.
-	 * 
-	 * @memberof $app
-	 */
-	function start(key) {
-		app.key = key;
-		stateMachine.start();
-	}
 
-	/**
-	 * Logins into the backend
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 *            credential of the user
-	 */
-	function login(credential) {
-		if (!app.user.anonymous) {
-			return $q.resolve(app.user.current);
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		}).then(function () {
-			loadUserProperty();
-		});
-	}
+    // All the things that are set up by $app service
+    var app = {
+            state: {
+                // all states: waiting, loading, offline, app_not_configured,
+                // ready, fail
+                status: 'loading',
+                stage: 'starting',
+                message: null
+            },
+            logs: [],
+            user: {
+                current: {},
+                profile : {},
+                anonymous: true,
+                administrator: false,
+                owner: false,
+                member: false,
+                authorized: false
+            },
+            // application settings
+            config: {},
+            // user settings
+            setting: {},
 
-	/**
-	 * Application logout
-	 * 
-	 * Logout and clean user data, this will change state of the application.
-	 * 
-	 * @memberof $app
-	 */
-	function logout() {
-		var oldUser = $rootScope.app.user;
-		if (oldUser.anonymous) {
-			return $q.resolve(oldUser);
-		}
-		$rootScope.app.user = {};
-		stateMachine.loaded();
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		})
-		.then(function () {
-			loadUserProperty();
-		}, function () {
-			// TODO: maso, 2018: fail to logout?!
-			$rootScope.app.user = oldUser;
-			stateMachine.loaded();
-		});
-	}
+            /*
+             * NOTE: this part is deprecated use tenant
+             */
+            // tenant settings
+            options: {},
 
-	// Init
-	apps.start = start;
-	apps.login = login;
-	apps.logout = logout;
-	apps.isEnable = isEnable;
-	return apps;
+            local: 'en', // Default local and language
+            language: 'en', // Default local and language
+    };
+    $rootScope.app = app;
+
+
+    /*
+     * Attaches loading logs
+     */
+    function _loadingLog(stage, message) {
+        app.state.stage = stage;
+        app.state.message = message;
+        if (message) {
+            app.logs.push(message);
+        }
+    }
+
+    /*
+     * Stores app configuration on the back end
+     */
+    function storeApplicationConfig() {
+        if (app.state.status !== APP_STATE_READY) {
+            return;
+        }
+        appConfigDirty = true;
+        if(appConfigLock){
+            return;
+        }
+        if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
+            return $q.reject({
+                data: {
+                    message: 'fail'
+                }
+            });
+        }
+        appConfigLock = true;
+        var promise;
+        if (app._acc) { // content loaded
+            appConfigDirty = false;
+            promise = app._acc.uploadValue(app.config);
+        } else { // create content
+            promise = $cms.putContent({
+                name: $rootScope.__app.key,
+                mimetype: APP_CNF_MIMETYPE
+            }).then(function (content) {
+                appConfigDirty = false;
+                app._acc = content;
+                stateMachine.loaded();
+                return app._acc.uploadValue(app.config);
+            }, function (error) {
+                stateMachine.error(error);
+            });
+        } //
+        return promise //
+        .finally(function () {
+            appConfigLock = false;
+            if (appConfigDirty) {
+                return storeApplicationConfig();
+            }
+        });
+    }
+
+    /*
+     * Check a module to see if it is enable or not
+     */
+    // TODO: Masood, 2019: Improve the function to check based on tenant setting
+    function isEnable (moduleName) {
+        return $rootScope.__tenant.domains[moduleName];
+    }
+
+    /**
+     * Logins into the backend
+     * 
+     * @memberof $app
+     * @param {object}
+     *            credential of the user
+     */
+    function login(credential) {
+        if (!app.user.anonymous) {
+            return $q.resolve(app.user.current);
+        }
+        return $http({
+            method: 'POST',
+            url: '/api/v2/user/login',
+            data: $httpParamSerializerJQLike(credential),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }).then(function () {
+            loadUserProperty();
+        });
+    }
+
+    /**
+     * Application logout
+     * 
+     * Logout and clean user data, this will change state of the application.
+     * 
+     * @memberof $app
+     */
+    function logout() {
+        var oldUser = $rootScope.app.user;
+        if (oldUser.anonymous) {
+            return $q.resolve(oldUser);
+        }
+        $rootScope.app.user = {};
+        stateMachine.loaded();
+        return $http({
+            method: 'POST',
+            url: '/api/v2/user/logout',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(function () {
+            loadUserProperty();
+        }, function () {
+            // TODO: maso, 2018: fail to logout?!
+            $rootScope.app.user = oldUser;
+            stateMachine.loaded();
+        });
+    }
+
+
+    /*
+     * State machine to handle life cycle of the system.
+     */
+    stateMachine = new machina.Fsm({
+        namespace: 'webpich.$app',
+        initialState: APP_STATE_WAITING,
+        initialize: function (/* options */) {
+            setApplicationState(APP_STATE_WAITING);
+        },
+        states: {
+            // Before the 'start' event occurs via $app.start().
+            waiting: {
+                start: APP_STATE_LOADING,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL
+            },
+            // tries to load all part of system
+            loading: {
+                _onEnter: function () {
+                    loadApplication();
+                },
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // app is ready
+            ready: {
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // app is ready with no config
+            ready_not_configured: {
+                _onEnter: function () {
+                    loadDefaultApplicationConfig();
+                },
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // server error
+            fail: {
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            },
+            // net error
+            offline: {
+                _onEnter: function () {
+                    offlineReloadDelay = 3000;
+                    $timeout(loadApplication, offlineReloadDelay);
+                },
+                loaded: APP_STATE_READY,
+                network_error: APP_STATE_OFFLINE,
+                server_error: APP_STATE_FAIL,
+                config_error: APP_STATE_READY_NOT_CONFIGURED,
+            }
+        },
+    });
+
+    // I'd like to know when the transition event occurs
+    stateMachine.on('transition', function () {
+        setApplicationState(stateMachine.state);
+    });
+
+    /*
+     * watch direction and update app.dir
+     */
+    $rootScope.$watch(function () {
+        if (!app.config.local) {
+            app.config.local = {};
+        }
+        return app.setting.dir || app.config.local.dir;
+    }, setApplicationDirection);
+
+    /*
+     * watch local and update language
+     */
+    $rootScope.$watch(function () {
+        // TODO: maso, 2018: remove this part in the next release
+        if (!angular.isObject(app.config.local)) {
+            app.config.local = {};
+        }
+        // Check language
+        return app.setting.local || app.config.local.language || 'en';
+    }, setApplicationLanguage);
+
+    /*
+     * watch calendar
+     */
+    $rootScope.$watch(function () {
+        return app.setting.calendar || app.config.calendar || 'Gregorian';
+    }, setApplicationCalendar);
+
+    /*
+     * watch application configuration and update app state
+     */
+    $rootScope.$watch('app.config', storeApplicationConfig, true);
+
+    // Init
+    this.start = start;
+    this.login = login;
+    this.logout = logout;
+    this.isEnable = isEnable;
+
+    // test 
+    // TODO: remove in deploy
+    this.__parsTenantConfiguration = parsTenantConfiguration;
+
+    return this;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+angular.module('mblowfish-core') //
+
+.service('$clipboard', function () {
+    'use strict';
+    this.copyTo = function (model) {
+        /*
+         * TODO: Masood, 2019: There is also another solution but now it doesn't
+         * work because of browsers problem A detailed solution is presented in:
+         * https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+         */
+        var js = JSON.stringify(model);
+        var fakeElement = document.createElement('textarea');
+        fakeElement.value = js;
+        document.body.appendChild(fakeElement);
+        fakeElement.select();
+        document.execCommand('copy');
+        document.body.removeChild(fakeElement);
+        return;
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -9065,7 +9331,7 @@ angular.module('mblowfish-core')
      * @memberof $language
      */
     function newLanguage(lang) {
-        if (!$rootScope.app.user.owner) {
+        if (!$rootScope.__account.permissions.tenant_owner) {
             return $q.reject('not allowed');
         }
         if (!$rootScope.app.config.languages) {
@@ -9091,7 +9357,7 @@ angular.module('mblowfish-core')
      * @return {promise} promise of deleted language
      */
     function deleteLanguage(lang) {
-        if (!$rootScope.app.user.owner) {
+        if (!$rootScope.__account.permissions.tenant_owner) {
             return $q.reject('not allowed');
         }
         var languages = $rootScope.app.config.languages;
@@ -10320,7 +10586,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container>  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
   );
 
 
@@ -10340,7 +10606,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-if=mbProgress style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div style=\"margin: 8px; padding: 8px\" ng-transclude></div> </div>"
+    "<div layout=column style=\"border-radius: 5px; margin: 5px 5px 10px 10px; padding: 0px\" md-whiteframe=4> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px;border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <wb-icon style=\"margin: 0\" ng-if=mbIcon>{{::mbIcon}}</wb-icon> <h3 translate=\"\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 12px\"></div> </div>"
   );
 
 
@@ -10445,22 +10711,27 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-accounts.html',
-    "<div ng-controller=\"MbSeenUserAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+    "<div ng-controller=\"MbSeenUserAccountsCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, login, is_active, date_joined, last_login, profiles{first_name,last_name}, avatars{id}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"user in ctrl.items track by user.id\" ng-click=\"multi || resourceCtrl.setSelected(user)\" class=md-3-line> <img class=md-avatar ng-src=/api/v2/user/accounts/{{::user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{ ::user.id | wbmd5 }}?d=identicon&size=32\"> <div class=md-list-item-text layout=column> <h4>{{user.login}}</h4> <h3>{{user.profiles[0].first_name}} {{user.profiles[0].last_name}}</h3> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"user.selected = resourceCtrl.isSelected(user)\" ng-model=user.selected ng-change=\"resourceCtrl.setSelected(user, user.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-cms-content-upload.html',
-    "<div layout=column flex> <lf-ng-md-file-input lf-files=ctrl.files accept=image/* progress preview drag flex> </lf-ng-md-file-input>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
+    "<div layout=column flex> <lf-ng-md-file-input lf-files=ctrl.files accept=image/* progress preview drag flex> </lf-ng-md-file-input>  <md-content layout-padding> <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-cms-images.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content>  <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Abslout path of the image\"> <span translate>Absolut path</span> </md-checkbox> </div> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content> <md-content>  <div layout-padding layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-groups.html',
     "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-local-file.html',
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
   );
 
 
@@ -10515,17 +10786,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-password.html',
-    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required>This is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required>This is required.</div> <div ng-message=compareTo>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate=\"\">Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
+    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate>Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column> <mb-titled-block mb-title=Avatar mb-progress=ctrl.avatarLoading flex-gt-sm=50 layout=column layout-margin> <div layout=row layout-align=\"center start\"> <lf-ng-md-file-input ng-if=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img ng-if=\"ctrl.avatarState === 'normal'\" width=60% ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancele</sapn> </md-button> </div> </mb-titled-block>  <mb-titled-block mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" flex-gt-sm=50 layout=column layout-margin> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
+    "<md-content layout=row class=md-padding layout-padding flex> <div layout-gt-sm=row layout=column style=\"width: 100%; height: fit-content\">  <mb-titled-block flex-gt-sm=50 mb-title=Avatar mb-progress=ctrl.avatarLoading layout=column layout-margin> <div flex layout=column layout-fill> <div layout=row style=\"flex-grow: 1; min-height: 100px\" layout-align=\"center none\"> <lf-ng-md-file-input style=\"flex-grow: 1; padding: 10px\" ng-show=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img style=\"max-width: 300px; max-height: 300px\" ng-if=\"ctrl.avatarState === 'normal'\" ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div style=\"flex-grow:0; min-height: 40px\"> <div layout=column layout-align=\"center none\" style=\"flex-grow: 0\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div style=\"flex-grow: 0\" layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancel</sapn> </md-button> </div> </div> </div> </mb-titled-block>  <mb-titled-block flex-gt-sm=50 mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" layout=column> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </div> </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-recover-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 }]);

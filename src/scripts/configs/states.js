@@ -42,8 +42,7 @@ angular.module('mblowfish-core')
          * @ngInject
          */
         protect : function($rootScope) {
-            // TODO: maso, 2018: replace with roles core_owner, Pluf_owner
-            return !$rootScope.app.user.owner;
+            return !$rootScope.__account.permissions.tenant_owner;
         },
         sidenavs: [],
         toolbars: []
@@ -62,7 +61,7 @@ angular.module('mblowfish-core')
          * @ngInject
          */
         protect : function($rootScope) {
-            return !$rootScope.app.user.owner;
+            return !$rootScope.__account.permissions.tenant_owner;
         }
     }) //
     /**
@@ -86,7 +85,7 @@ angular.module('mblowfish-core')
          * @ngInject
          */
         protect : function($rootScope) {
-            return !$rootScope.app.user.owner;
+            return !$rootScope.__account.permissions.tenant_owner;
         }
     })
 
