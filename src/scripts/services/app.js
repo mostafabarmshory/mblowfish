@@ -518,8 +518,6 @@ angular.module('mblowfish-core') //
         if (oldUser.anonymous) {
             return $q.resolve(oldUser);
         }
-        $rootScope.app.user = {};
-        stateMachine.loaded();
         return $http({
             method: 'POST',
             url: '/api/v2/user/logout',
