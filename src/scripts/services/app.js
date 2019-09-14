@@ -135,7 +135,7 @@ angular.module('mblowfish-core') //
 
     // the state machine
     var stateMachine;
-
+    
     // Constants
     var APP_CNF_MIMETYPE = 'application/amd-cnf';
     var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
@@ -167,26 +167,18 @@ angular.module('mblowfish-core') //
 
         _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
 
-        app.state.status = state;
         $rootScope.__app.state = state;
         // TODO: maso, 2019: fire the state is changed
     }
 
     function setApplicationDirection(dir) {
-        if($rootScope.__app.state !== APP_STATE_READY){
-            return;
-        }
-        if($rootScope.__app.dir === dir){
-            return;
-        }
-        app.dir = dir; 
         $rootScope.__app.dir = dir;
     }
 
     function setApplicationLanguage(key) {
         // 0- set app local
-        app.local = key;
-        app.language = key;
+        $rootScope.__app.local = key;
+        $rootScope.__app.language = key;
         // 1- change language
         $translate.use(key);
         // 2- chnage date format
@@ -207,7 +199,7 @@ angular.module('mblowfish-core') //
 
     function setApplicationCalendar(key) {
         // 0- set app local
-        app.calendar = key;
+        $rootScope.__app.calendar = key;
     }
 
     function parsTenantConfiguration(configs){
@@ -229,14 +221,14 @@ angular.module('mblowfish-core') //
 
     function parsTenantSettings(settings){
         $rootScope.__tenant.settings = keyValueToMap(settings);
-        app.options = $rootScope.__app.settings;
+        $rootScope.__app.options = $rootScope.__tenant.settings;
     }
 
     function parsAccount(account){
         var anonymous = !account.id || account.id === 0;
 
         // app user data
-        app.user = {
+        $rootScope.__app.user = {
                 anonymous: anonymous,
                 current: new UserAccount(account)
         };
@@ -248,9 +240,9 @@ angular.module('mblowfish-core') //
 
         if(anonymous) {
             // legacy
-            app.user.profile = {};
-            app.user.roles = {};
-            app.user.groups = {};
+            $rootScope.__app.user.profile = {};
+            $rootScope.__app.user.roles = {};
+            $rootScope.__app.user.groups = {};
             // update app
             $rootScope.__account.profile = {};
             $rootScope.__account.roles = {};
@@ -260,7 +252,7 @@ angular.module('mblowfish-core') //
         // load the first profile of user
         if(angular.isArray(account.profiles)){
             var profile = account.profiles.length? account.profiles[0] : {};
-            app.user.profile = profile;
+            $rootScope.__app.user.profile = profile;
             $rootScope.__account.profile = profile;
         }
         // load user roles, groups and permissions
@@ -272,7 +264,7 @@ angular.module('mblowfish-core') //
             groupMap[group.name] = true;
             _.assign(permissions, rolesToPermissions(group.roles || []));
         }
-        _.assign(app.user, permissions);
+        _.assign($rootScope.__app.user, permissions);
         $rootScope.__account.permissions = permissions;
         $rootScope.__account.roles = account.roles || [];
         $rootScope.__account.groups = account.groups || [];
@@ -282,8 +274,14 @@ angular.module('mblowfish-core') //
      * Load application configuration
      */
     function parsAppConfiguration(config){
+        if(angular.isString(config)){
+            try{
+                config = JSON.parse(config);
+            }catch(ex){
+            }
+        }
         config = angular.isObject(config) ? config : {};
-        app.config = config;
+        $rootScope.__app.config = config;
         $rootScope.__app.configs = config;
     }
     
@@ -292,7 +290,7 @@ angular.module('mblowfish-core') //
     }
 
     function parsAppSettings(settings){
-        app.setting = settings;
+        $rootScope.__app.setting = settings;
         $rootScope.__app.settings = settings;
     }
 
@@ -302,7 +300,7 @@ angular.module('mblowfish-core') //
      * If there is a role x.y (where x is application code and y is code name)
      * in role list then the following var is added in user:
      * 
-     * app.user.x_y
+     * $rootScope.__app.user.x_y
      * 
      */
     function loadUserProperty() {
@@ -381,7 +379,6 @@ angular.module('mblowfish-core') //
      * @memberof $app
      */
     function start(key) {
-        app.key = key;
         $rootScope.__app.key = 'angular-material-blowfish-' + key;
 
         // handle internal events
@@ -411,63 +408,24 @@ angular.module('mblowfish-core') //
     var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
 
 
-    // All the things that are set up by $app service
-    var app = {
-            state: {
-                // all states: waiting, loading, offline, app_not_configured,
-                // ready, fail
-                status: 'loading',
-                stage: 'starting',
-                message: null
-            },
-            logs: [],
-            user: {
-                current: {},
-                profile : {},
-                anonymous: true,
-                administrator: false,
-                owner: false,
-                member: false,
-                authorized: false
-            },
-            // application settings
-            config: {},
-            // user settings
-            setting: {},
-
-            /*
-             * NOTE: this part is deprecated use tenant
-             */
-            // tenant settings
-            options: {},
-
-            local: 'en', // Default local and language
-            language: 'en', // Default local and language
-    };
-    $rootScope.app = app;
-
 
     /*
      * Attaches loading logs
      */
     function _loadingLog(stage, message) {
-        app.state.stage = stage;
-        app.state.message = message;
-        if (message) {
-            app.logs.push(message);
-        }
+        $rootScope.__app.logs.push(stage + ':' + message);
     }
 
     /*
      * Stores app configuration on the back end
      */
     var storeApplicationConfig = $widget.debounce(function() {
-        if (app.state.status !== APP_STATE_READY || 
-                !$rootScope.__account.tenant_owner) {
+        if ($rootScope.__app.state !== APP_STATE_READY || 
+                !$rootScope.__account.permissions.tenant_owner) {
             return;
         }
         if (appConfigurationContent) { // content loaded
-            return app._acc.uploadValue(app.config);
+            return appConfigurationContent.uploadValue($rootScope.__app.configs);
         } 
         // create content
         promise = $cms.putContent({
@@ -476,7 +434,7 @@ angular.module('mblowfish-core') //
         })
         .then(function (content) {
             appConfigurationContent = content;
-            return appConfigurationContent.uploadValue(app.config);
+            return appConfigurationContent.uploadValue($rootScope.__app.configs);
         });
     }, 3000);
 
@@ -496,8 +454,8 @@ angular.module('mblowfish-core') //
      *            credential of the user
      */
     function login(credential) {
-        if (!app.user.anonymous) {
-            return $q.resolve(app.user.current);
+        if (!$rootScope.__account.anonymous) {
+            return $q.resolve($rootScope.__account);
         }
         return $http({
             method: 'POST',
@@ -518,9 +476,8 @@ angular.module('mblowfish-core') //
      * @memberof $app
      */
     function logout() {
-        var oldUser = $rootScope.app.user;
-        if (oldUser.anonymous) {
-            return $q.resolve(oldUser);
+        if ($rootScope.__account.anonymous) {
+            return $q.resolve($rootScope.__account);
         }
         return $http({
             method: 'POST',
@@ -606,35 +563,28 @@ angular.module('mblowfish-core') //
      * watch direction and update app.dir
      */
     $rootScope.$watch(function () {
-        if (!app.config.local) {
-            app.config.local = {};
-        }
-        return app.setting.dir || app.config.local.dir;
+        return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
     }, setApplicationDirection);
 
     /*
      * watch local and update language
      */
     $rootScope.$watch(function () {
-        // TODO: maso, 2018: remove this part in the next release
-        if (!angular.isObject(app.config.local)) {
-            app.config.local = {};
-        }
         // Check language
-        return app.setting.local || app.config.local.language || 'en';
+        return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
     }, setApplicationLanguage);
 
     /*
      * watch calendar
      */
     $rootScope.$watch(function () {
-        return app.setting.calendar || app.config.calendar || 'Gregorian';
+        return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
     }, setApplicationCalendar);
 
     /*
      * watch application configuration and update app state
      */
-    $rootScope.$watch('app.config', storeApplicationConfig, true);
+    $rootScope.$watch('__app.configs', storeApplicationConfig, true);
 
     // Init
     this.start = start;
@@ -642,7 +592,7 @@ angular.module('mblowfish-core') //
     this.logout = logout;
     this.isEnable = isEnable;
 
-    // test 
+    // test
     // TODO: remove in deploy
     this.__parsTenantConfiguration = parsTenantConfiguration;
 
