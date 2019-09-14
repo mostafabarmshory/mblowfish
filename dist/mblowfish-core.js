@@ -8277,9 +8277,9 @@ angular.module('mblowfish-core') //
         case '1':
         case 'on':
         case 'yes':
-            return true
+            return true;
         default:
-            return false
+            return false;
         }
     }
 
@@ -8440,6 +8440,10 @@ angular.module('mblowfish-core') //
         config = angular.isObject(config) ? config : {};
         app.config = config;
         $rootScope.__app.configs = config;
+    }
+    
+    function loadDefaultApplicationConfig(){
+        // TODO: load last valid configuration from settings
     }
 
     function parsAppSettings(settings){
