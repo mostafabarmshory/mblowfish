@@ -122,9 +122,9 @@ angular.module('mblowfish-core') //
         case '1':
         case 'on':
         case 'yes':
-            return true
+            return true;
         default:
-            return false
+            return false;
         }
     }
 
