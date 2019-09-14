@@ -86,7 +86,8 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant) {
+        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,
+        $widget) {
     'use strict';
 
     /***************************************************************************
@@ -121,9 +122,9 @@ angular.module('mblowfish-core') //
         case '1':
         case 'on':
         case 'yes':
-            return true
+            return true;
         default:
-            return false
+            return false;
         }
     }
 
@@ -131,19 +132,6 @@ angular.module('mblowfish-core') //
      * applicaiton data
      **************************************************************************/
     var appConfigurationContent = null;
-
-    /*
-     * متغیرهای مدیریت تنظیم‌ها
-     * 
-     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-     * کارهای تکراری جلوگیری کنیم.
-     * 
-     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-     * دهد.
-     */
-    var appConfigLock = false;
-    var appConfigDirty = false;
 
     // the state machine
     var stateMachine;
@@ -185,7 +173,7 @@ angular.module('mblowfish-core') //
     }
 
     function setApplicationDirection(dir) {
-        if(!$rootScope.__app.state !== APP_STATE_READY){
+        if($rootScope.__app.state !== APP_STATE_READY){
             return;
         }
         if($rootScope.__app.dir === dir){
@@ -297,6 +285,10 @@ angular.module('mblowfish-core') //
         config = angular.isObject(config) ? config : {};
         app.config = config;
         $rootScope.__app.configs = config;
+    }
+    
+    function loadDefaultApplicationConfig(){
+        // TODO: load last valid configuration from settings
     }
 
     function parsAppSettings(settings){
@@ -469,47 +461,24 @@ angular.module('mblowfish-core') //
     /*
      * Stores app configuration on the back end
      */
-    function storeApplicationConfig() {
-        if (app.state.status !== APP_STATE_READY) {
+    var storeApplicationConfig = $widget.debounce(function() {
+        if (app.state.status !== APP_STATE_READY || 
+                !$rootScope.__account.tenant_owner) {
             return;
         }
-        appConfigDirty = true;
-        if(appConfigLock){
-            return;
-        }
-        if (!(app.user.core_owner || app.user.Pluf_owner || app.user.tenant_owner)) {
-            return $q.reject({
-                data: {
-                    message: 'fail'
-                }
-            });
-        }
-        appConfigLock = true;
-        var promise;
-        if (app._acc) { // content loaded
-            appConfigDirty = false;
-            promise = app._acc.uploadValue(app.config);
-        } else { // create content
-            promise = $cms.putContent({
-                name: $rootScope.__app.key,
-                mimetype: APP_CNF_MIMETYPE
-            }).then(function (content) {
-                appConfigDirty = false;
-                app._acc = content;
-                stateMachine.loaded();
-                return app._acc.uploadValue(app.config);
-            }, function (error) {
-                stateMachine.error(error);
-            });
-        } //
-        return promise //
-        .finally(function () {
-            appConfigLock = false;
-            if (appConfigDirty) {
-                return storeApplicationConfig();
-            }
+        if (appConfigurationContent) { // content loaded
+            return app._acc.uploadValue(app.config);
+        } 
+        // create content
+        promise = $cms.putContent({
+            name: $rootScope.__app.key,
+            mimetype: APP_CNF_MIMETYPE
+        })
+        .then(function (content) {
+            appConfigurationContent = content;
+            return appConfigurationContent.uploadValue(app.config);
         });
-    }
+    }, 3000);
 
     /*
      * Check a module to see if it is enable or not
@@ -537,9 +506,8 @@ angular.module('mblowfish-core') //
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
-        }).then(function () {
-            loadUserProperty();
-        });
+        })
+        .then(loadUserProperty);
     }
 
     /**
@@ -554,8 +522,6 @@ angular.module('mblowfish-core') //
         if (oldUser.anonymous) {
             return $q.resolve(oldUser);
         }
-        $rootScope.app.user = {};
-        stateMachine.loaded();
         return $http({
             method: 'POST',
             url: '/api/v2/user/logout',
@@ -563,13 +529,7 @@ angular.module('mblowfish-core') //
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         })
-        .then(function () {
-            loadUserProperty();
-        }, function () {
-            // TODO: maso, 2018: fail to logout?!
-            $rootScope.app.user = oldUser;
-            stateMachine.loaded();
-        });
+        .then(loadUserProperty);
     }
 
 

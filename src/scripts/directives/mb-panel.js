@@ -141,7 +141,7 @@ angular.module('mblowfish-core')
 					appStateChange: function (state) {
 						if (state.startsWith('ready')) {
 							var route = this.getRoute();
-							if ($rootScope.app.user.anonymous) {
+							if ($rootScope.__account.anonymous) {
 								if (route.protect) {
 									this.transition('login');
 								} else {
@@ -219,7 +219,7 @@ angular.module('mblowfish-core')
 			 * Get current status
 			 */
 			getState: function () {
-				return this.appState || $rootScope.app.state.status;
+				return this.appState || $rootScope.__app.state;
 			}
 		});
 
