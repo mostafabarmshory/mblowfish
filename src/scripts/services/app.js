@@ -286,6 +286,10 @@ angular.module('mblowfish-core') //
         app.config = config;
         $rootScope.__app.configs = config;
     }
+    
+    function loadDefaultApplicationConfig(){
+        // TODO: load last valid configuration from settings
+    }
 
     function parsAppSettings(settings){
         app.setting = settings;
