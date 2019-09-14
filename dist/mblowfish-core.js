@@ -8288,19 +8288,6 @@ angular.module('mblowfish-core') //
      **************************************************************************/
     var appConfigurationContent = null;
 
-    /*
-     * متغیرهای مدیریت تنظیم‌ها
-     * 
-     * زمانی که عملی روی تنظیم‌ها در جریان است قفل فعال می‌شود تا از انجام
-     * کارهای تکراری جلوگیری کنیم.
-     * 
-     * در صورتی که یک پردازش متغیری را تغییر دهد پرچم داده‌های کثیف فعال می‌شود
-     * تا پردازشی که در حال ذخیره سازی است ذخیره کردن داده‌های جدید را هم انجام
-     * دهد.
-     */
-    var appConfigLock = false;
-    var appConfigDirty = false;
-
     // the state machine
     var stateMachine;
 
@@ -8341,7 +8328,7 @@ angular.module('mblowfish-core') //
     }
 
     function setApplicationDirection(dir) {
-        if(!$rootScope.__app.state !== APP_STATE_READY){
+        if($rootScope.__app.state !== APP_STATE_READY){
             return;
         }
         if($rootScope.__app.dir === dir){
