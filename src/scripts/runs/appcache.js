@@ -62,7 +62,7 @@ angular.module('mblowfish-core')
 		.then(updateApplication());
 	}
 
-	oldWatch = $rootScope.$watch('app.state.status', function(status) {
+	oldWatch = $rootScope.$watch('__app.state', function(status) {
 		if (status && status.startsWith('ready')) {
 			// check for update
 			return appcache//

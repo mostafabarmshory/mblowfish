@@ -176,8 +176,10 @@ angular.module('mblowfish-core') //
     }
 
     function setApplicationLanguage(key) {
+        if($rootScope.__app.state !== 'ready'){
+            return;
+        }
         // 0- set app local
-        $rootScope.__app.local = key;
         $rootScope.__app.language = key;
         // 1- change language
         $translate.use(key);
@@ -593,7 +595,12 @@ angular.module('mblowfish-core') //
     /*
      * watch application configuration and update app state
      */
-    $rootScope.$watch('__app.configs', storeApplicationConfig, true);
+    $rootScope.$watch('__app.configs', function(newValue,oldValue){
+        if(!oldValue){
+            return;
+        }
+        return storeApplicationConfig();
+    }, true);
 
     // Init
     this.start = start;

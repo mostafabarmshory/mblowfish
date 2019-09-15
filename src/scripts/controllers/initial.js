@@ -203,7 +203,7 @@ angular.module('mblowfish-core')
     /*
      * Watch application state
      */
-    var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
+    var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
         switch (status) {
         case 'loading':
         case 'fail':

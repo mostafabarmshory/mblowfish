@@ -1166,7 +1166,7 @@ angular.module('mblowfish-core')
     /*
      * Watch application state
      */
-    var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
+    var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
         switch (status) {
         case 'loading':
         case 'fail':
@@ -7215,7 +7215,7 @@ angular.module('mblowfish-core')
 		.then(updateApplication());
 	}
 
-	oldWatch = $rootScope.$watch('app.state.status', function(status) {
+	oldWatch = $rootScope.$watch('__app.state', function(status) {
 		if (status && status.startsWith('ready')) {
 			// check for update
 			return appcache//
@@ -8360,8 +8360,10 @@ angular.module('mblowfish-core') //
     }
 
     function setApplicationLanguage(key) {
+        if($rootScope.__app.state !== 'ready'){
+            return;
+        }
         // 0- set app local
-        $rootScope.__app.local = key;
         $rootScope.__app.language = key;
         // 1- change language
         $translate.use(key);
@@ -8777,7 +8779,12 @@ angular.module('mblowfish-core') //
     /*
      * watch application configuration and update app state
      */
-    $rootScope.$watch('__app.configs', storeApplicationConfig, true);
+    $rootScope.$watch('__app.configs', function(newValue,oldValue){
+        if(!oldValue){
+            return;
+        }
+        return storeApplicationConfig();
+    }, true);
 
     // Init
     this.start = start;
