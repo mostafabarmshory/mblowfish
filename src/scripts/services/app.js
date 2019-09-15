@@ -283,6 +283,15 @@ angular.module('mblowfish-core') //
         config = angular.isObject(config) ? config : {};
         $rootScope.__app.config = config;
         $rootScope.__app.configs = config;
+        
+        // Support old config
+        if($rootScope.__app.configs.local){
+            $rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
+            $rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
+            $rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
+            $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
+            delete $rootScope.__app.configs.local;
+        }
     }
     
     function loadDefaultApplicationConfig(){
@@ -436,7 +445,7 @@ angular.module('mblowfish-core') //
             appConfigurationContent = content;
             return appConfigurationContent.uploadValue($rootScope.__app.configs);
         });
-    }, 3000);
+    }, 1000);
 
     /*
      * Check a module to see if it is enable or not
