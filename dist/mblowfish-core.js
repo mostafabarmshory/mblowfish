@@ -1166,7 +1166,7 @@ angular.module('mblowfish-core')
     /*
      * Watch application state
      */
-    var removeApplicationStateWatch = $scope.$watch('app.state.status', function(status){
+    var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
         switch (status) {
         case 'loading':
         case 'fail':
@@ -5918,7 +5918,12 @@ angular
     function loadPreference($scope, page, anchor) {
         // 1- create scope
         var childScope = $scope.$new(false, $scope);
-        childScope.app = $rootScope.app;
+        // legacy
+        childScope.app = $rootScope.__app;
+        // New
+        childScope.__app = $rootScope.__app;
+        childScope.__tenant = $rootScope.__tenant;
+        childScope.__account = $rootScope.__account;
         // childScope.wbModel = model;
 
         // 2- create element
@@ -7213,7 +7218,7 @@ angular.module('mblowfish-core')
 		.then(updateApplication());
 	}
 
-	oldWatch = $rootScope.$watch('app.state.status', function(status) {
+	oldWatch = $rootScope.$watch('__app.state', function(status) {
 		if (status && status.startsWith('ready')) {
 			// check for update
 			return appcache//
@@ -8358,8 +8363,10 @@ angular.module('mblowfish-core') //
     }
 
     function setApplicationLanguage(key) {
+        if($rootScope.__app.state !== 'ready'){
+            return;
+        }
         // 0- set app local
-        $rootScope.__app.local = key;
         $rootScope.__app.language = key;
         // 1- change language
         $translate.use(key);
@@ -8465,6 +8472,15 @@ angular.module('mblowfish-core') //
         config = angular.isObject(config) ? config : {};
         $rootScope.__app.config = config;
         $rootScope.__app.configs = config;
+        
+        // Support old config
+        if($rootScope.__app.configs.local){
+            $rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
+            $rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
+            $rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
+            $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
+            delete $rootScope.__app.configs.local;
+        }
     }
     
     function loadDefaultApplicationConfig(){
@@ -8618,7 +8634,7 @@ angular.module('mblowfish-core') //
             appConfigurationContent = content;
             return appConfigurationContent.uploadValue($rootScope.__app.configs);
         });
-    }, 3000);
+    }, 1000);
 
     /*
      * Check a module to see if it is enable or not
@@ -8766,7 +8782,12 @@ angular.module('mblowfish-core') //
     /*
      * watch application configuration and update app state
      */
-    $rootScope.$watch('__app.configs', storeApplicationConfig, true);
+    $rootScope.$watch('__app.configs', function(newValue,oldValue){
+        if(!oldValue){
+            return;
+        }
+        return storeApplicationConfig();
+    }, true);
 
     // Init
     this.start = start;

@@ -44,7 +44,12 @@ angular
     function loadPreference($scope, page, anchor) {
         // 1- create scope
         var childScope = $scope.$new(false, $scope);
-        childScope.app = $rootScope.app;
+        // legacy
+        childScope.app = $rootScope.__app;
+        // New
+        childScope.__app = $rootScope.__app;
+        childScope.__tenant = $rootScope.__tenant;
+        childScope.__account = $rootScope.__account;
         // childScope.wbModel = model;
 
         // 2- create element
