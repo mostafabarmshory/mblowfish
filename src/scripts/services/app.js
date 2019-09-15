@@ -326,7 +326,7 @@ angular.module('mblowfish-core') //
         _loadingLog('loading', 'fetch remote storage');
 
         // application config
-        var pLoadAppConfig = $cms.getContent($rootScope.__app.key) //
+        var pLoadAppConfig = $cms.getContent($rootScope.__app.configs_key) //
         .then(function (content) {
             appConfigurationContent = content;
             return appConfigurationContent.downloadValue();
@@ -390,7 +390,8 @@ angular.module('mblowfish-core') //
      * @memberof $app
      */
     function start(key) {
-        $rootScope.__app.key = 'angular-material-blowfish-' + key;
+        $rootScope.__app.key = key;
+        $rootScope.__app.configs_key = 'angular-material-blowfish-' + key;
 
         // handle internal events
         handleEvent(APP_EVENT_START);
@@ -440,7 +441,7 @@ angular.module('mblowfish-core') //
         } 
         // create content
         promise = $cms.putContent({
-            name: $rootScope.__app.key,
+            name: $rootScope.__app.configs_key,
             mimetype: APP_CNF_MIMETYPE
         })
         .then(function (content) {
