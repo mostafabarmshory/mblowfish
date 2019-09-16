@@ -13,7 +13,7 @@
 
     <div flex layout="column" layout-fill>
       <div layout="row"
-           style="flex-grow: 1; min-height: 100px;" layout-align="center none">
+           style="flex-grow: 1; min-height: 100px;" layout-align="center center">
 
         <lf-ng-md-file-input
           style="flex-grow: 1; padding: 10px;"
@@ -25,8 +25,9 @@
           drag>
         </lf-ng-md-file-input>
 
+
         <img
-          style="max-width: 300px; max-height: 300px;"
+          style="max-width: 300px; max-height: 300px; min-width: 24px; min-height: 24px;"
           ng-if="ctrl.avatarState === 'normal'"
           ng-src="/api/v2/user/accounts/{{ctrl.user.id}}/avatar"
           ng-src-error="https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32"/>
