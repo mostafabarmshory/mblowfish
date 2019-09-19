@@ -209,12 +209,12 @@ angular.module('mblowfish-core') //
 
         // load domains
         var domains = {};
-        var regex = new RegExp('^module\.(?<module>.*)\.enable$', 'i');
+        var regex = new RegExp('^module\.(.*)\.enable$', 'i');
         for(var i = 0; i < configs.length; i++){
             var config = configs[i];
             var match = regex.exec(config.key);
             if(match) {
-                var key = match.groups['module'].toLowerCase();
+                var key = match[1].toLowerCase();
                 domains[key] = parseBooleanValue(config.value);
             }
         }
