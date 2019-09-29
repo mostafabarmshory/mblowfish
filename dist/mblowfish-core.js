@@ -3221,76 +3221,76 @@ angular.module('mblowfish-core')
  */
 angular.module('mblowfish-core')//
 
-	/**
-	 * @ngdoc Controllers
-	 * @name MbSeenAbstractCollectionCtrl
-	 * @description Generic controller of model collection of seen
-	 * 
-	 * This controller is used manages a collection of a virtual items. it is the
-	 * base of all other collection controllers such as accounts, groups, etc.
-	 * 
-	 * There are two types of function in the controller: view and data related. All
-	 * data functions are considered to be override by extensions.
-	 * 
-	 * There are three categories of actions;
-	 * 
-	 * - view
-	 * - model
-	 * - controller
-	 * 
-	 * view actions are about to update view. For example adding an item into the view
-	 * or remove deleted item.
-	 * 
-	 * Model actions deal with model in the repository. These are equivalent to the view
-	 * actions but removes items from the storage.
-	 * 
-	 * However, controller function provide an interactive action to the user to performs
-	 * an action.
-	 * 
-	 * ## Add
-	 * 
-	 * - addItem: controller
-	 * - addModel: model
-	 * - addViewItem: view
+/**
+ * @ngdoc Controllers
+ * @name MbSeenAbstractCollectionCtrl
+ * @description Generic controller of model collection of seen
+ * 
+ * This controller is used manages a collection of a virtual items. it is the
+ * base of all other collection controllers such as accounts, groups, etc.
+ * 
+ * There are two types of function in the controller: view and data related. All
+ * data functions are considered to be override by extensions.
+ * 
+ * There are three categories of actions;
+ * 
+ * - view
+ * - model
+ * - controller
+ * 
+ * view actions are about to update view. For example adding an item into the view
+ * or remove deleted item.
+ * 
+ * Model actions deal with model in the repository. These are equivalent to the view
+ * actions but removes items from the storage.
+ * 
+ * However, controller function provide an interactive action to the user to performs
+ * an action.
+ * 
+ * ## Add
+ * 
+ * - addItem: controller
+ * - addModel: model
+ * - addViewItem: view
+ */
+.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
+	'use strict';
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
 	 */
-	.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
-	    'use strict';
-
-	    /*
-	     * Extends collection controller from MbAbstractCtrl 
-	     */
-	    angular.extend(this, $controller('MbAbstractCtrl', {
+	angular.extend(this, $controller('MbAbstractCtrl', {
 		$scope: $scope
-	    }));
+	}));
 
-	    this.getSchema = function () {
+	this.getSchema = function () {
 		if (!angular.isDefined(this.getModelSchema)) {
-		    return;
+			return;
 		}
 		return this.getModelSchema()
-			.then(function (schema) {
-			    return schema;
-			});
-	    };
+		.then(function (schema) {
+			return schema;
+		});
+	};
 
-	    //properties is the children of schema.
-	    this.getProperties = function () {
+	//properties is the children of schema.
+	this.getProperties = function () {
 		if (angular.isDefined(this.properties)) {
-		    $q.resolve(this.properties);
+			$q.resolve(this.properties);
 		}
 		var ctrl = this;
 		if (angular.isDefined(ctrl.getModelSchema)) {
-		    return this.getSchema()
-			    .then(function (schema) {
+			return this.getSchema()
+			.then(function (schema) {
 				ctrl.properties = schema.children;
-			    });
+			});
 		}
-	    };
+	};
 
-	    this.init = function () {
+	this.init = function () {
 		this.getProperties();
-	    };
-	});
+	};
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8274,7 +8274,7 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
         $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,
-        $widget) {
+        $widget, $dispatcher) {
     'use strict';
 
     /***************************************************************************
@@ -8393,6 +8393,12 @@ angular.module('mblowfish-core') //
 
     function parsTenantConfiguration(configs){
         $rootScope.__tenant.configs = keyValueToMap(configs);
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__tenant.configs
+        };
+        $dispatcher.dispatch('/tenant/configs', $event);
 
         // load domains
         var domains = {};
@@ -8406,11 +8412,26 @@ angular.module('mblowfish-core') //
             }
         }
         $rootScope.__tenant.domains = domains;
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__tenant.domains
+        };
+        $dispatcher.dispatch('/tenant/domains', $event);
     }
 
     function parsTenantSettings(settings){
         $rootScope.__tenant.settings = keyValueToMap(settings);
         $rootScope.__app.options = $rootScope.__tenant.settings;
+
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__account
+        };
+        $dispatcher.dispatch('/tenant/settings', $event);
     }
 
     function parsAccount(account){
@@ -8457,6 +8478,14 @@ angular.module('mblowfish-core') //
         $rootScope.__account.permissions = permissions;
         $rootScope.__account.roles = account.roles || [];
         $rootScope.__account.groups = account.groups || [];
+        
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__account
+        };
+        $dispatcher.dispatch('/account', $event);
     }
 
     /**
@@ -8481,6 +8510,14 @@ angular.module('mblowfish-core') //
             $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
             delete $rootScope.__app.configs.local;
         }
+
+        // Flux: fire application config
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__app.configs
+        };
+        $dispatcher.dispatch('/app/configs', $event);
     }
     
     function loadDefaultApplicationConfig(){
@@ -8490,6 +8527,15 @@ angular.module('mblowfish-core') //
     function parsAppSettings(settings){
         $rootScope.__app.setting = settings;
         $rootScope.__app.settings = settings;
+        
+
+        // Flux: fire application settings
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__app.settings
+        };
+        $dispatcher.dispatch('/app/settings', $event);
     }
 
     /*
@@ -8588,8 +8634,6 @@ angular.module('mblowfish-core') //
      * 
      **************************************************************************/
 
-
-
     // states
     var APP_STATE_WAITING = 'waiting';
     var APP_STATE_LOADING = 'loading';
@@ -8605,8 +8649,6 @@ angular.module('mblowfish-core') //
     var APP_EVENT_SERVER_ERROR = 'server_error';
     var APP_EVENT_NET_ERROR = 'network_error';
     var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
-
-
 
     /*
      * Attaches loading logs
