@@ -3221,76 +3221,76 @@ angular.module('mblowfish-core')
  */
 angular.module('mblowfish-core')//
 
-	/**
-	 * @ngdoc Controllers
-	 * @name MbSeenAbstractCollectionCtrl
-	 * @description Generic controller of model collection of seen
-	 * 
-	 * This controller is used manages a collection of a virtual items. it is the
-	 * base of all other collection controllers such as accounts, groups, etc.
-	 * 
-	 * There are two types of function in the controller: view and data related. All
-	 * data functions are considered to be override by extensions.
-	 * 
-	 * There are three categories of actions;
-	 * 
-	 * - view
-	 * - model
-	 * - controller
-	 * 
-	 * view actions are about to update view. For example adding an item into the view
-	 * or remove deleted item.
-	 * 
-	 * Model actions deal with model in the repository. These are equivalent to the view
-	 * actions but removes items from the storage.
-	 * 
-	 * However, controller function provide an interactive action to the user to performs
-	 * an action.
-	 * 
-	 * ## Add
-	 * 
-	 * - addItem: controller
-	 * - addModel: model
-	 * - addViewItem: view
+/**
+ * @ngdoc Controllers
+ * @name MbSeenAbstractCollectionCtrl
+ * @description Generic controller of model collection of seen
+ * 
+ * This controller is used manages a collection of a virtual items. it is the
+ * base of all other collection controllers such as accounts, groups, etc.
+ * 
+ * There are two types of function in the controller: view and data related. All
+ * data functions are considered to be override by extensions.
+ * 
+ * There are three categories of actions;
+ * 
+ * - view
+ * - model
+ * - controller
+ * 
+ * view actions are about to update view. For example adding an item into the view
+ * or remove deleted item.
+ * 
+ * Model actions deal with model in the repository. These are equivalent to the view
+ * actions but removes items from the storage.
+ * 
+ * However, controller function provide an interactive action to the user to performs
+ * an action.
+ * 
+ * ## Add
+ * 
+ * - addItem: controller
+ * - addModel: model
+ * - addViewItem: view
+ */
+.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
+	'use strict';
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
 	 */
-	.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
-	    'use strict';
-
-	    /*
-	     * Extends collection controller from MbAbstractCtrl 
-	     */
-	    angular.extend(this, $controller('MbAbstractCtrl', {
+	angular.extend(this, $controller('MbAbstractCtrl', {
 		$scope: $scope
-	    }));
+	}));
 
-	    this.getSchema = function () {
+	this.getSchema = function () {
 		if (!angular.isDefined(this.getModelSchema)) {
-		    return;
+			return;
 		}
 		return this.getModelSchema()
-			.then(function (schema) {
-			    return schema;
-			});
-	    };
+		.then(function (schema) {
+			return schema;
+		});
+	};
 
-	    //properties is the children of schema.
-	    this.getProperties = function () {
+	//properties is the children of schema.
+	this.getProperties = function () {
 		if (angular.isDefined(this.properties)) {
-		    $q.resolve(this.properties);
+			$q.resolve(this.properties);
 		}
 		var ctrl = this;
 		if (angular.isDefined(ctrl.getModelSchema)) {
-		    return this.getSchema()
-			    .then(function (schema) {
+			return this.getSchema()
+			.then(function (schema) {
 				ctrl.properties = schema.children;
-			    });
+			});
 		}
-	    };
+	};
 
-	    this.init = function () {
+	this.init = function () {
 		this.getProperties();
-	    };
-	});
+	};
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6976,183 +6976,183 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-    /***************************************************************************
-     * New app state
-     * 
-     * Application state is saved in the root scope
-     **************************************************************************/
-    /*
-     * Store application state
-     */
-    $rootScope.__app = {
-            /******************************************************************
-             * New model
-             ******************************************************************/
-            state: 'waiting',
-            key: '',
-            configs: {},
-            settings: {},
-            language: 'en',
-            /******************************************************************
-             * Old model
-             ******************************************************************/
-            logs: [],
-            user: {
-                current: {},
-                profile : {},
-                anonymous: true,
-                administrator: false,
-                owner: false,
-                member: false,
-                authorized: false
-            },
-            // application settings
-            config: {},
-            // user settings
-            setting: {},
-            /*
-             * NOTE: this part is deprecated use tenant
-             */
-            // tenant settings
-            options: {},
-            local: 'en', // Default local and language
-    };
-    $rootScope.app =  $rootScope.__app;
+	/***************************************************************************
+	 * New app state
+	 * 
+	 * Application state is saved in the root scope
+	 **************************************************************************/
+	/*
+	 * Store application state
+	 */
+	$rootScope.__app = {
+			/******************************************************************
+			 * New model
+			 ******************************************************************/
+			state: 'waiting',
+			key: '',
+			configs: {},
+			settings: {},
+			language: 'en',
+			/******************************************************************
+			 * Old model
+			 ******************************************************************/
+			logs: [],
+			user: {
+				current: {},
+				profile : {},
+				anonymous: true,
+				administrator: false,
+				owner: false,
+				member: false,
+				authorized: false
+			},
+			// application settings
+			config: {},
+			// user settings
+			setting: {},
+			/*
+			 * NOTE: this part is deprecated use tenant
+			 */
+			// tenant settings
+			options: {},
+			local: 'en', // Default local and language
+	};
+	$rootScope.app =  $rootScope.__app;
 
-    /*
-     * Store tenant sate
-     */
-    $rootScope.__tenant = {
-            id:0,
-            title: 'notitle',
-            description: 'nodescription',
-            configs:{},
-            settings:{},
-            domains:{}
-    };
+	/*
+	 * Store tenant sate
+	 */
+	$rootScope.__tenant = {
+			id:0,
+			title: 'notitle',
+			description: 'nodescription',
+			configs:{},
+			settings:{},
+			domains:{}
+	};
 
-    /*
-     * Store account state
-     */
-    $rootScope.__account ={
-            anonymous: true,
-            id: 0,
-            login: '',
-            profile : {},
-            roles:{},
-            groups:{},
-            permissions:{},
-            messages:[]
-    }
+	/*
+	 * Store account state
+	 */
+	$rootScope.__account ={
+			anonymous: true,
+			id: 0,
+			login: '',
+			profile : {},
+			roles:{},
+			groups:{},
+			permissions:{},
+			messages:[]
+	}
 
 
-    /***************************************************************************
-     * Application actions
-     **************************************************************************/
-    $actions.newAction({
-        id : 'mb.preferences',
-        priority : 15,
-        icon : 'settings',
-        title : 'Preferences',
-        description : 'Open preferences panel',
-        visible : function () {
-            return $rootScope.__account.permissions.tenant_owner;
-        },
-        action : function () {
-            return $navigator.openPage('preferences');
-        },
-        groups : [ 'mb.toolbar.menu' ]
-    });
-    $actions.newAction({// help
-        id : 'mb.help',
-        priority : 15,
-        icon : 'help',
-        title : 'Help',
-        description : 'Display help in sidenav',
-        visible : function () {
-            return $help.hasHelp($route.current);
-        },
-        action : function () {
-            $help.openHelp($route.current);
-        },
-        groups : [ 'mb.toolbar.menu' ]
-    });
-    $actions.newAction({
-        icon : 'account_circle',
-        title : 'Profile',
-        description : 'User profile',
-        groups : [ 'mb.user' ],
-        action : function () {
-            return $navigator.openPage('users/profile');
-        }
-    });
-    $actions.newAction({
-        icon : 'account_box',
-        title : 'Account',
-        description : 'User account',
-        groups : [ 'mb.user' ],
-        action : function () {
-            return $navigator.openPage('users/account');
-        }
-    });
-    $actions.newAction({
-        icon : 'fingerprint',
-        title : 'Password',
-        description : 'Manage password',
-        groups : [ 'mb.user' ],
-        action : function () {
-            return $navigator.openPage('users/password');
-        }
-    });
+	/***************************************************************************
+	 * Application actions
+	 **************************************************************************/
+	$actions.newAction({
+		id : 'mb.preferences',
+		priority : 15,
+		icon : 'settings',
+		title : 'Preferences',
+		description : 'Open preferences panel',
+		visible : function () {
+			return $rootScope.__account.permissions.tenant_owner;
+		},
+		action : function () {
+			return $navigator.openPage('preferences');
+		},
+		groups : [ 'mb.toolbar.menu' ]
+	});
+	$actions.newAction({// help
+		id : 'mb.help',
+		priority : 15,
+		icon : 'help',
+		title : 'Help',
+		description : 'Display help in sidenav',
+		visible : function () {
+			return $help.hasHelp($route.current);
+		},
+		action : function () {
+			$help.openHelp($route.current);
+		},
+		groups : [ 'mb.toolbar.menu' ]
+	});
+	$actions.newAction({
+		icon : 'account_circle',
+		title : 'Profile',
+		description : 'User profile',
+		groups : [ 'mb.user' ],
+		action : function () {
+			return $navigator.openPage('users/profile');
+		}
+	});
+	$actions.newAction({
+		icon : 'account_box',
+		title : 'Account',
+		description : 'User account',
+		groups : [ 'mb.user' ],
+		action : function () {
+			return $navigator.openPage('users/account');
+		}
+	});
+	$actions.newAction({
+		icon : 'fingerprint',
+		title : 'Password',
+		description : 'Manage password',
+		groups : [ 'mb.user' ],
+		action : function () {
+			return $navigator.openPage('users/password');
+		}
+	});
 
-    $toolbar.newToolbar({
-        id : 'dashboard',
-        title : 'Dashboard toolbar',
-        description : 'Main dashboard toolbar',
-        controller : 'MbToolbarDashboardCtrl',
-        templateUrl : 'views/toolbars/mb-dashboard.html'
-    });
+	$toolbar.newToolbar({
+		id : 'dashboard',
+		title : 'Dashboard toolbar',
+		description : 'Main dashboard toolbar',
+		controller : 'MbToolbarDashboardCtrl',
+		templateUrl : 'views/toolbars/mb-dashboard.html'
+	});
 
-    $sidenav.newSidenav({
-        id : 'navigator',
-        title : 'Navigator',
-        description : 'Navigate all path and routs of the pandel',
-        controller : 'AmdNavigatorCtrl',
-        templateUrl : 'views/sidenavs/mb-navigator.html',
-        locked : true,
-        position : 'start'
-    });
-    $sidenav.newSidenav({
-        id : 'help',
-        title : 'Help',
-        description : 'System online help',
-        controller : 'MbHelpCtrl',
-        templateUrl : 'views/sidenavs/mb-help.html',
-        locked : true,
-        visible : function () {
-            return $rootScope.showHelp;
-        },
-        position : 'end'
-    });
-    $sidenav.newSidenav({
-        id : 'settings',
-        title : 'Options',
-        description : 'User options',
-        controller : 'MbOptionsCtrl',
-        templateUrl : 'views/sidenavs/mb-options.html',
-        locked : false,
-        position : 'end'
-    });
-    $sidenav.newSidenav({
-        id : 'messages',
-        title : 'Messages',
-        description : 'User message queue',
-        controller : 'MessagesCtrl',
-        controllerAs: 'ctrl',
-        templateUrl : 'views/sidenavs/mb-messages.html',
-        locked : false,
-        position : 'start'
-    });
+	$sidenav.newSidenav({
+		id : 'navigator',
+		title : 'Navigator',
+		description : 'Navigate all path and routs of the pandel',
+		controller : 'AmdNavigatorCtrl',
+		templateUrl : 'views/sidenavs/mb-navigator.html',
+		locked : true,
+		position : 'start'
+	});
+	$sidenav.newSidenav({
+		id : 'help',
+		title : 'Help',
+		description : 'System online help',
+		controller : 'MbHelpCtrl',
+		templateUrl : 'views/sidenavs/mb-help.html',
+		locked : true,
+		visible : function () {
+			return $rootScope.showHelp;
+		},
+		position : 'end'
+	});
+	$sidenav.newSidenav({
+		id : 'settings',
+		title : 'Options',
+		description : 'User options',
+		controller : 'MbOptionsCtrl',
+		templateUrl : 'views/sidenavs/mb-options.html',
+		locked : false,
+		position : 'end'
+	});
+	$sidenav.newSidenav({
+		id : 'messages',
+		title : 'Messages',
+		description : 'User message queue',
+		controller : 'MessagesCtrl',
+		controllerAs: 'ctrl',
+		templateUrl : 'views/sidenavs/mb-messages.html',
+		locked : false,
+		position : 'start'
+	});
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8274,7 +8274,7 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
         $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,
-        $widget) {
+        $widget, $dispatcher) {
     'use strict';
 
     /***************************************************************************
@@ -8393,6 +8393,12 @@ angular.module('mblowfish-core') //
 
     function parsTenantConfiguration(configs){
         $rootScope.__tenant.configs = keyValueToMap(configs);
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__tenant.configs
+        };
+        $dispatcher.dispatch('/tenant/configs', $event);
 
         // load domains
         var domains = {};
@@ -8406,11 +8412,26 @@ angular.module('mblowfish-core') //
             }
         }
         $rootScope.__tenant.domains = domains;
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__tenant.domains
+        };
+        $dispatcher.dispatch('/tenant/domains', $event);
     }
 
     function parsTenantSettings(settings){
         $rootScope.__tenant.settings = keyValueToMap(settings);
         $rootScope.__app.options = $rootScope.__tenant.settings;
+
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__account
+        };
+        $dispatcher.dispatch('/tenant/settings', $event);
     }
 
     function parsAccount(account){
@@ -8457,6 +8478,14 @@ angular.module('mblowfish-core') //
         $rootScope.__account.permissions = permissions;
         $rootScope.__account.roles = account.roles || [];
         $rootScope.__account.groups = account.groups || [];
+        
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__account
+        };
+        $dispatcher.dispatch('/account', $event);
     }
 
     /**
@@ -8481,6 +8510,14 @@ angular.module('mblowfish-core') //
             $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
             delete $rootScope.__app.configs.local;
         }
+
+        // Flux: fire application config
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__app.configs
+        };
+        $dispatcher.dispatch('/app/configs', $event);
     }
     
     function loadDefaultApplicationConfig(){
@@ -8490,6 +8527,15 @@ angular.module('mblowfish-core') //
     function parsAppSettings(settings){
         $rootScope.__app.setting = settings;
         $rootScope.__app.settings = settings;
+        
+
+        // Flux: fire application settings
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__app.settings
+        };
+        $dispatcher.dispatch('/app/settings', $event);
     }
 
     /*
@@ -8588,8 +8634,6 @@ angular.module('mblowfish-core') //
      * 
      **************************************************************************/
 
-
-
     // states
     var APP_STATE_WAITING = 'waiting';
     var APP_STATE_LOADING = 'loading';
@@ -8605,8 +8649,6 @@ angular.module('mblowfish-core') //
     var APP_EVENT_SERVER_ERROR = 'server_error';
     var APP_EVENT_NET_ERROR = 'network_error';
     var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
-
-
 
     /*
      * Attaches loading logs

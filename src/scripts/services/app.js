@@ -87,7 +87,7 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
         $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,
-        $widget) {
+        $widget, $dispatcher) {
     'use strict';
 
     /***************************************************************************
@@ -206,6 +206,12 @@ angular.module('mblowfish-core') //
 
     function parsTenantConfiguration(configs){
         $rootScope.__tenant.configs = keyValueToMap(configs);
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__tenant.configs
+        };
+        $dispatcher.dispatch('/tenant/configs', $event);
 
         // load domains
         var domains = {};
@@ -219,11 +225,26 @@ angular.module('mblowfish-core') //
             }
         }
         $rootScope.__tenant.domains = domains;
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__tenant.domains
+        };
+        $dispatcher.dispatch('/tenant/domains', $event);
     }
 
     function parsTenantSettings(settings){
         $rootScope.__tenant.settings = keyValueToMap(settings);
         $rootScope.__app.options = $rootScope.__tenant.settings;
+
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__account
+        };
+        $dispatcher.dispatch('/tenant/settings', $event);
     }
 
     function parsAccount(account){
@@ -270,6 +291,14 @@ angular.module('mblowfish-core') //
         $rootScope.__account.permissions = permissions;
         $rootScope.__account.roles = account.roles || [];
         $rootScope.__account.groups = account.groups || [];
+        
+        // Flux: fire account change
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__account
+        };
+        $dispatcher.dispatch('/account', $event);
     }
 
     /**
@@ -294,6 +323,14 @@ angular.module('mblowfish-core') //
             $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
             delete $rootScope.__app.configs.local;
         }
+
+        // Flux: fire application config
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__app.configs
+        };
+        $dispatcher.dispatch('/app/configs', $event);
     }
     
     function loadDefaultApplicationConfig(){
@@ -303,6 +340,15 @@ angular.module('mblowfish-core') //
     function parsAppSettings(settings){
         $rootScope.__app.setting = settings;
         $rootScope.__app.settings = settings;
+        
+
+        // Flux: fire application settings
+        var $event = {
+        		src: this,
+        		type: 'update',
+        		value: $rootScope.__app.settings
+        };
+        $dispatcher.dispatch('/app/settings', $event);
     }
 
     /*
@@ -401,8 +447,6 @@ angular.module('mblowfish-core') //
      * 
      **************************************************************************/
 
-
-
     // states
     var APP_STATE_WAITING = 'waiting';
     var APP_STATE_LOADING = 'loading';
@@ -418,8 +462,6 @@ angular.module('mblowfish-core') //
     var APP_EVENT_SERVER_ERROR = 'server_error';
     var APP_EVENT_NET_ERROR = 'network_error';
     var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
-
-
 
     /*
      * Attaches loading logs
