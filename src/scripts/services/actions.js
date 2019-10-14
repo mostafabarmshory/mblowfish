@@ -32,99 +32,105 @@ angular.module('mblowfish-core')
  * 
  */
 .service('$actions', function(Action, ActionGroup) {
-	var _actionsList = [];
-	var _actionsMap = {};
+    var _actionsList = [];
+    var _actionsMap = {};
 
-	var _groupsList = [];
-	var _groupsMap = [];
+    var _groupsList = [];
+    var _groupsMap = [];
 
-	function _actions() {
-		return {
-			'items' : _actionsList
-		};
-	}
+    function _actions() {
+        return {
+            'items' : _actionsList
+        };
+    }
 
-	// TODO: maso, 2018: add document
-	function _newAction(data) {
-		// Add new action
-		var action = new Action(data);
-		_actionsMap[action.id] = action;
-		_actionsList.push(action);
-		for (var i = 0; i < action.groups.length; i++) {
-			var group = _group(action.groups[i]);
-			group.items.push(action);
-		}
-		if (action.scope) {
-			action.scope.$on('$destroy', function() {
-				_removeAction(action);
-			});
-		}
-		return action;
-	}
+    // TODO: maso, 2018: add document
+    function _newAction(data) {
+        // Add new action
+        var action = new Action(data);
+        // remove old one
+        var oldaction = _action(action.id);
+        if(oldaction){
+            _removeAction(oldaction);
+        }
+        // add new one
+        _actionsMap[action.id] = action;
+        _actionsList.push(action);
+        for (var i = 0; i < action.groups.length; i++) {
+            var group = _group(action.groups[i]);
+            group.items.push(action);
+        }
+        if (action.scope) {
+            action.scope.$on('$destroy', function() {
+                _removeAction(action);
+            });
+        }
+        return action;
+    }
 
-	// TODO: maso, 2018: add document
-	function _action(actionId) {
-		var action = _actionsMap[actionId];
-		if (action) {
-			return action;
-		}
-	}
+    // TODO: maso, 2018: add document
+    function _action(actionId) {
+        var action = _actionsMap[actionId];
+        if (action) {
+            return action;
+        }
+    }
 
-	// TODO: maso, 2018: add document
-	function _removeAction(action) {
-		_actionsMap[action.id] = null;
-		var index = _actionsList.indexOf(action);
-		if (index > -1) {
-			_actionsList.splice(index, 1);
-			for (var i = 0; i < action.groups.length; i++) {
-				var group = _group(action.groups[i]);
-				var j = group.items.indexOf(action);
-				if (j > -1) {
-					group.items.splice(j, 1);
-				}
-			}
-			return action;
-		}
-	}
+    // TODO: maso, 2018: add document
+    function _removeAction(action) {
+        _actionsMap[action.id] = null;
+        var index = _actionsList.indexOf(action);
+        if (index > -1) {
+            _actionsList.splice(index, 1);
+            for (var i = 0; i < action.groups.length; i++) {
+                var group = _group(action.groups[i]);
+                var j = group.items.indexOf(action);
+                if (j > -1) {
+                    group.items.splice(j, 1);
+                }
+            }
+            return action;
+        }
+    }
 
-	// TODO: maso, 2018: add document
-	function _groups() {
-		return {
-			'items' : _groupsList
-		};
-	}
+    // TODO: maso, 2018: add document
+    function _groups() {
+        return {
+            'items' : _groupsList
+        };
+    }
 
-	// TODO: maso, 2018: add document
-	function _newGroup(groupData) {
-		// TODO: maso, 2018: assert id
-		return _group(groupData.id, groupData);
-	}
+    // TODO: maso, 2018: add document
+    function _newGroup(groupData) {
+        // TODO: maso, 2018: assert id
+        return _group(groupData.id, groupData);
+    }
 
-	// TODO: maso, 2018: add document
-	function _group(groupId, groupData) {
-		var group = _groupsMap[groupId];
-		if (!group) {
-			group = new ActionGroup();
-			group.id = groupId;
-			_groupsMap[group.id] = group;
-			_groupsList.push(group);
-		}
-		if (groupData) {
-			angular.extend(group, groupData);
-		}
-		return group;
-	}
+    // TODO: maso, 2018: add document
+    function _group(groupId, groupData) {
+        var group = _groupsMap[groupId];
+        if (!group) {
+            group = new ActionGroup();
+            group.id = groupId;
+            _groupsMap[group.id] = group;
+            _groupsList.push(group);
+        }
+        if (groupData) {
+            angular.extend(group, groupData);
+        }
+        return group;
+    }
 
-	return {
-		// actions
-		actions : _actions,
-		newAction : _newAction,
-		action : _action,
-		removeAction : _removeAction,
+    return {
+        // actions
+        actions : _actions,
+        newAction : _newAction,
+        action : _action,
+        removeAction : _removeAction,
 
-		// groups
-		groups : _groups,
-		newGroup : _newGroup,
-		group : _group
-	};
+        // groups
+        groups : _groups,
+        newGroup : _newGroup,
+        group : _group
+    };
 });
