@@ -6971,6 +6971,51 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
+/*
+ * Application extensions
+ * 
+ *  An extension is responsible to extends the state of the
+ * application and add more functionality. For example auto save
+ * configuration is one of the application extension
+ */
+.run(function ($app, $dispatcher) {
+    
+    /*
+     * Store application config if there is change
+     */
+    function storeApplicationConfig(event){
+        if(event.type === 'update' && $app.getState() === 'ready'){
+            $app.storeApplicationConfig();
+        }
+    }
+
+    // watch the configurations of the application
+    $dispatcher.on('/app/configs', storeApplicationConfig);
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
@@ -8278,8 +8323,8 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,
-        $widget, $dispatcher) {
+        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,$timeout,
+        $dispatcher) {
     'use strict';
 
     /***************************************************************************
@@ -8327,14 +8372,14 @@ angular.module('mblowfish-core') //
 
     // the state machine
     var stateMachine;
-    
+
     // Constants
     var APP_CNF_MIMETYPE = 'application/amd-cnf';
     var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
     var TENANT_GRAPHQL = '{id,title,description,'+
-        'account'+USER_DETAIL_GRAPHQL +
-        'configurations{key,value}' +
-        'settings{key,value}' +
+    'account'+USER_DETAIL_GRAPHQL +
+    'configurations{key,value}' +
+    'settings{key,value}' +
     '}';
 
 
@@ -8353,15 +8398,28 @@ angular.module('mblowfish-core') //
      */
     function setApplicationState(state){
         // create event
-        var $event = {};
-        $event.oldValue = $rootScope.__app.state;
-        $event.value = state;
-
-        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
-
+        var $event = {
+                type: 'update',
+                value: state,
+                oldValue: $rootScope.__app.state
+        };
         $rootScope.__app.state = state;
-        // TODO: maso, 2019: fire the state is changed
+
+        // staso, 2019: fire the state is changed
+        $dispatcher.dispatch('/app/state', $event);
+        
+        // TODO: move to application extension
+        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
     }
+    
+    /**
+     * Gets the state of the application
+     * 
+     * @memberof $app
+     */
+    this.getState = function(){
+        return  $rootScope.__app.state;
+    };
 
     function setApplicationDirection(dir) {
         $rootScope.__app.dir = dir;
@@ -8399,9 +8457,9 @@ angular.module('mblowfish-core') //
     function parsTenantConfiguration(configs){
         $rootScope.__tenant.configs = keyValueToMap(configs);
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__tenant.configs
+                src: this,
+                type: 'update',
+                value: $rootScope.__tenant.configs
         };
         $dispatcher.dispatch('/tenant/configs', $event);
 
@@ -8419,9 +8477,9 @@ angular.module('mblowfish-core') //
         $rootScope.__tenant.domains = domains;
         // Flux: fire account change
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__tenant.domains
+                src: this,
+                type: 'update',
+                value: $rootScope.__tenant.domains
         };
         $dispatcher.dispatch('/tenant/domains', $event);
     }
@@ -8432,9 +8490,9 @@ angular.module('mblowfish-core') //
 
         // Flux: fire account change
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__account
+                src: this,
+                type: 'update',
+                value: $rootScope.__account
         };
         $dispatcher.dispatch('/tenant/settings', $event);
     }
@@ -8483,16 +8541,34 @@ angular.module('mblowfish-core') //
         $rootScope.__account.permissions = permissions;
         $rootScope.__account.roles = account.roles || [];
         $rootScope.__account.groups = account.groups || [];
-        
+
         // Flux: fire account change
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__account
+                src: this,
+                type: 'update',
+                value: $rootScope.__account
         };
         $dispatcher.dispatch('/account', $event);
     }
 
+    /***********************************************************
+     * Application configuration
+     ***********************************************************/
+    /*
+     * deprecated: watch application configuration
+     */
+    var __configs_clean = false;
+    $rootScope.$watch('__app.configs', function(newValue,oldValue){
+        if(!__configs_clean){
+            return;
+        }
+        $dispatcher.dispatch('/app/configs', {
+            type: 'update',
+            value: newValue,
+            oldValue: oldValue
+        });
+    }, true);
+    
     /**
      * Load application configuration
      */
@@ -8506,7 +8582,7 @@ angular.module('mblowfish-core') //
         config = angular.isObject(config) ? config : {};
         $rootScope.__app.config = config;
         $rootScope.__app.configs = config;
-        
+
         // Support old config
         if($rootScope.__app.configs.local){
             $rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
@@ -8517,28 +8593,52 @@ angular.module('mblowfish-core') //
         }
 
         // Flux: fire application config
-        var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__app.configs
-        };
-        $dispatcher.dispatch('/app/configs', $event);
+        $dispatcher.dispatch('/app/configs', {
+            src: this,
+            type: 'load',
+            value: $rootScope.__app.configs
+        });
+        // TODO: remove watch on configs
+        $timeout(function(){
+            __configs_clean = true;
+        }, 1000);
     }
-    
+
+    this.getConfig = function(key){
+        return objectPath.get($rootScope.__app.configs, key);
+    };
+
+    this.setConfig = function(key, value){
+        var oldValue = this.getConfig(key);
+        objectPath.set($rootScope.__app.configs, key, value);
+        // Flux: fire application config
+        $dispatcher.dispatch('/app/configs', {
+            src: this,
+            type: 'update',
+            key: key,
+            value: value,
+            oldValue: oldValue
+        });
+    };
+
     function loadDefaultApplicationConfig(){
         // TODO: load last valid configuration from settings
     }
 
+    /************************************************************
+     * Application stting
+     ************************************************************/
+
     function parsAppSettings(settings){
         $rootScope.__app.setting = settings;
         $rootScope.__app.settings = settings;
-        
+
 
         // Flux: fire application settings
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__app.settings
+                src: this,
+                type: 'update',
+                value: $rootScope.__app.settings
         };
         $dispatcher.dispatch('/app/settings', $event);
     }
@@ -8665,9 +8765,8 @@ angular.module('mblowfish-core') //
     /*
      * Stores app configuration on the back end
      */
-    var storeApplicationConfig = $widget.debounce(function() {
-        if ($rootScope.__app.state !== APP_STATE_READY || 
-                !$rootScope.__account.permissions.tenant_owner) {
+    this.storeApplicationConfig = function() {
+        if (!$rootScope.__account.permissions.tenant_owner) {
             return;
         }
         if (appConfigurationContent) { // content loaded
@@ -8682,7 +8781,7 @@ angular.module('mblowfish-core') //
             appConfigurationContent = content;
             return appConfigurationContent.uploadValue($rootScope.__app.configs);
         });
-    }, 1000);
+    };
 
     /*
      * Check a module to see if it is enable or not
@@ -8742,9 +8841,6 @@ angular.module('mblowfish-core') //
     stateMachine = new machina.Fsm({
         namespace: 'webpich.$app',
         initialState: APP_STATE_WAITING,
-        initialize: function (/* options */) {
-            setApplicationState(APP_STATE_WAITING);
-        },
         states: {
             // Before the 'start' event occurs via $app.start().
             waiting: {
@@ -8826,16 +8922,6 @@ angular.module('mblowfish-core') //
     $rootScope.$watch(function () {
         return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
     }, setApplicationCalendar);
-
-    /*
-     * watch application configuration and update app state
-     */
-    $rootScope.$watch('__app.configs', function(newValue,oldValue){
-        if(!oldValue){
-            return;
-        }
-        return storeApplicationConfig();
-    }, true);
 
     // Init
     this.start = start;
