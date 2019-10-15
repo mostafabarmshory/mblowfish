@@ -85,8 +85,8 @@ angular.module('mblowfish-core')//
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
     this.state = STATE_IDEAL;
-    
-    
+
+
     // Messages
     var ADD_ACTION_FAIL_MESSAGE = 'Fail to add new item';
     var DELETE_MODEL_MESSAGE = 'Delete item?';
@@ -170,7 +170,7 @@ angular.module('mblowfish-core')//
         // update the following part in the next version.
         // this.items = _.concat(items, deff);
         for(var i = 0; i < deff.length; i++){
-        	this.items.push(deff[i]);
+            this.items.push(deff[i]);
         }
     };
 
@@ -303,7 +303,7 @@ angular.module('mblowfish-core')//
             return ctrl.addModel(model);
         })//
         .then(function(item){
-        	ctrl.fireCreated(ctrl.eventType, item);
+            ctrl.fireCreated(ctrl.eventType, item);
         }, function(){
             $window.alert(ADD_ACTION_FAIL_MESSAGE);
         });
@@ -324,7 +324,7 @@ angular.module('mblowfish-core')//
         function _deleteInternal() {
             return ctrl.deleteModel(item)
             .then(function(){
-            	ctrl.fireDeleted(ctrl.eventType, tempItem);
+                ctrl.fireDeleted(ctrl.eventType, tempItem);
             }, function(){
                 // XXX: maso, 2019: handle error
             });
@@ -432,9 +432,9 @@ angular.module('mblowfish-core')//
      * All childs must call this function at the end of the cycle
      */
     this.init = function(configs){
-	if(angular.isFunction(this.seen_abstract_collection_superInit)){
-	    this.seen_abstract_collection_superInit(configs);
-	}
+        if(angular.isFunction(this.seen_abstract_collection_superInit)){
+            this.seen_abstract_collection_superInit(configs);
+        }
         var ctrl = this;
         this.state = STATE_IDEAL;
         if(!angular.isDefined(configs)){
@@ -467,7 +467,7 @@ angular.module('mblowfish-core')//
 
         // add path
         this._setEventType(configs.eventType);
-        
+
         // confirm delete
         this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
     };
@@ -478,7 +478,7 @@ angular.module('mblowfish-core')//
     this.getLastQeury = function(){
         return this.lastQuery;
     };
-    
+
 
     /**
      * Set a GraphQl format of data
@@ -531,7 +531,6 @@ angular.module('mblowfish-core')//
             this.addAction(actions[i]);
         }
     };
-
 
     /**
      * Gets the query parameter
@@ -596,20 +595,20 @@ angular.module('mblowfish-core')//
         };
         return this._eventHandlerCallBack;
     };
-    
+
     /*
      * Listen to dispatcher for new event
      */
     this._setEventType = function(eventType) {
-    	if(this.eventType === eventType){
-    		return;
-    	}
-    	var callback = this.eventHandlerCallBack();
-    	if(this.eventType){
-    		this.removeEventHandler(callback);
-    	}
+        if(this.eventType === eventType){
+            return;
+        }
+        var callback = this.eventHandlerCallBack();
+        if(this.eventType){
+            this.removeEventHandler(callback);
+        }
         this.eventType = eventType;
         this.addEventHandler(this.eventType, callback);
     };
-    
+
 });
