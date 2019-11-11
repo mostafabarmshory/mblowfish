@@ -15,7 +15,6 @@
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#3.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#3.0.x",
-    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#0.0.x",
     "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#3.0.x",
     "ng-appcache": "2.0.x",
     "lf-ng-md-file-input": "1.5.x",
@@ -25,8 +24,7 @@
     "angular-material-persian-datepicker": "1.2.x"
   },
   "resolutions": {
-    "angular": "1.7.x",
-    "am-wb-core": "3.x"
+    "angular": "1.7.x"
   },
   "devDependencies": {
     "angular-mocks": "1.7.x"
