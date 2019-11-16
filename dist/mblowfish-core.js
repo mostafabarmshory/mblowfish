@@ -2171,8 +2171,8 @@ angular.module('mblowfish-core')//
     var STATE_BUSY = 'busy';
     var STATE_IDEAL = 'ideal';
     this.state = STATE_IDEAL;
-    
-    
+
+
     // Messages
     var ADD_ACTION_FAIL_MESSAGE = 'Fail to add new item';
     var DELETE_MODEL_MESSAGE = 'Delete item?';
@@ -2256,7 +2256,7 @@ angular.module('mblowfish-core')//
         // update the following part in the next version.
         // this.items = _.concat(items, deff);
         for(var i = 0; i < deff.length; i++){
-        	this.items.push(deff[i]);
+            this.items.push(deff[i]);
         }
     };
 
@@ -2389,7 +2389,7 @@ angular.module('mblowfish-core')//
             return ctrl.addModel(model);
         })//
         .then(function(item){
-        	ctrl.fireCreated(ctrl.eventType, item);
+            ctrl.fireCreated(ctrl.eventType, item);
         }, function(){
             $window.alert(ADD_ACTION_FAIL_MESSAGE);
         });
@@ -2410,7 +2410,7 @@ angular.module('mblowfish-core')//
         function _deleteInternal() {
             return ctrl.deleteModel(item)
             .then(function(){
-            	ctrl.fireDeleted(ctrl.eventType, tempItem);
+                ctrl.fireDeleted(ctrl.eventType, tempItem);
             }, function(){
                 // XXX: maso, 2019: handle error
             });
@@ -2518,9 +2518,9 @@ angular.module('mblowfish-core')//
      * All childs must call this function at the end of the cycle
      */
     this.init = function(configs){
-	if(angular.isFunction(this.seen_abstract_collection_superInit)){
-	    this.seen_abstract_collection_superInit(configs);
-	}
+        if(angular.isFunction(this.seen_abstract_collection_superInit)){
+            this.seen_abstract_collection_superInit(configs);
+        }
         var ctrl = this;
         this.state = STATE_IDEAL;
         if(!angular.isDefined(configs)){
@@ -2553,7 +2553,7 @@ angular.module('mblowfish-core')//
 
         // add path
         this._setEventType(configs.eventType);
-        
+
         // confirm delete
         this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
     };
@@ -2564,7 +2564,7 @@ angular.module('mblowfish-core')//
     this.getLastQeury = function(){
         return this.lastQuery;
     };
-    
+
 
     /**
      * Set a GraphQl format of data
@@ -2617,7 +2617,6 @@ angular.module('mblowfish-core')//
             this.addAction(actions[i]);
         }
     };
-
 
     /**
      * Gets the query parameter
@@ -2682,22 +2681,22 @@ angular.module('mblowfish-core')//
         };
         return this._eventHandlerCallBack;
     };
-    
+
     /*
      * Listen to dispatcher for new event
      */
     this._setEventType = function(eventType) {
-    	if(this.eventType === eventType){
-    		return;
-    	}
-    	var callback = this.eventHandlerCallBack();
-    	if(this.eventType){
-    		this.removeEventHandler(callback);
-    	}
+        if(this.eventType === eventType){
+            return;
+        }
+        var callback = this.eventHandlerCallBack();
+        if(this.eventType){
+            this.removeEventHandler(callback);
+        }
         this.eventType = eventType;
         this.addEventHandler(this.eventType, callback);
     };
-    
+
 });
 
 /*
@@ -6972,6 +6971,51 @@ angular.module('mblowfish-core')
 'use strict';
 
 angular.module('mblowfish-core')
+/*
+ * Application extensions
+ * 
+ *  An extension is responsible to extends the state of the
+ * application and add more functionality. For example auto save
+ * configuration is one of the application extension
+ */
+.run(function ($app, $dispatcher) {
+    
+    /*
+     * Store application config if there is change
+     */
+    function storeApplicationConfig(event){
+        if(event.type === 'update' && $app.getState() === 'ready'){
+            $app.storeApplicationConfig();
+        }
+    }
+
+    // watch the configurations of the application
+    $dispatcher.on('/app/configs', storeApplicationConfig);
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+angular.module('mblowfish-core')
 /**
  * دریچه‌های محاوره‌ای
  */
@@ -8088,101 +8132,107 @@ angular.module('mblowfish-core')
  * 
  */
 .service('$actions', function(Action, ActionGroup) {
-	var _actionsList = [];
-	var _actionsMap = {};
+    var _actionsList = [];
+    var _actionsMap = {};
 
-	var _groupsList = [];
-	var _groupsMap = [];
+    var _groupsList = [];
+    var _groupsMap = [];
 
-	function _actions() {
-		return {
-			'items' : _actionsList
-		};
-	}
+    function _actions() {
+        return {
+            'items' : _actionsList
+        };
+    }
 
-	// TODO: maso, 2018: add document
-	function _newAction(data) {
-		// Add new action
-		var action = new Action(data);
-		_actionsMap[action.id] = action;
-		_actionsList.push(action);
-		for (var i = 0; i < action.groups.length; i++) {
-			var group = _group(action.groups[i]);
-			group.items.push(action);
-		}
-		if (action.scope) {
-			action.scope.$on('$destroy', function() {
-				_removeAction(action);
-			});
-		}
-		return action;
-	}
+    // TODO: maso, 2018: add document
+    function _newAction(data) {
+        // Add new action
+        var action = new Action(data);
+        // remove old one
+        var oldaction = _action(action.id);
+        if(oldaction){
+            _removeAction(oldaction);
+        }
+        // add new one
+        _actionsMap[action.id] = action;
+        _actionsList.push(action);
+        for (var i = 0; i < action.groups.length; i++) {
+            var group = _group(action.groups[i]);
+            group.items.push(action);
+        }
+        if (action.scope) {
+            action.scope.$on('$destroy', function() {
+                _removeAction(action);
+            });
+        }
+        return action;
+    }
 
-	// TODO: maso, 2018: add document
-	function _action(actionId) {
-		var action = _actionsMap[actionId];
-		if (action) {
-			return action;
-		}
-	}
+    // TODO: maso, 2018: add document
+    function _action(actionId) {
+        var action = _actionsMap[actionId];
+        if (action) {
+            return action;
+        }
+    }
 
-	// TODO: maso, 2018: add document
-	function _removeAction(action) {
-		_actionsMap[action.id] = null;
-		var index = _actionsList.indexOf(action);
-		if (index > -1) {
-			_actionsList.splice(index, 1);
-			for (var i = 0; i < action.groups.length; i++) {
-				var group = _group(action.groups[i]);
-				var j = group.items.indexOf(action);
-				if (j > -1) {
-					group.items.splice(j, 1);
-				}
-			}
-			return action;
-		}
-	}
+    // TODO: maso, 2018: add document
+    function _removeAction(action) {
+        _actionsMap[action.id] = null;
+        var index = _actionsList.indexOf(action);
+        if (index > -1) {
+            _actionsList.splice(index, 1);
+            for (var i = 0; i < action.groups.length; i++) {
+                var group = _group(action.groups[i]);
+                var j = group.items.indexOf(action);
+                if (j > -1) {
+                    group.items.splice(j, 1);
+                }
+            }
+            return action;
+        }
+    }
 
-	// TODO: maso, 2018: add document
-	function _groups() {
-		return {
-			'items' : _groupsList
-		};
-	}
+    // TODO: maso, 2018: add document
+    function _groups() {
+        return {
+            'items' : _groupsList
+        };
+    }
 
-	// TODO: maso, 2018: add document
-	function _newGroup(groupData) {
-		// TODO: maso, 2018: assert id
-		return _group(groupData.id, groupData);
-	}
+    // TODO: maso, 2018: add document
+    function _newGroup(groupData) {
+        // TODO: maso, 2018: assert id
+        return _group(groupData.id, groupData);
+    }
 
-	// TODO: maso, 2018: add document
-	function _group(groupId, groupData) {
-		var group = _groupsMap[groupId];
-		if (!group) {
-			group = new ActionGroup();
-			group.id = groupId;
-			_groupsMap[group.id] = group;
-			_groupsList.push(group);
-		}
-		if (groupData) {
-			angular.extend(group, groupData);
-		}
-		return group;
-	}
+    // TODO: maso, 2018: add document
+    function _group(groupId, groupData) {
+        var group = _groupsMap[groupId];
+        if (!group) {
+            group = new ActionGroup();
+            group.id = groupId;
+            _groupsMap[group.id] = group;
+            _groupsList.push(group);
+        }
+        if (groupData) {
+            angular.extend(group, groupData);
+        }
+        return group;
+    }
 
-	return {
-		// actions
-		actions : _actions,
-		newAction : _newAction,
-		action : _action,
-		removeAction : _removeAction,
+    return {
+        // actions
+        actions : _actions,
+        newAction : _newAction,
+        action : _action,
+        removeAction : _removeAction,
 
-		// groups
-		groups : _groups,
-		newGroup : _newGroup,
-		group : _group
-	};
+        // groups
+        groups : _groups,
+        newGroup : _newGroup,
+        group : _group
+    };
 });
 
 /*
@@ -8273,8 +8323,8 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,
-        $widget, $dispatcher) {
+        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,$timeout,
+        $dispatcher) {
     'use strict';
 
     /***************************************************************************
@@ -8322,14 +8372,14 @@ angular.module('mblowfish-core') //
 
     // the state machine
     var stateMachine;
-    
+
     // Constants
     var APP_CNF_MIMETYPE = 'application/amd-cnf';
     var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
     var TENANT_GRAPHQL = '{id,title,description,'+
-        'account'+USER_DETAIL_GRAPHQL +
-        'configurations{key,value}' +
-        'settings{key,value}' +
+    'account'+USER_DETAIL_GRAPHQL +
+    'configurations{key,value}' +
+    'settings{key,value}' +
     '}';
 
 
@@ -8348,15 +8398,28 @@ angular.module('mblowfish-core') //
      */
     function setApplicationState(state){
         // create event
-        var $event = {};
-        $event.oldValue = $rootScope.__app.state;
-        $event.value = state;
-
-        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
-
+        var $event = {
+                type: 'update',
+                value: state,
+                oldValue: $rootScope.__app.state
+        };
         $rootScope.__app.state = state;
-        // TODO: maso, 2019: fire the state is changed
+
+        // staso, 2019: fire the state is changed
+        $dispatcher.dispatch('/app/state', $event);
+        
+        // TODO: move to application extension
+        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
     }
+    
+    /**
+     * Gets the state of the application
+     * 
+     * @memberof $app
+     */
+    this.getState = function(){
+        return  $rootScope.__app.state;
+    };
 
     function setApplicationDirection(dir) {
         $rootScope.__app.dir = dir;
@@ -8394,9 +8457,9 @@ angular.module('mblowfish-core') //
     function parsTenantConfiguration(configs){
         $rootScope.__tenant.configs = keyValueToMap(configs);
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__tenant.configs
+                src: this,
+                type: 'update',
+                value: $rootScope.__tenant.configs
         };
         $dispatcher.dispatch('/tenant/configs', $event);
 
@@ -8414,9 +8477,9 @@ angular.module('mblowfish-core') //
         $rootScope.__tenant.domains = domains;
         // Flux: fire account change
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__tenant.domains
+                src: this,
+                type: 'update',
+                value: $rootScope.__tenant.domains
         };
         $dispatcher.dispatch('/tenant/domains', $event);
     }
@@ -8427,9 +8490,9 @@ angular.module('mblowfish-core') //
 
         // Flux: fire account change
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__account
+                src: this,
+                type: 'update',
+                value: $rootScope.__account
         };
         $dispatcher.dispatch('/tenant/settings', $event);
     }
@@ -8478,16 +8541,34 @@ angular.module('mblowfish-core') //
         $rootScope.__account.permissions = permissions;
         $rootScope.__account.roles = account.roles || [];
         $rootScope.__account.groups = account.groups || [];
-        
+
         // Flux: fire account change
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__account
+                src: this,
+                type: 'update',
+                value: $rootScope.__account
         };
         $dispatcher.dispatch('/account', $event);
     }
 
+    /***********************************************************
+     * Application configuration
+     ***********************************************************/
+    /*
+     * deprecated: watch application configuration
+     */
+    var __configs_clean = false;
+    $rootScope.$watch('__app.configs', function(newValue,oldValue){
+        if(!__configs_clean){
+            return;
+        }
+        $dispatcher.dispatch('/app/configs', {
+            type: 'update',
+            value: newValue,
+            oldValue: oldValue
+        });
+    }, true);
+    
     /**
      * Load application configuration
      */
@@ -8501,7 +8582,7 @@ angular.module('mblowfish-core') //
         config = angular.isObject(config) ? config : {};
         $rootScope.__app.config = config;
         $rootScope.__app.configs = config;
-        
+
         // Support old config
         if($rootScope.__app.configs.local){
             $rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
@@ -8512,28 +8593,52 @@ angular.module('mblowfish-core') //
         }
 
         // Flux: fire application config
-        var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__app.configs
-        };
-        $dispatcher.dispatch('/app/configs', $event);
+        $dispatcher.dispatch('/app/configs', {
+            src: this,
+            type: 'load',
+            value: $rootScope.__app.configs
+        });
+        // TODO: remove watch on configs
+        $timeout(function(){
+            __configs_clean = true;
+        }, 1000);
     }
-    
+
+    this.getConfig = function(key){
+        return objectPath.get($rootScope.__app.configs, key);
+    };
+
+    this.setConfig = function(key, value){
+        var oldValue = this.getConfig(key);
+        objectPath.set($rootScope.__app.configs, key, value);
+        // Flux: fire application config
+        $dispatcher.dispatch('/app/configs', {
+            src: this,
+            type: 'update',
+            key: key,
+            value: value,
+            oldValue: oldValue
+        });
+    };
+
     function loadDefaultApplicationConfig(){
         // TODO: load last valid configuration from settings
     }
 
+    /************************************************************
+     * Application stting
+     ************************************************************/
+
     function parsAppSettings(settings){
         $rootScope.__app.setting = settings;
         $rootScope.__app.settings = settings;
-        
+
 
         // Flux: fire application settings
         var $event = {
-        		src: this,
-        		type: 'update',
-        		value: $rootScope.__app.settings
+                src: this,
+                type: 'update',
+                value: $rootScope.__app.settings
         };
         $dispatcher.dispatch('/app/settings', $event);
     }
@@ -8660,9 +8765,8 @@ angular.module('mblowfish-core') //
     /*
      * Stores app configuration on the back end
      */
-    var storeApplicationConfig = $widget.debounce(function() {
-        if ($rootScope.__app.state !== APP_STATE_READY || 
-                !$rootScope.__account.permissions.tenant_owner) {
+    this.storeApplicationConfig = function() {
+        if (!$rootScope.__account.permissions.tenant_owner) {
             return;
         }
         if (appConfigurationContent) { // content loaded
@@ -8677,7 +8781,7 @@ angular.module('mblowfish-core') //
             appConfigurationContent = content;
             return appConfigurationContent.uploadValue($rootScope.__app.configs);
         });
-    }, 1000);
+    };
 
     /*
      * Check a module to see if it is enable or not
@@ -8737,9 +8841,6 @@ angular.module('mblowfish-core') //
     stateMachine = new machina.Fsm({
         namespace: 'webpich.$app',
         initialState: APP_STATE_WAITING,
-        initialize: function (/* options */) {
-            setApplicationState(APP_STATE_WAITING);
-        },
         states: {
             // Before the 'start' event occurs via $app.start().
             waiting: {
@@ -8821,16 +8922,6 @@ angular.module('mblowfish-core') //
     $rootScope.$watch(function () {
         return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
     }, setApplicationCalendar);
-
-    /*
-     * watch application configuration and update app state
-     */
-    $rootScope.$watch('__app.configs', function(newValue,oldValue){
-        if(!oldValue){
-            return;
-        }
-        return storeApplicationConfig();
-    }, true);
 
     // Init
     this.start = start;
