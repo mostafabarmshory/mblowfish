@@ -85,616 +85,641 @@ angular.module('mblowfish-core') //
  * @property {object} app.user - Current user information
  * @property {object} app.user.profile - The first profile of current user
  */
-.service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,$timeout,
-        $dispatcher) {
-    'use strict';
+.service('$app', function (
+		$usr, $cms, $translate, $localStorage, UserAccount, $tenant,
+		/* am-wb-core    */ $objectPath, $dispatcher,
+		/* material      */ $mdDateLocale, 
+		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
+		) {
+	'use strict';
 
-    /***************************************************************************
-     * utils
-     **************************************************************************/
-    /*
-     * Bind list of roles to app data
-     */
-    function rolesToPermissions(roles) {
-        var permissions = [];
-        for (var i = 0; i < roles.length; i++) {
-            var role = roles[i];
-            permissions[role.application + '_' + role.code_name] = true;
-        }
-        return permissions;
-    }
+	/***************************************************************************
+	 * utils
+	 **************************************************************************/
+	/*
+	 * Bind list of roles to app data
+	 */
+	function rolesToPermissions(roles) {
+		var permissions = [];
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			permissions[role.application + '_' + role.code_name] = true;
+		}
+		return permissions;
+	}
 
-    function keyValueToMap(keyvals) {
-        var map = [];
-        for (var i = 0; i < keyvals.length; i++) {
-            var keyval = keyvals[i];
-            map[keyval.key] = keyval.value;
-        }
-        return map;
-    }
+	function keyValueToMap(keyvals) {
+		var map = [];
+		for (var i = 0; i < keyvals.length; i++) {
+			var keyval = keyvals[i];
+			map[keyval.key] = keyval.value;
+		}
+		return map;
+	}
 
-    function parseBooleanValue(value) {
-        value = value.toLowerCase();
-        switch (value) {
-        case true:
-        case 'true':
-        case '1':
-        case 'on':
-        case 'yes':
-            return true;
-        default:
-            return false;
-        }
-    }
+	function parseBooleanValue(value) {
+		value = value.toLowerCase();
+		switch (value) {
+		case true:
+		case 'true':
+		case '1':
+		case 'on':
+		case 'yes':
+			return true;
+		default:
+			return false;
+		}
+	}
 
-    /***************************************************************************
-     * applicaiton data
-     **************************************************************************/
-    var appConfigurationContent = null;
+	/***************************************************************************
+	 * applicaiton data
+	 **************************************************************************/
+	var appConfigurationContent = null;
 
-    // the state machine
-    var stateMachine;
+	// the state machine
+	var stateMachine;
 
-    // Constants
-    var APP_CNF_MIMETYPE = 'application/amd-cnf';
-    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-    var TENANT_GRAPHQL = '{id,title,description,'+
-    'account'+USER_DETAIL_GRAPHQL +
-    'configurations{key,value}' +
-    'settings{key,value}' +
-    '}';
-
-
-    /**
-     * Handles internal service events
-     */
-    function handleEvent(key, data){
-        // update internal state machine
-        stateMachine.handle(key, data);
-    }
-
-    /**
-     * Sets state of the service
-     * 
-     * NOTE: must be used locally
-     */
-    function setApplicationState(state){
-        // create event
-        var $event = {
-                type: 'update',
-                value: state,
-                oldValue: $rootScope.__app.state
-        };
-        $rootScope.__app.state = state;
-
-        // staso, 2019: fire the state is changed
-        $dispatcher.dispatch('/app/state', $event);
-        
-        // TODO: move to application extension
-        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
-    }
-    
-    /**
-     * Gets the state of the application
-     * 
-     * @memberof $app
-     */
-    this.getState = function(){
-        return  $rootScope.__app.state;
-    };
-
-    function setApplicationDirection(dir) {
-        $rootScope.__app.dir = dir;
-    }
-
-    function setApplicationLanguage(key) {
-        if($rootScope.__app.state !== 'ready'){
-            return;
-        }
-        // 0- set app local
-        $rootScope.__app.language = key;
-        // 1- change language
-        $translate.use(key);
-        // 2- chnage date format
-        // Change moment's locale so the 'L'-format is adjusted.
-        // For example the 'L'-format is DD-MM-YYYY for Dutch
-        moment.loadPersian();
-        moment.locale(key);
-        // Set month and week names for the general $mdDateLocale service
-        var localeDate = moment.localeData();
-        $mdDateLocale.months = localeDate._months;
-        $mdDateLocale.shortMonths = localeDate._monthsShort;
-        $mdDateLocale.days = localeDate._weekdays;
-        $mdDateLocale.shortDays = localeDate._weekdaysMin;
-        // Optionaly let the week start on the day as defined by moment's locale
-        // data
-        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-    }
-
-    function setApplicationCalendar(key) {
-        // 0- set app local
-        $rootScope.__app.calendar = key;
-    }
-
-    function parsTenantConfiguration(configs){
-        $rootScope.__tenant.configs = keyValueToMap(configs);
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__tenant.configs
-        };
-        $dispatcher.dispatch('/tenant/configs', $event);
-
-        // load domains
-        var domains = {};
-        var regex = new RegExp('^module\.(.*)\.enable$', 'i');
-        for(var i = 0; i < configs.length; i++){
-            var config = configs[i];
-            var match = regex.exec(config.key);
-            if(match) {
-                var key = match[1].toLowerCase();
-                domains[key] = parseBooleanValue(config.value);
-            }
-        }
-        $rootScope.__tenant.domains = domains;
-        // Flux: fire account change
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__tenant.domains
-        };
-        $dispatcher.dispatch('/tenant/domains', $event);
-    }
-
-    function parsTenantSettings(settings){
-        $rootScope.__tenant.settings = keyValueToMap(settings);
-        $rootScope.__app.options = $rootScope.__tenant.settings;
-
-        // Flux: fire account change
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__account
-        };
-        $dispatcher.dispatch('/tenant/settings', $event);
-    }
-
-    function parsAccount(account){
-        var anonymous = !account.id || account.id === 0;
-
-        // app user data
-        $rootScope.__app.user = {
-                anonymous: anonymous,
-                current: new UserAccount(account)
-        };
-        // load basic information of account
-        $rootScope.__account.anonymous = anonymous;
-        $rootScope.__account.id = account.id;
-        $rootScope.__account.login = account.login;
-        $rootScope.__account.email = account.email;
-
-        if(anonymous) {
-            // legacy
-            $rootScope.__app.user.profile = {};
-            $rootScope.__app.user.roles = {};
-            $rootScope.__app.user.groups = {};
-            // update app
-            $rootScope.__account.profile = {};
-            $rootScope.__account.roles = {};
-            $rootScope.__account.groups = {};
-            return;
-        }
-        // load the first profile of user
-        if(angular.isArray(account.profiles)){
-            var profile = account.profiles.length? account.profiles[0] : {};
-            $rootScope.__app.user.profile = profile;
-            $rootScope.__account.profile = profile;
-        }
-        // load user roles, groups and permissions
-        var permissions = rolesToPermissions(account.roles || []);
-        var groupMap = {};
-        var groups = account.groups || [];
-        for (var i = 0; i < groups.length; i++) {
-            var group = groups[i];
-            groupMap[group.name] = true;
-            _.assign(permissions, rolesToPermissions(group.roles || []));
-        }
-        _.assign($rootScope.__app.user, permissions);
-        $rootScope.__account.permissions = permissions;
-        $rootScope.__account.roles = account.roles || [];
-        $rootScope.__account.groups = account.groups || [];
-
-        // Flux: fire account change
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__account
-        };
-        $dispatcher.dispatch('/account', $event);
-    }
-
-    /***********************************************************
-     * Application configuration
-     ***********************************************************/
-    /*
-     * deprecated: watch application configuration
-     */
-    var __configs_clean = false;
-    $rootScope.$watch('__app.configs', function(newValue,oldValue){
-        if(!__configs_clean){
-            return;
-        }
-        $dispatcher.dispatch('/app/configs', {
-            type: 'update',
-            value: newValue,
-            oldValue: oldValue
-        });
-    }, true);
-    
-    /**
-     * Load application configuration
-     */
-    function parsAppConfiguration(config){
-        if(angular.isString(config)){
-            try{
-                config = JSON.parse(config);
-            }catch(ex){
-            }
-        }
-        config = angular.isObject(config) ? config : {};
-        $rootScope.__app.config = config;
-        $rootScope.__app.configs = config;
-
-        // Support old config
-        if($rootScope.__app.configs.local){
-            $rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
-            $rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
-            $rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
-            $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
-            delete $rootScope.__app.configs.local;
-        }
-
-        // Flux: fire application config
-        $dispatcher.dispatch('/app/configs', {
-            src: this,
-            type: 'load',
-            value: $rootScope.__app.configs
-        });
-        // TODO: remove watch on configs
-        $timeout(function(){
-            __configs_clean = true;
-        }, 1000);
-    }
-
-    this.getConfig = function(key){
-        return objectPath.get($rootScope.__app.configs, key);
-    };
-
-    this.setConfig = function(key, value){
-        var oldValue = this.getConfig(key);
-        objectPath.set($rootScope.__app.configs, key, value);
-        // Flux: fire application config
-        $dispatcher.dispatch('/app/configs', {
-            src: this,
-            type: 'update',
-            key: key,
-            value: value,
-            oldValue: oldValue
-        });
-    };
-
-    function loadDefaultApplicationConfig(){
-        // TODO: load last valid configuration from settings
-    }
-
-    /************************************************************
-     * Application stting
-     ************************************************************/
-
-    function parsAppSettings(settings){
-        $rootScope.__app.setting = settings;
-        $rootScope.__app.settings = settings;
+	// Constants
+	var APP_CNF_MIMETYPE = 'application/amd-cnf';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var TENANT_GRAPHQL = '{id,title,description,'+
+	'account'+USER_DETAIL_GRAPHQL +
+	'configurations{key,value}' +
+	'settings{key,value}' +
+	'}';
 
 
-        // Flux: fire application settings
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__app.settings
-        };
-        $dispatcher.dispatch('/app/settings', $event);
-    }
+	/**
+	 * Handles internal service events
+	 */
+	function handleEvent(key, data){
+		// update internal state machine
+		stateMachine.handle(key, data);
+	}
 
-    /*
-     * Loads current user informations
-     * 
-     * If there is a role x.y (where x is application code and y is code name)
-     * in role list then the following var is added in user:
-     * 
-     * $rootScope.__app.user.x_y
-     * 
-     */
-    function loadUserProperty() {
-        _loadingLog('loading user info', 'fetch user information');
-        return $usr.getAccount('current', {
-            graphql: USER_DETAIL_GRAPHQL
-        }) //
-        .then(parsAccount);
-    }
+	/**
+	 * Sets state of the service
+	 * 
+	 * NOTE: must be used locally
+	 */
+	function setApplicationState(state){
+		// create event
+		var $event = {
+				type: 'update',
+				value: state,
+				oldValue: $rootScope.__app.state
+		};
+		$rootScope.__app.state = state;
 
-    function loadRemoteData(){
-        _loadingLog('loading', 'fetch remote storage');
+		// staso, 2019: fire the state is changed
+		$dispatcher.dispatch('/app/state', $event);
 
-        // application config
-        var pLoadAppConfig = $cms.getContent($rootScope.__app.configs_key) //
-        .then(function (content) {
-            appConfigurationContent = content;
-            return appConfigurationContent.downloadValue();
-        })
-        .then(parsAppConfiguration);
+		// TODO: move to application extension
+		_loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
+	}
 
-        // load current tenant
-        var pCurrentTenant = $tenant.getTenant('current', {
-            graphql: TENANT_GRAPHQL
-        })
-        .then(function(data){
-            parsTenantConfiguration(data.configurations || []);
-            parsTenantSettings(data.settings || []);
-            parsAccount(data.account || []);
-        });
-        return $q.all([pLoadAppConfig, pCurrentTenant]);
-    }
+	/**
+	 * Gets the state of the application
+	 * 
+	 * @memberof $app
+	 */
+	this.getState = function(){
+		return  $rootScope.__app.state;
+	};
 
-    function loadLocalData(){
-        _loadingLog('loading setting from local storage', 'fetch settings');
-        /*
-         * TODO: masood, 2018: The lines below is an alternative for lines above
-         * but not recommended.
-         * 
-         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-         */
-        var settings = $localStorage.$default({
-            dashboardModel: {}
-        });
-        return $q.resolve(settings)
-        .then(parsAppSettings);
-    }
+	function setApplicationDirection(dir) {
+		$rootScope.__app.dir = dir;
+	}
 
-    function loadApplication(){
-        return $q.all([
-            loadRemoteData(),
-            loadLocalData()])
-            .finally(function(){
-                // TODO: maso, check if all things are ok
-                if($rootScope.__app.isOffline){
-                    handleEvent(APP_EVENT_NET_ERROR);
-                    return;
-                }
-                if($rootScope.__app.isRemoteDataLoaded){
-                    handleEvent(APP_EVENT_SERVER_ERROR);
-                    return;
-                }
-                if($rootScope.__app.isApplicationConfigLoaded){
-                    handleEvent(APP_EVENT_APP_CONFIG_ERROR);
-                    return;
-                }
-                handleEvent(APP_EVENT_LOADED);
-            });
-    }
+	function setApplicationLanguage(key) {
+		if($rootScope.__app.state !== 'ready'){
+			return;
+		}
+		// 0- set app local
+		$rootScope.__app.language = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	}
 
-    /**
-     * Start the application
-     * 
-     * this function is called when the app get started.
-     * 
-     * @memberof $app
-     */
-    function start(key) {
-        $rootScope.__app.key = key;
-        $rootScope.__app.configs_key = 'angular-material-blowfish-' + key;
+	function setApplicationCalendar(key) {
+		// 0- set app local
+		$rootScope.__app.calendar = key;
+	}
 
-        // handle internal events
-        handleEvent(APP_EVENT_START);
-    }
+	function parsTenantConfiguration(configs){
+		$rootScope.__tenant.configs = keyValueToMap(configs);
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__tenant.configs
+		};
+		$dispatcher.dispatch('/tenant/configs', $event);
 
-    /***************************************************************************
-     * 
-     **************************************************************************/
+		// load domains
+		var domains = {};
+		var regex = new RegExp('^module\.(.*)\.enable$', 'i');
+		for(var i = 0; i < configs.length; i++){
+			var config = configs[i];
+			var match = regex.exec(config.key);
+			if(match) {
+				var key = match[1].toLowerCase();
+				domains[key] = parseBooleanValue(config.value);
+			}
+		}
+		$rootScope.__tenant.domains = domains;
+		// Flux: fire account change
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__tenant.domains
+		};
+		$dispatcher.dispatch('/tenant/domains', $event);
+	}
 
-    // states
-    var APP_STATE_WAITING = 'waiting';
-    var APP_STATE_LOADING = 'loading';
+	function parsTenantSettings(settings){
+		$rootScope.__tenant.settings = keyValueToMap(settings);
+		$rootScope.__app.options = $rootScope.__tenant.settings;
 
-    // final states
-    var APP_STATE_READY = 'ready';
-    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-    var APP_STATE_OFFLINE = 'offline';
-    var APP_STATE_FAIL = 'fail';
+		// Flux: fire account change
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__account
+		};
+		$dispatcher.dispatch('/tenant/settings', $event);
+	}
 
-    var APP_EVENT_LOADED = 'loaded';
-    var APP_EVENT_START = 'start';
-    var APP_EVENT_SERVER_ERROR = 'server_error';
-    var APP_EVENT_NET_ERROR = 'network_error';
-    var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
+	function parsAccount(account){
+		var anonymous = !account.id || account.id === 0;
 
-    /*
-     * Attaches loading logs
-     */
-    function _loadingLog(stage, message) {
-        $rootScope.__app.logs.push(stage + ':' + message);
-    }
+		// app user data
+		$rootScope.__app.user = {
+				anonymous: anonymous,
+				current: new UserAccount(account)
+		};
+		// load basic information of account
+		$rootScope.__account.anonymous = anonymous;
+		$rootScope.__account.id = account.id;
+		$rootScope.__account.login = account.login;
+		$rootScope.__account.email = account.email;
 
-    /*
-     * Stores app configuration on the back end
-     */
-    this.storeApplicationConfig = function() {
-        if (!$rootScope.__account.permissions.tenant_owner) {
-            return;
-        }
-        if (appConfigurationContent) { // content loaded
-            return appConfigurationContent.uploadValue($rootScope.__app.configs);
-        } 
-        // create content
-        promise = $cms.putContent({
-            name: $rootScope.__app.configs_key,
-            mimetype: APP_CNF_MIMETYPE
-        })
-        .then(function (content) {
-            appConfigurationContent = content;
-            return appConfigurationContent.uploadValue($rootScope.__app.configs);
-        });
-    };
+		if(anonymous) {
+			// legacy
+			$rootScope.__app.user.profile = {};
+			$rootScope.__app.user.roles = {};
+			$rootScope.__app.user.groups = {};
+			// update app
+			$rootScope.__account.profile = {};
+			$rootScope.__account.roles = {};
+			$rootScope.__account.groups = {};
+			return;
+		}
+		// load the first profile of user
+		if(angular.isArray(account.profiles)){
+			var profile = account.profiles.length? account.profiles[0] : {};
+			$rootScope.__app.user.profile = profile;
+			$rootScope.__account.profile = profile;
+		}
+		// load user roles, groups and permissions
+		var permissions = rolesToPermissions(account.roles || []);
+		var groupMap = {};
+		var groups = account.groups || [];
+		for (var i = 0; i < groups.length; i++) {
+			var group = groups[i];
+			groupMap[group.name] = true;
+			_.assign(permissions, rolesToPermissions(group.roles || []));
+		}
+		_.assign($rootScope.__app.user, permissions);
+		$rootScope.__account.permissions = permissions;
+		$rootScope.__account.roles = account.roles || [];
+		$rootScope.__account.groups = account.groups || [];
 
-    /*
-     * Check a module to see if it is enable or not
-     */
-    // TODO: Masood, 2019: Improve the function to check based on tenant setting
-    function isEnable (moduleName) {
-        return $rootScope.__tenant.domains[moduleName];
-    }
+		// Flux: fire account change
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__account
+		};
+		$dispatcher.dispatch('/account', $event);
+	}
 
-    /**
-     * Logins into the backend
-     * 
-     * @memberof $app
-     * @param {object}
-     *            credential of the user
-     */
-    function login(credential) {
-        if (!$rootScope.__account.anonymous) {
-            return $q.resolve($rootScope.__account);
-        }
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/login',
-            data: $httpParamSerializerJQLike(credential),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(loadUserProperty);
-    }
+	/***********************************************************
+	 * Application configuration
+	 ***********************************************************/
+	/*
+	 * deprecated: watch application configuration
+	 */
+	var __configs_clean = false;
+	$rootScope.$watch('__app.configs', function(newValue,oldValue){
+		if(!__configs_clean){
+			return;
+		}
+		$dispatcher.dispatch('/app/configs', {
+			type: 'update',
+			value: newValue,
+			oldValue: oldValue
+		});
+	}, true);
 
-    /**
-     * Application logout
-     * 
-     * Logout and clean user data, this will change state of the application.
-     * 
-     * @memberof $app
-     */
-    function logout() {
-        if ($rootScope.__account.anonymous) {
-            return $q.resolve($rootScope.__account);
-        }
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/logout',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(loadUserProperty);
-    }
+	/**
+	 * Load application configuration
+	 */
+	function parsAppConfiguration(config){
+		if(angular.isString(config)){
+			try{
+				config = JSON.parse(config);
+			}catch(ex){
+			}
+		}
+		config = angular.isObject(config) ? config : {};
+		$rootScope.__app.config = config;
+		$rootScope.__app.configs = config;
+
+		// Support old config
+		if($rootScope.__app.configs.local){
+			$rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
+			$rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
+			$rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
+			$rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
+			delete $rootScope.__app.configs.local;
+		}
+
+		// Flux: fire application config
+		$dispatcher.dispatch('/app/configs', {
+			src: this,
+			type: 'load',
+			value: $rootScope.__app.configs
+		});
+		// TODO: remove watch on configs
+		$timeout(function(){
+			__configs_clean = true;
+		}, 1000);
+	}
+
+	this.getConfig = function(key){
+		return objectPath.get($rootScope.__app.configs, key);
+	};
+
+	this.setConfig = function(key, value){
+		var oldValue = this.getConfig(key);
+		objectPath.set($rootScope.__app.configs, key, value);
+		// Flux: fire application config
+		$dispatcher.dispatch('/app/configs', {
+			src: this,
+			type: 'update',
+			key: key,
+			value: value,
+			oldValue: oldValue
+		});
+	};
+
+	function loadDefaultApplicationConfig(){
+		// TODO: load last valid configuration from settings
+	}
+
+	/************************************************************
+	 * Application stting
+	 ************************************************************/
+
+	function parsAppSettings(settings){
+		$rootScope.__app.setting = settings;
+		$rootScope.__app.settings = settings;
 
 
-    /*
-     * State machine to handle life cycle of the system.
-     */
-    stateMachine = new machina.Fsm({
-        namespace: 'webpich.$app',
-        initialState: APP_STATE_WAITING,
-        states: {
-            // Before the 'start' event occurs via $app.start().
-            waiting: {
-                start: APP_STATE_LOADING,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL
-            },
-            // tries to load all part of system
-            loading: {
-                _onEnter: function () {
-                    loadApplication();
-                },
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // app is ready
-            ready: {
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // app is ready with no config
-            ready_not_configured: {
-                _onEnter: function () {
-                    loadDefaultApplicationConfig();
-                },
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // server error
-            fail: {
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // net error
-            offline: {
-                _onEnter: function () {
-                    offlineReloadDelay = 3000;
-                    $timeout(loadApplication, offlineReloadDelay);
-                },
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            }
-        },
-    });
+		// Flux: fire application settings
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__app.settings
+		};
+		$dispatcher.dispatch('/app/settings', $event);
+	}
 
-    // I'd like to know when the transition event occurs
-    stateMachine.on('transition', function () {
-        setApplicationState(stateMachine.state);
-    });
+	/*
+	 * Loads current user informations
+	 * 
+	 * If there is a role x.y (where x is application code and y is code name)
+	 * in role list then the following var is added in user:
+	 * 
+	 * $rootScope.__app.user.x_y
+	 * 
+	 */
+	function loadUserProperty() {
+		_loadingLog('loading user info', 'fetch user information');
+		return $usr.getAccount('current', {
+			graphql: USER_DETAIL_GRAPHQL
+		}) //
+		.then(parsAccount);
+	}
 
-    /*
-     * watch direction and update app.dir
-     */
-    $rootScope.$watch(function () {
-        return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
-    }, setApplicationDirection);
+	function loadRemoteData(){
+		_loadingLog('loading', 'fetch remote storage');
 
-    /*
-     * watch local and update language
-     */
-    $rootScope.$watch(function () {
-        // Check language
-        return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
-    }, setApplicationLanguage);
+		// application config
+		var pLoadAppConfig = $cms.getContent($rootScope.__app.configs_key) //
+		.then(function (content) {
+			appConfigurationContent = content;
+			return appConfigurationContent.downloadValue();
+		})
+		.then(parsAppConfiguration);
 
-    /*
-     * watch calendar
-     */
-    $rootScope.$watch(function () {
-        return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
-    }, setApplicationCalendar);
+		// load current tenant
+		var pCurrentTenant = $tenant.getTenant('current', {
+			graphql: TENANT_GRAPHQL
+		})
+		.then(function(data){
+			parsTenantConfiguration(data.configurations || []);
+			parsTenantSettings(data.settings || []);
+			parsAccount(data.account || []);
+		});
+		return $q.all([pLoadAppConfig, pCurrentTenant]);
+	}
 
-    // Init
-    this.start = start;
-    this.login = login;
-    this.logout = logout;
-    this.isEnable = isEnable;
+	function loadLocalData(){
+		_loadingLog('loading setting from local storage', 'fetch settings');
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 */
+		var settings = $localStorage.$default({
+			dashboardModel: {}
+		});
+		return $q.resolve(settings)
+		.then(parsAppSettings);
+	}
 
-    // test
-    // TODO: remove in deploy
-    this.__parsTenantConfiguration = parsTenantConfiguration;
+	function loadApplication(){
+		return $q.all([
+			loadRemoteData(),
+			loadLocalData()])
+			.finally(function(){
+				// TODO: maso, check if all things are ok
+				if($rootScope.__app.isOffline){
+					handleEvent(APP_EVENT_NET_ERROR);
+					return;
+				}
+				if($rootScope.__app.isRemoteDataLoaded){
+					handleEvent(APP_EVENT_SERVER_ERROR);
+					return;
+				}
+				if($rootScope.__app.isApplicationConfigLoaded){
+					handleEvent(APP_EVENT_APP_CONFIG_ERROR);
+					return;
+				}
+				handleEvent(APP_EVENT_LOADED);
+			});
+	}
 
-    return this;
+	/**
+	 * Start the application
+	 * 
+	 * this function is called when the app get started.
+	 * 
+	 * @memberof $app
+	 */
+	function start(key) {
+		$rootScope.__app.key = key;
+		$rootScope.__app.configs_key = 'angular-material-blowfish-' + key;
+
+		// handle internal events
+		handleEvent(APP_EVENT_START);
+	}
+
+	/***************************************************************************
+	 * 
+	 **************************************************************************/
+
+	// states
+	var APP_STATE_WAITING = 'waiting';
+	var APP_STATE_LOADING = 'loading';
+
+	// final states
+	var APP_STATE_READY = 'ready';
+	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+	var APP_STATE_OFFLINE = 'offline';
+	var APP_STATE_FAIL = 'fail';
+
+	var APP_EVENT_LOADED = 'loaded';
+	var APP_EVENT_START = 'start';
+	var APP_EVENT_SERVER_ERROR = 'server_error';
+	var APP_EVENT_NET_ERROR = 'network_error';
+	var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
+
+	/*
+	 * Attaches loading logs
+	 */
+	function _loadingLog(stage, message) {
+		$rootScope.__app.logs.push(stage + ':' + message);
+	}
+
+	/*
+	 * Stores app configuration on the back end
+	 */
+	this.storeApplicationConfig = function() {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return;
+		}
+		if (appConfigurationContent) { // content loaded
+			return appConfigurationContent.uploadValue($rootScope.__app.configs);
+		} 
+		// create content
+		promise = $cms.putContent({
+			name: $rootScope.__app.configs_key,
+			mimetype: APP_CNF_MIMETYPE
+		})
+		.then(function (content) {
+			appConfigurationContent = content;
+			return appConfigurationContent.uploadValue($rootScope.__app.configs);
+		});
+	};
+
+	/*
+	 * Check a module to see if it is enable or not
+	 */
+	// TODO: Masood, 2019: Improve the function to check based on tenant setting
+	function isEnable (moduleName) {
+		return $rootScope.__tenant.domains[moduleName];
+	}
+
+	/**
+	 * Logins into the backend
+	 * 
+	 * @memberof $app
+	 * @param {object}
+	 *            credential of the user
+	 */
+	function login(credential) {
+		if (!$rootScope.__account.anonymous) {
+			return $q.resolve($rootScope.__account);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(loadUserProperty);
+	}
+
+	/**
+	 * Application logout
+	 * 
+	 * Logout and clean user data, this will change state of the application.
+	 * 
+	 * @memberof $app
+	 */
+	function logout() {
+		if ($rootScope.__account.anonymous) {
+			return $q.resolve($rootScope.__account);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(loadUserProperty);
+	}
+
+
+	/*
+	 * State machine to handle life cycle of the system.
+	 */
+	stateMachine = new machina.Fsm({
+		namespace: 'webpich.$app',
+		initialState: APP_STATE_WAITING,
+		states: {
+			// Before the 'start' event occurs via $app.start().
+			waiting: {
+				start: APP_STATE_LOADING,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL
+			},
+			// tries to load all part of system
+			loading: {
+				_onEnter: function () {
+					loadApplication();
+				},
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// app is ready
+			ready: {
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// app is ready with no config
+			ready_not_configured: {
+				_onEnter: function () {
+					loadDefaultApplicationConfig();
+				},
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// server error
+			fail: {
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// net error
+			offline: {
+				_onEnter: function () {
+					offlineReloadDelay = 3000;
+					$timeout(loadApplication, offlineReloadDelay);
+				},
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			}
+		},
+	});
+
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function () {
+		setApplicationState(stateMachine.state);
+	});
+
+	/*
+	 * watch direction and update app.dir
+	 */
+	$rootScope.$watch(function () {
+		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
+	}, setApplicationDirection);
+
+	/*
+	 * watch local and update language
+	 */
+	$rootScope.$watch(function () {
+		// Check language
+		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
+	}, setApplicationLanguage);
+
+	/*
+	 * watch calendar
+	 */
+	$rootScope.$watch(function () {
+		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
+	}, setApplicationCalendar);
+
+	// Init
+	this.start = start;
+	this.login = login;
+	this.logout = logout;
+	this.isEnable = isEnable;
+
+	// test
+	// TODO: remove in deploy
+	this.__parsTenantConfiguration = parsTenantConfiguration;
+
+	
+	
+	/**************************************************************************
+	 * application properties
+	 **************************************************************************/
+	this.getProperty = function(key, defaultValue) {
+		var tempObject = {
+				app: $rootScope.__app,
+				tenant: $rootScope.__tenant,
+				account: $rootScope.__account,
+		}
+		return $objectPath.get(tempObject, key) || defaultValue;
+	};
+
+	this.setProperty = function(key, value){
+		// TODO:
+	};
+
+	this.setProperties = function(map){
+		// TODO:
+	};
+
+	return this;
 });
