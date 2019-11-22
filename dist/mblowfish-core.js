@@ -6698,14 +6698,14 @@ angular.module('mblowfish-core')
  * 
  */
 .factory('MbActionGroup', function() {
-	var actionGroup  = function(data) {
+	function ActionGroup(data) {
 		if(!angular.isDefined(data)){
 			data = {};
 		}
-		angular.extend(this, data, {
-			priority: data.priority || 10,
-			items: []
-		});
+		data.priority = data.priority || 10;
+		angular.extend(this, data);
+		this.items = [];
+		this.isGroup = true;
 	};
 
 	/**
@@ -6714,11 +6714,22 @@ angular.module('mblowfish-core')
 	 * @name clear
 	 * @memberof ActionGroup
 	 */
-	actionGroup.prototype.clear = function(){
+	ActionGroup.prototype.clear = function(){
 		this.items = [];
 	};
+	
+	ActionGroup.prototype.removeItem = function(action){
+		var j = this.items.indexOf(action);
+		if (j > -1) {
+			this.items.splice(j, 1);
+		}
+	};
+	
+	ActionGroup.prototype.addItem = function(action){
+		this.items.push(action);
+	};
 
-	return actionGroup;
+	return ActionGroup;
 });
 
 /*
@@ -6838,6 +6849,137 @@ angular.module('mblowfish-core')
 		return $q.reject(rejection);
 	};
 	return httpRequestInterceptor;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+angular.module('mblowfish-core')
+
+.factory('MbObservableObject', function() {
+	'use strict';
+
+	function ObservableObject() {
+		this.silent = false;
+		this.callbacks = {};
+	};
+
+	/**
+	 * Set widget silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.setSilent = function(silent) {
+		this.silent = silent;
+	};
+
+	/**
+	 * Checks if the element is silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.isSilent = function() {
+		return this.silent;
+	};
+
+	/**
+	 * Adds new callback of type
+	 * 
+	 * @param typeof
+	 *            the event
+	 * @param callback
+	 *            to call on the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.on = function (type, callback) {
+		if (!angular.isFunction(callback)) {
+			throw {
+				message: 'Callback must be a function'
+			};
+		}
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			callbacks[type] = [];
+		}
+		if(callbacks[type].includes(callback)){
+			return;
+		}
+		callbacks[type].push(callback);
+	};
+
+	/**
+	 * Remove the callback
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param callback
+	 *            to remove
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.off = function (type, callback) {
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			return;
+		}
+		var index = callbacks[type].indexOf(callback);
+		if (index > -1) {
+			callbacks[type].splice(index, 1);
+		}
+	};
+
+	/**
+	 * Call all callbacks on the given event type.
+	 * 
+	 * Before callbacks, widget processors will process the widget and event.
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param params
+	 *            to add to the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.fire = function (type, params) {
+		// 1- Call processors
+		var event = _.merge({
+			source: this,
+			type: type
+		}, params || {});
+		var callbacks = this.callbacks;
+
+		// 2- call listeners
+		if (this.isSilent() || !angular.isDefined(callbacks[type])) {
+			return;
+		}
+		var cl = callbacks[type];
+		for(var i = 0; i < cl.length; i++){
+			// TODO: maso, 2018: check if the event is stopped to propagate
+			try {
+				cl[i].apply(cl[i], [event]);
+			} catch (error) {
+				// NOTE: remove on release
+				console.log(error);
+			}
+		}
+	};
+	
+	return ObservableObject;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8131,108 +8273,122 @@ angular.module('mblowfish-core')
  * applications. This service is responsible to manage global actions.
  * 
  */
-.service('$actions', function(Action, ActionGroup) {
-    var _actionsList = [];
-    var _actionsMap = {};
+.service('$actions', function(
+		/* mb    */ Action, ActionGroup, MbObservableObject) {
 
-    var _groupsList = [];
-    var _groupsMap = [];
+	// extend from observable object
+	angular.extend(this, MbObservableObject.prototype);
+	MbObservableObject.apply(this);
 
-    function _actions() {
-        return {
-            'items' : _actionsList
-        };
-    }
+	this.actionsList = [];
+	this.actionsMap = {};
 
-    // TODO: maso, 2018: add document
-    function _newAction(data) {
-        // Add new action
-        var action = new Action(data);
-        // remove old one
-        var oldaction = _action(action.id);
-        if(oldaction){
-            _removeAction(oldaction);
-        }
-        // add new one
-        _actionsMap[action.id] = action;
-        _actionsList.push(action);
-        for (var i = 0; i < action.groups.length; i++) {
-            var group = _group(action.groups[i]);
-            group.items.push(action);
-        }
-        if (action.scope) {
-            action.scope.$on('$destroy', function() {
-                _removeAction(action);
-            });
-        }
-        return action;
-    }
+	this.groupsList = [];
+	this.groupsMap = [];
 
-    // TODO: maso, 2018: add document
-    function _action(actionId) {
-        var action = _actionsMap[actionId];
-        if (action) {
-            return action;
-        }
-    }
+	this.actions = function () {
+		return {
+			'items' : this.actionsList
+		};
+	}
 
-    // TODO: maso, 2018: add document
-    function _removeAction(action) {
-        _actionsMap[action.id] = null;
-        var index = _actionsList.indexOf(action);
-        if (index > -1) {
-            _actionsList.splice(index, 1);
-            for (var i = 0; i < action.groups.length; i++) {
-                var group = _group(action.groups[i]);
-                var j = group.items.indexOf(action);
-                if (j > -1) {
-                    group.items.splice(j, 1);
-                }
-            }
-            return action;
-        }
-    }
+	// TODO: maso, 2018: add document
+	this.newAction = function (data) {
+		// Add new action
+		var action = new Action(data);
+		// remove old one
+		var oldaction = this.action(action.id);
+		if(oldaction){
+			this.removeAction(oldaction);
+		}
+		// add new one
+		this.actionsMap[action.id] = action;
+		this.actionsList.push(action);
+		if (action.scope) {
+			var service = this;
+			action.scope.$on('$destroy', function() {
+				service.removeAction(action);
+			});
+		}
+		this.updateAddByItem(action);
+		this.fire('actionsChanged', {
+			value: action,
+			oldValue: oldaction
+		});
+		return action;
+	};
 
-    // TODO: maso, 2018: add document
-    function _groups() {
-        return {
-            'items' : _groupsList
-        };
-    }
+	// TODO: maso, 2018: add document
+	this.action = function (actionId) {
+		var action = this.actionsMap[actionId];
+		if (action) {
+			return action;
+		}
+	};
 
-    // TODO: maso, 2018: add document
-    function _newGroup(groupData) {
-        // TODO: maso, 2018: assert id
-        return _group(groupData.id, groupData);
-    }
+	// TODO: maso, 2018: add document
+	this.removeAction = function (action) {
+		this.actionsMap[action.id] = null;
+		var index = this.actionsList.indexOf(action);
+		if (index > -1) {
+			this.actionsList.splice(index, 1);
+			this.updateRemoveByItem(action);
+			this.fire('actionsChanged', {
+				value: undefined,
+				oldValue: action
+			});
+			return action;
+		}
+	};
 
-    // TODO: maso, 2018: add document
-    function _group(groupId, groupData) {
-        var group = _groupsMap[groupId];
-        if (!group) {
-            group = new ActionGroup();
-            group.id = groupId;
-            _groupsMap[group.id] = group;
-            _groupsList.push(group);
-        }
-        if (groupData) {
-            angular.extend(group, groupData);
-        }
-        return group;
-    }
+	// TODO: maso, 2018: add document
+	this.groups = function() {
+		return {
+			'items' : this.groupsList
+		};
+	};
 
-    return {
-        // actions
-        actions : _actions,
-        newAction : _newAction,
-        action : _action,
-        removeAction : _removeAction,
+	// TODO: maso, 2018: add document
+	this.newGroup = function(groupData) {
+		// TODO: maso, 2018: assert id
+		return this.group(groupData.id, groupData);
+	};
 
-        // groups
-        groups : _groups,
-        newGroup : _newGroup,
-        group : _group
-    };
+	// TODO: maso, 2018: add document
+	this.group = function (groupId, groupData) {
+		var group = this.groupsMap[groupId];
+		if (!group) {
+			group = new ActionGroup(groupData);
+			group.id = groupId;
+			// TODO: maso, 2019: just use group map and remove groupList
+			this.groupsMap[group.id] = group;
+			this.groupsList.push(group);
+			this.updateAddByItem(group);
+		}else if (groupData) {
+			angular.extend(group, groupData);
+		}
+		this.fire('groupsChanged', {
+			value: group
+		});
+		return group;
+	};
+	
+	this.updateAddByItem = function(item){
+		var groups = item.groups || [];
+		for (var i = 0; i < groups.length; i++) {
+			var group = this.group(groups[i]);
+			group.addItem(item);
+		}
+	}
+	
+	this.updateRemoveByItem = function(item){
+		var groups = item.groups || [];
+		for (var i = 0; i < groups.length; i++) {
+			var group = this.group(groups[i]);
+			group.removeItem(item);
+		}
+	}
+
 });
 
 /*

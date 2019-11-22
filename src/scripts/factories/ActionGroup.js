@@ -29,14 +29,14 @@ angular.module('mblowfish-core')
  * 
  */
 .factory('MbActionGroup', function() {
-	var actionGroup  = function(data) {
+	function ActionGroup(data) {
 		if(!angular.isDefined(data)){
 			data = {};
 		}
-		angular.extend(this, data, {
-			priority: data.priority || 10,
-			items: []
-		});
+		data.priority = data.priority || 10;
+		angular.extend(this, data);
+		this.items = [];
+		this.isGroup = true;
 	};
 
 	/**
@@ -45,9 +45,20 @@ angular.module('mblowfish-core')
 	 * @name clear
 	 * @memberof ActionGroup
 	 */
-	actionGroup.prototype.clear = function(){
+	ActionGroup.prototype.clear = function(){
 		this.items = [];
 	};
+	
+	ActionGroup.prototype.removeItem = function(action){
+		var j = this.items.indexOf(action);
+		if (j > -1) {
+			this.items.splice(j, 1);
+		}
+	};
+	
+	ActionGroup.prototype.addItem = function(action){
+		this.items.push(action);
+	};
 
-	return actionGroup;
+	return ActionGroup;
 });
