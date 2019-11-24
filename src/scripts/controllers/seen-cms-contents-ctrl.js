@@ -87,6 +87,7 @@ angular.module('mblowfish-core')
         .then(uploadContentValue);
     }
 
+	this.queryParameter.setFilter('media_type', 'image');
     this.init({
         eventType: '/cms/contents'
     });
