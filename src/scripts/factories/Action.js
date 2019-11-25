@@ -29,9 +29,9 @@ angular.module('mblowfish-core')
  * @description An action item
  * 
  */
-.factory('MbAction', function ($injector, $navigator) {
+.factory('MbAction', function ($injector, $navigator, $wbWindow) {
 
-    var action = function (data) {
+    function Action(data) {
         if (!angular.isDefined(data)) {
             data = {};
         }
@@ -44,17 +44,20 @@ angular.module('mblowfish-core')
         return this;
     };
 
-    action.prototype.exec = function ($event) {
+    Action.prototype.exec = function ($event) {
+    	if ($event) {
+    		$event.stopPropagation();
+    		$event.preventDefault();
+    	}
         if (this.action) {
-            $injector.invoke(this.action, this);
+            return $injector.invoke(this.action, this, {
+            	$event: $event
+            });
         } else if (this.url){
-            $navigator.openPage(this.url);
+            return $navigator.openPage(this.url);
         }
-        if ($event) {
-            $event.stopPropagation();
-            $event.preventDefault();
-        }
+        $wbWindow.alert('Action \'' + this.id + '\' is not executable!?')
     };
 
-    return action;
+    return Action;
 });

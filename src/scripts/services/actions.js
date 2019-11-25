@@ -137,7 +137,7 @@ angular.module('mblowfish-core')
 			var group = this.group(groups[i]);
 			group.addItem(item);
 		}
-	}
+	};
 	
 	this.updateRemoveByItem = function(item){
 		var groups = item.groups || [];
@@ -145,6 +145,15 @@ angular.module('mblowfish-core')
 			var group = this.group(groups[i]);
 			group.removeItem(item);
 		}
-	}
+	};
+	
+	this.exec = function(actionId, $event){
+		var action = this.getAction(actionId);
+		if(!action){
+			$wbWindow.alert('Action \''+actionId +'\' not found!');
+			return;
+		}
+		return action.exec($event);
+	};
 
 });

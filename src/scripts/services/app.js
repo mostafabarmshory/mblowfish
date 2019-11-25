@@ -254,7 +254,7 @@ angular.module('mblowfish-core') //
 		$rootScope.__tenant.settings = keyValueToMap(settings);
 		$rootScope.__app.options = $rootScope.__tenant.settings;
 
-		// Flux: fire account change
+		// Flux: fire setting change
 		var $event = {
 				src: this,
 				type: 'update',
@@ -720,6 +720,14 @@ angular.module('mblowfish-core') //
 	this.setProperties = function(map){
 		// TODO:
 	};
+	
+	
+	/*
+	 * Check if current account changed
+	 */
+	$dispatcher.on('/user/accounts/current', function(){
+		loadUserProperty();
+	});
 
 	return this;
 });

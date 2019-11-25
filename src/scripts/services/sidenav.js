@@ -75,7 +75,7 @@ angular.module('mblowfish-core') //
      * Find and return a sidenav
      */
     this.getSidenav = function(id){
-    	return $mdSidenav('amh.workbench.weburger.templates');
+    	return $mdSidenav(id);
     }
     
     var _defaultSidenavs = [];
