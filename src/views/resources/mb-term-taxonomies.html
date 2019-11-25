@@ -20,11 +20,13 @@
 				ng-repeat="termTaxonomy in ctrl.items track by termTaxonomy.id"
 				ng-click="multi || resourceCtrl.selectRole(termTaxonomy)"
 				class="md-3-line">
-				<wb-icon>accessibility</wb-icon>
+				<wb-icon>label</wb-icon>
 				<div 
 					class="md-list-item-text" 
 					layout="column">
 					<h3>{{termTaxonomy.term.name}}</h3>
+					<p>{{termTaxonomy.description}}</p>
+					<p>{{termTaxonomy.taxonomy}}</p>
 				</div>
 				<md-checkbox 
 					class="md-secondary"
