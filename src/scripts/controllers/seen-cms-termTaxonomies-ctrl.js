@@ -26,7 +26,7 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
+.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
 
     /*
      * Extends collection controller
@@ -37,57 +37,25 @@ angular.module('mblowfish-core')
 
     // Override the schema function
     this.getModelSchema = function () {
-        return $cms.contentSchema();
+        return $cms.termTaxonomySchema();
     };
 
     // get contents
     this.getModels = function (parameterQuery) {
-        return $cms.getContents(parameterQuery);
+        return $cms.getTermTaxonomies(parameterQuery);
     };
 
     // get a content
     this.getModel = function (id) {
-        return $cms.getContent(id);
+        return $cms.getTermTaxonomy(id);
     };
 
     // delete account
     this.deleteModel = function (content) {
-        return $cms.deleteContent(content.id);
+        return $cms.deleteTermTaxonomy(content.id);
     };
 
-    /**
-     * Uploads a file on the server.
-     * 
-     * To upload the file there are two actions:
-     * 
-     * <ul>
-     * <li>create a new content</li>
-     * <li>upload content value</li>
-     * </ul>
-     * 
-     * This function change the state of the controller into the
-     * working.
-     */
-    this.uploadFile = function (content, file) {
-        /*
-         * upload file
-         */
-        function uploadContentValue(newContent) {
-            if (file) {
-                return newContent.uploadValue(file)//
-                .then(function () {
-                    return newContent;
-                });
-            }
-            return $q.resolve(newContent);
-        }
-
-        // XXX: maso, 2018: check content is not anonymous
-        return $cms.putContent(content)//
-        .then(uploadContentValue);
-    }
-
     this.init({
-        eventType: '/cms/contents'
+        eventType: '/cms/term-taxonomies'
     });
 });

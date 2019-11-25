@@ -32,7 +32,8 @@ angular.module('mblowfish-core')
  * 
  */
 .service('$actions', function(
-		/* mb    */ Action, ActionGroup, MbObservableObject) {
+		/* angularjs */ $window,
+		/* mb        */ Action, ActionGroup, MbObservableObject) {
 
 	// extend from observable object
 	angular.extend(this, MbObservableObject.prototype);
@@ -75,14 +76,19 @@ angular.module('mblowfish-core')
 		});
 		return action;
 	};
-
-	// TODO: maso, 2018: add document
-	this.action = function (actionId) {
+	
+	/**
+	 * gets action with id
+	 */
+	this.getAction = function (actionId) {
 		var action = this.actionsMap[actionId];
 		if (action) {
 			return action;
 		}
 	};
+
+	// TODO: maso, 2018: add document
+	this.action = this.getAction;
 
 	// TODO: maso, 2018: add document
 	this.removeAction = function (action) {
@@ -150,7 +156,7 @@ angular.module('mblowfish-core')
 	this.exec = function(actionId, $event){
 		var action = this.getAction(actionId);
 		if(!action){
-			$wbWindow.alert('Action \''+actionId +'\' not found!');
+			$window.alert('Action \''+actionId +'\' not found!');
 			return;
 		}
 		return action.exec($event);
