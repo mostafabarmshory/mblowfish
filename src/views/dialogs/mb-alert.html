@@ -1,19 +1,22 @@
 <md-dialog 
-    layout="column"
-    ng-cloak>
+	layout="column"
+	ng-cloak>
 	<md-toolbar>
 		<div class="md-toolbar-tools">
 			<wb-icon>error</wb-icon>
 			<h2 translate>{{app.title}}</h2>
 			<span flex></span>
-			<md-button class="md-icon-button" ng-click="cancel()">
+			<md-button 
+				class="md-icon-button" 
+				ng-click="cancel()"
+				aria-label="close">
 				<wb-icon aria-label="Close dialog">close</wb-icon>
 			</md-button>
 		</div>
 	</md-toolbar>
 	<md-dialog-content 
 		layout="row" 
-                layout-padding
+		layout-padding
 		layout-align="center center" 
 		flex>
 		<p translate>{{config.message}}</p>
