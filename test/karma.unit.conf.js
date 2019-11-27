@@ -77,6 +77,7 @@ module.exports = function(config) {
       'bower_components/angular-translate/angular-translate.js',
       'bower_components/weakmap-polyfill/weakmap-polyfill.js',
       'bower_components/ngstorage/ngStorage.js',
+      'bower_components/loglevel/dist/loglevel.min.js',
       'bower_components/am-wb-core/dist/am-wb-core.js',
       'bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js',
       'bower_components/angular-uuid/uuid.min.js',
