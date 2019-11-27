@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,44 +22,40 @@
  * SOFTWARE.
  */
 'use strict';
-
-
 angular.module('mblowfish-core')
-/**
- * @ngdoc Factories
- * @name MbAction
- * @description An action item
+/*
  * 
  */
-.factory('MbAction', function ($injector, $navigator, $wbWindow) {
+.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
 
-    function Action(data) {
-        if (!angular.isDefined(data)) {
-            data = {};
-        }
-        angular.extend(this, data, {
-            priority: data.priority || 10
-        });
-        this.visible = this.visible || function () {
-            return true;
-        };
-        return this;
+    /*
+     * Extends collection controller
+     */
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
+        $scope : $scope
+    }));
+
+    // Override the schema function
+    this.getModelSchema = function () {
+        return $cms.termTaxonomySchema();
     };
 
-    Action.prototype.exec = function ($event) {
-    	if ($event) {
-    		$event.stopPropagation();
-    		$event.preventDefault();
-    	}
-        if (this.action) {
-            return $injector.invoke(this.action, this, {
-            	$event: $event
-            });
-        } else if (this.url){
-            return $navigator.openPage(this.url);
-        }
-        $wbWindow.alert('Action \'' + this.id + '\' is not executable!?')
+    // get contents
+    this.getModels = function (parameterQuery) {
+        return $cms.getTermTaxonomies(parameterQuery);
     };
 
-    return Action;
+    // get a content
+    this.getModel = function (id) {
+        return $cms.getTermTaxonomy(id);
+    };
+
+    // delete account
+    this.deleteModel = function (content) {
+        return $cms.deleteTermTaxonomy(content.id);
+    };
+
+    this.init({
+        eventType: '/cms/term-taxonomies'
+    });
 });

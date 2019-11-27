@@ -150,7 +150,7 @@ angular.module('mblowfish-core')
             controller : dialog.controller || 'AmdNavigatorDialogCtrl',
             controllerAs: dialog.ctrl || 'ctrl',
             parent : angular.element(document.body),
-            clickOutsideToClose : true,
+            clickOutsideToClose : false,
             fullscreen: true,
             multiple:true
         }, dialog);

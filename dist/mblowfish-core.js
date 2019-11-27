@@ -2581,6 +2581,19 @@ angular.module('mblowfish-core')//
     };
 
     /**
+     * Adding custom filter
+     * 
+     * Filters are used to select special types of the items.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
+     * @param key of the filter
+     * @param value of the filter
+     */
+    this.addFilter = function(key, value){
+        this.queryParameter.setFilter(key, value);
+    };
+
+    /**
      * Load controller actions
      * 
      * @return list of actions
@@ -3127,7 +3140,7 @@ angular.module('mblowfish-core')
 /*
  * 
  */
-.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller, uuid4) {
+.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
 
     /*
      * Extends collection controller
@@ -3190,6 +3203,67 @@ angular.module('mblowfish-core')
 
     this.init({
         eventType: '/cms/contents'
+    });
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+angular.module('mblowfish-core')
+/*
+ * 
+ */
+.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
+
+    /*
+     * Extends collection controller
+     */
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
+        $scope : $scope
+    }));
+
+    // Override the schema function
+    this.getModelSchema = function () {
+        return $cms.termTaxonomySchema();
+    };
+
+    // get contents
+    this.getModels = function (parameterQuery) {
+        return $cms.getTermTaxonomies(parameterQuery);
+    };
+
+    // get a content
+    this.getModel = function (id) {
+        return $cms.getTermTaxonomy(id);
+    };
+
+    // delete account
+    this.deleteModel = function (content) {
+        return $cms.deleteTermTaxonomy(content.id);
+    };
+
+    this.init({
+        eventType: '/cms/term-taxonomies'
     });
 });
 /*
@@ -5183,7 +5257,7 @@ angular.module('mblowfish-core')
             return _loadPage(
                     $scope,
                     page,
-                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" layout="column" itemscope itemtype="http://schema.org/WebPage">',
+                    '<md-sidenav md-theme="{{app.setting.theme || app.config.theme || \'default\'}}" md-theme-watch md-component-id="{{_page.id}}" md-is-locked-open="_visible() && (_page.locked && $mdMedia(\'gt-sm\'))" md-whiteframe="2" ng-class="{\'md-sidenav-right\': app.dir==\'rtl\',  \'md-sidenav-left\': app.dir!=\'rtl\', \'mb-sidenav-ontop\': !_page.locked}" class=" wb-layer-sidenav-top">',
             '</md-sidenav>').then(
                     function (pageElement) {
                         _sidenaves.push(pageElement);
@@ -6637,9 +6711,9 @@ angular.module('mblowfish-core')
  * @description An action item
  * 
  */
-.factory('MbAction', function ($injector, $navigator) {
+.factory('MbAction', function ($injector, $navigator, $wbWindow) {
 
-    var action = function (data) {
+    function Action(data) {
         if (!angular.isDefined(data)) {
             data = {};
         }
@@ -6652,19 +6726,22 @@ angular.module('mblowfish-core')
         return this;
     };
 
-    action.prototype.exec = function ($event) {
+    Action.prototype.exec = function ($event) {
+    	if ($event) {
+    		$event.stopPropagation();
+    		$event.preventDefault();
+    	}
         if (this.action) {
-            $injector.invoke(this.action, this);
+            return $injector.invoke(this.action, this, {
+            	$event: $event
+            });
         } else if (this.url){
-            $navigator.openPage(this.url);
+            return $navigator.openPage(this.url);
         }
-        if ($event) {
-            $event.stopPropagation();
-            $event.preventDefault();
-        }
+        $wbWindow.alert('Action \'' + this.id + '\' is not executable!?')
     };
 
-    return action;
+    return Action;
 });
 
 /*
@@ -6698,14 +6775,14 @@ angular.module('mblowfish-core')
  * 
  */
 .factory('MbActionGroup', function() {
-	var actionGroup  = function(data) {
+	function ActionGroup(data) {
 		if(!angular.isDefined(data)){
 			data = {};
 		}
-		angular.extend(this, data, {
-			priority: data.priority || 10,
-			items: []
-		});
+		data.priority = data.priority || 10;
+		angular.extend(this, data);
+		this.items = [];
+		this.isGroup = true;
 	};
 
 	/**
@@ -6714,11 +6791,22 @@ angular.module('mblowfish-core')
 	 * @name clear
 	 * @memberof ActionGroup
 	 */
-	actionGroup.prototype.clear = function(){
+	ActionGroup.prototype.clear = function(){
 		this.items = [];
 	};
+	
+	ActionGroup.prototype.removeItem = function(action){
+		var j = this.items.indexOf(action);
+		if (j > -1) {
+			this.items.splice(j, 1);
+		}
+	};
+	
+	ActionGroup.prototype.addItem = function(action){
+		this.items.push(action);
+	};
 
-	return actionGroup;
+	return ActionGroup;
 });
 
 /*
@@ -6838,6 +6926,137 @@ angular.module('mblowfish-core')
 		return $q.reject(rejection);
 	};
 	return httpRequestInterceptor;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+angular.module('mblowfish-core')
+
+.factory('MbObservableObject', function() {
+	'use strict';
+
+	function ObservableObject() {
+		this.silent = false;
+		this.callbacks = {};
+	};
+
+	/**
+	 * Set widget silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.setSilent = function(silent) {
+		this.silent = silent;
+	};
+
+	/**
+	 * Checks if the element is silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.isSilent = function() {
+		return this.silent;
+	};
+
+	/**
+	 * Adds new callback of type
+	 * 
+	 * @param typeof
+	 *            the event
+	 * @param callback
+	 *            to call on the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.on = function (type, callback) {
+		if (!angular.isFunction(callback)) {
+			throw {
+				message: 'Callback must be a function'
+			};
+		}
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			callbacks[type] = [];
+		}
+		if(callbacks[type].includes(callback)){
+			return;
+		}
+		callbacks[type].push(callback);
+	};
+
+	/**
+	 * Remove the callback
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param callback
+	 *            to remove
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.off = function (type, callback) {
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			return;
+		}
+		var index = callbacks[type].indexOf(callback);
+		if (index > -1) {
+			callbacks[type].splice(index, 1);
+		}
+	};
+
+	/**
+	 * Call all callbacks on the given event type.
+	 * 
+	 * Before callbacks, widget processors will process the widget and event.
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param params
+	 *            to add to the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.fire = function (type, params) {
+		// 1- Call processors
+		var event = _.merge({
+			source: this,
+			type: type
+		}, params || {});
+		var callbacks = this.callbacks;
+
+		// 2- call listeners
+		if (this.isSilent() || !angular.isDefined(callbacks[type])) {
+			return;
+		}
+		var cl = callbacks[type];
+		for(var i = 0; i < cl.length; i++){
+			// TODO: maso, 2018: check if the event is stopped to propagate
+			try {
+				cl[i].apply(cl[i], [event]);
+			} catch (error) {
+				// NOTE: remove on release
+				console.log(error);
+			}
+		}
+	};
+	
+	return ObservableObject;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7646,367 +7865,397 @@ angular.module('mblowfish-core')
  */
 .run(function ($resource, $location, $controller) {
 
-    function getDomain() {
-        return $location.protocol() + //
-        '://' + //
-        $location.host() + //
-        (($location.port() ? ':' + $location.port() : ''));
-    }
+	function getDomain() {
+		return $location.protocol() + //
+		'://' + //
+		$location.host() + //
+		(($location.port() ? ':' + $location.port() : ''));
+	}
 
-//  TODO: maso, 2018: replace with class
-    function getSelection() {
-        if (!this.__selections) {
-            this.__selections = angular.isArray(this.value) ? this.value : [];
-        }
-        return this.__selections;
-    }
+//	TODO: maso, 2018: replace with class
+	function getSelection() {
+		if (!this.__selections) {
+			this.__selections = angular.isArray(this.value) ? this.value : [];
+		}
+		return this.__selections;
+	}
 
-    function getIndexOf(list, item) {
-        if (!angular.isDefined(item.id)) {
-            return list.indexOf(item);
-        }
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].id === item.id) {
-                return i;
-            }
-        }
-    }
+	function getIndexOf(list, item) {
+		if (!angular.isDefined(item.id)) {
+			return list.indexOf(item);
+		}
+		for (var i = 0; i < list.length; i++) {
+			if (list[i].id === item.id) {
+				return i;
+			}
+		}
+	}
 
-    function setSelected(item, selected) {
-        var selectionList = this.getSelection();
-        var index = getIndexOf(selectionList, item);
-        if (selected) {
-            // add to selection
-            if (index >= 0) {
-                return;
-            }
-            selectionList.push(item);
-        } else {
-            // remove from selection
-            if (index > -1) {
-                selectionList.splice(index, 1);
-            }
-        }
-    }
+	function setSelected(item, selected) {
+		var selectionList = this.getSelection();
+		var index = getIndexOf(selectionList, item);
+		if (selected) {
+			// add to selection
+			if (index >= 0) {
+				return;
+			}
+			selectionList.push(item);
+		} else {
+			// remove from selection
+			if (index > -1) {
+				selectionList.splice(index, 1);
+			}
+		}
+	}
 
-    function isSelected(item) {
-        var selectionList = this.getSelection();
-        return getIndexOf(selectionList, item) >= 0;
-    }
-
-
-    /**
-     * @ngdoc Resources
-     * @name Account
-     * @description Get an account from resource
-     *
-     * Enable user to select an account
-     */
-    $resource.newPage({
-        label: 'Account',
-        type: 'account',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = false;
-            this.value = $scope.value;
-            this.setSelected = function (item) {
-                $scope.$parent.setValue(item);
-                $scope.$parent.answer();
-            };
-            this.isSelected = function (item) {
-                return item === this.value || item.id === this.value.id;
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['account']
-    });
-
-    /**
-     * @ngdoc Resources
-     * @name Accounts
-     * @description Gets list of accounts
-     *
-     * Display a list of accounts and allow user to select them.
-     */
-    $resource.newPage({
-        label: 'Accounts',
-        type: 'account-list',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['accounts']
-    });
-
-    // Resource for role-list
-    $resource.newPage({
-        label: 'Role List',
-        type: 'role-list',
-        templateUrl: 'views/resources/mb-roles.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['roles']
-    });
+	function isSelected(item) {
+		var selectionList = this.getSelection();
+		return getIndexOf(selectionList, item) >= 0;
+	}
 
 
-    // Resource for group-list
-    $resource.newPage({
-        label: 'Group List',
-        type: 'group-list',
-        templateUrl: 'views/resources/mb-groups.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['groups']
-    });
+	/**
+	 * @ngdoc Resources
+	 * @name Account
+	 * @description Get an account from resource
+	 *
+	 * Enable user to select an account
+	 */
+	$resource.newPage({
+		label: 'Account',
+		type: 'account',
+		templateUrl: 'views/resources/mb-accounts.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = false;
+			this.value = $scope.value;
+			this.setSelected = function (item) {
+				$scope.$parent.setValue(item);
+				$scope.$parent.answer();
+			};
+			this.isSelected = function (item) {
+				return item === this.value || item.id === this.value.id;
+			};
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['account']
+	});
+
+	/**
+	 * @ngdoc Resources
+	 * @name Accounts
+	 * @description Gets list of accounts
+	 *
+	 * Display a list of accounts and allow user to select them.
+	 */
+	$resource.newPage({
+		label: 'Accounts',
+		type: 'account-list',
+		templateUrl: 'views/resources/mb-accounts.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['accounts']
+	});
+
+	// Resource for role-list
+	$resource.newPage({
+		label: 'Role List',
+		type: 'role-list',
+		templateUrl: 'views/resources/mb-roles.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['roles']
+	});
 
 
-    /**
-     * @ngdoc WB Resources
-     * @name cms-content-image
-     * @description Load an Image URL from contents
-     */
-    $resource.newPage({
-        type: 'cms-content-image',
-        icon: 'image',
-        label: 'Images',
-        templateUrl: 'views/resources/mb-cms-images.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            /**
-             * Sets the absolute mode
-             *
-             * @param {boolean}
-             *            absolute mode of the controler
-             */
-            this.setAbsolute = function (absolute) {
-                this.absolute = absolute;
-            }
-
-            /**
-             * Checks if the mode is absolute
-             *
-             * @return absolute mode of the controller
-             */
-            this.isAbsolute = function () {
-                return this.absolute;
-            }
-
-            /*
-             * Sets value
-             */
-            this.setSelected = function (content) {
-                var path = '/api/v2/cms/contents/' + content.id + '/content';
-                if (this.isAbsolute()) {
-                    path = getDomain() + path;
-                }
-                this.value = path;
-                $scope.$parent.setValue(path);
-            }
-
-            // init the controller
-            this.init()
-        },
-        controllerAs: 'ctrl',
-        priority: 10,
-        tags: ['image']
-    });
-    // TODO: maso, 2018: Add video resource
-    // TODO: maso, 2018: Add audio resource
-
-    /**
-     * @ngdoc WB Resources
-     * @name content-upload
-     * @description Upload a content and returns its URL
-     */
-    $resource.newPage({
-        type: 'content-upload',
-        icon: 'file_upload',
-        label: 'Upload',
-        templateUrl: 'views/resources/mb-cms-content-upload.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope, $cms, $translate, uuid4) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            this.absolute = false;
-            this.files = [];
-
-            /**
-             * Sets the absolute mode
-             *
-             * @param {boolean}
-             *            absolute mode of the controler
-             */
-            this.setAbsolute = function (absolute) {
-                this.absolute = absolute;
-            }
-
-            /**
-             * Checks if the mode is absolute
-             *
-             * @return absolute mode of the controller
-             */
-            this.isAbsolute = function () {
-                return this.absolute;
-            }
-
-            /*
-             * Add answer to controller
-             */
-            var ctrl = this;
-            $scope.answer = function () {
-                // create data
-                var data = {};
-                data.name = this.name || uuid4.generate();
-                data.description = this.description || 'Auto loaded content';
-                var file = null;
-                if (angular.isArray(ctrl.files) && ctrl.files.length) {
-                    file = ctrl.files[0].lfFile;
-                    data.title = file.name;
-                }
-                // upload data to server
-                return ctrl.uploadFile(data, file)//
-                .then(function (content) {
-                    var value = '/api/v2/cms/contents/' + content.id + '/content';
-                    if (ctrl.isAbsolute()) {
-                        value = getDomain() + value;
-                    }
-                    return value;
-                })//
-                .catch(function () {
-                    alert('Failed to create or upload content');
-                });
-            };
-            // init the controller
-            this.init();
-
-            // re-labeling lf-ng-md-file component for multi languages support
-            angular.element(function () {
-                var elm = angular.element('.lf-ng-md-file-input-drag-text');
-                if (elm[0]) {
-                    elm.text($translate.instant('Drag & Drop File Here'));
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-button-brower');
-                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-button-remove');
-                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-                    elm[0].childNodes[1].data = $translate.instant('Remove');
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-                if (elm[0]) {
-                    elm.text($translate.instant('Select File'));
-                }
-            });
-        },
-        controllerAs: 'ctrl',
-        priority: 1,
-        tags: ['image', 'audio', 'vedio', 'file']
-    });
+	// Resource for group-list
+	$resource.newPage({
+		label: 'Group List',
+		type: 'group-list',
+		templateUrl: 'views/resources/mb-groups.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			// TODO: maso, 2018: load selected item
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['groups']
+	});
 
 
+	/**
+	 * @ngdoc WB Resources
+	 * @name cms-content-image
+	 * @description Load an Image URL from contents
+	 */
+	$resource.newPage({
+		type: 'cms-content-image',
+		icon: 'image',
+		label: 'Images',
+		templateUrl: 'views/resources/mb-cms-images.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+
+			/*
+			 * Extends collection controller
+			 */
+			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+				$scope: $scope
+			}));
+
+			/**
+			 * Sets the absolute mode
+			 *
+			 * @param {boolean}
+			 *            absolute mode of the controler
+			 */
+			this.setAbsolute = function (absolute) {
+				this.absolute = absolute;
+			}
+
+			/**
+			 * Checks if the mode is absolute
+			 *
+			 * @return absolute mode of the controller
+			 */
+			this.isAbsolute = function () {
+				return this.absolute;
+			}
+
+			/*
+			 * Sets value
+			 */
+			this.setSelected = function (content) {
+				var path = '/api/v2/cms/contents/' + content.id + '/content';
+				if (this.isAbsolute()) {
+					path = getDomain() + path;
+				}
+				this.value = path;
+				$scope.$parent.setValue(path);
+			}
+
+			// init the controller
+			this.init()
+		},
+		controllerAs: 'ctrl',
+		priority: 10,
+		tags: ['image']
+	});
+	// TODO: maso, 2018: Add video resource
+	// TODO: maso, 2018: Add audio resource
+
+	/**
+	 * @ngdoc WB Resources
+	 * @name content-upload
+	 * @description Upload a content and returns its URL
+	 */
+	$resource.newPage({
+		type: 'content-upload',
+		icon: 'file_upload',
+		label: 'Upload',
+		templateUrl: 'views/resources/mb-cms-content-upload.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $cms, $translate, uuid4) {
+
+			/*
+			 * Extends collection controller
+			 */
+			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+				$scope: $scope
+			}));
+
+			this.absolute = false;
+			this.files = [];
+
+			/**
+			 * Sets the absolute mode
+			 *
+			 * @param {boolean}
+			 *            absolute mode of the controler
+			 */
+			this.setAbsolute = function (absolute) {
+				this.absolute = absolute;
+			}
+
+			/**
+			 * Checks if the mode is absolute
+			 *
+			 * @return absolute mode of the controller
+			 */
+			this.isAbsolute = function () {
+				return this.absolute;
+			}
+
+			/*
+			 * Add answer to controller
+			 */
+			var ctrl = this;
+			$scope.answer = function () {
+				// create data
+				var data = {};
+				data.name = this.name || uuid4.generate();
+				data.description = this.description || 'Auto loaded content';
+				var file = null;
+				if (angular.isArray(ctrl.files) && ctrl.files.length) {
+					file = ctrl.files[0].lfFile;
+					data.title = file.name;
+				}
+				// upload data to server
+				return ctrl.uploadFile(data, file)//
+				.then(function (content) {
+					var value = '/api/v2/cms/contents/' + content.id + '/content';
+					if (ctrl.isAbsolute()) {
+						value = getDomain() + value;
+					}
+					return value;
+				})//
+				.catch(function () {
+					alert('Failed to create or upload content');
+				});
+			};
+			// init the controller
+			this.init();
+
+			// re-labeling lf-ng-md-file component for multi languages support
+			angular.element(function () {
+				var elm = angular.element('.lf-ng-md-file-input-drag-text');
+				if (elm[0]) {
+					elm.text($translate.instant('Drag & Drop File Here'));
+				}
+
+				elm = angular.element('.lf-ng-md-file-input-button-brower');
+				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+					elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+				}
+
+				elm = angular.element('.lf-ng-md-file-input-button-remove');
+				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+					elm[0].childNodes[1].data = $translate.instant('Remove');
+				}
+
+				elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+				if (elm[0]) {
+					elm.text($translate.instant('Select File'));
+				}
+			});
+		},
+		controllerAs: 'ctrl',
+		priority: 1,
+		tags: ['image', 'audio', 'vedio', 'file']
+	});
 
 
-    /**
-     * @ngdoc WB Resources
-     * @name file-local
-     * @description Select a local file and return the object
-     * 
-     * This is used to select local file. It may be used in any part of the system. For example,
-     * to upload as content.
-     */
-    $resource.newPage({
-        type: 'local-file',
-        icon: 'file_upload',
-        label: 'Local file',
-        templateUrl: 'views/resources/mb-local-file.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope, $q, style) {
-            var ctrl = this;
-            $scope.style = style;
-            $scope.answer = function () {
-                if (angular.isArray(ctrl.files) && ctrl.files.length) {
-                    return $q.resolve(ctrl.files[0].lfFile);
-                }
-                return $q.reject('No file selected');
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 1,
-        tags: ['local-file']
-    });
+
+
+	/**
+	 * @ngdoc WB Resources
+	 * @name file-local
+	 * @description Select a local file and return the object
+	 * 
+	 * This is used to select local file. It may be used in any part of the system. For example,
+	 * to upload as content.
+	 */
+	$resource.newPage({
+		type: 'local-file',
+		icon: 'file_upload',
+		label: 'Local file',
+		templateUrl: 'views/resources/mb-local-file.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $q, style) {
+			var ctrl = this;
+			$scope.style = style;
+			$scope.answer = function () {
+				if (angular.isArray(ctrl.files) && ctrl.files.length) {
+					return $q.resolve(ctrl.files[0].lfFile);
+				}
+				return $q.reject('No file selected');
+			};
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 1,
+		tags: ['local-file']
+	});
+
+
+
+	//-------------------------------------------------------------//
+	// CMS:
+	//
+	// - Term Taxonomies
+	//-------------------------------------------------------------//
+	$resource.newPage({
+		label: 'Term Taxonomies',
+		type: '/cms/term-taxonomies',
+		templateUrl: 'views/resources/mb-term-taxonomies.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/cms/term-taxonomies']
+	});
 
 });
 
@@ -8131,108 +8380,137 @@ angular.module('mblowfish-core')
  * applications. This service is responsible to manage global actions.
  * 
  */
-.service('$actions', function(Action, ActionGroup) {
-    var _actionsList = [];
-    var _actionsMap = {};
+.service('$actions', function(
+		/* angularjs */ $window,
+		/* mb        */ Action, ActionGroup, MbObservableObject) {
 
-    var _groupsList = [];
-    var _groupsMap = [];
+	// extend from observable object
+	angular.extend(this, MbObservableObject.prototype);
+	MbObservableObject.apply(this);
 
-    function _actions() {
-        return {
-            'items' : _actionsList
-        };
-    }
+	this.actionsList = [];
+	this.actionsMap = {};
 
-    // TODO: maso, 2018: add document
-    function _newAction(data) {
-        // Add new action
-        var action = new Action(data);
-        // remove old one
-        var oldaction = _action(action.id);
-        if(oldaction){
-            _removeAction(oldaction);
-        }
-        // add new one
-        _actionsMap[action.id] = action;
-        _actionsList.push(action);
-        for (var i = 0; i < action.groups.length; i++) {
-            var group = _group(action.groups[i]);
-            group.items.push(action);
-        }
-        if (action.scope) {
-            action.scope.$on('$destroy', function() {
-                _removeAction(action);
-            });
-        }
-        return action;
-    }
+	this.groupsList = [];
+	this.groupsMap = [];
 
-    // TODO: maso, 2018: add document
-    function _action(actionId) {
-        var action = _actionsMap[actionId];
-        if (action) {
-            return action;
-        }
-    }
+	this.actions = function () {
+		return {
+			'items' : this.actionsList
+		};
+	}
 
-    // TODO: maso, 2018: add document
-    function _removeAction(action) {
-        _actionsMap[action.id] = null;
-        var index = _actionsList.indexOf(action);
-        if (index > -1) {
-            _actionsList.splice(index, 1);
-            for (var i = 0; i < action.groups.length; i++) {
-                var group = _group(action.groups[i]);
-                var j = group.items.indexOf(action);
-                if (j > -1) {
-                    group.items.splice(j, 1);
-                }
-            }
-            return action;
-        }
-    }
+	// TODO: maso, 2018: add document
+	this.newAction = function (data) {
+		// Add new action
+		var action = new Action(data);
+		// remove old one
+		var oldaction = this.action(action.id);
+		if(oldaction){
+			this.removeAction(oldaction);
+		}
+		// add new one
+		this.actionsMap[action.id] = action;
+		this.actionsList.push(action);
+		if (action.scope) {
+			var service = this;
+			action.scope.$on('$destroy', function() {
+				service.removeAction(action);
+			});
+		}
+		this.updateAddByItem(action);
+		this.fire('actionsChanged', {
+			value: action,
+			oldValue: oldaction
+		});
+		return action;
+	};
+	
+	/**
+	 * gets action with id
+	 */
+	this.getAction = function (actionId) {
+		var action = this.actionsMap[actionId];
+		if (action) {
+			return action;
+		}
+	};
 
-    // TODO: maso, 2018: add document
-    function _groups() {
-        return {
-            'items' : _groupsList
-        };
-    }
+	// TODO: maso, 2018: add document
+	this.action = this.getAction;
 
-    // TODO: maso, 2018: add document
-    function _newGroup(groupData) {
-        // TODO: maso, 2018: assert id
-        return _group(groupData.id, groupData);
-    }
+	// TODO: maso, 2018: add document
+	this.removeAction = function (action) {
+		this.actionsMap[action.id] = null;
+		var index = this.actionsList.indexOf(action);
+		if (index > -1) {
+			this.actionsList.splice(index, 1);
+			this.updateRemoveByItem(action);
+			this.fire('actionsChanged', {
+				value: undefined,
+				oldValue: action
+			});
+			return action;
+		}
+	};
 
-    // TODO: maso, 2018: add document
-    function _group(groupId, groupData) {
-        var group = _groupsMap[groupId];
-        if (!group) {
-            group = new ActionGroup();
-            group.id = groupId;
-            _groupsMap[group.id] = group;
-            _groupsList.push(group);
-        }
-        if (groupData) {
-            angular.extend(group, groupData);
-        }
-        return group;
-    }
+	// TODO: maso, 2018: add document
+	this.groups = function() {
+		return {
+			'items' : this.groupsList
+		};
+	};
 
-    return {
-        // actions
-        actions : _actions,
-        newAction : _newAction,
-        action : _action,
-        removeAction : _removeAction,
+	// TODO: maso, 2018: add document
+	this.newGroup = function(groupData) {
+		// TODO: maso, 2018: assert id
+		return this.group(groupData.id, groupData);
+	};
 
-        // groups
-        groups : _groups,
-        newGroup : _newGroup,
-        group : _group
-    };
+	// TODO: maso, 2018: add document
+	this.group = function (groupId, groupData) {
+		var group = this.groupsMap[groupId];
+		if (!group) {
+			group = new ActionGroup(groupData);
+			group.id = groupId;
+			// TODO: maso, 2019: just use group map and remove groupList
+			this.groupsMap[group.id] = group;
+			this.groupsList.push(group);
+			this.updateAddByItem(group);
+		}else if (groupData) {
+			angular.extend(group, groupData);
+		}
+		this.fire('groupsChanged', {
+			value: group
+		});
+		return group;
+	};
+	
+	this.updateAddByItem = function(item){
+		var groups = item.groups || [];
+		for (var i = 0; i < groups.length; i++) {
+			var group = this.group(groups[i]);
+			group.addItem(item);
+		}
+	};
+	
+	this.updateRemoveByItem = function(item){
+		var groups = item.groups || [];
+		for (var i = 0; i < groups.length; i++) {
+			var group = this.group(groups[i]);
+			group.removeItem(item);
+		}
+	};
+	
+	this.exec = function(actionId, $event){
+		var action = this.getAction(actionId);
+		if(!action){
+			$window.alert('Action \''+actionId +'\' not found!');
+			return;
+		}
+		return action.exec($event);
+	};
+
 });
 
 /*
@@ -8322,618 +8600,651 @@ angular.module('mblowfish-core') //
  * @property {object} app.user - Current user information
  * @property {object} app.user.profile - The first profile of current user
  */
-.service('$app', function ($rootScope, $usr, $q, $cms, $translate, $http,
-        $httpParamSerializerJQLike, $mdDateLocale, $localStorage, UserAccount, $tenant,$timeout,
-        $dispatcher) {
-    'use strict';
+.service('$app', function (
+		$usr, $cms, $translate, $localStorage, UserAccount, $tenant,
+		/* am-wb-core    */ $objectPath, $dispatcher,
+		/* material      */ $mdDateLocale, 
+		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
+		) {
+	'use strict';
 
-    /***************************************************************************
-     * utils
-     **************************************************************************/
-    /*
-     * Bind list of roles to app data
-     */
-    function rolesToPermissions(roles) {
-        var permissions = [];
-        for (var i = 0; i < roles.length; i++) {
-            var role = roles[i];
-            permissions[role.application + '_' + role.code_name] = true;
-        }
-        return permissions;
-    }
+	/***************************************************************************
+	 * utils
+	 **************************************************************************/
+	/*
+	 * Bind list of roles to app data
+	 */
+	function rolesToPermissions(roles) {
+		var permissions = [];
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			permissions[role.application + '_' + role.code_name] = true;
+		}
+		return permissions;
+	}
 
-    function keyValueToMap(keyvals) {
-        var map = [];
-        for (var i = 0; i < keyvals.length; i++) {
-            var keyval = keyvals[i];
-            map[keyval.key] = keyval.value;
-        }
-        return map;
-    }
+	function keyValueToMap(keyvals) {
+		var map = [];
+		for (var i = 0; i < keyvals.length; i++) {
+			var keyval = keyvals[i];
+			map[keyval.key] = keyval.value;
+		}
+		return map;
+	}
 
-    function parseBooleanValue(value) {
-        value = value.toLowerCase();
-        switch (value) {
-        case true:
-        case 'true':
-        case '1':
-        case 'on':
-        case 'yes':
-            return true;
-        default:
-            return false;
-        }
-    }
+	function parseBooleanValue(value) {
+		value = value.toLowerCase();
+		switch (value) {
+		case true:
+		case 'true':
+		case '1':
+		case 'on':
+		case 'yes':
+			return true;
+		default:
+			return false;
+		}
+	}
 
-    /***************************************************************************
-     * applicaiton data
-     **************************************************************************/
-    var appConfigurationContent = null;
+	/***************************************************************************
+	 * applicaiton data
+	 **************************************************************************/
+	var appConfigurationContent = null;
 
-    // the state machine
-    var stateMachine;
+	// the state machine
+	var stateMachine;
 
-    // Constants
-    var APP_CNF_MIMETYPE = 'application/amd-cnf';
-    var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-    var TENANT_GRAPHQL = '{id,title,description,'+
-    'account'+USER_DETAIL_GRAPHQL +
-    'configurations{key,value}' +
-    'settings{key,value}' +
-    '}';
-
-
-    /**
-     * Handles internal service events
-     */
-    function handleEvent(key, data){
-        // update internal state machine
-        stateMachine.handle(key, data);
-    }
-
-    /**
-     * Sets state of the service
-     * 
-     * NOTE: must be used locally
-     */
-    function setApplicationState(state){
-        // create event
-        var $event = {
-                type: 'update',
-                value: state,
-                oldValue: $rootScope.__app.state
-        };
-        $rootScope.__app.state = state;
-
-        // staso, 2019: fire the state is changed
-        $dispatcher.dispatch('/app/state', $event);
-        
-        // TODO: move to application extension
-        _loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
-    }
-    
-    /**
-     * Gets the state of the application
-     * 
-     * @memberof $app
-     */
-    this.getState = function(){
-        return  $rootScope.__app.state;
-    };
-
-    function setApplicationDirection(dir) {
-        $rootScope.__app.dir = dir;
-    }
-
-    function setApplicationLanguage(key) {
-        if($rootScope.__app.state !== 'ready'){
-            return;
-        }
-        // 0- set app local
-        $rootScope.__app.language = key;
-        // 1- change language
-        $translate.use(key);
-        // 2- chnage date format
-        // Change moment's locale so the 'L'-format is adjusted.
-        // For example the 'L'-format is DD-MM-YYYY for Dutch
-        moment.loadPersian();
-        moment.locale(key);
-        // Set month and week names for the general $mdDateLocale service
-        var localeDate = moment.localeData();
-        $mdDateLocale.months = localeDate._months;
-        $mdDateLocale.shortMonths = localeDate._monthsShort;
-        $mdDateLocale.days = localeDate._weekdays;
-        $mdDateLocale.shortDays = localeDate._weekdaysMin;
-        // Optionaly let the week start on the day as defined by moment's locale
-        // data
-        $mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-    }
-
-    function setApplicationCalendar(key) {
-        // 0- set app local
-        $rootScope.__app.calendar = key;
-    }
-
-    function parsTenantConfiguration(configs){
-        $rootScope.__tenant.configs = keyValueToMap(configs);
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__tenant.configs
-        };
-        $dispatcher.dispatch('/tenant/configs', $event);
-
-        // load domains
-        var domains = {};
-        var regex = new RegExp('^module\.(.*)\.enable$', 'i');
-        for(var i = 0; i < configs.length; i++){
-            var config = configs[i];
-            var match = regex.exec(config.key);
-            if(match) {
-                var key = match[1].toLowerCase();
-                domains[key] = parseBooleanValue(config.value);
-            }
-        }
-        $rootScope.__tenant.domains = domains;
-        // Flux: fire account change
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__tenant.domains
-        };
-        $dispatcher.dispatch('/tenant/domains', $event);
-    }
-
-    function parsTenantSettings(settings){
-        $rootScope.__tenant.settings = keyValueToMap(settings);
-        $rootScope.__app.options = $rootScope.__tenant.settings;
-
-        // Flux: fire account change
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__account
-        };
-        $dispatcher.dispatch('/tenant/settings', $event);
-    }
-
-    function parsAccount(account){
-        var anonymous = !account.id || account.id === 0;
-
-        // app user data
-        $rootScope.__app.user = {
-                anonymous: anonymous,
-                current: new UserAccount(account)
-        };
-        // load basic information of account
-        $rootScope.__account.anonymous = anonymous;
-        $rootScope.__account.id = account.id;
-        $rootScope.__account.login = account.login;
-        $rootScope.__account.email = account.email;
-
-        if(anonymous) {
-            // legacy
-            $rootScope.__app.user.profile = {};
-            $rootScope.__app.user.roles = {};
-            $rootScope.__app.user.groups = {};
-            // update app
-            $rootScope.__account.profile = {};
-            $rootScope.__account.roles = {};
-            $rootScope.__account.groups = {};
-            return;
-        }
-        // load the first profile of user
-        if(angular.isArray(account.profiles)){
-            var profile = account.profiles.length? account.profiles[0] : {};
-            $rootScope.__app.user.profile = profile;
-            $rootScope.__account.profile = profile;
-        }
-        // load user roles, groups and permissions
-        var permissions = rolesToPermissions(account.roles || []);
-        var groupMap = {};
-        var groups = account.groups || [];
-        for (var i = 0; i < groups.length; i++) {
-            var group = groups[i];
-            groupMap[group.name] = true;
-            _.assign(permissions, rolesToPermissions(group.roles || []));
-        }
-        _.assign($rootScope.__app.user, permissions);
-        $rootScope.__account.permissions = permissions;
-        $rootScope.__account.roles = account.roles || [];
-        $rootScope.__account.groups = account.groups || [];
-
-        // Flux: fire account change
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__account
-        };
-        $dispatcher.dispatch('/account', $event);
-    }
-
-    /***********************************************************
-     * Application configuration
-     ***********************************************************/
-    /*
-     * deprecated: watch application configuration
-     */
-    var __configs_clean = false;
-    $rootScope.$watch('__app.configs', function(newValue,oldValue){
-        if(!__configs_clean){
-            return;
-        }
-        $dispatcher.dispatch('/app/configs', {
-            type: 'update',
-            value: newValue,
-            oldValue: oldValue
-        });
-    }, true);
-    
-    /**
-     * Load application configuration
-     */
-    function parsAppConfiguration(config){
-        if(angular.isString(config)){
-            try{
-                config = JSON.parse(config);
-            }catch(ex){
-            }
-        }
-        config = angular.isObject(config) ? config : {};
-        $rootScope.__app.config = config;
-        $rootScope.__app.configs = config;
-
-        // Support old config
-        if($rootScope.__app.configs.local){
-            $rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
-            $rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
-            $rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
-            $rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
-            delete $rootScope.__app.configs.local;
-        }
-
-        // Flux: fire application config
-        $dispatcher.dispatch('/app/configs', {
-            src: this,
-            type: 'load',
-            value: $rootScope.__app.configs
-        });
-        // TODO: remove watch on configs
-        $timeout(function(){
-            __configs_clean = true;
-        }, 1000);
-    }
-
-    this.getConfig = function(key){
-        return objectPath.get($rootScope.__app.configs, key);
-    };
-
-    this.setConfig = function(key, value){
-        var oldValue = this.getConfig(key);
-        objectPath.set($rootScope.__app.configs, key, value);
-        // Flux: fire application config
-        $dispatcher.dispatch('/app/configs', {
-            src: this,
-            type: 'update',
-            key: key,
-            value: value,
-            oldValue: oldValue
-        });
-    };
-
-    function loadDefaultApplicationConfig(){
-        // TODO: load last valid configuration from settings
-    }
-
-    /************************************************************
-     * Application stting
-     ************************************************************/
-
-    function parsAppSettings(settings){
-        $rootScope.__app.setting = settings;
-        $rootScope.__app.settings = settings;
+	// Constants
+	var APP_CNF_MIMETYPE = 'application/amd-cnf';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var TENANT_GRAPHQL = '{id,title,description,'+
+	'account'+USER_DETAIL_GRAPHQL +
+	'configurations{key,value}' +
+	'settings{key,value}' +
+	'}';
 
 
-        // Flux: fire application settings
-        var $event = {
-                src: this,
-                type: 'update',
-                value: $rootScope.__app.settings
-        };
-        $dispatcher.dispatch('/app/settings', $event);
-    }
+	/**
+	 * Handles internal service events
+	 */
+	function handleEvent(key, data){
+		// update internal state machine
+		stateMachine.handle(key, data);
+	}
 
-    /*
-     * Loads current user informations
-     * 
-     * If there is a role x.y (where x is application code and y is code name)
-     * in role list then the following var is added in user:
-     * 
-     * $rootScope.__app.user.x_y
-     * 
-     */
-    function loadUserProperty() {
-        _loadingLog('loading user info', 'fetch user information');
-        return $usr.getAccount('current', {
-            graphql: USER_DETAIL_GRAPHQL
-        }) //
-        .then(parsAccount);
-    }
+	/**
+	 * Sets state of the service
+	 * 
+	 * NOTE: must be used locally
+	 */
+	function setApplicationState(state){
+		// create event
+		var $event = {
+				type: 'update',
+				value: state,
+				oldValue: $rootScope.__app.state
+		};
+		$rootScope.__app.state = state;
 
-    function loadRemoteData(){
-        _loadingLog('loading', 'fetch remote storage');
+		// staso, 2019: fire the state is changed
+		$dispatcher.dispatch('/app/state', $event);
 
-        // application config
-        var pLoadAppConfig = $cms.getContent($rootScope.__app.configs_key) //
-        .then(function (content) {
-            appConfigurationContent = content;
-            return appConfigurationContent.downloadValue();
-        })
-        .then(parsAppConfiguration);
+		// TODO: move to application extension
+		_loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to '+ state);
+	}
 
-        // load current tenant
-        var pCurrentTenant = $tenant.getTenant('current', {
-            graphql: TENANT_GRAPHQL
-        })
-        .then(function(data){
-            parsTenantConfiguration(data.configurations || []);
-            parsTenantSettings(data.settings || []);
-            parsAccount(data.account || []);
-        });
-        return $q.all([pLoadAppConfig, pCurrentTenant]);
-    }
+	/**
+	 * Gets the state of the application
+	 * 
+	 * @memberof $app
+	 */
+	this.getState = function(){
+		return  $rootScope.__app.state;
+	};
 
-    function loadLocalData(){
-        _loadingLog('loading setting from local storage', 'fetch settings');
-        /*
-         * TODO: masood, 2018: The lines below is an alternative for lines above
-         * but not recommended.
-         * 
-         * TODO: 'key' of app should be used $localStorage.setPrefix(key);
-         */
-        var settings = $localStorage.$default({
-            dashboardModel: {}
-        });
-        return $q.resolve(settings)
-        .then(parsAppSettings);
-    }
+	function setApplicationDirection(dir) {
+		$rootScope.__app.dir = dir;
+	}
 
-    function loadApplication(){
-        return $q.all([
-            loadRemoteData(),
-            loadLocalData()])
-            .finally(function(){
-                // TODO: maso, check if all things are ok
-                if($rootScope.__app.isOffline){
-                    handleEvent(APP_EVENT_NET_ERROR);
-                    return;
-                }
-                if($rootScope.__app.isRemoteDataLoaded){
-                    handleEvent(APP_EVENT_SERVER_ERROR);
-                    return;
-                }
-                if($rootScope.__app.isApplicationConfigLoaded){
-                    handleEvent(APP_EVENT_APP_CONFIG_ERROR);
-                    return;
-                }
-                handleEvent(APP_EVENT_LOADED);
-            });
-    }
+	function setApplicationLanguage(key) {
+		if($rootScope.__app.state !== 'ready'){
+			return;
+		}
+		// 0- set app local
+		$rootScope.__app.language = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	}
 
-    /**
-     * Start the application
-     * 
-     * this function is called when the app get started.
-     * 
-     * @memberof $app
-     */
-    function start(key) {
-        $rootScope.__app.key = key;
-        $rootScope.__app.configs_key = 'angular-material-blowfish-' + key;
+	function setApplicationCalendar(key) {
+		// 0- set app local
+		$rootScope.__app.calendar = key;
+	}
 
-        // handle internal events
-        handleEvent(APP_EVENT_START);
-    }
+	function parsTenantConfiguration(configs){
+		$rootScope.__tenant.configs = keyValueToMap(configs);
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__tenant.configs
+		};
+		$dispatcher.dispatch('/tenant/configs', $event);
 
-    /***************************************************************************
-     * 
-     **************************************************************************/
+		// load domains
+		var domains = {};
+		var regex = new RegExp('^module\.(.*)\.enable$', 'i');
+		for(var i = 0; i < configs.length; i++){
+			var config = configs[i];
+			var match = regex.exec(config.key);
+			if(match) {
+				var key = match[1].toLowerCase();
+				domains[key] = parseBooleanValue(config.value);
+			}
+		}
+		$rootScope.__tenant.domains = domains;
+		// Flux: fire account change
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__tenant.domains
+		};
+		$dispatcher.dispatch('/tenant/domains', $event);
+	}
 
-    // states
-    var APP_STATE_WAITING = 'waiting';
-    var APP_STATE_LOADING = 'loading';
+	function parsTenantSettings(settings){
+		$rootScope.__tenant.settings = keyValueToMap(settings);
+		$rootScope.__app.options = $rootScope.__tenant.settings;
 
-    // final states
-    var APP_STATE_READY = 'ready';
-    var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
-    var APP_STATE_OFFLINE = 'offline';
-    var APP_STATE_FAIL = 'fail';
+		// Flux: fire setting change
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__account
+		};
+		$dispatcher.dispatch('/tenant/settings', $event);
+	}
 
-    var APP_EVENT_LOADED = 'loaded';
-    var APP_EVENT_START = 'start';
-    var APP_EVENT_SERVER_ERROR = 'server_error';
-    var APP_EVENT_NET_ERROR = 'network_error';
-    var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
+	function parsAccount(account){
+		var anonymous = !account.id || account.id === 0;
 
-    /*
-     * Attaches loading logs
-     */
-    function _loadingLog(stage, message) {
-        $rootScope.__app.logs.push(stage + ':' + message);
-    }
+		// app user data
+		$rootScope.__app.user = {
+				anonymous: anonymous,
+				current: new UserAccount(account)
+		};
+		// load basic information of account
+		$rootScope.__account.anonymous = anonymous;
+		$rootScope.__account.id = account.id;
+		$rootScope.__account.login = account.login;
+		$rootScope.__account.email = account.email;
 
-    /*
-     * Stores app configuration on the back end
-     */
-    this.storeApplicationConfig = function() {
-        if (!$rootScope.__account.permissions.tenant_owner) {
-            return;
-        }
-        if (appConfigurationContent) { // content loaded
-            return appConfigurationContent.uploadValue($rootScope.__app.configs);
-        } 
-        // create content
-        promise = $cms.putContent({
-            name: $rootScope.__app.configs_key,
-            mimetype: APP_CNF_MIMETYPE
-        })
-        .then(function (content) {
-            appConfigurationContent = content;
-            return appConfigurationContent.uploadValue($rootScope.__app.configs);
-        });
-    };
+		if(anonymous) {
+			// legacy
+			$rootScope.__app.user.profile = {};
+			$rootScope.__app.user.roles = {};
+			$rootScope.__app.user.groups = {};
+			// update app
+			$rootScope.__account.profile = {};
+			$rootScope.__account.roles = {};
+			$rootScope.__account.groups = {};
+			return;
+		}
+		// load the first profile of user
+		if(angular.isArray(account.profiles)){
+			var profile = account.profiles.length? account.profiles[0] : {};
+			$rootScope.__app.user.profile = profile;
+			$rootScope.__account.profile = profile;
+		}
+		// load user roles, groups and permissions
+		var permissions = rolesToPermissions(account.roles || []);
+		var groupMap = {};
+		var groups = account.groups || [];
+		for (var i = 0; i < groups.length; i++) {
+			var group = groups[i];
+			groupMap[group.name] = true;
+			_.assign(permissions, rolesToPermissions(group.roles || []));
+		}
+		_.assign($rootScope.__app.user, permissions);
+		$rootScope.__account.permissions = permissions;
+		$rootScope.__account.roles = account.roles || [];
+		$rootScope.__account.groups = account.groups || [];
 
-    /*
-     * Check a module to see if it is enable or not
-     */
-    // TODO: Masood, 2019: Improve the function to check based on tenant setting
-    function isEnable (moduleName) {
-        return $rootScope.__tenant.domains[moduleName];
-    }
+		// Flux: fire account change
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__account
+		};
+		$dispatcher.dispatch('/account', $event);
+	}
 
-    /**
-     * Logins into the backend
-     * 
-     * @memberof $app
-     * @param {object}
-     *            credential of the user
-     */
-    function login(credential) {
-        if (!$rootScope.__account.anonymous) {
-            return $q.resolve($rootScope.__account);
-        }
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/login',
-            data: $httpParamSerializerJQLike(credential),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(loadUserProperty);
-    }
+	/***********************************************************
+	 * Application configuration
+	 ***********************************************************/
+	/*
+	 * deprecated: watch application configuration
+	 */
+	var __configs_clean = false;
+	$rootScope.$watch('__app.configs', function(newValue,oldValue){
+		if(!__configs_clean){
+			return;
+		}
+		$dispatcher.dispatch('/app/configs', {
+			type: 'update',
+			value: newValue,
+			oldValue: oldValue
+		});
+	}, true);
 
-    /**
-     * Application logout
-     * 
-     * Logout and clean user data, this will change state of the application.
-     * 
-     * @memberof $app
-     */
-    function logout() {
-        if ($rootScope.__account.anonymous) {
-            return $q.resolve($rootScope.__account);
-        }
-        return $http({
-            method: 'POST',
-            url: '/api/v2/user/logout',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(loadUserProperty);
-    }
+	/**
+	 * Load application configuration
+	 */
+	function parsAppConfiguration(config){
+		if(angular.isString(config)){
+			try{
+				config = JSON.parse(config);
+			}catch(ex){
+			}
+		}
+		config = angular.isObject(config) ? config : {};
+		$rootScope.__app.config = config;
+		$rootScope.__app.configs = config;
+
+		// Support old config
+		if($rootScope.__app.configs.local){
+			$rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
+			$rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
+			$rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
+			$rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
+			delete $rootScope.__app.configs.local;
+		}
+
+		// Flux: fire application config
+		$dispatcher.dispatch('/app/configs', {
+			src: this,
+			type: 'load',
+			value: $rootScope.__app.configs
+		});
+		// TODO: remove watch on configs
+		$timeout(function(){
+			__configs_clean = true;
+		}, 1000);
+	}
+
+	this.getConfig = function(key){
+		return objectPath.get($rootScope.__app.configs, key);
+	};
+
+	this.setConfig = function(key, value){
+		var oldValue = this.getConfig(key);
+		objectPath.set($rootScope.__app.configs, key, value);
+		// Flux: fire application config
+		$dispatcher.dispatch('/app/configs', {
+			src: this,
+			type: 'update',
+			key: key,
+			value: value,
+			oldValue: oldValue
+		});
+	};
+
+	function loadDefaultApplicationConfig(){
+		// TODO: load last valid configuration from settings
+	}
+
+	/************************************************************
+	 * Application stting
+	 ************************************************************/
+
+	function parsAppSettings(settings){
+		$rootScope.__app.setting = settings;
+		$rootScope.__app.settings = settings;
 
 
-    /*
-     * State machine to handle life cycle of the system.
-     */
-    stateMachine = new machina.Fsm({
-        namespace: 'webpich.$app',
-        initialState: APP_STATE_WAITING,
-        states: {
-            // Before the 'start' event occurs via $app.start().
-            waiting: {
-                start: APP_STATE_LOADING,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL
-            },
-            // tries to load all part of system
-            loading: {
-                _onEnter: function () {
-                    loadApplication();
-                },
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // app is ready
-            ready: {
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // app is ready with no config
-            ready_not_configured: {
-                _onEnter: function () {
-                    loadDefaultApplicationConfig();
-                },
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // server error
-            fail: {
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            },
-            // net error
-            offline: {
-                _onEnter: function () {
-                    offlineReloadDelay = 3000;
-                    $timeout(loadApplication, offlineReloadDelay);
-                },
-                loaded: APP_STATE_READY,
-                network_error: APP_STATE_OFFLINE,
-                server_error: APP_STATE_FAIL,
-                config_error: APP_STATE_READY_NOT_CONFIGURED,
-            }
-        },
-    });
+		// Flux: fire application settings
+		var $event = {
+				src: this,
+				type: 'update',
+				value: $rootScope.__app.settings
+		};
+		$dispatcher.dispatch('/app/settings', $event);
+	}
 
-    // I'd like to know when the transition event occurs
-    stateMachine.on('transition', function () {
-        setApplicationState(stateMachine.state);
-    });
+	/*
+	 * Loads current user informations
+	 * 
+	 * If there is a role x.y (where x is application code and y is code name)
+	 * in role list then the following var is added in user:
+	 * 
+	 * $rootScope.__app.user.x_y
+	 * 
+	 */
+	function loadUserProperty() {
+		_loadingLog('loading user info', 'fetch user information');
+		return $usr.getAccount('current', {
+			graphql: USER_DETAIL_GRAPHQL
+		}) //
+		.then(parsAccount);
+	}
 
-    /*
-     * watch direction and update app.dir
-     */
-    $rootScope.$watch(function () {
-        return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
-    }, setApplicationDirection);
+	function loadRemoteData(){
+		_loadingLog('loading', 'fetch remote storage');
 
-    /*
-     * watch local and update language
-     */
-    $rootScope.$watch(function () {
-        // Check language
-        return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
-    }, setApplicationLanguage);
+		// application config
+		var pLoadAppConfig = $cms.getContent($rootScope.__app.configs_key) //
+		.then(function (content) {
+			appConfigurationContent = content;
+			return appConfigurationContent.downloadValue();
+		})
+		.then(parsAppConfiguration);
 
-    /*
-     * watch calendar
-     */
-    $rootScope.$watch(function () {
-        return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
-    }, setApplicationCalendar);
+		// load current tenant
+		var pCurrentTenant = $tenant.getTenant('current', {
+			graphql: TENANT_GRAPHQL
+		})
+		.then(function(data){
+			parsTenantConfiguration(data.configurations || []);
+			parsTenantSettings(data.settings || []);
+			parsAccount(data.account || []);
+		});
+		return $q.all([pLoadAppConfig, pCurrentTenant]);
+	}
 
-    // Init
-    this.start = start;
-    this.login = login;
-    this.logout = logout;
-    this.isEnable = isEnable;
+	function loadLocalData(){
+		_loadingLog('loading setting from local storage', 'fetch settings');
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 */
+		var settings = $localStorage.$default({
+			dashboardModel: {}
+		});
+		return $q.resolve(settings)
+		.then(parsAppSettings);
+	}
 
-    // test
-    // TODO: remove in deploy
-    this.__parsTenantConfiguration = parsTenantConfiguration;
+	function loadApplication(){
+		return $q.all([
+			loadRemoteData(),
+			loadLocalData()])
+			.finally(function(){
+				// TODO: maso, check if all things are ok
+				if($rootScope.__app.isOffline){
+					handleEvent(APP_EVENT_NET_ERROR);
+					return;
+				}
+				if($rootScope.__app.isRemoteDataLoaded){
+					handleEvent(APP_EVENT_SERVER_ERROR);
+					return;
+				}
+				if($rootScope.__app.isApplicationConfigLoaded){
+					handleEvent(APP_EVENT_APP_CONFIG_ERROR);
+					return;
+				}
+				handleEvent(APP_EVENT_LOADED);
+			});
+	}
 
-    return this;
+	/**
+	 * Start the application
+	 * 
+	 * this function is called when the app get started.
+	 * 
+	 * @memberof $app
+	 */
+	function start(key) {
+		$rootScope.__app.key = key;
+		$rootScope.__app.configs_key = 'angular-material-blowfish-' + key;
+
+		// handle internal events
+		handleEvent(APP_EVENT_START);
+	}
+
+	/***************************************************************************
+	 * 
+	 **************************************************************************/
+
+	// states
+	var APP_STATE_WAITING = 'waiting';
+	var APP_STATE_LOADING = 'loading';
+
+	// final states
+	var APP_STATE_READY = 'ready';
+	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
+	var APP_STATE_OFFLINE = 'offline';
+	var APP_STATE_FAIL = 'fail';
+
+	var APP_EVENT_LOADED = 'loaded';
+	var APP_EVENT_START = 'start';
+	var APP_EVENT_SERVER_ERROR = 'server_error';
+	var APP_EVENT_NET_ERROR = 'network_error';
+	var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
+
+	/*
+	 * Attaches loading logs
+	 */
+	function _loadingLog(stage, message) {
+		$rootScope.__app.logs.push(stage + ':' + message);
+	}
+
+	/*
+	 * Stores app configuration on the back end
+	 */
+	this.storeApplicationConfig = function() {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return;
+		}
+		if (appConfigurationContent) { // content loaded
+			return appConfigurationContent.uploadValue($rootScope.__app.configs);
+		} 
+		// create content
+		promise = $cms.putContent({
+			name: $rootScope.__app.configs_key,
+			mimetype: APP_CNF_MIMETYPE
+		})
+		.then(function (content) {
+			appConfigurationContent = content;
+			return appConfigurationContent.uploadValue($rootScope.__app.configs);
+		});
+	};
+
+	/*
+	 * Check a module to see if it is enable or not
+	 */
+	// TODO: Masood, 2019: Improve the function to check based on tenant setting
+	function isEnable (moduleName) {
+		return $rootScope.__tenant.domains[moduleName];
+	}
+
+	/**
+	 * Logins into the backend
+	 * 
+	 * @memberof $app
+	 * @param {object}
+	 *            credential of the user
+	 */
+	function login(credential) {
+		if (!$rootScope.__account.anonymous) {
+			return $q.resolve($rootScope.__account);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: $httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(loadUserProperty);
+	}
+
+	/**
+	 * Application logout
+	 * 
+	 * Logout and clean user data, this will change state of the application.
+	 * 
+	 * @memberof $app
+	 */
+	function logout() {
+		if ($rootScope.__account.anonymous) {
+			return $q.resolve($rootScope.__account);
+		}
+		return $http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		})
+		.then(loadUserProperty);
+	}
+
+
+	/*
+	 * State machine to handle life cycle of the system.
+	 */
+	stateMachine = new machina.Fsm({
+		namespace: 'webpich.$app',
+		initialState: APP_STATE_WAITING,
+		states: {
+			// Before the 'start' event occurs via $app.start().
+			waiting: {
+				start: APP_STATE_LOADING,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL
+			},
+			// tries to load all part of system
+			loading: {
+				_onEnter: function () {
+					loadApplication();
+				},
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// app is ready
+			ready: {
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// app is ready with no config
+			ready_not_configured: {
+				_onEnter: function () {
+					loadDefaultApplicationConfig();
+				},
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// server error
+			fail: {
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			},
+			// net error
+			offline: {
+				_onEnter: function () {
+					offlineReloadDelay = 3000;
+					$timeout(loadApplication, offlineReloadDelay);
+				},
+				loaded: APP_STATE_READY,
+				network_error: APP_STATE_OFFLINE,
+				server_error: APP_STATE_FAIL,
+				config_error: APP_STATE_READY_NOT_CONFIGURED,
+			}
+		},
+	});
+
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function () {
+		setApplicationState(stateMachine.state);
+	});
+
+	/*
+	 * watch direction and update app.dir
+	 */
+	$rootScope.$watch(function () {
+		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
+	}, setApplicationDirection);
+
+	/*
+	 * watch local and update language
+	 */
+	$rootScope.$watch(function () {
+		// Check language
+		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
+	}, setApplicationLanguage);
+
+	/*
+	 * watch calendar
+	 */
+	$rootScope.$watch(function () {
+		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
+	}, setApplicationCalendar);
+
+	// Init
+	this.start = start;
+	this.login = login;
+	this.logout = logout;
+	this.isEnable = isEnable;
+
+	// test
+	// TODO: remove in deploy
+	this.__parsTenantConfiguration = parsTenantConfiguration;
+
+	
+	
+	/**************************************************************************
+	 * application properties
+	 **************************************************************************/
+	this.getProperty = function(key, defaultValue) {
+		var tempObject = {
+				app: $rootScope.__app,
+				tenant: $rootScope.__tenant,
+				account: $rootScope.__account,
+		}
+		return $objectPath.get(tempObject, key) || defaultValue;
+	};
+
+	this.setProperty = function(key, value){
+		// TODO:
+	};
+
+	this.setProperties = function(map){
+		// TODO:
+	};
+	
+	
+	/*
+	 * Check if current account changed
+	 */
+	$dispatcher.on('/user/accounts/current', function(){
+		loadUserProperty();
+	});
+
+	return this;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -9813,7 +10124,7 @@ angular.module('mblowfish-core')
             controller : dialog.controller || 'AmdNavigatorDialogCtrl',
             controllerAs: dialog.ctrl || 'ctrl',
             parent : angular.element(document.body),
-            clickOutsideToClose : true,
+            clickOutsideToClose : false,
             fullscreen: true,
             multiple:true
         }, dialog);
@@ -10460,7 +10771,7 @@ angular.module('mblowfish-core') //
  * @description sidenavs manager
  * 
  */
-.service('$sidenav', function ($q) {
+.service('$sidenav', function ($q, $mdSidenav) {
     var _sidenavs = [];
 
     /**
@@ -10501,7 +10812,14 @@ angular.module('mblowfish-core') //
         }
         return $q.reject('Sidenav not found');
     }
-
+    
+    /**
+     * Find and return a sidenav
+     */
+    this.getSidenav = function(id){
+    	return $mdSidenav(id);
+    }
+    
     var _defaultSidenavs = [];
 
     /**
@@ -10526,16 +10844,13 @@ angular.module('mblowfish-core') //
         return _defaultSidenavs;
     }
 
+    this.sidenavs = sidenavs;
+    this.newSidenav = newSidenav;
+    this.sidenav = sidenav;
+    this.setDefaultSidenavs = setDefaultSidenavs;
+    this.defaultSidenavs = defaultSidenavs;
 
-    var apps = {};
-
-    apps.sidenavs = sidenavs;
-    apps.newSidenav = newSidenav;
-    apps.sidenav = sidenav;
-    apps.setDefaultSidenavs = setDefaultSidenavs;
-    apps.defaultSidenavs = defaultSidenavs;
-
-    return apps;
+    return this;
 });
 
 
@@ -10638,17 +10953,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   'use strict';
 
   $templateCache.put('views/dialogs/mb-alert.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>error</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-confirm.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true)> <wb-icon aria-label=Done>done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>warning</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true) aria-label=done> <wb-icon aria-label=Done>done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-prompt.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model)> <wb-icon aria-label=Done>done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <wb-icon aria-label=Done>done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
@@ -10683,7 +10998,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme|| app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir === 'rtl', 'mb-ltr-direction': app.dir !== 'rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-if=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h3>Loading...</h3>   <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div> </div>"
+    "<div id=mb-panel-root md-theme=\"{{app.setting.theme|| app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir === 'rtl', 'mb-ltr-direction': app.dir !== 'rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-show=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h3>Loading...</h3>   <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div> </div>"
   );
 
 
@@ -10813,7 +11128,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-cms-images.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content> <md-content>  <div layout-padding layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'image')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <wb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</wb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content> <md-content>  <div layout-padding layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
@@ -10834,6 +11149,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/resources/mb-sidenav.html',
     ""
+  );
+
+
+  $templateCache.put('views/resources/mb-term-taxonomies.html',
+    "<div ng-controller=\"MbSeenCmsTermTaxonomiesCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, taxonomy, term{id, name, metas{key,value}}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"termTaxonomy in ctrl.items track by termTaxonomy.id\" ng-click=\"multi || resourceCtrl.selectRole(termTaxonomy)\" class=md-3-line> <wb-icon>label</wb-icon> <div class=md-list-item-text layout=column> <h3>{{termTaxonomy.term.name}}</h3> <p>{{termTaxonomy.description}}</p> <p>{{termTaxonomy.taxonomy}}</p> </div> <md-checkbox class=md-secondary ng-init=\"termTaxonomy.selected = resourceCtrl.isSelected(termTaxonomy)\" ng-model=termTaxonomy.selected ng-click=\"resourceCtrl.setSelected(termTaxonomy, termTaxonomy.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 

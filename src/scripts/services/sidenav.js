@@ -29,7 +29,7 @@ angular.module('mblowfish-core') //
  * @description sidenavs manager
  * 
  */
-.service('$sidenav', function ($q) {
+.service('$sidenav', function ($q, $mdSidenav) {
     var _sidenavs = [];
 
     /**
@@ -70,7 +70,14 @@ angular.module('mblowfish-core') //
         }
         return $q.reject('Sidenav not found');
     }
-
+    
+    /**
+     * Find and return a sidenav
+     */
+    this.getSidenav = function(id){
+    	return $mdSidenav(id);
+    }
+    
     var _defaultSidenavs = [];
 
     /**
@@ -95,16 +102,13 @@ angular.module('mblowfish-core') //
         return _defaultSidenavs;
     }
 
+    this.sidenavs = sidenavs;
+    this.newSidenav = newSidenav;
+    this.sidenav = sidenav;
+    this.setDefaultSidenavs = setDefaultSidenavs;
+    this.defaultSidenavs = defaultSidenavs;
 
-    var apps = {};
-
-    apps.sidenavs = sidenavs;
-    apps.newSidenav = newSidenav;
-    apps.sidenav = sidenav;
-    apps.setDefaultSidenavs = setDefaultSidenavs;
-    apps.defaultSidenavs = defaultSidenavs;
-
-    return apps;
+    return this;
 });
 
 

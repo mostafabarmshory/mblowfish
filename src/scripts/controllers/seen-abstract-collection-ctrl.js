@@ -495,6 +495,19 @@ angular.module('mblowfish-core')//
     };
 
     /**
+     * Adding custom filter
+     * 
+     * Filters are used to select special types of the items.
+     * 
+     * @memberof SeenAbstractCollectionCtrl
+     * @param key of the filter
+     * @param value of the filter
+     */
+    this.addFilter = function(key, value){
+        this.queryParameter.setFilter(key, value);
+    };
+
+    /**
      * Load controller actions
      * 
      * @return list of actions

@@ -6,10 +6,16 @@
 			<wb-icon>input</wb-icon>
 			<h2 translate>{{app.title}}</h2>
 			<span flex></span>
-			<md-button class="md-icon-button" ng-click="answer(config.model)">
+			<md-button 
+				class="md-icon-button" 
+				ng-click="answer(config.model)"
+				aria-label="done">
 				<wb-icon aria-label="Done">done</wb-icon>
 			</md-button>
-			<md-button class="md-icon-button" ng-click="cancel()">
+			<md-button 
+				class="md-icon-button"
+				ng-click="cancel()"
+				aria-label="close">
 				<wb-icon aria-label="Close dialog">close</wb-icon>
 			</md-button>
 		</div>
@@ -22,7 +28,9 @@
 		<p translate>{{config.message}}</p>
 		<md-input-container class="md-block">
 			<label translate>Input value</label>
-			<input ng-model="config.model">
+			<input 
+				ng-model="config.model"
+				aria-label="input value">
 		</md-input-container>
 	</md-dialog-content>
 </md-dialog>
