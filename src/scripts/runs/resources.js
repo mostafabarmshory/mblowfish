@@ -248,7 +248,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'ctrl',
 		priority: 10,
-		tags: ['image']
+		tags: ['image', 'url', 'image-url']
 	});
 	// TODO: maso, 2018: Add video resource
 	// TODO: maso, 2018: Add audio resource
@@ -352,7 +352,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'ctrl',
 		priority: 1,
-		tags: ['image', 'audio', 'vedio', 'file']
+		tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url']
 	});
 
 
