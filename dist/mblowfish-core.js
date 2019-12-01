@@ -8126,6 +8126,29 @@ angular.module('mblowfish-core')
 		tags: ['/cms/term-taxonomies']
 	});
 
+	//-------------------------------------------------------------//
+	// Modules:
+	//
+	// - CMS module
+	// - Manual module
+	//-------------------------------------------------------------//
+	$resource.newPage({
+		label: 'Manual',
+		type: 'mb-module-manual',
+		templateUrl: 'views/resources/mb-module-manual.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.$watch('module', function(value) {
+				$scope.$parent.setValue([value]);
+			}, true);
+			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
 });
 
 /*
@@ -11008,6 +11031,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/resources/mb-local-file.html',
     "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-module-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Description</label> <input ng-model=module.description> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Logo</label> <input ng-model=module.logo> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>type</label> <input ng-model=module.type required> </md-input-container> </md-content>"
   );
 
 

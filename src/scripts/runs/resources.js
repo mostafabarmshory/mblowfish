@@ -419,4 +419,27 @@ angular.module('mblowfish-core')
 		tags: ['/cms/term-taxonomies']
 	});
 
+	//-------------------------------------------------------------//
+	// Modules:
+	//
+	// - CMS module
+	// - Manual module
+	//-------------------------------------------------------------//
+	$resource.newPage({
+		label: 'Manual',
+		type: 'mb-module-manual',
+		templateUrl: 'views/resources/mb-module-manual.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.$watch('module', function(value) {
+				$scope.$parent.setValue([value]);
+			}, true);
+			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
 });
