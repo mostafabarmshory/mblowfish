@@ -468,4 +468,30 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['/app/modules']
 	});
+	$resource.newPage({
+		label: 'ViraWeb123',
+		type: 'mb-module-viraweb',
+		templateUrl: 'views/resources/mb-module-common.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $http) {
+			$http.get('https://cdn.jsdelivr.net/gh/viraweb123/modules/modules.json')
+			.then(function(res){
+				$scope.modules = res.data;
+			});
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
 });
