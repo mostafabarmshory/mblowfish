@@ -191,6 +191,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/resources/mb-module-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Description</label> <input ng-model=module.description> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Logo</label> <input ng-model=module.logo> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>type</label> <input ng-model=module.type required> </md-input-container> </md-content>"
+  );
+
+
   $templateCache.put('views/resources/mb-roles.html',
     "<div ng-controller=\"MbSeenUserRolesCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"role in ctrl.items track by role.id\" ng-click=\"multi || resourceCtrl.selectRole(role)\" class=md-3-line> <wb-icon>accessibility</wb-icon> <div class=md-list-item-text layout=column> <h3>{{role.name}}</h3> <p>{{role.description}}</p> </div> <md-checkbox class=md-secondary ng-init=\"role.selected = resourceCtrl.isSelected(role)\" ng-model=role.selected ng-click=\"resourceCtrl.setSelected(role, role.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
