@@ -494,4 +494,43 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['/app/modules']
 	});
+
+	$resource.newPage({
+		type: 'cms-content-module',
+		icon: 'image',
+		label: 'On Domain Modules',
+		templateUrl: 'views/resources/mb-cms-modules.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+
+			/*
+			 * Extends collection controller
+			 */
+			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+				$scope: $scope
+			}));
+
+			/*
+			 * Sets value
+			 */
+			this.setSelected = function (content) {
+				var modules = [{
+					title: content.module,
+					description: content.description,
+					url: '/api/v2/cms/contents/' + content.name + '/content',
+					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
+				}];
+				this.value = modules;
+				$scope.$parent.setValue(modules);
+			}
+
+			// init the controller
+			this.init();
+		},
+		controllerAs: 'ctrl',
+		priority: 7,
+		tags: ['/app/modules']
+	});
 });
