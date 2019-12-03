@@ -99,4 +99,18 @@ angular.module('app')
             $scope.roles = roles;
         });
     };
+    
+    $scope.selectModules = function(){
+    	return $resource.get('/app/modules',{
+    		data: $scope.modules,
+    		style:{
+    			title: 'Select module list',
+    			description: 'Select one or more module',
+    			icon: 'package'
+    		}
+    	})//
+    	.then(function(modules){
+    		$scope.modules = modules;
+    	});
+    };
 });

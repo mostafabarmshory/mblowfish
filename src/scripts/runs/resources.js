@@ -248,7 +248,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'ctrl',
 		priority: 10,
-		tags: ['image']
+		tags: ['image', 'url', 'image-url']
 	});
 	// TODO: maso, 2018: Add video resource
 	// TODO: maso, 2018: Add audio resource
@@ -352,7 +352,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'ctrl',
 		priority: 1,
-		tags: ['image', 'audio', 'vedio', 'file']
+		tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url']
 	});
 
 
@@ -419,4 +419,118 @@ angular.module('mblowfish-core')
 		tags: ['/cms/term-taxonomies']
 	});
 
+	//-------------------------------------------------------------//
+	// Modules:
+	//
+	// - CMS module
+	// - Manual module
+	//-------------------------------------------------------------//
+	$resource.newPage({
+		label: 'Manual',
+		type: 'mb-module-manual',
+		templateUrl: 'views/resources/mb-module-manual.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.$watch('module', function(value) {
+				$scope.$parent.setValue([value]);
+			}, true);
+			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
+	$resource.newPage({
+		label: 'Common',
+		type: 'mb-module-common',
+		templateUrl: 'views/resources/mb-module-common.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $http) {
+			$http.get('resources/modules.json')
+			.then(function(res){
+				$scope.modules = res.data;
+			});
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
+	$resource.newPage({
+		label: 'ViraWeb123',
+		type: 'mb-module-viraweb',
+		templateUrl: 'views/resources/mb-module-common.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $http) {
+			$http.get('https://cdn.jsdelivr.net/gh/viraweb123/modules/modules.json')
+			.then(function(res){
+				$scope.modules = res.data;
+			});
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
+
+	$resource.newPage({
+		type: 'cms-content-module',
+		icon: 'image',
+		label: 'On Domain Modules',
+		templateUrl: 'views/resources/mb-cms-modules.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+
+			/*
+			 * Extends collection controller
+			 */
+			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+				$scope: $scope
+			}));
+
+			/*
+			 * Sets value
+			 */
+			this.setSelected = function (content) {
+				var modules = [{
+					title: content.module,
+					description: content.description,
+					url: '/api/v2/cms/contents/' + content.name + '/content',
+					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
+				}];
+				this.value = modules;
+				$scope.$parent.setValue(modules);
+			}
+
+			// init the controller
+			this.init();
+		},
+		controllerAs: 'ctrl',
+		priority: 7,
+		tags: ['/app/modules']
+	});
 });

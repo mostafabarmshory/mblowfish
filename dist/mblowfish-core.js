@@ -6948,137 +6948,6 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-angular.module('mblowfish-core')
-
-.factory('MbObservableObject', function() {
-	'use strict';
-
-	function ObservableObject() {
-		this.silent = false;
-		this.callbacks = {};
-	};
-
-	/**
-	 * Set widget silent
-	 * 
-	 * @memberof AmhObservableObject
-	 */
-	ObservableObject.prototype.setSilent = function(silent) {
-		this.silent = silent;
-	};
-
-	/**
-	 * Checks if the element is silent
-	 * 
-	 * @memberof AmhObservableObject
-	 */
-	ObservableObject.prototype.isSilent = function() {
-		return this.silent;
-	};
-
-	/**
-	 * Adds new callback of type
-	 * 
-	 * @param typeof
-	 *            the event
-	 * @param callback
-	 *            to call on the event
-	 * @memberof AmhObservableObject
-	 */
-	ObservableObject.prototype.on = function (type, callback) {
-		if (!angular.isFunction(callback)) {
-			throw {
-				message: 'Callback must be a function'
-			};
-		}
-		var callbacks = this.callbacks;
-		if (!angular.isArray(callbacks[type])) {
-			callbacks[type] = [];
-		}
-		if(callbacks[type].includes(callback)){
-			return;
-		}
-		callbacks[type].push(callback);
-	};
-
-	/**
-	 * Remove the callback
-	 * 
-	 * @param type
-	 *            of the event
-	 * @param callback
-	 *            to remove
-	 * @memberof AmhObservableObject
-	 */
-	ObservableObject.prototype.off = function (type, callback) {
-		var callbacks = this.callbacks;
-		if (!angular.isArray(callbacks[type])) {
-			return;
-		}
-		var index = callbacks[type].indexOf(callback);
-		if (index > -1) {
-			callbacks[type].splice(index, 1);
-		}
-	};
-
-	/**
-	 * Call all callbacks on the given event type.
-	 * 
-	 * Before callbacks, widget processors will process the widget and event.
-	 * 
-	 * @param type
-	 *            of the event
-	 * @param params
-	 *            to add to the event
-	 * @memberof AmhObservableObject
-	 */
-	ObservableObject.prototype.fire = function (type, params) {
-		// 1- Call processors
-		var event = _.merge({
-			source: this,
-			type: type
-		}, params || {});
-		var callbacks = this.callbacks;
-
-		// 2- call listeners
-		if (this.isSilent() || !angular.isDefined(callbacks[type])) {
-			return;
-		}
-		var cl = callbacks[type];
-		for(var i = 0; i < cl.length; i++){
-			// TODO: maso, 2018: check if the event is stopped to propagate
-			try {
-				cl[i].apply(cl[i], [event]);
-			} catch (error) {
-				// NOTE: remove on release
-				console.log(error);
-			}
-		}
-	};
-	
-	return ObservableObject;
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
 angular.module('mblowfish-core')
 /*
@@ -8086,7 +7955,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'ctrl',
 		priority: 10,
-		tags: ['image']
+		tags: ['image', 'url', 'image-url']
 	});
 	// TODO: maso, 2018: Add video resource
 	// TODO: maso, 2018: Add audio resource
@@ -8190,7 +8059,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'ctrl',
 		priority: 1,
-		tags: ['image', 'audio', 'vedio', 'file']
+		tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url']
 	});
 
 
@@ -8257,6 +8126,120 @@ angular.module('mblowfish-core')
 		tags: ['/cms/term-taxonomies']
 	});
 
+	//-------------------------------------------------------------//
+	// Modules:
+	//
+	// - CMS module
+	// - Manual module
+	//-------------------------------------------------------------//
+	$resource.newPage({
+		label: 'Manual',
+		type: 'mb-module-manual',
+		templateUrl: 'views/resources/mb-module-manual.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.$watch('module', function(value) {
+				$scope.$parent.setValue([value]);
+			}, true);
+			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
+	$resource.newPage({
+		label: 'Common',
+		type: 'mb-module-common',
+		templateUrl: 'views/resources/mb-module-common.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $http) {
+			$http.get('resources/modules.json')
+			.then(function(res){
+				$scope.modules = res.data;
+			});
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
+	$resource.newPage({
+		label: 'ViraWeb123',
+		type: 'mb-module-viraweb',
+		templateUrl: 'views/resources/mb-module-common.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope, $http) {
+			$http.get('https://cdn.jsdelivr.net/gh/viraweb123/modules/modules.json')
+			.then(function(res){
+				$scope.modules = res.data;
+			});
+			$scope.multi = true;
+			this.value = $scope.value;
+			this.setSelected = function (item, selected) {
+				this._setSelected(item, selected);
+				$scope.$parent.setValue(this.getSelection());
+			};
+			this._setSelected = setSelected;
+			this.isSelected = isSelected;
+			this.getSelection = getSelection;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
+
+	$resource.newPage({
+		type: 'cms-content-module',
+		icon: 'image',
+		label: 'On Domain Modules',
+		templateUrl: 'views/resources/mb-cms-modules.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+
+			/*
+			 * Extends collection controller
+			 */
+			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+				$scope: $scope
+			}));
+
+			/*
+			 * Sets value
+			 */
+			this.setSelected = function (content) {
+				var modules = [{
+					title: content.module,
+					description: content.description,
+					url: '/api/v2/cms/contents/' + content.name + '/content',
+					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
+				}];
+				this.value = modules;
+				$scope.$parent.setValue(modules);
+			}
+
+			// init the controller
+			this.init();
+		},
+		controllerAs: 'ctrl',
+		priority: 7,
+		tags: ['/app/modules']
+	});
 });
 
 /*
@@ -8382,11 +8365,11 @@ angular.module('mblowfish-core')
  */
 .service('$actions', function(
 		/* angularjs */ $window,
-		/* mb        */ Action, ActionGroup, MbObservableObject) {
+		/* mb        */ Action, ActionGroup, WbObservableObject) {
 
 	// extend from observable object
-	angular.extend(this, MbObservableObject.prototype);
-	MbObservableObject.apply(this);
+	angular.extend(this, WbObservableObject.prototype);
+	WbObservableObject.apply(this);
 
 	this.actionsList = [];
 	this.actionsMap = {};
@@ -11132,6 +11115,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/resources/mb-cms-modules.html',
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail>   <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+  );
+
+
   $templateCache.put('views/resources/mb-groups.html',
     "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
@@ -11139,6 +11127,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/resources/mb-local-file.html',
     "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-module-common.html',
+    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <md-content layout=column flex> <md-list flex> <md-list-item ng-repeat=\"module in modules\" ng-click=\"multi || resourceCtrl.toggleSelected(module)\" class=md-3-line> <wb-icon>label</wb-icon> <div class=md-list-item-text layout=column> <h3>{{module.title}}</h3> <p>{{module.description}}</p> <p>{{module.version}}</p> </div> <md-checkbox class=md-secondary ng-init=\"module.selected = resourceCtrl.isSelected(module)\" ng-model=module.selected ng-click=\"resourceCtrl.setSelected(module, module.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-module-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Description</label> <input ng-model=module.description> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Logo</label> <input ng-model=module.logo> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>type</label> <input ng-model=module.type required> </md-input-container> </md-content>"
   );
 
 

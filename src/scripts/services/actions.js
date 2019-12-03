@@ -33,11 +33,11 @@ angular.module('mblowfish-core')
  */
 .service('$actions', function(
 		/* angularjs */ $window,
-		/* mb        */ Action, ActionGroup, MbObservableObject) {
+		/* mb        */ Action, ActionGroup, WbObservableObject) {
 
 	// extend from observable object
-	angular.extend(this, MbObservableObject.prototype);
-	MbObservableObject.apply(this);
+	angular.extend(this, WbObservableObject.prototype);
+	WbObservableObject.apply(this);
 
 	this.actionsList = [];
 	this.actionsMap = {};
