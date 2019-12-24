@@ -264,7 +264,7 @@ angular.module('mblowfish-core') //
 	}
 
 	function parsAccount(account){
-		var anonymous = !account.id || account.id === 0;
+		var anonymous = !account.id || account.id == 0;
 
 		// app user data
 		$rootScope.__app.user = {
