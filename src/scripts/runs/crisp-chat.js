@@ -26,7 +26,7 @@ angular.module('mblowfish-core')
 /*
  * Enable crisp chat
  */
-.run(function($window, $rootScope, $location, $wbLibs) {
+.run(function($window, $rootScope, $location, $wbWindow) {
 
 	/*
 	 * Watch system configuration
@@ -36,7 +36,7 @@ angular.module('mblowfish-core')
 			return;
 		}
 		
-		$wbLibs.load('https://client.crisp.chat/l.js');
+		$wbWindow.loadLibrary('https://client.crisp.chat/l.js');
 		$window.$crisp=[];
 		$window.CRISP_WEBSITE_ID = value;
 	});
