@@ -23,12 +23,12 @@
 
 angular.module('mblowfish-core')
 
-.run(function($window, $rootScope, $location, $wbLibs) {
+.run(function($window, $rootScope, $location, $wbWindow) {
 	var watcherIsLoaded = false;
 	var googleValue;
 
 	function loadScript(value){
-		$wbLibs.load('https://www.googletagmanager.com/gtag/js')
+		$wbWindow.loadLibrary('https://www.googletagmanager.com/gtag/js')
 		.then(function(){
 			$window.dataLayer = $window.dataLayer || [];
 			function gtag(){

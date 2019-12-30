@@ -28,11 +28,10 @@ angular.module('mblowfish-core')
  * @ngdoc service
  * @name $page
  * @description A page management service
- * 
- * 
- * 
  */
-.service('$page', function($rootScope, $rootElement) {
+.service('$page', function(
+		/* angularjs */ $rootScope, $rootElement, 
+		/* wb-core */ $wbWindow) {
 
 	// ------------------------------------------------------------------
 	// Utility function
@@ -167,36 +166,14 @@ angular.module('mblowfish-core')
 	};
 
 	this.updateLink = function(key, data){
-		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var elements = headElement.find('link[key='+searchkey+']');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<link key=\''+key+'\' />');
-			headElement.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		for (var property in data) {
-			metaElement.attr(property, data[property]);
-		}
+		$wbWindow.setLink(key, data);
 		return this;
 	};
 	
 	this.setLink = this.updateLink;
 
 	this.setMeta = function (key, value){
-		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
-		var elements = headElement.find('meta[name='+searchkey+']');
-		var metaElement;
-		if(elements.length === 0){
-			// title element not found
-			metaElement = angular.element('<meta name=\''+key+'\' content=\'\' />');
-			headElement.append(metaElement);
-		} else {
-			metaElement = angular.element(elements[0]);
-		}
-		metaElement.attr('content', value);
+		$wbWindow.setMeta(key, value);
 		return this;
 	};
 	
