@@ -8149,64 +8149,12 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['/app/modules']
 	});
-	$resource.newPage({
-		label: 'Common',
-		type: 'mb-module-common',
-		templateUrl: 'views/resources/mb-module-common.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope, $http) {
-			$http.get('resources/modules.json')
-			.then(function(res){
-				$scope.modules = res.data;
-			});
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function (item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
-	$resource.newPage({
-		label: 'ViraWeb123',
-		type: 'mb-module-viraweb',
-		templateUrl: 'views/resources/mb-module-common.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope, $http) {
-			$http.get('https://cdn.jsdelivr.net/gh/viraweb123/modules/modules.json')
-			.then(function(res){
-				$scope.modules = res.data;
-			});
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function (item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
 
 	$resource.newPage({
 		type: 'cms-content-module',
 		icon: 'image',
 		label: 'On Domain Modules',
-		templateUrl: 'views/resources/mb-cms-modules.html',
+		templateUrl: 'views/resources/mb-module-cms.html',
 		/*
 		 * @ngInject
 		 */
@@ -8224,7 +8172,7 @@ angular.module('mblowfish-core')
 			 */
 			this.setSelected = function (content) {
 				var modules = [{
-					title: content.module,
+					title: content.title,
 					description: content.description,
 					url: '/api/v2/cms/contents/' + content.name + '/content',
 					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
@@ -11092,11 +11040,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/resources/mb-cms-modules.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
   $templateCache.put('views/resources/mb-groups.html',
     "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
@@ -11107,13 +11050,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/resources/mb-module-common.html',
-    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <md-content layout=column flex> <md-list flex> <md-list-item ng-repeat=\"module in modules\" ng-click=\"multi || resourceCtrl.toggleSelected(module)\" class=md-3-line> <wb-icon>label</wb-icon> <div class=md-list-item-text layout=column> <h3>{{module.title}}</h3> <p>{{module.description}}</p> <p>{{module.version}}</p> </div> <md-checkbox class=md-secondary ng-init=\"module.selected = resourceCtrl.isSelected(module)\" ng-model=module.selected ng-click=\"resourceCtrl.setSelected(module, module.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+  $templateCache.put('views/resources/mb-module-cms.html',
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-module-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Description</label> <input ng-model=module.description> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Logo</label> <input ng-model=module.logo> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>type</label> <input ng-model=module.type required> </md-input-container> </md-content>"
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Description</label> <input ng-model=module.description> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Load</label> <input ng-model=module.load required placeholder=\"before, after, lazy\"> </md-input-container> </md-content>"
   );
 
 

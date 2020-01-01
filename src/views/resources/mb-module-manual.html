@@ -23,13 +23,13 @@
 	<md-input-container 
 		class="md-icon-float md-icon-right md-block"
 		required>
-		<label translate>Logo</label>
-		<input ng-model="module.logo">
+		<label translate>Type</label>
+		<input ng-model="module.type" required="true" placeholder="js, css">
 	</md-input-container>
 	<md-input-container 
 		class="md-icon-float md-icon-right md-block"
 		required>
-		<label translate>type</label>
-		<input ng-model="module.type" required="true">
+		<label translate>Load</label>
+		<input ng-model="module.load" required="true" placeholder="before, after, lazy">
 	</md-input-container>
 </md-content>

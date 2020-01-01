@@ -442,64 +442,12 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['/app/modules']
 	});
-	$resource.newPage({
-		label: 'Common',
-		type: 'mb-module-common',
-		templateUrl: 'views/resources/mb-module-common.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope, $http) {
-			$http.get('resources/modules.json')
-			.then(function(res){
-				$scope.modules = res.data;
-			});
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function (item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
-	$resource.newPage({
-		label: 'ViraWeb123',
-		type: 'mb-module-viraweb',
-		templateUrl: 'views/resources/mb-module-common.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope, $http) {
-			$http.get('https://cdn.jsdelivr.net/gh/viraweb123/modules/modules.json')
-			.then(function(res){
-				$scope.modules = res.data;
-			});
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function (item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
 
 	$resource.newPage({
 		type: 'cms-content-module',
 		icon: 'image',
 		label: 'On Domain Modules',
-		templateUrl: 'views/resources/mb-cms-modules.html',
+		templateUrl: 'views/resources/mb-module-cms.html',
 		/*
 		 * @ngInject
 		 */
@@ -517,7 +465,7 @@ angular.module('mblowfish-core')
 			 */
 			this.setSelected = function (content) {
 				var modules = [{
-					title: content.module,
+					title: content.title,
 					description: content.description,
 					url: '/api/v2/cms/contents/' + content.name + '/content',
 					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
