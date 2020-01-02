@@ -466,15 +466,27 @@ angular.module('mblowfish-core')
 			this.setSelected = function (content) {
 				var modules = [{
 					title: content.title,
+					load: this.loadType,
 					url: '/api/v2/cms/contents/' + content.name + '/content',
-					type: content.mime_type === 'application/javascript' ? 'js' : 'css',
-					load: $scope.load
+					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
 				}];
 				this.value = modules;
 				$scope.$parent.setValue(modules);
-			}
+			};
+
+			/*
+			 * Sets load type
+			 */
+			this.setLoadType = function(loadType){
+				this.loadType = loadType;
+				_.forEach(this.value, function(module){
+					module.load = loadType;
+				});
+				$scope.$parent.setValue(this.value);
+			};
 
 			// init the controller
+			this.loadType = 'lazy';
 			this.init();
 		},
 		controllerAs: 'ctrl',

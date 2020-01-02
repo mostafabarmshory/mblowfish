@@ -8173,15 +8173,27 @@ angular.module('mblowfish-core')
 			this.setSelected = function (content) {
 				var modules = [{
 					title: content.title,
+					load: this.loadType,
 					url: '/api/v2/cms/contents/' + content.name + '/content',
-					type: content.mime_type === 'application/javascript' ? 'js' : 'css',
-					load: $scope.load
+					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
 				}];
 				this.value = modules;
 				$scope.$parent.setValue(modules);
-			}
+			};
+
+			/*
+			 * Sets load type
+			 */
+			this.setLoadType = function(loadType){
+				this.loadType = loadType;
+				_.forEach(this.value, function(module){
+					module.load = loadType;
+				});
+				$scope.$parent.setValue(this.value);
+			};
 
 			// init the controller
+			this.loadType = 'lazy';
 			this.init();
 		},
 		controllerAs: 'ctrl',
@@ -11051,12 +11063,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-module-cms.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> <div id=extra-config> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Load</label> <input ng-model=load required placeholder=\"before, after, lazy\"> </md-input-container> </div> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> <div id=extra-config> <md-input-container> <label translate=\"\">Load Type</label> <md-select ng-change=ctrl.setLoadType(ctrl.loadType) ng-model=ctrl.loadType> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </div> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-module-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Load</label> <input ng-model=module.load required placeholder=\"before, after, lazy\"> </md-input-container> </md-content>"
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
   );
 
 

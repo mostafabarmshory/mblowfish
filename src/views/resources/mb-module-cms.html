@@ -35,13 +35,16 @@
 		</md-list>
 	</md-content>
 	<div id="extra-config">
-		<md-input-container 
-			class="md-icon-float md-icon-right md-block"
-			required>
-			<label translate>Load</label>
-			<input ng-model="load" 
-				required="true" 
-				placeholder="before, after, lazy">
+		<md-input-container>
+			<label translate="">Load Type</label>
+			<md-select 
+				ng-change="ctrl.setLoadType(ctrl.loadType)"
+				ng-model="ctrl.loadType">
+				<md-option translate="">None</md-option>
+				<md-option ng-value="'before'" translate="">Before Page Load</md-option>
+				<md-option ng-value="'lazy'" translate="">Lazy Load</md-option>
+				<md-option ng-value="'after'" translate="">After Page Load</md-option>
+			</md-select>
 		</md-input-container>
 	</div>
 </div>
