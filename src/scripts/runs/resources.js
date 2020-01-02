@@ -466,9 +466,9 @@ angular.module('mblowfish-core')
 			this.setSelected = function (content) {
 				var modules = [{
 					title: content.title,
-					description: content.description,
 					url: '/api/v2/cms/contents/' + content.name + '/content',
-					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
+					type: content.mime_type === 'application/javascript' ? 'js' : 'css',
+					load: $scope.load
 				}];
 				this.value = modules;
 				$scope.$parent.setValue(modules);
