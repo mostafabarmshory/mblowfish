@@ -35,13 +35,18 @@
         Access Denied
     </div>
 
-    <div ng-if="status === 'loading'"
-         layout="column"
-         layout-align="center center"
-         layout-fill>
-        <h3>Loading...</h3>
+    <div 
+    	ng-if="status === 'loading'"
+		layout="column"
+		layout-align="center center"
+		layout-fill>
         <!--<h4 translate>{{app.state.stage}}</h4>-->
         <!--<p translate>{{app.state.message}}</p>-->
+        <img 
+        	width="256px"
+        	ng-src-error="resources/images/mb-preloading-blow.svg"
+        	ng-src="/api/v2/cms/contents/mb-preloading-brand/content">
+        <h3>Loading...</h3>
         <md-progress-linear 
             style="width: 50%"
             md-mode="indeterminate">

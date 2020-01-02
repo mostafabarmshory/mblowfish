@@ -11,13 +11,18 @@
   ],
   "dependencies": {
     "angular-cookies": "1.7.x",
+    "angular-route": "1.7.x",
+    
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#3.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#3.0.x",
+    
     "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#3.1.x",
     "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#3.1.x",
+   
     "ng-appcache": "2.0.x",
     "lf-ng-md-file-input": "1.5.x",
+    
     "angular-recaptcha": "4.1.x",
     "material-steppers": "2.0.x",
     "angular-file-saver": "1.1.x",

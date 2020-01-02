@@ -45,8 +45,8 @@ angular.module('mblowfish-core', [ //
 //	Seen
 	'seen-core',
 	'seen-tenant',
-	'seen-monitor',
 	'seen-cms',
+	'seen-monitor',
 //	AM-WB
 	'am-wb-core', 
 	'am-wb-seen-core',
@@ -58,6 +58,18 @@ angular.module('mblowfish-core', [ //
 	'mdSteppers',//
 	'angular-material-persian-datepicker',
 ])
+
+.info({ mbVersion: '1.7.9' })
+
+
+.run(function instantiateRoute($injector, $widget, $routeParams) {
+	// Ensure `$route` will be instantiated in time to capture the initial `$locationChangeSuccess`
+	// event (unless explicitly disabled). This is necessary in case `ngView` is included in an
+	// asynchronously loaded template.
+	// Instantiate `$route`
+	$injector.get('$route');
+	$widget.setProvider('$routeParams', $routeParams)
+})
 
 /*******************************************************
  * Compatibility with old version
