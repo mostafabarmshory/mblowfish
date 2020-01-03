@@ -12189,7 +12189,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-view-main.html',
-    "<div id=mb-view-main mb-panel-sidenav-anchor layout=row style=\"height: 100vh; width: 100vw\"> <div layout=column flex> <div mb-panel-toolbar-anchor></div> <md-content id=mb-view-main-anchor></md-content> </div> </div>"
+    "<div id=mb-view-main mb-panel-sidenav-anchor layout=row style=\"height: 100vh; width: 100vw\"> <div layout=column flex> <div mb-panel-toolbar-anchor></div> <div layout=row flex id=mb-view-main-anchor></div> </div> </div>"
   );
 
 
