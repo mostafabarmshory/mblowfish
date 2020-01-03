@@ -1,0 +1,83 @@
+
+ <div 
+ 	ng-if="status === 'login'"
+	layout="row"
+	layout-aligne="none"
+	layout-align-gt-sm="center center"
+	ng-controller="MbAccountCtrl"
+	flex>
+     <div 
+         md-whiteframe="3"
+         flex="100"
+         flex-gt-sm="50"
+         layout="column"
+         mb-preloading="ctrl.loadUser">
+         <!-- Toolbar -->
+         <ng-include src="'views/partials/mb-branding-header-toolbar.html'"></ng-include>
+         <md-progress-linear
+             ng-disabled="!(ctrl.loginProcess || ctrl.logoutProcess)"
+             style="margin: 0px; padding: 0px"
+             md-mode="indeterminate"
+             class="md-primary"
+             md-color>
+         </md-progress-linear>
+         <!-- body -->
+         <div style="text-align: center;"
+              layout-margin
+              ng-show="!ctrl.loginProcess && ctrl.loginState === 'fail'"> 
+             <p><span md-colors="{color:'warn'}" translate>{{loginMessage}}</span></p>
+         </div>
+         <form
+             name="ctrl.myForm"
+             ng-submit="login(credit)" 
+             layout="column" 
+             layout-padding>
+             <md-input-container>
+                 <label translate>Username</label>
+                 <input ng-model="credit.login" name="username" required>
+                 <div ng-messages="ctrl.myForm.username.$error">
+                     <div ng-message="required" translate>This field is required.</div>
+                 </div>
+             </md-input-container>
+             <md-input-container>
+                 <label translate>Password</label>
+                 <input ng-model="credit.password" type="password" name="password" required>
+                 <div ng-messages="ctrl.myForm.password.$error">
+                     <div ng-message="required" translate>This field is required.</div>
+                 </div>
+             </md-input-container>
+             <!-- adding captcha -->
+             <div
+                 vc-recaptcha
+                 ng-if="__tenant.settings['captcha.engine'] === 'recaptcha'"
+                 key="__tenant.settings['captcha.engine.recaptcha.key']"
+                 ng-model="credit.g_recaptcha_response"
+                 theme="__app.configs.captcha.theme || 'light'"
+                 type="__app.configs.captcha.type || 'image'"
+                 lang="__app.setting.local || __app.config.local || 'en'">
+             </div>
+             <input hide type="submit" />
+             <div layout="column" layout-align="none"
+                  layout-gt-xs="row" layout-align-gt-xs="end center"
+                  layout-margin>
+                 <a 
+                     href="users/reset-password"
+                     style="text-decoration: none;"  
+                     ui-sref="forget" 
+                     flex-order="1" 
+                     flex-order-gt-xs="-1">{{'forgot your password?'| translate}}</a>
+                 <md-button 
+                     ng-disabled="ctrl.myForm.$invalid"
+                     flex-order="-1" 
+                     flex-order-gt-xs="1" 
+                     class="md-primary md-raised" 
+                     ng-click="login(credit)">{{'login'| translate}}</md-button>
+                 <!-- 	        	<md-button  -->
+                 <!-- 	        		ng-href="users/signup" -->
+                 <!-- 	        		flex-order="0"  -->
+                 <!-- 	        		flex-order-gt-xs="0"  -->
+                 <!-- 	        		class="md-raised"> {{ 'sign up' | translate }} </md-button> -->
+             </div>
+         </form>
+     </div>
+ </div>

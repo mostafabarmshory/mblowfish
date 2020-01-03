@@ -45,8 +45,8 @@ angular.module('mblowfish-core', [ //
 //	Seen
 	'seen-core',
 	'seen-tenant',
-	'seen-monitor',
 	'seen-cms',
+	'seen-monitor',
 //	AM-WB
 	'am-wb-core', 
 	'am-wb-seen-core',
@@ -59,29 +59,36 @@ angular.module('mblowfish-core', [ //
 	'angular-material-persian-datepicker',
 ])
 
+.info({ mbVersion: '1.7.9' })
+
+
+.run(function instantiateRoute($injector, $widget, $routeParams) {
+	// Ensure `$route` will be instantiated in time to capture the initial `$locationChangeSuccess`
+	// event (unless explicitly disabled). This is necessary in case `ngView` is included in an
+	// asynchronously loaded template.
+	// Instantiate `$route`
+	$injector.get('$route');
+	$widget.setProvider('$routeParams', $routeParams);
+})
+
 /*******************************************************
  * Compatibility with old version
  *******************************************************/ 
 .factory('Action', function (MbAction) {
-	'use strict';
 	return MbAction;
 })
 .factory('ActionGroup', function (MbActionGroup) {
-	'use strict';
 	return MbActionGroup;
 })
 .factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
-	'use strict';
 	return MbHttpRequestInterceptor;
 })
 .controller('MessagesCtrl', function ($scope, $controller) {
-    'use strict';
     angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
         $scope : $scope
     }));
 })
 .controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
-    'use strict';
     angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
         $scope : $scope
     }));

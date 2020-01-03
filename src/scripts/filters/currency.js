@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
  * TODO: maso, 2019: add filter document
  */
 .filter('currencyFilter', function (numberFilter, translateFilter) {
-	'use strict';
+	
 
     return function (price, unit) {
 

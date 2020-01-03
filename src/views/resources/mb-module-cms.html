@@ -3,8 +3,8 @@
 	mb-preloading="ctrl.state === 'busy'"
 	ng-init="ctrl.addFilter('media_type', 'mb-module')"
 	flex>
-  <mb-pagination-bar
-    style="border-top-right-radius: 10px; border-bottom-left-radius: 10px"
+	<mb-pagination-bar
+		style="border-top-right-radius: 10px; border-bottom-left-radius: 10px"
 		mb-model="ctrl.queryParameter"
 		mb-properties="ctrl.properties"
 		mb-reload="ctrl.reload()"
@@ -34,4 +34,17 @@
 			</md-list-item>
 		</md-list>
 	</md-content>
+	<div id="extra-config">
+		<md-input-container>
+			<label translate="">Load Type</label>
+			<md-select 
+				ng-change="ctrl.setLoadType(ctrl.loadType)"
+				ng-model="ctrl.loadType">
+				<md-option translate="">None</md-option>
+				<md-option ng-value="'before'" translate="">Before Page Load</md-option>
+				<md-option ng-value="'lazy'" translate="">Lazy Load</md-option>
+				<md-option ng-value="'after'" translate="">After Page Load</md-option>
+			</md-select>
+		</md-input-container>
+	</div>
 </div>

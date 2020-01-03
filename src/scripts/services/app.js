@@ -87,11 +87,16 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function (
 		$usr, $cms, $translate, $localStorage, UserAccount, $tenant,
-		/* am-wb-core    */ $objectPath, $dispatcher,
+		/* am-wb-core    */ $objectPath, $dispatcher,/* WbObservableObject,*/
 		/* material      */ $mdDateLocale, 
 		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
 		) {
-	'use strict';
+	
+	
+//	/*
+//	 * Extends application to be observable
+//	 */
+//	angular.extend(this, new WbObservableObject());
 
 	/***************************************************************************
 	 * utils
@@ -511,7 +516,6 @@ angular.module('mblowfish-core') //
 
 	// final states
 	var APP_STATE_READY = 'ready';
-	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
 	var APP_STATE_OFFLINE = 'offline';
 	var APP_STATE_FAIL = 'fail';
 
@@ -622,14 +626,14 @@ angular.module('mblowfish-core') //
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// app is ready
 			ready: {
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// app is ready with no config
 			ready_not_configured: {
@@ -639,14 +643,14 @@ angular.module('mblowfish-core') //
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// server error
 			fail: {
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// net error
 			offline: {
@@ -657,7 +661,7 @@ angular.module('mblowfish-core') //
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			}
 		},
 	});

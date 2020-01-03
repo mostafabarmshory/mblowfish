@@ -45,8 +45,8 @@ angular.module('mblowfish-core', [ //
 //	Seen
 	'seen-core',
 	'seen-tenant',
-	'seen-monitor',
 	'seen-cms',
+	'seen-monitor',
 //	AM-WB
 	'am-wb-core', 
 	'am-wb-seen-core',
@@ -59,29 +59,36 @@ angular.module('mblowfish-core', [ //
 	'angular-material-persian-datepicker',
 ])
 
+.info({ mbVersion: '1.7.9' })
+
+
+.run(function instantiateRoute($injector, $widget, $routeParams) {
+	// Ensure `$route` will be instantiated in time to capture the initial `$locationChangeSuccess`
+	// event (unless explicitly disabled). This is necessary in case `ngView` is included in an
+	// asynchronously loaded template.
+	// Instantiate `$route`
+	$injector.get('$route');
+	$widget.setProvider('$routeParams', $routeParams);
+})
+
 /*******************************************************
  * Compatibility with old version
  *******************************************************/ 
 .factory('Action', function (MbAction) {
-	'use strict';
 	return MbAction;
 })
 .factory('ActionGroup', function (MbActionGroup) {
-	'use strict';
 	return MbActionGroup;
 })
 .factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
-	'use strict';
 	return MbHttpRequestInterceptor;
 })
 .controller('MessagesCtrl', function ($scope, $controller) {
-    'use strict';
     angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
         $scope : $scope
     }));
 })
 .controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
-    'use strict';
     angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
         $scope : $scope
     }));
@@ -110,7 +117,7 @@ angular.module('mblowfish-core', [ //
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 	.config(function ($httpProvider) {
@@ -140,7 +147,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
 	// Change moment's locale so the 'L'-format is adjusted.
@@ -189,7 +196,7 @@ angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -355,7 +362,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
         /**
@@ -436,7 +443,7 @@ angular.module('mblowfish-core')//
  * 
  */
 .controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
-	'use strict';
+	
 
 	this._hids = [];
 
@@ -589,7 +596,7 @@ angular.module('mblowfish-core')//
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -837,7 +844,7 @@ angular.module('mblowfish-core')
 
 
 
-//'use strict';
+//
 //
 //angular.module('mblowfish-core')
 //
@@ -893,7 +900,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -984,7 +991,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -1216,7 +1223,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 
@@ -1307,7 +1314,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 
@@ -1338,7 +1345,7 @@ angular.module('mblowfish-core')
 	init();
 });
 
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -1380,7 +1387,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -1467,7 +1474,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -1507,7 +1514,7 @@ angular.module('mblowfish-core')
 // * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // * SOFTWARE.
 // */
-//'use strict';
+//
 //
 //angular.module('mblowfish-core')
 //
@@ -1623,7 +1630,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -1667,7 +1674,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -1733,7 +1740,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -1943,7 +1950,7 @@ angular.module('mblowfish-core')//
  * 
  */
 .controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    'use strict';
+    
 
     /*
      * Extends collection controller from MbAbstractCtrl 
@@ -2145,7 +2152,7 @@ angular.module('mblowfish-core')//
  * - addViewItem: view
  */
 .controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    'use strict';
+    
 
     /*
      * Extends collection controller from MbAbstractCtrl 
@@ -2753,7 +2760,7 @@ angular.module('mblowfish-core')//
  * 
  */
 .controller('MbSeenAbstractItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-	'use strict';
+	
 
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
@@ -3135,7 +3142,7 @@ angular.module('mblowfish-core')//
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 /*
  * 
@@ -3228,7 +3235,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 /*
  * 
@@ -3327,7 +3334,7 @@ angular.module('mblowfish-core')//
  * - addViewItem: view
  */
 .controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
-	'use strict';
+	
 
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
@@ -3386,7 +3393,7 @@ angular.module('mblowfish-core')//
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -3463,7 +3470,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -3530,7 +3537,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -3575,7 +3582,7 @@ angular.module('mblowfish-core')
     });
 });
 
-'use strict';
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3659,7 +3666,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -3724,7 +3731,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -3785,7 +3792,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 
@@ -3826,7 +3833,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -3883,7 +3890,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -3931,7 +3938,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -4121,7 +4128,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -4208,7 +4215,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -4253,7 +4260,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -4355,7 +4362,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -4419,7 +4426,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -4539,7 +4546,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -4621,7 +4628,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -4698,7 +4705,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -4840,7 +4847,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -4913,7 +4920,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -5147,7 +5154,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -5362,7 +5369,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -5543,272 +5550,6 @@ angular.module('mblowfish-core')
     };
 });
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-panel
- * @restrict E
- * @scope true
- * @description A dynamic panel with toolbar and sidenav
- * 
- * Applications needs an area to show modules, navigator, message and the
- * other visual parts of the system. This is a general application panel
- * which must be placed to the index.html directly.
- * 
- * @usage To load the application add this directive to the index.html.
- *        All internal elements will be removed after the module loaded.
- *        <hljs lang='html'> <body> <amd-panel> <div
- *        class='amd-preloader'> Loading.... </div> </amd-panel> ....
- *        </body> </hljs>
- * 
- */
-.directive('mbPanel', function ($route, $rootScope, $actions, $injector) {
-	/*
-	 * evaluate protect function
-	 */
-	function canAccess(route) {
-		if (!route.protect) {
-			return true;
-		}
-		if (angular.isFunction(route.protect)) {
-			return !$injector.invoke(route.protect, route);
-		}
-		return route.protect;
-	}
-
-	function postLink($scope) {
-		// State machin to controlle the view
-		var stateMachine = new machina.Fsm({
-			/* 
-			 * the initialize method is called right after the FSM
-			 * instance is constructed, giving you a place for any
-			 * setup behavior, etc. It receives the same
-			 * arguments (options) as the constructor function.
-			 */
-			initialize: function (/*options*/) {
-				// your setup code goes here...
-				$scope.status = this.initialState;
-			},
-			namespace: 'mb-panel-controller',
-			initialState: 'loading',
-			states: {
-				ready: {
-					routeChange: function (route) {
-						if (route.protect && !canAccess(route)) {
-							this.transition('accessDenied');
-							return;
-						}
-					},
-					appStateChange: function (state) {
-						// return if state is ready
-						if (state.startsWith('ready')) {
-							return;
-						} else {
-							this.transition('loading');
-						}
-					},
-					userStateChange: function (userIsAnonymous) {
-						if(!userIsAnonymous){
-							return;
-						}
-						if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
-							this.transition('login');
-						} else {
-							this.transition('readyAnonymous');
-						}
-					}
-				},
-				accessDenied: {
-					routeChange: function (route) {
-						if (!route.protect || canAccess(route)) {
-							this.transition('ready');
-						}
-					},
-					appStateChange: function (state) {
-						// return if state is ready
-						if (state.startsWith('ready')) {
-							return;
-						} else {
-							this.transition('loading');
-						}
-					},
-					userStateChange: function (userIsAnonymous) {
-						if (userIsAnonymous) {//user is anonymous
-							this.transition('login');
-						}
-					}
-				},
-				readyAnonymous: {
-					routeChange: function (route) {
-						// TODO: maso, change to login page
-						if (route.protect) {
-							this.transition('login');
-						}
-					},
-					appStateChange: function (state) {
-						// return if state is ready
-						if (state.startsWith('ready')) {
-							return;
-						} else {
-							this.transition('loading');
-						}
-					},
-					userStateChange: function () {//user is not anonymous
-						this.transition('ready');
-					}
-				},
-				loading: {
-					// routeChange: function(route){},
-					appStateChange: function (state) {
-						if (state.startsWith('ready')) {
-							var route = this.getRoute();
-							if ($rootScope.__account.anonymous) {
-								if (route.protect) {
-									this.transition('login');
-								} else {
-									this.transition('readyAnonymous');
-								}
-							} else {
-								if (!route.protect || canAccess(route)) {
-									this.transition('ready');
-								} else {
-									this.transition('accessDenied');
-								}
-							}
-						}
-					}
-				},
-				login: {
-					routeChange: function (route) {
-						if (!route.protect) {
-							this.transition('readyAnonymous');
-						}
-					},
-					appStateChange: function (state) {
-						// return if state is ready
-						if (state.startsWith('ready')) {
-							return;
-						} else {
-							this.transition('loading');
-						}
-					},
-					userStateChange: function () {//user is not anonymous
-						var route = this.getRoute();
-						if (!canAccess(route)) {
-							this.transition('accessDenied');
-						} else {
-							this.transition('ready');
-						}
-					}
-				}
-			},
-			/*
-			 * Handle route change event
-			 */
-			routeChange: function (route) {
-				this.currentRoute = route;
-				if (!route) {
-					return;
-				}
-				this.handle('routeChange', route);
-			},
-			/*
-			 * Handle application state change
-			 */
-			appStateChange: function (state) {
-				if(!state) {
-					return;
-				}
-				this.handle('appStateChange', state);
-			},
-			/*
-			 * Handle user state change
-			 */
-			userStateChange: function (userIsAnonymous) {
-				this.userState = userIsAnonymous;
-				this.handle('userStateChange', userIsAnonymous);
-			},
-
-			/*
-			 * Get current route
-			 */
-			getRoute: function () {
-				return this.currentRoute || $route.current;
-			},
-
-			/*
-			 * Get current status
-			 */
-			getState: function () {
-				return this.appState || $rootScope.__app.state;
-			}
-		});
-
-		// I'd like to know when the transition event occurs
-		stateMachine.on('transition', function () {
-			if (stateMachine.state.startsWith('ready')) {
-				$scope.status = 'ready';
-				return;
-			}
-			$scope.status = stateMachine.state;
-		});
-
-		$scope.$watch(function () {
-			return $route.current;
-		}, function (route) {
-			$actions.group('navigationPathMenu').clear();
-			if (route) {
-				stateMachine.routeChange(route.$$route);
-				// Run state integeration
-				if (route.$$route && angular.isFunction(route.$$route.integerate)) {
-					$injector.invoke(route.$$route.integerate, route.$$route);
-				}
-			} else {
-				stateMachine.routeChange(route);
-			}
-		});
-
-		$rootScope.$watch('__app.state', function (appState) {
-			stateMachine.appStateChange(appState);
-		});
-
-		$scope.$watch('__account.anonymous', function (val) {
-			stateMachine.userStateChange(val);
-		});
-
-	}
-
-	return {
-		restrict: 'E',
-		replace: true,
-		templateUrl: 'views/directives/mb-panel.html',
-		link: postLink
-	};
-});
-/*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5829,7 +5570,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -5968,7 +5709,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular
 .module('mblowfish-core')
@@ -6085,7 +5826,7 @@ angular
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -6189,7 +5930,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -6241,7 +5982,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6286,7 +6027,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6352,7 +6093,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6511,7 +6252,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6597,7 +6338,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6655,7 +6396,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6681,6 +6422,533 @@ angular.module('mblowfish-core')
 });
 
 /*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+//
+//angular.module('mblowfish-core')
+//
+///**
+// * @ngdoc Directives
+// * @name mb-panel
+// * @restrict E
+// * @scope true
+// * @description A dynamic panel with toolbar and sidenav
+// * 
+// * Applications needs an area to show modules, navigator, message and the
+// * other visual parts of the system. This is a general application panel
+// * which must be placed to the index.html directly.
+// * 
+// * @usage To load the application add this directive to the index.html.
+// *        All internal elements will be removed after the module loaded.
+// *        <hljs lang='html'> <body> <amd-panel> <div
+// *        class='amd-preloader'> Loading.... </div> </amd-panel> ....
+// *        </body> </hljs>
+// * 
+// */
+//.directive('mbPanel', function ($route, $rootScope, $actions, $injector) {
+//	/*
+//	 * evaluate protect function
+//	 */
+//	function canAccess(route) {
+//		if (!route.protect) {
+//			return true;
+//		}
+//		if (angular.isFunction(route.protect)) {
+//			return !$injector.invoke(route.protect, route);
+//		}
+//		return route.protect;
+//	}
+//
+//	function postLink($scope) {
+//		// State machin to controlle the view
+//		var stateMachine = new machina.Fsm({
+//			/* 
+//			 * the initialize method is called right after the FSM
+//			 * instance is constructed, giving you a place for any
+//			 * setup behavior, etc. It receives the same
+//			 * arguments (options) as the constructor function.
+//			 */
+//			initialize: function (/*options*/) {
+//				// your setup code goes here...
+//				$scope.status = this.initialState;
+//			},
+//			namespace: 'mb-panel-controller',
+//			initialState: 'loading',
+//			states: {
+//				ready: {
+//					routeChange: function (route) {
+//						if (route.protect && !canAccess(route)) {
+//							this.transition('accessDenied');
+//							return;
+//						}
+//					},
+//					appStateChange: function (state) {
+//						// return if state is ready
+//						if (state.startsWith('ready')) {
+//							return;
+//						} else {
+//							this.transition('loading');
+//						}
+//					},
+//					userStateChange: function (userIsAnonymous) {
+//						if(!userIsAnonymous){
+//							return;
+//						}
+//						if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
+//							this.transition('login');
+//						} else {
+//							this.transition('readyAnonymous');
+//						}
+//					}
+//				},
+//				accessDenied: {
+//					routeChange: function (route) {
+//						if (!route.protect || canAccess(route)) {
+//							this.transition('ready');
+//						}
+//					},
+//					appStateChange: function (state) {
+//						// return if state is ready
+//						if (state.startsWith('ready')) {
+//							return;
+//						} else {
+//							this.transition('loading');
+//						}
+//					},
+//					userStateChange: function (userIsAnonymous) {
+//						if (userIsAnonymous) {//user is anonymous
+//							this.transition('login');
+//						}
+//					}
+//				},
+//				readyAnonymous: {
+//					routeChange: function (route) {
+//						// TODO: maso, change to login page
+//						if (route.protect) {
+//							this.transition('login');
+//						}
+//					},
+//					appStateChange: function (state) {
+//						// return if state is ready
+//						if (state.startsWith('ready')) {
+//							return;
+//						} else {
+//							this.transition('loading');
+//						}
+//					},
+//					userStateChange: function () {//user is not anonymous
+//						this.transition('ready');
+//					}
+//				},
+//				loading: {
+//					// routeChange: function(route){},
+//					appStateChange: function (state) {
+//						if (state.startsWith('ready')) {
+//							var route = this.getRoute();
+//							if ($rootScope.__account.anonymous) {
+//								if (route.protect) {
+//									this.transition('login');
+//								} else {
+//									this.transition('readyAnonymous');
+//								}
+//							} else {
+//								if (!route.protect || canAccess(route)) {
+//									this.transition('ready');
+//								} else {
+//									this.transition('accessDenied');
+//								}
+//							}
+//						}
+//					}
+//				},
+//				login: {
+//					routeChange: function (route) {
+//						if (!route.protect) {
+//							this.transition('readyAnonymous');
+//						}
+//					},
+//					appStateChange: function (state) {
+//						// return if state is ready
+//						if (state.startsWith('ready')) {
+//							return;
+//						} else {
+//							this.transition('loading');
+//						}
+//					},
+//					userStateChange: function () {//user is not anonymous
+//						var route = this.getRoute();
+//						if (!canAccess(route)) {
+//							this.transition('accessDenied');
+//						} else {
+//							this.transition('ready');
+//						}
+//					}
+//				}
+//			},
+//			/*
+//			 * Handle route change event
+//			 */
+//			routeChange: function (route) {
+//				this.currentRoute = route;
+//				if (!route) {
+//					return;
+//				}
+//				this.handle('routeChange', route);
+//			},
+//			/*
+//			 * Handle application state change
+//			 */
+//			appStateChange: function (state) {
+//				if(!state) {
+//					return;
+//				}
+//				this.handle('appStateChange', state);
+//			},
+//			/*
+//			 * Handle user state change
+//			 */
+//			userStateChange: function (userIsAnonymous) {
+//				this.userState = userIsAnonymous;
+//				this.handle('userStateChange', userIsAnonymous);
+//			},
+//
+//			/*
+//			 * Get current route
+//			 */
+//			getRoute: function () {
+//				return this.currentRoute || $route.current;
+//			},
+//
+//			/*
+//			 * Get current status
+//			 */
+//			getState: function () {
+//				return this.appState || $rootScope.__app.state;
+//			}
+//		});
+//
+//		// I'd like to know when the transition event occurs
+//		stateMachine.on('transition', function () {
+//			if (stateMachine.state.startsWith('ready')) {
+//				$scope.status = 'ready';
+//				return;
+//			}
+//			$scope.status = stateMachine.state;
+//		});
+//
+//		$scope.$watch(function () {
+//			return $route.current;
+//		}, function (route) {
+//			$actions.group('navigationPathMenu').clear();
+//			if (route) {
+//				stateMachine.routeChange(route.$$route);
+//				// Run state integeration
+//				if (route.$$route && angular.isFunction(route.$$route.integerate)) {
+//					$injector.invoke(route.$$route.integerate, route.$$route);
+//				}
+//			} else {
+//				stateMachine.routeChange(route);
+//			}
+//		});
+//
+//		$rootScope.$watch('__app.state', function (appState) {
+//			stateMachine.appStateChange(appState);
+//		});
+//
+//		$scope.$watch('__account.anonymous', function (val) {
+//			stateMachine.userStateChange(val);
+//		});
+//
+//	}
+//
+//	return {
+//		restrict: 'E',
+//		replace: true,
+//		templateUrl: 'views/directives/mb-panel.html',
+//		link: postLink
+//	};
+//});
+//
+//
+
+
+
+
+/**
+ * @ngdoc directive
+ * @name mbView
+ * @restrict ECA
+ *
+ * @description
+ * `mbView` is a directive that complements the {@link ngRoute.$route $route} service by
+ * including the rendered template of the current route into the main layout (`index.html`) file.
+ * Every time the current route changes, the included view changes with it according to the
+ * configuration of the `$route` service.
+ *
+ * Requires the {@link ngRoute `ngRoute`} module to be installed.
+ *
+ * @animations
+ * | Animation                        | Occurs                              |
+ * |----------------------------------|-------------------------------------|
+ * | {@link ng.$animate#enter enter}  | when the new element is inserted to the DOM |
+ * | {@link ng.$animate#leave leave}  | when the old element is removed from to the DOM  |
+ *
+ * The enter and leave animation occur concurrently.
+ *
+ * @scope
+ * @priority 400
+ * @param {string=} onload Expression to evaluate whenever the view updates.
+ *
+ * @param {string=} autoscroll Whether `mbView` should call {@link ng.$anchorScroll
+ *                  $anchorScroll} to scroll the viewport after the view is updated.
+ *
+ *                  - If the attribute is not set, disable scrolling.
+ *                  - If the attribute is set without value, enable scrolling.
+ *                  - Otherwise enable scrolling only if the `autoscroll` attribute value evaluated
+ *                    as an expression yields a truthy value.
+ * @example
+    <example name="mbView-directive" module="mbViewExample"
+             deps="angular-route.js;angular-animate.js"
+             animations="true" fixBase="true">
+      <file name="index.html">
+        <div ng-controller="MainCtrl as main">
+          Choose:
+          <a href="Book/Moby">Moby</a> |
+          <a href="Book/Moby/ch/1">Moby: Ch1</a> |
+          <a href="Book/Gatsby">Gatsby</a> |
+          <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+          <a href="Book/Scarlet">Scarlet Letter</a><br/>
+
+          <div class="view-animate-container">
+            <div ng-view class="view-animate"></div>
+          </div>
+          <hr />
+
+          <pre>$location.path() = {{main.$location.path()}}</pre>
+          <pre>$route.current.templateUrl = {{main.$route.current.templateUrl}}</pre>
+          <pre>$route.current.params = {{main.$route.current.params}}</pre>
+          <pre>$routeParams = {{main.$routeParams}}</pre>
+        </div>
+      </file>
+
+      <file name="book.html">
+        <div>
+          controller: {{book.name}}<br />
+          Book Id: {{book.params.bookId}}<br />
+        </div>
+      </file>
+
+      <file name="chapter.html">
+        <div>
+          controller: {{chapter.name}}<br />
+          Book Id: {{chapter.params.bookId}}<br />
+          Chapter Id: {{chapter.params.chapterId}}
+        </div>
+      </file>
+
+      <file name="animations.css">
+        .view-animate-container {
+          position:relative;
+          height:100px!important;
+          background:white;
+          border:1px solid black;
+          height:40px;
+          overflow:hidden;
+        }
+
+        .view-animate {
+          padding:10px;
+        }
+
+        .view-animate.ng-enter, .view-animate.ng-leave {
+          transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 1.5s;
+
+          display:block;
+          width:100%;
+          border-left:1px solid black;
+
+          position:absolute;
+          top:0;
+          left:0;
+          right:0;
+          bottom:0;
+          padding:10px;
+        }
+
+        .view-animate.ng-enter {
+          left:100%;
+        }
+        .view-animate.ng-enter.ng-enter-active {
+          left:0;
+        }
+        .view-animate.ng-leave.ng-leave-active {
+          left:-100%;
+        }
+      </file>
+
+      <file name="script.js">
+        angular.module('mbViewExample', ['ngRoute', 'ngAnimate'])
+          .config(['$routeProvider', '$locationProvider',
+            function($routeProvider, $locationProvider) {
+              $routeProvider
+                .when('/Book/:bookId', {
+                  templateUrl: 'book.html',
+                  controller: 'BookCtrl',
+                  controllerAs: 'book'
+                })
+                .when('/Book/:bookId/ch/:chapterId', {
+                  templateUrl: 'chapter.html',
+                  controller: 'ChapterCtrl',
+                  controllerAs: 'chapter'
+                });
+
+              $locationProvider.html5Mode(true);
+          }])
+          .controller('MainCtrl', ['$route', '$routeParams', '$location',
+            function MainCtrl($route, $routeParams, $location) {
+              this.$route = $route;
+              this.$location = $location;
+              this.$routeParams = $routeParams;
+          }])
+          .controller('BookCtrl', ['$routeParams', function BookCtrl($routeParams) {
+            this.name = 'BookCtrl';
+            this.params = $routeParams;
+          }])
+          .controller('ChapterCtrl', ['$routeParams', function ChapterCtrl($routeParams) {
+            this.name = 'ChapterCtrl';
+            this.params = $routeParams;
+          }]);
+
+      </file>
+
+      <file name="protractor.js" type="protractor">
+        it('should load and compile correct template', function() {
+          element(by.linkText('Moby: Ch1')).click();
+          var content = element(by.css('[ng-view]')).getText();
+          expect(content).toMatch(/controller: ChapterCtrl/);
+          expect(content).toMatch(/Book Id: Moby/);
+          expect(content).toMatch(/Chapter Id: 1/);
+
+          element(by.partialLinkText('Scarlet')).click();
+
+          content = element(by.css('[ng-view]')).getText();
+          expect(content).toMatch(/controller: BookCtrl/);
+          expect(content).toMatch(/Book Id: Scarlet/);
+        });
+      </file>
+    </example>
+ */
+
+
+/**
+ * @ngdoc event
+ * @name mbView#$viewContentLoaded
+ * @eventType emit on the current mbView scope
+ * @description
+ * Emitted every time the mbView content is reloaded.
+ */
+angular.module('mblowfish-core')
+.directive('mbView', function (
+		$templateRequest, $compile, $controller,
+		$route, $dispatcher, $app) {
+	return {
+		restrict: 'ECA',
+		terminal: true,
+		priority: 400,
+		templateUrl: 'views/partials/mb-view-loading.html',
+		link: function(scope, $element, attr) {
+			// Variables
+			var currentScope,
+			onloadExp = attr.onload || '',
+			mainElement = null;;
+
+			// staso, 2019: fire the state is changed
+			$dispatcher.on('/app/state', checkApp);
+			scope.$on('$destroy',function(){
+				$dispatcher.off('/app/state', update);
+			});
+			
+			function checkApp(){
+				if($app.getState() === 'ready'){
+					scope.$on('$routeChangeSuccess', update);
+					loadMainView()
+					.then(update);
+				}
+			}
+			
+			function loadMainView(){
+				return $templateRequest('views/partials/mb-view-main.html')
+				.then(function(template){
+					$element.html(template);
+					var link = $compile($element.contents());
+					link(scope);
+					mainElement = $element.find('#mb-view-main-anchor');
+				});
+			}
+
+			function cleanupLastView() {
+				if (currentScope) {
+					currentScope.$destroy();
+					currentScope = null;
+				}
+//				$element.empty();
+			}
+
+			function update() {
+				var locals = $route.current && $route.current.locals,
+				template = locals && locals.$template;
+
+				cleanupLastView();
+				if (angular.isDefined(template)) {
+					var newScope = scope.$new();
+					var current = $route.current;
+					
+					mainElement.html(template);
+					var link = $compile(mainElement.contents());
+					if (current.controller) {
+						locals.$scope = scope;
+						var controller = $controller(current.controller, locals);
+						if (current.controllerAs) {
+							scope[current.controllerAs] = controller;
+						}
+						mainElement.data('$ngControllerController', controller);
+						mainElement.children()
+							.data('$ngControllerController', controller);
+					}
+					scope[current.resolveAs || '$resolve'] = locals;
+					link(newScope);
+					
+					currentScope = current.scope = newScope;
+					currentScope.$emit('$viewContentLoaded');
+					currentScope.$eval(onloadExp);
+				}
+			}
+		}
+	};
+});
+
+
+
+/*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6701,7 +6969,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6765,7 +7033,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -6830,7 +7098,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 
 angular.module('mblowfish-core')
@@ -6915,7 +7183,7 @@ angular.module('mblowfish-core')
  * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
  */
 .factory('MbHttpRequestInterceptor', function ($q, $injector) {
-	'use strict';
+	
 	var httpRequestInterceptor = function(){};
 	httpRequestInterceptor.prototype.responseError = function (rejection) {
 		var app = $injector.get('$app');
@@ -6954,7 +7222,7 @@ angular.module('mblowfish-core')
  * TODO: maso, 2019: add filter document
  */
 .filter('currencyFilter', function (numberFilter, translateFilter) {
-	'use strict';
+	
 
     return function (price, unit) {
 
@@ -7021,7 +7289,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -7056,7 +7324,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /*
@@ -7101,7 +7369,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -7307,7 +7575,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /*
@@ -7384,7 +7652,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -7427,7 +7695,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -7501,7 +7769,7 @@ angular.module('mblowfish-core')
  */
 
 angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
-	'use strict';
+	
 	
 	/*
 	 * format date based on application settings
@@ -7562,7 +7830,7 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function($notification, $help) {
-	'use strict';
+	
 
     /*
      * Display help for an item
@@ -7599,7 +7867,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -7687,7 +7955,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /*
@@ -7726,7 +7994,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /*
@@ -8149,64 +8417,12 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['/app/modules']
 	});
-	$resource.newPage({
-		label: 'Common',
-		type: 'mb-module-common',
-		templateUrl: 'views/resources/mb-module-common.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope, $http) {
-			$http.get('resources/modules.json')
-			.then(function(res){
-				$scope.modules = res.data;
-			});
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function (item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
-	$resource.newPage({
-		label: 'ViraWeb123',
-		type: 'mb-module-viraweb',
-		templateUrl: 'views/resources/mb-module-common.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope, $http) {
-			$http.get('https://cdn.jsdelivr.net/gh/viraweb123/modules/modules.json')
-			.then(function(res){
-				$scope.modules = res.data;
-			});
-			$scope.multi = true;
-			this.value = $scope.value;
-			this.setSelected = function (item, selected) {
-				this._setSelected(item, selected);
-				$scope.$parent.setValue(this.getSelection());
-			};
-			this._setSelected = setSelected;
-			this.isSelected = isSelected;
-			this.getSelection = getSelection;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
 
 	$resource.newPage({
 		type: 'cms-content-module',
 		icon: 'image',
 		label: 'On Domain Modules',
-		templateUrl: 'views/resources/mb-cms-modules.html',
+		templateUrl: 'views/resources/mb-module-cms.html',
 		/*
 		 * @ngInject
 		 */
@@ -8224,16 +8440,28 @@ angular.module('mblowfish-core')
 			 */
 			this.setSelected = function (content) {
 				var modules = [{
-					title: content.module,
-					description: content.description,
+					title: content.title,
+					load: this.loadType,
 					url: '/api/v2/cms/contents/' + content.name + '/content',
 					type: content.mime_type === 'application/javascript' ? 'js' : 'css'
 				}];
 				this.value = modules;
 				$scope.$parent.setValue(modules);
-			}
+			};
+
+			/*
+			 * Sets load type
+			 */
+			this.setLoadType = function(loadType){
+				this.loadType = loadType;
+				_.forEach(this.value, function(module){
+					module.load = loadType;
+				});
+				$scope.$parent.setValue(this.value);
+			};
 
 			// init the controller
+			this.loadType = 'lazy';
 			this.init();
 		},
 		controllerAs: 'ctrl',
@@ -8263,7 +8491,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 /**
@@ -8351,7 +8579,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -8585,11 +8813,16 @@ angular.module('mblowfish-core') //
  */
 .service('$app', function (
 		$usr, $cms, $translate, $localStorage, UserAccount, $tenant,
-		/* am-wb-core    */ $objectPath, $dispatcher,
+		/* am-wb-core    */ $objectPath, $dispatcher,/* WbObservableObject,*/
 		/* material      */ $mdDateLocale, 
 		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
 		) {
-	'use strict';
+	
+	
+//	/*
+//	 * Extends application to be observable
+//	 */
+//	angular.extend(this, new WbObservableObject());
 
 	/***************************************************************************
 	 * utils
@@ -9009,7 +9242,6 @@ angular.module('mblowfish-core') //
 
 	// final states
 	var APP_STATE_READY = 'ready';
-	var APP_STATE_READY_NOT_CONFIGURED = 'ready_not_configured';
 	var APP_STATE_OFFLINE = 'offline';
 	var APP_STATE_FAIL = 'fail';
 
@@ -9120,14 +9352,14 @@ angular.module('mblowfish-core') //
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// app is ready
 			ready: {
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// app is ready with no config
 			ready_not_configured: {
@@ -9137,14 +9369,14 @@ angular.module('mblowfish-core') //
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// server error
 			fail: {
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			},
 			// net error
 			offline: {
@@ -9155,7 +9387,7 @@ angular.module('mblowfish-core') //
 				loaded: APP_STATE_READY,
 				network_error: APP_STATE_OFFLINE,
 				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY_NOT_CONFIGURED,
+				config_error: APP_STATE_READY,
 			}
 		},
 	});
@@ -9253,7 +9485,7 @@ angular.module('mblowfish-core') //
 angular.module('mblowfish-core') //
 
 .service('$clipboard', function () {
-    'use strict';
+    
     this.copyTo = function (model) {
         /*
          * TODO: Masood, 2019: There is also another solution but now it doesn't
@@ -9291,7 +9523,7 @@ angular.module('mblowfish-core') //
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -9355,7 +9587,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -9469,7 +9701,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -9650,7 +9882,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -9868,7 +10100,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -9976,7 +10208,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -10192,7 +10424,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core')
 
@@ -10341,7 +10573,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -10419,7 +10651,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 // TODO: hadi: move it to new module angular-material-home-seo
 angular.module('mblowfish-core')
@@ -10606,7 +10838,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core')
 
 /**
@@ -10700,6 +10932,905 @@ angular.module('mblowfish-core')
 	};
 });
 
+/**
+ * @ngdoc provider
+ * @name $routeProvider
+ * @this
+ *
+ * @description
+ *
+ * Used for configuring routes.
+ *
+ * ## Example
+ * See {@link ngRoute.$route#examples $route} for an example of configuring and using `ngRoute`.
+ *
+ * ## Dependencies
+ * Requires the {@link ngRoute `ngRoute`} module to be installed.
+ */
+angular.module('mblowfish-core')
+.provider('$route', function(){
+	var isArray = angular.isArray;
+	
+	var isObject = angular.isObject;
+	var isDefined = angular.isDefined;
+	var noop = angular.noop;
+	var $routeMinErr = angular.$$minErr('mblowfish');
+
+	/**
+	 * @param {string} path - The path to parse. (It is assumed to have query and hash stripped off.)
+	 * @param {Object} opts - Options.
+	 * @return {Object} - An object containing an array of path parameter names (`keys`) and a regular
+	 *     expression (`regexp`) that can be used to identify a matching URL and extract the path
+	 *     parameter values.
+	 *
+	 * @description
+	 * Parses the given path, extracting path parameter names and a regular expression to match URLs.
+	 *
+	 * Originally inspired by `pathRexp` in `visionmedia/express/lib/utils.js`.
+	 */
+	function routeToRegExp(path, opts) {
+		var keys = [];
+
+		var pattern = path
+		.replace(/([().])/g, '\\$1')
+		.replace(/(\/)?:(\w+)(\*\?|[?*])?/g, function(_, slash, key, option) {
+			var optional = option === '?' || option === '*?';
+			var star = option === '*' || option === '*?';
+			keys.push({name: key, optional: optional});
+			slash = slash || '';
+			return (
+					(optional ? '(?:' + slash : slash + '(?:') +
+					(star ? '(.+?)' : '([^/]+)') +
+					(optional ? '?)?' : ')')
+			);
+		})
+		.replace(/([/$*])/g, '\\$1');
+
+		if (opts.ignoreTrailingSlashes) {
+			pattern = pattern.replace(/\/+$/, '') + '/*';
+		}
+
+		return {
+			keys: keys,
+			regexp: new RegExp(
+					'^' + pattern + '(?:[?#]|$)',
+					opts.caseInsensitiveMatch ? 'i' : ''
+			)
+		};
+	}
+	
+	/**
+	 * Creates a shallow copy of an object, an array or a primitive.
+	 *
+	 * Assumes that there are no proto properties for objects.
+	 */
+	function shallowCopy(src, dst) {
+		if (isArray(src)) {
+			dst = dst || [];
+
+			for (var i = 0, ii = src.length; i < ii; i++) {
+				dst[i] = src[i];
+			}
+		} else if (isObject(src)) {
+			dst = dst || {};
+
+			for (var key in src) {
+				if (!(key.charAt(0) === '$' && key.charAt(1) === '$')) {
+					dst[key] = src[key];
+				}
+			}
+		}
+
+		return dst || src;
+	}
+
+	function inherit(parent, extra) {
+		return angular.extend(Object.create(parent), extra);
+	}
+
+	var routes = {};
+
+	/**
+	 * @ngdoc method
+	 * @name $routeProvider#when
+	 *
+	 * @param {string} path Route path (matched against `$location.path`). If `$location.path`
+	 *    contains redundant trailing slash or is missing one, the route will still match and the
+	 *    `$location.path` will be updated to add or drop the trailing slash to exactly match the
+	 *    route definition.
+	 *
+	 *    * `path` can contain named groups starting with a colon: e.g. `:name`. All characters up
+	 *        to the next slash are matched and stored in `$routeParams` under the given `name`
+	 *        when the route matches.
+	 *    * `path` can contain named groups starting with a colon and ending with a star:
+	 *        e.g.`:name*`. All characters are eagerly stored in `$routeParams` under the given `name`
+	 *        when the route matches.
+	 *    * `path` can contain optional named groups with a question mark: e.g.`:name?`.
+	 *
+	 *    For example, routes like `/color/:color/largecode/:largecode*\/edit` will match
+	 *    `/color/brown/largecode/code/with/slashes/edit` and extract:
+	 *
+	 *    * `color: brown`
+	 *    * `largecode: code/with/slashes`.
+	 *
+	 *
+	 * @param {Object} route Mapping information to be assigned to `$route.current` on route
+	 *    match.
+	 *
+	 *    Object properties:
+	 *
+	 *    - `controller` – `{(string|Function)=}` – Controller fn that should be associated with
+	 *      newly created scope or the name of a {@link angular.Module#controller registered
+	 *      controller} if passed as a string.
+	 *    - `controllerAs` – `{string=}` – An identifier name for a reference to the controller.
+	 *      If present, the controller will be published to scope under the `controllerAs` name.
+	 *    - `template` – `{(string|Function)=}` – html template as a string or a function that
+	 *      returns an html template as a string which should be used by {@link
+	 *      ngRoute.directive:mbView mbView} or {@link ng.directive:ngInclude ngInclude} directives.
+	 *      This property takes precedence over `templateUrl`.
+	 *
+	 *      If `template` is a function, it will be called with the following parameters:
+	 *
+	 *      - `{Array.<Object>}` - route parameters extracted from the current
+	 *        `$location.path()` by applying the current route
+	 *
+	 *      One of `template` or `templateUrl` is required.
+	 *
+	 *    - `templateUrl` – `{(string|Function)=}` – path or function that returns a path to an html
+	 *      template that should be used by {@link ngRoute.directive:mbView mbView}.
+	 *
+	 *      If `templateUrl` is a function, it will be called with the following parameters:
+	 *
+	 *      - `{Array.<Object>}` - route parameters extracted from the current
+	 *        `$location.path()` by applying the current route
+	 *
+	 *      One of `templateUrl` or `template` is required.
+	 *
+	 *    - `resolve` - `{Object.<string, Function>=}` - An optional map of dependencies which should
+	 *      be injected into the controller. If any of these dependencies are promises, the router
+	 *      will wait for them all to be resolved or one to be rejected before the controller is
+	 *      instantiated.
+	 *      If all the promises are resolved successfully, the values of the resolved promises are
+	 *      injected and {@link ngRoute.$route#$routeChangeSuccess $routeChangeSuccess} event is
+	 *      fired. If any of the promises are rejected the
+	 *      {@link ngRoute.$route#$routeChangeError $routeChangeError} event is fired.
+	 *      For easier access to the resolved dependencies from the template, the `resolve` map will
+	 *      be available on the scope of the route, under `$resolve` (by default) or a custom name
+	 *      specified by the `resolveAs` property (see below). This can be particularly useful, when
+	 *      working with {@link angular.Module#component components} as route templates.<br />
+	 *      <div class="alert alert-warning">
+	 *        **Note:** If your scope already contains a property with this name, it will be hidden
+	 *        or overwritten. Make sure, you specify an appropriate name for this property, that
+	 *        does not collide with other properties on the scope.
+	 *      </div>
+	 *      The map object is:
+	 *
+	 *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
+	 *      - `factory` - `{string|Function}`: If `string` then it is an alias for a service.
+	 *        Otherwise if function, then it is {@link auto.$injector#invoke injected}
+	 *        and the return value is treated as the dependency. If the result is a promise, it is
+	 *        resolved before its value is injected into the controller. Be aware that
+	 *        `ngRoute.$routeParams` will still refer to the previous route within these resolve
+	 *        functions.  Use `$route.current.params` to access the new route parameters, instead.
+	 *
+	 *    - `resolveAs` - `{string=}` - The name under which the `resolve` map will be available on
+	 *      the scope of the route. If omitted, defaults to `$resolve`.
+	 *
+	 *    - `redirectTo` – `{(string|Function)=}` – value to update
+	 *      {@link ng.$location $location} path with and trigger route redirection.
+	 *
+	 *      If `redirectTo` is a function, it will be called with the following parameters:
+	 *
+	 *      - `{Object.<string>}` - route parameters extracted from the current
+	 *        `$location.path()` by applying the current route templateUrl.
+	 *      - `{string}` - current `$location.path()`
+	 *      - `{Object}` - current `$location.search()`
+	 *
+	 *      The custom `redirectTo` function is expected to return a string which will be used
+	 *      to update `$location.url()`. If the function throws an error, no further processing will
+	 *      take place and the {@link ngRoute.$route#$routeChangeError $routeChangeError} event will
+	 *      be fired.
+	 *
+	 *      Routes that specify `redirectTo` will not have their controllers, template functions
+	 *      or resolves called, the `$location` will be changed to the redirect url and route
+	 *      processing will stop. The exception to this is if the `redirectTo` is a function that
+	 *      returns `undefined`. In this case the route transition occurs as though there was no
+	 *      redirection.
+	 *
+	 *    - `resolveRedirectTo` – `{Function=}` – a function that will (eventually) return the value
+	 *      to update {@link ng.$location $location} URL with and trigger route redirection. In
+	 *      contrast to `redirectTo`, dependencies can be injected into `resolveRedirectTo` and the
+	 *      return value can be either a string or a promise that will be resolved to a string.
+	 *
+	 *      Similar to `redirectTo`, if the return value is `undefined` (or a promise that gets
+	 *      resolved to `undefined`), no redirection takes place and the route transition occurs as
+	 *      though there was no redirection.
+	 *
+	 *      If the function throws an error or the returned promise gets rejected, no further
+	 *      processing will take place and the
+	 *      {@link ngRoute.$route#$routeChangeError $routeChangeError} event will be fired.
+	 *
+	 *      `redirectTo` takes precedence over `resolveRedirectTo`, so specifying both on the same
+	 *      route definition, will cause the latter to be ignored.
+	 *
+	 *    - `[reloadOnUrl=true]` - `{boolean=}` - reload route when any part of the URL changes
+	 *      (including the path) even if the new URL maps to the same route.
+	 *
+	 *      If the option is set to `false` and the URL in the browser changes, but the new URL maps
+	 *      to the same route, then a `$routeUpdate` event is broadcasted on the root scope (without
+	 *      reloading the route).
+	 *
+	 *    - `[reloadOnSearch=true]` - `{boolean=}` - reload route when only `$location.search()`
+	 *      or `$location.hash()` changes.
+	 *
+	 *      If the option is set to `false` and the URL in the browser changes, then a `$routeUpdate`
+	 *      event is broadcasted on the root scope (without reloading the route).
+	 *
+	 *      <div class="alert alert-warning">
+	 *        **Note:** This option has no effect if `reloadOnUrl` is set to `false`.
+	 *      </div>
+	 *
+	 *    - `[caseInsensitiveMatch=false]` - `{boolean=}` - match routes without being case sensitive
+	 *
+	 *      If the option is set to `true`, then the particular route can be matched without being
+	 *      case sensitive
+	 *
+	 * @returns {Object} self
+	 *
+	 * @description
+	 * Adds a new route definition to the `$route` service.
+	 */
+	this.when = function(path, route) {
+		//copy original route object to preserve params inherited from proto chain
+		var routeCopy = shallowCopy(route);
+		if (angular.isUndefined(routeCopy.reloadOnUrl)) {
+			routeCopy.reloadOnUrl = true;
+		}
+		if (angular.isUndefined(routeCopy.reloadOnSearch)) {
+			routeCopy.reloadOnSearch = true;
+		}
+		if (angular.isUndefined(routeCopy.caseInsensitiveMatch)) {
+			routeCopy.caseInsensitiveMatch = this.caseInsensitiveMatch;
+		}
+		routes[path] = angular.extend(
+				routeCopy,
+				{originalPath: path},
+				path && routeToRegExp(path, routeCopy)
+		);
+
+		// create redirection for trailing slashes
+		if (path) {
+			var redirectPath = (path[path.length - 1] === '/')
+			? path.substr(0, path.length - 1)
+					: path + '/';
+
+			routes[redirectPath] = angular.extend(
+					{originalPath: path, redirectTo: path},
+					routeToRegExp(redirectPath, routeCopy)
+			);
+		}
+
+		return this;
+	};
+
+	/**
+	 * @ngdoc property
+	 * @name $routeProvider#caseInsensitiveMatch
+	 * @description
+	 *
+	 * A boolean property indicating if routes defined
+	 * using this provider should be matched using a case insensitive
+	 * algorithm. Defaults to `false`.
+	 */
+	this.caseInsensitiveMatch = false;
+
+	/**
+	 * @ngdoc method
+	 * @name $routeProvider#otherwise
+	 *
+	 * @description
+	 * Sets route definition that will be used on route change when no other route definition
+	 * is matched.
+	 *
+	 * @param {Object|string} params Mapping information to be assigned to `$route.current`.
+	 * If called with a string, the value maps to `redirectTo`.
+	 * @returns {Object} self
+	 */
+	this.otherwise = function(params) {
+		if (typeof params === 'string') {
+			params = {redirectTo: params};
+		}
+		this.when(null, params);
+		return this;
+	};
+
+
+	this.$get = ['$rootScope',
+		'$location',
+		'$routeParams',
+		'$q',
+		'$injector',
+		'$templateRequest',
+		'$sce',
+		'$browser',
+		function($rootScope, $location, $routeParams, $q, $injector, $templateRequest, $sce, $browser) {
+
+		/**
+		 * @ngdoc service
+		 * @name $route
+		 * @requires $location
+		 * @requires $routeParams
+		 *
+		 * @property {Object} current Reference to the current route definition.
+		 * The route definition contains:
+		 *
+		 *   - `controller`: The controller constructor as defined in the route definition.
+		 *   - `locals`: A map of locals which is used by {@link ng.$controller $controller} service for
+		 *     controller instantiation. The `locals` contain
+		 *     the resolved values of the `resolve` map. Additionally the `locals` also contain:
+		 *
+		 *     - `$scope` - The current route scope.
+		 *     - `$template` - The current route template HTML.
+		 *
+		 *     The `locals` will be assigned to the route scope's `$resolve` property. You can override
+		 *     the property name, using `resolveAs` in the route definition. See
+		 *     {@link ngRoute.$routeProvider $routeProvider} for more info.
+		 *
+		 * @property {Object} routes Object with all route configuration Objects as its properties.
+		 *
+		 * @description
+		 * `$route` is used for deep-linking URLs to controllers and views (HTML partials).
+		 * It watches `$location.url()` and tries to map the path to an existing route definition.
+		 *
+		 * Requires the {@link ngRoute `ngRoute`} module to be installed.
+		 *
+		 * You can define routes through {@link ngRoute.$routeProvider $routeProvider}'s API.
+		 *
+		 * The `$route` service is typically used in conjunction with the
+		 * {@link ngRoute.directive:mbView `mbView`} directive and the
+		 * {@link ngRoute.$routeParams `$routeParams`} service.
+		 *
+		 * @example
+		 * This example shows how changing the URL hash causes the `$route` to match a route against the
+		 * URL, and the `mbView` pulls in the partial.
+		 *
+		 * <example name="$route-service" module="ngRouteExample"
+		 *          deps="angular-route.js" fixBase="true">
+		 *   <file name="index.html">
+		 *     <div ng-controller="MainController">
+		 *       Choose:
+		 *       <a href="Book/Moby">Moby</a> |
+		 *       <a href="Book/Moby/ch/1">Moby: Ch1</a> |
+		 *       <a href="Book/Gatsby">Gatsby</a> |
+		 *       <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+		 *       <a href="Book/Scarlet">Scarlet Letter</a><br/>
+		 *
+		 *       <div ng-view></div>
+		 *
+		 *       <hr />
+		 *
+		 *       <pre>$location.path() = {{$location.path()}}</pre>
+		 *       <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
+		 *       <pre>$route.current.params = {{$route.current.params}}</pre>
+		 *       <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
+		 *       <pre>$routeParams = {{$routeParams}}</pre>
+		 *     </div>
+		 *   </file>
+		 *
+		 *   <file name="book.html">
+		 *     controller: {{name}}<br />
+		 *     Book Id: {{params.bookId}}<br />
+		 *   </file>
+		 *
+		 *   <file name="chapter.html">
+		 *     controller: {{name}}<br />
+		 *     Book Id: {{params.bookId}}<br />
+		 *     Chapter Id: {{params.chapterId}}
+		 *   </file>
+		 *
+		 *   <file name="script.js">
+		 *     angular.module('ngRouteExample', ['ngRoute'])
+		 *
+		 *      .controller('MainController', function($scope, $route, $routeParams, $location) {
+		 *          $scope.$route = $route;
+		 *          $scope.$location = $location;
+		 *          $scope.$routeParams = $routeParams;
+		 *      })
+		 *
+		 *      .controller('BookController', function($scope, $routeParams) {
+		 *          $scope.name = 'BookController';
+		 *          $scope.params = $routeParams;
+		 *      })
+		 *
+		 *      .controller('ChapterController', function($scope, $routeParams) {
+		 *          $scope.name = 'ChapterController';
+		 *          $scope.params = $routeParams;
+		 *      })
+		 *
+		 *     .config(function($routeProvider, $locationProvider) {
+		 *       $routeProvider
+		 *        .when('/Book/:bookId', {
+		 *         templateUrl: 'book.html',
+		 *         controller: 'BookController',
+		 *         resolve: {
+		 *           // I will cause a 1 second delay
+		 *           delay: function($q, $timeout) {
+		 *             var delay = $q.defer();
+		 *             $timeout(delay.resolve, 1000);
+		 *             return delay.promise;
+		 *           }
+		 *         }
+		 *       })
+		 *       .when('/Book/:bookId/ch/:chapterId', {
+		 *         templateUrl: 'chapter.html',
+		 *         controller: 'ChapterController'
+		 *       });
+		 *
+		 *       // configure html5 to get links working on jsfiddle
+		 *       $locationProvider.html5Mode(true);
+		 *     });
+		 *
+		 *   </file>
+		 *
+		 *   <file name="protractor.js" type="protractor">
+		 *     it('should load and compile correct template', function() {
+		 *       element(by.linkText('Moby: Ch1')).click();
+		 *       var content = element(by.css('[ng-view]')).getText();
+		 *       expect(content).toMatch(/controller: ChapterController/);
+		 *       expect(content).toMatch(/Book Id: Moby/);
+		 *       expect(content).toMatch(/Chapter Id: 1/);
+		 *
+		 *       element(by.partialLinkText('Scarlet')).click();
+		 *
+		 *       content = element(by.css('[ng-view]')).getText();
+		 *       expect(content).toMatch(/controller: BookController/);
+		 *       expect(content).toMatch(/Book Id: Scarlet/);
+		 *     });
+		 *   </file>
+		 * </example>
+		 */
+
+		/**
+		 * @ngdoc event
+		 * @name $route#$routeChangeStart
+		 * @eventType broadcast on root scope
+		 * @description
+		 * Broadcasted before a route change. At this  point the route services starts
+		 * resolving all of the dependencies needed for the route change to occur.
+		 * Typically this involves fetching the view template as well as any dependencies
+		 * defined in `resolve` route property. Once  all of the dependencies are resolved
+		 * `$routeChangeSuccess` is fired.
+		 *
+		 * The route change (and the `$location` change that triggered it) can be prevented
+		 * by calling `preventDefault` method of the event. See {@link ng.$rootScope.Scope#$on}
+		 * for more details about event object.
+		 *
+		 * @param {Object} angularEvent Synthetic event object.
+		 * @param {Route} next Future route information.
+		 * @param {Route} current Current route information.
+		 */
+
+		/**
+		 * @ngdoc event
+		 * @name $route#$routeChangeSuccess
+		 * @eventType broadcast on root scope
+		 * @description
+		 * Broadcasted after a route change has happened successfully.
+		 * The `resolve` dependencies are now available in the `current.locals` property.
+		 *
+		 * {@link ngRoute.directive:mbView mbView} listens for the directive
+		 * to instantiate the controller and render the view.
+		 *
+		 * @param {Object} angularEvent Synthetic event object.
+		 * @param {Route} current Current route information.
+		 * @param {Route|Undefined} previous Previous route information, or undefined if current is
+		 * first route entered.
+		 */
+
+		/**
+		 * @ngdoc event
+		 * @name $route#$routeChangeError
+		 * @eventType broadcast on root scope
+		 * @description
+		 * Broadcasted if a redirection function fails or any redirection or resolve promises are
+		 * rejected.
+		 *
+		 * @param {Object} angularEvent Synthetic event object
+		 * @param {Route} current Current route information.
+		 * @param {Route} previous Previous route information.
+		 * @param {Route} rejection The thrown error or the rejection reason of the promise. Usually
+		 * the rejection reason is the error that caused the promise to get rejected.
+		 */
+
+		/**
+		 * @ngdoc event
+		 * @name $route#$routeUpdate
+		 * @eventType broadcast on root scope
+		 * @description
+		 * Broadcasted if the same instance of a route (including template, controller instance,
+		 * resolved dependencies, etc.) is being reused. This can happen if either `reloadOnSearch` or
+		 * `reloadOnUrl` has been set to `false`.
+		 *
+		 * @param {Object} angularEvent Synthetic event object
+		 * @param {Route} current Current/previous route information.
+		 */
+
+		var forceReload = false,
+		preparedRoute,
+		preparedRouteIsUpdateOnly,
+		$route = {
+				routes: routes,
+
+				/**
+				 * @ngdoc method
+				 * @name $route#reload
+				 *
+				 * @description
+				 * Causes `$route` service to reload the current route even if
+				 * {@link ng.$location $location} hasn't changed.
+				 *
+				 * As a result of that, {@link ngRoute.directive:mbView mbView}
+				 * creates new scope and reinstantiates the controller.
+				 */
+				reload: function() {
+					forceReload = true;
+
+					var fakeLocationEvent = {
+							defaultPrevented: false,
+							preventDefault: function fakePreventDefault() {
+								this.defaultPrevented = true;
+								forceReload = false;
+							}
+					};
+
+					$rootScope.$evalAsync(function() {
+						prepareRoute(fakeLocationEvent);
+						if (!fakeLocationEvent.defaultPrevented) commitRoute();
+					});
+				},
+
+				/**
+				 * @ngdoc method
+				 * @name $route#updateParams
+				 *
+				 * @description
+				 * Causes `$route` service to update the current URL, replacing
+				 * current route parameters with those specified in `newParams`.
+				 * Provided property names that match the route's path segment
+				 * definitions will be interpolated into the location's path, while
+				 * remaining properties will be treated as query params.
+				 *
+				 * @param {!Object<string, string>} newParams mapping of URL parameter names to values
+				 */
+				updateParams: function(newParams) {
+					if (this.current && this.current.$$route) {
+						newParams = angular.extend({}, this.current.params, newParams);
+						$location.path(interpolate(this.current.$$route.originalPath, newParams));
+						// interpolate modifies newParams, only query params are left
+						$location.search(newParams);
+					} else {
+						throw $routeMinErr('norout', 'Tried updating route with no current route');
+					}
+				}
+		};
+
+		$rootScope.$on('$locationChangeStart', prepareRoute);
+		$rootScope.$on('$locationChangeSuccess', commitRoute);
+
+		return $route;
+
+		/////////////////////////////////////////////////////
+
+		/**
+		 * @param on {string} current url
+		 * @param route {Object} route regexp to match the url against
+		 * @return {?Object}
+		 *
+		 * @description
+		 * Check if the route matches the current url.
+		 *
+		 * Inspired by match in
+		 * visionmedia/express/lib/router/router.js.
+		 */
+		function switchRouteMatcher(on, route) {
+			var keys = route.keys,
+			params = {};
+
+			if (!route.regexp) return null;
+
+			var m = route.regexp.exec(on);
+			if (!m) return null;
+
+			for (var i = 1, len = m.length; i < len; ++i) {
+				var key = keys[i - 1];
+
+				var val = m[i];
+
+				if (key && val) {
+					params[key.name] = val;
+				}
+			}
+			return params;
+		}
+
+		function prepareRoute($locationEvent) {
+			var lastRoute = $route.current;
+
+			preparedRoute = parseRoute();
+			preparedRouteIsUpdateOnly = isNavigationUpdateOnly(preparedRoute, lastRoute);
+
+			if (!preparedRouteIsUpdateOnly && (lastRoute || preparedRoute)) {
+				if ($rootScope.$broadcast('$routeChangeStart', preparedRoute, lastRoute).defaultPrevented) {
+					if ($locationEvent) {
+						$locationEvent.preventDefault();
+					}
+				}
+			}
+		}
+
+		function commitRoute() {
+			var lastRoute = $route.current;
+			var nextRoute = preparedRoute;
+
+			if (preparedRouteIsUpdateOnly) {
+				lastRoute.params = nextRoute.params;
+				angular.copy(lastRoute.params, $routeParams);
+				$rootScope.$broadcast('$routeUpdate', lastRoute);
+			} else if (nextRoute || lastRoute) {
+				forceReload = false;
+				$route.current = nextRoute;
+
+				var nextRoutePromise = $q.resolve(nextRoute);
+
+				$browser.$$incOutstandingRequestCount('$route');
+
+				nextRoutePromise.
+				then(getRedirectionData).
+				then(handlePossibleRedirection).
+				then(function(keepProcessingRoute) {
+					return keepProcessingRoute && nextRoutePromise.
+					then(resolveLocals).
+					then(function(locals) {
+						// after route change
+						if (nextRoute === $route.current) {
+							if (nextRoute) {
+								nextRoute.locals = locals;
+								angular.copy(nextRoute.params, $routeParams);
+							}
+							$rootScope.$broadcast('$routeChangeSuccess', nextRoute, lastRoute);
+						}
+					});
+				}).catch(function(error) {
+					if (nextRoute === $route.current) {
+						$rootScope.$broadcast('$routeChangeError', nextRoute, lastRoute, error);
+					}
+				}).finally(function() {
+					// Because `commitRoute()` is called from a `$rootScope.$evalAsync` block (see
+					// `$locationWatch`), this `$$completeOutstandingRequest()` call will not cause
+					// `outstandingRequestCount` to hit zero.  This is important in case we are redirecting
+					// to a new route which also requires some asynchronous work.
+
+					$browser.$$completeOutstandingRequest(noop, '$route');
+				});
+			}
+		}
+
+		function getRedirectionData(route) {
+			var data = {
+					route: route,
+					hasRedirection: false
+			};
+
+			if (route) {
+				if (route.redirectTo) {
+					if (angular.isString(route.redirectTo)) {
+						data.path = interpolate(route.redirectTo, route.params);
+						data.search = route.params;
+						data.hasRedirection = true;
+					} else {
+						var oldPath = $location.path();
+						var oldSearch = $location.search();
+						var newUrl = route.redirectTo(route.pathParams, oldPath, oldSearch);
+
+						if (angular.isDefined(newUrl)) {
+							data.url = newUrl;
+							data.hasRedirection = true;
+						}
+					}
+				} else if (route.resolveRedirectTo) {
+					return $q.
+					resolve($injector.invoke(route.resolveRedirectTo)).
+					then(function(newUrl) {
+						if (angular.isDefined(newUrl)) {
+							data.url = newUrl;
+							data.hasRedirection = true;
+						}
+
+						return data;
+					});
+				}
+			}
+
+			return data;
+		}
+
+		function handlePossibleRedirection(data) {
+			var keepProcessingRoute = true;
+
+			if (data.route !== $route.current) {
+				keepProcessingRoute = false;
+			} else if (data.hasRedirection) {
+				var oldUrl = $location.url();
+				var newUrl = data.url;
+
+				if (newUrl) {
+					$location.
+					url(newUrl).
+					replace();
+				} else {
+					newUrl = $location.
+					path(data.path).
+					search(data.search).
+					replace().
+					url();
+				}
+
+				if (newUrl !== oldUrl) {
+					// Exit out and don't process current next value,
+					// wait for next location change from redirect
+					keepProcessingRoute = false;
+				}
+			}
+
+			return keepProcessingRoute;
+		}
+
+		function resolveLocals(route) {
+			if (route) {
+				var locals = angular.extend({}, route.resolve);
+				angular.forEach(locals, function(value, key) {
+					locals[key] = angular.isString(value) ?
+							$injector.get(value) :
+								$injector.invoke(value, null, null, key);
+				});
+				var template = getTemplateFor(route);
+				if (angular.isDefined(template)) {
+					locals['$template'] = template;
+				}
+				return $q.all(locals);
+			}
+		}
+
+		function getTemplateFor(route) {
+			var template, templateUrl;
+			if (angular.isDefined(template = route.template)) {
+				if (angular.isFunction(template)) {
+					template = template(route.params);
+				}
+			} else if (angular.isDefined(templateUrl = route.templateUrl)) {
+				if (angular.isFunction(templateUrl)) {
+					templateUrl = templateUrl(route.params);
+				}
+				if (angular.isDefined(templateUrl)) {
+					route.loadedTemplateUrl = $sce.valueOf(templateUrl);
+					template = $templateRequest(templateUrl);
+				}
+			}
+			return template;
+		}
+
+		/**
+		 * @returns {Object} the current active route, by matching it against the URL
+		 */
+		function parseRoute() {
+			// Match a route
+			var params, match;
+			angular.forEach(routes, function(route, path) {
+				if (!match && (params = switchRouteMatcher($location.path(), route))) {
+					match = inherit(route, {
+						params: angular.extend({}, $location.search(), params),
+						pathParams: params});
+					match.$$route = route;
+				}
+			});
+			// No route matched; fallback to "otherwise" route
+			return match || routes[null] && inherit(routes[null], {params: {}, pathParams:{}});
+		}
+
+		/**
+		 * @param {Object} newRoute - The new route configuration (as returned by `parseRoute()`).
+		 * @param {Object} oldRoute - The previous route configuration (as returned by `parseRoute()`).
+		 * @returns {boolean} Whether this is an "update-only" navigation, i.e. the URL maps to the same
+		 *                    route and it can be reused (based on the config and the type of change).
+		 */
+		function isNavigationUpdateOnly(newRoute, oldRoute) {
+			// IF this is not a forced reload
+			return !forceReload
+			// AND both `newRoute`/`oldRoute` are defined
+			&& newRoute && oldRoute
+			// AND they map to the same Route Definition Object
+			&& (newRoute.$$route === oldRoute.$$route)
+			// AND `reloadOnUrl` is disabled
+			&& (!newRoute.reloadOnUrl
+					// OR `reloadOnSearch` is disabled
+					|| (!newRoute.reloadOnSearch
+							// AND both routes have the same path params
+							&& angular.equals(newRoute.pathParams, oldRoute.pathParams)
+					)
+			);
+		}
+
+		/**
+		 * @returns {string} interpolation of the redirect path with the parameters
+		 */
+		function interpolate(string, params) {
+			var result = [];
+			angular.forEach((string || '').split(':'), function(segment, i) {
+				if (i === 0) {
+					result.push(segment);
+				} else {
+					var segmentMatch = segment.match(/(\w+)(?:[?*])?(.*)/);
+					var key = segmentMatch[1];
+					result.push(params[key]);
+					result.push(segmentMatch[2] || '');
+					delete params[key];
+				}
+			});
+			return result.join('');
+		}
+	}];
+});
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @ngdoc service
+ * @name $routeParams
+ * @requires $route
+ * @this
+ *
+ * @description
+ * The `$routeParams` service allows you to retrieve the current set of route parameters.
+ *
+ * Requires the {@link ngRoute `ngRoute`} module to be installed.
+ *
+ * The route parameters are a combination of {@link ng.$location `$location`}'s
+ * {@link ng.$location#search `search()`} and {@link ng.$location#path `path()`}.
+ * The `path` parameters are extracted when the {@link ngRoute.$route `$route`} path is matched.
+ *
+ * In case of parameter name collision, `path` params take precedence over `search` params.
+ *
+ * The service guarantees that the identity of the `$routeParams` object will remain unchanged
+ * (but its properties will likely change) even when a route change occurs.
+ *
+ * Note that the `$routeParams` are only updated *after* a route change completes successfully.
+ * This means that you cannot rely on `$routeParams` being correct in route resolve functions.
+ * Instead you can use `$route.current.params` to access the new route's parameters.
+ *
+ * @example
+ * ```js
+ *  // Given:
+ *  // URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby
+ *  // Route: /Chapter/:chapterId/Section/:sectionId
+ *  //
+ *  // Then
+ *  $routeParams ==> {chapterId:'1', sectionId:'2', search:'moby'}
+ * ```
+ */
+angular.module('mblowfish-core')
+.provider('$routeParams', function() {
+	this.$get = function() { return {}; };
+});
+
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -10721,7 +11852,7 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core') //
 
 /**
@@ -10836,7 +11967,7 @@ angular.module('mblowfish-core') //
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 angular.module('mblowfish-core') //
 
 /**
@@ -10957,11 +12088,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/directives/mb-panel.html',
-    "<div id=mb-panel-root md-theme=\"{{app.setting.theme|| app.config.theme || 'default'}}\" md-theme-watch ng-class=\"{'mb-rtl-direction': app.dir === 'rtl', 'mb-ltr-direction': app.dir !== 'rtl'}\" dir={{app.dir}} layout=column layout-fill>  <div id=mb-panel-root-ready mb-panel-toolbar-anchor ng-show=\"status === 'ready'\" layout=column layout-fill>   <div id=mb-panel-root-ready-anchor mb-panel-sidenav-anchor layout=row flex> <md-whiteframe layout=row id=main class=\"md-whiteframe-24dp main mb-page-content\" ng-view flex> </md-whiteframe> </div> </div> <div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div> <div ng-if=\"status === 'loading'\" layout=column layout-align=\"center center\" layout-fill> <h3>Loading...</h3>   <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div> <div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div> </div>"
-  );
-
-
   $templateCache.put('views/directives/mb-pay.html',
     "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=\"ctrl.loadingGates || ctrl.paying\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
   );
@@ -11047,6 +12173,26 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/partials/mb-view-access-denied.html',
+    "<div id=mb-panel-root-access-denied ng-if=\"status === 'accessDenied'\" layout=column layout-fill> Access Denied </div>"
+  );
+
+
+  $templateCache.put('views/partials/mb-view-loading.html',
+    "<div id=mb-view-loading layout=column layout-align=\"center center\" layout-fill> <img width=256px ng-src-error=data:image/svg;base64,PHN2ZyB3aWR0aD0iOTI0IiBoZWlnaHQ9Ijg3MyIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KIDxkZWZzPgogIDxmaWx0ZXIgaWQ9ImltYWdlYm90XzEwIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgogICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIzLjY3ODQyIi8+CiAgPC9maWx0ZXI+CiAgPGZpbHRlciBpZD0iaW1hZ2Vib3RfNyIgeD0iLS4yMzAwNiIgeT0iLS4zMzU1IiB3aWR0aD0iMS40NjAxIiBoZWlnaHQ9IjEuNjcxIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgogICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIzLjM4OTA2Ii8+CiAgPC9maWx0ZXI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJpbWFnZWJvdF8xMDAiIGN4PSIyODEuODUiIGN5PSI3NTEuODQiIHI9IjQwNy4zNSIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxLjgyOTkgLTEuMDcwMiAuODk2ODQgMS41MzM1IC05MDUuMTIgLTEzNC42NykiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgPHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIgb2Zmc2V0PSIwIi8+CiAgIDxzdG9wIHN0b3AtY29sb3I9IiM1MGFkY2IiIG9mZnNldD0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGZpbHRlciBpZD0iaW1hZ2Vib3RfNTgiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEuMDUwMDUiLz4KICA8L2ZpbHRlcj4KICA8ZmlsdGVyIGlkPSJpbWFnZWJvdF85OCIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KICAgPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMS45ODgxNSIvPgogIDwvZmlsdGVyPgogIDxyYWRpYWxHcmFkaWVudCBpZD0iaW1hZ2Vib3RfMTI0IiBjeD0iMjI1LjQ5IiBjeT0iMzQ1LjgxIiByPSIzOC41NTMiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzUuNTI4IDE4LjA0KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICA8c3RvcCBvZmZzZXQ9IjAiLz4KICAgPHN0b3Agb2Zmc2V0PSIxIi8+CiAgPC9yYWRpYWxHcmFkaWVudD4KICA8cmFkaWFsR3JhZGllbnQgaWQ9ImltYWdlYm90XzE1MyIgY3g9IjI1LjA1MyIgY3k9IjM5LjU5MyIgcj0iMTUuNzU3IiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDEuNjYwMiAwIDAgLTIuMzQ4MyAtMTMuNTU2IDExMi41OSkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgPHN0b3Agc3RvcC1jb2xvcj0iIzc3NyIgb2Zmc2V0PSIwIi8+CiAgIDxzdG9wIG9mZnNldD0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiA8L2RlZnM+CiA8ZyBsYWJlbD0iRWJlbmUgMSI+CiAgPGcgc3Ryb2tlPSIjMTU0ZTczIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0yNy4zNi0yNTEuMDVjMTExLjEzLTI3Ljg4NSA0NTEuMDQgMTA1LjAxIDQxNC4xNiA0NDAuNDItNDEuNTggMzQyLjkyLTI5Mi4xNiAzNTQuMzUtMzQxLjQzIDM2MS42NC00MzIuMjItMTMuNjItNDY1LjgyLTMzOC42My00NjIuNjUtMzc1Ljc4LTcuNDY1LTUwLjM3IDU5LjEyLTM1Ny40IDM4OS45Mi00MjYuMjh6IiBmaWxsPSJ1cmwoI2ltYWdlYm90XzEwMCkiIHN0cm9rZS13aWR0aD0iNy4zIiBsYWJlbD0iRWJlbmUgMSIvPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0zMjcuMzctNzUuMjg2YzQ5LjQyIDQ3LjA5NSA1NC44NzggMTE0LjA4IDUzLjUzOCAxNzkuODEiIGZpbGw9Im5vbmUiIGZpbHRlcj0idXJsKCNpbWFnZWJvdF85OCkiIHN0cm9rZS13aWR0aD0iNi44IiBsYWJlbD0iRWJlbmUgMSIvPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0tMTAwLjkzLTIxMC42NWMtOS42NjQxLTIyLjIzMS0zNS4xNzYtMzMuNDItNTkuNTk5LTM0LjM0NS0xMC41MjUtNy4xNjQzLTEzLjIxMyA2Ljg5MTctMTAuMjc1IDE0LjQzOC00LjU0NTggMS4xMTEtMjMuMTA1LTcuOTA2Ny05LjkyODIgMTIuODM2LTMuNTU4NSAwLjA1NjItMjYuNjY4LTMuOTAxMy03LjA3MTEgMTMuMTMyLTcuODM3MSAyLjkwNDktMTUuNjQ3IDUuODItMy4wMzA0IDE2LjE2Mi03Ljg4MTcgOS4zMjgzLTcuMzUyNiAxNC40NTEgMCAxNi4xNjItMy4yMDA0IDUuOTc3NS03LjgwMTEgMTIuNjU1IDAgMTMuMTMyLTcuMjk0NiA3LjE4MjgtMi43NzM1IDguNDU3OCAxLjAxMDIgMTAuMTAyIDI1LjEyNi0yMi41NDIgNDcuMzY0LTQ2LjM2OCA4OC44OTMtNjEuNjE5aDVlLTR6IiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjcuMyIgbGFiZWw9IkViZW5lIDEiLz4KICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtLTI5MC40Ni00OS4yM2MtMTIuOTkgMi4wMTc2LTI1Ljg4IDUuMDAxMy0zOC42ODMgNy45OTExLTQuMTQ1MyAwLjU2Njk2LTUuNTY1NSA1LjMzNzYtMy4wODAxIDguNjAzNyA0LjY2NDMgMTEuMTM0IDguMTM2NiAyMi45MDUgMTMuNzk0IDMzLjUzOSA0Ljk5MjQgMy4zOTc3IDcuMjM5MS0zLjU1NzggOS4yODU3LTYuODk3MyA3LjA3NC0xMy4wNTUgMTQuODAyLTI1LjcxOSAyMi44NzktMzguMDU4IDEuMTkzNS0yLjczMTUtMS4yODI5LTUuNzI2NS00LjE5NjQtNS4xNzg2bDhlLTQgMWUtNHoiIGZpbGw9IiM2MThjYTgiIHN0cm9rZS13aWR0aD0iMi43MTQzIiBsYWJlbD0iRWJlbmUgMSIvPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0yMTEuMTctMjU0LjcyYy0xNS40NzggNC45MTktMzEuMzAyIDguOTAyNC00Ni41ODUgMTQuMzUzLTQuMTI4MyAxLjUwMjgtMy4xMDA3IDcuNDg5NSAxLjExNjEgOC4xNDczIDE4LjI5NyA3LjQ1NjYgMzYuNjM5IDE0Ljk3NCA1NC4yNjMgMjQuMDQgMy44NjM3IDIuMTgxOSA2Ljk2NDQtMi43NzIzIDUuMDExMi02LjA5NjItMy4yNDE5LTEyLjgzLTYuMDc5My0yNS44NzEtOS43ODA5LTM4LjUxNy0wLjU1NDg5LTEuNjI5Mi0yLjQ5MjUtMi4xOC00LjAyNS0xLjkyN2w2ZS00IC0xZS00eiIgZmlsbD0iIzYxOGNhOCIgc3Ryb2tlLXdpZHRoPSIyLjcxNDMiIGxhYmVsPSJFYmVuZSAxIi8+CiAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZmlsbD0ibm9uZSIgZmlsdGVyPSJ1cmwoI2ltYWdlYm90XzU4KSIgc3Ryb2tlLXdpZHRoPSIzLjgiIGxhYmVsPSJFYmVuZSAxIj4KICAgIDxwYXRoIGQ9Im0xMy4yMi0xNzkuMzMtMy4wMzA1LTI4LjI4NCAzNy4zNzYgMjcuMjc0Ii8+CiAgICA8cGF0aCBkPSJtMTE3LjI2LTE2My4xNyAzMy4zMzUtOC4wODEyIDguMDgxMiAyMi4yMjMiLz4KICAgIDxwYXRoIGQ9Im0yMzAuNC0xNDkuMDMgNDUuNDU3LTIuMDIwM3YyOS4yOTQiLz4KICAgIDxwYXRoIGQ9Im00Ni45ODctMTM4Ljg5IDM2LjM2NS0xNy4xNzMgNi4wNjA5IDI1LjI1NCIvPgogICAgPHBhdGggZD0ibS04MC43My0yMy43Ny0xOS4xOTMtMTEuMTEyIDExLjExMiAyNi4yNjQiLz4KICAgIDxwYXRoIGQ9Im0tMTcwLjYzLTgxLjM1LTQ0LjQ0NyAzLjAzMDUgMjguMjg0IDM2LjM2NSIvPgogICAgPHBhdGggZD0ibS0yMTIuMDUtOS42My00MC40MDYtNC4wNDA2IDIwLjIwMyAzOC4zODYiLz4KICAgIDxwYXRoIGQ9Im0tMjY1LjU5IDgwLjI4LTMwLjMwNSAyNi4yNjQgMzIuMzI1IDkuMDkxNCIvPgogICAgPHBhdGggZD0ibS0xMzUuMjggMzAuNzgtMjguMjg0IDExLjExMiAzMS4zMTUgMTIuMTIyIi8+CiAgICA8cGF0aCBkPSJtLTc4LjcxIDY2LjE0LTE3LjE3MyAxNy4xNzMgMjYuMjY0IDExLjExMiIvPgogICAgPHBhdGggZD0ibS0xMzcuMyAxMTEuNTktNDkuNDk3IDkuMDkxNCAyOS4yOTQgMTYuMTYyIi8+CiAgICA8cGF0aCBkPSJtMTQ4LjU4IDExOC42NiA0My40MzcgNS4wNTA4LTIxLjIxMyAyMi4yMjMiLz4KICAgIDxwYXRoIGQ9Im0yNTYuNjYgNTcuMDQgMzQuMzQ1IDE0LjE0Mi0yMC4yMDMgMTcuMTczIi8+CiAgICA8cGF0aCBkPSJtMzc2Ljg3IDExNi42NCAyNS4yNTQgMjguMjg0LTIzLjIzNCAxNS4xNTIiLz4KICAgIDxwYXRoIGQ9Im0zMjQuMzQgMTYwLjA4IDI5LjI5NCAyMC4yMDMtMTkuMTkzIDEyLjEyMiIvPgogICAgPHBhdGggZD0ibTE2OS43OSAyMjUuNzQgMzEuMzE1IDE2LjE2Mi0yNC4yNDQgMTIuMTIyIi8+CiAgICA8cGF0aCBkPSJtNjUuNzQgMTEzLjYxIDI4LjI4NCAyMC4yMDMtMjguMjg0IDQuMDQwNiIvPgogICAgPHBhdGggZD0ibS02Ny42IDE1My4wMSAxMS4xMTIgMzQuMzQ1IDIzLjIzNC0yMi4yMjMiLz4KICAgIDxwYXRoIGQ9Im0zOC40NyAxOTUuNDQgMzEuMzE1IDMyLjMyNS0yLjAyMDMtMzkuMzk2Ii8+CiAgICA8cGF0aCBkPSJtLTI4MC43NCAxODIuMy0xNi4xNjIgNDEuNDE2IDM4LjM4Ni0xMS4xMTIiLz4KICAgIDxwYXRoIGQ9Im0tMTc4LjcxIDE5MS40LTEzLjEzMiAzMy4zMzUgMzYuMzY1LTE2LjE2MiIvPgogICAgPHBhdGggZD0ibS03NS42OCAyNzMuMjItMy4wMzA1IDM3LjM3NiAyNi4yNjQtMjYuMjY0Ii8+CiAgICA8cGF0aCBkPSJtLTUuOTggMjY1LjE0IDMzLjMzNSAzMy4zMzUgMTQuMTQyLTMxLjMxNSIvPgogICAgPHBhdGggZD0ibTYxLjcgMzIxLjcgMzcuMzc2IDMyLjMyNS0xLjAxMDItMzQuMzQ1Ii8+CiAgICA8cGF0aCBkPSJtMTE5LjI4IDI3NS4yNCAzNS4zNTUgMjYuMjY0IDEwLjEwMi0yMC4yMDMiLz4KICAgIDxwYXRoIGQ9Im0zMjQuMzQgMjYyLjExIDYuMDYwOSA0NS40NTctMzkuMzk2LTcuMDcxMSIvPgogICAgPHBhdGggZD0ibTM2OC43OSAyMzIuODEgMzYuMzY1IDMwLjMwNS0zMi4zMjUgMjIuMjIzIi8+CiAgICA8cGF0aCBkPSJtMzMyLjQyIDM1NS4wNCAyMi4yMjMgMjcuMjc0LTM5LjM5NiAyMS4yMTMiLz4KICAgIDxwYXRoIGQ9Im0yNTcuNjcgMzUzLjAyIDE4LjE4MyAyNi4yNjQtMzkuMzk2IDYuMDYwOSIvPgogICAgPHBhdGggZD0ibTIyNS4zNSA0MzMuODMgMTUuMTUyIDQ2LjQ2Ny0zNi4zNjUtMy4wMzA0Ii8+CiAgICA8cGF0aCBkPSJtMTYzLjczIDQ0My45My0zNC4zNSA0Ni40Ny0xNy4xNy0yNi4yNiIvPgogICAgPHBhdGggZD0ibTMxLjQgNDQ0Ljk0LTM5LjM5NiAzMy4zMzUtMTcuMTczLTM4LjM4NiIvPgogICAgPHBhdGggZD0ibS0zOC4zIDM1My4wMiAzMC4zMDUgNDEuNDE2IDguMDgxMi0yMS4yMTMiLz4KICAgIDxwYXRoIGQ9Im0tMTU0LjQ3IDM3OC4yNy0xNS4xNTIgMzkuMzk2aDUzLjUzOCIvPgogICAgPHBhdGggZD0ibS0yMzEuMjQgMjg3LjM2LTE5LjE5MyAzNC4zNDUgMzUuMzU1LTMuMDMwNCIvPgogICA8L2c+CiAgPC9nPgogIDxnIGZpbGw9IiM2MThjYTgiIHN0cm9rZT0iIzE1NGU3MyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgPGcgc3Ryb2tlLXdpZHRoPSIyLjcxNDMiPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtLTE2Ni4xMS0yNDcuMzZjLTcuMTYwNiAxLjEzOC03LjIxNzEgMTAuMjU3LTUuODQ4MiAxNS44NDgtNC42MDM5IDAuMTk3NzMtMTEuMTMtMy4xNDM4LTEzLjcwNSAyLjUyMjMtMS4yNjE3IDMuNjQ2MSAyLjYwOTYgNy41MTI1IDIuODc5NSAxMC4yMDEtNC4yMTE5LTAuMzE1NTMtMTEuMzM1LTEuNDc1Ni0xMi4yNzcgNC4zNDk1LTAuOTMwNiA0LjEyNDQgMy42Njk4IDYuODI3MiA1LjI5MDYgOS42MjM3LTQuMjI4MiAxLjQ2MDktMTAuNTcxIDUuMTc0Ni03LjQ1NTQgMTAuNDQ2IDAuOTg3NDcgMi40MzggNC4xOTI1IDQuMjEzOSA0LjY4NzUgNi40Mjg2LTIuODYxNyA0LjA3LTcuNDYzNCAxMC40NDYtMi40NTU0IDE0Ljc1NCAwLjgyNDc5IDEuMTE1NiAzLjkxMDQgMC43NTk0NCAyLjEzMDQgMi42MTEzLTEuOTY1OCAzLjUwOTUtNC45MTAzIDkuMzI3NCAwLjE3NjIzIDExLjYyNyAyLjAyODcgMC45Njk1NiAxLjU1ODYgNC42OTE4IDQuMzgxMiA1LjAxMDEgNS4zMjE0IDIuMDM0MiA4Ljg2MTYtNC41MDI4IDEyLjk0Mi03LjA3OTIgMjAuNDQ5LTE4LjQgNDIuMjY3LTM2LjA3MiA2OC4xNi00Ni4xMiA0LjMxNDktMS4wNjc3IDcuMzc2Ni02LjIyNTQgNC4wMTc5LTkuOTEwNy03LjgyMjctMTIuNzg2LTIxLjUxMy0yMC42MTYtMzUuNDQ2LTI1LjA4OS02Ljk3OTgtMi4zMzYxLTE0LjMxOC0yLjkzMzYtMjEuNTE4LTMuOTI4Ni0xLjk0NDItMC41ODYwOS0zLjg1ODQtMS41NjMyLTUuOTU5OC0xLjI5NDZsLTUuM2UtNCA2ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS0zNTYuMjggODcuMTVjLTEwLjM0MiAwLjk3NDM1LTIwLjczNyAyLjM4OTMtMzEuMDQ5IDMuOTI4Ni01LjExOTIgMS44ODQ0LTEuNTk5IDcuMjU4NyAwLjI4MzYgMTAuMjIxIDYuNzYxOSAxMS4zOTQgMTIuNjk1IDIzLjM2OCAyMC4xODUgMzQuMjg4IDIuOTU0NyAzLjI2NzMgNy40MjY4LTAuMjc1MzQgNy4yOTkxLTMuOTUwOSAyLjQ0MTQtMTMuNjU0IDYuMTc2Mi0yNy4xMTMgOS41NzU5LTQwLjU4LTAuMDAxMS0zLjI3MzktMy41ODg0LTQuMzk4LTYuMjk0Ni0zLjkwNjJ2LTVlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtLTM2MC43MiAyMjguNjdjLTQuOTIxOSAwLjY0MjQ1LTQuNjI3MSA3LjU0MjYtNi42OTY0IDExLjExNi0zLjM1NTkgMTAuMzg5LTcuNDAzOSAyMC41NjMtOS43NTQ1IDMxLjIyOCAxLjI5MjMgNC45MTg2IDcuNzc5NCA1LjUxOTcgMTEuNDM1IDguMjggNi45MTIyIDMuMjk1OSAxMy40NzggNy43NyAyMC42NjMgMTAuMjc0IDQuNTU5OSAwLjgwMDUgNC43NDItNS4wNjI2IDMuMDgwOS03Ljg4NDEtNi4wMDAzLTE2LjE0MS0xMC4wNDEtMzIuODYxLTE0LjczMi00OS4zOTctMC40ODE4Mi0xLjg4NzktMS45MTg2LTMuNjE3NC0zLjk5NTUtMy42MTYxbC01ZS00IC04ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS01MC4xNS0yNzEuMzNjLTUuMTcxNCAxLjk4ODctMi41MTg5IDguOTg1MS0yLjc1MSAxMy4zNDQgMC44ODI2NiA4LjE1NyAwLjc2NDczIDE2LjUzNSAyLjEyNiAyNC41OCAzLjM5MDYgNC43ODU1IDkuNjIzMSAwLjI3MDIgMTMuOTE2LTAuNDY1ODkgNS45OTE4LTIuMjQxNSAxMi41MzItMy41MDk1IDE4LjA0OC02Ljc2NjIgMy4xOTIyLTQuOTQ5Mi0zLjc2NDMtNy44MjY2LTYuMzgzOS0xMS4wMDQtNy43MDY5LTYuNTA3OC0xNC43Mi0xNC4wODEtMjMuMTAzLTE5LjY2NS0wLjYxMTU3LTAuMTU1NzEtMS4yMzc3LTAuMTIyMjYtMS44NTI3LTAuMDIyMzJsNmUtNCAtNS45ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibTkyLjY3LTI4My45MmMtMTEuNzcxIDcuNDMzNS0yNC4yMjQgMTQuNTM5LTM1LjYwMyAyMi43NjgtMi45ODg5IDMuOTY3MiAxLjU2MzggNy4wODIxIDUuNDkxMSA2LjU0MDIgMTQuNzYyIDAuMDI5NTQgMjkuMzk0IDEuNzYyMiA0My45MDYgNC4zMzA0IDQuNDY0NS0wLjE2NzE2IDQuNDIwNC01LjcwMjEgMi4zNjYxLTguNDgyMS0zLjk0ODktOC4xNjE1LTcuMTgyNi0xNi44NDUtMTIuMzQ0LTI0LjMzLTEuMTE1Ny0xLjE3NzUtMi4zNjY4LTAuODUxNjEtMy44MTctMC44MjU4OWw4ZS00IC02LjFlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtMzQ1LjMxLTE3Ni4xMWMtMTUuMzEyIDIuNTE0NC0zMC42NTQgNS4yNDk3LTQ1LjczNyA4LjgzOTMtNC42MzkyIDMuMDY3OCAwLjAyNTIgOC4wOTIgMy4xMjY3IDEwLjA5OSAxMS43MyA5LjU5MTIgMjIuNTUyIDIwLjIwNyAzMy44MzggMzAuMTkxIDMuMDMzOCAyLjYxMzYgNy4yNTkxLTAuNTU4MyA2Ljc2MzQtNC4xNTE4IDEuOTU1OC0xMy44MzkgNC40ODQ3LTI3LjYxMSA2LjA0OTEtNDEuNDk2LTAuMjgzNzEtMi4wNDkyLTEuOTExOS0zLjY5MzMtNC4wNDAyLTMuNDgyMXY2ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibTQ0Ni41MSAxNDIuODdjLTMuMTgzIDQuNjE5Mi0xLjU2MzYgMTAuOTMtMi40OTgzIDE2LjIyNi0wLjM4ODg1IDEwLjQwNi0xLjc4ODYgMjAuODE4LTIuMSAzMS4xODQgMS40MzYgNC44MDI5IDcuMDc0NiAyLjYzODggOS42MTk1IDAuMjM5OTYgNy42NDM0LTUuMzU4OSAxNi4wMDYtMTAuMDU1IDIyLjk3OS0xNi4xNTMgMi4wMzI4LTQuNDk3NS00LjA1NzYtNy42Mi01Ljk2OTQtMTEuMjMtNS44Mjc2LTYuODg4LTExLjE5NC0xNC4yOTctMTcuNzY4LTIwLjQ2OS0xLjQxLTEuMDIzNi0yLjgzMjMtMC40MjgzNS00LjI2MzQgMC4yMDA4OWw2ZS00IDAuMDAxMTV6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtNDI4LjQzIDI3MS4xOWMtMy45OTI0IDMuNzA4LTQuMDY3NSA5Ljk2MDItNi4wNzQxIDE0LjgxNC0yLjExMyA4LjI5MDctNS41MDQ1IDE2LjIxNS03LjM0MTEgMjQuNTYxIDAuNzg2NTMgNS4yNjI2IDYuNDcxOCAzLjA1NTYgOS41NTk4IDEuNDQ4MiA1LjcxMjMtMi44NDYyIDEyLjQ3Ny00LjE3NzIgMTcuNDcxLTguMTY2OSAxLjU1My01LjM4MDQtMi4wNzE2LTEwLjc0Ny0zLjE3MTQtMTUuOTU1LTIuMjUzLTUuNDU1MS0yLjk5My0xMS45MTktNi44OTU1LTE2LjQ1Ni0wLjk3MTIzLTAuNDgyNDItMi41Mjg4LTAuNjg0NzYtMy41NDkxLTAuMjQ1NTNsNGUtNCAyLjNlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtMzk0LjQyIDM2My4yNWMtNS4xNDM1IDIuMTc2Mi01LjkyNjcgOC44Njc4LTkuMDk3MiAxMi45ODQtNS4zNjUgMTAuMTYzLTEyLjAxNyAxOS41ODQtMTcuNzMzIDI5LjUzOC0wLjY4OTUzIDUuMjQxMSA1LjQzMTcgNC45MjIyIDguOTI4NiA0LjU3NTkgMTEuMTkxLTAuOTk5NzkgMjIuNTk0LTAuNDI4NDcgMzMuNjYxLTIuMTIwNSA1LjMyNTUtMi4wNDU3IDEuMzgzNi04LjE2NjMgMC4yOTI0Ni0xMS43NjUtNC4yMjMyLTEwLjcyNy03LjU1ODQtMjEuOTYyLTEyLjc0OC0zMi4yMy0wLjg1OTE1LTAuODM5OTYtMi4xMzM0LTEuMTYzNi0zLjMwMzYtMC45ODIxNGwtMi42ZS00IC0yLjZlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtMzI4LjE3IDQ1NC4yN2MtNi45MzEyIDMuNTgwNy0xMS42MjQgMTAuMjk1LTE3Ljg2IDE0LjkzNC03LjQ3MyA3LjA2MzEtMTYuNTcxIDEyLjI3OC0yMy43NyAxOS42Mi0xLjk5NzQgMy40ODMzIDIuNTQ0MyA2Ljk0MjEgNi4wOTM4IDUuOTM3NSAxMS43MTktMC44OTUwMSAyMy40NjctMS43MDQxIDM1LjEzNC0zLjA4MDQgNC44MTgyLTIuMzQzOCAyLjU1LTguODU5NSAzLjYwMy0xMy4zNjYgMC4yNTYyNC02LjkyMjMgMS4zNTU3LTEzLjg1MiAxLjQ2NC0yMC43NDEtMC4zNTY0Mi0yLjE0OC0yLjUwNy0zLjcwNTItNC42NjUyLTMuMzAzNmw0ZS00IC01ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibTE2NC42MiA1NDAuODNjLTE3Ljg2NCAzLjY1NDgtMzUuODY2IDYuNTMxNS01My44ODQgOS4yODU3LTMuOTU0NSAwLjA0Ni02LjEyNzIgNS40NTM3LTIuMzY2MSA3LjYxMTYgMTEuOTMxIDkuMzgyNyAyMy45ODUgMTkuMDAxIDM2Ljc2MyAyNy4yOTkgNS40MzQxIDEuMDY4OCA2LjMyNDktNi4xMjYgOC44MzAyLTkuMzYzNCA1LjE4ODctMTAuMTk2IDEwLjk2LTIwLjExOCAxNS4zNjYtMzAuNjU5IDAuMzg2ODMtMi42MzQ4LTIuMTc1LTQuNzc0My00LjcwOTgtNC4xNzQxbDdlLTQgMmUtNHoiIGxhYmVsPSJFYmVuZSAxIi8+CiAgICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0tNzYuOTggNTI0LjI1Yy00LjE3MjggMC4xNjEwMi00LjUwMTQgNS42MzUxLTEuNTYyNSA3LjcyMzIgOS45MTA1IDEyLjUzNyAxOS43MDIgMjUuMjIxIDMwLjM1NyAzNy4wOTggNC44OTE3IDIuMzg4MiA3LjY3My0zLjk1OSAxMS4wNjYtNi4zMDYgNi40MjIzLTYuNTkyNSAxMy4zNjktMTIuNzgxIDE5LjE4LTE5Ljg5OSAxLjY1NzctNC40NjYxLTMuNzkwMS01LjUwMDItNi45NjQzLTUuODI1OS0xNy4xODUtMy41OTcyLTM0LjEwOS04LjQ5MzctNTEuMTM4LTEyLjc5bC0wLjI5MDE4LTAuMDIyMy0wLjY0NzMyIDAuMDIyMy03ZS00IC0zZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS0yNzkuMDggMzk4LjYyYy0yLjgwMyA0LjI4MjktMC4zNzkwNCA5Ljg3MTUtMC44ODUzNCAxNC42ODcgMC42MTQzNiA4LjM0NDkgMC4yMzcwOCAxNi44ODYgMS41OTk2IDI1LjExMiAzLjE4ODIgNC4wNzE4IDkuMDc1MyAxLjE2OTkgMTMuNDEzIDEuNTc0MyA3LjAwMjgtMC42NDU4NCAxNC4wNTEtMS4wMzQ4IDIxLjAyOS0xLjgxOTkgNC43NDM5LTIuMzk1NSAxLjA0NS03LjE3NDEtMS41NTUzLTkuNTY1Ni05LjY5NDgtOS45NzI5LTE5LjMxNy0xOS45NjktMjguOTgtMjkuOTQzLTEuNDMxMy0xLjIzNTEtMy4wODcyLTAuODQ3NDMtNC42MjA1LTAuMDQ0NmwtNC42ZS00IC0yZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgPC9nPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im00NDMtNjYuOTY2Yy0yNy45OSAwLjI4MTM5LTUzLjY1NCAxMi45NjUtNzcuNjM0IDI2LjEzOC00LjQzODMgMS45MzMxLTIuNTg2MiA3LjAyNzktMC44MjU4OSAxMC4yMjMgMTEuOTcyIDMxLjE5OCAxNi42MzcgNjQuNjU4IDE5LjY2NSA5Ny45MDIgMS4xMDA2IDguMDg2NyAxLjAxNSAxNi40MSAyLjk5MTEgMjQuMzMgMi42NzI2IDUuMDI1MyA4LjgzOSAwLjA1NyAxMi44NTItMS4xNDYyIDI1Ljg0OC0xMC42MjcgNTMuMTgzLTIyLjc3OCA4MS44MzUtMTguNDc0IDYuNDQyMiAwLjQ5NjYzIDEyLjU4NSAzLjQ5MzYgMTguOTk2IDMuMjU4OSA0Ljk1NDgtMy4yMjE2IDEyLjQ2OS00LjUxNjIgMTQuOTMzLTEwLjQ2OSAwLjMxODYxLTUuNDU3Ni02LjYxMzktNS42ODI2LTEwLjQyNC02Ljk0Mi0yLjkzNDYtMC44MDAxLTYuMzI4OC0wLjkyMjIyLTkuMDE3OS0xLjk4NjYgMy44NTc1LTIuMTE3NyAxMS4xOTQtMy4zMzk1IDEwLjI0Ni05LjI4NTctMS41MTIyLTQuOTYyLTguMTY4NC01Ljk2NjgtMTEuMDk0LTguOTczMiAzLjkyOTItMi4wNzc1IDEwLjg0MS00LjY5NjggOC43MDU0LTEwLjQyNC0xLjY4MzItNC4zNzU3LTYuNzI1My03LjIxOTItOC42MTYxLTEwLjg5MyAzLjUxMzUtMy4zOTY4IDEwLjIzMS02LjIwMDkgOS4zNzUtMTIuMDMxLTIuMjQ4OS01LjcxODktOC43MDkxLTguMTU1OS0xMi43MjMtMTIuMDk4IDAuNjM3NTYtNS4zNjM4IDYuODY3Mi04LjgzMDMgNi4yNzIzLTE0LjM1My0yLjM2NjYtNC45MzItOS43MjQtMi42NDc5LTEzLjEyNS01LjA0NDYgMS41NjkyLTQuNDMxOCA2LjgyMjUtOC4wODk1IDUuNDI0MS0xMy4xNy0zLjM1NTctNC4xNjg1LTkuNTc1LTEuODEyMy0xNC4xOTYtMi44MTI1IDUuOTAwOC0yLjc0MzcgMTMuNzg2LTMuODQyMiAxNy40MTEtOS44NjYxIDEuNzQwNC01Ljg4NjktNS41MzI5LTguMjg4NC05LjkzMy05LjIxODgtMTMuNDU0LTMuMDg3My0yNy4yODktNC45MjM0LTQxLjExNi00LjY2NTJsLTAuMDAxMDEgMWUtM3oiIHN0cm9rZS13aWR0aD0iMS45Mzg4IiBsYWJlbD0iRWJlbmUgMSIvPgogIDwvZz4KICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0zNjIuODgtMzguMzQ0YzM4LjQwMy0yMC4yOTcgNjcuNDM3LTM2LjAwNiAxMTkuMi0yNC4yNDQgMTIuNjkzLTAuMTM5MDkgMjguMTQ1IDExLjY5OC00LjA0MDYgMjAuMjAzIDE4LjE4My0wLjY3MzQ0IDIwLjU0IDAuNjczNDQgOS4wOTE0IDE2LjE2MiAyNy4zNTQgMi41MDU1IDkuMDI0NiA5LjM2MDYgNy4wNzExIDE5LjE5MyAxOC4zMzQgMTEuMTggMTcuMDA0IDE1Ljc1NiAzLjAzMDUgMjQuMjQ0IDcuMTcxNyA1LjcyNDIgMTguNTE5IDE1LjQ4OSAwIDIxLjIxMyAxNi42NzIgNy40MjIyIDE2LjY2MiAxMy40NTQgMS4wMTAyIDE4LjE4MyAyOC40NjIgMy44NDQ3IDI1LjY5MiAxMC45NzcgMy4wMzA1IDIwLjIwMy00Mi45OTItMTMuODU5LTc2Ljg2NCA1LjcyMzgtMTEyLjEzIDIwLjIwM3YxLjAxMDJjLTQuOTYtNDUuNDU2LTUuOTktOTAuOTEzLTI2LjI2LTEzNi4zN2wtMC4wMDMxLTJlLTR6IiBmaWxsPSJub25lIiBzdHJva2U9IiMxNTRlNzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSI3LjMiIGxhYmVsPSJFYmVuZSAxIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5My4yNyAyODYuODEpIiBzdHJva2U9IiMxNTRlNzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgbGFiZWw9IkViZW5lIDEiPgogICA8ZyBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjQuNyI+CiAgICA8cGF0aCBkPSJtLTUwLjAwOS0yMzMuNjMtMy4wMzA1LTQxLjQxNiAzNy4zNzYgMzMuMzM1Ii8+CiAgICA8cGF0aCBkPSJtNTAuMDk4LTI1Ni4xOCA0NS40NTctMjguMjg0IDE3LjE3MyAzNi4zNjUiLz4KICAgIDxwYXRoIGQ9Im0xNTYuMjQtMjM3LjY4IDYwLjYwOS0xOC4xODMgMTIuMTIyIDQ4LjQ4NyIvPgogICAgPHBhdGggZD0ibTI5NC40OC0xNjUuNzggNTQuNTQ4LTEwLjEwMi04LjA4MTIgNTIuNTI4Ii8+CiAgICA8cGF0aCBkPSJtLTI4Ni4yMS00OS40NC00Ny40NzcgMTAuMTAyIDE2LjE2MiA0MS40MTYiLz4KICAgIDxwYXRoIGQ9Im0tMzUxLjUyIDg3LjQyLTM5LjM5NiA1LjA1MDggMjcuMjc0IDQ3LjQ3NyIvPgogICAgPHBhdGggZD0ibTQ0NC40MyAxMzcuODljNS44MDM0IDMuMDI2MyAzMC43MzYgMzUuMzE1IDMwLjczNiAzNS4zMTVsLTMyLjQ5OSAyMi4xOTMiLz4KICAgIDxwYXRoIGQ9Im00MjkuNjcgMjYzLjg4IDEzLjEzMiAzOS4zOTYtMjkuMjk0IDEyLjEyMiIvPgogICAgPHBhdGggZD0ibTM5Ni40MSAzNjIuMTEgMTcuMTczIDQ1LjQ1Ny00Ni40NjcgMi4wMjAzIi8+CiAgICA8cGF0aCBkPSJtLTM2MS43MyAyMjQuNzMtMTUuMTUyIDQ3LjQ3NyAzNi4zNjUgMTkuMTkzIi8+CiAgICA8cGF0aCBkPSJtLTI3OS43MyAzOTYuNDYgMi4wMjAzIDQzLjQzNyAzOC4zODYtMy4wMzA1Ii8+CiAgICA8cGF0aCBkPSJtLTg0Ljc3MyA1MjIuODMgMzguMzg2IDQ3LjQ3NyAyOC4yODQtMjguMjg0Ii8+CiAgICA8cGF0aCBkPSJtMTAzLjEyIDU1Mi43OCA0NC40NDcgMzMuMzM1IDIzLjIzNC00NS40NTciLz4KICAgIDxwYXRoIGQ9Im0yNzkuODIgNDk0Ljc5IDQ5LjQ5Ny00LjA0MDYgMy4wMzA1LTM5LjM5NiIvPgogICA8L2c+CiAgIDxnIGZpbHRlcj0idXJsKCNpbWFnZWJvdF8xMCkiIG9wYWNpdHk9Ii44ODMzMyIgc3Ryb2tlLXdpZHRoPSIyLjkiPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTQ2KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTU0ZTczIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMi45Ij4KICAgICA8cGF0aCBkPSJtMjI1Ljg0LTYuNTk1NmMyOC41OS0zMS43MiA2Ni40NjgtMzcuMDg1IDEwMC4wMS0zNi4zNjUiLz4KICAgICA8cGF0aCBkPSJtMjMwLjg5IDEzLjYwOGMyOS44MzMtMjkuNjM4IDY5LjY1Ni0zOC45MDEgMTA3LjA4LTMxLjMxNSIvPgogICAgIDxwYXRoIGQ9Im0yMzYuOTUgNDUuOTMyYzI5LjI4LTMwLjU2NSA2Ni45My0zMC40OCAxMDQuMDQtMzIuMzI0Ii8+CiAgICAgPHBhdGggZD0ibTIzNy45NiA2Ni4xMzVjMTcuNDUtOS45NjYgMTcuNTYtMzUuMjg2IDk1Ljk2LTIzLjIzMyIvPgogICAgIDxwYXRoIGQ9Im0yMjAuNzktMjcuODA5YzI1LjM4Mi0yMS40NiA2MS40My0zNC4xMTggMTAwLjAxLTM0LjM0NSIvPgogICAgPC9nPgogICA8L2c+CiAgPC9nPgogIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS0xNTQuMzUtMjMxLjI3YzEyLjkyNyA3LjIyNDYgMzIuMDkgOS43NzI5IDM1LjM1NSAyNC4yNDRtLTYwLjYwOS0xOS4xOTNjMTMuOTggOS43OTkyIDM1Ljk4MyA5LjU2OSA0MC40MDYgMzEuMzE1bS00OC40ODctMy4wMzA1YzguNjIxOCA2LjA2OTggMTUuMjU0IDIuMTkgMjYuMjY0IDIwLjIwM2wyLjAyMDMgMS4wMTAyIiBmaWxsPSJub25lIiBmaWx0ZXI9InVybCgjaW1hZ2Vib3RfNykiIHN0cm9rZT0iIzE1NGU3MyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjMuNCIgbGFiZWw9IkViZW5lIDEiLz4KICA8dGl0bGU+RWJlbmUgMTwvdGl0bGU+CiAgPHBhdGggdHJhbnNmb3JtPSJtYXRyaXgoMS42MTA1IC41MzMwOSAtLjUzMzA5IDEuNjEwNSAyNDkuNTQgLTQ5Ny4zMikiIGQ9Im0yNDAuOSAzNjMuODVjMCAxOS43MTgtMTUuOTg1IDM1LjcwMy0zNS43MDMgMzUuNzAzLTE5LjcxOCAwLTM1LjcwMy0xNS45ODUtMzUuNzAzLTM1LjcwMyAwLTE5LjcxOCAxNS45ODUtMzUuNzAzIDM1LjcwMy0zNS43MDMgMTkuNzE4IDAgMzUuNzAzIDE1Ljk4NSAzNS43MDMgMzUuNzAzeiIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iLjYxNDk3IiBzdHJva2Utd2lkdGg9IjUuNyIgbGFiZWw9IkNhcGEgMSIvPgogIDxwYXRoIHRyYW5zZm9ybT0ibWF0cml4KDEuNjEwNSAuNTMzMDkgLS41MzMwOSAxLjYxMDUgMjQ5LjU0IC00OTcuMzIpIiBkPSJtMzM2LjczIDM2My44NWMwIDE5LjcxOC0xNS45ODUgMzUuNzAzLTM1LjcwMyAzNS43MDMtMTkuNzE4IDAtMzUuNzAzLTE1Ljk4NS0zNS43MDMtMzUuNzAzIDAtMTkuNzE4IDE1Ljk4NS0zNS43MDMgMzUuNzAzLTM1LjcwMyAxOS43MTggMCAzNS43MDMgMTUuOTg1IDM1LjcwMyAzNS43MDN6IiBmaWxsPSIjZmZmIiBzdHJva2U9InVybCgjaW1hZ2Vib3RfMTI0KSIgc3Ryb2tlLW9wYWNpdHk9Ii42MTQ5NyIgc3Ryb2tlLXdpZHRoPSI1LjciIGxhYmVsPSJDYXBhIDEiLz4KICA8cGF0aCB0cmFuc2Zvcm09Im1hdHJpeCgxLjYzMzkgLjU0MDgxIC0uNTQwODEgMS42MzM5IDE4Mi4xOSAtNDE0LjM5KSIgZD0ibTI0NC4yOSAzMDYuNTRjMCA2Ljc0NTgtNS44MDUxIDEyLjIxNC0xMi45NjYgMTIuMjE0cy0xMi45NjYtNS40Njg1LTEyLjk2Ni0xMi4yMTQgNS44MDUtMTIuMjE0IDEyLjk2Ni0xMi4yMTQgMTIuOTY2IDUuNDY4NSAxMi45NjYgMTIuMjE0eiIgb3BhY2l0eT0iLjgzODU3IiBsYWJlbD0iQ2FwYSAxIi8+CiAgPHBhdGggdHJhbnNmb3JtPSJtYXRyaXgoMS42MzM5IC41NDA4MSAtLjU0MDgxIDEuNjMzOSAzMzcuMTIgLTM2My4xMSkiIGQ9Im0yNDQuMjkgMzA2LjU0YzAgNi43NDU4LTUuODA1MSAxMi4yMTQtMTIuOTY2IDEyLjIxNHMtMTIuOTY2LTUuNDY4NS0xMi45NjYtMTIuMjE0IDUuODA1LTEyLjIxNCAxMi45NjYtMTIuMjE0IDEyLjk2NiA1LjQ2ODUgMTIuOTY2IDEyLjIxNHoiIG9wYWNpdHk9Ii44Mzg1NyIgbGFiZWw9IkNhcGEgMSIvPgogIDxwYXRoIHRyYW5zZm9ybT0icm90YXRlKDIxLjIwNiA0MjYuMTIgMzQyLjU0KSBtYXRyaXgoNi4wNjI1IDAgMCA2LjA2MjUgMjU4LjQ2IDE3Mi4xOSkiIGQ9Im00MC4yMjUgMzMuMDU1Yy00Ljk0NTQtNy44MjI3LTcuMzg3Ni0xMC41NzktMTIuNjg2LTEwLjU3OS01LjE4MTMgMC04LjYzMjQgMy4xNzEyLTEyLjQ1MSAxMS4yNDMgNC41NTk5LTQuNDEyNiA3LjA1MTktNi44NTYxIDEyLjA5OS02Ljg1NjEgNC45Mjk4IDAgNy42MzgxIDEuOTczOSAxMy4wMzggNi4xOTE5eiIgZmlsbD0idXJsKCNpbWFnZWJvdF8xNTMpIiBsYWJlbD0iTGF5ZXIgMSIvPgogPC9nPgo8L3N2Zz4K ng-src=\"/api/v2/cms/contents/mb-preloading-brand/content\"> <h3>Loading...</h3> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div>"
+  );
+
+
+  $templateCache.put('views/partials/mb-view-login.html',
+    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div>"
+  );
+
+
+  $templateCache.put('views/partials/mb-view-main.html',
+    "<div id=mb-view-main mb-panel-sidenav-anchor layout=row style=\"height: 100vh; width: 100vw\"> <div layout=column flex> <div mb-panel-toolbar-anchor></div> <div layout=row flex id=mb-view-main-anchor></div> </div> </div>"
+  );
+
+
   $templateCache.put('views/preferences/mb-brand.html',
     "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.favicon> </wb-ui-setting-image> </div>"
   );
@@ -11092,11 +12238,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/resources/mb-cms-modules.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
   $templateCache.put('views/resources/mb-groups.html',
     "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
   );
@@ -11107,13 +12248,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/resources/mb-module-common.html',
-    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <md-content layout=column flex> <md-list flex> <md-list-item ng-repeat=\"module in modules\" ng-click=\"multi || resourceCtrl.toggleSelected(module)\" class=md-3-line> <wb-icon>label</wb-icon> <div class=md-list-item-text layout=column> <h3>{{module.title}}</h3> <p>{{module.description}}</p> <p>{{module.version}}</p> </div> <md-checkbox class=md-secondary ng-init=\"module.selected = resourceCtrl.isSelected(module)\" ng-model=module.selected ng-click=\"resourceCtrl.setSelected(module, module.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
+  $templateCache.put('views/resources/mb-module-cms.html',
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> <div id=extra-config> <md-input-container> <label translate=\"\">Load Type</label> <md-select ng-change=ctrl.setLoadType(ctrl.loadType) ng-model=ctrl.loadType> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </div> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-module-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Description</label> <input ng-model=module.description> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Logo</label> <input ng-model=module.logo> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>type</label> <input ng-model=module.type required> </md-input-container> </md-content>"
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
   );
 
 

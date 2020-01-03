@@ -1,71 +1,58 @@
 <!DOCTYPE html>
 <html class="no-js" ng-app="app">
 <head>
-<meta charset="utf-8">
-<title>Angular Material Dashboard</title>
-<meta name="description" content="Angular admin dashboard with material design">
-<meta name="author" content="flatlogic.com">
-<meta name="viewport" content="width=device-width">
-<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-<!--  Tells to crawler that do not index this page and do not follow its links -->
-<meta name="robots" content="noindex, nofollow">
+	<title>Angular Material Dashboard</title>
+	<meta charset="utf-8">
+	<meta name="description" content="Angular admin dashboard with material design">
+	<meta name="author" content="flatlogic.com">
+	<meta name="viewport" content="width=device-width">
+	<meta name="robots" content="noindex, nofollow">
 
-<!--  injector:base -->
-<base href="/">
-<!--  endinjector  -->
+	<!--  injector:base -->
+	<base href="/">
+	<!--  endinjector  -->
 
-<!-- build:css({.tmp/serve,src}) styles/vendor.css -->
-<!-- bower:css -->
-<link rel="stylesheet" href="bower_components/jspanel4x/dist/jspanel.css" />
-<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
-<link rel="stylesheet" href="bower_components/md-color-picker/dist/md-color-picker.css" />
-<link rel="stylesheet" href="bower_components/am-wb-core/dist/am-wb-core.css" />
-<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
-<link rel="stylesheet" href="bower_components/am-wb-seen-core/dist/am-wb-seen-core.css" />
-<link rel="stylesheet" href="bower_components/material-steppers/dist/material-steppers.css" />
-<!-- endbower -->
-<!-- endbuild -->
-
-<!-- build:css({.tmp/serve,src}) styles/app.css -->
-<!-- injector:css -->
-<link rel="stylesheet" href="styles/angular-material-common.css">
-<link rel="stylesheet" href="styles/angular-material-icon.css">
-<link rel="stylesheet" href="styles/angular-material.css">
-<link rel="stylesheet" href="styles/badge.css">
-<link rel="stylesheet" href="styles/container.css">
-<link rel="stylesheet" href="styles/dialogs.css">
-<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
-<link rel="stylesheet" href="styles/infinate-scroll.css">
-<link rel="stylesheet" href="styles/inline.css">
-<link rel="stylesheet" href="styles/main.css">
-<link rel="stylesheet" href="styles/navigation-path-bar.css">
-<link rel="stylesheet" href="styles/preload.css">
-<link rel="stylesheet" href="styles/print.css">
-<link rel="stylesheet" href="styles/sidenave.css">
-<link rel="stylesheet" href="styles/tables.css">
-<link rel="stylesheet" href="styles/tree.css">
-<link rel="stylesheet" href="styles/user-menu.css">
-<link rel="stylesheet" href="styles/test-preloader.css">
-<!-- endinjector -->
-<!-- endbuild -->
-</head>
-<body md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
-	md-theme-watch
-	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-	dir="{{app.dir}}">
-	<!--[if lt IE 10]>
-      <p>You are using an <strong>outdated</strong> browser. Please
-        <a href="http://browsehappy.com/">upgrade your browser</a>
-        to improve your experience.</p>
-    <![endif]-->
-	<mb-panel>
-	</mb-panel>
+	<!-- build:css({.tmp/serve,src}) styles/vendor.css -->
+	<!-- bower:css -->
+	<link rel="stylesheet" href="bower_components/jspanel4x/dist/jspanel.css" />
+	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
+	<link rel="stylesheet" href="bower_components/md-color-picker/dist/md-color-picker.css" />
+	<link rel="stylesheet" href="bower_components/am-wb-core/dist/am-wb-core.css" />
+	<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
+	<link rel="stylesheet" href="bower_components/am-wb-seen-core/dist/am-wb-seen-core.css" />
+	<link rel="stylesheet" href="bower_components/material-steppers/dist/material-steppers.css" />
+	<!-- endbower -->
+	<!-- endbuild -->
+	
+	<!-- build:css({.tmp/serve,src}) styles/app.css -->
+	<!-- injector:css -->
+	<link rel="stylesheet" href="styles/angular-material-common.css">
+	<link rel="stylesheet" href="styles/angular-material-icon.css">
+	<link rel="stylesheet" href="styles/angular-material.css">
+	<link rel="stylesheet" href="styles/badge.css">
+	<link rel="stylesheet" href="styles/container.css">
+	<link rel="stylesheet" href="styles/dialogs.css">
+	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
+	<link rel="stylesheet" href="styles/infinate-scroll.css">
+	<link rel="stylesheet" href="styles/inline.css">
+	<link rel="stylesheet" href="styles/main.css">
+	<link rel="stylesheet" href="styles/navigation-path-bar.css">
+	<link rel="stylesheet" href="styles/preload.css">
+	<link rel="stylesheet" href="styles/print.css">
+	<link rel="stylesheet" href="styles/sidenave.css">
+	<link rel="stylesheet" href="styles/tables.css">
+	<link rel="stylesheet" href="styles/tree.css">
+	<link rel="stylesheet" href="styles/user-menu.css">
+	<link rel="stylesheet" href="styles/test-preloader.css">
+	<!-- endinjector -->
+	<!-- endbuild -->
 
 	<!-- build:js(src) scripts/vendor.js -->
 	<!-- bower:js -->
 	<script src="bower_components/jquery/dist/jquery.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+	<script src="bower_components/angular-route/angular-route.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/moment-jalaali/build/moment-jalaali.js"></script>
 	<script src="bower_components/mustache.js/mustache.js"></script>
@@ -87,7 +74,6 @@
 	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/md-color-picker/dist/md-color-picker.js"></script>
 	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-	<script src="bower_components/angular-route/angular-route.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
 	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
@@ -156,7 +142,6 @@
 	<script src="scripts/directives/mb-pagination-bar.js"></script>
 	<script src="scripts/directives/mb-panel-sidenav-anchor.js"></script>
 	<script src="scripts/directives/mb-panel-toolbar-anchor.js"></script>
-	<script src="scripts/directives/mb-panel.js"></script>
 	<script src="scripts/directives/mb-pay.js"></script>
 	<script src="scripts/directives/mb-preference-page.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
@@ -167,6 +152,7 @@
 	<script src="scripts/directives/mb-tree.js"></script>
 	<script src="scripts/directives/mb-user-menu.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
+	<script src="scripts/directives/mb-view.js"></script>
 	<script src="scripts/factories/Action.js"></script>
 	<script src="scripts/factories/ActionGroup.js"></script>
 	<script src="scripts/factories/Event.js"></script>
@@ -197,6 +183,7 @@
 	<script src="scripts/services/options.js"></script>
 	<script src="scripts/services/page.js"></script>
 	<script src="scripts/services/preferences.js"></script>
+	<script src="scripts/services/route.js"></script>
 	<script src="scripts/services/sidenav.js"></script>
 	<script src="scripts/services/toolbar.js"></script>
 	<script src="scripts/test-app.js"></script>
@@ -219,6 +206,15 @@
 	<script src="scripts/test-runs/test-app.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
+</head>
+<body 
+	md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
+	md-theme-watch
+	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
+	dir="{{app.dir}}"
+	layout="column"
+	mb-view
+	style="height: 100vh; width: 100vw;">
 </body>
 </html>
 

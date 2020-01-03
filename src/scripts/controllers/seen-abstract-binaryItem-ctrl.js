@@ -39,7 +39,7 @@ angular.module('mblowfish-core')//
  * 
  */
 .controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    'use strict';
+    
 
     /*
      * Extends collection controller from MbAbstractCtrl 

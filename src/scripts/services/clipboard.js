@@ -22,7 +22,7 @@
 angular.module('mblowfish-core') //
 
 .service('$clipboard', function () {
-    'use strict';
+    
     this.copyTo = function (model) {
         /*
          * TODO: Masood, 2019: There is also another solution but now it doesn't

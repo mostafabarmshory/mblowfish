@@ -33,7 +33,7 @@ angular.module('mblowfish-core')//
  * 
  */
 .controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
-	'use strict';
+	
 
 	this._hids = [];
 

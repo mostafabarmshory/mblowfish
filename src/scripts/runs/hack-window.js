@@ -25,7 +25,7 @@ angular.module('mblowfish-core')
  * دریچه‌های محاوره‌ای
  */
 .run(function($notification, $help) {
-	'use strict';
+	
 
     /*
      * Display help for an item

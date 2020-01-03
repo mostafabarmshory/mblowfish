@@ -11,25 +11,24 @@
 	<md-input-container 
 		class="md-icon-float md-icon-right md-block"
 		required>
-		<label translate>Description</label>
-		<input ng-model="module.description">
-	</md-input-container>
-	<md-input-container 
-		class="md-icon-float md-icon-right md-block"
-		required>
 		<label translate>URL</label>
 		<input ng-model="module.url" required="true">
 	</md-input-container>
 	<md-input-container 
 		class="md-icon-float md-icon-right md-block"
 		required>
-		<label translate>Logo</label>
-		<input ng-model="module.logo">
+		<label translate>Type</label>
+		<input ng-model="module.type" required="true" placeholder="js, css">
 	</md-input-container>
-	<md-input-container 
-		class="md-icon-float md-icon-right md-block"
-		required>
-		<label translate>type</label>
-		<input ng-model="module.type" required="true">
+	<md-input-container
+		class="md-block">
+		<label>Load type</label>
+		<md-select 
+			ng-model="module.load">
+			<md-option translate="">None</md-option>
+			<md-option ng-value="'before'" translate="">Before Page Load</md-option>
+			<md-option ng-value="'lazy'" translate="">Lazy Load</md-option>
+			<md-option ng-value="'after'" translate="">After Page Load</md-option>
+		</md-select>
 	</md-input-container>
 </md-content>

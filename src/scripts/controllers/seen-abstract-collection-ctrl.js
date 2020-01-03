@@ -59,7 +59,7 @@ angular.module('mblowfish-core')//
  * - addViewItem: view
  */
 .controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    'use strict';
+    
 
     /*
      * Extends collection controller from MbAbstractCtrl 
