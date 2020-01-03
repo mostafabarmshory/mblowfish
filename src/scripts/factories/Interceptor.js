@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
  */
 .factory('MbHttpRequestInterceptor', function ($q, $injector) {
-	'use strict';
+	
 	var httpRequestInterceptor = function(){};
 	httpRequestInterceptor.prototype.responseError = function (rejection) {
 		var app = $injector.get('$app');

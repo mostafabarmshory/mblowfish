@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
 	// Change moment's locale so the 'L'-format is adjusted.

@@ -21,7 +21,7 @@
  */
 
 angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
-	'use strict';
+	
 	
 	/*
 	 * format date based on application settings

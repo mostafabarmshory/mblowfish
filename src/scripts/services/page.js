@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+
 
 // TODO: hadi: move it to new module angular-material-home-seo
 angular.module('mblowfish-core')
