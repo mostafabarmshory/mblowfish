@@ -429,7 +429,7 @@ angular.module('mblowfish-core')//
     /**
      * Loads and init the controller
      * 
-     * All childs must call this function at the end of the cycle
+     * All children must call this function at the end of the cycle
      */
     this.init = function(configs){
         if(angular.isFunction(this.seen_abstract_collection_superInit)){
@@ -446,7 +446,7 @@ angular.module('mblowfish-core')//
             this.addActions(configs.actions)
         }
 
-        // enable create action
+        // DEPRECATED: enable create action
         if(configs.addAction && angular.isFunction(this.addItem)){
             var temp = configs.addAction;
             var createAction = {
