@@ -2514,7 +2514,7 @@ angular.module('mblowfish-core')//
     /**
      * Loads and init the controller
      * 
-     * All childs must call this function at the end of the cycle
+     * All children must call this function at the end of the cycle
      */
     this.init = function(configs){
         if(angular.isFunction(this.seen_abstract_collection_superInit)){
@@ -2531,7 +2531,7 @@ angular.module('mblowfish-core')//
             this.addActions(configs.actions)
         }
 
-        // enable create action
+        // DEPRECATED: enable create action
         if(configs.addAction && angular.isFunction(this.addItem)){
             var temp = configs.addAction;
             var createAction = {
@@ -8333,135 +8333,139 @@ angular.module('mblowfish-core')
  * 
  */
 .service('$actions', function(
-		/* angularjs */ $window,
-		/* mb        */ Action, ActionGroup, WbObservableObject) {
+        /* angularjs */ $window,
+        /* mb        */ Action, ActionGroup, WbObservableObject) {
 
-	// extend from observable object
-	angular.extend(this, WbObservableObject.prototype);
-	WbObservableObject.apply(this);
+    // extend from observable object
+    angular.extend(this, WbObservableObject.prototype);
+    WbObservableObject.apply(this);
 
-	this.actionsList = [];
-	this.actionsMap = {};
+    this.actionsList = [];
+    this.actionsMap = {};
 
-	this.groupsList = [];
-	this.groupsMap = [];
+    this.groupsList = [];
+    this.groupsMap = [];
 
-	this.actions = function () {
-		return {
-			'items' : this.actionsList
-		};
-	}
+    this.actions = function () {
+        return {
+            'items' : this.actionsList
+        };
+    }
 
-	// TODO: maso, 2018: add document
-	this.newAction = function (data) {
-		// Add new action
-		var action = new Action(data);
-		// remove old one
-		var oldaction = this.action(action.id);
-		if(oldaction){
-			this.removeAction(oldaction);
-		}
-		// add new one
-		this.actionsMap[action.id] = action;
-		this.actionsList.push(action);
-		if (action.scope) {
-			var service = this;
-			action.scope.$on('$destroy', function() {
-				service.removeAction(action);
-			});
-		}
-		this.updateAddByItem(action);
-		this.fire('actionsChanged', {
-			value: action,
-			oldValue: oldaction
-		});
-		return action;
-	};
-	
-	/**
-	 * gets action with id
-	 */
-	this.getAction = function (actionId) {
-		var action = this.actionsMap[actionId];
-		if (action) {
-			return action;
-		}
-	};
+    // TODO: maso, 2018: add document
+    this.newAction = function (data) {
+        // Add new action
+        var action = new Action(data);
+        // remove old one
+        var oldaction = this.action(action.id);
+        if(oldaction){
+            this.removeAction(oldaction);
+        }
+        // add new one
+        this.actionsMap[action.id] = action;
+        this.actionsList.push(action);
+        if (action.scope) {
+            var service = this;
+            action.scope.$on('$destroy', function() {
+                service.removeAction(action);
+            });
+        }
+        this.updateAddByItem(action);
+        this.fire('actionsChanged', {
+            value: action,
+            oldValue: oldaction
+        });
+        return action;
+    };
 
-	// TODO: maso, 2018: add document
-	this.action = this.getAction;
+    /**
+     * gets action with id
+     */
+    this.getAction = function (actionId) {
+        var action = this.actionsMap[actionId];
+        if (action) {
+            return action;
+        }
+    };
 
-	// TODO: maso, 2018: add document
-	this.removeAction = function (action) {
-		this.actionsMap[action.id] = null;
-		var index = this.actionsList.indexOf(action);
-		if (index > -1) {
-			this.actionsList.splice(index, 1);
-			this.updateRemoveByItem(action);
-			this.fire('actionsChanged', {
-				value: undefined,
-				oldValue: action
-			});
-			return action;
-		}
-	};
+    // TODO: maso, 2018: add document
+    this.action = this.getAction;
 
-	// TODO: maso, 2018: add document
-	this.groups = function() {
-		return {
-			'items' : this.groupsList
-		};
-	};
+    // TODO: maso, 2018: add document
+    this.removeAction = function (action) {
+        this.actionsMap[action.id] = null;
+        var index = this.actionsList.indexOf(action);
+        if (index > -1) {
+            this.actionsList.splice(index, 1);
+            this.updateRemoveByItem(action);
+            this.fire('actionsChanged', {
+                value: undefined,
+                oldValue: action
+            });
+            return action;
+        }
+    };
 
-	// TODO: maso, 2018: add document
-	this.newGroup = function(groupData) {
-		// TODO: maso, 2018: assert id
-		return this.group(groupData.id, groupData);
-	};
+    // TODO: maso, 2018: add document
+    this.groups = function() {
+        return {
+            'items' : this.groupsList
+        };
+    };
 
-	// TODO: maso, 2018: add document
-	this.group = function (groupId, groupData) {
-		var group = this.groupsMap[groupId];
-		if (!group) {
-			group = new ActionGroup(groupData);
-			group.id = groupId;
-			// TODO: maso, 2019: just use group map and remove groupList
-			this.groupsMap[group.id] = group;
-			this.groupsList.push(group);
-			this.updateAddByItem(group);
-		}else if (groupData) {
-			angular.extend(group, groupData);
-		}
-		this.fire('groupsChanged', {
-			value: group
-		});
-		return group;
-	};
-	
-	this.updateAddByItem = function(item){
-		var groups = item.groups || [];
-		for (var i = 0; i < groups.length; i++) {
-			var group = this.group(groups[i]);
-			group.addItem(item);
-		}
-	};
-	
-	this.updateRemoveByItem = function(item){
-		var groups = item.groups || [];
-		for (var i = 0; i < groups.length; i++) {
-			var group = this.group(groups[i]);
-			group.removeItem(item);
-		}
-	};
-	
-	this.exec = function(actionId, $event){
-		var action = this.getAction(actionId);
-		if(!action){
-			$window.alert('Action \''+actionId +'\' not found!');
-			return;
-		}
-		return action.exec($event);
-	};
+    // TODO: maso, 2018: add document
+    this.newGroup = function(groupData) {
+        // TODO: maso, 2018: assert id
+        return this.group(groupData.id, groupData);
+    };
+
+    // TODO: maso, 2018: add document
+    this.group = function (groupId, groupData) {
+        var group = this.groupsMap[groupId];
+        if (!group) {
+            group = new ActionGroup(groupData);
+            group.id = groupId;
+            // TODO: maso, 2019: just use group map and remove groupList
+            this.groupsMap[group.id] = group;
+            this.groupsList.push(group);
+            this.updateAddByItem(group);
+        }else if (groupData) {
+            angular.extend(group, groupData);
+        }
+        this.fire('groupsChanged', {
+            value: group
+        });
+        return group;
+    };
+
+    this.updateAddByItem = function(item){
+        var groups = item.groups || [];
+        for (var i = 0; i < groups.length; i++) {
+            var group = this.group(groups[i]);
+            group.addItem(item);
+        }
+    };
+
+    this.updateRemoveByItem = function(item){
+        var groups = item.groups || [];
+        for (var i = 0; i < groups.length; i++) {
+            var group = this.group(groups[i]);
+            group.removeItem(item);
+        }
+    };
+
+    this.exec = function(actionId, $event){
+        $event = $event || {
+            stopPropagation: function(){},
+            preventDefault: function(){},
+        }; // TODO: amso, 2020: crate an action event
+        var action = this.getAction(actionId);
+        if(!action){
+            $window.alert('Action \''+actionId +'\' not found!');
+            return;
+        }
+        return action.exec($event);
+    };
 
 });
 
