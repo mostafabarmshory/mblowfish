@@ -593,13 +593,13 @@ angular.module('mblowfish-core')//
         var ctrl = this;
         this._eventHandlerCallBack = function($event){
             switch ($event.key) {
-            case 'created':
+            case 'create':
                 ctrl.pushViewItems($event.values);
                 break;
-            case 'updated':
+            case 'update':
                 ctrl.updateViewItems($event.values);
                 break;
-            case 'removed':
+            case 'delete':
                 ctrl.removeViewItems($event.values);
                 break;
             default:

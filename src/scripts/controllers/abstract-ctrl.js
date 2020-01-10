@@ -111,7 +111,7 @@ angular.module('mblowfish-core')//
 	 */
 	this.fireCreated = function(type, items){
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'created', values);
+		return this.fireEvent(type, 'create', values);
 	};
 
 	/**
@@ -133,7 +133,7 @@ angular.module('mblowfish-core')//
 	 */
 	this.fireUpdated = function(type, items){
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'updated', values);
+		return this.fireEvent(type, 'update', values);
 	};
 
 	/**
@@ -144,7 +144,7 @@ angular.module('mblowfish-core')//
 	 */
 	this.fireDeleted = function(type, items){
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'deleted', values);
+		return this.fireEvent(type, 'delete', values);
 	};
 
 

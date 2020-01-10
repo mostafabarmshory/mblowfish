@@ -35,7 +35,7 @@ angular.module('mblowfish-core')
  */
 .factory('MbEvent', function () {
 
-    var mbEvent = function (data) {
+    function mbEvent(data) {
         if (!angular.isDefined(data)) {
             data = {};
         }
@@ -45,29 +45,29 @@ angular.module('mblowfish-core')
     mbEvent.prototype.getType = function () {
         return this.type || 'unknown';
     };
-    
+
     mbEvent.prototype.getKey = function () {
-    	return this.key || 'unknown';
+        return this.key || 'unknown';
     };
-    
+
     mbEvent.prototype.getValues = function () {
-    	return this.values || [];
+        return this.values || [];
     };
-    
+
     mbEvent.prototype.isCreated = function () {
-    	return this.key === 'created';
+        return this.key === 'create';
     };
-    
+
     mbEvent.prototype.isRead = function () {
-    	return this.key === 'read';
+        return this.key === 'read';
     };
-    
+
     mbEvent.prototype.isUpdated = function () {
-    	return this.key === 'updated';
+        return this.key === 'update';
     };
-    
+
     mbEvent.prototype.isDeleted = function () {
-    	return this.key === 'deleted';
+        return this.key === 'delete';
     };
 
     return mbEvent;
