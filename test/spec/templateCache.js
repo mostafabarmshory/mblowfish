@@ -156,11 +156,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/preferences/mb-crisp-chat.html',
-    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>CRISP site ID</label> <input required md-no-asterisk name=property ng-model=\"app.config.crisp.id\"> </md-input-container> </div>"
-  );
-
-
   $templateCache.put('views/preferences/mb-google-analytic.html',
     "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label>Google analytic property</label> <input required md-no-asterisk name=property ng-model=\"app.config.googleAnalytic.property\"> </md-input-container> </div>"
   );

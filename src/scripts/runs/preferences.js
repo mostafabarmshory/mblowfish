@@ -57,14 +57,6 @@ angular.module('mblowfish-core')
 		tags : [ 'analysis' ]
 	})
 	.newPage({
-		id : 'crisp-chat',
-		title : 'CRISP chat',
-		templateUrl : 'views/preferences/mb-crisp-chat.html',
-		description : 'Give your customer messaging experience a human touch with CRISP.',
-		icon : 'chat',
-		tags : [ 'chat' ]
-	})
-	.newPage({
 		id: 'update',
 		templateUrl : 'views/preferences/mb-update.html',
 		title: 'Update application',
