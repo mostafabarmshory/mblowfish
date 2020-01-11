@@ -66,6 +66,7 @@ angular.module('mblowfish-core')
 			// tenant settings
 			options: {},
 			local: 'en', // Default local and language
+			dir: 'rtl'
 		};
 		$rootScope.app = $rootScope.__app;
 

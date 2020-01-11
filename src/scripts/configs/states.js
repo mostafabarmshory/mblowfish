@@ -29,24 +29,24 @@ angular.module('mblowfish-core')
     $routeProvider//
 
     // Preferences
-    /**
-     * @ngdoc ngRoute
-     * @name /initialization
-     * @description Initial page
-     */
-    .when('/initialization', {
-        templateUrl : 'views/mb-initial.html',
-        controller : 'MbInitialCtrl',
-        controllerAs: 'ctrl',
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        },
-        sidenavs: [],
-        toolbars: []
-    })
+    // /**
+    //  * @ngdoc ngRoute
+    //  * @name /initialization
+    //  * @description Initial page
+    //  */
+    // .when('/initialization', {
+    //     templateUrl : 'views/mb-initial.html',
+    //     controller : 'MbInitialCtrl',
+    //     controllerAs: 'ctrl',
+    //     /*
+    //      * @ngInject
+    //      */
+    //     protect : function($rootScope) {
+    //         return !$rootScope.__account.permissions.tenant_owner;
+    //     },
+    //     sidenavs: [],
+    //     toolbars: []
+    // })
     /**
      * @ngdoc ngRoute
      * @name /preferences

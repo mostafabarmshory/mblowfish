@@ -39,21 +39,6 @@ angular.module('app') //
 		groups : [ 'navigation-bar' ],
 		name : 'Pages',
 		icon : 'load',
-		/*
-		 * @ngInject
-		 */
-		integerate: function ($route, $actions){
-			$actions.group('navigationPathMenu').clear();
-			$actions.newAction({
-				id: 'nav-pages',
-				title: 'Pages',
-				type: 'link',
-				priority : 10,
-				visible : true,
-				url: 'navbar/pages',
-				groups: ['navigationPathMenu']
-			});
-		}
 	})
 	.when('/navbar/pages/1', {
 		templateUrl : 'views/navigation-bar/page-1.html',
@@ -61,30 +46,6 @@ angular.module('app') //
 		groups : [ 'navigation-bar' ],
 		name : 'Page 1',
 		icon : 'load',
-		/*
-		 * @ngInject
-		 */
-		integerate: function ($route, $actions){
-			$actions.group('navigationPathMenu').clear();
-			$actions.newAction({
-				id: 'nav-pages',
-				title: 'Pages',
-				type: 'link',
-				priority : 10,
-				visible : true,
-				url: 'navbar/pages',
-				groups: ['navigationPathMenu']
-			});
-			$actions.newAction({
-				id: 'nav-page-1',
-				title: 'Page 1',
-				type: 'link',
-				priority : 10,
-				visible : true,
-				url: 'navbar/pages/1',
-				groups: ['navigationPathMenu']
-			});
-		}
 	})
 	.when('/navbar/pages/2', {
 		templateUrl : 'views/navigation-bar/page-2.html',
@@ -92,30 +53,6 @@ angular.module('app') //
 		groups : [ 'navigation-bar' ],
 		name : 'Page 2',
 		icon : 'load',
-		/*
-		 * @ngInject
-		 */
-		integerate: function ($route, $actions){
-			$actions.group('navigationPathMenu').clear();
-			$actions.newAction({
-				id: 'nav-pages',
-				title: 'Pages',
-				type: 'link',
-				priority : 10,
-				visible : true,
-				url: 'navbar/pages',
-				groups: ['navigationPathMenu']
-			});
-			$actions.newAction({
-				id: 'nav-page-2',
-				title: 'Page 2',
-				type: 'link',
-				priority : 10,
-				visible : true,
-				url: 'navbar/pages/2',
-				groups: ['navigationPathMenu']
-			});
-		}
 	})
 	
 	.when('/test/infinate-scrole', {
@@ -282,6 +219,13 @@ angular.module('app') //
 	    protect: function(){
 	        return true;
 	    }
+	})
+	.when('/test/accounts/:itemId', {
+	    templateUrl : 'views/mb-test-account.html',
+	    navigate : true,
+	    groups : [ 'mb-user' ],
+	    name : 'Account information page',
+	    icon : 'face',
 	})
 	.when('/test/toolbar/toolbar-visible', {
 		controller: 'TestToolbarCtrl',

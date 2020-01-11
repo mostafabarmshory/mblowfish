@@ -198,24 +198,24 @@ angular.module('mblowfish-core')
     $routeProvider//
 
     // Preferences
-    /**
-     * @ngdoc ngRoute
-     * @name /initialization
-     * @description Initial page
-     */
-    .when('/initialization', {
-        templateUrl : 'views/mb-initial.html',
-        controller : 'MbInitialCtrl',
-        controllerAs: 'ctrl',
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        },
-        sidenavs: [],
-        toolbars: []
-    })
+    // /**
+    //  * @ngdoc ngRoute
+    //  * @name /initialization
+    //  * @description Initial page
+    //  */
+    // .when('/initialization', {
+    //     templateUrl : 'views/mb-initial.html',
+    //     controller : 'MbInitialCtrl',
+    //     controllerAs: 'ctrl',
+    //     /*
+    //      * @ngInject
+    //      */
+    //     protect : function($rootScope) {
+    //         return !$rootScope.__account.permissions.tenant_owner;
+    //     },
+    //     sidenavs: [],
+    //     toolbars: []
+    // })
     /**
      * @ngdoc ngRoute
      * @name /preferences
@@ -960,239 +960,239 @@ angular.module('mblowfish-core')
         }
     });
 });
-//TODO: should be moved to mblowfish-core
+// //TODO: should be moved to mblowfish-core
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// /*
+//  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+//  * 
+//  * Permission is hereby granted, free of charge, to any person obtaining a copy
+//  * of this software and associated documentation files (the 'Software'), to deal
+//  * in the Software without restriction, including without limitation the rights
+//  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  * copies of the Software, and to permit persons to whom the Software is
+//  * furnished to do so, subject to the following conditions:
+//  * 
+//  * The above copyright notice and this permission notice shall be included in all
+//  * copies or substantial portions of the Software.
+//  * 
+//  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  * SOFTWARE.
+//  */
 
-angular.module('mblowfish-core')
+// angular.module('mblowfish-core')
 
-/**
- * @ngdoc Controllers
- * @name MbInitialCtrl
- * @description Initializes the application
- * 
- * Manages and initializes the application.
- * 
- * This controller is used first time when the application is run.
- * 
- * The controller puts list of configuration pages in `settings` and current
- * setting in `currentSetting`.
- * 
- * Settings is ordered list and the index of the item is unique.
- * 
- * Here is list of all data managed with controller
- * 
- * <ul>
- * <li>steps: list of all settings</li>
- * <li>currentStep: object (with id) points to the current setting page</li>
- * </ul>
- * 
- * NOTE: the controller works with an stepper and $mdStepper (id:
- * setting-stepper)
- */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $routeParams) {
+// /**
+//  * @ngdoc Controllers
+//  * @name MbInitialCtrl
+//  * @description Initializes the application
+//  * 
+//  * Manages and initializes the application.
+//  * 
+//  * This controller is used first time when the application is run.
+//  * 
+//  * The controller puts list of configuration pages in `settings` and current
+//  * setting in `currentSetting`.
+//  * 
+//  * Settings is ordered list and the index of the item is unique.
+//  * 
+//  * Here is list of all data managed with controller
+//  * 
+//  * <ul>
+//  * <li>steps: list of all settings</li>
+//  * <li>currentStep: object (with id) points to the current setting page</li>
+//  * </ul>
+//  * 
+//  * NOTE: the controller works with an stepper and $mdStepper (id:
+//  * setting-stepper)
+//  */
+// .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $routeParams) {
 
-    /*
-     * ID of the stepper
-     */
-    var _stepper_id = 'setting-stepper';
+//     /*
+//      * ID of the stepper
+//      */
+//     var _stepper_id = 'setting-stepper';
 
-    /**
-     * Loads settings with the index
-     * 
-     * @memberof MbInitialCtrl
-     * @param {integer}
-     *            index of the setting
-     */
-    function goToStep(index){
-        $mdStepper(_stepper_id)//
-        .goto(index);
-    }
+//     /**
+//      * Loads settings with the index
+//      * 
+//      * @memberof MbInitialCtrl
+//      * @param {integer}
+//      *            index of the setting
+//      */
+//     function goToStep(index){
+//         $mdStepper(_stepper_id)//
+//         .goto(index);
+//     }
 
-    /**
-     * Loads the next setting page
-     * 
-     * @memberof MbInitialCtrl
-     */
-    function nextStep(){
-        $mdStepper(_stepper_id)//
-        .next();
-    }
+//     /**
+//      * Loads the next setting page
+//      * 
+//      * @memberof MbInitialCtrl
+//      */
+//     function nextStep(){
+//         $mdStepper(_stepper_id)//
+//         .next();
+//     }
 
-    /**
-     * Loads the previous setting page
-     * 
-     * @memberof MbInitialCtrl
-     */
-    function prevStep(){			
-        $mdStepper(_stepper_id)//
-        .back();
-    }
+//     /**
+//      * Loads the previous setting page
+//      * 
+//      * @memberof MbInitialCtrl
+//      */
+//     function prevStep(){			
+//         $mdStepper(_stepper_id)//
+//         .back();
+//     }
 
-    /*
-     * Set application is initialized
-     */
-    function _setInitialized(/*flag*/){
-        $rootScope.app.config.is_initialized = true;
-    }
+//     /*
+//      * Set application is initialized
+//      */
+//     function _setInitialized(/*flag*/){
+//         $rootScope.app.config.is_initialized = true;
+//     }
 
-    /*
-     * Checks if it is initialized
-     * 
-     * NOTE: maso, 2018: check runs/initial.js for changes
-     */
-    function _isInitialized(){
-        return !$routeParams.force && $rootScope.app.config.is_initialized;
-    }
+//     /*
+//      * Checks if it is initialized
+//      * 
+//      * NOTE: maso, 2018: check runs/initial.js for changes
+//      */
+//     function _isInitialized(){
+//         return !$routeParams.force && $rootScope.app.config.is_initialized;
+//     }
 
-    /*
-     * Go to the main page
-     */
-    function _redirectToMain(){
-        $window.location =  $window.location.href.replace(/initialization$/mg, '');
-    }
+//     /*
+//      * Go to the main page
+//      */
+//     function _redirectToMain(){
+//         $window.location =  $window.location.href.replace(/initialization$/mg, '');
+//     }
 
-    /*
-     * Loads internal pages and settings
-     */
-    function _initialization(){
-        // Configure language page. It will be added as first page of setting
-        // stepper
-        var langPage = {
-                id: 'initial-language',
-                title: 'Language',
-                templateUrl : 'views/preferences/mb-language.html',
-                controller : 'MbLanguageCtrl',
-                description: 'Select default language of web application.',
-                icon: 'language',
-                priority: 'first',
-                required: true
-        };
-        // Configure welcome page. It will be added as one of the first pages of
-        // setting stepper
-        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
-        var welcomePage = {
-                id: 'welcome',
-                title: 'Welcome',
-                template : inlineTemplate,
-                /*
-                 * @ngInject
-                 */
-                controller : function($scope, $http, $translate) {
-                    // TODO: hadi: Use $language to get current Language
-                    $http.get('resources/welcome/'+$translate.use()+'.json')//
-                    .then(function(res){
-                        //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
-                        //$scope.model = $wbUtil.clean(res.data || {});
-                        $scope.model = $wbUtil.clean(res.data) || {};
-                    });
-                },
-                description: 'Welcome. Please login to continue.',
-                icon: 'accessibility',
-                priority: 'first',
-                required: true
-        };
-        var congratulatePage = {
-                id: 'congratulate',
-                title: ':)',
-                description: 'Congratulation. Your site is ready.',
-                template : inlineTemplate,
-                /*
-                 * @ngInject
-                 */
-                controller : function($scope, $http, $translate) {
-                    // TODO: hadi: Use $language to get current Language
-                    $http.get('resources/congratulate/'+$translate.use()+'.json')//
-                    .then(function(res){
-                        //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
-                        $scope.model = $wbUtil.clean(res.data) || {};
-                    });
-                    _setInitialized(true);
-                },
-                icon: 'favorite',
-                priority: 'last',
-                required: true
-        };
-        $preferences.newPage(langPage);
-        $preferences.newPage(welcomePage);
-        $preferences.newPage(congratulatePage);
-        // Load settings
-        $preferences.pages()//
-        .then(function(settingItems) {
-            var steps = [];
-            settingItems.items.forEach(function(settingItem){
-                if(settingItem.required){
-                    steps.push(settingItem);
-                }
-            });
-            $scope.steps = steps;
-        });
+//     /*
+//      * Loads internal pages and settings
+//      */
+//     function _initialization(){
+//         // Configure language page. It will be added as first page of setting
+//         // stepper
+//         var langPage = {
+//                 id: 'initial-language',
+//                 title: 'Language',
+//                 templateUrl : 'views/preferences/mb-language.html',
+//                 controller : 'MbLanguageCtrl',
+//                 description: 'Select default language of web application.',
+//                 icon: 'language',
+//                 priority: 'first',
+//                 required: true
+//         };
+//         // Configure welcome page. It will be added as one of the first pages of
+//         // setting stepper
+//         var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
+//         var welcomePage = {
+//                 id: 'welcome',
+//                 title: 'Welcome',
+//                 template : inlineTemplate,
+//                 /*
+//                  * @ngInject
+//                  */
+//                 controller : function($scope, $http, $translate) {
+//                     // TODO: hadi: Use $language to get current Language
+//                     $http.get('resources/welcome/'+$translate.use()+'.json')//
+//                     .then(function(res){
+//                         //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
+//                         //$scope.model = $wbUtil.clean(res.data || {});
+//                         $scope.model = $wbUtil.clean(res.data) || {};
+//                     });
+//                 },
+//                 description: 'Welcome. Please login to continue.',
+//                 icon: 'accessibility',
+//                 priority: 'first',
+//                 required: true
+//         };
+//         var congratulatePage = {
+//                 id: 'congratulate',
+//                 title: ':)',
+//                 description: 'Congratulation. Your site is ready.',
+//                 template : inlineTemplate,
+//                 /*
+//                  * @ngInject
+//                  */
+//                 controller : function($scope, $http, $translate) {
+//                     // TODO: hadi: Use $language to get current Language
+//                     $http.get('resources/congratulate/'+$translate.use()+'.json')//
+//                     .then(function(res){
+//                         //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
+//                         $scope.model = $wbUtil.clean(res.data) || {};
+//                     });
+//                     _setInitialized(true);
+//                 },
+//                 icon: 'favorite',
+//                 priority: 'last',
+//                 required: true
+//         };
+//         $preferences.newPage(langPage);
+//         $preferences.newPage(welcomePage);
+//         $preferences.newPage(congratulatePage);
+//         // Load settings
+//         $preferences.pages()//
+//         .then(function(settingItems) {
+//             var steps = [];
+//             settingItems.items.forEach(function(settingItem){
+//                 if(settingItem.required){
+//                     steps.push(settingItem);
+//                 }
+//             });
+//             $scope.steps = steps;
+//         });
 
-        // add watch on setting stepper current step.
-        $scope.$watch(function(){
-            var current = $mdStepper(_stepper_id);
-            if(current){
-                return current.currentStep;
-            }
-            return -1;
-        }, function(index){
-            if(index >= 0 && $scope.steps && $scope.steps.length){
-                $scope.currentStep = $scope.steps[index];
-            }
-        });
-    }
+//         // add watch on setting stepper current step.
+//         $scope.$watch(function(){
+//             var current = $mdStepper(_stepper_id);
+//             if(current){
+//                 return current.currentStep;
+//             }
+//             return -1;
+//         }, function(index){
+//             if(index >= 0 && $scope.steps && $scope.steps.length){
+//                 $scope.currentStep = $scope.steps[index];
+//             }
+//         });
+//     }
 
-    /*
-     * Watch application state
-     */
-    var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
-        switch (status) {
-        case 'loading':
-        case 'fail':
-        case 'error':
-            // Wait it for ready
-            break;
-        case 'ready':
-            // remove watch
-            removeApplicationStateWatch();
-            if(_isInitialized()){
-                _redirectToMain();
-            } else {
-                _initialization();
-            }
-            break;
-        default:
-            break;
-        }
-    });
+//     /*
+//      * Watch application state
+//      */
+//     var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
+//         switch (status) {
+//         case 'loading':
+//         case 'fail':
+//         case 'error':
+//             // Wait it for ready
+//             break;
+//         case 'ready':
+//             // remove watch
+//             removeApplicationStateWatch();
+//             if(_isInitialized()){
+//                 _redirectToMain();
+//             } else {
+//                 _initialization();
+//             }
+//             break;
+//         default:
+//             break;
+//         }
+//     });
     
 
 
-    this.goToStep = goToStep;
-    this.nextStep = nextStep;
-    this.nextStep = nextStep;
-    this.prevStep = prevStep;
-});
+//     this.goToStep = goToStep;
+//     this.nextStep = nextStep;
+//     this.nextStep = nextStep;
+//     this.prevStep = prevStep;
+// });
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1275,9 +1275,9 @@ angular.module('mblowfish-core')
 			$rootScope.app.config.local = {};
 		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
-		if($scope.myLanguage.dir){
-			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-		}
+		// if($scope.myLanguage.dir){
+		// 	$rootScope.app.config.local.dir = $scope.myLanguage.dir;
+		// }
 	}
 
 	$scope.setLanguage = setLanguage;
@@ -2751,7 +2751,10 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+.controller('MbSeenAbstractItemCtrl', function(
+	/* AngularJS  */ $scope, $controller, $q, $window, 
+	/* MBlowfish  */ $navigator, QueryParameter, Action,
+	/* ngRoute    */ $routeParams) {
 	
 
 	/*
@@ -2879,23 +2882,42 @@ angular.module('mblowfish-core')//
 	}
 
 	/**
-	 * get properties of the item
+	 * Gets id of the view item
 	 * 
-	 * @return {boolean} true if the controller is busy
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItemProperty = function(key, defaultValue) {
-
+	this.getItemId = function(){
+		return this.itemId;
 	}
 
 	/**
-	 * Changes property of the model
+	 * Sets id of the view item
 	 * 
-	 * @return {boolean} true if the controller is busy
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setItemProperty = function(key, value) {
+	this.setItemId = function(itemId){
+		this.itemId = itemId;
+	}
 
+	this.loadItem = function(){
+		var ctrl = this;
+		var job = this.getModel(this.itemId)
+		.then(function(item){
+			ctrl.setItem(item);
+		},function(error){
+			$window.alert('Fail to load the item '+ ctrl.itemId);
+		});
+		// TODO: maso, 2020: add application job
+		// $app.addJob('Loading itm' + this.itemId, job);
+		return job;
+	}
+
+	this.setLastPromis = function(p){
+		this.__lastPromis = p;
+	}
+
+	this.getLastPromis = function(){
+		return this.__lastPromis;
 	}
 
 	/**
@@ -2938,11 +2960,7 @@ angular.module('mblowfish-core')//
 		this.confirmationRequired = confirmationRequired;
 	}
 
-
-	/**
-	 * Creates new item with the createItemDialog
-	 */
-	this.deleteItem = function(item, $event){
+	this.updateItem = function($event){
 		// prevent default event
 		if($event){
 			$event.preventDefault();
@@ -2951,10 +2969,28 @@ angular.module('mblowfish-core')//
 
 		// XXX: maso, 2019: update state
 		var ctrl = this;
-		var tempItem = _.clone(item);
+
+		var job = this.updateModel(ctrl.item);
+		// TODO: maso, 2020: add job tos list
+		return job;
+	}
+
+	/**
+	 * Creates new item with the createItemDialog
+	 */
+	this.deleteItem = function($event){
+		// prevent default event
+		if($event){
+			$event.preventDefault();
+			$event.stopPropagation();
+		}
+
+		// XXX: maso, 2019: update state
+		var ctrl = this;
+		// var tempItem = _.clone(item);
 		function _deleteInternal() {
 			ctrl.busy = true;
-			return ctrl.deleteModel(item)
+			return ctrl.deleteModel(ctrl.item)
 			.then(function(){
 				ctrl.fireDeleted(ctrl.eventType, tempItem);
 			}, function(){
@@ -2987,7 +3023,7 @@ angular.module('mblowfish-core')//
 		var ctrl = this;
 		function safeReload(){
 			ctrl.setItem(null);
-			return ctrl.loadItem(this.getItemId());
+			return ctrl.loadItem(ctrl.getItemId());
 		}
 
 		// attache to old promise
@@ -3012,7 +3048,7 @@ angular.module('mblowfish-core')//
 	 * @param graphql
 	 */
 	this.setDataQuery = function(grqphql){
-		this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+		this.queryParameter.put('graphql', grqphql);
 		// TODO: maso, 2018: check if refresh is required
 	};
 
@@ -3094,19 +3130,19 @@ angular.module('mblowfish-core')//
 		this.setConfirmationRequired(!angular.isDefined(configs.confirmation) || configs.confirmation);
 		
 		// data query
-		if(config.dataQuery) {
+		if(configs.dataQuery) {
 			this.setDataQuery(config.dataQuery);
 		}
 		
 		// model id
-		if(config.modelId) {
-			// TODO: load model
-		}
+		this.setItemId(configs.modelId || $routeParams.itemId);
 		
 		// Modl
-		if(config.model){
+		if(configs.model){
 			// TODO: load model
 		}
+
+		this.reload();
 	};
 
 });
@@ -3403,42 +3439,27 @@ angular.module('mblowfish-core')
 
 	// Override the function
 	this.getModelSchema = function(){
-		return $usr.profileSchema();
+		return $usr.accountSchema();
 	};
 	
 	// get an account
 	this.getModel = function(id){
-		return $usr.getProfile(id);
+		return $usr.getAccount(id);
 	};
 	
 	// delete account
 	this.deleteModel = function(model){
-	    return $usr.deleteProfile(model.id);
+	    return $usr.deleteAccount(model.id);
 	};
-	/*
-	 * Deletes avatar
-	 */
-	this.deleteModelBinary = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+
+	// update account
+	this.updateModel = function(model){
+		return model.update();
 	};
-	
-	/*
-	 * Upload AVATAR
-	 */
-	this.uploadModelBinary = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
-	};
-	
-	/**
-	 * Get model binary path
-	 * 
-	 * @param item
-	 * @return promise to delete item
-	 * @memberof SeenAbstractItemCtrl
-	 */
-	this.getModelBinaryUrl = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
-	};
+
+	this.init({
+		eventType: '/user/accounts'
+	});
 });
 
 /*
@@ -4744,15 +4765,9 @@ angular.module('mblowfish-core')
                 var value = $parse(attr.mbInlineOnSave)(scope);
                 $q.when(value)//
                 .then(function(){
-                    scope.errorObject = {
-                            'error': false,
-                            'errorMessage' : null
-                    };
+                    delete scope.error;
                 }, function(error){
-                    scope.errorObject = {
-                            'error': true,
-                            'errorMessage': val
-                    };
+                    scope.error = error;
                 });
             }
         };
@@ -7157,6 +7172,7 @@ angular.module('mblowfish-core')
 			// tenant settings
 			options: {},
 			local: 'en', // Default local and language
+			dir: 'rtl'
 		};
 		$rootScope.app = $rootScope.__app;
 

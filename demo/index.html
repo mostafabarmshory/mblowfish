@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html class="no-js" ng-app="app">
+<html 
+	ng-app="app"
+	dir="{{__app.dir}}"
+	md-theme="{{__app.test.theme || __app.setting.theme || __app.config.theme || 'default'}}"
+	md-theme-watch>
 <head>
 	<title>Angular Material Dashboard</title>
 	<meta charset="utf-8">
@@ -205,12 +209,10 @@
 	<script src="scripts/test-runs/test-app.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
+	<meta name="test" value="{{__app.dir}}">
 </head>
 <body 
-	md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
-	md-theme-watch
-	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-	dir="{{app.dir}}"
+	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"
 	layout="column"
 	mb-view
 	style="height: 100vh; width: 100vw;">
