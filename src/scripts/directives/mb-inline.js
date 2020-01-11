@@ -66,15 +66,9 @@ angular.module('mblowfish-core')
                 var value = $parse(attr.mbInlineOnSave)(scope);
                 $q.when(value)//
                 .then(function(){
-                    scope.errorObject = {
-                            'error': false,
-                            'errorMessage' : null
-                    };
+                    delete scope.error;
                 }, function(error){
-                    scope.errorObject = {
-                            'error': true,
-                            'errorMessage': val
-                    };
+                    scope.error = error;
                 });
             }
         };

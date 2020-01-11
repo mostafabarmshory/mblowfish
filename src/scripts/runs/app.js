@@ -22,19 +22,19 @@
 
 
 angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-	/***************************************************************************
-	 * New app state
-	 * 
-	 * Application state is saved in the root scope
-	 **************************************************************************/
-	/*
-	 * Store application state
+	/**
+	 * دریچه‌های محاوره‌ای
 	 */
-	$rootScope.__app = {
+	.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+		/***************************************************************************
+		 * New app state
+		 * 
+		 * Application state is saved in the root scope
+		 **************************************************************************/
+		/*
+		 * Store application state
+		 */
+		$rootScope.__app = {
 			/******************************************************************
 			 * New model
 			 ******************************************************************/
@@ -49,7 +49,7 @@ angular.module('mblowfish-core')
 			logs: [],
 			user: {
 				current: {},
-				profile : {},
+				profile: {},
 				anonymous: true,
 				administrator: false,
 				owner: false,
@@ -66,141 +66,142 @@ angular.module('mblowfish-core')
 			// tenant settings
 			options: {},
 			local: 'en', // Default local and language
-	};
-	$rootScope.app =  $rootScope.__app;
+			dir: 'rtl'
+		};
+		$rootScope.app = $rootScope.__app;
 
-	/*
-	 * Store tenant sate
-	 */
-	$rootScope.__tenant = {
-			id:0,
+		/*
+		 * Store tenant sate
+		 */
+		$rootScope.__tenant = {
+			id: 0,
 			title: 'notitle',
 			description: 'nodescription',
-			configs:{},
-			settings:{},
-			domains:{}
-	};
+			configs: {},
+			settings: {},
+			domains: {}
+		};
 
-	/*
-	 * Store account state
-	 */
-	$rootScope.__account ={
+		/*
+		 * Store account state
+		 */
+		$rootScope.__account = {
 			anonymous: true,
 			id: 0,
 			login: '',
-			profile : {},
-			roles:{},
-			groups:{},
-			permissions:{},
-			messages:[]
-	}
-
-
-	/***************************************************************************
-	 * Application actions
-	 **************************************************************************/
-	$actions.newAction({
-		id : 'mb.preferences',
-		priority : 15,
-		icon : 'settings',
-		title : 'Preferences',
-		description : 'Open preferences panel',
-		visible : function () {
-			return $rootScope.__account.permissions.tenant_owner;
-		},
-		action : function () {
-			return $navigator.openPage('preferences');
-		},
-		groups : [ 'mb.toolbar.menu' ]
-	});
-	$actions.newAction({// help
-		id : 'mb.help',
-		priority : 15,
-		icon : 'help',
-		title : 'Help',
-		description : 'Display help in sidenav',
-		visible : function () {
-			return $help.hasHelp($route.current);
-		},
-		action : function () {
-			$help.openHelp($route.current);
-		},
-		groups : [ 'mb.toolbar.menu' ]
-	});
-	$actions.newAction({
-		icon : 'account_circle',
-		title : 'Profile',
-		description : 'User profile',
-		groups : [ 'mb.user' ],
-		action : function () {
-			return $navigator.openPage('users/profile');
+			profile: {},
+			roles: {},
+			groups: {},
+			permissions: {},
+			messages: []
 		}
-	});
-	$actions.newAction({
-		icon : 'account_box',
-		title : 'Account',
-		description : 'User account',
-		groups : [ 'mb.user' ],
-		action : function () {
-			return $navigator.openPage('users/account');
-		}
-	});
-	$actions.newAction({
-		icon : 'fingerprint',
-		title : 'Password',
-		description : 'Manage password',
-		groups : [ 'mb.user' ],
-		action : function () {
-			return $navigator.openPage('users/password');
-		}
-	});
 
-	$toolbar.newToolbar({
-		id : 'dashboard',
-		title : 'Dashboard toolbar',
-		description : 'Main dashboard toolbar',
-		controller : 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/mb-dashboard.html'
-	});
 
-	$sidenav.newSidenav({
-		id : 'navigator',
-		title : 'Navigator',
-		description : 'Navigate all path and routs of the pandel',
-		controller : 'AmdNavigatorCtrl',
-		templateUrl : 'views/sidenavs/mb-navigator.html',
-		locked : true,
-		position : 'start'
+		/***************************************************************************
+		 * Application actions
+		 **************************************************************************/
+		$actions.newAction({
+			id: 'mb.preferences',
+			priority: 15,
+			icon: 'settings',
+			title: 'Preferences',
+			description: 'Open preferences panel',
+			visible: function () {
+				return $rootScope.__account.permissions.tenant_owner;
+			},
+			action: function () {
+				return $navigator.openPage('preferences');
+			},
+			groups: ['mb.toolbar.menu']
+		});
+		$actions.newAction({// help
+			id: 'mb.help',
+			priority: 15,
+			icon: 'help',
+			title: 'Help',
+			description: 'Display help in sidenav',
+			visible: function () {
+				return $help.hasHelp($route.current);
+			},
+			action: function () {
+				$help.openHelp($route.current);
+			},
+			groups: ['mb.toolbar.menu']
+		});
+		$actions.newAction({
+			icon: 'account_circle',
+			title: 'Profile',
+			description: 'User profile',
+			groups: ['mb.user'],
+			action: function () {
+				return $navigator.openPage('users/profile');
+			}
+		});
+		$actions.newAction({
+			icon: 'account_box',
+			title: 'Account',
+			description: 'User account',
+			groups: ['mb.user'],
+			action: function () {
+				return $navigator.openPage('users/account');
+			}
+		});
+		$actions.newAction({
+			icon: 'fingerprint',
+			title: 'Password',
+			description: 'Manage password',
+			groups: ['mb.user'],
+			action: function () {
+				return $navigator.openPage('users/password');
+			}
+		});
+
+		$toolbar.newToolbar({
+			id: 'dashboard',
+			title: 'Dashboard toolbar',
+			description: 'Main dashboard toolbar',
+			controller: 'MbToolbarDashboardCtrl',
+			templateUrl: 'views/toolbars/mb-dashboard.html'
+		});
+
+		$sidenav.newSidenav({
+			id: 'navigator',
+			title: 'Navigator',
+			description: 'Navigate all path and routs of the pandel',
+			controller: 'AmdNavigatorCtrl',
+			templateUrl: 'views/sidenavs/mb-navigator.html',
+			locked: true,
+			position: 'start'
+		});
+		$sidenav.newSidenav({
+			id: 'help',
+			title: 'Help',
+			description: 'System online help',
+			controller: 'MbHelpCtrl',
+			templateUrl: 'views/sidenavs/mb-help.html',
+			locked: true,
+			visible: function () {
+				return $rootScope.showHelp;
+			},
+			position: 'end'
+		});
+		$sidenav.newSidenav({
+			id: 'settings',
+			title: 'Options',
+			description: 'User options',
+			controller: 'MbOptionsCtrl',
+			templateUrl: 'views/sidenavs/mb-options.html',
+			locked: false,
+			position: 'end'
+		});
+		$sidenav.newSidenav({
+			id: 'messages',
+			title: 'Messages',
+			description: 'User message queue',
+			controller: 'MessagesCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/sidenavs/mb-messages.html',
+			locked: false,
+			position: 'start'
+		});
 	});
-	$sidenav.newSidenav({
-		id : 'help',
-		title : 'Help',
-		description : 'System online help',
-		controller : 'MbHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-help.html',
-		locked : true,
-		visible : function () {
-			return $rootScope.showHelp;
-		},
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'settings',
-		title : 'Options',
-		description : 'User options',
-		controller : 'MbOptionsCtrl',
-		templateUrl : 'views/sidenavs/mb-options.html',
-		locked : false,
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'messages',
-		title : 'Messages',
-		description : 'User message queue',
-		controller : 'MessagesCtrl',
-		controllerAs: 'ctrl',
-		templateUrl : 'views/sidenavs/mb-messages.html',
-		locked : false,
-		position : 'start'
-	});
-});

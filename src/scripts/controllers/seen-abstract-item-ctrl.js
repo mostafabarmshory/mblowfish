@@ -38,7 +38,10 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+.controller('MbSeenAbstractItemCtrl', function(
+	/* AngularJS  */ $scope, $controller, $q, $window, 
+	/* MBlowfish  */ $navigator, QueryParameter, Action,
+	/* ngRoute    */ $routeParams) {
 	
 
 	/*
@@ -166,23 +169,42 @@ angular.module('mblowfish-core')//
 	}
 
 	/**
-	 * get properties of the item
+	 * Gets id of the view item
 	 * 
-	 * @return {boolean} true if the controller is busy
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItemProperty = function(key, defaultValue) {
-
+	this.getItemId = function(){
+		return this.itemId;
 	}
 
 	/**
-	 * Changes property of the model
+	 * Sets id of the view item
 	 * 
-	 * @return {boolean} true if the controller is busy
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setItemProperty = function(key, value) {
+	this.setItemId = function(itemId){
+		this.itemId = itemId;
+	}
 
+	this.loadItem = function(){
+		var ctrl = this;
+		var job = this.getModel(this.itemId)
+		.then(function(item){
+			ctrl.setItem(item);
+		},function(error){
+			$window.alert('Fail to load the item '+ ctrl.itemId);
+		});
+		// TODO: maso, 2020: add application job
+		// $app.addJob('Loading itm' + this.itemId, job);
+		return job;
+	}
+
+	this.setLastPromis = function(p){
+		this.__lastPromis = p;
+	}
+
+	this.getLastPromis = function(){
+		return this.__lastPromis;
 	}
 
 	/**
@@ -225,11 +247,7 @@ angular.module('mblowfish-core')//
 		this.confirmationRequired = confirmationRequired;
 	}
 
-
-	/**
-	 * Creates new item with the createItemDialog
-	 */
-	this.deleteItem = function(item, $event){
+	this.updateItem = function($event){
 		// prevent default event
 		if($event){
 			$event.preventDefault();
@@ -238,10 +256,28 @@ angular.module('mblowfish-core')//
 
 		// XXX: maso, 2019: update state
 		var ctrl = this;
-		var tempItem = _.clone(item);
+
+		var job = this.updateModel(ctrl.item);
+		// TODO: maso, 2020: add job tos list
+		return job;
+	}
+
+	/**
+	 * Creates new item with the createItemDialog
+	 */
+	this.deleteItem = function($event){
+		// prevent default event
+		if($event){
+			$event.preventDefault();
+			$event.stopPropagation();
+		}
+
+		// XXX: maso, 2019: update state
+		var ctrl = this;
+		// var tempItem = _.clone(item);
 		function _deleteInternal() {
 			ctrl.busy = true;
-			return ctrl.deleteModel(item)
+			return ctrl.deleteModel(ctrl.item)
 			.then(function(){
 				ctrl.fireDeleted(ctrl.eventType, tempItem);
 			}, function(){
@@ -274,7 +310,7 @@ angular.module('mblowfish-core')//
 		var ctrl = this;
 		function safeReload(){
 			ctrl.setItem(null);
-			return ctrl.loadItem(this.getItemId());
+			return ctrl.loadItem(ctrl.getItemId());
 		}
 
 		// attache to old promise
@@ -299,7 +335,7 @@ angular.module('mblowfish-core')//
 	 * @param graphql
 	 */
 	this.setDataQuery = function(grqphql){
-		this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+		this.queryParameter.put('graphql', grqphql);
 		// TODO: maso, 2018: check if refresh is required
 	};
 
@@ -381,19 +417,19 @@ angular.module('mblowfish-core')//
 		this.setConfirmationRequired(!angular.isDefined(configs.confirmation) || configs.confirmation);
 		
 		// data query
-		if(config.dataQuery) {
+		if(configs.dataQuery) {
 			this.setDataQuery(config.dataQuery);
 		}
 		
 		// model id
-		if(config.modelId) {
-			// TODO: load model
-		}
+		this.setItemId(configs.modelId || $routeParams.itemId);
 		
 		// Modl
-		if(config.model){
+		if(configs.model){
 			// TODO: load model
 		}
+
+		this.reload();
 	};
 
 });

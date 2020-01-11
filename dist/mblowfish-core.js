@@ -42,6 +42,7 @@ angular.module('mblowfish-core', [ //
 	'ngAnimate', 
 	'ngCookies',
 	'ngSanitize', //
+	'ngRoute',
 //	Seen
 	'seen-core',
 	'seen-tenant',
@@ -58,16 +59,7 @@ angular.module('mblowfish-core', [ //
 	'mdSteppers',//
 	'angular-material-persian-datepicker',
 ])
-
-.info({ mbVersion: '1.7.9' })
-
-
-.run(function instantiateRoute($injector, $widget, $routeParams) {
-	// Ensure `$route` will be instantiated in time to capture the initial `$locationChangeSuccess`
-	// event (unless explicitly disabled). This is necessary in case `ngView` is included in an
-	// asynchronously loaded template.
-	// Instantiate `$route`
-	$injector.get('$route');
+.run(function instantiateRoute($widget, $routeParams) {
 	$widget.setProvider('$routeParams', $routeParams);
 })
 
@@ -123,7 +115,7 @@ angular.module('mblowfish-core')
 	.config(function ($httpProvider) {
 	    // An interceptor to handle errors of server response
 	    // All that the interceptor does is in 'httpRequestInterceptor' factory.
-	    $httpProvider.interceptors.push('httpRequestInterceptor');
+	    $httpProvider.interceptors.push('MbHttpRequestInterceptor');
 	});
 
 /*
@@ -206,24 +198,24 @@ angular.module('mblowfish-core')
     $routeProvider//
 
     // Preferences
-    /**
-     * @ngdoc ngRoute
-     * @name /initialization
-     * @description Initial page
-     */
-    .when('/initialization', {
-        templateUrl : 'views/mb-initial.html',
-        controller : 'MbInitialCtrl',
-        controllerAs: 'ctrl',
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        },
-        sidenavs: [],
-        toolbars: []
-    })
+    // /**
+    //  * @ngdoc ngRoute
+    //  * @name /initialization
+    //  * @description Initial page
+    //  */
+    // .when('/initialization', {
+    //     templateUrl : 'views/mb-initial.html',
+    //     controller : 'MbInitialCtrl',
+    //     controllerAs: 'ctrl',
+    //     /*
+    //      * @ngInject
+    //      */
+    //     protect : function($rootScope) {
+    //         return !$rootScope.__account.permissions.tenant_owner;
+    //     },
+    //     sidenavs: [],
+    //     toolbars: []
+    // })
     /**
      * @ngdoc ngRoute
      * @name /preferences
@@ -521,7 +513,7 @@ angular.module('mblowfish-core')//
 	 */
 	this.fireCreated = function(type, items){
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'created', values);
+		return this.fireEvent(type, 'create', values);
 	};
 
 	/**
@@ -543,7 +535,7 @@ angular.module('mblowfish-core')//
 	 */
 	this.fireUpdated = function(type, items){
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'updated', values);
+		return this.fireEvent(type, 'update', values);
 	};
 
 	/**
@@ -554,7 +546,7 @@ angular.module('mblowfish-core')//
 	 */
 	this.fireDeleted = function(type, items){
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'deleted', values);
+		return this.fireEvent(type, 'delete', values);
 	};
 
 
@@ -968,239 +960,239 @@ angular.module('mblowfish-core')
         }
     });
 });
-//TODO: should be moved to mblowfish-core
+// //TODO: should be moved to mblowfish-core
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+// /*
+//  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+//  * 
+//  * Permission is hereby granted, free of charge, to any person obtaining a copy
+//  * of this software and associated documentation files (the 'Software'), to deal
+//  * in the Software without restriction, including without limitation the rights
+//  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  * copies of the Software, and to permit persons to whom the Software is
+//  * furnished to do so, subject to the following conditions:
+//  * 
+//  * The above copyright notice and this permission notice shall be included in all
+//  * copies or substantial portions of the Software.
+//  * 
+//  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  * SOFTWARE.
+//  */
 
-angular.module('mblowfish-core')
+// angular.module('mblowfish-core')
 
-/**
- * @ngdoc Controllers
- * @name MbInitialCtrl
- * @description Initializes the application
- * 
- * Manages and initializes the application.
- * 
- * This controller is used first time when the application is run.
- * 
- * The controller puts list of configuration pages in `settings` and current
- * setting in `currentSetting`.
- * 
- * Settings is ordered list and the index of the item is unique.
- * 
- * Here is list of all data managed with controller
- * 
- * <ul>
- * <li>steps: list of all settings</li>
- * <li>currentStep: object (with id) points to the current setting page</li>
- * </ul>
- * 
- * NOTE: the controller works with an stepper and $mdStepper (id:
- * setting-stepper)
- */
-.controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $routeParams) {
+// /**
+//  * @ngdoc Controllers
+//  * @name MbInitialCtrl
+//  * @description Initializes the application
+//  * 
+//  * Manages and initializes the application.
+//  * 
+//  * This controller is used first time when the application is run.
+//  * 
+//  * The controller puts list of configuration pages in `settings` and current
+//  * setting in `currentSetting`.
+//  * 
+//  * Settings is ordered list and the index of the item is unique.
+//  * 
+//  * Here is list of all data managed with controller
+//  * 
+//  * <ul>
+//  * <li>steps: list of all settings</li>
+//  * <li>currentStep: object (with id) points to the current setting page</li>
+//  * </ul>
+//  * 
+//  * NOTE: the controller works with an stepper and $mdStepper (id:
+//  * setting-stepper)
+//  */
+// .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $routeParams) {
 
-    /*
-     * ID of the stepper
-     */
-    var _stepper_id = 'setting-stepper';
+//     /*
+//      * ID of the stepper
+//      */
+//     var _stepper_id = 'setting-stepper';
 
-    /**
-     * Loads settings with the index
-     * 
-     * @memberof MbInitialCtrl
-     * @param {integer}
-     *            index of the setting
-     */
-    function goToStep(index){
-        $mdStepper(_stepper_id)//
-        .goto(index);
-    }
+//     /**
+//      * Loads settings with the index
+//      * 
+//      * @memberof MbInitialCtrl
+//      * @param {integer}
+//      *            index of the setting
+//      */
+//     function goToStep(index){
+//         $mdStepper(_stepper_id)//
+//         .goto(index);
+//     }
 
-    /**
-     * Loads the next setting page
-     * 
-     * @memberof MbInitialCtrl
-     */
-    function nextStep(){
-        $mdStepper(_stepper_id)//
-        .next();
-    }
+//     /**
+//      * Loads the next setting page
+//      * 
+//      * @memberof MbInitialCtrl
+//      */
+//     function nextStep(){
+//         $mdStepper(_stepper_id)//
+//         .next();
+//     }
 
-    /**
-     * Loads the previous setting page
-     * 
-     * @memberof MbInitialCtrl
-     */
-    function prevStep(){			
-        $mdStepper(_stepper_id)//
-        .back();
-    }
+//     /**
+//      * Loads the previous setting page
+//      * 
+//      * @memberof MbInitialCtrl
+//      */
+//     function prevStep(){			
+//         $mdStepper(_stepper_id)//
+//         .back();
+//     }
 
-    /*
-     * Set application is initialized
-     */
-    function _setInitialized(/*flag*/){
-        $rootScope.app.config.is_initialized = true;
-    }
+//     /*
+//      * Set application is initialized
+//      */
+//     function _setInitialized(/*flag*/){
+//         $rootScope.app.config.is_initialized = true;
+//     }
 
-    /*
-     * Checks if it is initialized
-     * 
-     * NOTE: maso, 2018: check runs/initial.js for changes
-     */
-    function _isInitialized(){
-        return !$routeParams.force && $rootScope.app.config.is_initialized;
-    }
+//     /*
+//      * Checks if it is initialized
+//      * 
+//      * NOTE: maso, 2018: check runs/initial.js for changes
+//      */
+//     function _isInitialized(){
+//         return !$routeParams.force && $rootScope.app.config.is_initialized;
+//     }
 
-    /*
-     * Go to the main page
-     */
-    function _redirectToMain(){
-        $window.location =  $window.location.href.replace(/initialization$/mg, '');
-    }
+//     /*
+//      * Go to the main page
+//      */
+//     function _redirectToMain(){
+//         $window.location =  $window.location.href.replace(/initialization$/mg, '');
+//     }
 
-    /*
-     * Loads internal pages and settings
-     */
-    function _initialization(){
-        // Configure language page. It will be added as first page of setting
-        // stepper
-        var langPage = {
-                id: 'initial-language',
-                title: 'Language',
-                templateUrl : 'views/preferences/mb-language.html',
-                controller : 'MbLanguageCtrl',
-                description: 'Select default language of web application.',
-                icon: 'language',
-                priority: 'first',
-                required: true
-        };
-        // Configure welcome page. It will be added as one of the first pages of
-        // setting stepper
-        var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
-        var welcomePage = {
-                id: 'welcome',
-                title: 'Welcome',
-                template : inlineTemplate,
-                /*
-                 * @ngInject
-                 */
-                controller : function($scope, $http, $translate) {
-                    // TODO: hadi: Use $language to get current Language
-                    $http.get('resources/welcome/'+$translate.use()+'.json')//
-                    .then(function(res){
-                        //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
-                        //$scope.model = $wbUtil.clean(res.data || {});
-                        $scope.model = $wbUtil.clean(res.data) || {};
-                    });
-                },
-                description: 'Welcome. Please login to continue.',
-                icon: 'accessibility',
-                priority: 'first',
-                required: true
-        };
-        var congratulatePage = {
-                id: 'congratulate',
-                title: ':)',
-                description: 'Congratulation. Your site is ready.',
-                template : inlineTemplate,
-                /*
-                 * @ngInject
-                 */
-                controller : function($scope, $http, $translate) {
-                    // TODO: hadi: Use $language to get current Language
-                    $http.get('resources/congratulate/'+$translate.use()+'.json')//
-                    .then(function(res){
-                        //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
-                        $scope.model = $wbUtil.clean(res.data) || {};
-                    });
-                    _setInitialized(true);
-                },
-                icon: 'favorite',
-                priority: 'last',
-                required: true
-        };
-        $preferences.newPage(langPage);
-        $preferences.newPage(welcomePage);
-        $preferences.newPage(congratulatePage);
-        // Load settings
-        $preferences.pages()//
-        .then(function(settingItems) {
-            var steps = [];
-            settingItems.items.forEach(function(settingItem){
-                if(settingItem.required){
-                    steps.push(settingItem);
-                }
-            });
-            $scope.steps = steps;
-        });
+//     /*
+//      * Loads internal pages and settings
+//      */
+//     function _initialization(){
+//         // Configure language page. It will be added as first page of setting
+//         // stepper
+//         var langPage = {
+//                 id: 'initial-language',
+//                 title: 'Language',
+//                 templateUrl : 'views/preferences/mb-language.html',
+//                 controller : 'MbLanguageCtrl',
+//                 description: 'Select default language of web application.',
+//                 icon: 'language',
+//                 priority: 'first',
+//                 required: true
+//         };
+//         // Configure welcome page. It will be added as one of the first pages of
+//         // setting stepper
+//         var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
+//         var welcomePage = {
+//                 id: 'welcome',
+//                 title: 'Welcome',
+//                 template : inlineTemplate,
+//                 /*
+//                  * @ngInject
+//                  */
+//                 controller : function($scope, $http, $translate) {
+//                     // TODO: hadi: Use $language to get current Language
+//                     $http.get('resources/welcome/'+$translate.use()+'.json')//
+//                     .then(function(res){
+//                         //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
+//                         //$scope.model = $wbUtil.clean(res.data || {});
+//                         $scope.model = $wbUtil.clean(res.data) || {};
+//                     });
+//                 },
+//                 description: 'Welcome. Please login to continue.',
+//                 icon: 'accessibility',
+//                 priority: 'first',
+//                 required: true
+//         };
+//         var congratulatePage = {
+//                 id: 'congratulate',
+//                 title: ':)',
+//                 description: 'Congratulation. Your site is ready.',
+//                 template : inlineTemplate,
+//                 /*
+//                  * @ngInject
+//                  */
+//                 controller : function($scope, $http, $translate) {
+//                     // TODO: hadi: Use $language to get current Language
+//                     $http.get('resources/congratulate/'+$translate.use()+'.json')//
+//                     .then(function(res){
+//                         //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
+//                         $scope.model = $wbUtil.clean(res.data) || {};
+//                     });
+//                     _setInitialized(true);
+//                 },
+//                 icon: 'favorite',
+//                 priority: 'last',
+//                 required: true
+//         };
+//         $preferences.newPage(langPage);
+//         $preferences.newPage(welcomePage);
+//         $preferences.newPage(congratulatePage);
+//         // Load settings
+//         $preferences.pages()//
+//         .then(function(settingItems) {
+//             var steps = [];
+//             settingItems.items.forEach(function(settingItem){
+//                 if(settingItem.required){
+//                     steps.push(settingItem);
+//                 }
+//             });
+//             $scope.steps = steps;
+//         });
 
-        // add watch on setting stepper current step.
-        $scope.$watch(function(){
-            var current = $mdStepper(_stepper_id);
-            if(current){
-                return current.currentStep;
-            }
-            return -1;
-        }, function(index){
-            if(index >= 0 && $scope.steps && $scope.steps.length){
-                $scope.currentStep = $scope.steps[index];
-            }
-        });
-    }
+//         // add watch on setting stepper current step.
+//         $scope.$watch(function(){
+//             var current = $mdStepper(_stepper_id);
+//             if(current){
+//                 return current.currentStep;
+//             }
+//             return -1;
+//         }, function(index){
+//             if(index >= 0 && $scope.steps && $scope.steps.length){
+//                 $scope.currentStep = $scope.steps[index];
+//             }
+//         });
+//     }
 
-    /*
-     * Watch application state
-     */
-    var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
-        switch (status) {
-        case 'loading':
-        case 'fail':
-        case 'error':
-            // Wait it for ready
-            break;
-        case 'ready':
-            // remove watch
-            removeApplicationStateWatch();
-            if(_isInitialized()){
-                _redirectToMain();
-            } else {
-                _initialization();
-            }
-            break;
-        default:
-            break;
-        }
-    });
+//     /*
+//      * Watch application state
+//      */
+//     var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
+//         switch (status) {
+//         case 'loading':
+//         case 'fail':
+//         case 'error':
+//             // Wait it for ready
+//             break;
+//         case 'ready':
+//             // remove watch
+//             removeApplicationStateWatch();
+//             if(_isInitialized()){
+//                 _redirectToMain();
+//             } else {
+//                 _initialization();
+//             }
+//             break;
+//         default:
+//             break;
+//         }
+//     });
     
 
 
-    this.goToStep = goToStep;
-    this.nextStep = nextStep;
-    this.nextStep = nextStep;
-    this.prevStep = prevStep;
-});
+//     this.goToStep = goToStep;
+//     this.nextStep = nextStep;
+//     this.nextStep = nextStep;
+//     this.prevStep = prevStep;
+// });
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -1283,9 +1275,9 @@ angular.module('mblowfish-core')
 			$rootScope.app.config.local = {};
 		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;
-		if($scope.myLanguage.dir){
-			$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-		}
+		// if($scope.myLanguage.dir){
+		// 	$rootScope.app.config.local.dir = $scope.myLanguage.dir;
+		// }
 	}
 
 	$scope.setLanguage = setLanguage;
@@ -2522,7 +2514,7 @@ angular.module('mblowfish-core')//
     /**
      * Loads and init the controller
      * 
-     * All childs must call this function at the end of the cycle
+     * All children must call this function at the end of the cycle
      */
     this.init = function(configs){
         if(angular.isFunction(this.seen_abstract_collection_superInit)){
@@ -2539,7 +2531,7 @@ angular.module('mblowfish-core')//
             this.addActions(configs.actions)
         }
 
-        // enable create action
+        // DEPRECATED: enable create action
         if(configs.addAction && angular.isFunction(this.addItem)){
             var temp = configs.addAction;
             var createAction = {
@@ -2686,13 +2678,13 @@ angular.module('mblowfish-core')//
         var ctrl = this;
         this._eventHandlerCallBack = function($event){
             switch ($event.key) {
-            case 'created':
+            case 'create':
                 ctrl.pushViewItems($event.values);
                 break;
-            case 'updated':
+            case 'update':
                 ctrl.updateViewItems($event.values);
                 break;
-            case 'removed':
+            case 'delete':
                 ctrl.removeViewItems($event.values);
                 break;
             default:
@@ -2759,7 +2751,10 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
+.controller('MbSeenAbstractItemCtrl', function(
+	/* AngularJS  */ $scope, $controller, $q, $window, 
+	/* MBlowfish  */ $navigator, QueryParameter, Action,
+	/* ngRoute    */ $routeParams) {
 	
 
 	/*
@@ -2887,23 +2882,42 @@ angular.module('mblowfish-core')//
 	}
 
 	/**
-	 * get properties of the item
+	 * Gets id of the view item
 	 * 
-	 * @return {boolean} true if the controller is busy
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItemProperty = function(key, defaultValue) {
-
+	this.getItemId = function(){
+		return this.itemId;
 	}
 
 	/**
-	 * Changes property of the model
+	 * Sets id of the view item
 	 * 
-	 * @return {boolean} true if the controller is busy
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setItemProperty = function(key, value) {
+	this.setItemId = function(itemId){
+		this.itemId = itemId;
+	}
 
+	this.loadItem = function(){
+		var ctrl = this;
+		var job = this.getModel(this.itemId)
+		.then(function(item){
+			ctrl.setItem(item);
+		},function(error){
+			$window.alert('Fail to load the item '+ ctrl.itemId);
+		});
+		// TODO: maso, 2020: add application job
+		// $app.addJob('Loading itm' + this.itemId, job);
+		return job;
+	}
+
+	this.setLastPromis = function(p){
+		this.__lastPromis = p;
+	}
+
+	this.getLastPromis = function(){
+		return this.__lastPromis;
 	}
 
 	/**
@@ -2946,11 +2960,7 @@ angular.module('mblowfish-core')//
 		this.confirmationRequired = confirmationRequired;
 	}
 
-
-	/**
-	 * Creates new item with the createItemDialog
-	 */
-	this.deleteItem = function(item, $event){
+	this.updateItem = function($event){
 		// prevent default event
 		if($event){
 			$event.preventDefault();
@@ -2959,10 +2969,28 @@ angular.module('mblowfish-core')//
 
 		// XXX: maso, 2019: update state
 		var ctrl = this;
-		var tempItem = _.clone(item);
+
+		var job = this.updateModel(ctrl.item);
+		// TODO: maso, 2020: add job tos list
+		return job;
+	}
+
+	/**
+	 * Creates new item with the createItemDialog
+	 */
+	this.deleteItem = function($event){
+		// prevent default event
+		if($event){
+			$event.preventDefault();
+			$event.stopPropagation();
+		}
+
+		// XXX: maso, 2019: update state
+		var ctrl = this;
+		// var tempItem = _.clone(item);
 		function _deleteInternal() {
 			ctrl.busy = true;
-			return ctrl.deleteModel(item)
+			return ctrl.deleteModel(ctrl.item)
 			.then(function(){
 				ctrl.fireDeleted(ctrl.eventType, tempItem);
 			}, function(){
@@ -2995,7 +3023,7 @@ angular.module('mblowfish-core')//
 		var ctrl = this;
 		function safeReload(){
 			ctrl.setItem(null);
-			return ctrl.loadItem(this.getItemId());
+			return ctrl.loadItem(ctrl.getItemId());
 		}
 
 		// attache to old promise
@@ -3020,7 +3048,7 @@ angular.module('mblowfish-core')//
 	 * @param graphql
 	 */
 	this.setDataQuery = function(grqphql){
-		this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
+		this.queryParameter.put('graphql', grqphql);
 		// TODO: maso, 2018: check if refresh is required
 	};
 
@@ -3102,19 +3130,19 @@ angular.module('mblowfish-core')//
 		this.setConfirmationRequired(!angular.isDefined(configs.confirmation) || configs.confirmation);
 		
 		// data query
-		if(config.dataQuery) {
+		if(configs.dataQuery) {
 			this.setDataQuery(config.dataQuery);
 		}
 		
 		// model id
-		if(config.modelId) {
-			// TODO: load model
-		}
+		this.setItemId(configs.modelId || $routeParams.itemId);
 		
 		// Modl
-		if(config.model){
+		if(configs.model){
 			// TODO: load model
 		}
+
+		this.reload();
 	};
 
 });
@@ -3411,42 +3439,27 @@ angular.module('mblowfish-core')
 
 	// Override the function
 	this.getModelSchema = function(){
-		return $usr.profileSchema();
+		return $usr.accountSchema();
 	};
 	
 	// get an account
 	this.getModel = function(id){
-		return $usr.getProfile(id);
+		return $usr.getAccount(id);
 	};
 	
 	// delete account
 	this.deleteModel = function(model){
-	    return $usr.deleteProfile(model.id);
+	    return $usr.deleteAccount(model.id);
 	};
-	/*
-	 * Deletes avatar
-	 */
-	this.deleteModelBinary = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+
+	// update account
+	this.updateModel = function(model){
+		return model.update();
 	};
-	
-	/*
-	 * Upload AVATAR
-	 */
-	this.uploadModelBinary = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
-	};
-	
-	/**
-	 * Get model binary path
-	 * 
-	 * @param item
-	 * @return promise to delete item
-	 * @memberof SeenAbstractItemCtrl
-	 */
-	this.getModelBinaryUrl = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
-	};
+
+	this.init({
+		eventType: '/user/accounts'
+	});
 });
 
 /*
@@ -4752,15 +4765,9 @@ angular.module('mblowfish-core')
                 var value = $parse(attr.mbInlineOnSave)(scope);
                 $q.when(value)//
                 .then(function(){
-                    scope.errorObject = {
-                            'error': false,
-                            'errorMessage' : null
-                    };
+                    delete scope.error;
                 }, function(error){
-                    scope.errorObject = {
-                            'error': true,
-                            'errorMessage': val
-                    };
+                    scope.error = error;
                 });
             }
         };
@@ -6442,257 +6449,6 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-//
-//angular.module('mblowfish-core')
-//
-///**
-// * @ngdoc Directives
-// * @name mb-panel
-// * @restrict E
-// * @scope true
-// * @description A dynamic panel with toolbar and sidenav
-// * 
-// * Applications needs an area to show modules, navigator, message and the
-// * other visual parts of the system. This is a general application panel
-// * which must be placed to the index.html directly.
-// * 
-// * @usage To load the application add this directive to the index.html.
-// *        All internal elements will be removed after the module loaded.
-// *        <hljs lang='html'> <body> <amd-panel> <div
-// *        class='amd-preloader'> Loading.... </div> </amd-panel> ....
-// *        </body> </hljs>
-// * 
-// */
-//.directive('mbPanel', function ($route, $rootScope, $actions, $injector) {
-//	/*
-//	 * evaluate protect function
-//	 */
-//	function canAccess(route) {
-//		if (!route.protect) {
-//			return true;
-//		}
-//		if (angular.isFunction(route.protect)) {
-//			return !$injector.invoke(route.protect, route);
-//		}
-//		return route.protect;
-//	}
-//
-//	function postLink($scope) {
-//		// State machin to controlle the view
-//		var stateMachine = new machina.Fsm({
-//			/* 
-//			 * the initialize method is called right after the FSM
-//			 * instance is constructed, giving you a place for any
-//			 * setup behavior, etc. It receives the same
-//			 * arguments (options) as the constructor function.
-//			 */
-//			initialize: function (/*options*/) {
-//				// your setup code goes here...
-//				$scope.status = this.initialState;
-//			},
-//			namespace: 'mb-panel-controller',
-//			initialState: 'loading',
-//			states: {
-//				ready: {
-//					routeChange: function (route) {
-//						if (route.protect && !canAccess(route)) {
-//							this.transition('accessDenied');
-//							return;
-//						}
-//					},
-//					appStateChange: function (state) {
-//						// return if state is ready
-//						if (state.startsWith('ready')) {
-//							return;
-//						} else {
-//							this.transition('loading');
-//						}
-//					},
-//					userStateChange: function (userIsAnonymous) {
-//						if(!userIsAnonymous){
-//							return;
-//						}
-//						if (this.getRoute().protect && userIsAnonymous) {//user is anonymous
-//							this.transition('login');
-//						} else {
-//							this.transition('readyAnonymous');
-//						}
-//					}
-//				},
-//				accessDenied: {
-//					routeChange: function (route) {
-//						if (!route.protect || canAccess(route)) {
-//							this.transition('ready');
-//						}
-//					},
-//					appStateChange: function (state) {
-//						// return if state is ready
-//						if (state.startsWith('ready')) {
-//							return;
-//						} else {
-//							this.transition('loading');
-//						}
-//					},
-//					userStateChange: function (userIsAnonymous) {
-//						if (userIsAnonymous) {//user is anonymous
-//							this.transition('login');
-//						}
-//					}
-//				},
-//				readyAnonymous: {
-//					routeChange: function (route) {
-//						// TODO: maso, change to login page
-//						if (route.protect) {
-//							this.transition('login');
-//						}
-//					},
-//					appStateChange: function (state) {
-//						// return if state is ready
-//						if (state.startsWith('ready')) {
-//							return;
-//						} else {
-//							this.transition('loading');
-//						}
-//					},
-//					userStateChange: function () {//user is not anonymous
-//						this.transition('ready');
-//					}
-//				},
-//				loading: {
-//					// routeChange: function(route){},
-//					appStateChange: function (state) {
-//						if (state.startsWith('ready')) {
-//							var route = this.getRoute();
-//							if ($rootScope.__account.anonymous) {
-//								if (route.protect) {
-//									this.transition('login');
-//								} else {
-//									this.transition('readyAnonymous');
-//								}
-//							} else {
-//								if (!route.protect || canAccess(route)) {
-//									this.transition('ready');
-//								} else {
-//									this.transition('accessDenied');
-//								}
-//							}
-//						}
-//					}
-//				},
-//				login: {
-//					routeChange: function (route) {
-//						if (!route.protect) {
-//							this.transition('readyAnonymous');
-//						}
-//					},
-//					appStateChange: function (state) {
-//						// return if state is ready
-//						if (state.startsWith('ready')) {
-//							return;
-//						} else {
-//							this.transition('loading');
-//						}
-//					},
-//					userStateChange: function () {//user is not anonymous
-//						var route = this.getRoute();
-//						if (!canAccess(route)) {
-//							this.transition('accessDenied');
-//						} else {
-//							this.transition('ready');
-//						}
-//					}
-//				}
-//			},
-//			/*
-//			 * Handle route change event
-//			 */
-//			routeChange: function (route) {
-//				this.currentRoute = route;
-//				if (!route) {
-//					return;
-//				}
-//				this.handle('routeChange', route);
-//			},
-//			/*
-//			 * Handle application state change
-//			 */
-//			appStateChange: function (state) {
-//				if(!state) {
-//					return;
-//				}
-//				this.handle('appStateChange', state);
-//			},
-//			/*
-//			 * Handle user state change
-//			 */
-//			userStateChange: function (userIsAnonymous) {
-//				this.userState = userIsAnonymous;
-//				this.handle('userStateChange', userIsAnonymous);
-//			},
-//
-//			/*
-//			 * Get current route
-//			 */
-//			getRoute: function () {
-//				return this.currentRoute || $route.current;
-//			},
-//
-//			/*
-//			 * Get current status
-//			 */
-//			getState: function () {
-//				return this.appState || $rootScope.__app.state;
-//			}
-//		});
-//
-//		// I'd like to know when the transition event occurs
-//		stateMachine.on('transition', function () {
-//			if (stateMachine.state.startsWith('ready')) {
-//				$scope.status = 'ready';
-//				return;
-//			}
-//			$scope.status = stateMachine.state;
-//		});
-//
-//		$scope.$watch(function () {
-//			return $route.current;
-//		}, function (route) {
-//			$actions.group('navigationPathMenu').clear();
-//			if (route) {
-//				stateMachine.routeChange(route.$$route);
-//				// Run state integeration
-//				if (route.$$route && angular.isFunction(route.$$route.integerate)) {
-//					$injector.invoke(route.$$route.integerate, route.$$route);
-//				}
-//			} else {
-//				stateMachine.routeChange(route);
-//			}
-//		});
-//
-//		$rootScope.$watch('__app.state', function (appState) {
-//			stateMachine.appStateChange(appState);
-//		});
-//
-//		$scope.$watch('__account.anonymous', function (val) {
-//			stateMachine.userStateChange(val);
-//		});
-//
-//	}
-//
-//	return {
-//		restrict: 'E',
-//		replace: true,
-//		templateUrl: 'views/directives/mb-panel.html',
-//		link: postLink
-//	};
-//});
-//
-//
-
-
-
-
 /**
  * @ngdoc directive
  * @name mbView
@@ -7114,7 +6870,7 @@ angular.module('mblowfish-core')
  */
 .factory('MbEvent', function () {
 
-    var mbEvent = function (data) {
+    function mbEvent(data) {
         if (!angular.isDefined(data)) {
             data = {};
         }
@@ -7124,29 +6880,29 @@ angular.module('mblowfish-core')
     mbEvent.prototype.getType = function () {
         return this.type || 'unknown';
     };
-    
+
     mbEvent.prototype.getKey = function () {
-    	return this.key || 'unknown';
+        return this.key || 'unknown';
     };
-    
+
     mbEvent.prototype.getValues = function () {
-    	return this.values || [];
+        return this.values || [];
     };
-    
+
     mbEvent.prototype.isCreated = function () {
-    	return this.key === 'created';
+        return this.key === 'create';
     };
-    
+
     mbEvent.prototype.isRead = function () {
-    	return this.key === 'read';
+        return this.key === 'read';
     };
-    
+
     mbEvent.prototype.isUpdated = function () {
-    	return this.key === 'updated';
+        return this.key === 'update';
     };
-    
+
     mbEvent.prototype.isDeleted = function () {
-    	return this.key === 'deleted';
+        return this.key === 'delete';
     };
 
     return mbEvent;
@@ -7372,19 +7128,19 @@ angular.module('mblowfish-core')
 
 
 angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-	/***************************************************************************
-	 * New app state
-	 * 
-	 * Application state is saved in the root scope
-	 **************************************************************************/
-	/*
-	 * Store application state
+	/**
+	 * دریچه‌های محاوره‌ای
 	 */
-	$rootScope.__app = {
+	.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
+		/***************************************************************************
+		 * New app state
+		 * 
+		 * Application state is saved in the root scope
+		 **************************************************************************/
+		/*
+		 * Store application state
+		 */
+		$rootScope.__app = {
 			/******************************************************************
 			 * New model
 			 ******************************************************************/
@@ -7399,7 +7155,7 @@ angular.module('mblowfish-core')
 			logs: [],
 			user: {
 				current: {},
-				profile : {},
+				profile: {},
 				anonymous: true,
 				administrator: false,
 				owner: false,
@@ -7416,144 +7172,145 @@ angular.module('mblowfish-core')
 			// tenant settings
 			options: {},
 			local: 'en', // Default local and language
-	};
-	$rootScope.app =  $rootScope.__app;
+			dir: 'rtl'
+		};
+		$rootScope.app = $rootScope.__app;
 
-	/*
-	 * Store tenant sate
-	 */
-	$rootScope.__tenant = {
-			id:0,
+		/*
+		 * Store tenant sate
+		 */
+		$rootScope.__tenant = {
+			id: 0,
 			title: 'notitle',
 			description: 'nodescription',
-			configs:{},
-			settings:{},
-			domains:{}
-	};
+			configs: {},
+			settings: {},
+			domains: {}
+		};
 
-	/*
-	 * Store account state
-	 */
-	$rootScope.__account ={
+		/*
+		 * Store account state
+		 */
+		$rootScope.__account = {
 			anonymous: true,
 			id: 0,
 			login: '',
-			profile : {},
-			roles:{},
-			groups:{},
-			permissions:{},
-			messages:[]
-	}
-
-
-	/***************************************************************************
-	 * Application actions
-	 **************************************************************************/
-	$actions.newAction({
-		id : 'mb.preferences',
-		priority : 15,
-		icon : 'settings',
-		title : 'Preferences',
-		description : 'Open preferences panel',
-		visible : function () {
-			return $rootScope.__account.permissions.tenant_owner;
-		},
-		action : function () {
-			return $navigator.openPage('preferences');
-		},
-		groups : [ 'mb.toolbar.menu' ]
-	});
-	$actions.newAction({// help
-		id : 'mb.help',
-		priority : 15,
-		icon : 'help',
-		title : 'Help',
-		description : 'Display help in sidenav',
-		visible : function () {
-			return $help.hasHelp($route.current);
-		},
-		action : function () {
-			$help.openHelp($route.current);
-		},
-		groups : [ 'mb.toolbar.menu' ]
-	});
-	$actions.newAction({
-		icon : 'account_circle',
-		title : 'Profile',
-		description : 'User profile',
-		groups : [ 'mb.user' ],
-		action : function () {
-			return $navigator.openPage('users/profile');
+			profile: {},
+			roles: {},
+			groups: {},
+			permissions: {},
+			messages: []
 		}
-	});
-	$actions.newAction({
-		icon : 'account_box',
-		title : 'Account',
-		description : 'User account',
-		groups : [ 'mb.user' ],
-		action : function () {
-			return $navigator.openPage('users/account');
-		}
-	});
-	$actions.newAction({
-		icon : 'fingerprint',
-		title : 'Password',
-		description : 'Manage password',
-		groups : [ 'mb.user' ],
-		action : function () {
-			return $navigator.openPage('users/password');
-		}
-	});
 
-	$toolbar.newToolbar({
-		id : 'dashboard',
-		title : 'Dashboard toolbar',
-		description : 'Main dashboard toolbar',
-		controller : 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/mb-dashboard.html'
-	});
 
-	$sidenav.newSidenav({
-		id : 'navigator',
-		title : 'Navigator',
-		description : 'Navigate all path and routs of the pandel',
-		controller : 'AmdNavigatorCtrl',
-		templateUrl : 'views/sidenavs/mb-navigator.html',
-		locked : true,
-		position : 'start'
+		/***************************************************************************
+		 * Application actions
+		 **************************************************************************/
+		$actions.newAction({
+			id: 'mb.preferences',
+			priority: 15,
+			icon: 'settings',
+			title: 'Preferences',
+			description: 'Open preferences panel',
+			visible: function () {
+				return $rootScope.__account.permissions.tenant_owner;
+			},
+			action: function () {
+				return $navigator.openPage('preferences');
+			},
+			groups: ['mb.toolbar.menu']
+		});
+		$actions.newAction({// help
+			id: 'mb.help',
+			priority: 15,
+			icon: 'help',
+			title: 'Help',
+			description: 'Display help in sidenav',
+			visible: function () {
+				return $help.hasHelp($route.current);
+			},
+			action: function () {
+				$help.openHelp($route.current);
+			},
+			groups: ['mb.toolbar.menu']
+		});
+		$actions.newAction({
+			icon: 'account_circle',
+			title: 'Profile',
+			description: 'User profile',
+			groups: ['mb.user'],
+			action: function () {
+				return $navigator.openPage('users/profile');
+			}
+		});
+		$actions.newAction({
+			icon: 'account_box',
+			title: 'Account',
+			description: 'User account',
+			groups: ['mb.user'],
+			action: function () {
+				return $navigator.openPage('users/account');
+			}
+		});
+		$actions.newAction({
+			icon: 'fingerprint',
+			title: 'Password',
+			description: 'Manage password',
+			groups: ['mb.user'],
+			action: function () {
+				return $navigator.openPage('users/password');
+			}
+		});
+
+		$toolbar.newToolbar({
+			id: 'dashboard',
+			title: 'Dashboard toolbar',
+			description: 'Main dashboard toolbar',
+			controller: 'MbToolbarDashboardCtrl',
+			templateUrl: 'views/toolbars/mb-dashboard.html'
+		});
+
+		$sidenav.newSidenav({
+			id: 'navigator',
+			title: 'Navigator',
+			description: 'Navigate all path and routs of the pandel',
+			controller: 'AmdNavigatorCtrl',
+			templateUrl: 'views/sidenavs/mb-navigator.html',
+			locked: true,
+			position: 'start'
+		});
+		$sidenav.newSidenav({
+			id: 'help',
+			title: 'Help',
+			description: 'System online help',
+			controller: 'MbHelpCtrl',
+			templateUrl: 'views/sidenavs/mb-help.html',
+			locked: true,
+			visible: function () {
+				return $rootScope.showHelp;
+			},
+			position: 'end'
+		});
+		$sidenav.newSidenav({
+			id: 'settings',
+			title: 'Options',
+			description: 'User options',
+			controller: 'MbOptionsCtrl',
+			templateUrl: 'views/sidenavs/mb-options.html',
+			locked: false,
+			position: 'end'
+		});
+		$sidenav.newSidenav({
+			id: 'messages',
+			title: 'Messages',
+			description: 'User message queue',
+			controller: 'MessagesCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/sidenavs/mb-messages.html',
+			locked: false,
+			position: 'start'
+		});
 	});
-	$sidenav.newSidenav({
-		id : 'help',
-		title : 'Help',
-		description : 'System online help',
-		controller : 'MbHelpCtrl',
-		templateUrl : 'views/sidenavs/mb-help.html',
-		locked : true,
-		visible : function () {
-			return $rootScope.showHelp;
-		},
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'settings',
-		title : 'Options',
-		description : 'User options',
-		controller : 'MbOptionsCtrl',
-		templateUrl : 'views/sidenavs/mb-options.html',
-		locked : false,
-		position : 'end'
-	});
-	$sidenav.newSidenav({
-		id : 'messages',
-		title : 'Messages',
-		description : 'User message queue',
-		controller : 'MessagesCtrl',
-		controllerAs: 'ctrl',
-		templateUrl : 'views/sidenavs/mb-messages.html',
-		locked : false,
-		position : 'start'
-	});
-});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7629,49 +7386,6 @@ angular.module('mblowfish-core')
 			// Remove the watch
 			oldWatch();
 		}
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/*
- * Enable crisp chat
- */
-.run(function($window, $rootScope, $location, $wbWindow) {
-
-	/*
-	 * Watch system configuration
-	 */
-	$rootScope.$watch('app.config.crisp.id', function(value){
-		if (!value) {
-			return;
-		}
-		
-		$wbWindow.loadLibrary('https://client.crisp.chat/l.js');
-		$window.$crisp=[];
-		$window.CRISP_WEBSITE_ID = value;
 	});
 });
 /*
@@ -7958,6 +7672,86 @@ angular.module('mblowfish-core')
 
 
 angular.module('mblowfish-core')
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function($options, $preferences) {
+	// Pages
+	$preferences
+	.newPage({
+		id : 'local',
+		title : 'local',
+		description : 'manage dashboard locality and language.',
+		templateUrl : 'views/preferences/mb-local.html',
+		controller: 'MbLocalCtrl',
+		icon : 'language',
+		tags : [ 'local', 'language' ]
+	})//
+	.newPage({
+		id : 'brand',
+		title : 'Branding',
+		description : 'Manage application branding such as title, logo and descritpions.',
+		templateUrl : 'views/preferences/mb-brand.html',
+//		controller : 'settingsBrandCtrl',
+		icon : 'copyright',
+		priority: 2,
+		required: true,
+		tags : [ 'brand' ]
+	})//
+	.newPage({
+		id : 'google-analytic',
+		title : 'Google Analytic',
+		templateUrl : 'views/preferences/mb-google-analytic.html',
+		description : 'Enable google analytic for your application.',
+		icon : 'timeline',
+		tags : [ 'analysis' ]
+	})
+	.newPage({
+		id: 'update',
+		templateUrl : 'views/preferences/mb-update.html',
+		title: 'Update application',
+		description: 'Settings of updating process and how to update the application.',
+		icon: 'autorenew'
+	});
+	
+	// Settings
+	$options.newPage({
+		title: 'Local',
+		templateUrl: 'views/options/mb-local.html',
+		controller: 'MbLocalCtrl',
+		tags: ['local']
+	});
+	$options.newPage({
+		title: 'Theme',
+		controller: 'MbThemesCtrl',
+		templateUrl: 'views/options/mb-theme.html',
+		tags: ['theme']
+	});
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
 /*
  * Help dialog 
  */
@@ -8110,7 +7904,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'resourceCtrl',
 		priority: 8,
-		tags: ['accounts']
+		tags: ['accounts', '/user/accounts']
 	});
 
 	// Resource for role-list
@@ -8135,7 +7929,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'resourceCtrl',
 		priority: 8,
-		tags: ['roles']
+		tags: ['roles', '/user/roles']
 	});
 
 
@@ -8492,94 +8286,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($options, $preferences) {
-	// Pages
-	$preferences
-	.newPage({
-		id : 'local',
-		title : 'local',
-		description : 'manage dashboard locality and language.',
-		templateUrl : 'views/preferences/mb-local.html',
-		controller: 'MbLocalCtrl',
-		icon : 'language',
-		tags : [ 'local', 'language' ]
-	})//
-	.newPage({
-		id : 'brand',
-		title : 'Branding',
-		description : 'Manage application branding such as title, logo and descritpions.',
-		templateUrl : 'views/preferences/mb-brand.html',
-//		controller : 'settingsBrandCtrl',
-		icon : 'copyright',
-		priority: 2,
-		required: true,
-		tags : [ 'brand' ]
-	})//
-	.newPage({
-		id : 'google-analytic',
-		title : 'Google Analytic',
-		templateUrl : 'views/preferences/mb-google-analytic.html',
-		description : 'Enable google analytic for your application.',
-		icon : 'timeline',
-		tags : [ 'analysis' ]
-	})
-	.newPage({
-		id : 'crisp-chat',
-		title : 'CRISP chat',
-		templateUrl : 'views/preferences/mb-crisp-chat.html',
-		description : 'Give your customer messaging experience a human touch with CRISP.',
-		icon : 'chat',
-		tags : [ 'chat' ]
-	})
-	.newPage({
-		id: 'update',
-		templateUrl : 'views/preferences/mb-update.html',
-		title: 'Update application',
-		description: 'Settings of updating process and how to update the application.',
-		icon: 'autorenew'
-	});
-	
-	// Settings
-	$options.newPage({
-		title: 'Local',
-		templateUrl: 'views/options/mb-local.html',
-		controller: 'MbLocalCtrl',
-		tags: ['local']
-	});
-	$options.newPage({
-		title: 'Theme',
-		controller: 'MbThemesCtrl',
-		templateUrl: 'views/options/mb-theme.html',
-		tags: ['theme']
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 angular.module('mblowfish-core')
 
 /**
@@ -8592,135 +8298,139 @@ angular.module('mblowfish-core')
  * 
  */
 .service('$actions', function(
-		/* angularjs */ $window,
-		/* mb        */ Action, ActionGroup, WbObservableObject) {
+        /* angularjs */ $window,
+        /* mb        */ Action, ActionGroup, WbObservableObject) {
 
-	// extend from observable object
-	angular.extend(this, WbObservableObject.prototype);
-	WbObservableObject.apply(this);
+    // extend from observable object
+    angular.extend(this, WbObservableObject.prototype);
+    WbObservableObject.apply(this);
 
-	this.actionsList = [];
-	this.actionsMap = {};
+    this.actionsList = [];
+    this.actionsMap = {};
 
-	this.groupsList = [];
-	this.groupsMap = [];
+    this.groupsList = [];
+    this.groupsMap = [];
 
-	this.actions = function () {
-		return {
-			'items' : this.actionsList
-		};
-	}
+    this.actions = function () {
+        return {
+            'items' : this.actionsList
+        };
+    }
 
-	// TODO: maso, 2018: add document
-	this.newAction = function (data) {
-		// Add new action
-		var action = new Action(data);
-		// remove old one
-		var oldaction = this.action(action.id);
-		if(oldaction){
-			this.removeAction(oldaction);
-		}
-		// add new one
-		this.actionsMap[action.id] = action;
-		this.actionsList.push(action);
-		if (action.scope) {
-			var service = this;
-			action.scope.$on('$destroy', function() {
-				service.removeAction(action);
-			});
-		}
-		this.updateAddByItem(action);
-		this.fire('actionsChanged', {
-			value: action,
-			oldValue: oldaction
-		});
-		return action;
-	};
-	
-	/**
-	 * gets action with id
-	 */
-	this.getAction = function (actionId) {
-		var action = this.actionsMap[actionId];
-		if (action) {
-			return action;
-		}
-	};
+    // TODO: maso, 2018: add document
+    this.newAction = function (data) {
+        // Add new action
+        var action = new Action(data);
+        // remove old one
+        var oldaction = this.action(action.id);
+        if(oldaction){
+            this.removeAction(oldaction);
+        }
+        // add new one
+        this.actionsMap[action.id] = action;
+        this.actionsList.push(action);
+        if (action.scope) {
+            var service = this;
+            action.scope.$on('$destroy', function() {
+                service.removeAction(action);
+            });
+        }
+        this.updateAddByItem(action);
+        this.fire('actionsChanged', {
+            value: action,
+            oldValue: oldaction
+        });
+        return action;
+    };
 
-	// TODO: maso, 2018: add document
-	this.action = this.getAction;
+    /**
+     * gets action with id
+     */
+    this.getAction = function (actionId) {
+        var action = this.actionsMap[actionId];
+        if (action) {
+            return action;
+        }
+    };
 
-	// TODO: maso, 2018: add document
-	this.removeAction = function (action) {
-		this.actionsMap[action.id] = null;
-		var index = this.actionsList.indexOf(action);
-		if (index > -1) {
-			this.actionsList.splice(index, 1);
-			this.updateRemoveByItem(action);
-			this.fire('actionsChanged', {
-				value: undefined,
-				oldValue: action
-			});
-			return action;
-		}
-	};
+    // TODO: maso, 2018: add document
+    this.action = this.getAction;
 
-	// TODO: maso, 2018: add document
-	this.groups = function() {
-		return {
-			'items' : this.groupsList
-		};
-	};
+    // TODO: maso, 2018: add document
+    this.removeAction = function (action) {
+        this.actionsMap[action.id] = null;
+        var index = this.actionsList.indexOf(action);
+        if (index > -1) {
+            this.actionsList.splice(index, 1);
+            this.updateRemoveByItem(action);
+            this.fire('actionsChanged', {
+                value: undefined,
+                oldValue: action
+            });
+            return action;
+        }
+    };
 
-	// TODO: maso, 2018: add document
-	this.newGroup = function(groupData) {
-		// TODO: maso, 2018: assert id
-		return this.group(groupData.id, groupData);
-	};
+    // TODO: maso, 2018: add document
+    this.groups = function() {
+        return {
+            'items' : this.groupsList
+        };
+    };
 
-	// TODO: maso, 2018: add document
-	this.group = function (groupId, groupData) {
-		var group = this.groupsMap[groupId];
-		if (!group) {
-			group = new ActionGroup(groupData);
-			group.id = groupId;
-			// TODO: maso, 2019: just use group map and remove groupList
-			this.groupsMap[group.id] = group;
-			this.groupsList.push(group);
-			this.updateAddByItem(group);
-		}else if (groupData) {
-			angular.extend(group, groupData);
-		}
-		this.fire('groupsChanged', {
-			value: group
-		});
-		return group;
-	};
-	
-	this.updateAddByItem = function(item){
-		var groups = item.groups || [];
-		for (var i = 0; i < groups.length; i++) {
-			var group = this.group(groups[i]);
-			group.addItem(item);
-		}
-	};
-	
-	this.updateRemoveByItem = function(item){
-		var groups = item.groups || [];
-		for (var i = 0; i < groups.length; i++) {
-			var group = this.group(groups[i]);
-			group.removeItem(item);
-		}
-	};
-	
-	this.exec = function(actionId, $event){
-		var action = this.getAction(actionId);
-		if(!action){
-			$window.alert('Action \''+actionId +'\' not found!');
-			return;
-		}
-		return action.exec($event);
-	};
+    // TODO: maso, 2018: add document
+    this.newGroup = function(groupData) {
+        // TODO: maso, 2018: assert id
+        return this.group(groupData.id, groupData);
+    };
+
+    // TODO: maso, 2018: add document
+    this.group = function (groupId, groupData) {
+        var group = this.groupsMap[groupId];
+        if (!group) {
+            group = new ActionGroup(groupData);
+            group.id = groupId;
+            // TODO: maso, 2019: just use group map and remove groupList
+            this.groupsMap[group.id] = group;
+            this.groupsList.push(group);
+            this.updateAddByItem(group);
+        }else if (groupData) {
+            angular.extend(group, groupData);
+        }
+        this.fire('groupsChanged', {
+            value: group
+        });
+        return group;
+    };
+
+    this.updateAddByItem = function(item){
+        var groups = item.groups || [];
+        for (var i = 0; i < groups.length; i++) {
+            var group = this.group(groups[i]);
+            group.addItem(item);
+        }
+    };
+
+    this.updateRemoveByItem = function(item){
+        var groups = item.groups || [];
+        for (var i = 0; i < groups.length; i++) {
+            var group = this.group(groups[i]);
+            group.removeItem(item);
+        }
+    };
+
+    this.exec = function(actionId, $event){
+        $event = $event || {
+            stopPropagation: function(){},
+            preventDefault: function(){},
+        }; // TODO: amso, 2020: crate an action event
+        var action = this.getAction(actionId);
+        if(!action){
+            $window.alert('Action \''+actionId +'\' not found!');
+            return;
+        }
+        return action.exec($event);
+    };
 
 });
 
@@ -10932,905 +10642,6 @@ angular.module('mblowfish-core')
 	};
 });
 
-/**
- * @ngdoc provider
- * @name $routeProvider
- * @this
- *
- * @description
- *
- * Used for configuring routes.
- *
- * ## Example
- * See {@link ngRoute.$route#examples $route} for an example of configuring and using `ngRoute`.
- *
- * ## Dependencies
- * Requires the {@link ngRoute `ngRoute`} module to be installed.
- */
-angular.module('mblowfish-core')
-.provider('$route', function(){
-	var isArray = angular.isArray;
-	
-	var isObject = angular.isObject;
-	var isDefined = angular.isDefined;
-	var noop = angular.noop;
-	var $routeMinErr = angular.$$minErr('mblowfish');
-
-	/**
-	 * @param {string} path - The path to parse. (It is assumed to have query and hash stripped off.)
-	 * @param {Object} opts - Options.
-	 * @return {Object} - An object containing an array of path parameter names (`keys`) and a regular
-	 *     expression (`regexp`) that can be used to identify a matching URL and extract the path
-	 *     parameter values.
-	 *
-	 * @description
-	 * Parses the given path, extracting path parameter names and a regular expression to match URLs.
-	 *
-	 * Originally inspired by `pathRexp` in `visionmedia/express/lib/utils.js`.
-	 */
-	function routeToRegExp(path, opts) {
-		var keys = [];
-
-		var pattern = path
-		.replace(/([().])/g, '\\$1')
-		.replace(/(\/)?:(\w+)(\*\?|[?*])?/g, function(_, slash, key, option) {
-			var optional = option === '?' || option === '*?';
-			var star = option === '*' || option === '*?';
-			keys.push({name: key, optional: optional});
-			slash = slash || '';
-			return (
-					(optional ? '(?:' + slash : slash + '(?:') +
-					(star ? '(.+?)' : '([^/]+)') +
-					(optional ? '?)?' : ')')
-			);
-		})
-		.replace(/([/$*])/g, '\\$1');
-
-		if (opts.ignoreTrailingSlashes) {
-			pattern = pattern.replace(/\/+$/, '') + '/*';
-		}
-
-		return {
-			keys: keys,
-			regexp: new RegExp(
-					'^' + pattern + '(?:[?#]|$)',
-					opts.caseInsensitiveMatch ? 'i' : ''
-			)
-		};
-	}
-	
-	/**
-	 * Creates a shallow copy of an object, an array or a primitive.
-	 *
-	 * Assumes that there are no proto properties for objects.
-	 */
-	function shallowCopy(src, dst) {
-		if (isArray(src)) {
-			dst = dst || [];
-
-			for (var i = 0, ii = src.length; i < ii; i++) {
-				dst[i] = src[i];
-			}
-		} else if (isObject(src)) {
-			dst = dst || {};
-
-			for (var key in src) {
-				if (!(key.charAt(0) === '$' && key.charAt(1) === '$')) {
-					dst[key] = src[key];
-				}
-			}
-		}
-
-		return dst || src;
-	}
-
-	function inherit(parent, extra) {
-		return angular.extend(Object.create(parent), extra);
-	}
-
-	var routes = {};
-
-	/**
-	 * @ngdoc method
-	 * @name $routeProvider#when
-	 *
-	 * @param {string} path Route path (matched against `$location.path`). If `$location.path`
-	 *    contains redundant trailing slash or is missing one, the route will still match and the
-	 *    `$location.path` will be updated to add or drop the trailing slash to exactly match the
-	 *    route definition.
-	 *
-	 *    * `path` can contain named groups starting with a colon: e.g. `:name`. All characters up
-	 *        to the next slash are matched and stored in `$routeParams` under the given `name`
-	 *        when the route matches.
-	 *    * `path` can contain named groups starting with a colon and ending with a star:
-	 *        e.g.`:name*`. All characters are eagerly stored in `$routeParams` under the given `name`
-	 *        when the route matches.
-	 *    * `path` can contain optional named groups with a question mark: e.g.`:name?`.
-	 *
-	 *    For example, routes like `/color/:color/largecode/:largecode*\/edit` will match
-	 *    `/color/brown/largecode/code/with/slashes/edit` and extract:
-	 *
-	 *    * `color: brown`
-	 *    * `largecode: code/with/slashes`.
-	 *
-	 *
-	 * @param {Object} route Mapping information to be assigned to `$route.current` on route
-	 *    match.
-	 *
-	 *    Object properties:
-	 *
-	 *    - `controller` – `{(string|Function)=}` – Controller fn that should be associated with
-	 *      newly created scope or the name of a {@link angular.Module#controller registered
-	 *      controller} if passed as a string.
-	 *    - `controllerAs` – `{string=}` – An identifier name for a reference to the controller.
-	 *      If present, the controller will be published to scope under the `controllerAs` name.
-	 *    - `template` – `{(string|Function)=}` – html template as a string or a function that
-	 *      returns an html template as a string which should be used by {@link
-	 *      ngRoute.directive:mbView mbView} or {@link ng.directive:ngInclude ngInclude} directives.
-	 *      This property takes precedence over `templateUrl`.
-	 *
-	 *      If `template` is a function, it will be called with the following parameters:
-	 *
-	 *      - `{Array.<Object>}` - route parameters extracted from the current
-	 *        `$location.path()` by applying the current route
-	 *
-	 *      One of `template` or `templateUrl` is required.
-	 *
-	 *    - `templateUrl` – `{(string|Function)=}` – path or function that returns a path to an html
-	 *      template that should be used by {@link ngRoute.directive:mbView mbView}.
-	 *
-	 *      If `templateUrl` is a function, it will be called with the following parameters:
-	 *
-	 *      - `{Array.<Object>}` - route parameters extracted from the current
-	 *        `$location.path()` by applying the current route
-	 *
-	 *      One of `templateUrl` or `template` is required.
-	 *
-	 *    - `resolve` - `{Object.<string, Function>=}` - An optional map of dependencies which should
-	 *      be injected into the controller. If any of these dependencies are promises, the router
-	 *      will wait for them all to be resolved or one to be rejected before the controller is
-	 *      instantiated.
-	 *      If all the promises are resolved successfully, the values of the resolved promises are
-	 *      injected and {@link ngRoute.$route#$routeChangeSuccess $routeChangeSuccess} event is
-	 *      fired. If any of the promises are rejected the
-	 *      {@link ngRoute.$route#$routeChangeError $routeChangeError} event is fired.
-	 *      For easier access to the resolved dependencies from the template, the `resolve` map will
-	 *      be available on the scope of the route, under `$resolve` (by default) or a custom name
-	 *      specified by the `resolveAs` property (see below). This can be particularly useful, when
-	 *      working with {@link angular.Module#component components} as route templates.<br />
-	 *      <div class="alert alert-warning">
-	 *        **Note:** If your scope already contains a property with this name, it will be hidden
-	 *        or overwritten. Make sure, you specify an appropriate name for this property, that
-	 *        does not collide with other properties on the scope.
-	 *      </div>
-	 *      The map object is:
-	 *
-	 *      - `key` – `{string}`: a name of a dependency to be injected into the controller.
-	 *      - `factory` - `{string|Function}`: If `string` then it is an alias for a service.
-	 *        Otherwise if function, then it is {@link auto.$injector#invoke injected}
-	 *        and the return value is treated as the dependency. If the result is a promise, it is
-	 *        resolved before its value is injected into the controller. Be aware that
-	 *        `ngRoute.$routeParams` will still refer to the previous route within these resolve
-	 *        functions.  Use `$route.current.params` to access the new route parameters, instead.
-	 *
-	 *    - `resolveAs` - `{string=}` - The name under which the `resolve` map will be available on
-	 *      the scope of the route. If omitted, defaults to `$resolve`.
-	 *
-	 *    - `redirectTo` – `{(string|Function)=}` – value to update
-	 *      {@link ng.$location $location} path with and trigger route redirection.
-	 *
-	 *      If `redirectTo` is a function, it will be called with the following parameters:
-	 *
-	 *      - `{Object.<string>}` - route parameters extracted from the current
-	 *        `$location.path()` by applying the current route templateUrl.
-	 *      - `{string}` - current `$location.path()`
-	 *      - `{Object}` - current `$location.search()`
-	 *
-	 *      The custom `redirectTo` function is expected to return a string which will be used
-	 *      to update `$location.url()`. If the function throws an error, no further processing will
-	 *      take place and the {@link ngRoute.$route#$routeChangeError $routeChangeError} event will
-	 *      be fired.
-	 *
-	 *      Routes that specify `redirectTo` will not have their controllers, template functions
-	 *      or resolves called, the `$location` will be changed to the redirect url and route
-	 *      processing will stop. The exception to this is if the `redirectTo` is a function that
-	 *      returns `undefined`. In this case the route transition occurs as though there was no
-	 *      redirection.
-	 *
-	 *    - `resolveRedirectTo` – `{Function=}` – a function that will (eventually) return the value
-	 *      to update {@link ng.$location $location} URL with and trigger route redirection. In
-	 *      contrast to `redirectTo`, dependencies can be injected into `resolveRedirectTo` and the
-	 *      return value can be either a string or a promise that will be resolved to a string.
-	 *
-	 *      Similar to `redirectTo`, if the return value is `undefined` (or a promise that gets
-	 *      resolved to `undefined`), no redirection takes place and the route transition occurs as
-	 *      though there was no redirection.
-	 *
-	 *      If the function throws an error or the returned promise gets rejected, no further
-	 *      processing will take place and the
-	 *      {@link ngRoute.$route#$routeChangeError $routeChangeError} event will be fired.
-	 *
-	 *      `redirectTo` takes precedence over `resolveRedirectTo`, so specifying both on the same
-	 *      route definition, will cause the latter to be ignored.
-	 *
-	 *    - `[reloadOnUrl=true]` - `{boolean=}` - reload route when any part of the URL changes
-	 *      (including the path) even if the new URL maps to the same route.
-	 *
-	 *      If the option is set to `false` and the URL in the browser changes, but the new URL maps
-	 *      to the same route, then a `$routeUpdate` event is broadcasted on the root scope (without
-	 *      reloading the route).
-	 *
-	 *    - `[reloadOnSearch=true]` - `{boolean=}` - reload route when only `$location.search()`
-	 *      or `$location.hash()` changes.
-	 *
-	 *      If the option is set to `false` and the URL in the browser changes, then a `$routeUpdate`
-	 *      event is broadcasted on the root scope (without reloading the route).
-	 *
-	 *      <div class="alert alert-warning">
-	 *        **Note:** This option has no effect if `reloadOnUrl` is set to `false`.
-	 *      </div>
-	 *
-	 *    - `[caseInsensitiveMatch=false]` - `{boolean=}` - match routes without being case sensitive
-	 *
-	 *      If the option is set to `true`, then the particular route can be matched without being
-	 *      case sensitive
-	 *
-	 * @returns {Object} self
-	 *
-	 * @description
-	 * Adds a new route definition to the `$route` service.
-	 */
-	this.when = function(path, route) {
-		//copy original route object to preserve params inherited from proto chain
-		var routeCopy = shallowCopy(route);
-		if (angular.isUndefined(routeCopy.reloadOnUrl)) {
-			routeCopy.reloadOnUrl = true;
-		}
-		if (angular.isUndefined(routeCopy.reloadOnSearch)) {
-			routeCopy.reloadOnSearch = true;
-		}
-		if (angular.isUndefined(routeCopy.caseInsensitiveMatch)) {
-			routeCopy.caseInsensitiveMatch = this.caseInsensitiveMatch;
-		}
-		routes[path] = angular.extend(
-				routeCopy,
-				{originalPath: path},
-				path && routeToRegExp(path, routeCopy)
-		);
-
-		// create redirection for trailing slashes
-		if (path) {
-			var redirectPath = (path[path.length - 1] === '/')
-			? path.substr(0, path.length - 1)
-					: path + '/';
-
-			routes[redirectPath] = angular.extend(
-					{originalPath: path, redirectTo: path},
-					routeToRegExp(redirectPath, routeCopy)
-			);
-		}
-
-		return this;
-	};
-
-	/**
-	 * @ngdoc property
-	 * @name $routeProvider#caseInsensitiveMatch
-	 * @description
-	 *
-	 * A boolean property indicating if routes defined
-	 * using this provider should be matched using a case insensitive
-	 * algorithm. Defaults to `false`.
-	 */
-	this.caseInsensitiveMatch = false;
-
-	/**
-	 * @ngdoc method
-	 * @name $routeProvider#otherwise
-	 *
-	 * @description
-	 * Sets route definition that will be used on route change when no other route definition
-	 * is matched.
-	 *
-	 * @param {Object|string} params Mapping information to be assigned to `$route.current`.
-	 * If called with a string, the value maps to `redirectTo`.
-	 * @returns {Object} self
-	 */
-	this.otherwise = function(params) {
-		if (typeof params === 'string') {
-			params = {redirectTo: params};
-		}
-		this.when(null, params);
-		return this;
-	};
-
-
-	this.$get = ['$rootScope',
-		'$location',
-		'$routeParams',
-		'$q',
-		'$injector',
-		'$templateRequest',
-		'$sce',
-		'$browser',
-		function($rootScope, $location, $routeParams, $q, $injector, $templateRequest, $sce, $browser) {
-
-		/**
-		 * @ngdoc service
-		 * @name $route
-		 * @requires $location
-		 * @requires $routeParams
-		 *
-		 * @property {Object} current Reference to the current route definition.
-		 * The route definition contains:
-		 *
-		 *   - `controller`: The controller constructor as defined in the route definition.
-		 *   - `locals`: A map of locals which is used by {@link ng.$controller $controller} service for
-		 *     controller instantiation. The `locals` contain
-		 *     the resolved values of the `resolve` map. Additionally the `locals` also contain:
-		 *
-		 *     - `$scope` - The current route scope.
-		 *     - `$template` - The current route template HTML.
-		 *
-		 *     The `locals` will be assigned to the route scope's `$resolve` property. You can override
-		 *     the property name, using `resolveAs` in the route definition. See
-		 *     {@link ngRoute.$routeProvider $routeProvider} for more info.
-		 *
-		 * @property {Object} routes Object with all route configuration Objects as its properties.
-		 *
-		 * @description
-		 * `$route` is used for deep-linking URLs to controllers and views (HTML partials).
-		 * It watches `$location.url()` and tries to map the path to an existing route definition.
-		 *
-		 * Requires the {@link ngRoute `ngRoute`} module to be installed.
-		 *
-		 * You can define routes through {@link ngRoute.$routeProvider $routeProvider}'s API.
-		 *
-		 * The `$route` service is typically used in conjunction with the
-		 * {@link ngRoute.directive:mbView `mbView`} directive and the
-		 * {@link ngRoute.$routeParams `$routeParams`} service.
-		 *
-		 * @example
-		 * This example shows how changing the URL hash causes the `$route` to match a route against the
-		 * URL, and the `mbView` pulls in the partial.
-		 *
-		 * <example name="$route-service" module="ngRouteExample"
-		 *          deps="angular-route.js" fixBase="true">
-		 *   <file name="index.html">
-		 *     <div ng-controller="MainController">
-		 *       Choose:
-		 *       <a href="Book/Moby">Moby</a> |
-		 *       <a href="Book/Moby/ch/1">Moby: Ch1</a> |
-		 *       <a href="Book/Gatsby">Gatsby</a> |
-		 *       <a href="Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-		 *       <a href="Book/Scarlet">Scarlet Letter</a><br/>
-		 *
-		 *       <div ng-view></div>
-		 *
-		 *       <hr />
-		 *
-		 *       <pre>$location.path() = {{$location.path()}}</pre>
-		 *       <pre>$route.current.templateUrl = {{$route.current.templateUrl}}</pre>
-		 *       <pre>$route.current.params = {{$route.current.params}}</pre>
-		 *       <pre>$route.current.scope.name = {{$route.current.scope.name}}</pre>
-		 *       <pre>$routeParams = {{$routeParams}}</pre>
-		 *     </div>
-		 *   </file>
-		 *
-		 *   <file name="book.html">
-		 *     controller: {{name}}<br />
-		 *     Book Id: {{params.bookId}}<br />
-		 *   </file>
-		 *
-		 *   <file name="chapter.html">
-		 *     controller: {{name}}<br />
-		 *     Book Id: {{params.bookId}}<br />
-		 *     Chapter Id: {{params.chapterId}}
-		 *   </file>
-		 *
-		 *   <file name="script.js">
-		 *     angular.module('ngRouteExample', ['ngRoute'])
-		 *
-		 *      .controller('MainController', function($scope, $route, $routeParams, $location) {
-		 *          $scope.$route = $route;
-		 *          $scope.$location = $location;
-		 *          $scope.$routeParams = $routeParams;
-		 *      })
-		 *
-		 *      .controller('BookController', function($scope, $routeParams) {
-		 *          $scope.name = 'BookController';
-		 *          $scope.params = $routeParams;
-		 *      })
-		 *
-		 *      .controller('ChapterController', function($scope, $routeParams) {
-		 *          $scope.name = 'ChapterController';
-		 *          $scope.params = $routeParams;
-		 *      })
-		 *
-		 *     .config(function($routeProvider, $locationProvider) {
-		 *       $routeProvider
-		 *        .when('/Book/:bookId', {
-		 *         templateUrl: 'book.html',
-		 *         controller: 'BookController',
-		 *         resolve: {
-		 *           // I will cause a 1 second delay
-		 *           delay: function($q, $timeout) {
-		 *             var delay = $q.defer();
-		 *             $timeout(delay.resolve, 1000);
-		 *             return delay.promise;
-		 *           }
-		 *         }
-		 *       })
-		 *       .when('/Book/:bookId/ch/:chapterId', {
-		 *         templateUrl: 'chapter.html',
-		 *         controller: 'ChapterController'
-		 *       });
-		 *
-		 *       // configure html5 to get links working on jsfiddle
-		 *       $locationProvider.html5Mode(true);
-		 *     });
-		 *
-		 *   </file>
-		 *
-		 *   <file name="protractor.js" type="protractor">
-		 *     it('should load and compile correct template', function() {
-		 *       element(by.linkText('Moby: Ch1')).click();
-		 *       var content = element(by.css('[ng-view]')).getText();
-		 *       expect(content).toMatch(/controller: ChapterController/);
-		 *       expect(content).toMatch(/Book Id: Moby/);
-		 *       expect(content).toMatch(/Chapter Id: 1/);
-		 *
-		 *       element(by.partialLinkText('Scarlet')).click();
-		 *
-		 *       content = element(by.css('[ng-view]')).getText();
-		 *       expect(content).toMatch(/controller: BookController/);
-		 *       expect(content).toMatch(/Book Id: Scarlet/);
-		 *     });
-		 *   </file>
-		 * </example>
-		 */
-
-		/**
-		 * @ngdoc event
-		 * @name $route#$routeChangeStart
-		 * @eventType broadcast on root scope
-		 * @description
-		 * Broadcasted before a route change. At this  point the route services starts
-		 * resolving all of the dependencies needed for the route change to occur.
-		 * Typically this involves fetching the view template as well as any dependencies
-		 * defined in `resolve` route property. Once  all of the dependencies are resolved
-		 * `$routeChangeSuccess` is fired.
-		 *
-		 * The route change (and the `$location` change that triggered it) can be prevented
-		 * by calling `preventDefault` method of the event. See {@link ng.$rootScope.Scope#$on}
-		 * for more details about event object.
-		 *
-		 * @param {Object} angularEvent Synthetic event object.
-		 * @param {Route} next Future route information.
-		 * @param {Route} current Current route information.
-		 */
-
-		/**
-		 * @ngdoc event
-		 * @name $route#$routeChangeSuccess
-		 * @eventType broadcast on root scope
-		 * @description
-		 * Broadcasted after a route change has happened successfully.
-		 * The `resolve` dependencies are now available in the `current.locals` property.
-		 *
-		 * {@link ngRoute.directive:mbView mbView} listens for the directive
-		 * to instantiate the controller and render the view.
-		 *
-		 * @param {Object} angularEvent Synthetic event object.
-		 * @param {Route} current Current route information.
-		 * @param {Route|Undefined} previous Previous route information, or undefined if current is
-		 * first route entered.
-		 */
-
-		/**
-		 * @ngdoc event
-		 * @name $route#$routeChangeError
-		 * @eventType broadcast on root scope
-		 * @description
-		 * Broadcasted if a redirection function fails or any redirection or resolve promises are
-		 * rejected.
-		 *
-		 * @param {Object} angularEvent Synthetic event object
-		 * @param {Route} current Current route information.
-		 * @param {Route} previous Previous route information.
-		 * @param {Route} rejection The thrown error or the rejection reason of the promise. Usually
-		 * the rejection reason is the error that caused the promise to get rejected.
-		 */
-
-		/**
-		 * @ngdoc event
-		 * @name $route#$routeUpdate
-		 * @eventType broadcast on root scope
-		 * @description
-		 * Broadcasted if the same instance of a route (including template, controller instance,
-		 * resolved dependencies, etc.) is being reused. This can happen if either `reloadOnSearch` or
-		 * `reloadOnUrl` has been set to `false`.
-		 *
-		 * @param {Object} angularEvent Synthetic event object
-		 * @param {Route} current Current/previous route information.
-		 */
-
-		var forceReload = false,
-		preparedRoute,
-		preparedRouteIsUpdateOnly,
-		$route = {
-				routes: routes,
-
-				/**
-				 * @ngdoc method
-				 * @name $route#reload
-				 *
-				 * @description
-				 * Causes `$route` service to reload the current route even if
-				 * {@link ng.$location $location} hasn't changed.
-				 *
-				 * As a result of that, {@link ngRoute.directive:mbView mbView}
-				 * creates new scope and reinstantiates the controller.
-				 */
-				reload: function() {
-					forceReload = true;
-
-					var fakeLocationEvent = {
-							defaultPrevented: false,
-							preventDefault: function fakePreventDefault() {
-								this.defaultPrevented = true;
-								forceReload = false;
-							}
-					};
-
-					$rootScope.$evalAsync(function() {
-						prepareRoute(fakeLocationEvent);
-						if (!fakeLocationEvent.defaultPrevented) commitRoute();
-					});
-				},
-
-				/**
-				 * @ngdoc method
-				 * @name $route#updateParams
-				 *
-				 * @description
-				 * Causes `$route` service to update the current URL, replacing
-				 * current route parameters with those specified in `newParams`.
-				 * Provided property names that match the route's path segment
-				 * definitions will be interpolated into the location's path, while
-				 * remaining properties will be treated as query params.
-				 *
-				 * @param {!Object<string, string>} newParams mapping of URL parameter names to values
-				 */
-				updateParams: function(newParams) {
-					if (this.current && this.current.$$route) {
-						newParams = angular.extend({}, this.current.params, newParams);
-						$location.path(interpolate(this.current.$$route.originalPath, newParams));
-						// interpolate modifies newParams, only query params are left
-						$location.search(newParams);
-					} else {
-						throw $routeMinErr('norout', 'Tried updating route with no current route');
-					}
-				}
-		};
-
-		$rootScope.$on('$locationChangeStart', prepareRoute);
-		$rootScope.$on('$locationChangeSuccess', commitRoute);
-
-		return $route;
-
-		/////////////////////////////////////////////////////
-
-		/**
-		 * @param on {string} current url
-		 * @param route {Object} route regexp to match the url against
-		 * @return {?Object}
-		 *
-		 * @description
-		 * Check if the route matches the current url.
-		 *
-		 * Inspired by match in
-		 * visionmedia/express/lib/router/router.js.
-		 */
-		function switchRouteMatcher(on, route) {
-			var keys = route.keys,
-			params = {};
-
-			if (!route.regexp) return null;
-
-			var m = route.regexp.exec(on);
-			if (!m) return null;
-
-			for (var i = 1, len = m.length; i < len; ++i) {
-				var key = keys[i - 1];
-
-				var val = m[i];
-
-				if (key && val) {
-					params[key.name] = val;
-				}
-			}
-			return params;
-		}
-
-		function prepareRoute($locationEvent) {
-			var lastRoute = $route.current;
-
-			preparedRoute = parseRoute();
-			preparedRouteIsUpdateOnly = isNavigationUpdateOnly(preparedRoute, lastRoute);
-
-			if (!preparedRouteIsUpdateOnly && (lastRoute || preparedRoute)) {
-				if ($rootScope.$broadcast('$routeChangeStart', preparedRoute, lastRoute).defaultPrevented) {
-					if ($locationEvent) {
-						$locationEvent.preventDefault();
-					}
-				}
-			}
-		}
-
-		function commitRoute() {
-			var lastRoute = $route.current;
-			var nextRoute = preparedRoute;
-
-			if (preparedRouteIsUpdateOnly) {
-				lastRoute.params = nextRoute.params;
-				angular.copy(lastRoute.params, $routeParams);
-				$rootScope.$broadcast('$routeUpdate', lastRoute);
-			} else if (nextRoute || lastRoute) {
-				forceReload = false;
-				$route.current = nextRoute;
-
-				var nextRoutePromise = $q.resolve(nextRoute);
-
-				$browser.$$incOutstandingRequestCount('$route');
-
-				nextRoutePromise.
-				then(getRedirectionData).
-				then(handlePossibleRedirection).
-				then(function(keepProcessingRoute) {
-					return keepProcessingRoute && nextRoutePromise.
-					then(resolveLocals).
-					then(function(locals) {
-						// after route change
-						if (nextRoute === $route.current) {
-							if (nextRoute) {
-								nextRoute.locals = locals;
-								angular.copy(nextRoute.params, $routeParams);
-							}
-							$rootScope.$broadcast('$routeChangeSuccess', nextRoute, lastRoute);
-						}
-					});
-				}).catch(function(error) {
-					if (nextRoute === $route.current) {
-						$rootScope.$broadcast('$routeChangeError', nextRoute, lastRoute, error);
-					}
-				}).finally(function() {
-					// Because `commitRoute()` is called from a `$rootScope.$evalAsync` block (see
-					// `$locationWatch`), this `$$completeOutstandingRequest()` call will not cause
-					// `outstandingRequestCount` to hit zero.  This is important in case we are redirecting
-					// to a new route which also requires some asynchronous work.
-
-					$browser.$$completeOutstandingRequest(noop, '$route');
-				});
-			}
-		}
-
-		function getRedirectionData(route) {
-			var data = {
-					route: route,
-					hasRedirection: false
-			};
-
-			if (route) {
-				if (route.redirectTo) {
-					if (angular.isString(route.redirectTo)) {
-						data.path = interpolate(route.redirectTo, route.params);
-						data.search = route.params;
-						data.hasRedirection = true;
-					} else {
-						var oldPath = $location.path();
-						var oldSearch = $location.search();
-						var newUrl = route.redirectTo(route.pathParams, oldPath, oldSearch);
-
-						if (angular.isDefined(newUrl)) {
-							data.url = newUrl;
-							data.hasRedirection = true;
-						}
-					}
-				} else if (route.resolveRedirectTo) {
-					return $q.
-					resolve($injector.invoke(route.resolveRedirectTo)).
-					then(function(newUrl) {
-						if (angular.isDefined(newUrl)) {
-							data.url = newUrl;
-							data.hasRedirection = true;
-						}
-
-						return data;
-					});
-				}
-			}
-
-			return data;
-		}
-
-		function handlePossibleRedirection(data) {
-			var keepProcessingRoute = true;
-
-			if (data.route !== $route.current) {
-				keepProcessingRoute = false;
-			} else if (data.hasRedirection) {
-				var oldUrl = $location.url();
-				var newUrl = data.url;
-
-				if (newUrl) {
-					$location.
-					url(newUrl).
-					replace();
-				} else {
-					newUrl = $location.
-					path(data.path).
-					search(data.search).
-					replace().
-					url();
-				}
-
-				if (newUrl !== oldUrl) {
-					// Exit out and don't process current next value,
-					// wait for next location change from redirect
-					keepProcessingRoute = false;
-				}
-			}
-
-			return keepProcessingRoute;
-		}
-
-		function resolveLocals(route) {
-			if (route) {
-				var locals = angular.extend({}, route.resolve);
-				angular.forEach(locals, function(value, key) {
-					locals[key] = angular.isString(value) ?
-							$injector.get(value) :
-								$injector.invoke(value, null, null, key);
-				});
-				var template = getTemplateFor(route);
-				if (angular.isDefined(template)) {
-					locals['$template'] = template;
-				}
-				return $q.all(locals);
-			}
-		}
-
-		function getTemplateFor(route) {
-			var template, templateUrl;
-			if (angular.isDefined(template = route.template)) {
-				if (angular.isFunction(template)) {
-					template = template(route.params);
-				}
-			} else if (angular.isDefined(templateUrl = route.templateUrl)) {
-				if (angular.isFunction(templateUrl)) {
-					templateUrl = templateUrl(route.params);
-				}
-				if (angular.isDefined(templateUrl)) {
-					route.loadedTemplateUrl = $sce.valueOf(templateUrl);
-					template = $templateRequest(templateUrl);
-				}
-			}
-			return template;
-		}
-
-		/**
-		 * @returns {Object} the current active route, by matching it against the URL
-		 */
-		function parseRoute() {
-			// Match a route
-			var params, match;
-			angular.forEach(routes, function(route, path) {
-				if (!match && (params = switchRouteMatcher($location.path(), route))) {
-					match = inherit(route, {
-						params: angular.extend({}, $location.search(), params),
-						pathParams: params});
-					match.$$route = route;
-				}
-			});
-			// No route matched; fallback to "otherwise" route
-			return match || routes[null] && inherit(routes[null], {params: {}, pathParams:{}});
-		}
-
-		/**
-		 * @param {Object} newRoute - The new route configuration (as returned by `parseRoute()`).
-		 * @param {Object} oldRoute - The previous route configuration (as returned by `parseRoute()`).
-		 * @returns {boolean} Whether this is an "update-only" navigation, i.e. the URL maps to the same
-		 *                    route and it can be reused (based on the config and the type of change).
-		 */
-		function isNavigationUpdateOnly(newRoute, oldRoute) {
-			// IF this is not a forced reload
-			return !forceReload
-			// AND both `newRoute`/`oldRoute` are defined
-			&& newRoute && oldRoute
-			// AND they map to the same Route Definition Object
-			&& (newRoute.$$route === oldRoute.$$route)
-			// AND `reloadOnUrl` is disabled
-			&& (!newRoute.reloadOnUrl
-					// OR `reloadOnSearch` is disabled
-					|| (!newRoute.reloadOnSearch
-							// AND both routes have the same path params
-							&& angular.equals(newRoute.pathParams, oldRoute.pathParams)
-					)
-			);
-		}
-
-		/**
-		 * @returns {string} interpolation of the redirect path with the parameters
-		 */
-		function interpolate(string, params) {
-			var result = [];
-			angular.forEach((string || '').split(':'), function(segment, i) {
-				if (i === 0) {
-					result.push(segment);
-				} else {
-					var segmentMatch = segment.match(/(\w+)(?:[?*])?(.*)/);
-					var key = segmentMatch[1];
-					result.push(params[key]);
-					result.push(segmentMatch[2] || '');
-					delete params[key];
-				}
-			});
-			return result.join('');
-		}
-	}];
-});
-
-
-
-
-
-
-
-
-
-
-
-/**
- * @ngdoc service
- * @name $routeParams
- * @requires $route
- * @this
- *
- * @description
- * The `$routeParams` service allows you to retrieve the current set of route parameters.
- *
- * Requires the {@link ngRoute `ngRoute`} module to be installed.
- *
- * The route parameters are a combination of {@link ng.$location `$location`}'s
- * {@link ng.$location#search `search()`} and {@link ng.$location#path `path()`}.
- * The `path` parameters are extracted when the {@link ngRoute.$route `$route`} path is matched.
- *
- * In case of parameter name collision, `path` params take precedence over `search` params.
- *
- * The service guarantees that the identity of the `$routeParams` object will remain unchanged
- * (but its properties will likely change) even when a route change occurs.
- *
- * Note that the `$routeParams` are only updated *after* a route change completes successfully.
- * This means that you cannot rely on `$routeParams` being correct in route resolve functions.
- * Instead you can use `$route.current.params` to access the new route's parameters.
- *
- * @example
- * ```js
- *  // Given:
- *  // URL: http://server.com/index.html#/Chapter/1/Section/2?search=moby
- *  // Route: /Chapter/:chapterId/Section/:sectionId
- *  //
- *  // Then
- *  $routeParams ==> {chapterId:'1', sectionId:'2', search:'moby'}
- * ```
- */
-angular.module('mblowfish-core')
-.provider('$routeParams', function() {
-	this.$get = function() { return {}; };
-});
-
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12074,7 +10885,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>                                                                                                                                                    <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=errorObject> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\" translate>{{errorObject.errorMessage}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>                                                                                                                                                    <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
@@ -12195,11 +11006,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/mb-brand.html',
     "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> <wb-ui-setting-image title=Logo wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.logo> </wb-ui-setting-image> <wb-ui-setting-image title=Favicon wb-ui-setting-clear-button=true wb-ui-setting-preview=true ng-model=app.config.favicon> </wb-ui-setting-image> </div>"
-  );
-
-
-  $templateCache.put('views/preferences/mb-crisp-chat.html',
-    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label translate>CRISP site ID</label> <input required md-no-asterisk name=property ng-model=\"app.config.crisp.id\"> </md-input-container> </div>"
   );
 
 

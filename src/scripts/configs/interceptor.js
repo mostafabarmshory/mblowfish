@@ -25,5 +25,5 @@ angular.module('mblowfish-core')
 	.config(function ($httpProvider) {
 	    // An interceptor to handle errors of server response
 	    // All that the interceptor does is in 'httpRequestInterceptor' factory.
-	    $httpProvider.interceptors.push('httpRequestInterceptor');
+	    $httpProvider.interceptors.push('MbHttpRequestInterceptor');
 	});

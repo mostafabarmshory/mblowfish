@@ -37,40 +37,25 @@ angular.module('mblowfish-core')
 
 	// Override the function
 	this.getModelSchema = function(){
-		return $usr.profileSchema();
+		return $usr.accountSchema();
 	};
 	
 	// get an account
 	this.getModel = function(id){
-		return $usr.getProfile(id);
+		return $usr.getAccount(id);
 	};
 	
 	// delete account
 	this.deleteModel = function(model){
-	    return $usr.deleteProfile(model.id);
+	    return $usr.deleteAccount(model.id);
 	};
-	/*
-	 * Deletes avatar
-	 */
-	this.deleteModelBinary = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
+
+	// update account
+	this.updateModel = function(model){
+		return model.update();
 	};
-	
-	/*
-	 * Upload AVATAR
-	 */
-	this.uploadModelBinary = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
-	};
-	
-	/**
-	 * Get model binary path
-	 * 
-	 * @param item
-	 * @return promise to delete item
-	 * @memberof SeenAbstractItemCtrl
-	 */
-	this.getModelBinaryUrl = function(item){
-		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
-	};
+
+	this.init({
+		eventType: '/user/accounts'
+	});
 });

@@ -1,4 +1,5 @@
 <div 
+	style="cursor: pointer"
 	ng-switch="mbInlineType">
 
 	<!-- IMAGE -->
@@ -209,11 +210,10 @@
 	
 	<!-- Show error message -->
 	<div 
-		ng-messages="errorObject">
+		ng-messages="error.message">
 		<div 
 			ng-message="error" 
 			class="md-input-message-animation" 
-			style="margin: 0px;"
-			translate>{{errorObject.errorMessage}}</div>
+			style="margin: 0px;">{{error.message}}</div>
 	</div>
 </div>

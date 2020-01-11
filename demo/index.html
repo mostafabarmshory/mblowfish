@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html class="no-js" ng-app="app">
+<html 
+	ng-app="app"
+	dir="{{__app.dir}}"
+	md-theme="{{__app.test.theme || __app.setting.theme || __app.config.theme || 'default'}}"
+	md-theme-watch>
 <head>
 	<title>Angular Material Dashboard</title>
 	<meta charset="utf-8">
@@ -162,14 +166,13 @@
 	<script src="scripts/runs/app-extension-config-autosave.js"></script>
 	<script src="scripts/runs/app.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
-	<script src="scripts/runs/crisp-chat.js"></script>
 	<script src="scripts/runs/google-analytics.js"></script>
 	<script src="scripts/runs/hack-wb-local.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
 	<script src="scripts/runs/page-init.js"></script>
+	<script src="scripts/runs/preferences.js"></script>
 	<script src="scripts/runs/protection.js"></script>
 	<script src="scripts/runs/resources.js"></script>
-	<script src="scripts/runs/settings.js"></script>
 	<script src="scripts/services/actions.js"></script>
 	<script src="scripts/services/app.js"></script>
 	<script src="scripts/services/clipboard.js"></script>
@@ -183,7 +186,6 @@
 	<script src="scripts/services/options.js"></script>
 	<script src="scripts/services/page.js"></script>
 	<script src="scripts/services/preferences.js"></script>
-	<script src="scripts/services/route.js"></script>
 	<script src="scripts/services/sidenav.js"></script>
 	<script src="scripts/services/toolbar.js"></script>
 	<script src="scripts/test-app.js"></script>
@@ -206,12 +208,10 @@
 	<script src="scripts/test-runs/test-app.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
+	<meta name="test" value="{{__app.dir}}">
 </head>
 <body 
-	md-theme="{{app.test.theme || app.setting.theme || app.config.theme || 'default'}}"
-	md-theme-watch
-	ng-class="{'mb-rtl-direction': app.dir=='rtl', 'mb-ltr-direction': app.dir!='rtl'}"
-	dir="{{app.dir}}"
+	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"
 	layout="column"
 	mb-view
 	style="height: 100vh; width: 100vw;">

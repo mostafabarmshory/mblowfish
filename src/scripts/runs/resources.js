@@ -135,7 +135,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'resourceCtrl',
 		priority: 8,
-		tags: ['accounts']
+		tags: ['accounts', '/user/accounts']
 	});
 
 	// Resource for role-list
@@ -160,7 +160,7 @@ angular.module('mblowfish-core')
 		},
 		controllerAs: 'resourceCtrl',
 		priority: 8,
-		tags: ['roles']
+		tags: ['roles', '/user/roles']
 	});
 
 
