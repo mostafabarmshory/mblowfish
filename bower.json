@@ -4,7 +4,7 @@
   "description": "Material blowfish is an application framework",
   "homepage": "https://github.com/mblowfish/mblowfish-core",
   "license": "MIT",
-  "version": "3.0.11",
+  "version": "3.0.12",
   "main": [
     "dist/mblowfish-core.js",
     "dist/mblowfish-core.css"
