@@ -1,19 +1,18 @@
 <md-content
-	layout="column"
-	layout-align="center none"
 	flex>
 	
-	
-	<div>
-		<h1>mbDate filter</h1>
-		<p> add mbDate filter to show the date</p>	
-		{{_date | mbDate}}
-		<p> while the real date is:</p>
-		{{_date}}
-	</div> 
+	<mb-titled-block
+		layout-margin
+		mb-title="mbDate filter">
+		<p>By adding mbDate filter, the date value will be show as local string. For example:</p>
+		<pre>_date | mbDate</pre>
+		<p>The result is </p>
+		<span>{{_date | mbDate}}</span>
+	</mb-titled-block> 
 
-	<div>
-		<h1>amd-datepicker</h1>
+	<mb-titled-block
+		layout-margin
+		mb-title="amd-datepicker">
 		<p>Select date based on calender</p>
 		<mb-datepicker
 			ng-model="_date">
@@ -25,10 +24,11 @@
 			mb-placeholder="Click to set date"
 			mb-hide-icons="calendar">
 		</mb-datepicker>
-	</div> 
+	</mb-titled-block> 
 
-	<div>
-		<h1>md-persian-datepicker </h1>
+	<mb-titled-block
+		layout-margin
+		mb-title="md-persian-datepicker">
 		<p>The datepicker component from AngularJS Material tweaked to take
 			dates in the Persian (Jalaali) calendar system, using moment-jalaali.
 		</p>
@@ -36,10 +36,11 @@
 		<md-persian-datepicker 
 			ng-model="_jdate">
 		</md-persian-datepicker> 
-	</div>
+	</mb-titled-block>
 	
-	<div>
-		<h1>md-datepicker</h1>
+	<mb-titled-block
+		layout-margin
+		mb-title="md-datepicker">
 		<p>md-datepicker is a component used to select a single date. For
 			information on how to configure internationalization for the date
 			picker, see $mdDateLocaleProvider.</p>
@@ -48,5 +49,5 @@
 			ng-model="_jdate"
 			md-placeholder="Enter date">
 		</md-datepicker>
-	</div>
+	</mb-titled-block>
 </md-content>
