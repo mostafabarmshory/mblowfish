@@ -122,8 +122,8 @@ angular.module('app') //
 		controller : 'DynamicFormCtrl',
 		templateUrl : 'views/mb-dynamic-form.html',
 		navigate : true,
-		groups : [ 'example' ],
-		name : 'Dynamic form',
+		groups : [ 'Dynamic forms' ],
+		name : 'Simple usage form',
 		icon : 'apps'
 	})
 
