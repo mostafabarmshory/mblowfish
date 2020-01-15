@@ -22,7 +22,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=prop.visible class=\"md-icon-float md-icon-right md-block\"> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <wb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</wb-icon>  </md-input-container> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <wb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</wb-icon>  </md-input-container> </div>"
   );
 
 
