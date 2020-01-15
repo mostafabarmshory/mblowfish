@@ -4382,41 +4382,56 @@ angular.module('mblowfish-core')
  * @ngdoc Directives
  * @name mbDynamicForm
  * @description Get a list of properties and fill them
+ * 
+ * Each property will be managed by an indevisual property editor.
  */
-.directive('mbDynamicForm', function () {
+.directive('mbDynamicForm', function ($resource) {
 
-	/**
-	 * Adding preloader.
-	 * 
-	 * @param scope
-	 * @param element
-	 * @param attr
-	 * @param ctrls
-	 * @returns
-	 */
-	function postLink(scope, element, attrs, ctrls) {
-		// Load ngModel
-		var ngModelCtrl = ctrls[0];
-		scope.values = {};
-		ngModelCtrl.$render = function () {
-			scope.values = ngModelCtrl.$viewValue || {};
-		};
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @param ctrls
+     * @returns
+     */
+    function postLink(scope, element, attrs, ctrls) {
+        // Load ngModel
+        var ngModelCtrl = ctrls[0];
+        scope.values = {};
+        ngModelCtrl.$render = function () {
+            scope.values = ngModelCtrl.$viewValue || {};
+        };
 
-		scope.modelChanged = function (key, value) {
-			scope.values[key] = value;
-			ngModelCtrl.$setViewValue(scope.values);
-		};
-	}
+        scope.modelChanged = function (key, value) {
+            scope.values[key] = value;
+            ngModelCtrl.$setViewValue(scope.values);
+        };
 
-	return {
-		restrict: 'E',
-		require: ['ngModel'],
-		templateUrl: 'views/directives/mb-dynamic-form.html',
-		scope: {
-			mbParameters: '='
-		},
-		link: postLink
-	};
+        scope.hasResource = function(prop){
+            return $resource.hasPeagFor(prop.name);
+        };
+        
+        scope.setValueFor = function(prop){
+            return $resource.get(prop.name, {
+                data: prop.defaultValue
+            })
+            .then(function(value){
+                scope.modelChanged(prop.name, value);
+            });
+        };
+    }
+
+    return {
+        restrict: 'E',
+        require: ['ngModel'],
+        templateUrl: 'views/directives/mb-dynamic-form.html',
+        scope: {
+            mbParameters: '='
+        },
+        link: postLink
+    };
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7875,6 +7890,30 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['account']
 	});
+	
+	$resource.newPage({
+	    label: 'Account',
+	    type: 'account id',
+	    templateUrl: 'views/resources/mb-accounts.html',
+	    /*
+	     * @ngInject
+	     */
+	    controller: function ($scope) {
+	        // TODO: maso, 2018: load selected item
+	        $scope.multi = false;
+	        this.value = $scope.value;
+	        this.setSelected = function (item) {
+	            $scope.$parent.setValue(item.id);
+	            $scope.$parent.answer();
+	        };
+	        this.isSelected = function (item) {
+	            return item.id === this.value;
+	        };
+	    },
+	    controllerAs: 'resourceCtrl',
+	    priority: 8,
+	    tags: ['account_id']
+	});
 
 	/**
 	 * @ngdoc Resources
@@ -10875,7 +10914,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> </md-input-container> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=prop.visible class=\"md-icon-float md-icon-right md-block\"> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <wb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</wb-icon>  </md-input-container> </div>"
   );
 
 

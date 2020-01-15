@@ -106,6 +106,30 @@ angular.module('mblowfish-core')
 		priority: 8,
 		tags: ['account']
 	});
+	
+	$resource.newPage({
+	    label: 'Account',
+	    type: 'account id',
+	    templateUrl: 'views/resources/mb-accounts.html',
+	    /*
+	     * @ngInject
+	     */
+	    controller: function ($scope) {
+	        // TODO: maso, 2018: load selected item
+	        $scope.multi = false;
+	        this.value = $scope.value;
+	        this.setSelected = function (item) {
+	            $scope.$parent.setValue(item.id);
+	            $scope.$parent.answer();
+	        };
+	        this.isSelected = function (item) {
+	            return item.id === this.value;
+	        };
+	    },
+	    controllerAs: 'resourceCtrl',
+	    priority: 8,
+	    tags: ['account_id']
+	});
 
 	/**
 	 * @ngdoc Resources

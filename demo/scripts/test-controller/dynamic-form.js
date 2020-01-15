@@ -53,5 +53,11 @@ angular.module('app')
         type: 'string',
         visible: true,
         description: 'URL of an image'
+    },{
+        name: 'account_id',
+        title: 'Account',
+        type: 'long',
+        visible: true,
+        description: 'Account to do something'
     }];
 });
