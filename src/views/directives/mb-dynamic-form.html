@@ -2,7 +2,7 @@
 	layout="column"
 	ng-repeat="prop in mbParameters track by $index">
 	<md-input-container
-		ng-show="prop.visible"
+		ng-show="prop.visible && prop.editable"
 		class="md-icon-float md-icon-right md-block">
 		<label>{{prop.title}}</label>
 		<input
