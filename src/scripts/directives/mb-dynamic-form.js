@@ -28,39 +28,54 @@ angular.module('mblowfish-core')
  * @ngdoc Directives
  * @name mbDynamicForm
  * @description Get a list of properties and fill them
+ * 
+ * Each property will be managed by an indevisual property editor.
  */
-.directive('mbDynamicForm', function () {
+.directive('mbDynamicForm', function ($resource) {
 
-	/**
-	 * Adding preloader.
-	 * 
-	 * @param scope
-	 * @param element
-	 * @param attr
-	 * @param ctrls
-	 * @returns
-	 */
-	function postLink(scope, element, attrs, ctrls) {
-		// Load ngModel
-		var ngModelCtrl = ctrls[0];
-		scope.values = {};
-		ngModelCtrl.$render = function () {
-			scope.values = ngModelCtrl.$viewValue || {};
-		};
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @param ctrls
+     * @returns
+     */
+    function postLink(scope, element, attrs, ctrls) {
+        // Load ngModel
+        var ngModelCtrl = ctrls[0];
+        scope.values = {};
+        ngModelCtrl.$render = function () {
+            scope.values = ngModelCtrl.$viewValue || {};
+        };
 
-		scope.modelChanged = function (key, value) {
-			scope.values[key] = value;
-			ngModelCtrl.$setViewValue(scope.values);
-		};
-	}
+        scope.modelChanged = function (key, value) {
+            scope.values[key] = value;
+            ngModelCtrl.$setViewValue(scope.values);
+        };
 
-	return {
-		restrict: 'E',
-		require: ['ngModel'],
-		templateUrl: 'views/directives/mb-dynamic-form.html',
-		scope: {
-			mbParameters: '='
-		},
-		link: postLink
-	};
+        scope.hasResource = function(prop){
+            return $resource.hasPeagFor(prop.name);
+        };
+        
+        scope.setValueFor = function(prop){
+            return $resource.get(prop.name, {
+                data: prop.defaultValue
+            })
+            .then(function(value){
+                scope.modelChanged(prop.name, value);
+            });
+        };
+    }
+
+    return {
+        restrict: 'E',
+        require: ['ngModel'],
+        templateUrl: 'views/directives/mb-dynamic-form.html',
+        scope: {
+            mbParameters: '='
+        },
+        link: postLink
+    };
 });

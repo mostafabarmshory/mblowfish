@@ -27,12 +27,42 @@ angular.module('app')
  */
 .controller('DynamicFormCtrl', function($scope) {
     $scope.properties = [{
-	    name: 'x',
-	    title: 'Latitude',
-	    description: 'Description'
+        name: 'x',
+        title: 'Latitude',
+        type: 'string',
+        visible: true,
+        editable: true,
+        description: 'Description'
     },{
-	    name: 'y',
-	    title: 'Longitude',
-	    description: 'Description'
+        name: 'y',
+        title: 'Longitude',
+        type: 'string',
+        visible: true,
+        editable: true,
+        description: 'Description'
+    },{
+        name: 'z',
+        title: 'Longitude',
+        type: 'string',
+        visible: true,
+        editable: true,
+        description: 'Description'
+    }];
+
+
+    $scope.properties2 = [{
+        name: 'url',
+        title: 'URL',
+        type: 'string',
+        visible: true,
+        editable: true,
+        description: 'URL of an image'
+    },{
+        name: 'account_id',
+        title: 'Account',
+        type: 'long',
+        visible: true,
+        editable: true,
+        description: 'Account to do something'
     }];
 });
