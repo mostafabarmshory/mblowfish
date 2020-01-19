@@ -86,9 +86,9 @@ angular.module('mblowfish-core') //
  * @property {object} app.user.profile - The first profile of current user
  */
 .service('$app', function (
-		$usr, $cms, $translate, $localStorage, UserAccount, $tenant,
-		/* am-wb-core    */ $objectPath, $dispatcher,/* WbObservableObject,*/
-		/* material      */ $mdDateLocale, 
+		/* seen          */ $usr, $cms, $tenant, UserAccount, $translate, $localStorage, 
+		/* am-wb-core    */ $dispatcher, $objectPath,
+		/* material      */ $mdDateLocale,
 		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
 		) {
 	
