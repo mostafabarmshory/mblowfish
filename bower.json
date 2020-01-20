@@ -23,8 +23,8 @@
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#3.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#3.0.x",
     
-    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#3.1.x",
-    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#3.1.x",
+    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#4.0.x",
+    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#4.0.x",
     
     "ng-appcache": "2.0.x",
     "lf-ng-md-file-input": "1.5.x",
