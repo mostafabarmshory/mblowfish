@@ -4,7 +4,7 @@
   "description": "Material blowfish is an application framework",
   "homepage": "https://github.com/mblowfish/mblowfish-core",
   "license": "MIT",
-  "version": "3.0.13",
+  "version": "3.1.0",
   "main": [
     "dist/mblowfish-core.js",
     "dist/mblowfish-core.css"
@@ -12,18 +12,41 @@
   "dependencies": {
     "angular-cookies": "1.7.x",
     "angular-route": "1.7.x",
+    "angular-animate": "1.7.x",
+    "angular-aria": "1.7.x",
+    "angular-messages": "1.7.x",
+    "angular-sanitize": "1.7.x",
+    "angular-material": "1.1.x",
+    
+    "seen-user": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#3.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#3.0.x",
-    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#3.1.x",
-    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#3.1.x",
+    
+    "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#4.0.x",
+    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#4.0.x",
+    
     "ng-appcache": "2.0.x",
     "lf-ng-md-file-input": "1.5.x",
+    
     "angular-recaptcha": "4.1.x",
-    "material-steppers": "2.0.x",
     "angular-file-saver": "1.1.x",
+    "material-steppers": "2.0.x",
+    
     "angular-material-persian-datepicker": "1.2.x",
-    "leaflet": "^1.6.0"
+    "leaflet": "^1.6.0",
+    
+    
+    "jspanel4x": "master",
+    "tinymce": "5.x",
+    "md-color-picker": "https://github.com/mostafabarmshory/md-color-picker.git#0.2.x",
+    
+    "angular-translate": "2.18.x",
+    "weakmap-polyfill": "2.0.x",
+    "ngstorage": "0.3.x",
+    "moment": "^2.24.0",
+	"moment-jalaali": "^0.7.3",
+    "loglevel": "^1.6.6"
   },
   "resolutions": {
     "angular": "1.7.x"

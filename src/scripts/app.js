@@ -45,6 +45,7 @@ angular.module('mblowfish-core', [ //
 	'ngRoute',
 //	Seen
 	'seen-core',
+	'seen-user',
 	'seen-tenant',
 	'seen-cms',
 	'seen-monitor',
@@ -58,6 +59,8 @@ angular.module('mblowfish-core', [ //
 	'ngFileSaver',//
 	'mdSteppers',//
 	'angular-material-persian-datepicker',
+	'ngStorage', // https://github.com/gsklee/ngStorage
+	'pascalprecht.translate',
 ])
 .run(function instantiateRoute($widget, $routeParams) {
 	$widget.setProvider('$routeParams', $routeParams);

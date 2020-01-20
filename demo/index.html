@@ -18,13 +18,11 @@
 
 	<!-- build:css({.tmp/serve,src}) styles/vendor.css -->
 	<!-- bower:css -->
-	<link rel="stylesheet" href="bower_components/jspanel4x/dist/jspanel.css" />
 	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
-	<link rel="stylesheet" href="bower_components/md-color-picker/dist/md-color-picker.css" />
-	<link rel="stylesheet" href="bower_components/am-wb-core/dist/am-wb-core.css" />
 	<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
-	<link rel="stylesheet" href="bower_components/am-wb-seen-core/dist/am-wb-seen-core.css" />
 	<link rel="stylesheet" href="bower_components/material-steppers/dist/material-steppers.css" />
+	<link rel="stylesheet" href="bower_components/jspanel4x/dist/jspanel.css" />
+	<link rel="stylesheet" href="bower_components/md-color-picker/dist/md-color-picker.css" />
 	<!-- endbower -->
 	<!-- endbuild -->
 	
@@ -57,6 +55,11 @@
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-cookies/angular-cookies.js"></script>
 	<script src="bower_components/angular-route/angular-route.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.js"></script>
+	<script src="bower_components/angular-aria/angular-aria.js"></script>
+	<script src="bower_components/angular-messages/angular-messages.js"></script>
+	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/moment-jalaali/build/moment-jalaali.js"></script>
 	<script src="bower_components/mustache.js/mustache.js"></script>
@@ -69,37 +72,33 @@
 	<script src="bower_components/seen-monitor/dist/seen-monitor.js"></script>
 	<script src="bower_components/flux/dist/Flux.js"></script>
 	<script src="bower_components/object-path/index.js"></script>
+	<script src="bower_components/am-wb-core/dist/am-wb-core.js"></script>
+	<script src="bower_components/am-wb-seen-core/dist/am-wb-seen-core.js"></script>
+	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
+	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
+	<script src="bower_components/angular-recaptcha/release/angular-recaptcha.js"></script>
+	<script src="bower_components/blob-polyfill/Blob.js"></script>
+	<script src="bower_components/file-saver.js/FileSaver.js"></script>
+	<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
+	<script src="bower_components/material-steppers/dist/material-steppers.js"></script>
+	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
 	<script src="bower_components/jspanel4x/dist/jspanel.js"></script>
 	<script src="bower_components/tinymce/tinymce.js"></script>
 	<script src="bower_components/tinycolor/tinycolor.js"></script>
-	<script src="bower_components/angular-animate/angular-animate.js"></script>
-	<script src="bower_components/angular-aria/angular-aria.js"></script>
-	<script src="bower_components/angular-messages/angular-messages.js"></script>
-	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/md-color-picker/dist/md-color-picker.js"></script>
-	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
 	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
 	<script src="bower_components/loglevel/dist/loglevel.min.js"></script>
-	<script src="bower_components/am-wb-core/dist/am-wb-core.js"></script>
-	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
-	<script src="bower_components/angular-uuid/uuid.min.js"></script>
-	<script src="bower_components/am-wb-seen-core/dist/am-wb-seen-core.js"></script>
-	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
-	<script src="bower_components/angular-recaptcha/release/angular-recaptcha.js"></script>
-	<script src="bower_components/material-steppers/dist/material-steppers.js"></script>
-	<script src="bower_components/blob-polyfill/Blob.js"></script>
-	<script src="bower_components/file-saver.js/FileSaver.js"></script>
-	<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
-	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
 
 	<!-- build:js({.tmp,app}) scripts/scripts.js -->
 	<!-- injector:js -->
+	<script src="libs/machina.js"></script>
 	<script src="scripts/app.js"></script>
+	<script src="scripts/configs/icons.js"></script>
 	<script src="scripts/configs/interceptor.js"></script>
 	<script src="scripts/configs/local.js"></script>
 	<script src="scripts/configs/states.js"></script>
@@ -157,12 +156,31 @@
 	<script src="scripts/directives/mb-user-menu.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
 	<script src="scripts/directives/mb-view.js"></script>
+	<script src="scripts/directives/ng-src-error.js"></script>
+	<script src="scripts/directives/wb-icon.js"></script>
+	<script src="scripts/directives/wb-on-dragstart.js"></script>
+	<script src="scripts/directives/wb-on-enter.js"></script>
+	<script src="scripts/directives/wb-on-error.js"></script>
+	<script src="scripts/directives/wb-on-esc.js"></script>
+	<script src="scripts/directives/wb-on-load.js"></script>
+	<script src="scripts/expan/expansionPanelCollapsedDirective.js"></script>
+	<script src="scripts/expan/expansionPanelDirective.js"></script>
+	<script src="scripts/expan/expansionPanelExpandedDirective.js"></script>
+	<script src="scripts/expan/expansionPanelFooterDirective.js"></script>
+	<script src="scripts/expan/expansionPanelGroupDirective.js"></script>
+	<script src="scripts/expan/expansionPanelGroupService.js"></script>
+	<script src="scripts/expan/expansionPanelHeaderDirective.js"></script>
+	<script src="scripts/expan/expansionPanelService.js"></script>
 	<script src="scripts/factories/Action.js"></script>
 	<script src="scripts/factories/ActionGroup.js"></script>
 	<script src="scripts/factories/Event.js"></script>
 	<script src="scripts/factories/Interceptor.js"></script>
+	<script src="scripts/factories/dialog-window.js"></script>
 	<script src="scripts/filters/currency.js"></script>
 	<script src="scripts/filters/date.js"></script>
+	<script src="scripts/filters/wb-md5.js"></script>
+	<script src="scripts/filters/wb-unsafe.js"></script>
+	<script src="scripts/providers/icon-servic.js"></script>
 	<script src="scripts/runs/app-extension-config-autosave.js"></script>
 	<script src="scripts/runs/app.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
@@ -176,17 +194,22 @@
 	<script src="scripts/services/actions.js"></script>
 	<script src="scripts/services/app.js"></script>
 	<script src="scripts/services/clipboard.js"></script>
+	<script src="scripts/services/crypto.js"></script>
 	<script src="scripts/services/error-handler.js"></script>
 	<script src="scripts/services/export.js"></script>
+	<script src="scripts/services/float.js"></script>
 	<script src="scripts/services/help.js"></script>
 	<script src="scripts/services/language.js"></script>
+	<script src="scripts/services/local.js"></script>
 	<script src="scripts/services/metrics.js"></script>
 	<script src="scripts/services/navigator.js"></script>
 	<script src="scripts/services/notification.js"></script>
 	<script src="scripts/services/options.js"></script>
 	<script src="scripts/services/page.js"></script>
 	<script src="scripts/services/preferences.js"></script>
+	<script src="scripts/services/resource.js"></script>
 	<script src="scripts/services/sidenav.js"></script>
+	<script src="scripts/services/storage.js"></script>
 	<script src="scripts/services/toolbar.js"></script>
 	<script src="scripts/test-app.js"></script>
 	<script src="scripts/test-configs/language.js"></script>

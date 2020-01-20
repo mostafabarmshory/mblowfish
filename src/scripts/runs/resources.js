@@ -27,6 +27,90 @@ angular.module('mblowfish-core')
  */
 .run(function ($resource, $location, $controller) {
 
+    $resource.newPage({
+        type : 'wb-url',
+        icon: 'link',
+        label : 'URL',
+        templateUrl : 'views/resources/wb-url.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            $scope.$watch('value', function(value) {
+                $scope.$parent.setValue(value);
+            });
+        },
+        controllerAs: 'ctrl',
+        tags : [ 'file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
+            'avatar', 'thumbnail',
+            // new models
+            'image-url', 'vedio-url', 'audio-url', 'page-url']
+    });
+
+    $resource.newPage({
+        type : 'script',
+        icon : 'script',
+        label : 'Script',
+        templateUrl : 'views/resources/wb-event-code-editor.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope, $wbWindow, $element) {
+            var ctrl = this;
+            this.value = $scope.value || {
+                code: '',
+                language: 'javascript',
+                languages: [{
+                    text: 'HTML/XML',
+                    value: 'markup'
+                },
+                {
+                    text: 'JavaScript',
+                    value: 'javascript'
+                },
+                {
+                    text: 'CSS',
+                    value: 'css'
+                }]
+            };
+            this.setCode = function(code) {
+                this.value.code = code;
+                $scope.$parent.setValue(this.value);
+            };
+
+            this.setLanguage = function(language){
+                this.value.code = language;
+                $scope.$parent.setValue(this.value);
+            };
+
+            this.setEditor = function(editor) {
+                this.editor = editor;
+                editor.setOptions({
+                    enableBasicAutocompletion: true, 
+                    enableLiveAutocompletion: true, 
+                    showPrintMargin: false, 
+                    maxLines: Infinity,
+                    fontSize: '100%'
+                });
+                $scope.editor = editor;
+//              editor.setTheme('resources/libs/ace/theme/chrome');
+//              editor.session.setMode('resources/libs/ace/mode/javascript');
+                editor.setValue(ctrl.value.code || '');
+                editor.on('change', function(){
+                    ctrl.setCode(editor.getValue());
+                });
+            };
+
+//          var ctrl = this;
+            $wbWindow.loadLibrary('resources/libs/ace.js')
+            .then(function(){
+                ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
+            });
+        },
+        controllerAs: 'ctrl',
+        tags : [ 'code', 'script']
+    });
+
     function getDomain() {
         return $location.protocol() + //
         '://' + //

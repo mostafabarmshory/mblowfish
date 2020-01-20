@@ -1,0 +1,65 @@
+<md-dialog aria-label="Select item/items"
+	style="width:70%; height:70%;">
+	<form ng-cloak layout="column" flex>
+		<md-dialog-content
+			mb-preloading="loadingAnswer"
+			flex
+			layout="row">
+			<md-sidenav
+				class="md-sidenav-left"
+				md-component-id="left"
+				md-is-locked-open="true"
+				md-whiteframe="4"
+				layout="column"
+				ng-hide="pages.length === 1">
+				<div
+	    			style="text-align: center;">
+					<wb-icon size="64px" ng-if="style.icon">{{style.icon}}</wb-icon>
+					<h2 
+						style="text-align: center;"
+						translate>{{style.title}}</h2>
+					<p 
+						style="text-align: center;"
+						translate>{{style.description}}</p>
+				</div>
+				<md-devider></md-devider>
+				<md-content>
+					<md-list
+						style="padding:0px; margin: 0px">
+						<md-list-item 
+							ng-repeat="page in pages | orderBy:priority"
+							ng-click="loadPage(page, $event);"
+							md-colors="_selectedIndex===$index ? {background:'accent'} : {}">
+							<wb-icon>{{page.icon || 'attachment'}}</wb-icon>
+							<p>{{page.label | translate}}</p>
+						</md-list-item>
+					</md-list>
+				</md-content>
+			</md-sidenav>
+			<div
+				layout="column"
+				flex>
+				<div 
+					id="wb-select-resource-children"
+					style="margin: 0px; padding: 0px; overflow: auto;"
+					layout="column" 
+					flex>
+				</div>
+			</div>
+		</md-dialog-content>
+		<md-dialog-actions layout="row">
+			<span flex></span>
+			<md-button
+                aria-label="Cancel"
+				ng-click="cancel()"> 
+				<span translate="">Close</span> 
+			</md-button>
+			<md-button
+				class="md-primary"
+                aria-label="Done"
+				ng-click="answer()"> 
+				<span translate="">Ok</span> 
+			</md-button>
+	    </md-dialog-actions>
+	</form>
+</md-dialog>
