@@ -34,7 +34,7 @@ describe('Service $storage', function () {
         $storage = _$storage_;
     }));
 
-    fit('must implements WB $storage API', function () {
+    it('must implements WB $storage API', function () {
         expect(angular.isFunction($storage.get)).toBe(true);
         expect(angular.isFunction($storage.put)).toBe(true);
         expect(angular.isFunction($storage.remove)).toBe(true);

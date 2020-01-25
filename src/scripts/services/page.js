@@ -31,7 +31,7 @@ angular.module('mblowfish-core')
  */
 .service('$page', function(
 		/* angularjs */ $rootScope, $rootElement, 
-		/* wb-core */ $wbWindow) {
+		/* wb-core */ $window) {
 
 	// ------------------------------------------------------------------
 	// Utility function
@@ -166,14 +166,14 @@ angular.module('mblowfish-core')
 	};
 
 	this.updateLink = function(key, data){
-		$wbWindow.setLink(key, data);
+		$window.setLink(key, data);
 		return this;
 	};
 	
 	this.setLink = this.updateLink;
 
 	this.setMeta = function (key, value){
-		$wbWindow.setMeta(key, value);
+		$window.setMeta(key, value);
 		return this;
 	};
 	

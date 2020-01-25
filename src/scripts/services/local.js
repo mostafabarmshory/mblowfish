@@ -30,7 +30,7 @@ angular.module('mblowfish-core')
  * @name $wbLocal
  * @description manage localization of widgets
  * 
- * Deprecated : use $wbWindow
+ * Deprecated : use $window
  */
 .service('$wbLocal', function() {
     var defaultDateFormat = 'YYYY-MM-DD hh:mm:ss';

@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description An action item
  * 
  */
-.factory('MbAction', function ($injector, $navigator, $wbWindow) {
+.factory('MbAction', function ($injector, $navigator, $window) {
 
     function Action(data) {
         if (!angular.isDefined(data)) {
@@ -56,7 +56,7 @@ angular.module('mblowfish-core')
         } else if (this.url){
             return $navigator.openPage(this.url);
         }
-        $wbWindow.alert('Action \'' + this.id + '\' is not executable!?')
+        $window.alert('Action \'' + this.id + '\' is not executable!?')
     };
 
     return Action;
