@@ -332,7 +332,7 @@ module.exports = function(grunt) {
 		 */
 		wiredep : {
 			app : {
-				devDependencies : true,
+				devDependencies : false,
 				src : [ 'demo/index.html' ],
 				ignorePath : /\.\.\//
 			},
@@ -340,7 +340,7 @@ module.exports = function(grunt) {
 				devDependencies : true,
 				src : [
 					'<%= karma.unit.configFile %>',
-					'<%= karma.debug.configFile %>',
+					//'<%= karma.debug.configFile %>',
 					'<%= karma.build.configFile %>'
 					],
 					ignorePath : /\.\.\//,
@@ -740,7 +740,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', [ //
 		'newer:jshint', //
-		'newer:eslint', //
+		//'newer:eslint', //
 		'test', //
 		'build' //
 		]);

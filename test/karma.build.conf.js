@@ -69,7 +69,6 @@ module.exports = function(config) {
       'bower_components/flux/dist/Flux.js',
       'bower_components/object-path/index.js',
       'bower_components/am-wb-core/dist/am-wb-core.js',
-      'bower_components/am-wb-seen-core/dist/am-wb-seen-core.js',
       'bower_components/ng-appcache/dist/appcache.js',
       'bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js',
       'bower_components/angular-recaptcha/release/angular-recaptcha.js',
@@ -86,7 +85,6 @@ module.exports = function(config) {
       'bower_components/weakmap-polyfill/weakmap-polyfill.js',
       'bower_components/ngstorage/ngStorage.js',
       'bower_components/moment/moment.js',
-      'bower_components/moment-jalaali/build/moment-jalaali.js',
       'bower_components/loglevel/dist/loglevel.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
