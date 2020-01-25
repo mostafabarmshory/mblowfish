@@ -4,7 +4,7 @@
   "description": "Material blowfish is an application framework",
   "homepage": "https://github.com/mblowfish/mblowfish-core",
   "license": "MIT",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "main": [
     "dist/mblowfish-core.js",
     "dist/mblowfish-core.css"
@@ -18,13 +18,12 @@
     "angular-sanitize": "1.7.x",
     "angular-material": "1.1.x",
     
-    "seen-user": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
+    "seen-user": "https://gitlab.com/seen/angular/seen-suer.git#3.0.x",
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#3.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#3.0.x",
     
     "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#4.0.x",
-    "am-wb-seen-core": "https://gitlab.com/am-wb/am-wb-seen-core.git#4.0.x",
     
     "ng-appcache": "2.0.x",
     "lf-ng-md-file-input": "1.5.x",

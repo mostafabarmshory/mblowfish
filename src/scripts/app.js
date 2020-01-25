@@ -51,7 +51,6 @@ angular.module('mblowfish-core', [ //
 	'seen-monitor',
 //	AM-WB
 	'am-wb-core', 
-	'am-wb-seen-core',
 //	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha

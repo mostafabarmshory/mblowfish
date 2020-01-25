@@ -55,7 +55,7 @@ angular.module('mblowfish-core')
         /*
          * @ngInject
          */
-        controller : function($scope, $wbWindow, $element) {
+        controller : function($scope, $window, $element) {
             var ctrl = this;
             this.value = $scope.value || {
                 code: '',
@@ -102,7 +102,7 @@ angular.module('mblowfish-core')
             };
 
 //          var ctrl = this;
-            $wbWindow.loadLibrary('resources/libs/ace.js')
+            $window.loadLibrary('resources/libs/ace.js')
             .then(function(){
                 ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
             });
