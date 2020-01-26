@@ -26,23 +26,23 @@
 //describe('Directive WbDialogWindow ', function () {
 //    var WbDialogWindow;
 //    var $document;
-//    var $wbWindow; 
+//    var $window; 
 //
 //
 //    // load the service's module
 //    beforeEach(module('mblowfish-core'));
 //
 //    // instantiate service
-//    beforeEach(inject(function (_WbDialogWindow_, _$document_, _$wbWindow_) {
+//    beforeEach(inject(function (_WbDialogWindow_, _$document_, _$window_) {
 //        WbDialogWindow = _WbDialogWindow_;
 //        $document = _$document_;
-//        $wbWindow = _$wbWindow_;
+//        $window = _$window_;
 //    }));
 //
-//    it(' $wbWindow is default parent', function () {
+//    it(' $window is default parent', function () {
 //        // create default window
 //        var window = new WbDialogWindow();
-//        expect(window.getParent()).toBe($wbWindow);
+//        expect(window.getParent()).toBe($window);
 //    });
 //
 //    it(' must set title of the page', function () {
@@ -96,14 +96,14 @@
 //        window.setMeta(key, value);
 //
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: true
 //        }, false);
 //        window.setMeta(key, value);
 //        window.setMeta(key, value);
 //
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: false
 //        }, false);
 //        window.setMeta(key, value);
@@ -124,14 +124,14 @@
 //        window.setLink(key, data);
 //        
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: true
 //        }, false);
 //        window.setLink(key, data);
 //        window.setLink(key, data);
 //        
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: false
 //        }, false);
 //        window.setLink(key, data);
@@ -151,7 +151,7 @@
 //        expect(position.y).toBe(y);
 //
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: true,
 //            position: {
 //            	x: x,
@@ -176,7 +176,7 @@
 //        expect(window.getHeight()).toBe(h);
 //        
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: true,
 //            size: {
 //            	width: w,
@@ -199,13 +199,13 @@
 //        expect(window.isTitleVisible()).toBe(true);
 //        
 //        // open with $window
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //            internal: true,
 //            showTitle: false
 //        }, false);
 //        expect(window.isTitleVisible()).toBe(false);
 //        
-//        window = $wbWindow.open('','Title', {
+//        window = $window.open('','Title', {
 //        	internal: true,
 //        	showTitle: true
 //        }, false);

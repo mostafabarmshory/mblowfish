@@ -10658,7 +10658,7 @@ angular.module('mblowfish-core')
 // */
 //
 //angular.module('mblowfish-core')
-//.factory('WbDialogWindow', function($wbWindow, $document, $wbFloat) {
+//.factory('WbDialogWindow', function($window, $document, $wbFloat) {
 //    
 //
 //
@@ -10707,7 +10707,7 @@ angular.module('mblowfish-core')
 //     * 
 //     */
 //    var wbWindow = function(parent){
-//        this.parent = parent || $wbWindow;
+//        this.parent = parent || $window;
 //        this.floatDialogElement = null;
 //        this.setTitleVisible(true);
 //    };
@@ -10779,7 +10779,7 @@ angular.module('mblowfish-core')
 //     * @return window object
 //     */
 //    wbWindow.prototype.open = function(url, name, options, replace){
-//        return $wbWindow.open(url, name, options, replace);
+//        return $window.open(url, name, options, replace);
 //    };
 //
 //    /**
@@ -10893,7 +10893,7 @@ angular.module('mblowfish-core')
 //     * @return promise to load the library
 //     */
 //    wbWindow.prototype.loadLibrary = function(path){
-//        return $wbWindow.loadLibrary(path);
+//        return $window.loadLibrary(path);
 //    };
 //
 //    /**
@@ -10903,7 +10903,7 @@ angular.module('mblowfish-core')
 //     * @return true if the library is loaded
 //     */
 //    wbWindow.prototype.isLibraryLoaded = function(path){
-//        return $wbWindow.isLibraryLoaded(path);
+//        return $window.isLibraryLoaded(path);
 //    };
 //
 //    /**
@@ -10914,7 +10914,7 @@ angular.module('mblowfish-core')
 //     * @return promise to load the library
 //     */
 //    wbWindow.prototype.loadStyle = function(path){
-//        return $wbWindow.loadStyle(path);
+//        return $window.loadStyle(path);
 //    };
 //
 //    /**
@@ -10924,7 +10924,7 @@ angular.module('mblowfish-core')
 //     * @return true if the library is loaded
 //     */
 //    wbWindow.prototype.isStyleLoaded = function(path){
-//        return $wbWindow.isStyleLoaded(path);
+//        return $window.isStyleLoaded(path);
 //    };
 //
 //
@@ -16189,6 +16189,40 @@ angular.module('mblowfish-core') //
 
     return apps;
 });
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core') //
+.service('uuid4', function() {
+	/**! http://stackoverflow.com/a/2117523/377392 */
+	var fmt = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	this.generate = function() {
+		return fmt.replace(/[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+			return v.toString(16);
+		});
+	};
+}); 
 
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
