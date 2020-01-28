@@ -75,7 +75,6 @@ module.exports = function(config) {
       'bower_components/zeroclipboard/dist/ZeroClipboard.js',
       'bower_components/handsontable/dist/handsontable.js',
       'bower_components/ngHandsontable/dist/ngHandsontable.js',
-      'bower_components/angular-material-expansion-panel/dist/md-expansion-panel.js',
       'bower_components/tinycolor/tinycolor.js',
       'bower_components/md-color-picker/dist/md-color-picker.js',
       'bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js',
