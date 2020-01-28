@@ -23,45 +23,45 @@
  */
 'use strict';
 // XXX: maso, 2020: update to fit language
-//describe('Service $wbLocal  ', function () {
-//    var $wbLocal;
+//describe('Service $mbLocal  ', function () {
+//    var $mbLocal;
 //
 //
 //    // load the service's module
 //    beforeEach(module('mblowfish-core'));
 //
 //    // instantiate service
-//    beforeEach(inject(function (_$wbLocal_) {
-//    	$wbLocal = _$wbLocal_;
+//    beforeEach(inject(function (_$mbLocal_) {
+//    	$mbLocal = _$mbLocal_;
 //    }));
 //
 //    it('must implements WB $local API', function () {
-//        expect(angular.isFunction($wbLocal.getDate)).toBe(true);
-//        expect(angular.isFunction($wbLocal.formatDate)).toBe(true);
-//        expect(angular.isFunction($wbLocal.getCurrency)).toBe(true);
-//        expect(angular.isFunction($wbLocal.getLanguage)).toBe(true);
+//        expect(angular.isFunction($mbLocal.getDate)).toBe(true);
+//        expect(angular.isFunction($mbLocal.formatDate)).toBe(true);
+//        expect(angular.isFunction($mbLocal.getCurrency)).toBe(true);
+//        expect(angular.isFunction($mbLocal.getLanguage)).toBe(true);
 //    });
 //
 //    it('must get current date', function () {
-//    	var date = $wbLocal.getDate();
+//    	var date = $mbLocal.getDate();
 //    	expect(date).not.toBe(null);
 //    });
 //
 //    it('must formate date', function () {
 //    	var notFormated = '2019-01-01 00:00:00';
-//    	var formated = $wbLocal.formatDate(notFormated, 'YYYY');
+//    	var formated = $mbLocal.formatDate(notFormated, 'YYYY');
 //    	expect(formated).toBe('2019');
 //    });
 //    
 //    it('must get current language', function () {
 //    	var lang = 'fa';
-//    	$wbLocal.setLanguage(lang);
-//    	expect($wbLocal.getLanguage()).toBe(lang);
+//    	$mbLocal.setLanguage(lang);
+//    	expect($mbLocal.getLanguage()).toBe(lang);
 //    });
 //    
 //    it('must get current currency', function () {
 //    	var currency = 'IR';
-//    	$wbLocal.setCurrency(currency);
-//    	expect($wbLocal.getCurrency()).toBe(currency);
+//    	$mbLocal.setCurrency(currency);
+//    	expect($mbLocal.getCurrency()).toBe(currency);
 //    });
 //});

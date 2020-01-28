@@ -47,6 +47,27 @@
 			ng-click="ctrlInline.edit()"
 			flex></ng-transclude>
 	</div>
+	<div 
+		ng-switch-when="date"> 
+		<mb-datepicker
+			ng-show="ctrlInline.editMode"
+			ng-model="ctrlInline.model"
+			ng-change="ctrlInline.save()"
+			mb-date-format="YYYY-MM-DD"
+			mb-placeholder="Click to set date"
+			mb-hide-icons="calendar">
+		</mb-datepicker>
+		<button 
+			ng-if="mbInlineCancelButton && ctrlInline.editMode"
+			ng-click="ctrlInline.cancel()">cancel</button>
+		<button 
+			ng-if="mbInlineSaveButton && ctrlInline.editMode"
+			ng-click="ctrlInline.save()">save</button>
+		<ng-transclude 
+			ng-hide="ctrlInline.editMode" 
+			ng-click="ctrlInline.edit()"
+			flex></ng-transclude>
+	</div>
 	<!-- 	TEXT -->
 <!-- 	<div ng-switch-when="text"  -->
 <!-- 		editable-text="$parent.myDataModel" -->

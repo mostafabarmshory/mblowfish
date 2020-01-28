@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -21,15 +22,26 @@
  */
 
 
-angular.module('mblowfish-core')
+
 
 /**
  * @ngdoc Filters
  * @name mbDate
  * @description # Format date
  */
-.filter('mbDate', function($wbLocal) {
-    return function(inputDate, format) {
-        return $wbLocal.formatDate(inputDate, format);
-    };
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDate(inputDate, format);
+	};
+});
+
+/**
+ * @ngdoc Filters
+ * @name mbDateTime
+ * @description # Format date time
+ */
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDateTime(inputDate, format);
+	};
 });

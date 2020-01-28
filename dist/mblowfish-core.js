@@ -7399,80 +7399,80 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 
-/**
- * @ngdoc Directives
- * @name mb-datepicker
- * @descritpion Date picker
- * 
- * Select a date based on local.
- * 
- */
-.directive('mbDatepicker', function($mdUtil, $rootScope) {
+	/**
+	 * @ngdoc Directives
+	 * @name mb-datepicker
+	 * @descritpion Date picker
+	 * 
+	 * Select a date based on local.
+	 * 
+	 */
+	.directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-    // **********************************************************
-    // Private Methods
-    // **********************************************************
-    function postLink(scope, element, attr, ctrls) {
-        scope.app = $rootScope.app || {};
-        var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+		// **********************************************************
+		// Private Methods
+		// **********************************************************
+		function postLink(scope, element, attr, ctrls) {
+			scope.app = $rootScope.app || {};
+			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-        function render() {
-            if(!ngModelCtrl.$modelValue){
-                scope.date = null;
-                return;
-            }
-            var date = moment //
-            .utc(ngModelCtrl.$modelValue) //
-            .local();
-            if (date.isValid()) {
-                scope.date = date;
-                return;
-            }
-            // TODO: maso, 2018: handle invalid date
-        }
+			function render() {
+				if (!ngModelCtrl.$modelValue) {
+					return;
+				}
+				var date = moment //
+					.utc(ngModelCtrl.$modelValue) //
+					.local();
+				if (date.isValid()) {
+					scope.date = date;
+					return;
+				}
+				// TODO: maso, 2018: handle invalid date
+			}
 
-        function setValue() {
-            if(!scope.date) {
-                ngModelCtrl.$setViewValue(null);
-                return;
-            }
-            var date = moment(scope.date) //
-            .utc() //
-            .format('YYYY-MM-DD HH:mm:ss');
-            ngModelCtrl.$setViewValue(date);
-        }
+			function setValue() {
+				if (!scope.date) {
+					ngModelCtrl.$setViewValue(scope.date);
+					return;
+				}
+				var date = moment(scope.date) //
+					.utc() //
+					.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
+				ngModelCtrl.$setViewValue(date);
+			}
 
-        ngModelCtrl.$render = render;
-        scope.$watch('date', setValue);
-    }
+			ngModelCtrl.$render = render;
+			scope.$watch('date', setValue);
+		}
 
 
-    return {
-        replace : false,
-        template : function(){
-        	var app = $rootScope.app || {};
-            if(app.calendar === 'Gregorian'){
-                return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-            }
-            return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-        },
-        restrict : 'E',
-        scope : {
-            minDate : '=mbMinDate',
-            maxDate : '=mbMaxDate',
-            placeholder: '@mbPlaceholder',
-            hideIcons: '@?mbHideIcons'
-            //		        currentView: '@mdCurrentView',
-            //		        dateFilter: '=mdDateFilter',
-            //		        isOpen: '=?mdIsOpen',
-            //		        debounceInterval: '=mdDebounceInterval',
-            //		        dateLocale: '=mdDateLocale'
-        },
-        require : [ 'ngModel' ],
-        priority : 210, // Run before ngAria
-        link : postLink
-    };
-});
+		return {
+			replace: false,
+			template: function() {
+				var app = $rootScope.app || {};
+				if (app.calendar === 'Gregorian') {
+					return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+				}
+				return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+			},
+			restrict: 'E',
+			scope: {
+				minDate: '=mbMinDate',
+				maxDate: '=mbMaxDate',
+				placeholder: '@mbPlaceholder',
+				hideIcons: '@?mbHideIcons',
+				dateFormat: '@?mbDateFormat'
+				//		        currentView: '@mdCurrentView',
+				//		        dateFilter: '=mdDateFilter',
+				//		        isOpen: '=?mdIsOpen',
+				//		        debounceInterval: '=mdDebounceInterval',
+				//		        dateLocale: '=mdDateLocale'
+			},
+			require: ['ngModel'],
+			priority: 210, // Run before ngAria
+			link: postLink
+		};
+	});
 /* 
  * The MIT License (MIT)
  * 
@@ -7856,117 +7856,116 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
  * @name mb-inline
  * @description Inline editing field
  */
-.directive('mbInline', function($q, $parse, $resource) {
+angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $resource) {
 
     /**
      * Link data and view
      */
-    function postLink(scope, elem, attr, ctrls) {
+	function postLink(scope, elem, attr, ctrls) {
 
-        var ngModel = ctrls[1];
-        var ctrl = ctrls[0];
+		var ngModel = ctrls[1];
+		var ctrl = ctrls[0];
 
-        scope.myDataModel = {};
-        scope.errorObject = {};
-        
-        scope.mbInlineType = attr.mbInlineType;
-        scope.mbInlineLabel = attr.mbInlineLabel;
-        scope.mbInlineDescription = attr.mbInlineDescription;
-        
-        scope.$watch(attr.mbInlineEnable, function(value){
-            scope.mbInlineEnable = value;
-        });
-        scope.$watch(attr.mbInlineSaveButton, function(value){
-            scope.mbInlineSaveButton = value;
-        });
-        scope.$watch(attr.mbInlineCancelButton, function(value){
-            scope.mbInlineCancelButton = value;
-        });
+		scope.myDataModel = {};
+		scope.errorObject = {};
 
-        ngModel.$render = function(){
-            ctrl.model = ngModel.$viewValue;
-        };
+		scope.mbInlineType = attr.mbInlineType;
+		scope.mbInlineLabel = attr.mbInlineLabel;
+		scope.mbInlineDescription = attr.mbInlineDescription;
 
-        ctrl.saveModel = function(d){
-            ngModel.$setViewValue(d);
-            if(attr.mbInlineOnSave){
-                scope.$data = d;
-                var value = $parse(attr.mbInlineOnSave)(scope);
-                $q.when(value)//
-                .then(function(){
-                    delete scope.error;
-                }, function(error){
-                    scope.error = error;
-                });
-            }
-        };
-    }
+		scope.$watch(attr.mbInlineEnable, function(value) {
+			scope.mbInlineEnable = value;
+		});
+		scope.$watch(attr.mbInlineSaveButton, function(value) {
+			scope.mbInlineSaveButton = value;
+		});
+		scope.$watch(attr.mbInlineCancelButton, function(value) {
+			scope.mbInlineCancelButton = value;
+		});
 
-    return {
-        restrict : 'E',
-        transclude : true,
-        replace: true,
-        require: ['mbInline', '^ngModel'],
-        scope: true,
+		ngModel.$render = function() {
+			ctrl.model = ngModel.$viewValue;
+		};
+
+		ctrl.saveModel = function(d) {
+			ngModel.$setViewValue(d);
+			if (attr.mbInlineOnSave) {
+				scope.$data = d;
+				var value = $parse(attr.mbInlineOnSave)(scope);
+				$q.when(value)//
+					.then(function() {
+						delete scope.error;
+					}, function(error) {
+						scope.error = error;
+					});
+			}
+		};
+	}
+
+	return {
+		restrict: 'E',
+		transclude: true,
+		replace: true,
+		require: ['mbInline', '^ngModel'],
+		scope: true,
         /*
          * @ngInject
          */
-        controller: function($scope){
-            this.edit = function(){
-                this.editMode = true;
-            };
+		controller: function($scope) {
+			this.edit = function() {
+				this.editMode = true;
+			};
 
-            this.setEditMode = function(editMode){
-                this.editMode = editMode;
-            };
+			this.setEditMode = function(editMode) {
+				this.editMode = editMode;
+			};
 
-            this.getEditMode = function(){
-                return this.editMode;
-            };
+			this.getEditMode = function() {
+				return this.editMode;
+			};
 
-            this.save = function(){
-                this.saveModel(this.model);
-                this.setEditMode(false);
-            };
+			this.save = function() {
+				this.saveModel(this.model);
+				this.setEditMode(false);
+			};
 
-            this.cancel = function(){
-                this.setEditMode(false);
-            };
+			this.cancel = function() {
+				this.setEditMode(false);
+			};
 
 
             /*
              * Select image url
              */
-            this.updateImage = function(){
-                if(!$scope.mbInlineEnable){
-                    return;
-                }
-                var ctrl = this;
-                return $resource.get('image', {
-                    style : {
-                        icon: 'image',
-                        title : $scope.mbInlineLabel || 'Select image',
-                        description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
-                    },
-                    data : this.model
-                }) //
-                .then(function(url){
-                    ctrl.model = url;
-                    ctrl.save();
-                });
-            };
-        },
-        controllerAs: 'ctrlInline',
-        templateUrl : 'views/directives/mb-inline.html',
-        link: postLink
-    };
+			this.updateImage = function() {
+				if (!$scope.mbInlineEnable) {
+					return;
+				}
+				var ctrl = this;
+				return $resource.get('image', {
+					style: {
+						icon: 'image',
+						title: $scope.mbInlineLabel || 'Select image',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
+					},
+					data: this.model
+				}) //
+					.then(function(url) {
+						ctrl.model = url;
+						ctrl.save();
+					});
+			};
+		},
+		controllerAs: 'ctrlInline',
+		templateUrl: 'views/directives/mb-inline.html',
+		link: postLink
+	};
 });
 
 /*
@@ -9075,34 +9074,31 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-
-
-	/**
-	 * @ngdoc Directives
-	 * @name mb-titled-block
-	 * @descritpion Title block
-	 *
-	 *
-	 */
-	.directive('mbTitledBlock', function () {
-	    return {
+/**
+ * @ngdoc Directives
+ * @name mb-titled-block
+ * @descritpion Title block
+ *
+ *
+ */
+angular.module('mblowfish-core').directive('mbTitledBlock', function() {
+	return {
 		replace: true,
 		restrict: 'E',
 		transclude: true,
 		scope: {
-		    mbTitle: '@?',
-		    mbIcon: '@?',
-		    mbProgress: '<?',
-		    mbMoreActions: '='
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?',
+			mbMoreActions: '='
 		},
 		/*
 		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 		 */
 
 		templateUrl: 'views/directives/mb-titled-block.html'
-	    };
-	});
+	};
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -9926,169 +9922,165 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-
-
-
 /**
  * @ngdoc Directives
  * @name wb-icon
  * @description Icon for WB
  */
-.directive('wbIcon', function (wbIconService, $interpolate) {
-    // FORMAT
-    var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
-    // REPLACE FORMAT
-    var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
+angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $interpolate) {
+	// FORMAT
+	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
+	// REPLACE FORMAT
+	var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
 
-    // optimize pars
-    Mustache.parse(template);
-    Mustache.parse(replaceTemplate);
+	// optimize pars
+	Mustache.parse(template);
+	Mustache.parse(replaceTemplate);
 
-    var shapes = wbIconService.getShapes();
+	var shapes = wbIconService.getShapes();
 
-    function postLink(scope, element, attr, ctrls, transclude) {
-        // icon information
-        var icon = {
-                name: 'help',
-                viewbox: '0 0 24 24',
-                size: 24,
-        };
-        // Counter
-        var renderCount = 0;
+	function postLink(scope, element, attr, ctrls, transclude) {
+		// icon information
+		var icon = {
+			name: 'help',
+			viewbox: '0 0 24 24',
+			size: 24,
+		};
+		// Counter
+		var renderCount = 0;
 
 
-        /*
-         * Sets icon and render the shape
-         */
-        function setIcon(iconName){
-            var tempIcon = _.clone(icon);
-            // icon
-            if (iconName !== undefined) {
-                tempIcon.name = iconName;
-                // Check for material-design-icons style name, and extract icon / size
-                var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
-                if (ss !== null) {
-                    tempIcon.name = ss[1];
-                    tempIcon.size = ss[2];
-                }
-            }
+		/*
+		 * Sets icon and render the shape
+		 */
+		function setIcon(iconName) {
+			var tempIcon = _.clone(icon);
+			// icon
+			if (iconName !== undefined) {
+				tempIcon.name = iconName;
+				// Check for material-design-icons style name, and extract icon / size
+				var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
+				if (ss !== null) {
+					tempIcon.name = ss[1];
+					tempIcon.size = ss[2];
+				}
+			}
 
-            render(tempIcon);
-        }
+			render(tempIcon);
+		}
 
-//        function setViewBox(viewBox){
-//            // viewBox
-//            if (attr.viewBox !== undefined) {
-//                viewBox = attr.viewBox;
-//            } else {
-//                viewBox = wbIconService.getViewBox(icon) ? wbIconService.getViewBox(icon) : '0 0 24 24';
-//            }
-//            render();
-//            return viewBox;
-//        }
+		//        function setViewBox(viewBox){
+		//            // viewBox
+		//            if (attr.viewBox !== undefined) {
+		//                viewBox = attr.viewBox;
+		//            } else {
+		//                viewBox = wbIconService.getViewBox(icon) ? wbIconService.getViewBox(icon) : '0 0 24 24';
+		//            }
+		//            render();
+		//            return viewBox;
+		//        }
 
-        function setSize(newsize){
-            if (newsize === icon.size) { 
-                return; 
-            }
-            var tempIcon = _.clone(icon);
-            tempIcon.size = newsize;
-            render(tempIcon);
-        }
+		function setSize(newsize) {
+			if (newsize === icon.size) {
+				return;
+			}
+			var tempIcon = _.clone(icon);
+			tempIcon.size = newsize;
+			render(tempIcon);
+		}
 
-        function render(newIcon) {
-            // check for new changes
-            if(renderCount && newIcon.name === icon.name && 
-                    newIcon.size === icon.size && 
-                    newIcon.viewbox === icon.viewbox){
-                return;
-            }
-            newIcon.shape = shapes[newIcon.name];
-            if(renderCount && window.SVGMorpheus) {
-                // this block will succeed if SVGMorpheus is available
-                var options = JSON.parse(attr.options || '{}');
-                element.html(Mustache.render(replaceTemplate, {
-                    icon: newIcon,
-                    old: icon
-                }));
-                new SVGMorpheus(element.children()[0]).to(newIcon, options);
-            } else {
-                element.html(Mustache.render(template, {
-                    icon: newIcon
-                }));
-            }
+		function render(newIcon) {
+			// check for new changes
+			if (renderCount && newIcon.name === icon.name &&
+				newIcon.size === icon.size &&
+				newIcon.viewbox === icon.viewbox) {
+				return;
+			}
+			newIcon.shape = shapes[newIcon.name];
+			if (renderCount && window.SVGMorpheus) {
+				// this block will succeed if SVGMorpheus is available
+				var options = JSON.parse(attr.options || '{}');
+				element.html(Mustache.render(replaceTemplate, {
+					icon: newIcon,
+					old: icon
+				}));
+				new SVGMorpheus(element.children()[0]).to(newIcon, options);
+			} else {
+				element.html(Mustache.render(template, {
+					icon: newIcon
+				}));
+			}
 
-            icon = newIcon;
-            renderCount++;
-        }
+			icon = newIcon;
+			renderCount++;
+		}
 
-        // watch for any changes
-        if (attr.icon !== undefined) {
-            attr.$observe('icon', setIcon); 
-        } else if(attr.wbIconName !== undefined){
-            attr.$observe('wbIconName', setIcon);
-        } else {
-            transclude(scope, function(clone) {
-                var text = clone.text();
-                if (text && text.trim()) {
-                    scope.$watch(function() {
-                        return $interpolate(text.trim())(scope);
-                    }, setIcon);
-                }
-            });
-        }
-        if (attr.size !== undefined) { 
-            attr.$observe('size', setSize);  
-        }
-    }
+		// watch for any changes
+		if (attr.icon !== undefined) {
+			attr.$observe('icon', setIcon);
+		} else if (attr.wbIconName !== undefined) {
+			attr.$observe('wbIconName', setIcon);
+		} else {
+			transclude(scope, function(clone) {
+				var text = clone.text();
+				if (text && text.trim()) {
+					scope.$watch(function() {
+						return $interpolate(text.trim())(scope);
+					}, setIcon);
+				}
+			});
+		}
+		if (attr.size !== undefined) {
+			attr.$observe('size', setSize);
+		}
+	}
 
-    return {
-        restrict: 'AE',
-        transclude : true,
-        link: postLink,
-        replace: false
-    };
-})
+	return {
+		restrict: 'AE',
+		transclude: true,
+		link: postLink,
+		replace: false
+	};
+});
 
-.directive('mdIconFloat', function($mdTheming) {
+angular.module('mblowfish-core').directive('mdIconFloat', function($mdTheming) {
 
-    var INPUT_TAGS = [ 'INPUT', 'TEXTAREA', 'SELECT',
-        'MD-SELECT' ];
+	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
+		'MD-SELECT'];
 
-    var LEFT_SELECTORS = INPUT_TAGS.reduce(
-            function(selectors, isel) {
-                return selectors.concat([ 'wb-icon ~ ' + isel, '.wb-icon ~ ' + isel ]);
-            }, []).join(',');
+	var LEFT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat(['wb-icon ~ ' + isel, '.wb-icon ~ ' + isel]);
+		}, []).join(',');
 
-    var RIGHT_SELECTORS = INPUT_TAGS.reduce(
-            function(selectors, isel) {
-                return selectors.concat([ isel + ' ~ wb-icon', isel + ' ~ .wb-icon' ]);
-            }, []).join(',');
+	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat([isel + ' ~ wb-icon', isel + ' ~ .wb-icon']);
+		}, []).join(',');
 
-    function compile(tElement) {
-        // Check for both a left & right icon
-        var leftIcon = tElement[0]
-        .querySelector(LEFT_SELECTORS);
-        var rightIcon = tElement[0]
-        .querySelector(RIGHT_SELECTORS);
+	function compile(tElement) {
+		// Check for both a left & right icon
+		var leftIcon = tElement[0]
+			.querySelector(LEFT_SELECTORS);
+		var rightIcon = tElement[0]
+			.querySelector(RIGHT_SELECTORS);
 
-        if (leftIcon) {
-            tElement.addClass('md-icon-left');
-        }
-        if (rightIcon) {
-            tElement.addClass('md-icon-right');
-        }
+		if (leftIcon) {
+			tElement.addClass('md-icon-left');
+		}
+		if (rightIcon) {
+			tElement.addClass('md-icon-right');
+		}
 
-        return function postLink(scope, element) {
-            $mdTheming(element);
-        };
-    }
+		return function postLink(scope, element) {
+			$mdTheming(element);
+		};
+	}
 
-    return {
-        restrict : 'C',
-        compile : compile
-    };
+	return {
+		restrict: 'C',
+		compile: compile
+	};
 });
 
 /*
@@ -12334,6 +12326,7 @@ angular.module('mblowfish-core')
 
 
 
+
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -12357,17 +12350,28 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
+
 
 /**
  * @ngdoc Filters
  * @name mbDate
  * @description # Format date
  */
-.filter('mbDate', function($wbLocal) {
-    return function(inputDate, format) {
-        return $wbLocal.formatDate(inputDate, format);
-    };
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDate(inputDate, format);
+	};
+});
+
+/**
+ * @ngdoc Filters
+ * @name mbDateTime
+ * @description # Format date time
+ */
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDateTime(inputDate, format);
+	};
 });
 /* 
  * The MIT License (MIT)
@@ -12958,63 +12962,6 @@ angular.module('mblowfish-core')
 		loadScript(value);
 		loadWatchers();
 	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
-	
-	
-	/*
-	 * format date based on application settings
-	 */
-	$wbLocal.formatDate = function(inputDate, format){
-		if(!inputDate){
-            return '';
-        }
-        try {
-            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-            if($rootScope.app.calendar !== 'Jalaali'){
-                mf = mf.replace('j', '');
-            }
-            var date = moment //
-	            .utc(inputDate) //
-	            .local();
-            return date.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
-	};
-	
-	/*
-	 * maso, 2019: overrid get language
-	 */
-	$wbLocal.getLanguage = function(){
-		return $rootScope.app.language;
-	};
-	
-	/*
-	 * XXX: maso, 2019: overrid get currency
-	 */
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -15936,91 +15883,116 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
- * @name $wbLocal
+ * @name $mbLocal
  * @description manage localization of widgets
  * 
  * Deprecated : use $window
  */
-.service('$wbLocal', function() {
-    var defaultDateFormat = 'YYYY-MM-DD hh:mm:ss';
+angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
+	var defaultDateFormat = 'jYYYY-jMM-jDD';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
 
-    /**
-     * Gets current data of the system.
-     * 
-     * @memberof $wbLocal
-     */
-    this.getDate = function(){
-        return new Date();
-    };
-
-    /**
-     * Formats the input date based on the format
-     * 
-     * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-     * 
-     * @params data {String | Date} to format
-     * @params format {String} of the output
-     * @memberof $wbLocal
-     */
-    this.formatDate = function(date, format){
-        try {
-            var mf = format || defaultDateFormat;
-            var localDate = moment //
-            .utc(date) //
-            .local();
-            return localDate.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
-    };
-
-    /**
-     * Get currency of the system
-     * 
-     * @return currency ISO code
-     * @memberof $wbLocal
-     */
-    this.getCurrency = function(){
-        return this.currency || 'USD';
-    };
-
-    /**
-     * Sets currency of the system
-     * 
-     * @param currency {String} ISO code
-     * @memberof $wbLocal
-     */
-    this.setCurrency = function(currency){
-        this.currency = currency;
-    };
-
-    /**
-     * Get language of the system
-     * 
-     * @return language ISO code
-     * @memberof $wbLocal
-     */
-    this.getLanguage = function(){
-        return  this.language || 'en';
-    };
-
-    /**
-     * Sets language of the system
-     * 
-     * @params language {String} ISO code
-     * @memberof $wbLocal
-     */
-    this.setLanguage = function(language) {
-        this.language = language;
-    };
+	/**
+	 * Gets current data of the system.
+	 * 
+	 * @memberof $mbLocal
+	 */
+	this.getDate = function() {
+		return new Date();
+	};
 
 
-    return this;
+	function formatDateInternal(date, format) {
+		if (!date) {
+			return '';
+		}
+		try {
+			if ($rootScope.app.calendar !== 'Jalaali') {
+				format = format.replace('j', '');
+			}
+			var date = moment //
+				.utc(inputDate) //
+				.local();
+			return date.format(format);
+		} catch (ex) {
+			return '-' + ex.message;
+		}
+	}
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	this.formatDate = function(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormat ||
+			$rootScope.app.config.dateFormat ||
+			defaultDateFormat);
+	};
+
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	this.formatDateTime = function(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormatTime ||
+			$rootScope.app.config.dateFormatTime ||
+			defaultDateTimeFormat);
+	};
+	/**
+	 * Get currency of the system
+	 * 
+	 * @return currency ISO code
+	 * @memberof $mbLocal
+	 */
+	this.getCurrency = function() {
+		return this.currency || 'USD';
+	};
+
+	/**
+	 * Sets currency of the system
+	 * 
+	 * @param currency {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	this.setCurrency = function(currency) {
+		this.currency = currency;
+	};
+
+	/**
+	 * Get language of the system
+	 * 
+	 * @return language ISO code
+	 * @memberof $mbLocal
+	 */
+	this.getLanguage = function() {
+		return $rootScope.app.language;
+	};
+
+	/**
+	 * Sets language of the system
+	 * 
+	 * @params language {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	this.setLanguage = function(language) {
+		this.language = language;
+	};
+
+
+	return this;
 });
 
 /*
@@ -17508,7 +17480,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>                                                                                                                                                    <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save() mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save() mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
