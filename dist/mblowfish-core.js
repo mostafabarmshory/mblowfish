@@ -4394,6 +4394,7 @@ angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
 	this.setLanguage = function(lang) {
 		this.selectedLanguage = lang;
 		this.selectedLanguage.map = this.selectedLanguage.map || {};
+		this.addMissedWord();
 	};
 
 	/**
@@ -4461,9 +4462,9 @@ angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
 	 * @memberof MbLanguagesCtrl
 	 */
 	this.addMissedWord = function() {
-		var mids = $rootScope.app.setting.languageMissIds;
+		var mids = $rootScope.__app.settings.languageMissIds;
 		var ctrl = this;
-		angular.forEach(mids, function(id) {
+		_.forEach(mids, function(id) {
 			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
 		});
 	}
@@ -12202,17 +12203,14 @@ angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootS
 angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($language, $rootScope) {
 	// has to return a function which gets a tranlation ID
 	return function(translationID) {
-		var app = $rootScope.app;
+		var app = $rootScope.__app;
 		//        var key = $language.use()
-		if (!app.setting.languageMissIds) {
-			app.setting.languageMissIds = [];
+		if (!app.settings.languageMissIds) {
+			app.settings.languageMissIds = [];
 		}
-		//      if(!app.setting.languageMiss[key]){
-		//      app.setting.languageMiss[key] = {};
-		//      }
-		var index = app.setting.languageMissIds.indexOf(translationID);
+		var index = app.settings.languageMissIds.indexOf(translationID);
 		if (index === -1) {
-			app.setting.languageMissIds.push(translationID);
+			app.settings.languageMissIds.push(translationID);
 		}
 	};
 });
@@ -14399,7 +14397,7 @@ angular.module('mblowfish-core').run(function($language,
 	$resource.newPage({
 		label: 'Custom',
 		type: 'language',
-		templateUrl: 'views/mb-resources/language-custome.html',
+		templateUrl: 'views/resources/mb-language-custome.html',
 		/*
 		 * @ngInject
 		 */
@@ -14434,7 +14432,7 @@ angular.module('mblowfish-core').run(function($language,
 	$resource.newPage({
 		label: 'Remote',
 		type: 'language-viraweb123',
-		templateUrl: 'views/mb-resources/language-list.html',
+		templateUrl: 'views/resources/mb-language-list.html',
 		/*
 		 * @ngInject
 		 */
@@ -14465,7 +14463,7 @@ angular.module('mblowfish-core').run(function($language,
 	$resource.newPage({
 		label: 'Upload',
 		type: 'language-upload',
-		templateUrl: 'views/mb-resources/language-upload.html',
+		templateUrl: 'views/resources/mb-language-upload.html',
 		/*
 		 * @ngInject
 		 */
@@ -18847,7 +18845,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-languages.html',
-    "<md-sidenav ng-controller=\"MbLanguagesCtrl as ctrl\" class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <wb-icon>add</wb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <wb-icon>more_vert</wb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <wb-icon>download</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <wb-icon>delete</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key]> <wb-icon ng-click=ctrl.deleteWord(key)>delete</wb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <wb-icon>add</wb-icon> </md-button> </fieldset> </md-content>"
+    "<div ng-controller=\"MbLanguagesCtrl as ctrl\" layout=row flex> <md-sidenav class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <wb-icon>add</wb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <wb-icon>more_vert</wb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <wb-icon>download</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <wb-icon>delete</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key] ng-model-options=\"{ updateOn: 'blur', debounce: 3000 }\"> <wb-icon ng-click=ctrl.deleteWord(key)>delete</wb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <wb-icon>add</wb-icon> </md-button> </fieldset> </md-content> </div>"
   );
 
 
