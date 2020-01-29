@@ -1,0 +1,30 @@
+<md-dialog ng-cloak>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2 translate>Add new word</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <wb-icon aria-label="Close dialog">close</wb-icon>
+            </md-button>
+            <md-button class="md-icon-button" ng-click="answer(word)">
+                <wb-icon aria-label="Close dialog">done</wb-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content 
+        layout="column" 
+        layout-align="center stretch" 
+        layout-padding
+        flex>
+        <span flex="10"></span>
+        <md-input-container class="md-block" flex-gt-sm>
+            <label translate="">Key</label>
+            <input ng-model="word.key">
+        </md-input-container>
+
+        <md-input-container class="md-block" flex-gt-sm>
+            <label translate="">Translate</label>
+            <input ng-model="word.translate">
+        </md-input-container>
+    </md-dialog-content>
+</md-dialog>

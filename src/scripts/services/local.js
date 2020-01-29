@@ -43,8 +43,8 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	};
 
 
-	function formatDateInternal(date, format) {
-		if (!date) {
+	function formatDateInternal(inputDate, format) {
+		if (!inputDate) {
 			return '';
 		}
 		try {

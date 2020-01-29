@@ -3261,6 +3261,33 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
+angular.module('mblowfish-core').config(function($translateProvider) {
+	$translateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
+	$translateProvider.useLoader('MbLanguageLoader');
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 
 angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
 	// Change moment's locale so the 'L'-format is adjusted.
@@ -3312,147 +3339,151 @@ angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
 
 
 angular.module('mblowfish-core')
-/**
- * 
- */
-.config(function($routeProvider, $locationProvider) {
-    $routeProvider//
+	/**
+	 * 
+	 */
+	.config(function($routeProvider, $locationProvider) {
+		$routeProvider//
+		
+			/**
+			 * @ngdoc ngRoute
+			 * @name /preferences/languages/manager
+			 * @description Load language manager
+			 * 
+			 * Manages languages and allow user to add a new one.
+			 */
+			.when('/preferences/languages/manager', {
+				templateUrl: 'views/mb-languages.html',
+				/*
+				 * Check if user is owner
+				 * @ngInject
+				 */
+				protect: function($rootScope) {
+					var permissions = $rootScope.__account.permissions;
+					return !(permissions.tenant_owner || permissions.core_owner || permissions.Pluf_owner);
+				}
+			})
 
-    // Preferences
-    // /**
-    //  * @ngdoc ngRoute
-    //  * @name /initialization
-    //  * @description Initial page
-    //  */
-    // .when('/initialization', {
-    //     templateUrl : 'views/mb-initial.html',
-    //     controller : 'MbInitialCtrl',
-    //     controllerAs: 'ctrl',
-    //     /*
-    //      * @ngInject
-    //      */
-    //     protect : function($rootScope) {
-    //         return !$rootScope.__account.permissions.tenant_owner;
-    //     },
-    //     sidenavs: [],
-    //     toolbars: []
-    // })
-    /**
-     * @ngdoc ngRoute
-     * @name /preferences
-     * @description preferences pages
-     */
-    .when('/preferences', {
-        templateUrl : 'views/mb-preferences.html',
-        controller : 'MbPreferencesCtrl',
-        controllerAs: 'ctrl',
-        helpId : 'preferences',
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        }
-    }) //
-    /**
-     * @ngdoc ngRoute
-     * @name /preferences/:page
-     * @description Preferences page
-     * 
-     * Display a preferences page to manage a part of settings. Here is list of
-     * default pages: - google-analytic - brand - update - pageNotFound
-     */
-    .when('/preferences/:preferenceId', {
-        templateUrl : 'views/mb-preference.html',
-        controller : 'MbPreferenceCtrl',
-        /*
-         * @ngInject
-         */
-        helpId : function($routeParams) {
-            return 'preferences-' + $routeParams.preferenceId;
-        },
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        }
-    })
+			/**
+			 * @ngdoc ngRoute
+			 * @name /preferences
+			 * @description preferences pages
+			 */
+			.when('/preferences', {
+				templateUrl: 'views/mb-preferences.html',
+				controller: 'MbPreferencesCtrl',
+				controllerAs: 'ctrl',
+				helpId: 'preferences',
+				/*
+				 * @ngInject
+				 */
+				protect: function($rootScope) {
+					return !$rootScope.__account.permissions.tenant_owner;
+				}
+			}) //
+			/**
+			 * @ngdoc ngRoute
+			 * @name /preferences/:page
+			 * @description Preferences page
+			 * 
+			 * Display a preferences page to manage a part of settings. Here is list of
+			 * default pages: - google-analytic - brand - update - pageNotFound
+			 */
+			.when('/preferences/:preferenceId', {
+				templateUrl: 'views/mb-preference.html',
+				controller: 'MbPreferenceCtrl',
+				/*
+				 * @ngInject
+				 */
+				helpId: function($routeParams) {
+					return 'preferences-' + $routeParams.preferenceId;
+				},
+				/*
+				 * @ngInject
+				 */
+				protect: function($rootScope) {
+					return !$rootScope.__account.permissions.tenant_owner;
+				}
+			})
 
-    // Users
-    // Login
-    .when('/users/login', {
-        templateUrl : 'views/users/mb-login.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })
-    /**
-     * @ngdoc ngRoute
-     * @name /users/account
-     * @description Details of the current account
-     */
-    .when('/users/account', {
-        templateUrl : 'views/users/mb-account.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        protect: true,
-        helpId: 'mb-account'
-    })
-    /**
-     * @ngdoc ngRoute
-     * @name /users/profile
-     * @description Profile of the current account
-     */
-    .when('/users/profile', {
-        templateUrl : 'views/users/mb-profile.html',
-        controller : 'MbProfileCtrl',
-        controllerAs: 'ctrl',
-        protect: true,
-        helpId: 'mb-profile'
-    })
-    /**
-     * @ngdoc ngRoute
-     * @name /users/password
-     * @description Manage current password of the account
-     * 
-     * Change the password of the current account.
-     */
-    .when('/users/password', {
-        templateUrl : 'views/users/mb-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        protect: true,
-        helpId: 'mb-profile'
-    })
+			// Users
+			// Login
+			.when('/users/login', {
+				templateUrl: 'views/users/mb-login.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})
+			
+			//-----------------------------------------------------------------------------
+			// Move to account (vw-dashboard)
+			//-----------------------------------------------------------------------------
+			/**
+			 * @ngdoc ngRoute
+			 * @name /users/account
+			 * @description Details of the current account
+			 */
+			.when('/users/account', {
+				templateUrl: 'views/users/mb-account.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				protect: true,
+				helpId: 'mb-account'
+			})
+			/**
+			 * @ngdoc ngRoute
+			 * @name /users/profile
+			 * @description Profile of the current account
+			 */
+			.when('/users/profile', {
+				templateUrl: 'views/users/mb-profile.html',
+				controller: 'MbProfileCtrl',
+				controllerAs: 'ctrl',
+				protect: true,
+				helpId: 'mb-profile'
+			})
+			/**
+			 * @ngdoc ngRoute
+			 * @name /users/password
+			 * @description Manage current password of the account
+			 * 
+			 * Change the password of the current account.
+			 */
+			.when('/users/password', {
+				templateUrl: 'views/users/mb-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				protect: true,
+				helpId: 'mb-profile'
+			})
 
-    // Reset forgotten password
-    .when('/users/reset-password', {
-        templateUrl : 'views/users/mb-forgot-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })//
-    .when('/users/reset-password/token', {
-        templateUrl : 'views/users/mb-recover-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })//
-    .when('/users/reset-password/token/:token', {
-        templateUrl : 'views/users/mb-recover-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })//
-    ; //
+			// Reset forgotten password
+			.when('/users/reset-password', {
+				templateUrl: 'views/users/mb-forgot-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})//
+			.when('/users/reset-password/token', {
+				templateUrl: 'views/users/mb-recover-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})//
+			.when('/users/reset-password/token/:token', {
+				templateUrl: 'views/users/mb-recover-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})//
+			;//
 
-    $locationProvider.html5Mode(true);
-});
+		$locationProvider.html5Mode(true);
+	});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4315,6 +4346,146 @@ angular.module('mblowfish-core')
 //     this.prevStep = prevStep;
 // });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc controller
+ * @name MbLanguagesCtrl
+ * @description Mange list of languages
+ * 
+ * Manages list of languages
+ * 
+ */
+angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
+	$rootScope, $language, $navigator, FileSaver,
+		/* AngularJS */ $window,
+		/* am-wb     */ $resource) {
+
+	this.selectedLanguage = null;
+
+	/**
+	 * Set current language of app
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - Key of the language
+	 * @return {promise} to change language
+	 */
+	this.setLanguage = function(lang) {
+		this.selectedLanguage = lang;
+		this.selectedLanguage.map = this.selectedLanguage.map || {};
+	};
+
+	/**
+	 * Adds new language to app configuration
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @return {promise} to add language
+	 */
+	this.addLanguage = function() {
+		$resource.get('/app/languages', {
+			// TODO:
+		}).then(function(language) {
+			language.map = language.map || {};
+			return $language.newLanguage(language);
+		});
+	};
+
+	/**
+	 * Remove language form application
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 * @return {promise} to delete language
+	 */
+	this.deleteLanguage = function(lang) {
+		var ctrl = this;
+		$window.confirm('Delete the language?').then(function() {
+			return $language.deleteLanguage(lang);
+		}).then(function() {
+			if (angular.equals(ctrl.selectedLanguage, lang)) {
+				ctrl.selectedLanguage = null;
+			}
+		});
+	};
+
+	/**
+	 * Adds a word to the current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addWord = function() {
+		var ctrl = this;
+		return $navigator.openDialog({
+			templateUrl: 'views/dialogs/mbl-add-word.html',
+
+		})//
+			.then(function(word) {
+				ctrl.selectedLanguage.map[word.key] = ctrl.selectedLanguage.map[word.key] || word.translate || word.key;
+			});
+	};
+
+	/**
+	 * Remove the key from current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.deleteWord = function(key) {
+		delete this.selectedLanguage.map[key];
+	};
+
+
+	/**
+	 * Adds all missed keywords to the current language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addMissedWord = function() {
+		var mids = $rootScope.app.setting.languageMissIds;
+		var ctrl = this;
+		angular.forEach(mids, function(id) {
+			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
+		});
+	}
+
+	/**
+	 * Download the language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 */
+	this.saveAs = function(lang) {
+		var MIME_WB = 'application/weburger+json;charset=utf-8';
+
+		// save  result
+		var dataString = JSON.stringify(lang);
+		var data = new Blob([dataString], {
+			type: MIME_WB
+		});
+		return FileSaver.saveAs(data, 'language.json');
+	};
+
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -11889,6 +12060,162 @@ angular.module('mblowfish-core')
 	};
 	return httpRequestInterceptor;
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+/*
+ * 
+ */
+angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootScope) {
+
+	// load language
+	function getLanguage(key) {
+		var languages = $rootScope.__app.configs.languages || [];
+		var lang = {
+			map: []
+		};
+		angular.forEach(languages, function(item) {
+			if (item.key === key) {
+				lang = item;
+			}
+		});
+		return lang.map;
+	}
+
+    /*
+     * State machine to manage language configurations
+     */
+	var stateMachine = new machina.Fsm({
+		namespace: 'mb-language-config-loader',
+		initialState: 'loading',
+		states: {
+			loading: {
+				appStateChange: function(state) {
+					if (state === 'ready') {
+						this.transition('ready');
+					}
+					// TODO: maso, 2018: not configured or fail
+					if (state === 'ready_app_not_configured') {
+						this.transition('fail');
+					}
+				}
+			},
+			ready: {
+				appStateChange: function(state) {
+					// TODO: maso, 2018: not configured or fail
+					if (state === 'ready_app_not_configured') {
+						this.transition('fail');
+					}
+				}
+			},
+			fail: {
+				appStateChange: function(state) {
+					if (state === 'ready') {
+						this.transition('ready');
+					}
+				}
+			}
+		},
+
+        /*
+         * Handle application state change
+         */
+		appStateChange: function(state) {
+			this.handle('appStateChange', state);
+		}
+
+	});
+
+	$rootScope.$watch('__app.state', function(state) {
+		stateMachine.appStateChange(state);
+	});
+
+	var jobs = [];
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function() {
+		if (stateMachine.state === 'ready' || stateMachine.state === 'fail') {
+			angular.forEach(jobs, function(job) {
+				job();
+			});
+			jobs = [];
+		}
+	});
+
+	return function(option) {
+		if (stateMachine.state === 'fail') {
+			return $q.reject(option.key);
+		}
+		if (stateMachine.state === 'ready') {
+			return $q.when(getLanguage(option.key));
+		}
+
+		var deferred = $q.defer();
+		jobs.push(function() {
+			if (stateMachine.state === 'fail') {
+				return deferred.reject(option.key);
+			}
+			deferred.resolve(getLanguage(option.key));
+		});
+		return deferred.promise;
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($language, $rootScope) {
+	// has to return a function which gets a tranlation ID
+	return function(translationID) {
+		var app = $rootScope.app;
+		//        var key = $language.use()
+		if (!app.setting.languageMissIds) {
+			app.setting.languageMissIds = [];
+		}
+		//      if(!app.setting.languageMiss[key]){
+		//      app.setting.languageMiss[key] = {};
+		//      }
+		var index = app.setting.languageMissIds.indexOf(translationID);
+		if (index === -1) {
+			app.setting.languageMissIds.push(translationID);
+		}
+	};
+});
 ///* 
 // * The MIT License (MIT)
 // * 
@@ -13051,6 +13378,44 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+'use strict';
+
+angular.module('mblowfish-core').run(function($rootScope, $language) {
+	
+	/*
+	 * Lesson on page
+	 */
+	$rootScope.$watch(function(){
+		var localLanguage = $rootScope.app.setting.language;
+		var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
+		return localLanguage || confLanguage;
+	}, function(key){
+		return $language.use(key);
+	});
+	
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 
 angular.module('mblowfish-core')
@@ -13237,6 +13602,904 @@ angular.module('mblowfish-core')
         $help.setCurrentItem(val);
     });
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+/*
+ * Adds language resources
+ * 
+ */
+angular.module('mblowfish-core').run(function($language, 
+		/* angularjs */ $rootScope, $timeout, $q, $http,
+		/* am-wb-core */ $resource) {
+
+	var languages = [
+		{
+			key: 'ab',
+			title: 'Abkhaz'
+		},
+		{
+			key: 'aa',
+			title: 'Afar'
+		},
+		{
+			key: 'af',
+			title: 'Afrikaans'
+		},
+		{
+			key: 'ak',
+			title: 'Akan'
+		},
+		{
+			key: 'sq',
+			title: 'Albanian'
+		},
+		{
+			key: 'am',
+			title: 'Amharic'
+		},
+		{
+			key: 'ar',
+			title: 'Arabic'
+		},
+		{
+			key: 'an',
+			title: 'Aragonese'
+		},
+		{
+			key: 'hy',
+			title: 'Armenian'
+		},
+		{
+			key: 'as',
+			title: 'Assamese'
+		},
+		{
+			key: 'av',
+			title: 'Avaric'
+		},
+		{
+			key: 'ae',
+			title: 'Avestan'
+		},
+		{
+			key: 'ay',
+			title: 'Aymara'
+		},
+		{
+			key: 'az',
+			title: 'Azerbaijani'
+		},
+		{
+			key: 'bm',
+			title: 'Bambara'
+		},
+		{
+			key: 'ba',
+			title: 'Bashkir'
+		},
+		{
+			key: 'eu',
+			title: 'Basque'
+		},
+		{
+			key: 'be',
+			title: 'Belarusian'
+		},
+		{
+			key: 'bn',
+			title: 'Bengali; Bangla'
+		},
+		{
+			key: 'bh',
+			title: 'Bihari'
+		},
+		{
+			key: 'bi',
+			title: 'Bislama'
+		},
+		{
+			key: 'bs',
+			title: 'Bosnian'
+		},
+		{
+			key: 'br',
+			title: 'Breton'
+		},
+		{
+			key: 'bg',
+			title: 'Bulgarian'
+		},
+		{
+			key: 'my',
+			title: 'Burmese'
+		},
+		{
+			key: 'ca',
+			title: 'Catalan; Valencian'
+		},
+		{
+			key: 'ch',
+			title: 'Chamorro'
+		},
+		{
+			key: 'ce',
+			title: 'Chechen'
+		},
+		{
+			key: 'ny',
+			title: 'Chichewa; Chewa; Nyanja'
+		},
+		{
+			key: 'zh',
+			title: 'Chinese'
+		},
+		{
+			key: 'cv',
+			title: 'Chuvash'
+		},
+		{
+			key: 'kw',
+			title: 'Cornish'
+		},
+		{
+			key: 'co',
+			title: 'Corsican'
+		},
+		{
+			key: 'cr',
+			title: 'Cree'
+		},
+		{
+			key: 'hr',
+			title: 'Croatian'
+		},
+		{
+			key: 'cs',
+			title: 'Czech'
+		},
+		{
+			key: 'da',
+			title: 'Danish'
+		},
+		{
+			key: 'dv',
+			title: 'Divehi; Dhivehi; Maldivian;'
+		},
+		{
+			key: 'nl',
+			title: 'Dutch'
+		},
+		{
+			key: 'dz',
+			title: 'Dzongkha'
+		},
+		{
+			key: 'en',
+			title: 'English'
+		},
+		{
+			key: 'eo',
+			title: 'Esperanto'
+		},
+		{
+			key: 'et',
+			title: 'Estonian'
+		},
+		{
+			key: 'ee',
+			title: 'Ewe'
+		},
+		{
+			key: 'fo',
+			title: 'Faroese'
+		},
+		{
+			key: 'fj',
+			title: 'Fijian'
+		},
+		{
+			key: 'fi',
+			title: 'Finnish'
+		},
+		{
+			key: 'fr',
+			title: 'French'
+		},
+		{
+			key: 'ff',
+			title: 'Fula; Fulah; Pulaar; Pular'
+		},
+		{
+			key: 'gl',
+			title: 'Galician'
+		},
+		{
+			key: 'ka',
+			title: 'Georgian'
+		},
+		{
+			key: 'de',
+			title: 'German'
+		},
+		{
+			key: 'el',
+			title: 'Greek, Modern'
+		},
+		{
+			key: 'gn',
+			title: 'GuaranÃ­'
+		},
+		{
+			key: 'gu',
+			title: 'Gujarati'
+		},
+		{
+			key: 'ht',
+			title: 'Haitian; Haitian Creole'
+		},
+		{
+			key: 'ha',
+			title: 'Hausa'
+		},
+		{
+			key: 'he',
+			title: 'Hebrew (modern)'
+		},
+		{
+			key: 'hz',
+			title: 'Herero'
+		},
+		{
+			key: 'hi',
+			title: 'Hindi'
+		},
+		{
+			key: 'ho',
+			title: 'Hiri Motu'
+		},
+		{
+			key: 'hu',
+			title: 'Hungarian'
+		},
+		{
+			key: 'ia',
+			title: 'Interlingua'
+		},
+		{
+			key: 'id',
+			title: 'Indonesian'
+		},
+		{
+			key: 'ie',
+			title: 'Interlingue'
+		},
+		{
+			key: 'ga',
+			title: 'Irish'
+		},
+		{
+			key: 'ig',
+			title: 'Igbo'
+		},
+		{
+			key: 'ik',
+			title: 'Inupiaq'
+		},
+		{
+			key: 'io',
+			title: 'Ido'
+		},
+		{
+			key: 'is',
+			title: 'Icelandic'
+		},
+		{
+			key: 'it',
+			title: 'Italian'
+		},
+		{
+			key: 'iu',
+			title: 'Inuktitut'
+		},
+		{
+			key: 'ja',
+			title: 'Japanese'
+		},
+		{
+			key: 'jv',
+			title: 'Javanese'
+		},
+		{
+			key: 'kl',
+			title: 'Kalaallisut, Greenlandic'
+		},
+		{
+			key: 'kn',
+			title: 'Kannada'
+		},
+		{
+			key: 'kr',
+			title: 'Kanuri'
+		},
+		{
+			key: 'ks',
+			title: 'Kashmiri'
+		},
+		{
+			key: 'kk',
+			title: 'Kazakh'
+		},
+		{
+			key: 'km',
+			title: 'Khmer'
+		},
+		{
+			key: 'ki',
+			title: 'Kikuyu, Gikuyu'
+		},
+		{
+			key: 'rw',
+			title: 'Kinyarwanda'
+		},
+		{
+			key: 'ky',
+			title: 'Kyrgyz'
+		},
+		{
+			key: 'kv',
+			title: 'Komi'
+		},
+		{
+			key: 'kg',
+			title: 'Kongo'
+		},
+		{
+			key: 'ko',
+			title: 'Korean'
+		},
+		{
+			key: 'ku',
+			title: 'Kurdish'
+		},
+		{
+			key: 'kj',
+			title: 'Kwanyama, Kuanyama'
+		},
+		{
+			key: 'la',
+			title: 'Latin'
+		},
+		{
+			key: 'lb',
+			title: 'Luxembourgish, Letzeburgesch'
+		},
+		{
+			key: 'lg',
+			title: 'Ganda'
+		},
+		{
+			key: 'li',
+			title: 'Limburgish, Limburgan, Limburger'
+		},
+		{
+			key: 'ln',
+			title: 'Lingala'
+		},
+		{
+			key: 'lo',
+			title: 'Lao'
+		},
+		{
+			key: 'lt',
+			title: 'Lithuanian'
+		},
+		{
+			key: 'lu',
+			title: 'Luba-Katanga'
+		},
+		{
+			key: 'lv',
+			title: 'Latvian'
+		},
+		{
+			key: 'gv',
+			title: 'Manx'
+		},
+		{
+			key: 'mk',
+			title: 'Macedonian'
+		},
+		{
+			key: 'mg',
+			title: 'Malagasy'
+		},
+		{
+			key: 'ms',
+			title: 'Malay'
+		},
+		{
+			key: 'ml',
+			title: 'Malayalam'
+		},
+		{
+			key: 'mt',
+			title: 'Maltese'
+		},
+		{
+			key: 'mi',
+			title: 'MÄori'
+		},
+		{
+			key: 'mr',
+			title: 'Marathi (MarÄá¹­hÄ«)'
+		},
+		{
+			key: 'mh',
+			title: 'Marshallese'
+		},
+		{
+			key: 'mn',
+			title: 'Mongolian'
+		},
+		{
+			key: 'na',
+			title: 'Nauru'
+		},
+		{
+			key: 'nv',
+			title: 'Navajo, Navaho'
+		},
+		{
+			key: 'nb',
+			title: 'Norwegian BokmÃ¥l'
+		},
+		{
+			key: 'nd',
+			title: 'North Ndebele'
+		},
+		{
+			key: 'ne',
+			title: 'Nepali'
+		},
+		{
+			key: 'ng',
+			title: 'Ndonga'
+		},
+		{
+			key: 'nn',
+			title: 'Norwegian Nynorsk'
+		},
+		{
+			key: 'no',
+			title: 'Norwegian'
+		},
+		{
+			key: 'ii',
+			title: 'Nuosu'
+		},
+		{
+			key: 'nr',
+			title: 'South Ndebele'
+		},
+		{
+			key: 'oc',
+			title: 'Occitan'
+		},
+		{
+			key: 'oj',
+			title: 'Ojibwe, Ojibwa'
+		},
+		{
+			key: 'cu',
+			title: 'Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic'
+		},
+		{
+			key: 'om',
+			title: 'Oromo'
+		},
+		{
+			key: 'or',
+			title: 'Oriya'
+		},
+		{
+			key: 'os',
+			title: 'Ossetian, Ossetic'
+		},
+		{
+			key: 'pa',
+			title: 'Panjabi, Punjabi'
+		},
+		{
+			key: 'pi',
+			title: 'PÄli'
+		},
+		{
+			key: 'fa',
+			title: 'Persian (Farsi)'
+		},
+		{
+			key: 'pl',
+			title: 'Polish'
+		},
+		{
+			key: 'ps',
+			title: 'Pashto, Pushto'
+		},
+		{
+			key: 'pt',
+			title: 'Portuguese'
+		},
+		{
+			key: 'qu',
+			title: 'Quechua'
+		},
+		{
+			key: 'rm',
+			title: 'Romansh'
+		},
+		{
+			key: 'rn',
+			title: 'Kirundi'
+		},
+		{
+			key: 'ro',
+			title: 'Romanian, [])'
+		},
+		{
+			key: 'ru',
+			title: 'Russian'
+		},
+		{
+			key: 'sa',
+			title: 'Sanskrit (Saá¹ská¹›ta)'
+		},
+		{
+			key: 'sc',
+			title: 'Sardinian'
+		},
+		{
+			key: 'sd',
+			title: 'Sindhi'
+		},
+		{
+			key: 'se',
+			title: 'Northern Sami'
+		},
+		{
+			key: 'sm',
+			title: 'Samoan'
+		},
+		{
+			key: 'sg',
+			title: 'Sango'
+		},
+		{
+			key: 'sr',
+			title: 'Serbian'
+		},
+		{
+			key: 'gd',
+			title: 'Scottish Gaelic; Gaelic'
+		},
+		{
+			key: 'sn',
+			title: 'Shona'
+		},
+		{
+			key: 'si',
+			title: 'Sinhala, Sinhalese'
+		},
+		{
+			key: 'sk',
+			title: 'Slovak'
+		},
+		{
+			key: 'sl',
+			title: 'Slovene'
+		},
+		{
+			key: 'so',
+			title: 'Somali'
+		},
+		{
+			key: 'st',
+			title: 'Southern Sotho'
+		},
+		{
+			key: 'az',
+			title: 'South Azerbaijani'
+		},
+		{
+			key: 'es',
+			title: 'Spanish; Castilian'
+		},
+		{
+			key: 'su',
+			title: 'Sundanese'
+		},
+		{
+			key: 'sw',
+			title: 'Swahili'
+		},
+		{
+			key: 'ss',
+			title: 'Swati'
+		},
+		{
+			key: 'sv',
+			title: 'Swedish'
+		},
+		{
+			key: 'ta',
+			title: 'Tamil'
+		},
+		{
+			key: 'te',
+			title: 'Telugu'
+		},
+		{
+			key: 'tg',
+			title: 'Tajik'
+		},
+		{
+			key: 'th',
+			title: 'Thai'
+		},
+		{
+			key: 'ti',
+			title: 'Tigrinya'
+		},
+		{
+			key: 'bo',
+			title: 'Tibetan Standard, Tibetan, Central'
+		},
+		{
+			key: 'tk',
+			title: 'Turkmen'
+		},
+		{
+			key: 'tl',
+			title: 'Tagalog'
+		},
+		{
+			key: 'tn',
+			title: 'Tswana'
+		},
+		{
+			key: 'to',
+			title: 'Tonga (Tonga Islands)'
+		},
+		{
+			key: 'tr',
+			title: 'Turkish'
+		},
+		{
+			key: 'ts',
+			title: 'Tsonga'
+		},
+		{
+			key: 'tt',
+			title: 'Tatar'
+		},
+		{
+			key: 'tw',
+			title: 'Twi'
+		},
+		{
+			key: 'ty',
+			title: 'Tahitian'
+		},
+		{
+			key: 'ug',
+			title: 'Uyghur, Uighur'
+		},
+		{
+			key: 'uk',
+			title: 'Ukrainian'
+		},
+		{
+			key: 'ur',
+			title: 'Urdu'
+		},
+		{
+			key: 'uz',
+			title: 'Uzbek'
+		},
+		{
+			key: 've',
+			title: 'Venda'
+		},
+		{
+			key: 'vi',
+			title: 'Vietnamese'
+		},
+		{
+			key: 'vo',
+			title: 'VolapÃ¼k'
+		},
+		{
+			key: 'wa',
+			title: 'Walloon'
+		},
+		{
+			key: 'cy',
+			title: 'Welsh'
+		},
+		{
+			key: 'wo',
+			title: 'Wolof'
+		},
+		{
+			key: 'fy',
+			title: 'Western Frisian'
+		},
+		{
+			key: 'xh',
+			title: 'Xhosa'
+		},
+		{
+			key: 'yi',
+			title: 'Yiddish'
+		},
+		{
+			key: 'yo',
+			title: 'Yoruba'
+		},
+		{
+			key: 'za',
+			title: 'Zhuang, Chuang'
+		},
+		{
+			key: 'zu',
+			title: 'Zulu'
+		}
+		];
+
+	/**
+	 * Create filter function for a query string
+	 */
+	function createFilterFor(query) {
+		var lowercaseQuery = query.toLowerCase();
+
+		return function filterFn(language) {
+			return (language.title.indexOf(lowercaseQuery) >= 0) ||
+			(language.key.indexOf(lowercaseQuery) >= 0);
+		};
+
+	}
+
+	/**
+	 * @ngdoc Resources
+	 * @name Custom Language
+	 * @description Create a custom language and return the result
+	 *
+	 * A custom language is a key, title, and map
+	 */
+	$resource.newPage({
+		label: 'Custom',
+		type: 'language',
+		templateUrl: 'views/mb-resources/language-custome.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.language = $scope.value;
+
+			this.querySearch = function(query){
+				var results = query ? languages.filter(createFilterFor(query)) : languages;
+				var deferred = $q.defer();
+				$timeout(function () { 
+					deferred.resolve(results); 
+				}, Math.random() * 100, false);
+				return deferred.promise;
+			};
+
+			$scope.$watch('language', function(lang){
+				$scope.$parent.setValue(lang);
+			});
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/languages']
+	});
+
+	/**
+	 * @ngdoc Resources
+	 * @name Remote Languages
+	 * @description Create a custom language and return the result
+	 *
+	 * A custom language is a key, title, and map
+	 */
+	$resource.newPage({
+		label: 'Remote',
+		type: 'language-viraweb123',
+		templateUrl: 'views/mb-resources/language-list.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$http.get('resources/common-languages.json')
+			.then(function(res){
+				$scope.languages = res.data;
+			});
+
+			this.setLanguage = function(lang){
+				$scope.$parent.setValue(lang);
+			};
+
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/languages']
+	});
+
+
+	/**
+	 * @ngdoc Resources
+	 * @name Remote Languages
+	 * @description Create a custom language and return the result
+	 *
+	 * A custom language is a key, title, and map
+	 */
+	$resource.newPage({
+		label: 'Upload',
+		type: 'language-upload',
+		templateUrl: 'views/mb-resources/language-upload.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$http.get('resources/common-languages.json')
+			.then(function(res){
+				$scope.languages = res.data;
+			});
+
+			this.setLanguage = function(lang){
+				$scope.$parent.setValue(lang);
+			};
+
+			var ctrl = this;
+			$scope.$watch('files.length',function(files){
+				if(!$scope.files || $scope.files.length <= 0){
+					return;
+				}
+				var reader = new FileReader();
+				reader.onload = function (event) {
+					var lang = JSON.parse(event.target.result);
+					ctrl.setLanguage(lang);
+				};
+				reader.readAsText($scope.files[0].lfFile);
+			});
+
+
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/languages']
+	});
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  *
@@ -15928,8 +17191,8 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	};
 
 
-	function formatDateInternal(date, format) {
-		if (!date) {
+	function formatDateInternal(inputDate, format) {
+		if (!inputDate) {
 			return '';
 		}
 		try {
@@ -17478,6 +18741,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/dialogs/mbl-add-word.html',
+    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 translate>Add new word</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(word)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <span flex=10></span> <md-input-container class=md-block flex-gt-sm> <label translate=\"\">Key</label> <input ng-model=word.key> </md-input-container> <md-input-container class=md-block flex-gt-sm> <label translate=\"\">Translate</label> <input ng-model=word.translate> </md-input-container> </md-dialog-content> </md-dialog>"
+  );
+
+
+  $templateCache.put('views/dialogs/mbl-update-language.html',
+    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 translate>{{::config.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(config.language)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <div layout=column> <md-input-container> <label translate>Key</label> <input ng-model=config.language.key ng-readonly=true> </md-input-container> <md-input-container> <label translate>Title</label> <input ng-model=config.language.title ng-readonly=true> </md-input-container> </div> </md-dialog-content> </md-dialog>"
+  );
+
+
   $templateCache.put('views/dialogs/wb-select-resource-single-page.html',
     "<md-dialog aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row>       <span flex></span> <md-button ng-click=cancel() aria-label=Cancel> <span translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
@@ -17573,6 +18846,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/mb-languages.html',
+    "<md-sidenav ng-controller=\"MbLanguagesCtrl as ctrl\" class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <wb-icon>add</wb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <wb-icon>more_vert</wb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <wb-icon>download</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <wb-icon>delete</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key]> <wb-icon ng-click=ctrl.deleteWord(key)>delete</wb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <wb-icon>add</wb-icon> </md-button> </fieldset> </md-content>"
+  );
+
+
   $templateCache.put('views/mb-passowrd-recover.html',
     " <md-toolbar layout-padding>  <h3>Forget Your PassWord ?</h3> </md-toolbar>  <div layout=column layout-padding> <md-input-container> <label>Username or Email</label> <input ng-model=credit.login required> </md-input-container> </div> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <a ui-sref=login flex-order=1 flex-order-gt-sm=-1>Back To Login Page</a> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)>Send</md-button> </div>"
   );
@@ -17665,6 +18943,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/resources/mb-groups.html',
     "<div ng-controller=\"MbSeenUserGroupsCtrl as ctrl\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"group in ctrl.items track by group.id\" ng-click=\"multi || resourceCtrl.setSelected(group)\" class=md-3-line> <wb-icon>group</wb-icon> <div class=md-list-item-text layout=column> <h3>{{group.name}}</h3> <h4></h4> <p>{{group.description}}</p> </div> <md-checkbox ng-if=multi class=md-secondary ng-init=\"group.selected = resourceCtrl.isSelected(group)\" ng-model=group.selected ng-click=\"resourceCtrl.setSelected(group, group.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item>  </md-list> </md-content> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-language-custome.html',
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <md-autocomplete flex required md-input-name=Language md-selected-item=language md-search-text=resourceCtrl.searchText md-items=\"item in resourceCtrl.querySearch(resourceCtrl.searchText)\" md-item-text=item.key md-require-match=\"\" md-floating-label=Key input-aria-describedby=\"Language Key\"> <md-item-template> <span md-highlight-text=resourceCtrl.searchText>{{item.title}} ({{item.key}})</span> </md-item-template> <div ng-messages=searchForm.autocompleteField.$error ng-if=searchForm.autocompleteField.$touched> <div ng-message=required>You <b>must</b> have a language key.</div> <div ng-message=md-require-match>Please select an existing language.</div> <div ng-message=minlength>Your entry is not long enough.</div> <div ng-message=maxlength>Your entry is too long.</div> </div> </md-autocomplete> <md-input-container> <label translate>Title</label> <input ng-model=language.title> </md-input-container> </form>"
+  );
+
+
+  $templateCache.put('views/resources/mb-language-list.html',
+    "<md-list flex> <md-list-item class=md-3-line ng-repeat=\"item in languages\" ng-click=resourceCtrl.setLanguage(item)> <wb-icon>language</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.key }}</h3> <h4>{{ item.title }}</h4> <p>{{ item.description }}</p> </div> </md-list-item> </md-list>"
+  );
+
+
+  $templateCache.put('views/resources/mb-language-upload.html',
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <lf-ng-md-file-input name=files lf-files=files lf-required lf-maxcount=5 lf-filesize=10MB lf-totalsize=20MB drag preview> </lf-ng-md-file-input> </form>"
   );
 
 
