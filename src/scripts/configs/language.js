@@ -20,10 +20,7 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-	.config(function ($httpProvider) {
-	    // An interceptor to handle errors of server response
-	    // All that the interceptor does is in 'httpRequestInterceptor' factory.
-	    $httpProvider.interceptors.push('MbHttpRequestInterceptor');
-	});
+angular.module('mblowfish-core').config(function($translateProvider) {
+	$translateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
+	$translateProvider.useLoader('MbLanguageLoader');
+});

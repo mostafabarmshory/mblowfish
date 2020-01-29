@@ -89,12 +89,12 @@
 			mb-inline-enable="editable">
 			Password: {{ mypass || 'empty' }}
 		</mb-inline>
+		{{mydatetime}}
 		<mb-inline
-			ng-model="mydatetime"
+			ng-model="object.mydatetime"
 			mb-inline-type="datetime"
-			mb-inline-enable="editable">
-			Date Time: {{ (mydatetime | date: "yyyy-MM-ddTHH:mm:ss") || 'empty' }}
-		</mb-inline>
+			mb-inline-enable="editable">Date Time : {{ (object.mydatetime | mbDate) || 'empty' }}</mb-inline>
+			
 		<mb-inline
 			ng-model="myfile"
 			mb-inline-type="file"

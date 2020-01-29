@@ -23,7 +23,7 @@
 // */
 //
 //angular.module('mblowfish-core')
-//.factory('WbDialogWindow', function($wbWindow, $document, $wbFloat) {
+//.factory('WbDialogWindow', function($window, $document, $wbFloat) {
 //    
 //
 //
@@ -72,7 +72,7 @@
 //     * 
 //     */
 //    var wbWindow = function(parent){
-//        this.parent = parent || $wbWindow;
+//        this.parent = parent || $window;
 //        this.floatDialogElement = null;
 //        this.setTitleVisible(true);
 //    };
@@ -144,7 +144,7 @@
 //     * @return window object
 //     */
 //    wbWindow.prototype.open = function(url, name, options, replace){
-//        return $wbWindow.open(url, name, options, replace);
+//        return $window.open(url, name, options, replace);
 //    };
 //
 //    /**
@@ -258,7 +258,7 @@
 //     * @return promise to load the library
 //     */
 //    wbWindow.prototype.loadLibrary = function(path){
-//        return $wbWindow.loadLibrary(path);
+//        return $window.loadLibrary(path);
 //    };
 //
 //    /**
@@ -268,7 +268,7 @@
 //     * @return true if the library is loaded
 //     */
 //    wbWindow.prototype.isLibraryLoaded = function(path){
-//        return $wbWindow.isLibraryLoaded(path);
+//        return $window.isLibraryLoaded(path);
 //    };
 //
 //    /**
@@ -279,7 +279,7 @@
 //     * @return promise to load the library
 //     */
 //    wbWindow.prototype.loadStyle = function(path){
-//        return $wbWindow.loadStyle(path);
+//        return $window.loadStyle(path);
 //    };
 //
 //    /**
@@ -289,7 +289,7 @@
 //     * @return true if the library is loaded
 //     */
 //    wbWindow.prototype.isStyleLoaded = function(path){
-//        return $wbWindow.isStyleLoaded(path);
+//        return $window.isStyleLoaded(path);
 //    };
 //
 //

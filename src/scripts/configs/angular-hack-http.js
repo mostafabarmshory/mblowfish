@@ -20,38 +20,27 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
-	
-	
+
+angular.module('mblowfish-core').config(function($httpProvider) {
+	// An interceptor to handle errors of server response
+	// All that the interceptor does is in 'httpRequestInterceptor' factory.
+	$httpProvider.interceptors.push('MbHttpRequestInterceptor');
+
 	/*
-	 * format date based on application settings
+	 * Disabling AngularJS $http cache
+	 * @see https://stackoverflow.com/questions/38196452/disabling-angularjs-http-cache
 	 */
-	$wbLocal.formatDate = function(inputDate, format){
-		if(!inputDate){
-            return '';
-        }
-        try {
-            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-            if($rootScope.app.calendar !== 'Jalaali'){
-                mf = mf.replace('j', '');
-            }
-            var date = moment //
-	            .utc(inputDate) //
-	            .local();
-            return date.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
-	};
-	
-	/*
-	 * maso, 2019: overrid get language
-	 */
-	$wbLocal.getLanguage = function(){
-		return $rootScope.app.language;
-	};
-	
-	/*
-	 * XXX: maso, 2019: overrid get currency
-	 */
+	//initialize get if not there
+	if (!$httpProvider.defaults.headers.get) {
+		$httpProvider.defaults.headers.get = {};
+	}
+
+	// Answer edited to include suggestions from comments
+	// because previous version of code introduced browser-related errors
+
+	//disable IE ajax request caching
+	$httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+	// extra
+	$httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
+	$httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
 });

@@ -87,8 +87,8 @@
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
 	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
-	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/loglevel/dist/loglevel.min.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -96,9 +96,11 @@
 	<!-- build:js({.tmp,app}) scripts/scripts.js -->
 	<!-- injector:js -->
 	<script src="libs/machina.js"></script>
+	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/app.js"></script>
+	<script src="scripts/configs/angular-hack-http.js"></script>
 	<script src="scripts/configs/icons.js"></script>
-	<script src="scripts/configs/interceptor.js"></script>
+	<script src="scripts/configs/language.js"></script>
 	<script src="scripts/configs/local.js"></script>
 	<script src="scripts/configs/states.js"></script>
 	<script src="scripts/configs/theme.js"></script>
@@ -107,6 +109,7 @@
 	<script src="scripts/controllers/dashboard.js"></script>
 	<script src="scripts/controllers/help.js"></script>
 	<script src="scripts/controllers/initial.js"></script>
+	<script src="scripts/controllers/languages.js"></script>
 	<script src="scripts/controllers/mb-language.js"></script>
 	<script src="scripts/controllers/mb-local.js"></script>
 	<script src="scripts/controllers/navigator-dialog.js"></script>
@@ -174,6 +177,8 @@
 	<script src="scripts/factories/ActionGroup.js"></script>
 	<script src="scripts/factories/Event.js"></script>
 	<script src="scripts/factories/Interceptor.js"></script>
+	<script src="scripts/factories/MbLanguageLoader.js"></script>
+	<script src="scripts/factories/MbMissingTranslationHandler.js"></script>
 	<script src="scripts/factories/dialog-window.js"></script>
 	<script src="scripts/filters/currency.js"></script>
 	<script src="scripts/filters/date.js"></script>
@@ -184,11 +189,12 @@
 	<script src="scripts/runs/app.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
 	<script src="scripts/runs/google-analytics.js"></script>
-	<script src="scripts/runs/hack-wb-local.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
+	<script src="scripts/runs/language.js"></script>
 	<script src="scripts/runs/page-init.js"></script>
 	<script src="scripts/runs/preferences.js"></script>
 	<script src="scripts/runs/protection.js"></script>
+	<script src="scripts/runs/resources-lang.js"></script>
 	<script src="scripts/runs/resources.js"></script>
 	<script src="scripts/services/actions.js"></script>
 	<script src="scripts/services/app.js"></script>
@@ -210,6 +216,7 @@
 	<script src="scripts/services/sidenav.js"></script>
 	<script src="scripts/services/storage.js"></script>
 	<script src="scripts/services/toolbar.js"></script>
+	<script src="scripts/services/uuid.js"></script>
 	<script src="scripts/test-app.js"></script>
 	<script src="scripts/test-configs/language.js"></script>
 	<script src="scripts/test-configs/path.js"></script>

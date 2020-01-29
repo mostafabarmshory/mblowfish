@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,30 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+'use strict';
 
-
-/**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- *
- *
- */
-angular.module('mblowfish-core').directive('mbTitledBlock', function() {
-	return {
-		replace: true,
-		restrict: 'E',
-		transclude: true,
-		scope: {
-			mbTitle: '@?',
-			mbIcon: '@?',
-			mbProgress: '<?',
-			mbMoreActions: '='
-		},
-		/*
-		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-		 */
-
-		templateUrl: 'views/directives/mb-titled-block.html'
-	};
+angular.module('mblowfish-core').run(function($rootScope, $language) {
+	
+	/*
+	 * Lesson on page
+	 */
+	$rootScope.$watch(function(){
+		var localLanguage = $rootScope.app.setting.language;
+		var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
+		return localLanguage || confLanguage;
+	}, function(key){
+		return $language.use(key);
+	});
+	
 });

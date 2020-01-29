@@ -21,115 +21,138 @@
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
  * @name mb-inline
  * @description Inline editing field
  */
-.directive('mbInline', function($q, $parse, $resource) {
+angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $resource) {
 
     /**
      * Link data and view
      */
-    function postLink(scope, elem, attr, ctrls) {
+	function postLink(scope, elem, attr, ctrls) {
 
-        var ngModel = ctrls[1];
-        var ctrl = ctrls[0];
+		var ngModel = ctrls[1];
+		var ctrl = ctrls[0];
 
-        scope.myDataModel = {};
-        scope.errorObject = {};
-        
-        scope.mbInlineType = attr.mbInlineType;
-        scope.mbInlineLabel = attr.mbInlineLabel;
-        scope.mbInlineDescription = attr.mbInlineDescription;
-        
-        scope.$watch(attr.mbInlineEnable, function(value){
-            scope.mbInlineEnable = value;
-        });
-        scope.$watch(attr.mbInlineSaveButton, function(value){
-            scope.mbInlineSaveButton = value;
-        });
-        scope.$watch(attr.mbInlineCancelButton, function(value){
-            scope.mbInlineCancelButton = value;
-        });
+		scope.myDataModel = {};
+		scope.errorObject = {};
 
-        ngModel.$render = function(){
-            ctrl.model = ngModel.$viewValue;
-        };
+		scope.mbInlineType = attr.mbInlineType;
+		scope.mbInlineLabel = attr.mbInlineLabel;
+		scope.mbInlineDescription = attr.mbInlineDescription;
 
-        ctrl.saveModel = function(d){
-            ngModel.$setViewValue(d);
-            if(attr.mbInlineOnSave){
-                scope.$data = d;
-                var value = $parse(attr.mbInlineOnSave)(scope);
-                $q.when(value)//
-                .then(function(){
-                    delete scope.error;
-                }, function(error){
-                    scope.error = error;
-                });
-            }
-        };
-    }
+		scope.$watch(attr.mbInlineEnable, function(value) {
+			scope.mbInlineEnable = value;
+		});
+		scope.$watch(attr.mbInlineSaveButton, function(value) {
+			scope.mbInlineSaveButton = value;
+		});
+		scope.$watch(attr.mbInlineCancelButton, function(value) {
+			scope.mbInlineCancelButton = value;
+		});
 
-    return {
-        restrict : 'E',
-        transclude : true,
-        replace: true,
-        require: ['mbInline', '^ngModel'],
-        scope: true,
+		ngModel.$render = function() {
+			ctrl.model = ngModel.$viewValue;
+		};
+
+		/*
+		 * @depricated use ngChange
+		 */
+		ctrl.saveModel = function(d) {
+			ngModel.$setViewValue(d);
+			if (attr.mbInlineOnSave) {
+				scope.$data = d;
+				var value = $parse(attr.mbInlineOnSave)(scope);
+				$q.when(value)//
+					.then(function() {
+						delete scope.error;
+					}, function(error) {
+						scope.error = error;
+					});
+			}
+		};
+	}
+
+	return {
+		restrict: 'E',
+		transclude: true,
+		replace: true,
+		require: ['mbInline', '^ngModel'],
+		scope: true,
         /*
          * @ngInject
          */
-        controller: function($scope){
-            this.edit = function(){
-                this.editMode = true;
-            };
+		controller: function($scope) {
+			this.edit = function() {
+				this.editMode = true;
+			};
 
-            this.setEditMode = function(editMode){
-                this.editMode = editMode;
-            };
+			this.setEditMode = function(editMode) {
+				this.editMode = editMode;
+			};
 
-            this.getEditMode = function(){
-                return this.editMode;
-            };
+			this.getEditMode = function() {
+				return this.editMode;
+			};
 
-            this.save = function(){
-                this.saveModel(this.model);
-                this.setEditMode(false);
-            };
+			this.save = function() {
+				this.saveModel(this.model);
+				this.setEditMode(false);
+			};
 
-            this.cancel = function(){
-                this.setEditMode(false);
-            };
+			this.cancel = function() {
+				this.setEditMode(false);
+			};
 
 
             /*
              * Select image url
              */
-            this.updateImage = function(){
-                if(!$scope.mbInlineEnable){
-                    return;
-                }
-                var ctrl = this;
-                return $resource.get('image', {
-                    style : {
-                        icon: 'image',
-                        title : $scope.mbInlineLabel || 'Select image',
-                        description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
-                    },
-                    data : this.model
-                }) //
-                .then(function(url){
-                    ctrl.model = url;
-                    ctrl.save();
-                });
-            };
-        },
-        controllerAs: 'ctrlInline',
-        templateUrl : 'views/directives/mb-inline.html',
-        link: postLink
-    };
+			this.updateImage = function() {
+//				if (!$scope.mbInlineEnable) {
+//					return;
+//				}
+				var ctrl = this;
+				return $resource.get('image', {
+					style: {
+						icon: 'image',
+						title: $scope.mbInlineLabel || 'Select image',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
+					},
+					data: this.model
+				}) //
+					.then(function(url) {
+						ctrl.model = url;
+						ctrl.save();
+					});
+			};
+
+			/*
+             * Select image url
+             */
+			this.updateFile = function() {
+//				if (!$scope.mbInlineEnable) {
+//					return;
+//				}
+				var ctrl = this;
+				return $resource.get('local-file', {
+					style: {
+						icon: 'file',
+						title: $scope.mbInlineLabel || 'Select file',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
+					},
+					data: this.model
+				}).then(function(file) {
+					ctrl.model = file;
+					ctrl.save();
+				});
+			};
+		},
+		controllerAs: 'ctrlInline',
+		templateUrl: 'views/directives/mb-inline.html',
+		link: postLink
+	};
 });

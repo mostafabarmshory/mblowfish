@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -60,6 +61,7 @@ angular.module('mblowfish-core', [ //
 	'angular-material-persian-datepicker',
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'pascalprecht.translate',
+	'mdColorPicker',
 ])
 .run(function instantiateRoute($widget, $routeParams) {
 	$widget.setProvider('$routeParams', $routeParams);

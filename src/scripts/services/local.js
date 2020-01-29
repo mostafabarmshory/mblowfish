@@ -22,89 +22,114 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
- * @name $wbLocal
+ * @name $mbLocal
  * @description manage localization of widgets
  * 
  * Deprecated : use $window
  */
-.service('$wbLocal', function() {
-    var defaultDateFormat = 'YYYY-MM-DD hh:mm:ss';
+angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
+	var defaultDateFormat = 'jYYYY-jMM-jDD';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
 
-    /**
-     * Gets current data of the system.
-     * 
-     * @memberof $wbLocal
-     */
-    this.getDate = function(){
-        return new Date();
-    };
-
-    /**
-     * Formats the input date based on the format
-     * 
-     * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-     * 
-     * @params data {String | Date} to format
-     * @params format {String} of the output
-     * @memberof $wbLocal
-     */
-    this.formatDate = function(date, format){
-        try {
-            var mf = format || defaultDateFormat;
-            var localDate = moment //
-            .utc(date) //
-            .local();
-            return localDate.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
-    };
-
-    /**
-     * Get currency of the system
-     * 
-     * @return currency ISO code
-     * @memberof $wbLocal
-     */
-    this.getCurrency = function(){
-        return this.currency || 'USD';
-    };
-
-    /**
-     * Sets currency of the system
-     * 
-     * @param currency {String} ISO code
-     * @memberof $wbLocal
-     */
-    this.setCurrency = function(currency){
-        this.currency = currency;
-    };
-
-    /**
-     * Get language of the system
-     * 
-     * @return language ISO code
-     * @memberof $wbLocal
-     */
-    this.getLanguage = function(){
-        return  this.language || 'en';
-    };
-
-    /**
-     * Sets language of the system
-     * 
-     * @params language {String} ISO code
-     * @memberof $wbLocal
-     */
-    this.setLanguage = function(language) {
-        this.language = language;
-    };
+	/**
+	 * Gets current data of the system.
+	 * 
+	 * @memberof $mbLocal
+	 */
+	this.getDate = function() {
+		return new Date();
+	};
 
 
-    return this;
+	function formatDateInternal(inputDate, format) {
+		if (!inputDate) {
+			return '';
+		}
+		try {
+			if ($rootScope.app.calendar !== 'Jalaali') {
+				format = format.replace('j', '');
+			}
+			var date = moment //
+				.utc(inputDate) //
+				.local();
+			return date.format(format);
+		} catch (ex) {
+			return '-' + ex.message;
+		}
+	}
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	this.formatDate = function(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormat ||
+			$rootScope.app.config.dateFormat ||
+			defaultDateFormat);
+	};
+
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	this.formatDateTime = function(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormatTime ||
+			$rootScope.app.config.dateFormatTime ||
+			defaultDateTimeFormat);
+	};
+	/**
+	 * Get currency of the system
+	 * 
+	 * @return currency ISO code
+	 * @memberof $mbLocal
+	 */
+	this.getCurrency = function() {
+		return this.currency || 'USD';
+	};
+
+	/**
+	 * Sets currency of the system
+	 * 
+	 * @param currency {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	this.setCurrency = function(currency) {
+		this.currency = currency;
+	};
+
+	/**
+	 * Get language of the system
+	 * 
+	 * @return language ISO code
+	 * @memberof $mbLocal
+	 */
+	this.getLanguage = function() {
+		return $rootScope.app.language;
+	};
+
+	/**
+	 * Sets language of the system
+	 * 
+	 * @params language {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	this.setLanguage = function(language) {
+		this.language = language;
+	};
+
+
+	return this;
 });

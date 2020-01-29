@@ -742,6 +742,1228 @@
         /******/ ])
 });
 
+
+;(function(){
+
+/**
+ * Require the module at `name`.
+ *
+ * @param {String} name
+ * @return {Object} exports
+ * @api public
+ */
+
+function require(name) {
+  var module = require.modules[name];
+  if (!module) throw new Error('failed to require "' + name + '"');
+
+  if (!('exports' in module) && typeof module.definition === 'function') {
+    module.client = module.component = true;
+    module.definition.call(this, module.exports = {}, module);
+    delete module.definition;
+  }
+
+  return module.exports;
+}
+
+/**
+ * Registered modules.
+ */
+
+require.modules = {
+  moment: { exports: moment }
+};
+
+/**
+ * Register module at `name` with callback `definition`.
+ *
+ * @param {String} name
+ * @param {Function} definition
+ * @api private
+ */
+
+require.register = function (name, definition) {
+  require.modules[name] = {
+    definition: definition
+  };
+};
+
+/**
+ * Define a module's exports immediately with `exports`.
+ *
+ * @param {String} name
+ * @param {Generic} exports
+ * @api private
+ */
+
+require.define = function (name, exports) {
+  require.modules[name] = {
+    exports: exports
+  };
+};
+
+require.register("jalaali-js", function (exports, module) {
+/*
+  Expose functions.
+*/
+module.exports =
+  { toJalaali: toJalaali
+  , toGregorian: toGregorian
+  , isValidJalaaliDate: isValidJalaaliDate
+  , isLeapJalaaliYear: isLeapJalaaliYear
+  , jalaaliMonthLength: jalaaliMonthLength
+  , jalCal: jalCal
+  , j2d: j2d
+  , d2j: d2j
+  , g2d: g2d
+  , d2g: d2g
+  }
+
+/*
+  Converts a Gregorian date to Jalaali.
+*/
+function toJalaali(gy, gm, gd) {
+  return d2j(g2d(gy, gm, gd))
+}
+
+/*
+  Converts a Jalaali date to Gregorian.
+*/
+function toGregorian(jy, jm, jd) {
+  return d2g(j2d(jy, jm, jd))
+}
+
+/*
+  Checks whether a Jalaali date is valid or not.
+*/
+function isValidJalaaliDate(jy, jm, jd) {
+  return  jy >= -61 && jy <= 3177 &&
+          jm >= 1 && jm <= 12 &&
+          jd >= 1 && jd <= jalaaliMonthLength(jy, jm)
+}
+
+/*
+  Is this a leap year or not?
+*/
+function isLeapJalaaliYear(jy) {
+  return jalCal(jy).leap === 0
+}
+
+/*
+  Number of days in a given month in a Jalaali year.
+*/
+function jalaaliMonthLength(jy, jm) {
+  if (jm <= 6) return 31
+  if (jm <= 11) return 30
+  if (isLeapJalaaliYear(jy)) return 30
+  return 29
+}
+
+/*
+  This function determines if the Jalaali (Persian) year is
+  leap (366-day long) or is the common year (365 days), and
+  finds the day in March (Gregorian calendar) of the first
+  day of the Jalaali year (jy).
+
+  @param jy Jalaali calendar year (-61 to 3177)
+  @return
+    leap: number of years since the last leap year (0 to 4)
+    gy: Gregorian year of the beginning of Jalaali year
+    march: the March day of Farvardin the 1st (1st day of jy)
+  @see: http://www.astro.uni.torun.pl/~kb/Papers/EMP/PersianC-EMP.htm
+  @see: http://www.fourmilab.ch/documents/calendar/
+*/
+function jalCal(jy) {
+  // Jalaali years starting the 33-year rule.
+  var breaks =  [ -61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210
+                , 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178
+                ]
+    , bl = breaks.length
+    , gy = jy + 621
+    , leapJ = -14
+    , jp = breaks[0]
+    , jm
+    , jump
+    , leap
+    , leapG
+    , march
+    , n
+    , i
+
+  if (jy < jp || jy >= breaks[bl - 1])
+    throw new Error('Invalid Jalaali year ' + jy)
+
+  // Find the limiting years for the Jalaali year jy.
+  for (i = 1; i < bl; i += 1) {
+    jm = breaks[i]
+    jump = jm - jp
+    if (jy < jm)
+      break
+    leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4)
+    jp = jm
+  }
+  n = jy - jp
+
+  // Find the number of leap years from AD 621 to the beginning
+  // of the current Jalaali year in the Persian calendar.
+  leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4)
+  if (mod(jump, 33) === 4 && jump - n === 4)
+    leapJ += 1
+
+  // And the same in the Gregorian calendar (until the year gy).
+  leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150
+
+  // Determine the Gregorian date of Farvardin the 1st.
+  march = 20 + leapJ - leapG
+
+  // Find how many years have passed since the last leap year.
+  if (jump - n < 6)
+    n = n - jump + div(jump + 4, 33) * 33
+  leap = mod(mod(n + 1, 33) - 1, 4)
+  if (leap === -1) {
+    leap = 4
+  }
+
+  return  { leap: leap
+          , gy: gy
+          , march: march
+          }
+}
+
+/*
+  Converts a date of the Jalaali calendar to the Julian Day number.
+
+  @param jy Jalaali year (1 to 3100)
+  @param jm Jalaali month (1 to 12)
+  @param jd Jalaali day (1 to 29/31)
+  @return Julian Day number
+*/
+function j2d(jy, jm, jd) {
+  var r = jalCal(jy)
+  return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1
+}
+
+/*
+  Converts the Julian Day number to a date in the Jalaali calendar.
+
+  @param jdn Julian Day number
+  @return
+    jy: Jalaali year (1 to 3100)
+    jm: Jalaali month (1 to 12)
+    jd: Jalaali day (1 to 29/31)
+*/
+function d2j(jdn) {
+  var gy = d2g(jdn).gy // Calculate Gregorian year (gy).
+    , jy = gy - 621
+    , r = jalCal(jy)
+    , jdn1f = g2d(gy, 3, r.march)
+    , jd
+    , jm
+    , k
+
+  // Find number of days that passed since 1 Farvardin.
+  k = jdn - jdn1f
+  if (k >= 0) {
+    if (k <= 185) {
+      // The first 6 months.
+      jm = 1 + div(k, 31)
+      jd = mod(k, 31) + 1
+      return  { jy: jy
+              , jm: jm
+              , jd: jd
+              }
+    } else {
+      // The remaining months.
+      k -= 186
+    }
+  } else {
+    // Previous Jalaali year.
+    jy -= 1
+    k += 179
+    if (r.leap === 1)
+      k += 1
+  }
+  jm = 7 + div(k, 30)
+  jd = mod(k, 30) + 1
+  return  { jy: jy
+          , jm: jm
+          , jd: jd
+          }
+}
+
+/*
+  Calculates the Julian Day number from Gregorian or Julian
+  calendar dates. This integer number corresponds to the noon of
+  the date (i.e. 12 hours of Universal Time).
+  The procedure was tested to be good since 1 March, -100100 (of both
+  calendars) up to a few million years into the future.
+
+  @param gy Calendar year (years BC numbered 0, -1, -2, ...)
+  @param gm Calendar month (1 to 12)
+  @param gd Calendar day of the month (1 to 28/29/30/31)
+  @return Julian Day number
+*/
+function g2d(gy, gm, gd) {
+  var d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
+      + div(153 * mod(gm + 9, 12) + 2, 5)
+      + gd - 34840408
+  d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752
+  return d
+}
+
+/*
+  Calculates Gregorian and Julian calendar dates from the Julian Day number
+  (jdn) for the period since jdn=-34839655 (i.e. the year -100100 of both
+  calendars) to some millions years ahead of the present.
+
+  @param jdn Julian Day number
+  @return
+    gy: Calendar year (years BC numbered 0, -1, -2, ...)
+    gm: Calendar month (1 to 12)
+    gd: Calendar day of the month M (1 to 28/29/30/31)
+*/
+function d2g(jdn) {
+  var j
+    , i
+    , gd
+    , gm
+    , gy
+  j = 4 * jdn + 139361631
+  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908
+  i = div(mod(j, 1461), 4) * 5 + 308
+  gd = div(mod(i, 153), 5) + 1
+  gm = mod(div(i, 153), 12) + 1
+  gy = div(j, 1461) - 100100 + div(8 - gm, 6)
+  return  { gy: gy
+          , gm: gm
+          , gd: gd
+          }
+}
+
+/*
+  Utility helper functions.
+*/
+
+function div(a, b) {
+  return ~~(a / b)
+}
+
+function mod(a, b) {
+  return a - ~~(a / b) * b
+}
+})
+require.register("moment-jalaali", function (exports, module) {
+
+module.exports = jMoment
+
+var moment = require('moment')
+  , jalaali = require('jalaali-js')
+
+/************************************
+    Constants
+************************************/
+
+var formattingTokens = /(\[[^\[]*\])|(\\)?j(Mo|MM?M?M?|Do|DDDo|DD?D?D?|w[o|w]?|YYYYY|YYYY|YY|gg(ggg?)?|)|(\\)?(Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|mm?|ss?|SS?S?|X|zz?|ZZ?|.)/g
+  , localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS?|LL?L?L?|l{1,4})/g
+
+  , parseTokenOneOrTwoDigits = /\d\d?/
+  , parseTokenOneToThreeDigits = /\d{1,3}/
+  , parseTokenThreeDigits = /\d{3}/
+  , parseTokenFourDigits = /\d{1,4}/
+  , parseTokenSixDigits = /[+\-]?\d{1,6}/
+  , parseTokenWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i
+  , parseTokenTimezone = /Z|[\+\-]\d\d:?\d\d/i
+  , parseTokenT = /T/i
+  , parseTokenTimestampMs = /[\+\-]?\d+(\.\d{1,3})?/
+  , symbolMap = {
+    '1': '۱',
+    '2': '۲',
+    '3': '۳',
+    '4': '۴',
+    '5': '۵',
+    '6': '۶',
+    '7': '۷',
+    '8': '۸',
+    '9': '۹',
+    '0': '۰'
+  }
+  , numberMap = {
+    '۱': '1',
+    '۲': '2',
+    '۳': '3',
+    '۴': '4',
+    '۵': '5',
+    '۶': '6',
+    '۷': '7',
+    '۸': '8',
+    '۹': '9',
+    '۰': '0'
+  }
+
+
+  , unitAliases =
+    { jm: 'jmonth'
+    , jmonths: 'jmonth'
+    , jy: 'jyear'
+    , jyears: 'jyear'
+    }
+
+  , formatFunctions = {}
+
+  , ordinalizeTokens = 'DDD w M D'.split(' ')
+  , paddedTokens = 'M D w'.split(' ')
+
+  , formatTokenFunctions =
+    { jM: function () {
+        return this.jMonth() + 1
+      }
+    , jMMM: function (format) {
+        return this.localeData().jMonthsShort(this, format)
+      }
+    , jMMMM: function (format) {
+        return this.localeData().jMonths(this, format)
+      }
+    , jD: function () {
+        return this.jDate()
+      }
+    , jDDD: function () {
+        return this.jDayOfYear()
+      }
+    , jw: function () {
+        return this.jWeek()
+      }
+    , jYY: function () {
+        return leftZeroFill(this.jYear() % 100, 2)
+      }
+    , jYYYY: function () {
+        return leftZeroFill(this.jYear(), 4)
+      }
+    , jYYYYY: function () {
+        return leftZeroFill(this.jYear(), 5)
+      }
+    , jgg: function () {
+        return leftZeroFill(this.jWeekYear() % 100, 2)
+      }
+    , jgggg: function () {
+        return this.jWeekYear()
+      }
+    , jggggg: function () {
+        return leftZeroFill(this.jWeekYear(), 5)
+      }
+    }
+
+function padToken(func, count) {
+  return function (a) {
+    return leftZeroFill(func.call(this, a), count)
+  }
+}
+function ordinalizeToken(func, period) {
+  return function (a) {
+    return this.localeData().ordinal(func.call(this, a), period)
+  }
+}
+
+(function () {
+  var i
+  while (ordinalizeTokens.length) {
+    i = ordinalizeTokens.pop()
+    formatTokenFunctions['j' + i + 'o'] = ordinalizeToken(formatTokenFunctions['j' + i], i)
+  }
+  while (paddedTokens.length) {
+    i = paddedTokens.pop()
+    formatTokenFunctions['j' + i + i] = padToken(formatTokenFunctions['j' + i], 2)
+  }
+  formatTokenFunctions.jDDDD = padToken(formatTokenFunctions.jDDD, 3)
+}())
+
+/************************************
+    Helpers
+************************************/
+
+function extend(a, b) {
+  var key
+  for (key in b)
+    if (b.hasOwnProperty(key))
+      a[key] = b[key]
+  return a
+}
+
+function leftZeroFill(number, targetLength) {
+  var output = number + ''
+  while (output.length < targetLength)
+    output = '0' + output
+  return output
+}
+
+function isArray(input) {
+  return Object.prototype.toString.call(input) === '[object Array]'
+}
+
+// function compareArrays(array1, array2) {
+//   var len = Math.min(array1.length, array2.length)
+//     , lengthDiff = Math.abs(array1.length - array2.length)
+//     , diffs = 0
+//     , i
+//   for (i = 0; i < len; i += 1)
+//     if (~~array1[i] !== ~~array2[i])
+//       diffs += 1
+//   return diffs + lengthDiff
+// }
+
+function normalizeUnits(units) {
+  if (units) {
+    var lowered = units.toLowerCase()
+    units = unitAliases[lowered] || lowered
+  }
+  return units
+}
+
+function setDate(m, year, month, date) {
+  var d = m._d
+  if (m._isUTC) {
+    /*eslint-disable new-cap*/
+    m._d = new Date(Date.UTC(year, month, date,
+        d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds()))
+    /*eslint-enable new-cap*/
+  } else {
+    m._d = new Date(year, month, date,
+        d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds())
+  }
+}
+
+function objectCreate(parent) {
+  function F() {}
+  F.prototype = parent
+  return new F()
+}
+
+function getPrototypeOf(object) {
+  if (Object.getPrototypeOf)
+    return Object.getPrototypeOf(object)
+  else if (''.__proto__)
+    return object.__proto__
+  else
+    return object.constructor.prototype
+}
+
+/************************************
+    Languages
+************************************/
+extend(getPrototypeOf(moment.localeData()),
+  { _jMonths: [ 'Farvardin'
+              , 'Ordibehesht'
+              , 'Khordaad'
+              , 'Tir'
+              , 'Amordaad'
+              , 'Shahrivar'
+              , 'Mehr'
+              , 'Aabaan'
+              , 'Aazar'
+              , 'Dey'
+              , 'Bahman'
+              , 'Esfand'
+              ]
+  , jMonths: function (m) {
+      return this._jMonths[m.jMonth()]
+    }
+
+  , _jMonthsShort:  [ 'Far'
+                    , 'Ord'
+                    , 'Kho'
+                    , 'Tir'
+                    , 'Amo'
+                    , 'Sha'
+                    , 'Meh'
+                    , 'Aab'
+                    , 'Aaz'
+                    , 'Dey'
+                    , 'Bah'
+                    , 'Esf'
+                    ]
+  , jMonthsShort: function (m) {
+      return this._jMonthsShort[m.jMonth()]
+    }
+
+  , jMonthsParse: function (monthName) {
+      var i
+        , mom
+        , regex
+      if (!this._jMonthsParse)
+        this._jMonthsParse = []
+      for (i = 0; i < 12; i += 1) {
+        // Make the regex if we don't have it already.
+        if (!this._jMonthsParse[i]) {
+          mom = jMoment([2000, (2 + i) % 12, 25])
+          regex = '^' + this.jMonths(mom, '') + '|^' + this.jMonthsShort(mom, '')
+          this._jMonthsParse[i] = new RegExp(regex.replace('.', ''), 'i')
+        }
+        // Test the regex.
+        if (this._jMonthsParse[i].test(monthName))
+          return i
+      }
+    }
+  }
+)
+
+/************************************
+    Formatting
+************************************/
+
+function makeFormatFunction(format) {
+  var array = format.match(formattingTokens)
+    , length = array.length
+    , i
+
+  for (i = 0; i < length; i += 1)
+    if (formatTokenFunctions[array[i]])
+      array[i] = formatTokenFunctions[array[i]]
+
+  return function (mom) {
+    var output = ''
+    for (i = 0; i < length; i += 1)
+      output += array[i] instanceof Function ? '[' + array[i].call(mom, format) + ']' : array[i]
+    return output
+  }
+}
+
+/************************************
+    Parsing
+************************************/
+
+function getParseRegexForToken(token, config) {
+  switch (token) {
+  case 'jDDDD':
+    return parseTokenThreeDigits
+  case 'jYYYY':
+    return parseTokenFourDigits
+  case 'jYYYYY':
+    return parseTokenSixDigits
+  case 'jDDD':
+    return parseTokenOneToThreeDigits
+  case 'jMMM':
+  case 'jMMMM':
+    return parseTokenWord
+  case 'jMM':
+  case 'jDD':
+  case 'jYY':
+  case 'jM':
+  case 'jD':
+    return parseTokenOneOrTwoDigits
+  case 'DDDD':
+    return parseTokenThreeDigits
+  case 'YYYY':
+    return parseTokenFourDigits
+  case 'YYYYY':
+    return parseTokenSixDigits
+  case 'S':
+  case 'SS':
+  case 'SSS':
+  case 'DDD':
+    return parseTokenOneToThreeDigits
+  case 'MMM':
+  case 'MMMM':
+  case 'dd':
+  case 'ddd':
+  case 'dddd':
+    return parseTokenWord
+  case 'a':
+  case 'A':
+    return moment.localeData(config._l)._meridiemParse
+  case 'X':
+    return parseTokenTimestampMs
+  case 'Z':
+  case 'ZZ':
+    return parseTokenTimezone
+  case 'T':
+    return parseTokenT
+  case 'MM':
+  case 'DD':
+  case 'YY':
+  case 'HH':
+  case 'hh':
+  case 'mm':
+  case 'ss':
+  case 'M':
+  case 'D':
+  case 'd':
+  case 'H':
+  case 'h':
+  case 'm':
+  case 's':
+    return parseTokenOneOrTwoDigits
+  default:
+    return new RegExp(token.replace('\\', ''))
+  }
+}
+
+function addTimeToArrayFromToken(token, input, config) {
+  var a
+    , datePartArray = config._a
+
+  switch (token) {
+  case 'jM':
+  case 'jMM':
+    datePartArray[1] = input == null ? 0 : ~~input - 1
+    break
+  case 'jMMM':
+  case 'jMMMM':
+    a = moment.localeData(config._l).jMonthsParse(input)
+    if (a != null)
+      datePartArray[1] = a
+    else
+      config._isValid = false
+    break
+  case 'jD':
+  case 'jDD':
+  case 'jDDD':
+  case 'jDDDD':
+    if (input != null)
+      datePartArray[2] = ~~input
+    break
+  case 'jYY':
+    datePartArray[0] = ~~input + (~~input > 47 ? 1300 : 1400)
+    break
+  case 'jYYYY':
+  case 'jYYYYY':
+    datePartArray[0] = ~~input
+  }
+  if (input == null)
+    config._isValid = false
+}
+
+function dateFromArray(config) {
+  var g
+    , j
+    , jy = config._a[0]
+    , jm = config._a[1]
+    , jd = config._a[2]
+
+  if ((jy == null) && (jm == null) && (jd == null))
+    return [0, 0, 1]
+  jy = jy != null ? jy : 0
+  jm = jm != null ? jm : 0
+  jd = jd != null ? jd : 1
+  if (jd < 1 || jd > jMoment.jDaysInMonth(jy, jm) || jm < 0 || jm > 11)
+    config._isValid = false
+  g = toGregorian(jy, jm, jd)
+  j = toJalaali(g.gy, g.gm, g.gd)
+  config._jDiff = 0
+  if (~~j.jy !== jy)
+    config._jDiff += 1
+  if (~~j.jm !== jm)
+    config._jDiff += 1
+  if (~~j.jd !== jd)
+    config._jDiff += 1
+  return [g.gy, g.gm, g.gd]
+}
+
+function makeDateFromStringAndFormat(config) {
+  var tokens = config._f.match(formattingTokens)
+    , string = config._i + ''
+    , len = tokens.length
+    , i
+    , token
+    , parsedInput
+
+  config._a = []
+
+  for (i = 0; i < len; i += 1) {
+    token = tokens[i]
+    parsedInput = (getParseRegexForToken(token, config).exec(string) || [])[0]
+    if (parsedInput)
+      string = string.slice(string.indexOf(parsedInput) + parsedInput.length)
+    if (formatTokenFunctions[token])
+      addTimeToArrayFromToken(token, parsedInput, config)
+  }
+  if (string)
+    config._il = string
+  return dateFromArray(config)
+}
+
+function makeDateFromStringAndArray(config, utc) {
+  var len = config._f.length
+    , i
+    , format
+    , tempMoment
+    , bestMoment
+    , currentScore
+    , scoreToBeat
+
+  if (len === 0) {
+    return makeMoment(new Date(NaN))
+  }
+
+  for (i = 0; i < len; i += 1) {
+    format = config._f[i]
+    currentScore = 0
+    tempMoment = makeMoment(config._i, format, config._l, config._strict, utc)
+
+    if (!tempMoment.isValid()) continue
+
+    // currentScore = compareArrays(tempMoment._a, tempMoment.toArray())
+    currentScore += tempMoment._jDiff
+    if (tempMoment._il)
+      currentScore += tempMoment._il.length
+    if (scoreToBeat == null || currentScore < scoreToBeat) {
+      scoreToBeat = currentScore
+      bestMoment = tempMoment
+    }
+  }
+
+  return bestMoment
+}
+
+function removeParsedTokens(config) {
+  var string = config._i + ''
+    , input = ''
+    , format = ''
+    , array = config._f.match(formattingTokens)
+    , len = array.length
+    , i
+    , match
+    , parsed
+
+  for (i = 0; i < len; i += 1) {
+    match = array[i]
+    parsed = (getParseRegexForToken(match, config).exec(string) || [])[0]
+    if (parsed)
+      string = string.slice(string.indexOf(parsed) + parsed.length)
+    if (!(formatTokenFunctions[match] instanceof Function)) {
+      format += match
+      if (parsed)
+        input += parsed
+    }
+  }
+  config._i = input
+  config._f = format
+}
+
+/************************************
+    Week of Year
+************************************/
+
+function jWeekOfYear(mom, firstDayOfWeek, firstDayOfWeekOfYear) {
+  var end = firstDayOfWeekOfYear - firstDayOfWeek
+    , daysToDayOfWeek = firstDayOfWeekOfYear - mom.day()
+    , adjustedMoment
+
+  if (daysToDayOfWeek > end) {
+    daysToDayOfWeek -= 7
+  }
+  if (daysToDayOfWeek < end - 7) {
+    daysToDayOfWeek += 7
+  }
+  adjustedMoment = jMoment(mom).add(daysToDayOfWeek, 'd')
+  return  { week: Math.ceil(adjustedMoment.jDayOfYear() / 7)
+          , year: adjustedMoment.jYear()
+          }
+}
+
+/************************************
+    Top Level Functions
+************************************/
+
+function makeMoment(input, format, lang, strict, utc) {
+  if (typeof lang === 'boolean') {
+    utc = strict
+    strict = lang
+    lang = undefined
+  }
+
+  if (format && typeof format === 'string')
+    format = fixFormat(format, moment)
+
+  var config =
+      { _i: input
+      , _f: format
+      , _l: lang
+      , _strict: strict
+      , _isUTC: utc
+      }
+    , date
+    , m
+    , jm
+    , origInput = input
+    , origFormat = format
+  if (format) {
+    if (isArray(format)) {
+      return makeDateFromStringAndArray(config, utc)
+    } else {
+      date = makeDateFromStringAndFormat(config)
+      removeParsedTokens(config)
+      format = 'YYYY-MM-DD-' + config._f
+      input = leftZeroFill(date[0], 4) + '-'
+            + leftZeroFill(date[1] + 1, 2) + '-'
+            + leftZeroFill(date[2], 2) + '-'
+            + config._i
+    }
+  }
+  if (utc)
+    m = moment.utc(input, format, lang, strict)
+  else
+    m = moment(input, format, lang, strict)
+  if (config._isValid === false)
+    m._isValid = false
+  m._jDiff = config._jDiff || 0
+  jm = objectCreate(jMoment.fn)
+  extend(jm, m)
+  if (strict && jm.isValid()) {
+    jm._isValid = jm.format(origFormat) === origInput
+  }
+  return jm
+}
+
+function jMoment(input, format, lang, strict) {
+  return makeMoment(input, format, lang, strict, false)
+}
+
+extend(jMoment, moment)
+jMoment.fn = objectCreate(moment.fn)
+
+jMoment.utc = function (input, format, lang, strict) {
+  return makeMoment(input, format, lang, strict, true)
+}
+
+jMoment.unix = function (input) {
+  return makeMoment(input * 1000)
+}
+
+/************************************
+    jMoment Prototype
+************************************/
+
+function fixFormat(format, _moment) {
+  var i = 5
+  var replace = function (input) {
+    return _moment.localeData().longDateFormat(input) || input
+  }
+  while (i > 0 && localFormattingTokens.test(format)) {
+    i -= 1
+    format = format.replace(localFormattingTokens, replace)
+  }
+  return format
+}
+
+jMoment.fn.format = function (format) {
+
+  if (format) {
+    format = fixFormat(format, this)
+
+    if (!formatFunctions[format]) {
+      formatFunctions[format] = makeFormatFunction(format)
+    }
+    format = formatFunctions[format](this)
+  }
+  return moment.fn.format.call(this, format)
+}
+
+jMoment.fn.jYear = function (input) {
+  var lastDay
+    , j
+    , g
+  if (typeof input === 'number') {
+    j = toJalaali(this.year(), this.month(), this.date())
+    lastDay = Math.min(j.jd, jMoment.jDaysInMonth(input, j.jm))
+    g = toGregorian(input, j.jm, lastDay)
+    setDate(this, g.gy, g.gm, g.gd)
+    moment.updateOffset(this)
+    return this
+  } else {
+    return toJalaali(this.year(), this.month(), this.date()).jy
+  }
+}
+
+jMoment.fn.jMonth = function (input) {
+  var lastDay
+    , j
+    , g
+  if (input != null) {
+    if (typeof input === 'string') {
+      input = this.lang().jMonthsParse(input)
+      if (typeof input !== 'number')
+        return this
+    }
+    j = toJalaali(this.year(), this.month(), this.date())
+    lastDay = Math.min(j.jd, jMoment.jDaysInMonth(j.jy, input))
+    this.jYear(j.jy + div(input, 12))
+    input = mod(input, 12)
+    if (input < 0) {
+      input += 12
+      this.jYear(this.jYear() - 1)
+    }
+    g = toGregorian(this.jYear(), input, lastDay)
+    setDate(this, g.gy, g.gm, g.gd)
+    moment.updateOffset(this)
+    return this
+  } else {
+    return toJalaali(this.year(), this.month(), this.date()).jm
+  }
+}
+
+jMoment.fn.jDate = function (input) {
+  var j
+    , g
+  if (typeof input === 'number') {
+    j = toJalaali(this.year(), this.month(), this.date())
+    g = toGregorian(j.jy, j.jm, input)
+    setDate(this, g.gy, g.gm, g.gd)
+    moment.updateOffset(this)
+    return this
+  } else {
+    return toJalaali(this.year(), this.month(), this.date()).jd
+  }
+}
+
+jMoment.fn.jDayOfYear = function (input) {
+  var dayOfYear = Math.round((jMoment(this).startOf('day') - jMoment(this).startOf('jYear')) / 864e5) + 1
+  return input == null ? dayOfYear : this.add(input - dayOfYear, 'd')
+}
+
+jMoment.fn.jWeek = function (input) {
+  var week = jWeekOfYear(this, this.localeData()._week.dow, this.localeData()._week.doy).week
+  return input == null ? week : this.add((input - week) * 7, 'd')
+}
+
+jMoment.fn.jWeekYear = function (input) {
+  var year = jWeekOfYear(this, this.localeData()._week.dow, this.localeData()._week.doy).year
+  return input == null ? year : this.add(input - year, 'y')
+}
+
+jMoment.fn.add = function (val, units) {
+  var temp
+  if (units !== null && !isNaN(+units)) {
+    temp = val
+    val = units
+    units = temp
+  }
+  units = normalizeUnits(units)
+  if (units === 'jyear') {
+    this.jYear(this.jYear() + val)
+  } else if (units === 'jmonth') {
+    this.jMonth(this.jMonth() + val)
+  } else {
+    moment.fn.add.call(this, val, units)
+  }
+  return this
+}
+
+jMoment.fn.subtract = function (val, units) {
+  var temp
+  if (units !== null && !isNaN(+units)) {
+    temp = val
+    val = units
+    units = temp
+  }
+  units = normalizeUnits(units)
+  if (units === 'jyear') {
+    this.jYear(this.jYear() - val)
+  } else if (units === 'jmonth') {
+    this.jMonth(this.jMonth() - val)
+  } else {
+    moment.fn.subtract.call(this, val, units)
+  }
+  return this
+}
+
+jMoment.fn.startOf = function (units) {
+  units = normalizeUnits(units)
+  if (units === 'jyear' || units === 'jmonth') {
+    if (units === 'jyear') {
+      this.jMonth(0)
+    }
+    this.jDate(1)
+    this.hours(0)
+    this.minutes(0)
+    this.seconds(0)
+    this.milliseconds(0)
+    return this
+  } else {
+    return moment.fn.startOf.call(this, units)
+  }
+}
+
+jMoment.fn.endOf = function (units) {
+  units = normalizeUnits(units)
+  if (units === undefined || units === 'milisecond') {
+    return this
+  }
+  return this.startOf(units).add(1, (units === 'isoweek' ? 'week' : units)).subtract(1, 'ms')
+}
+
+jMoment.fn.isSame = function (other, units) {
+  units = normalizeUnits(units)
+  if (units === 'jyear' || units === 'jmonth') {
+    return moment.fn.isSame.call(this.startOf(units), other.startOf(units))
+  }
+  return moment.fn.isSame.call(this, other, units)
+}
+
+jMoment.fn.clone = function () {
+  return jMoment(this)
+}
+
+jMoment.fn.jYears = jMoment.fn.jYear
+jMoment.fn.jMonths = jMoment.fn.jMonth
+jMoment.fn.jDates = jMoment.fn.jDate
+jMoment.fn.jWeeks = jMoment.fn.jWeek
+
+/************************************
+    jMoment Statics
+************************************/
+
+jMoment.jDaysInMonth = function (year, month) {
+  year += div(month, 12)
+  month = mod(month, 12)
+  if (month < 0) {
+    month += 12
+    year -= 1
+  }
+  if (month < 6) {
+    return 31
+  } else if (month < 11) {
+    return 30
+  } else if (jMoment.jIsLeapYear(year)) {
+    return 30
+  } else {
+    return 29
+  }
+}
+
+jMoment.jIsLeapYear = jalaali.isLeapJalaaliYear
+
+jMoment.loadPersian = function (args) {
+  var usePersianDigits =  args !== undefined && args.hasOwnProperty('usePersianDigits') ? args.usePersianDigits : false
+  var dialect =  args !== undefined && args.hasOwnProperty('dialect') ? args.dialect : 'persian'
+  moment.locale('fa')
+  moment.updateLocale('fa'
+  , { months: ('ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر').split('_')
+    , monthsShort: ('ژانویه_فوریه_مارس_آوریل_مه_ژوئن_ژوئیه_اوت_سپتامبر_اکتبر_نوامبر_دسامبر').split('_')
+    , weekdays:
+      {
+        'persian': ('یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_آدینه_شنبه').split('_'),
+        'persian-modern': ('یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_جمعه_شنبه').split('_')
+      }[dialect]
+    , weekdaysShort:
+      {
+        'persian': ('یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_آدینه_شنبه').split('_'),
+        'persian-modern': ('یک\u200cشنبه_دوشنبه_سه\u200cشنبه_چهارشنبه_پنج\u200cشنبه_جمعه_شنبه').split('_')
+      }[dialect]
+    , weekdaysMin:
+      {
+        'persian': 'ی_د_س_چ_پ_آ_ش'.split('_'),
+        'persian-modern': 'ی_د_س_چ_پ_ج_ش'.split('_')
+      }[dialect]
+    , longDateFormat:
+      { LT: 'HH:mm'
+      , L: 'jYYYY/jMM/jDD'
+      , LL: 'jD jMMMM jYYYY'
+      , LLL: 'jD jMMMM jYYYY LT'
+      , LLLL: 'dddd، jD jMMMM jYYYY LT'
+      }
+    , calendar:
+      { sameDay: '[امروز ساعت] LT'
+      , nextDay: '[فردا ساعت] LT'
+      , nextWeek: 'dddd [ساعت] LT'
+      , lastDay: '[دیروز ساعت] LT'
+      , lastWeek: 'dddd [ی پیش ساعت] LT'
+      , sameElse: 'L'
+      }
+    , relativeTime:
+      { future: 'در %s'
+      , past: '%s پیش'
+      , s: 'چند ثانیه'
+      , m: '1 دقیقه'
+      , mm: '%d دقیقه'
+      , h: '1 ساعت'
+      , hh: '%d ساعت'
+      , d: '1 روز'
+      , dd: '%d روز'
+      , M: '1 ماه'
+      , MM: '%d ماه'
+      , y: '1 سال'
+      , yy: '%d سال'
+      }
+    , preparse: function (string) {
+        if (usePersianDigits) {
+          return string.replace(/[۰-۹]/g, function (match) {
+            return numberMap[match]
+          }).replace(/،/g, ',')
+        }
+        return string
+    }
+    , postformat: function (string) {
+        if (usePersianDigits) {
+          return string.replace(/\d/g, function (match) {
+            return symbolMap[match]
+          }).replace(/,/g, '،')
+        }
+        return string
+    }
+    , ordinal: '%dم'
+    , week:
+      { dow: 6 // Saturday is the first day of the week.
+      , doy: 12 // The week that contains Jan 1st is the first week of the year.
+      }
+    , meridiem: function (hour) {
+        return hour < 12 ? 'ق.ظ' : 'ب.ظ'
+      }
+    , jMonths:
+      {
+        'persian': ('فروردین_اردیبهشت_خرداد_تیر_امرداد_شهریور_مهر_آبان_آذر_دی_بهمن_اسفند').split('_'),
+        'persian-modern': ('فروردین_اردیبهشت_خرداد_تیر_مرداد_شهریور_مهر_آبان_آذر_دی_بهمن_اسفند').split('_')
+      }[dialect]
+    , jMonthsShort:
+      {
+        'persian': 'فرو_ارد_خرد_تیر_امر_شهر_مهر_آبا_آذر_دی_بهم_اسف'.split('_'),
+        'persian-modern': 'فرو_ارد_خرد_تیر_مرد_شهر_مهر_آبا_آذر_دی_بهم_اسف'.split('_')
+      }[dialect]
+    }
+  )
+}
+
+jMoment.jConvert =  { toJalaali: toJalaali
+                    , toGregorian: toGregorian
+                    }
+
+/************************************
+    Jalaali Conversion
+************************************/
+
+function toJalaali(gy, gm, gd) {
+  var j = jalaali.toJalaali(gy, gm + 1, gd)
+  j.jm -= 1
+  return j
+}
+
+function toGregorian(jy, jm, jd) {
+  var g = jalaali.toGregorian(jy, jm + 1, jd)
+  g.gm -= 1
+  return g
+}
+
+/*
+  Utility helper functions.
+*/
+
+function div(a, b) {
+  return ~~(a / b)
+}
+
+function mod(a, b) {
+  return a - ~~(a / b) * b
+}
+});
+
+if (typeof exports == "object") {
+  module.exports = require("moment-jalaali");
+} else if (typeof define == "function" && define.amd) {
+  define([], function(){ return require("moment-jalaali"); });
+} else {
+  this["moment"] = require("moment-jalaali");
+}
+})();
+
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -804,6 +2026,7 @@ angular.module('mblowfish-core', [ //
 	'angular-material-persian-datepicker',
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'pascalprecht.translate',
+	'mdColorPicker',
 ])
 .run(function instantiateRoute($widget, $routeParams) {
 	$widget.setProvider('$routeParams', $routeParams);
@@ -833,6 +2056,53 @@ angular.module('mblowfish-core', [ //
 })
 
 ;
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core').config(function($httpProvider) {
+	// An interceptor to handle errors of server response
+	// All that the interceptor does is in 'httpRequestInterceptor' factory.
+	$httpProvider.interceptors.push('MbHttpRequestInterceptor');
+
+	/*
+	 * Disabling AngularJS $http cache
+	 * @see https://stackoverflow.com/questions/38196452/disabling-angularjs-http-cache
+	 */
+	//initialize get if not there
+	if (!$httpProvider.defaults.headers.get) {
+		$httpProvider.defaults.headers.get = {};
+	}
+
+	// Answer edited to include suggestions from comments
+	// because previous version of code introduced browser-related errors
+
+	//disable IE ajax request caching
+	$httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+	// extra
+	$httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
+	$httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+});
 
 /* 
  * The MIT License (MIT)
@@ -1991,13 +3261,10 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-	.config(function ($httpProvider) {
-	    // An interceptor to handle errors of server response
-	    // All that the interceptor does is in 'httpRequestInterceptor' factory.
-	    $httpProvider.interceptors.push('MbHttpRequestInterceptor');
-	});
+angular.module('mblowfish-core').config(function($translateProvider) {
+	$translateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
+	$translateProvider.useLoader('MbLanguageLoader');
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2072,147 +3339,151 @@ angular.module('mblowfish-core').config(function($mdDateLocaleProvider) {
 
 
 angular.module('mblowfish-core')
-/**
- * 
- */
-.config(function($routeProvider, $locationProvider) {
-    $routeProvider//
+	/**
+	 * 
+	 */
+	.config(function($routeProvider, $locationProvider) {
+		$routeProvider//
+		
+			/**
+			 * @ngdoc ngRoute
+			 * @name /preferences/languages/manager
+			 * @description Load language manager
+			 * 
+			 * Manages languages and allow user to add a new one.
+			 */
+			.when('/preferences/languages/manager', {
+				templateUrl: 'views/mb-languages.html',
+				/*
+				 * Check if user is owner
+				 * @ngInject
+				 */
+				protect: function($rootScope) {
+					var permissions = $rootScope.__account.permissions;
+					return !(permissions.tenant_owner || permissions.core_owner || permissions.Pluf_owner);
+				}
+			})
 
-    // Preferences
-    // /**
-    //  * @ngdoc ngRoute
-    //  * @name /initialization
-    //  * @description Initial page
-    //  */
-    // .when('/initialization', {
-    //     templateUrl : 'views/mb-initial.html',
-    //     controller : 'MbInitialCtrl',
-    //     controllerAs: 'ctrl',
-    //     /*
-    //      * @ngInject
-    //      */
-    //     protect : function($rootScope) {
-    //         return !$rootScope.__account.permissions.tenant_owner;
-    //     },
-    //     sidenavs: [],
-    //     toolbars: []
-    // })
-    /**
-     * @ngdoc ngRoute
-     * @name /preferences
-     * @description preferences pages
-     */
-    .when('/preferences', {
-        templateUrl : 'views/mb-preferences.html',
-        controller : 'MbPreferencesCtrl',
-        controllerAs: 'ctrl',
-        helpId : 'preferences',
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        }
-    }) //
-    /**
-     * @ngdoc ngRoute
-     * @name /preferences/:page
-     * @description Preferences page
-     * 
-     * Display a preferences page to manage a part of settings. Here is list of
-     * default pages: - google-analytic - brand - update - pageNotFound
-     */
-    .when('/preferences/:preferenceId', {
-        templateUrl : 'views/mb-preference.html',
-        controller : 'MbPreferenceCtrl',
-        /*
-         * @ngInject
-         */
-        helpId : function($routeParams) {
-            return 'preferences-' + $routeParams.preferenceId;
-        },
-        /*
-         * @ngInject
-         */
-        protect : function($rootScope) {
-            return !$rootScope.__account.permissions.tenant_owner;
-        }
-    })
+			/**
+			 * @ngdoc ngRoute
+			 * @name /preferences
+			 * @description preferences pages
+			 */
+			.when('/preferences', {
+				templateUrl: 'views/mb-preferences.html',
+				controller: 'MbPreferencesCtrl',
+				controllerAs: 'ctrl',
+				helpId: 'preferences',
+				/*
+				 * @ngInject
+				 */
+				protect: function($rootScope) {
+					return !$rootScope.__account.permissions.tenant_owner;
+				}
+			}) //
+			/**
+			 * @ngdoc ngRoute
+			 * @name /preferences/:page
+			 * @description Preferences page
+			 * 
+			 * Display a preferences page to manage a part of settings. Here is list of
+			 * default pages: - google-analytic - brand - update - pageNotFound
+			 */
+			.when('/preferences/:preferenceId', {
+				templateUrl: 'views/mb-preference.html',
+				controller: 'MbPreferenceCtrl',
+				/*
+				 * @ngInject
+				 */
+				helpId: function($routeParams) {
+					return 'preferences-' + $routeParams.preferenceId;
+				},
+				/*
+				 * @ngInject
+				 */
+				protect: function($rootScope) {
+					return !$rootScope.__account.permissions.tenant_owner;
+				}
+			})
 
-    // Users
-    // Login
-    .when('/users/login', {
-        templateUrl : 'views/users/mb-login.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })
-    /**
-     * @ngdoc ngRoute
-     * @name /users/account
-     * @description Details of the current account
-     */
-    .when('/users/account', {
-        templateUrl : 'views/users/mb-account.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        protect: true,
-        helpId: 'mb-account'
-    })
-    /**
-     * @ngdoc ngRoute
-     * @name /users/profile
-     * @description Profile of the current account
-     */
-    .when('/users/profile', {
-        templateUrl : 'views/users/mb-profile.html',
-        controller : 'MbProfileCtrl',
-        controllerAs: 'ctrl',
-        protect: true,
-        helpId: 'mb-profile'
-    })
-    /**
-     * @ngdoc ngRoute
-     * @name /users/password
-     * @description Manage current password of the account
-     * 
-     * Change the password of the current account.
-     */
-    .when('/users/password', {
-        templateUrl : 'views/users/mb-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        protect: true,
-        helpId: 'mb-profile'
-    })
+			// Users
+			// Login
+			.when('/users/login', {
+				templateUrl: 'views/users/mb-login.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})
+			
+			//-----------------------------------------------------------------------------
+			// Move to account (vw-dashboard)
+			//-----------------------------------------------------------------------------
+			/**
+			 * @ngdoc ngRoute
+			 * @name /users/account
+			 * @description Details of the current account
+			 */
+			.when('/users/account', {
+				templateUrl: 'views/users/mb-account.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				protect: true,
+				helpId: 'mb-account'
+			})
+			/**
+			 * @ngdoc ngRoute
+			 * @name /users/profile
+			 * @description Profile of the current account
+			 */
+			.when('/users/profile', {
+				templateUrl: 'views/users/mb-profile.html',
+				controller: 'MbProfileCtrl',
+				controllerAs: 'ctrl',
+				protect: true,
+				helpId: 'mb-profile'
+			})
+			/**
+			 * @ngdoc ngRoute
+			 * @name /users/password
+			 * @description Manage current password of the account
+			 * 
+			 * Change the password of the current account.
+			 */
+			.when('/users/password', {
+				templateUrl: 'views/users/mb-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				protect: true,
+				helpId: 'mb-profile'
+			})
 
-    // Reset forgotten password
-    .when('/users/reset-password', {
-        templateUrl : 'views/users/mb-forgot-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })//
-    .when('/users/reset-password/token', {
-        templateUrl : 'views/users/mb-recover-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })//
-    .when('/users/reset-password/token/:token', {
-        templateUrl : 'views/users/mb-recover-password.html',
-        controller : 'MbAccountCtrl',
-        controllerAs: 'ctrl',
-        sidenavs: [],
-        toolbars: []
-    })//
-    ; //
+			// Reset forgotten password
+			.when('/users/reset-password', {
+				templateUrl: 'views/users/mb-forgot-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})//
+			.when('/users/reset-password/token', {
+				templateUrl: 'views/users/mb-recover-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})//
+			.when('/users/reset-password/token/:token', {
+				templateUrl: 'views/users/mb-recover-password.html',
+				controller: 'MbAccountCtrl',
+				controllerAs: 'ctrl',
+				sidenavs: [],
+				toolbars: []
+			})//
+			;//
 
-    $locationProvider.html5Mode(true);
-});
+		$locationProvider.html5Mode(true);
+	});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3075,6 +4346,147 @@ angular.module('mblowfish-core')
 //     this.prevStep = prevStep;
 // });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc controller
+ * @name MbLanguagesCtrl
+ * @description Mange list of languages
+ * 
+ * Manages list of languages
+ * 
+ */
+angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
+	$rootScope, $language, $navigator, FileSaver,
+		/* AngularJS */ $window,
+		/* am-wb     */ $resource) {
+
+	this.selectedLanguage = null;
+
+	/**
+	 * Set current language of app
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - Key of the language
+	 * @return {promise} to change language
+	 */
+	this.setLanguage = function(lang) {
+		this.selectedLanguage = lang;
+		this.selectedLanguage.map = this.selectedLanguage.map || {};
+		this.addMissedWord();
+	};
+
+	/**
+	 * Adds new language to app configuration
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @return {promise} to add language
+	 */
+	this.addLanguage = function() {
+		$resource.get('/app/languages', {
+			// TODO:
+		}).then(function(language) {
+			language.map = language.map || {};
+			return $language.newLanguage(language);
+		});
+	};
+
+	/**
+	 * Remove language form application
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 * @return {promise} to delete language
+	 */
+	this.deleteLanguage = function(lang) {
+		var ctrl = this;
+		$window.confirm('Delete the language?').then(function() {
+			return $language.deleteLanguage(lang);
+		}).then(function() {
+			if (angular.equals(ctrl.selectedLanguage, lang)) {
+				ctrl.selectedLanguage = null;
+			}
+		});
+	};
+
+	/**
+	 * Adds a word to the current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addWord = function() {
+		var ctrl = this;
+		return $navigator.openDialog({
+			templateUrl: 'views/dialogs/mbl-add-word.html',
+
+		})//
+			.then(function(word) {
+				ctrl.selectedLanguage.map[word.key] = ctrl.selectedLanguage.map[word.key] || word.translate || word.key;
+			});
+	};
+
+	/**
+	 * Remove the key from current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.deleteWord = function(key) {
+		delete this.selectedLanguage.map[key];
+	};
+
+
+	/**
+	 * Adds all missed keywords to the current language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addMissedWord = function() {
+		var mids = $rootScope.__app.settings.languageMissIds;
+		var ctrl = this;
+		_.forEach(mids, function(id) {
+			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
+		});
+	}
+
+	/**
+	 * Download the language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 */
+	this.saveAs = function(lang) {
+		var MIME_WB = 'application/weburger+json;charset=utf-8';
+
+		// save  result
+		var dataString = JSON.stringify(lang);
+		var data = new Blob([dataString], {
+			type: MIME_WB
+		});
+		return FileSaver.saveAs(data, 'language.json');
+	};
+
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6159,80 +7571,80 @@ angular.module('mblowfish-core')
 angular.module('mblowfish-core')
 
 
-/**
- * @ngdoc Directives
- * @name mb-datepicker
- * @descritpion Date picker
- * 
- * Select a date based on local.
- * 
- */
-.directive('mbDatepicker', function($mdUtil, $rootScope) {
+	/**
+	 * @ngdoc Directives
+	 * @name mb-datepicker
+	 * @descritpion Date picker
+	 * 
+	 * Select a date based on local.
+	 * 
+	 */
+	.directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-    // **********************************************************
-    // Private Methods
-    // **********************************************************
-    function postLink(scope, element, attr, ctrls) {
-        scope.app = $rootScope.app || {};
-        var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+		// **********************************************************
+		// Private Methods
+		// **********************************************************
+		function postLink(scope, element, attr, ctrls) {
+			scope.app = $rootScope.app || {};
+			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-        function render() {
-            if(!ngModelCtrl.$modelValue){
-                scope.date = null;
-                return;
-            }
-            var date = moment //
-            .utc(ngModelCtrl.$modelValue) //
-            .local();
-            if (date.isValid()) {
-                scope.date = date;
-                return;
-            }
-            // TODO: maso, 2018: handle invalid date
-        }
+			function render() {
+				if (!ngModelCtrl.$modelValue) {
+					return;
+				}
+				var date = moment //
+					.utc(ngModelCtrl.$modelValue) //
+					.local();
+				if (date.isValid()) {
+					scope.date = date;
+					return;
+				}
+				// TODO: maso, 2018: handle invalid date
+			}
 
-        function setValue() {
-            if(!scope.date) {
-                ngModelCtrl.$setViewValue(null);
-                return;
-            }
-            var date = moment(scope.date) //
-            .utc() //
-            .format('YYYY-MM-DD HH:mm:ss');
-            ngModelCtrl.$setViewValue(date);
-        }
+			function setValue() {
+				if (!scope.date) {
+					ngModelCtrl.$setViewValue(scope.date);
+					return;
+				}
+				var date = moment(scope.date) //
+					.utc() //
+					.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
+				ngModelCtrl.$setViewValue(date);
+			}
 
-        ngModelCtrl.$render = render;
-        scope.$watch('date', setValue);
-    }
+			ngModelCtrl.$render = render;
+			scope.$watch('date', setValue);
+		}
 
 
-    return {
-        replace : false,
-        template : function(){
-        	var app = $rootScope.app || {};
-            if(app.calendar === 'Gregorian'){
-                return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-            }
-            return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-        },
-        restrict : 'E',
-        scope : {
-            minDate : '=mbMinDate',
-            maxDate : '=mbMaxDate',
-            placeholder: '@mbPlaceholder',
-            hideIcons: '@?mbHideIcons'
-            //		        currentView: '@mdCurrentView',
-            //		        dateFilter: '=mdDateFilter',
-            //		        isOpen: '=?mdIsOpen',
-            //		        debounceInterval: '=mdDebounceInterval',
-            //		        dateLocale: '=mdDateLocale'
-        },
-        require : [ 'ngModel' ],
-        priority : 210, // Run before ngAria
-        link : postLink
-    };
-});
+		return {
+			replace: false,
+			template: function() {
+				var app = $rootScope.app || {};
+				if (app.calendar === 'Gregorian') {
+					return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+				}
+				return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+			},
+			restrict: 'E',
+			scope: {
+				minDate: '=mbMinDate',
+				maxDate: '=mbMaxDate',
+				placeholder: '@mbPlaceholder',
+				hideIcons: '@?mbHideIcons',
+				dateFormat: '@?mbDateFormat'
+				//		        currentView: '@mdCurrentView',
+				//		        dateFilter: '=mdDateFilter',
+				//		        isOpen: '=?mdIsOpen',
+				//		        debounceInterval: '=mdDebounceInterval',
+				//		        dateLocale: '=mdDateLocale'
+			},
+			require: ['ngModel'],
+			priority: 210, // Run before ngAria
+			link: postLink
+		};
+	});
 /* 
  * The MIT License (MIT)
  * 
@@ -6616,117 +8028,140 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
  * @name mb-inline
  * @description Inline editing field
  */
-.directive('mbInline', function($q, $parse, $resource) {
+angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $resource) {
 
     /**
      * Link data and view
      */
-    function postLink(scope, elem, attr, ctrls) {
+	function postLink(scope, elem, attr, ctrls) {
 
-        var ngModel = ctrls[1];
-        var ctrl = ctrls[0];
+		var ngModel = ctrls[1];
+		var ctrl = ctrls[0];
 
-        scope.myDataModel = {};
-        scope.errorObject = {};
-        
-        scope.mbInlineType = attr.mbInlineType;
-        scope.mbInlineLabel = attr.mbInlineLabel;
-        scope.mbInlineDescription = attr.mbInlineDescription;
-        
-        scope.$watch(attr.mbInlineEnable, function(value){
-            scope.mbInlineEnable = value;
-        });
-        scope.$watch(attr.mbInlineSaveButton, function(value){
-            scope.mbInlineSaveButton = value;
-        });
-        scope.$watch(attr.mbInlineCancelButton, function(value){
-            scope.mbInlineCancelButton = value;
-        });
+		scope.myDataModel = {};
+		scope.errorObject = {};
 
-        ngModel.$render = function(){
-            ctrl.model = ngModel.$viewValue;
-        };
+		scope.mbInlineType = attr.mbInlineType;
+		scope.mbInlineLabel = attr.mbInlineLabel;
+		scope.mbInlineDescription = attr.mbInlineDescription;
 
-        ctrl.saveModel = function(d){
-            ngModel.$setViewValue(d);
-            if(attr.mbInlineOnSave){
-                scope.$data = d;
-                var value = $parse(attr.mbInlineOnSave)(scope);
-                $q.when(value)//
-                .then(function(){
-                    delete scope.error;
-                }, function(error){
-                    scope.error = error;
-                });
-            }
-        };
-    }
+		scope.$watch(attr.mbInlineEnable, function(value) {
+			scope.mbInlineEnable = value;
+		});
+		scope.$watch(attr.mbInlineSaveButton, function(value) {
+			scope.mbInlineSaveButton = value;
+		});
+		scope.$watch(attr.mbInlineCancelButton, function(value) {
+			scope.mbInlineCancelButton = value;
+		});
 
-    return {
-        restrict : 'E',
-        transclude : true,
-        replace: true,
-        require: ['mbInline', '^ngModel'],
-        scope: true,
+		ngModel.$render = function() {
+			ctrl.model = ngModel.$viewValue;
+		};
+
+		/*
+		 * @depricated use ngChange
+		 */
+		ctrl.saveModel = function(d) {
+			ngModel.$setViewValue(d);
+			if (attr.mbInlineOnSave) {
+				scope.$data = d;
+				var value = $parse(attr.mbInlineOnSave)(scope);
+				$q.when(value)//
+					.then(function() {
+						delete scope.error;
+					}, function(error) {
+						scope.error = error;
+					});
+			}
+		};
+	}
+
+	return {
+		restrict: 'E',
+		transclude: true,
+		replace: true,
+		require: ['mbInline', '^ngModel'],
+		scope: true,
         /*
          * @ngInject
          */
-        controller: function($scope){
-            this.edit = function(){
-                this.editMode = true;
-            };
+		controller: function($scope) {
+			this.edit = function() {
+				this.editMode = true;
+			};
 
-            this.setEditMode = function(editMode){
-                this.editMode = editMode;
-            };
+			this.setEditMode = function(editMode) {
+				this.editMode = editMode;
+			};
 
-            this.getEditMode = function(){
-                return this.editMode;
-            };
+			this.getEditMode = function() {
+				return this.editMode;
+			};
 
-            this.save = function(){
-                this.saveModel(this.model);
-                this.setEditMode(false);
-            };
+			this.save = function() {
+				this.saveModel(this.model);
+				this.setEditMode(false);
+			};
 
-            this.cancel = function(){
-                this.setEditMode(false);
-            };
+			this.cancel = function() {
+				this.setEditMode(false);
+			};
 
 
             /*
              * Select image url
              */
-            this.updateImage = function(){
-                if(!$scope.mbInlineEnable){
-                    return;
-                }
-                var ctrl = this;
-                return $resource.get('image', {
-                    style : {
-                        icon: 'image',
-                        title : $scope.mbInlineLabel || 'Select image',
-                        description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
-                    },
-                    data : this.model
-                }) //
-                .then(function(url){
-                    ctrl.model = url;
-                    ctrl.save();
-                });
-            };
-        },
-        controllerAs: 'ctrlInline',
-        templateUrl : 'views/directives/mb-inline.html',
-        link: postLink
-    };
+			this.updateImage = function() {
+//				if (!$scope.mbInlineEnable) {
+//					return;
+//				}
+				var ctrl = this;
+				return $resource.get('image', {
+					style: {
+						icon: 'image',
+						title: $scope.mbInlineLabel || 'Select image',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
+					},
+					data: this.model
+				}) //
+					.then(function(url) {
+						ctrl.model = url;
+						ctrl.save();
+					});
+			};
+
+			/*
+             * Select image url
+             */
+			this.updateFile = function() {
+//				if (!$scope.mbInlineEnable) {
+//					return;
+//				}
+				var ctrl = this;
+				return $resource.get('local-file', {
+					style: {
+						icon: 'file',
+						title: $scope.mbInlineLabel || 'Select file',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
+					},
+					data: this.model
+				}).then(function(file) {
+					ctrl.model = file;
+					ctrl.save();
+				});
+			};
+		},
+		controllerAs: 'ctrlInline',
+		templateUrl: 'views/directives/mb-inline.html',
+		link: postLink
+	};
 });
 
 /*
@@ -7835,34 +9270,31 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-
-
-	/**
-	 * @ngdoc Directives
-	 * @name mb-titled-block
-	 * @descritpion Title block
-	 *
-	 *
-	 */
-	.directive('mbTitledBlock', function () {
-	    return {
+/**
+ * @ngdoc Directives
+ * @name mb-titled-block
+ * @descritpion Title block
+ *
+ *
+ */
+angular.module('mblowfish-core').directive('mbTitledBlock', function() {
+	return {
 		replace: true,
 		restrict: 'E',
 		transclude: true,
 		scope: {
-		    mbTitle: '@?',
-		    mbIcon: '@?',
-		    mbProgress: '<?',
-		    mbMoreActions: '='
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?',
+			mbMoreActions: '='
 		},
 		/*
 		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
 		 */
 
 		templateUrl: 'views/directives/mb-titled-block.html'
-	    };
-	});
+	};
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8686,169 +10118,165 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-
-
-
 /**
  * @ngdoc Directives
  * @name wb-icon
  * @description Icon for WB
  */
-.directive('wbIcon', function (wbIconService, $interpolate) {
-    // FORMAT
-    var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
-    // REPLACE FORMAT
-    var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
+angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $interpolate) {
+	// FORMAT
+	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
+	// REPLACE FORMAT
+	var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
 
-    // optimize pars
-    Mustache.parse(template);
-    Mustache.parse(replaceTemplate);
+	// optimize pars
+	Mustache.parse(template);
+	Mustache.parse(replaceTemplate);
 
-    var shapes = wbIconService.getShapes();
+	var shapes = wbIconService.getShapes();
 
-    function postLink(scope, element, attr, ctrls, transclude) {
-        // icon information
-        var icon = {
-                name: 'help',
-                viewbox: '0 0 24 24',
-                size: 24,
-        };
-        // Counter
-        var renderCount = 0;
+	function postLink(scope, element, attr, ctrls, transclude) {
+		// icon information
+		var icon = {
+			name: 'help',
+			viewbox: '0 0 24 24',
+			size: 24,
+		};
+		// Counter
+		var renderCount = 0;
 
 
-        /*
-         * Sets icon and render the shape
-         */
-        function setIcon(iconName){
-            var tempIcon = _.clone(icon);
-            // icon
-            if (iconName !== undefined) {
-                tempIcon.name = iconName;
-                // Check for material-design-icons style name, and extract icon / size
-                var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
-                if (ss !== null) {
-                    tempIcon.name = ss[1];
-                    tempIcon.size = ss[2];
-                }
-            }
+		/*
+		 * Sets icon and render the shape
+		 */
+		function setIcon(iconName) {
+			var tempIcon = _.clone(icon);
+			// icon
+			if (iconName !== undefined) {
+				tempIcon.name = iconName;
+				// Check for material-design-icons style name, and extract icon / size
+				var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
+				if (ss !== null) {
+					tempIcon.name = ss[1];
+					tempIcon.size = ss[2];
+				}
+			}
 
-            render(tempIcon);
-        }
+			render(tempIcon);
+		}
 
-//        function setViewBox(viewBox){
-//            // viewBox
-//            if (attr.viewBox !== undefined) {
-//                viewBox = attr.viewBox;
-//            } else {
-//                viewBox = wbIconService.getViewBox(icon) ? wbIconService.getViewBox(icon) : '0 0 24 24';
-//            }
-//            render();
-//            return viewBox;
-//        }
+		//        function setViewBox(viewBox){
+		//            // viewBox
+		//            if (attr.viewBox !== undefined) {
+		//                viewBox = attr.viewBox;
+		//            } else {
+		//                viewBox = wbIconService.getViewBox(icon) ? wbIconService.getViewBox(icon) : '0 0 24 24';
+		//            }
+		//            render();
+		//            return viewBox;
+		//        }
 
-        function setSize(newsize){
-            if (newsize === icon.size) { 
-                return; 
-            }
-            var tempIcon = _.clone(icon);
-            tempIcon.size = newsize;
-            render(tempIcon);
-        }
+		function setSize(newsize) {
+			if (newsize === icon.size) {
+				return;
+			}
+			var tempIcon = _.clone(icon);
+			tempIcon.size = newsize;
+			render(tempIcon);
+		}
 
-        function render(newIcon) {
-            // check for new changes
-            if(renderCount && newIcon.name === icon.name && 
-                    newIcon.size === icon.size && 
-                    newIcon.viewbox === icon.viewbox){
-                return;
-            }
-            newIcon.shape = shapes[newIcon.name];
-            if(renderCount && window.SVGMorpheus) {
-                // this block will succeed if SVGMorpheus is available
-                var options = JSON.parse(attr.options || '{}');
-                element.html(Mustache.render(replaceTemplate, {
-                    icon: newIcon,
-                    old: icon
-                }));
-                new SVGMorpheus(element.children()[0]).to(newIcon, options);
-            } else {
-                element.html(Mustache.render(template, {
-                    icon: newIcon
-                }));
-            }
+		function render(newIcon) {
+			// check for new changes
+			if (renderCount && newIcon.name === icon.name &&
+				newIcon.size === icon.size &&
+				newIcon.viewbox === icon.viewbox) {
+				return;
+			}
+			newIcon.shape = shapes[newIcon.name];
+			if (renderCount && window.SVGMorpheus) {
+				// this block will succeed if SVGMorpheus is available
+				var options = JSON.parse(attr.options || '{}');
+				element.html(Mustache.render(replaceTemplate, {
+					icon: newIcon,
+					old: icon
+				}));
+				new SVGMorpheus(element.children()[0]).to(newIcon, options);
+			} else {
+				element.html(Mustache.render(template, {
+					icon: newIcon
+				}));
+			}
 
-            icon = newIcon;
-            renderCount++;
-        }
+			icon = newIcon;
+			renderCount++;
+		}
 
-        // watch for any changes
-        if (attr.icon !== undefined) {
-            attr.$observe('icon', setIcon); 
-        } else if(attr.wbIconName !== undefined){
-            attr.$observe('wbIconName', setIcon);
-        } else {
-            transclude(scope, function(clone) {
-                var text = clone.text();
-                if (text && text.trim()) {
-                    scope.$watch(function() {
-                        return $interpolate(text.trim())(scope);
-                    }, setIcon);
-                }
-            });
-        }
-        if (attr.size !== undefined) { 
-            attr.$observe('size', setSize);  
-        }
-    }
+		// watch for any changes
+		if (attr.icon !== undefined) {
+			attr.$observe('icon', setIcon);
+		} else if (attr.wbIconName !== undefined) {
+			attr.$observe('wbIconName', setIcon);
+		} else {
+			transclude(scope, function(clone) {
+				var text = clone.text();
+				if (text && text.trim()) {
+					scope.$watch(function() {
+						return $interpolate(text.trim())(scope);
+					}, setIcon);
+				}
+			});
+		}
+		if (attr.size !== undefined) {
+			attr.$observe('size', setSize);
+		}
+	}
 
-    return {
-        restrict: 'AE',
-        transclude : true,
-        link: postLink,
-        replace: false
-    };
-})
+	return {
+		restrict: 'AE',
+		transclude: true,
+		link: postLink,
+		replace: false
+	};
+});
 
-.directive('mdIconFloat', function($mdTheming) {
+angular.module('mblowfish-core').directive('mdIconFloat', function($mdTheming) {
 
-    var INPUT_TAGS = [ 'INPUT', 'TEXTAREA', 'SELECT',
-        'MD-SELECT' ];
+	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
+		'MD-SELECT'];
 
-    var LEFT_SELECTORS = INPUT_TAGS.reduce(
-            function(selectors, isel) {
-                return selectors.concat([ 'wb-icon ~ ' + isel, '.wb-icon ~ ' + isel ]);
-            }, []).join(',');
+	var LEFT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat(['wb-icon ~ ' + isel, '.wb-icon ~ ' + isel]);
+		}, []).join(',');
 
-    var RIGHT_SELECTORS = INPUT_TAGS.reduce(
-            function(selectors, isel) {
-                return selectors.concat([ isel + ' ~ wb-icon', isel + ' ~ .wb-icon' ]);
-            }, []).join(',');
+	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat([isel + ' ~ wb-icon', isel + ' ~ .wb-icon']);
+		}, []).join(',');
 
-    function compile(tElement) {
-        // Check for both a left & right icon
-        var leftIcon = tElement[0]
-        .querySelector(LEFT_SELECTORS);
-        var rightIcon = tElement[0]
-        .querySelector(RIGHT_SELECTORS);
+	function compile(tElement) {
+		// Check for both a left & right icon
+		var leftIcon = tElement[0]
+			.querySelector(LEFT_SELECTORS);
+		var rightIcon = tElement[0]
+			.querySelector(RIGHT_SELECTORS);
 
-        if (leftIcon) {
-            tElement.addClass('md-icon-left');
-        }
-        if (rightIcon) {
-            tElement.addClass('md-icon-right');
-        }
+		if (leftIcon) {
+			tElement.addClass('md-icon-left');
+		}
+		if (rightIcon) {
+			tElement.addClass('md-icon-right');
+		}
 
-        return function postLink(scope, element) {
-            $mdTheming(element);
-        };
-    }
+		return function postLink(scope, element) {
+			$mdTheming(element);
+		};
+	}
 
-    return {
-        restrict : 'C',
-        compile : compile
-    };
+	return {
+		restrict: 'C',
+		compile: compile
+	};
 });
 
 /*
@@ -10633,6 +12061,159 @@ angular.module('mblowfish-core')
 	};
 	return httpRequestInterceptor;
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+/*
+ * 
+ */
+angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootScope) {
+
+	// load language
+	function getLanguage(key) {
+		var languages = $rootScope.__app.configs.languages || [];
+		var lang = {
+			map: []
+		};
+		angular.forEach(languages, function(item) {
+			if (item.key === key) {
+				lang = item;
+			}
+		});
+		return lang.map;
+	}
+
+    /*
+     * State machine to manage language configurations
+     */
+	var stateMachine = new machina.Fsm({
+		namespace: 'mb-language-config-loader',
+		initialState: 'loading',
+		states: {
+			loading: {
+				appStateChange: function(state) {
+					if (state === 'ready') {
+						this.transition('ready');
+					}
+					// TODO: maso, 2018: not configured or fail
+					if (state === 'ready_app_not_configured') {
+						this.transition('fail');
+					}
+				}
+			},
+			ready: {
+				appStateChange: function(state) {
+					// TODO: maso, 2018: not configured or fail
+					if (state === 'ready_app_not_configured') {
+						this.transition('fail');
+					}
+				}
+			},
+			fail: {
+				appStateChange: function(state) {
+					if (state === 'ready') {
+						this.transition('ready');
+					}
+				}
+			}
+		},
+
+        /*
+         * Handle application state change
+         */
+		appStateChange: function(state) {
+			this.handle('appStateChange', state);
+		}
+
+	});
+
+	$rootScope.$watch('__app.state', function(state) {
+		stateMachine.appStateChange(state);
+	});
+
+	var jobs = [];
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function() {
+		if (stateMachine.state === 'ready' || stateMachine.state === 'fail') {
+			angular.forEach(jobs, function(job) {
+				job();
+			});
+			jobs = [];
+		}
+	});
+
+	return function(option) {
+		if (stateMachine.state === 'fail') {
+			return $q.reject(option.key);
+		}
+		if (stateMachine.state === 'ready') {
+			return $q.when(getLanguage(option.key));
+		}
+
+		var deferred = $q.defer();
+		jobs.push(function() {
+			if (stateMachine.state === 'fail') {
+				return deferred.reject(option.key);
+			}
+			deferred.resolve(getLanguage(option.key));
+		});
+		return deferred.promise;
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($language, $rootScope) {
+	// has to return a function which gets a tranlation ID
+	return function(translationID) {
+		var app = $rootScope.__app;
+		//        var key = $language.use()
+		if (!app.settings.languageMissIds) {
+			app.settings.languageMissIds = [];
+		}
+		var index = app.settings.languageMissIds.indexOf(translationID);
+		if (index === -1) {
+			app.settings.languageMissIds.push(translationID);
+		}
+	};
+});
 ///* 
 // * The MIT License (MIT)
 // * 
@@ -10658,7 +12239,7 @@ angular.module('mblowfish-core')
 // */
 //
 //angular.module('mblowfish-core')
-//.factory('WbDialogWindow', function($wbWindow, $document, $wbFloat) {
+//.factory('WbDialogWindow', function($window, $document, $wbFloat) {
 //    
 //
 //
@@ -10707,7 +12288,7 @@ angular.module('mblowfish-core')
 //     * 
 //     */
 //    var wbWindow = function(parent){
-//        this.parent = parent || $wbWindow;
+//        this.parent = parent || $window;
 //        this.floatDialogElement = null;
 //        this.setTitleVisible(true);
 //    };
@@ -10779,7 +12360,7 @@ angular.module('mblowfish-core')
 //     * @return window object
 //     */
 //    wbWindow.prototype.open = function(url, name, options, replace){
-//        return $wbWindow.open(url, name, options, replace);
+//        return $window.open(url, name, options, replace);
 //    };
 //
 //    /**
@@ -10893,7 +12474,7 @@ angular.module('mblowfish-core')
 //     * @return promise to load the library
 //     */
 //    wbWindow.prototype.loadLibrary = function(path){
-//        return $wbWindow.loadLibrary(path);
+//        return $window.loadLibrary(path);
 //    };
 //
 //    /**
@@ -10903,7 +12484,7 @@ angular.module('mblowfish-core')
 //     * @return true if the library is loaded
 //     */
 //    wbWindow.prototype.isLibraryLoaded = function(path){
-//        return $wbWindow.isLibraryLoaded(path);
+//        return $window.isLibraryLoaded(path);
 //    };
 //
 //    /**
@@ -10914,7 +12495,7 @@ angular.module('mblowfish-core')
 //     * @return promise to load the library
 //     */
 //    wbWindow.prototype.loadStyle = function(path){
-//        return $wbWindow.loadStyle(path);
+//        return $window.loadStyle(path);
 //    };
 //
 //    /**
@@ -10924,7 +12505,7 @@ angular.module('mblowfish-core')
 //     * @return true if the library is loaded
 //     */
 //    wbWindow.prototype.isStyleLoaded = function(path){
-//        return $wbWindow.isStyleLoaded(path);
+//        return $window.isStyleLoaded(path);
 //    };
 //
 //
@@ -11094,6 +12675,7 @@ angular.module('mblowfish-core')
 
 
 
+
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -11117,17 +12699,28 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
+
 
 /**
  * @ngdoc Filters
  * @name mbDate
  * @description # Format date
  */
-.filter('mbDate', function($wbLocal) {
-    return function(inputDate, format) {
-        return $wbLocal.formatDate(inputDate, format);
-    };
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDate(inputDate, format);
+	};
+});
+
+/**
+ * @ngdoc Filters
+ * @name mbDateTime
+ * @description # Format date time
+ */
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDateTime(inputDate, format);
+	};
 });
 /* 
  * The MIT License (MIT)
@@ -11741,40 +13334,26 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
+angular.module('mblowfish-core')
+/**
+ * دریچه‌های محاوره‌ای
+ */
+.run(function($notification, $help) {
 	
-	
-	/*
-	 * format date based on application settings
-	 */
-	$wbLocal.formatDate = function(inputDate, format){
-		if(!inputDate){
-            return '';
-        }
-        try {
-            var mf = format || $rootScope.app.setting.dateFormat || $rootScope.app.config.dateFormat || 'jYYYY-jMM-jDD hh:mm:ss';
-            if($rootScope.app.calendar !== 'Jalaali'){
-                mf = mf.replace('j', '');
-            }
-            var date = moment //
-	            .utc(inputDate) //
-	            .local();
-            return date.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
-	};
-	
-	/*
-	 * maso, 2019: overrid get language
-	 */
-	$wbLocal.getLanguage = function(){
-		return $rootScope.app.language;
-	};
-	
-	/*
-	 * XXX: maso, 2019: overrid get currency
-	 */
+
+    /*
+     * Display help for an item
+     */
+    window.openHelp = function(item){
+        return $help.openHelp(item);
+    };
+
+    // Hadi 1396-12-22: update alerts
+    window.alert = $notification.alert;
+    window.confirm = $notification.confirm;
+    window.prompt = $notification.prompt;
+    window.toast = $notification.toast;
+
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -11797,28 +13376,23 @@ angular.module('mblowfish-core').run(function($wbLocal, $rootScope) {
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+'use strict';
 
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($notification, $help) {
+angular.module('mblowfish-core').run(function($rootScope, $language) {
 	
-
-    /*
-     * Display help for an item
-     */
-    window.openHelp = function(item){
-        return $help.openHelp(item);
-    };
-
-    // Hadi 1396-12-22: update alerts
-    window.alert = $notification.alert;
-    window.confirm = $notification.confirm;
-    window.prompt = $notification.prompt;
-    window.toast = $notification.toast;
-
+	/*
+	 * Lesson on page
+	 */
+	$rootScope.$watch(function(){
+		var localLanguage = $rootScope.app.setting.language;
+		var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
+		return localLanguage || confLanguage;
+	}, function(key){
+		return $language.use(key);
+	});
+	
 });
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12026,6 +13600,904 @@ angular.module('mblowfish-core')
         $help.setCurrentItem(val);
     });
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+'use strict';
+
+/*
+ * Adds language resources
+ * 
+ */
+angular.module('mblowfish-core').run(function($language, 
+		/* angularjs */ $rootScope, $timeout, $q, $http,
+		/* am-wb-core */ $resource) {
+
+	var languages = [
+		{
+			key: 'ab',
+			title: 'Abkhaz'
+		},
+		{
+			key: 'aa',
+			title: 'Afar'
+		},
+		{
+			key: 'af',
+			title: 'Afrikaans'
+		},
+		{
+			key: 'ak',
+			title: 'Akan'
+		},
+		{
+			key: 'sq',
+			title: 'Albanian'
+		},
+		{
+			key: 'am',
+			title: 'Amharic'
+		},
+		{
+			key: 'ar',
+			title: 'Arabic'
+		},
+		{
+			key: 'an',
+			title: 'Aragonese'
+		},
+		{
+			key: 'hy',
+			title: 'Armenian'
+		},
+		{
+			key: 'as',
+			title: 'Assamese'
+		},
+		{
+			key: 'av',
+			title: 'Avaric'
+		},
+		{
+			key: 'ae',
+			title: 'Avestan'
+		},
+		{
+			key: 'ay',
+			title: 'Aymara'
+		},
+		{
+			key: 'az',
+			title: 'Azerbaijani'
+		},
+		{
+			key: 'bm',
+			title: 'Bambara'
+		},
+		{
+			key: 'ba',
+			title: 'Bashkir'
+		},
+		{
+			key: 'eu',
+			title: 'Basque'
+		},
+		{
+			key: 'be',
+			title: 'Belarusian'
+		},
+		{
+			key: 'bn',
+			title: 'Bengali; Bangla'
+		},
+		{
+			key: 'bh',
+			title: 'Bihari'
+		},
+		{
+			key: 'bi',
+			title: 'Bislama'
+		},
+		{
+			key: 'bs',
+			title: 'Bosnian'
+		},
+		{
+			key: 'br',
+			title: 'Breton'
+		},
+		{
+			key: 'bg',
+			title: 'Bulgarian'
+		},
+		{
+			key: 'my',
+			title: 'Burmese'
+		},
+		{
+			key: 'ca',
+			title: 'Catalan; Valencian'
+		},
+		{
+			key: 'ch',
+			title: 'Chamorro'
+		},
+		{
+			key: 'ce',
+			title: 'Chechen'
+		},
+		{
+			key: 'ny',
+			title: 'Chichewa; Chewa; Nyanja'
+		},
+		{
+			key: 'zh',
+			title: 'Chinese'
+		},
+		{
+			key: 'cv',
+			title: 'Chuvash'
+		},
+		{
+			key: 'kw',
+			title: 'Cornish'
+		},
+		{
+			key: 'co',
+			title: 'Corsican'
+		},
+		{
+			key: 'cr',
+			title: 'Cree'
+		},
+		{
+			key: 'hr',
+			title: 'Croatian'
+		},
+		{
+			key: 'cs',
+			title: 'Czech'
+		},
+		{
+			key: 'da',
+			title: 'Danish'
+		},
+		{
+			key: 'dv',
+			title: 'Divehi; Dhivehi; Maldivian;'
+		},
+		{
+			key: 'nl',
+			title: 'Dutch'
+		},
+		{
+			key: 'dz',
+			title: 'Dzongkha'
+		},
+		{
+			key: 'en',
+			title: 'English'
+		},
+		{
+			key: 'eo',
+			title: 'Esperanto'
+		},
+		{
+			key: 'et',
+			title: 'Estonian'
+		},
+		{
+			key: 'ee',
+			title: 'Ewe'
+		},
+		{
+			key: 'fo',
+			title: 'Faroese'
+		},
+		{
+			key: 'fj',
+			title: 'Fijian'
+		},
+		{
+			key: 'fi',
+			title: 'Finnish'
+		},
+		{
+			key: 'fr',
+			title: 'French'
+		},
+		{
+			key: 'ff',
+			title: 'Fula; Fulah; Pulaar; Pular'
+		},
+		{
+			key: 'gl',
+			title: 'Galician'
+		},
+		{
+			key: 'ka',
+			title: 'Georgian'
+		},
+		{
+			key: 'de',
+			title: 'German'
+		},
+		{
+			key: 'el',
+			title: 'Greek, Modern'
+		},
+		{
+			key: 'gn',
+			title: 'GuaranÃ­'
+		},
+		{
+			key: 'gu',
+			title: 'Gujarati'
+		},
+		{
+			key: 'ht',
+			title: 'Haitian; Haitian Creole'
+		},
+		{
+			key: 'ha',
+			title: 'Hausa'
+		},
+		{
+			key: 'he',
+			title: 'Hebrew (modern)'
+		},
+		{
+			key: 'hz',
+			title: 'Herero'
+		},
+		{
+			key: 'hi',
+			title: 'Hindi'
+		},
+		{
+			key: 'ho',
+			title: 'Hiri Motu'
+		},
+		{
+			key: 'hu',
+			title: 'Hungarian'
+		},
+		{
+			key: 'ia',
+			title: 'Interlingua'
+		},
+		{
+			key: 'id',
+			title: 'Indonesian'
+		},
+		{
+			key: 'ie',
+			title: 'Interlingue'
+		},
+		{
+			key: 'ga',
+			title: 'Irish'
+		},
+		{
+			key: 'ig',
+			title: 'Igbo'
+		},
+		{
+			key: 'ik',
+			title: 'Inupiaq'
+		},
+		{
+			key: 'io',
+			title: 'Ido'
+		},
+		{
+			key: 'is',
+			title: 'Icelandic'
+		},
+		{
+			key: 'it',
+			title: 'Italian'
+		},
+		{
+			key: 'iu',
+			title: 'Inuktitut'
+		},
+		{
+			key: 'ja',
+			title: 'Japanese'
+		},
+		{
+			key: 'jv',
+			title: 'Javanese'
+		},
+		{
+			key: 'kl',
+			title: 'Kalaallisut, Greenlandic'
+		},
+		{
+			key: 'kn',
+			title: 'Kannada'
+		},
+		{
+			key: 'kr',
+			title: 'Kanuri'
+		},
+		{
+			key: 'ks',
+			title: 'Kashmiri'
+		},
+		{
+			key: 'kk',
+			title: 'Kazakh'
+		},
+		{
+			key: 'km',
+			title: 'Khmer'
+		},
+		{
+			key: 'ki',
+			title: 'Kikuyu, Gikuyu'
+		},
+		{
+			key: 'rw',
+			title: 'Kinyarwanda'
+		},
+		{
+			key: 'ky',
+			title: 'Kyrgyz'
+		},
+		{
+			key: 'kv',
+			title: 'Komi'
+		},
+		{
+			key: 'kg',
+			title: 'Kongo'
+		},
+		{
+			key: 'ko',
+			title: 'Korean'
+		},
+		{
+			key: 'ku',
+			title: 'Kurdish'
+		},
+		{
+			key: 'kj',
+			title: 'Kwanyama, Kuanyama'
+		},
+		{
+			key: 'la',
+			title: 'Latin'
+		},
+		{
+			key: 'lb',
+			title: 'Luxembourgish, Letzeburgesch'
+		},
+		{
+			key: 'lg',
+			title: 'Ganda'
+		},
+		{
+			key: 'li',
+			title: 'Limburgish, Limburgan, Limburger'
+		},
+		{
+			key: 'ln',
+			title: 'Lingala'
+		},
+		{
+			key: 'lo',
+			title: 'Lao'
+		},
+		{
+			key: 'lt',
+			title: 'Lithuanian'
+		},
+		{
+			key: 'lu',
+			title: 'Luba-Katanga'
+		},
+		{
+			key: 'lv',
+			title: 'Latvian'
+		},
+		{
+			key: 'gv',
+			title: 'Manx'
+		},
+		{
+			key: 'mk',
+			title: 'Macedonian'
+		},
+		{
+			key: 'mg',
+			title: 'Malagasy'
+		},
+		{
+			key: 'ms',
+			title: 'Malay'
+		},
+		{
+			key: 'ml',
+			title: 'Malayalam'
+		},
+		{
+			key: 'mt',
+			title: 'Maltese'
+		},
+		{
+			key: 'mi',
+			title: 'MÄori'
+		},
+		{
+			key: 'mr',
+			title: 'Marathi (MarÄá¹­hÄ«)'
+		},
+		{
+			key: 'mh',
+			title: 'Marshallese'
+		},
+		{
+			key: 'mn',
+			title: 'Mongolian'
+		},
+		{
+			key: 'na',
+			title: 'Nauru'
+		},
+		{
+			key: 'nv',
+			title: 'Navajo, Navaho'
+		},
+		{
+			key: 'nb',
+			title: 'Norwegian BokmÃ¥l'
+		},
+		{
+			key: 'nd',
+			title: 'North Ndebele'
+		},
+		{
+			key: 'ne',
+			title: 'Nepali'
+		},
+		{
+			key: 'ng',
+			title: 'Ndonga'
+		},
+		{
+			key: 'nn',
+			title: 'Norwegian Nynorsk'
+		},
+		{
+			key: 'no',
+			title: 'Norwegian'
+		},
+		{
+			key: 'ii',
+			title: 'Nuosu'
+		},
+		{
+			key: 'nr',
+			title: 'South Ndebele'
+		},
+		{
+			key: 'oc',
+			title: 'Occitan'
+		},
+		{
+			key: 'oj',
+			title: 'Ojibwe, Ojibwa'
+		},
+		{
+			key: 'cu',
+			title: 'Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic'
+		},
+		{
+			key: 'om',
+			title: 'Oromo'
+		},
+		{
+			key: 'or',
+			title: 'Oriya'
+		},
+		{
+			key: 'os',
+			title: 'Ossetian, Ossetic'
+		},
+		{
+			key: 'pa',
+			title: 'Panjabi, Punjabi'
+		},
+		{
+			key: 'pi',
+			title: 'PÄli'
+		},
+		{
+			key: 'fa',
+			title: 'Persian (Farsi)'
+		},
+		{
+			key: 'pl',
+			title: 'Polish'
+		},
+		{
+			key: 'ps',
+			title: 'Pashto, Pushto'
+		},
+		{
+			key: 'pt',
+			title: 'Portuguese'
+		},
+		{
+			key: 'qu',
+			title: 'Quechua'
+		},
+		{
+			key: 'rm',
+			title: 'Romansh'
+		},
+		{
+			key: 'rn',
+			title: 'Kirundi'
+		},
+		{
+			key: 'ro',
+			title: 'Romanian, [])'
+		},
+		{
+			key: 'ru',
+			title: 'Russian'
+		},
+		{
+			key: 'sa',
+			title: 'Sanskrit (Saá¹ská¹›ta)'
+		},
+		{
+			key: 'sc',
+			title: 'Sardinian'
+		},
+		{
+			key: 'sd',
+			title: 'Sindhi'
+		},
+		{
+			key: 'se',
+			title: 'Northern Sami'
+		},
+		{
+			key: 'sm',
+			title: 'Samoan'
+		},
+		{
+			key: 'sg',
+			title: 'Sango'
+		},
+		{
+			key: 'sr',
+			title: 'Serbian'
+		},
+		{
+			key: 'gd',
+			title: 'Scottish Gaelic; Gaelic'
+		},
+		{
+			key: 'sn',
+			title: 'Shona'
+		},
+		{
+			key: 'si',
+			title: 'Sinhala, Sinhalese'
+		},
+		{
+			key: 'sk',
+			title: 'Slovak'
+		},
+		{
+			key: 'sl',
+			title: 'Slovene'
+		},
+		{
+			key: 'so',
+			title: 'Somali'
+		},
+		{
+			key: 'st',
+			title: 'Southern Sotho'
+		},
+		{
+			key: 'az',
+			title: 'South Azerbaijani'
+		},
+		{
+			key: 'es',
+			title: 'Spanish; Castilian'
+		},
+		{
+			key: 'su',
+			title: 'Sundanese'
+		},
+		{
+			key: 'sw',
+			title: 'Swahili'
+		},
+		{
+			key: 'ss',
+			title: 'Swati'
+		},
+		{
+			key: 'sv',
+			title: 'Swedish'
+		},
+		{
+			key: 'ta',
+			title: 'Tamil'
+		},
+		{
+			key: 'te',
+			title: 'Telugu'
+		},
+		{
+			key: 'tg',
+			title: 'Tajik'
+		},
+		{
+			key: 'th',
+			title: 'Thai'
+		},
+		{
+			key: 'ti',
+			title: 'Tigrinya'
+		},
+		{
+			key: 'bo',
+			title: 'Tibetan Standard, Tibetan, Central'
+		},
+		{
+			key: 'tk',
+			title: 'Turkmen'
+		},
+		{
+			key: 'tl',
+			title: 'Tagalog'
+		},
+		{
+			key: 'tn',
+			title: 'Tswana'
+		},
+		{
+			key: 'to',
+			title: 'Tonga (Tonga Islands)'
+		},
+		{
+			key: 'tr',
+			title: 'Turkish'
+		},
+		{
+			key: 'ts',
+			title: 'Tsonga'
+		},
+		{
+			key: 'tt',
+			title: 'Tatar'
+		},
+		{
+			key: 'tw',
+			title: 'Twi'
+		},
+		{
+			key: 'ty',
+			title: 'Tahitian'
+		},
+		{
+			key: 'ug',
+			title: 'Uyghur, Uighur'
+		},
+		{
+			key: 'uk',
+			title: 'Ukrainian'
+		},
+		{
+			key: 'ur',
+			title: 'Urdu'
+		},
+		{
+			key: 'uz',
+			title: 'Uzbek'
+		},
+		{
+			key: 've',
+			title: 'Venda'
+		},
+		{
+			key: 'vi',
+			title: 'Vietnamese'
+		},
+		{
+			key: 'vo',
+			title: 'VolapÃ¼k'
+		},
+		{
+			key: 'wa',
+			title: 'Walloon'
+		},
+		{
+			key: 'cy',
+			title: 'Welsh'
+		},
+		{
+			key: 'wo',
+			title: 'Wolof'
+		},
+		{
+			key: 'fy',
+			title: 'Western Frisian'
+		},
+		{
+			key: 'xh',
+			title: 'Xhosa'
+		},
+		{
+			key: 'yi',
+			title: 'Yiddish'
+		},
+		{
+			key: 'yo',
+			title: 'Yoruba'
+		},
+		{
+			key: 'za',
+			title: 'Zhuang, Chuang'
+		},
+		{
+			key: 'zu',
+			title: 'Zulu'
+		}
+		];
+
+	/**
+	 * Create filter function for a query string
+	 */
+	function createFilterFor(query) {
+		var lowercaseQuery = query.toLowerCase();
+
+		return function filterFn(language) {
+			return (language.title.indexOf(lowercaseQuery) >= 0) ||
+			(language.key.indexOf(lowercaseQuery) >= 0);
+		};
+
+	}
+
+	/**
+	 * @ngdoc Resources
+	 * @name Custom Language
+	 * @description Create a custom language and return the result
+	 *
+	 * A custom language is a key, title, and map
+	 */
+	$resource.newPage({
+		label: 'Custom',
+		type: 'language',
+		templateUrl: 'views/resources/mb-language-custome.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$scope.language = $scope.value;
+
+			this.querySearch = function(query){
+				var results = query ? languages.filter(createFilterFor(query)) : languages;
+				var deferred = $q.defer();
+				$timeout(function () { 
+					deferred.resolve(results); 
+				}, Math.random() * 100, false);
+				return deferred.promise;
+			};
+
+			$scope.$watch('language', function(lang){
+				$scope.$parent.setValue(lang);
+			});
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/languages']
+	});
+
+	/**
+	 * @ngdoc Resources
+	 * @name Remote Languages
+	 * @description Create a custom language and return the result
+	 *
+	 * A custom language is a key, title, and map
+	 */
+	$resource.newPage({
+		label: 'Remote',
+		type: 'language-viraweb123',
+		templateUrl: 'views/resources/mb-language-list.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$http.get('resources/common-languages.json')
+			.then(function(res){
+				$scope.languages = res.data;
+			});
+
+			this.setLanguage = function(lang){
+				$scope.$parent.setValue(lang);
+			};
+
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/languages']
+	});
+
+
+	/**
+	 * @ngdoc Resources
+	 * @name Remote Languages
+	 * @description Create a custom language and return the result
+	 *
+	 * A custom language is a key, title, and map
+	 */
+	$resource.newPage({
+		label: 'Upload',
+		type: 'language-upload',
+		templateUrl: 'views/resources/mb-language-upload.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function ($scope) {
+			$http.get('resources/common-languages.json')
+			.then(function(res){
+				$scope.languages = res.data;
+			});
+
+			this.setLanguage = function(lang){
+				$scope.$parent.setValue(lang);
+			};
+
+			var ctrl = this;
+			$scope.$watch('files.length',function(files){
+				if(!$scope.files || $scope.files.length <= 0){
+					return;
+				}
+				var reader = new FileReader();
+				reader.onload = function (event) {
+					var lang = JSON.parse(event.target.result);
+					ctrl.setLanguage(lang);
+				};
+				reader.readAsText($scope.files[0].lfFile);
+			});
+
+
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/languages']
+	});
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  *
@@ -14696,91 +17168,116 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
- * @name $wbLocal
+ * @name $mbLocal
  * @description manage localization of widgets
  * 
  * Deprecated : use $window
  */
-.service('$wbLocal', function() {
-    var defaultDateFormat = 'YYYY-MM-DD hh:mm:ss';
+angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
+	var defaultDateFormat = 'jYYYY-jMM-jDD';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
 
-    /**
-     * Gets current data of the system.
-     * 
-     * @memberof $wbLocal
-     */
-    this.getDate = function(){
-        return new Date();
-    };
-
-    /**
-     * Formats the input date based on the format
-     * 
-     * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-     * 
-     * @params data {String | Date} to format
-     * @params format {String} of the output
-     * @memberof $wbLocal
-     */
-    this.formatDate = function(date, format){
-        try {
-            var mf = format || defaultDateFormat;
-            var localDate = moment //
-            .utc(date) //
-            .local();
-            return localDate.format(mf);
-        } catch (ex) {
-            return '-' + ex.message;
-        }
-    };
-
-    /**
-     * Get currency of the system
-     * 
-     * @return currency ISO code
-     * @memberof $wbLocal
-     */
-    this.getCurrency = function(){
-        return this.currency || 'USD';
-    };
-
-    /**
-     * Sets currency of the system
-     * 
-     * @param currency {String} ISO code
-     * @memberof $wbLocal
-     */
-    this.setCurrency = function(currency){
-        this.currency = currency;
-    };
-
-    /**
-     * Get language of the system
-     * 
-     * @return language ISO code
-     * @memberof $wbLocal
-     */
-    this.getLanguage = function(){
-        return  this.language || 'en';
-    };
-
-    /**
-     * Sets language of the system
-     * 
-     * @params language {String} ISO code
-     * @memberof $wbLocal
-     */
-    this.setLanguage = function(language) {
-        this.language = language;
-    };
+	/**
+	 * Gets current data of the system.
+	 * 
+	 * @memberof $mbLocal
+	 */
+	this.getDate = function() {
+		return new Date();
+	};
 
 
-    return this;
+	function formatDateInternal(inputDate, format) {
+		if (!inputDate) {
+			return '';
+		}
+		try {
+			if ($rootScope.app.calendar !== 'Jalaali') {
+				format = format.replace('j', '');
+			}
+			var date = moment //
+				.utc(inputDate) //
+				.local();
+			return date.format(format);
+		} catch (ex) {
+			return '-' + ex.message;
+		}
+	}
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	this.formatDate = function(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormat ||
+			$rootScope.app.config.dateFormat ||
+			defaultDateFormat);
+	};
+
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	this.formatDateTime = function(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormatTime ||
+			$rootScope.app.config.dateFormatTime ||
+			defaultDateTimeFormat);
+	};
+	/**
+	 * Get currency of the system
+	 * 
+	 * @return currency ISO code
+	 * @memberof $mbLocal
+	 */
+	this.getCurrency = function() {
+		return this.currency || 'USD';
+	};
+
+	/**
+	 * Sets currency of the system
+	 * 
+	 * @param currency {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	this.setCurrency = function(currency) {
+		this.currency = currency;
+	};
+
+	/**
+	 * Get language of the system
+	 * 
+	 * @return language ISO code
+	 * @memberof $mbLocal
+	 */
+	this.getLanguage = function() {
+		return $rootScope.app.language;
+	};
+
+	/**
+	 * Sets language of the system
+	 * 
+	 * @params language {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	this.setLanguage = function(language) {
+		this.language = language;
+	};
+
+
+	return this;
 });
 
 /*
@@ -16190,6 +18687,40 @@ angular.module('mblowfish-core') //
     return apps;
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core') //
+.service('uuid4', function() {
+	/**! http://stackoverflow.com/a/2117523/377392 */
+	var fmt = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	this.generate = function() {
+		return fmt.replace(/[xy]/g, function(c) {
+			var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+			return v.toString(16);
+		});
+	};
+}); 
+
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -16205,6 +18736,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/dialogs/mb-prompt.html',
     "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <wb-icon>input</wb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <wb-icon aria-label=Done>done</wb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
+  );
+
+
+  $templateCache.put('views/dialogs/mbl-add-word.html',
+    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 translate>Add new word</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(word)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <span flex=10></span> <md-input-container class=md-block flex-gt-sm> <label translate=\"\">Key</label> <input ng-model=word.key> </md-input-container> <md-input-container class=md-block flex-gt-sm> <label translate=\"\">Translate</label> <input ng-model=word.translate> </md-input-container> </md-dialog-content> </md-dialog>"
+  );
+
+
+  $templateCache.put('views/dialogs/mbl-update-language.html',
+    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 translate>{{::config.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <wb-icon aria-label=\"Close dialog\">close</wb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(config.language)> <wb-icon aria-label=\"Close dialog\">done</wb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <div layout=column> <md-input-container> <label translate>Key</label> <input ng-model=config.language.key ng-readonly=true> </md-input-container> <md-input-container> <label translate>Title</label> <input ng-model=config.language.title ng-readonly=true> </md-input-container> </div> </md-dialog-content> </md-dialog>"
   );
 
 
@@ -16234,7 +18775,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>                                                                                                                                                    <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <wb-icon>photo_camera </wb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile()> <wb-icon>file </wb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save() mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save() mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
@@ -16303,6 +18844,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/mb-languages.html',
+    "<div ng-controller=\"MbLanguagesCtrl as ctrl\" layout=row flex> <md-sidenav class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <wb-icon>add</wb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <wb-icon>more_vert</wb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <wb-icon>download</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <wb-icon>delete</wb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key] ng-model-options=\"{ updateOn: 'blur', debounce: 3000 }\"> <wb-icon ng-click=ctrl.deleteWord(key)>delete</wb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <wb-icon>add</wb-icon> </md-button> </fieldset> </md-content> </div>"
+  );
+
+
   $templateCache.put('views/mb-passowrd-recover.html',
     " <md-toolbar layout-padding>  <h3>Forget Your PassWord ?</h3> </md-toolbar>  <div layout=column layout-padding> <md-input-container> <label>Username or Email</label> <input ng-model=credit.login required> </md-input-container> </div> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <a ui-sref=login flex-order=1 flex-order-gt-sm=-1>Back To Login Page</a> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)>Send</md-button> </div>"
   );
@@ -16339,7 +18885,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-view-loading.html',
-    "<div id=mb-view-loading layout=column layout-align=\"center center\" layout-fill> <img width=256px ng-src-error=data:image/svg;base64,PHN2ZyB3aWR0aD0iOTI0IiBoZWlnaHQ9Ijg3MyIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KIDxkZWZzPgogIDxmaWx0ZXIgaWQ9ImltYWdlYm90XzEwIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgogICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIzLjY3ODQyIi8+CiAgPC9maWx0ZXI+CiAgPGZpbHRlciBpZD0iaW1hZ2Vib3RfNyIgeD0iLS4yMzAwNiIgeT0iLS4zMzU1IiB3aWR0aD0iMS40NjAxIiBoZWlnaHQ9IjEuNjcxIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgogICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIzLjM4OTA2Ii8+CiAgPC9maWx0ZXI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJpbWFnZWJvdF8xMDAiIGN4PSIyODEuODUiIGN5PSI3NTEuODQiIHI9IjQwNy4zNSIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxLjgyOTkgLTEuMDcwMiAuODk2ODQgMS41MzM1IC05MDUuMTIgLTEzNC42NykiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgPHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIgb2Zmc2V0PSIwIi8+CiAgIDxzdG9wIHN0b3AtY29sb3I9IiM1MGFkY2IiIG9mZnNldD0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGZpbHRlciBpZD0iaW1hZ2Vib3RfNTgiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEuMDUwMDUiLz4KICA8L2ZpbHRlcj4KICA8ZmlsdGVyIGlkPSJpbWFnZWJvdF85OCIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KICAgPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMS45ODgxNSIvPgogIDwvZmlsdGVyPgogIDxyYWRpYWxHcmFkaWVudCBpZD0iaW1hZ2Vib3RfMTI0IiBjeD0iMjI1LjQ5IiBjeT0iMzQ1LjgxIiByPSIzOC41NTMiIGdyYWRpZW50VHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzUuNTI4IDE4LjA0KSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICA8c3RvcCBvZmZzZXQ9IjAiLz4KICAgPHN0b3Agb2Zmc2V0PSIxIi8+CiAgPC9yYWRpYWxHcmFkaWVudD4KICA8cmFkaWFsR3JhZGllbnQgaWQ9ImltYWdlYm90XzE1MyIgY3g9IjI1LjA1MyIgY3k9IjM5LjU5MyIgcj0iMTUuNzU3IiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDEuNjYwMiAwIDAgLTIuMzQ4MyAtMTMuNTU2IDExMi41OSkiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgPHN0b3Agc3RvcC1jb2xvcj0iIzc3NyIgb2Zmc2V0PSIwIi8+CiAgIDxzdG9wIG9mZnNldD0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiA8L2RlZnM+CiA8ZyBsYWJlbD0iRWJlbmUgMSI+CiAgPGcgc3Ryb2tlPSIjMTU0ZTczIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0yNy4zNi0yNTEuMDVjMTExLjEzLTI3Ljg4NSA0NTEuMDQgMTA1LjAxIDQxNC4xNiA0NDAuNDItNDEuNTggMzQyLjkyLTI5Mi4xNiAzNTQuMzUtMzQxLjQzIDM2MS42NC00MzIuMjItMTMuNjItNDY1LjgyLTMzOC42My00NjIuNjUtMzc1Ljc4LTcuNDY1LTUwLjM3IDU5LjEyLTM1Ny40IDM4OS45Mi00MjYuMjh6IiBmaWxsPSJ1cmwoI2ltYWdlYm90XzEwMCkiIHN0cm9rZS13aWR0aD0iNy4zIiBsYWJlbD0iRWJlbmUgMSIvPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0zMjcuMzctNzUuMjg2YzQ5LjQyIDQ3LjA5NSA1NC44NzggMTE0LjA4IDUzLjUzOCAxNzkuODEiIGZpbGw9Im5vbmUiIGZpbHRlcj0idXJsKCNpbWFnZWJvdF85OCkiIHN0cm9rZS13aWR0aD0iNi44IiBsYWJlbD0iRWJlbmUgMSIvPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0tMTAwLjkzLTIxMC42NWMtOS42NjQxLTIyLjIzMS0zNS4xNzYtMzMuNDItNTkuNTk5LTM0LjM0NS0xMC41MjUtNy4xNjQzLTEzLjIxMyA2Ljg5MTctMTAuMjc1IDE0LjQzOC00LjU0NTggMS4xMTEtMjMuMTA1LTcuOTA2Ny05LjkyODIgMTIuODM2LTMuNTU4NSAwLjA1NjItMjYuNjY4LTMuOTAxMy03LjA3MTEgMTMuMTMyLTcuODM3MSAyLjkwNDktMTUuNjQ3IDUuODItMy4wMzA0IDE2LjE2Mi03Ljg4MTcgOS4zMjgzLTcuMzUyNiAxNC40NTEgMCAxNi4xNjItMy4yMDA0IDUuOTc3NS03LjgwMTEgMTIuNjU1IDAgMTMuMTMyLTcuMjk0NiA3LjE4MjgtMi43NzM1IDguNDU3OCAxLjAxMDIgMTAuMTAyIDI1LjEyNi0yMi41NDIgNDcuMzY0LTQ2LjM2OCA4OC44OTMtNjEuNjE5aDVlLTR6IiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjcuMyIgbGFiZWw9IkViZW5lIDEiLz4KICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtLTI5MC40Ni00OS4yM2MtMTIuOTkgMi4wMTc2LTI1Ljg4IDUuMDAxMy0zOC42ODMgNy45OTExLTQuMTQ1MyAwLjU2Njk2LTUuNTY1NSA1LjMzNzYtMy4wODAxIDguNjAzNyA0LjY2NDMgMTEuMTM0IDguMTM2NiAyMi45MDUgMTMuNzk0IDMzLjUzOSA0Ljk5MjQgMy4zOTc3IDcuMjM5MS0zLjU1NzggOS4yODU3LTYuODk3MyA3LjA3NC0xMy4wNTUgMTQuODAyLTI1LjcxOSAyMi44NzktMzguMDU4IDEuMTkzNS0yLjczMTUtMS4yODI5LTUuNzI2NS00LjE5NjQtNS4xNzg2bDhlLTQgMWUtNHoiIGZpbGw9IiM2MThjYTgiIHN0cm9rZS13aWR0aD0iMi43MTQzIiBsYWJlbD0iRWJlbmUgMSIvPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0yMTEuMTctMjU0LjcyYy0xNS40NzggNC45MTktMzEuMzAyIDguOTAyNC00Ni41ODUgMTQuMzUzLTQuMTI4MyAxLjUwMjgtMy4xMDA3IDcuNDg5NSAxLjExNjEgOC4xNDczIDE4LjI5NyA3LjQ1NjYgMzYuNjM5IDE0Ljk3NCA1NC4yNjMgMjQuMDQgMy44NjM3IDIuMTgxOSA2Ljk2NDQtMi43NzIzIDUuMDExMi02LjA5NjItMy4yNDE5LTEyLjgzLTYuMDc5My0yNS44NzEtOS43ODA5LTM4LjUxNy0wLjU1NDg5LTEuNjI5Mi0yLjQ5MjUtMi4xOC00LjAyNS0xLjkyN2w2ZS00IC0xZS00eiIgZmlsbD0iIzYxOGNhOCIgc3Ryb2tlLXdpZHRoPSIyLjcxNDMiIGxhYmVsPSJFYmVuZSAxIi8+CiAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZmlsbD0ibm9uZSIgZmlsdGVyPSJ1cmwoI2ltYWdlYm90XzU4KSIgc3Ryb2tlLXdpZHRoPSIzLjgiIGxhYmVsPSJFYmVuZSAxIj4KICAgIDxwYXRoIGQ9Im0xMy4yMi0xNzkuMzMtMy4wMzA1LTI4LjI4NCAzNy4zNzYgMjcuMjc0Ii8+CiAgICA8cGF0aCBkPSJtMTE3LjI2LTE2My4xNyAzMy4zMzUtOC4wODEyIDguMDgxMiAyMi4yMjMiLz4KICAgIDxwYXRoIGQ9Im0yMzAuNC0xNDkuMDMgNDUuNDU3LTIuMDIwM3YyOS4yOTQiLz4KICAgIDxwYXRoIGQ9Im00Ni45ODctMTM4Ljg5IDM2LjM2NS0xNy4xNzMgNi4wNjA5IDI1LjI1NCIvPgogICAgPHBhdGggZD0ibS04MC43My0yMy43Ny0xOS4xOTMtMTEuMTEyIDExLjExMiAyNi4yNjQiLz4KICAgIDxwYXRoIGQ9Im0tMTcwLjYzLTgxLjM1LTQ0LjQ0NyAzLjAzMDUgMjguMjg0IDM2LjM2NSIvPgogICAgPHBhdGggZD0ibS0yMTIuMDUtOS42My00MC40MDYtNC4wNDA2IDIwLjIwMyAzOC4zODYiLz4KICAgIDxwYXRoIGQ9Im0tMjY1LjU5IDgwLjI4LTMwLjMwNSAyNi4yNjQgMzIuMzI1IDkuMDkxNCIvPgogICAgPHBhdGggZD0ibS0xMzUuMjggMzAuNzgtMjguMjg0IDExLjExMiAzMS4zMTUgMTIuMTIyIi8+CiAgICA8cGF0aCBkPSJtLTc4LjcxIDY2LjE0LTE3LjE3MyAxNy4xNzMgMjYuMjY0IDExLjExMiIvPgogICAgPHBhdGggZD0ibS0xMzcuMyAxMTEuNTktNDkuNDk3IDkuMDkxNCAyOS4yOTQgMTYuMTYyIi8+CiAgICA8cGF0aCBkPSJtMTQ4LjU4IDExOC42NiA0My40MzcgNS4wNTA4LTIxLjIxMyAyMi4yMjMiLz4KICAgIDxwYXRoIGQ9Im0yNTYuNjYgNTcuMDQgMzQuMzQ1IDE0LjE0Mi0yMC4yMDMgMTcuMTczIi8+CiAgICA8cGF0aCBkPSJtMzc2Ljg3IDExNi42NCAyNS4yNTQgMjguMjg0LTIzLjIzNCAxNS4xNTIiLz4KICAgIDxwYXRoIGQ9Im0zMjQuMzQgMTYwLjA4IDI5LjI5NCAyMC4yMDMtMTkuMTkzIDEyLjEyMiIvPgogICAgPHBhdGggZD0ibTE2OS43OSAyMjUuNzQgMzEuMzE1IDE2LjE2Mi0yNC4yNDQgMTIuMTIyIi8+CiAgICA8cGF0aCBkPSJtNjUuNzQgMTEzLjYxIDI4LjI4NCAyMC4yMDMtMjguMjg0IDQuMDQwNiIvPgogICAgPHBhdGggZD0ibS02Ny42IDE1My4wMSAxMS4xMTIgMzQuMzQ1IDIzLjIzNC0yMi4yMjMiLz4KICAgIDxwYXRoIGQ9Im0zOC40NyAxOTUuNDQgMzEuMzE1IDMyLjMyNS0yLjAyMDMtMzkuMzk2Ii8+CiAgICA8cGF0aCBkPSJtLTI4MC43NCAxODIuMy0xNi4xNjIgNDEuNDE2IDM4LjM4Ni0xMS4xMTIiLz4KICAgIDxwYXRoIGQ9Im0tMTc4LjcxIDE5MS40LTEzLjEzMiAzMy4zMzUgMzYuMzY1LTE2LjE2MiIvPgogICAgPHBhdGggZD0ibS03NS42OCAyNzMuMjItMy4wMzA1IDM3LjM3NiAyNi4yNjQtMjYuMjY0Ii8+CiAgICA8cGF0aCBkPSJtLTUuOTggMjY1LjE0IDMzLjMzNSAzMy4zMzUgMTQuMTQyLTMxLjMxNSIvPgogICAgPHBhdGggZD0ibTYxLjcgMzIxLjcgMzcuMzc2IDMyLjMyNS0xLjAxMDItMzQuMzQ1Ii8+CiAgICA8cGF0aCBkPSJtMTE5LjI4IDI3NS4yNCAzNS4zNTUgMjYuMjY0IDEwLjEwMi0yMC4yMDMiLz4KICAgIDxwYXRoIGQ9Im0zMjQuMzQgMjYyLjExIDYuMDYwOSA0NS40NTctMzkuMzk2LTcuMDcxMSIvPgogICAgPHBhdGggZD0ibTM2OC43OSAyMzIuODEgMzYuMzY1IDMwLjMwNS0zMi4zMjUgMjIuMjIzIi8+CiAgICA8cGF0aCBkPSJtMzMyLjQyIDM1NS4wNCAyMi4yMjMgMjcuMjc0LTM5LjM5NiAyMS4yMTMiLz4KICAgIDxwYXRoIGQ9Im0yNTcuNjcgMzUzLjAyIDE4LjE4MyAyNi4yNjQtMzkuMzk2IDYuMDYwOSIvPgogICAgPHBhdGggZD0ibTIyNS4zNSA0MzMuODMgMTUuMTUyIDQ2LjQ2Ny0zNi4zNjUtMy4wMzA0Ii8+CiAgICA8cGF0aCBkPSJtMTYzLjczIDQ0My45My0zNC4zNSA0Ni40Ny0xNy4xNy0yNi4yNiIvPgogICAgPHBhdGggZD0ibTMxLjQgNDQ0Ljk0LTM5LjM5NiAzMy4zMzUtMTcuMTczLTM4LjM4NiIvPgogICAgPHBhdGggZD0ibS0zOC4zIDM1My4wMiAzMC4zMDUgNDEuNDE2IDguMDgxMi0yMS4yMTMiLz4KICAgIDxwYXRoIGQ9Im0tMTU0LjQ3IDM3OC4yNy0xNS4xNTIgMzkuMzk2aDUzLjUzOCIvPgogICAgPHBhdGggZD0ibS0yMzEuMjQgMjg3LjM2LTE5LjE5MyAzNC4zNDUgMzUuMzU1LTMuMDMwNCIvPgogICA8L2c+CiAgPC9nPgogIDxnIGZpbGw9IiM2MThjYTgiIHN0cm9rZT0iIzE1NGU3MyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgPGcgc3Ryb2tlLXdpZHRoPSIyLjcxNDMiPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtLTE2Ni4xMS0yNDcuMzZjLTcuMTYwNiAxLjEzOC03LjIxNzEgMTAuMjU3LTUuODQ4MiAxNS44NDgtNC42MDM5IDAuMTk3NzMtMTEuMTMtMy4xNDM4LTEzLjcwNSAyLjUyMjMtMS4yNjE3IDMuNjQ2MSAyLjYwOTYgNy41MTI1IDIuODc5NSAxMC4yMDEtNC4yMTE5LTAuMzE1NTMtMTEuMzM1LTEuNDc1Ni0xMi4yNzcgNC4zNDk1LTAuOTMwNiA0LjEyNDQgMy42Njk4IDYuODI3MiA1LjI5MDYgOS42MjM3LTQuMjI4MiAxLjQ2MDktMTAuNTcxIDUuMTc0Ni03LjQ1NTQgMTAuNDQ2IDAuOTg3NDcgMi40MzggNC4xOTI1IDQuMjEzOSA0LjY4NzUgNi40Mjg2LTIuODYxNyA0LjA3LTcuNDYzNCAxMC40NDYtMi40NTU0IDE0Ljc1NCAwLjgyNDc5IDEuMTE1NiAzLjkxMDQgMC43NTk0NCAyLjEzMDQgMi42MTEzLTEuOTY1OCAzLjUwOTUtNC45MTAzIDkuMzI3NCAwLjE3NjIzIDExLjYyNyAyLjAyODcgMC45Njk1NiAxLjU1ODYgNC42OTE4IDQuMzgxMiA1LjAxMDEgNS4zMjE0IDIuMDM0MiA4Ljg2MTYtNC41MDI4IDEyLjk0Mi03LjA3OTIgMjAuNDQ5LTE4LjQgNDIuMjY3LTM2LjA3MiA2OC4xNi00Ni4xMiA0LjMxNDktMS4wNjc3IDcuMzc2Ni02LjIyNTQgNC4wMTc5LTkuOTEwNy03LjgyMjctMTIuNzg2LTIxLjUxMy0yMC42MTYtMzUuNDQ2LTI1LjA4OS02Ljk3OTgtMi4zMzYxLTE0LjMxOC0yLjkzMzYtMjEuNTE4LTMuOTI4Ni0xLjk0NDItMC41ODYwOS0zLjg1ODQtMS41NjMyLTUuOTU5OC0xLjI5NDZsLTUuM2UtNCA2ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS0zNTYuMjggODcuMTVjLTEwLjM0MiAwLjk3NDM1LTIwLjczNyAyLjM4OTMtMzEuMDQ5IDMuOTI4Ni01LjExOTIgMS44ODQ0LTEuNTk5IDcuMjU4NyAwLjI4MzYgMTAuMjIxIDYuNzYxOSAxMS4zOTQgMTIuNjk1IDIzLjM2OCAyMC4xODUgMzQuMjg4IDIuOTU0NyAzLjI2NzMgNy40MjY4LTAuMjc1MzQgNy4yOTkxLTMuOTUwOSAyLjQ0MTQtMTMuNjU0IDYuMTc2Mi0yNy4xMTMgOS41NzU5LTQwLjU4LTAuMDAxMS0zLjI3MzktMy41ODg0LTQuMzk4LTYuMjk0Ni0zLjkwNjJ2LTVlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtLTM2MC43MiAyMjguNjdjLTQuOTIxOSAwLjY0MjQ1LTQuNjI3MSA3LjU0MjYtNi42OTY0IDExLjExNi0zLjM1NTkgMTAuMzg5LTcuNDAzOSAyMC41NjMtOS43NTQ1IDMxLjIyOCAxLjI5MjMgNC45MTg2IDcuNzc5NCA1LjUxOTcgMTEuNDM1IDguMjggNi45MTIyIDMuMjk1OSAxMy40NzggNy43NyAyMC42NjMgMTAuMjc0IDQuNTU5OSAwLjgwMDUgNC43NDItNS4wNjI2IDMuMDgwOS03Ljg4NDEtNi4wMDAzLTE2LjE0MS0xMC4wNDEtMzIuODYxLTE0LjczMi00OS4zOTctMC40ODE4Mi0xLjg4NzktMS45MTg2LTMuNjE3NC0zLjk5NTUtMy42MTYxbC01ZS00IC04ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS01MC4xNS0yNzEuMzNjLTUuMTcxNCAxLjk4ODctMi41MTg5IDguOTg1MS0yLjc1MSAxMy4zNDQgMC44ODI2NiA4LjE1NyAwLjc2NDczIDE2LjUzNSAyLjEyNiAyNC41OCAzLjM5MDYgNC43ODU1IDkuNjIzMSAwLjI3MDIgMTMuOTE2LTAuNDY1ODkgNS45OTE4LTIuMjQxNSAxMi41MzItMy41MDk1IDE4LjA0OC02Ljc2NjIgMy4xOTIyLTQuOTQ5Mi0zLjc2NDMtNy44MjY2LTYuMzgzOS0xMS4wMDQtNy43MDY5LTYuNTA3OC0xNC43Mi0xNC4wODEtMjMuMTAzLTE5LjY2NS0wLjYxMTU3LTAuMTU1NzEtMS4yMzc3LTAuMTIyMjYtMS44NTI3LTAuMDIyMzJsNmUtNCAtNS45ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibTkyLjY3LTI4My45MmMtMTEuNzcxIDcuNDMzNS0yNC4yMjQgMTQuNTM5LTM1LjYwMyAyMi43NjgtMi45ODg5IDMuOTY3MiAxLjU2MzggNy4wODIxIDUuNDkxMSA2LjU0MDIgMTQuNzYyIDAuMDI5NTQgMjkuMzk0IDEuNzYyMiA0My45MDYgNC4zMzA0IDQuNDY0NS0wLjE2NzE2IDQuNDIwNC01LjcwMjEgMi4zNjYxLTguNDgyMS0zLjk0ODktOC4xNjE1LTcuMTgyNi0xNi44NDUtMTIuMzQ0LTI0LjMzLTEuMTE1Ny0xLjE3NzUtMi4zNjY4LTAuODUxNjEtMy44MTctMC44MjU4OWw4ZS00IC02LjFlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtMzQ1LjMxLTE3Ni4xMWMtMTUuMzEyIDIuNTE0NC0zMC42NTQgNS4yNDk3LTQ1LjczNyA4LjgzOTMtNC42MzkyIDMuMDY3OCAwLjAyNTIgOC4wOTIgMy4xMjY3IDEwLjA5OSAxMS43MyA5LjU5MTIgMjIuNTUyIDIwLjIwNyAzMy44MzggMzAuMTkxIDMuMDMzOCAyLjYxMzYgNy4yNTkxLTAuNTU4MyA2Ljc2MzQtNC4xNTE4IDEuOTU1OC0xMy44MzkgNC40ODQ3LTI3LjYxMSA2LjA0OTEtNDEuNDk2LTAuMjgzNzEtMi4wNDkyLTEuOTExOS0zLjY5MzMtNC4wNDAyLTMuNDgyMXY2ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibTQ0Ni41MSAxNDIuODdjLTMuMTgzIDQuNjE5Mi0xLjU2MzYgMTAuOTMtMi40OTgzIDE2LjIyNi0wLjM4ODg1IDEwLjQwNi0xLjc4ODYgMjAuODE4LTIuMSAzMS4xODQgMS40MzYgNC44MDI5IDcuMDc0NiAyLjYzODggOS42MTk1IDAuMjM5OTYgNy42NDM0LTUuMzU4OSAxNi4wMDYtMTAuMDU1IDIyLjk3OS0xNi4xNTMgMi4wMzI4LTQuNDk3NS00LjA1NzYtNy42Mi01Ljk2OTQtMTEuMjMtNS44Mjc2LTYuODg4LTExLjE5NC0xNC4yOTctMTcuNzY4LTIwLjQ2OS0xLjQxLTEuMDIzNi0yLjgzMjMtMC40MjgzNS00LjI2MzQgMC4yMDA4OWw2ZS00IDAuMDAxMTV6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtNDI4LjQzIDI3MS4xOWMtMy45OTI0IDMuNzA4LTQuMDY3NSA5Ljk2MDItNi4wNzQxIDE0LjgxNC0yLjExMyA4LjI5MDctNS41MDQ1IDE2LjIxNS03LjM0MTEgMjQuNTYxIDAuNzg2NTMgNS4yNjI2IDYuNDcxOCAzLjA1NTYgOS41NTk4IDEuNDQ4MiA1LjcxMjMtMi44NDYyIDEyLjQ3Ny00LjE3NzIgMTcuNDcxLTguMTY2OSAxLjU1My01LjM4MDQtMi4wNzE2LTEwLjc0Ny0zLjE3MTQtMTUuOTU1LTIuMjUzLTUuNDU1MS0yLjk5My0xMS45MTktNi44OTU1LTE2LjQ1Ni0wLjk3MTIzLTAuNDgyNDItMi41Mjg4LTAuNjg0NzYtMy41NDkxLTAuMjQ1NTNsNGUtNCAyLjNlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtMzk0LjQyIDM2My4yNWMtNS4xNDM1IDIuMTc2Mi01LjkyNjcgOC44Njc4LTkuMDk3MiAxMi45ODQtNS4zNjUgMTAuMTYzLTEyLjAxNyAxOS41ODQtMTcuNzMzIDI5LjUzOC0wLjY4OTUzIDUuMjQxMSA1LjQzMTcgNC45MjIyIDguOTI4NiA0LjU3NTkgMTEuMTkxLTAuOTk5NzkgMjIuNTk0LTAuNDI4NDcgMzMuNjYxLTIuMTIwNSA1LjMyNTUtMi4wNDU3IDEuMzgzNi04LjE2NjMgMC4yOTI0Ni0xMS43NjUtNC4yMjMyLTEwLjcyNy03LjU1ODQtMjEuOTYyLTEyLjc0OC0zMi4yMy0wLjg1OTE1LTAuODM5OTYtMi4xMzM0LTEuMTYzNi0zLjMwMzYtMC45ODIxNGwtMi42ZS00IC0yLjZlLTR6IiBsYWJlbD0iRWJlbmUgMSIvPgogICAgPHBhdGggdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5Mi41NiAyODcuNTIpIiBkPSJtMzI4LjE3IDQ1NC4yN2MtNi45MzEyIDMuNTgwNy0xMS42MjQgMTAuMjk1LTE3Ljg2IDE0LjkzNC03LjQ3MyA3LjA2MzEtMTYuNTcxIDEyLjI3OC0yMy43NyAxOS42Mi0xLjk5NzQgMy40ODMzIDIuNTQ0MyA2Ljk0MjEgNi4wOTM4IDUuOTM3NSAxMS43MTktMC44OTUwMSAyMy40NjctMS43MDQxIDM1LjEzNC0zLjA4MDQgNC44MTgyLTIuMzQzOCAyLjU1LTguODU5NSAzLjYwMy0xMy4zNjYgMC4yNTYyNC02LjkyMjMgMS4zNTU3LTEzLjg1MiAxLjQ2NC0yMC43NDEtMC4zNTY0Mi0yLjE0OC0yLjUwNy0zLjcwNTItNC42NjUyLTMuMzAzNmw0ZS00IC01ZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibTE2NC42MiA1NDAuODNjLTE3Ljg2NCAzLjY1NDgtMzUuODY2IDYuNTMxNS01My44ODQgOS4yODU3LTMuOTU0NSAwLjA0Ni02LjEyNzIgNS40NTM3LTIuMzY2MSA3LjYxMTYgMTEuOTMxIDkuMzgyNyAyMy45ODUgMTkuMDAxIDM2Ljc2MyAyNy4yOTkgNS40MzQxIDEuMDY4OCA2LjMyNDktNi4xMjYgOC44MzAyLTkuMzYzNCA1LjE4ODctMTAuMTk2IDEwLjk2LTIwLjExOCAxNS4zNjYtMzAuNjU5IDAuMzg2ODMtMi42MzQ4LTIuMTc1LTQuNzc0My00LjcwOTgtNC4xNzQxbDdlLTQgMmUtNHoiIGxhYmVsPSJFYmVuZSAxIi8+CiAgICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0tNzYuOTggNTI0LjI1Yy00LjE3MjggMC4xNjEwMi00LjUwMTQgNS42MzUxLTEuNTYyNSA3LjcyMzIgOS45MTA1IDEyLjUzNyAxOS43MDIgMjUuMjIxIDMwLjM1NyAzNy4wOTggNC44OTE3IDIuMzg4MiA3LjY3My0zLjk1OSAxMS4wNjYtNi4zMDYgNi40MjIzLTYuNTkyNSAxMy4zNjktMTIuNzgxIDE5LjE4LTE5Ljg5OSAxLjY1NzctNC40NjYxLTMuNzkwMS01LjUwMDItNi45NjQzLTUuODI1OS0xNy4xODUtMy41OTcyLTM0LjEwOS04LjQ5MzctNTEuMTM4LTEyLjc5bC0wLjI5MDE4LTAuMDIyMy0wLjY0NzMyIDAuMDIyMy03ZS00IC0zZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS0yNzkuMDggMzk4LjYyYy0yLjgwMyA0LjI4MjktMC4zNzkwNCA5Ljg3MTUtMC44ODUzNCAxNC42ODcgMC42MTQzNiA4LjM0NDkgMC4yMzcwOCAxNi44ODYgMS41OTk2IDI1LjExMiAzLjE4ODIgNC4wNzE4IDkuMDc1MyAxLjE2OTkgMTMuNDEzIDEuNTc0MyA3LjAwMjgtMC42NDU4NCAxNC4wNTEtMS4wMzQ4IDIxLjAyOS0xLjgxOTkgNC43NDM5LTIuMzk1NSAxLjA0NS03LjE3NDEtMS41NTUzLTkuNTY1Ni05LjY5NDgtOS45NzI5LTE5LjMxNy0xOS45NjktMjguOTgtMjkuOTQzLTEuNDMxMy0xLjIzNTEtMy4wODcyLTAuODQ3NDMtNC42MjA1LTAuMDQ0NmwtNC42ZS00IC0yZS00eiIgbGFiZWw9IkViZW5lIDEiLz4KICAgPC9nPgogICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im00NDMtNjYuOTY2Yy0yNy45OSAwLjI4MTM5LTUzLjY1NCAxMi45NjUtNzcuNjM0IDI2LjEzOC00LjQzODMgMS45MzMxLTIuNTg2MiA3LjAyNzktMC44MjU4OSAxMC4yMjMgMTEuOTcyIDMxLjE5OCAxNi42MzcgNjQuNjU4IDE5LjY2NSA5Ny45MDIgMS4xMDA2IDguMDg2NyAxLjAxNSAxNi40MSAyLjk5MTEgMjQuMzMgMi42NzI2IDUuMDI1MyA4LjgzOSAwLjA1NyAxMi44NTItMS4xNDYyIDI1Ljg0OC0xMC42MjcgNTMuMTgzLTIyLjc3OCA4MS44MzUtMTguNDc0IDYuNDQyMiAwLjQ5NjYzIDEyLjU4NSAzLjQ5MzYgMTguOTk2IDMuMjU4OSA0Ljk1NDgtMy4yMjE2IDEyLjQ2OS00LjUxNjIgMTQuOTMzLTEwLjQ2OSAwLjMxODYxLTUuNDU3Ni02LjYxMzktNS42ODI2LTEwLjQyNC02Ljk0Mi0yLjkzNDYtMC44MDAxLTYuMzI4OC0wLjkyMjIyLTkuMDE3OS0xLjk4NjYgMy44NTc1LTIuMTE3NyAxMS4xOTQtMy4zMzk1IDEwLjI0Ni05LjI4NTctMS41MTIyLTQuOTYyLTguMTY4NC01Ljk2NjgtMTEuMDk0LTguOTczMiAzLjkyOTItMi4wNzc1IDEwLjg0MS00LjY5NjggOC43MDU0LTEwLjQyNC0xLjY4MzItNC4zNzU3LTYuNzI1My03LjIxOTItOC42MTYxLTEwLjg5MyAzLjUxMzUtMy4zOTY4IDEwLjIzMS02LjIwMDkgOS4zNzUtMTIuMDMxLTIuMjQ4OS01LjcxODktOC43MDkxLTguMTU1OS0xMi43MjMtMTIuMDk4IDAuNjM3NTYtNS4zNjM4IDYuODY3Mi04LjgzMDMgNi4yNzIzLTE0LjM1My0yLjM2NjYtNC45MzItOS43MjQtMi42NDc5LTEzLjEyNS01LjA0NDYgMS41NjkyLTQuNDMxOCA2LjgyMjUtOC4wODk1IDUuNDI0MS0xMy4xNy0zLjM1NTctNC4xNjg1LTkuNTc1LTEuODEyMy0xNC4xOTYtMi44MTI1IDUuOTAwOC0yLjc0MzcgMTMuNzg2LTMuODQyMiAxNy40MTEtOS44NjYxIDEuNzQwNC01Ljg4NjktNS41MzI5LTguMjg4NC05LjkzMy05LjIxODgtMTMuNDU0LTMuMDg3My0yNy4yODktNC45MjM0LTQxLjExNi00LjY2NTJsLTAuMDAxMDEgMWUtM3oiIHN0cm9rZS13aWR0aD0iMS45Mzg4IiBsYWJlbD0iRWJlbmUgMSIvPgogIDwvZz4KICA8cGF0aCB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxLjI0NzQgLTEuODkxOCkgbWF0cml4KDEgMCAwIDEgMzkyLjU2IDI4Ny41MikiIGQ9Im0zNjIuODgtMzguMzQ0YzM4LjQwMy0yMC4yOTcgNjcuNDM3LTM2LjAwNiAxMTkuMi0yNC4yNDQgMTIuNjkzLTAuMTM5MDkgMjguMTQ1IDExLjY5OC00LjA0MDYgMjAuMjAzIDE4LjE4My0wLjY3MzQ0IDIwLjU0IDAuNjczNDQgOS4wOTE0IDE2LjE2MiAyNy4zNTQgMi41MDU1IDkuMDI0NiA5LjM2MDYgNy4wNzExIDE5LjE5MyAxOC4zMzQgMTEuMTggMTcuMDA0IDE1Ljc1NiAzLjAzMDUgMjQuMjQ0IDcuMTcxNyA1LjcyNDIgMTguNTE5IDE1LjQ4OSAwIDIxLjIxMyAxNi42NzIgNy40MjIyIDE2LjY2MiAxMy40NTQgMS4wMTAyIDE4LjE4MyAyOC40NjIgMy44NDQ3IDI1LjY5MiAxMC45NzcgMy4wMzA1IDIwLjIwMy00Mi45OTItMTMuODU5LTc2Ljg2NCA1LjcyMzgtMTEyLjEzIDIwLjIwM3YxLjAxMDJjLTQuOTYtNDUuNDU2LTUuOTktOTAuOTEzLTI2LjI2LTEzNi4zN2wtMC4wMDMxLTJlLTR6IiBmaWxsPSJub25lIiBzdHJva2U9IiMxNTRlNzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSI3LjMiIGxhYmVsPSJFYmVuZSAxIi8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS4yNDc0IC0xLjg5MTgpIG1hdHJpeCgxIDAgMCAxIDM5My4yNyAyODYuODEpIiBzdHJva2U9IiMxNTRlNzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgbGFiZWw9IkViZW5lIDEiPgogICA8ZyBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjQuNyI+CiAgICA8cGF0aCBkPSJtLTUwLjAwOS0yMzMuNjMtMy4wMzA1LTQxLjQxNiAzNy4zNzYgMzMuMzM1Ii8+CiAgICA8cGF0aCBkPSJtNTAuMDk4LTI1Ni4xOCA0NS40NTctMjguMjg0IDE3LjE3MyAzNi4zNjUiLz4KICAgIDxwYXRoIGQ9Im0xNTYuMjQtMjM3LjY4IDYwLjYwOS0xOC4xODMgMTIuMTIyIDQ4LjQ4NyIvPgogICAgPHBhdGggZD0ibTI5NC40OC0xNjUuNzggNTQuNTQ4LTEwLjEwMi04LjA4MTIgNTIuNTI4Ii8+CiAgICA8cGF0aCBkPSJtLTI4Ni4yMS00OS40NC00Ny40NzcgMTAuMTAyIDE2LjE2MiA0MS40MTYiLz4KICAgIDxwYXRoIGQ9Im0tMzUxLjUyIDg3LjQyLTM5LjM5NiA1LjA1MDggMjcuMjc0IDQ3LjQ3NyIvPgogICAgPHBhdGggZD0ibTQ0NC40MyAxMzcuODljNS44MDM0IDMuMDI2MyAzMC43MzYgMzUuMzE1IDMwLjczNiAzNS4zMTVsLTMyLjQ5OSAyMi4xOTMiLz4KICAgIDxwYXRoIGQ9Im00MjkuNjcgMjYzLjg4IDEzLjEzMiAzOS4zOTYtMjkuMjk0IDEyLjEyMiIvPgogICAgPHBhdGggZD0ibTM5Ni40MSAzNjIuMTEgMTcuMTczIDQ1LjQ1Ny00Ni40NjcgMi4wMjAzIi8+CiAgICA8cGF0aCBkPSJtLTM2MS43MyAyMjQuNzMtMTUuMTUyIDQ3LjQ3NyAzNi4zNjUgMTkuMTkzIi8+CiAgICA8cGF0aCBkPSJtLTI3OS43MyAzOTYuNDYgMi4wMjAzIDQzLjQzNyAzOC4zODYtMy4wMzA1Ii8+CiAgICA8cGF0aCBkPSJtLTg0Ljc3MyA1MjIuODMgMzguMzg2IDQ3LjQ3NyAyOC4yODQtMjguMjg0Ii8+CiAgICA8cGF0aCBkPSJtMTAzLjEyIDU1Mi43OCA0NC40NDcgMzMuMzM1IDIzLjIzNC00NS40NTciLz4KICAgIDxwYXRoIGQ9Im0yNzkuODIgNDk0Ljc5IDQ5LjQ5Ny00LjA0MDYgMy4wMzA1LTM5LjM5NiIvPgogICA8L2c+CiAgIDxnIGZpbHRlcj0idXJsKCNpbWFnZWJvdF8xMCkiIG9wYWNpdHk9Ii44ODMzMyIgc3Ryb2tlLXdpZHRoPSIyLjkiPgogICAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTQ2KSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMTU0ZTczIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMi45Ij4KICAgICA8cGF0aCBkPSJtMjI1Ljg0LTYuNTk1NmMyOC41OS0zMS43MiA2Ni40NjgtMzcuMDg1IDEwMC4wMS0zNi4zNjUiLz4KICAgICA8cGF0aCBkPSJtMjMwLjg5IDEzLjYwOGMyOS44MzMtMjkuNjM4IDY5LjY1Ni0zOC45MDEgMTA3LjA4LTMxLjMxNSIvPgogICAgIDxwYXRoIGQ9Im0yMzYuOTUgNDUuOTMyYzI5LjI4LTMwLjU2NSA2Ni45My0zMC40OCAxMDQuMDQtMzIuMzI0Ii8+CiAgICAgPHBhdGggZD0ibTIzNy45NiA2Ni4xMzVjMTcuNDUtOS45NjYgMTcuNTYtMzUuMjg2IDk1Ljk2LTIzLjIzMyIvPgogICAgIDxwYXRoIGQ9Im0yMjAuNzktMjcuODA5YzI1LjM4Mi0yMS40NiA2MS40My0zNC4xMTggMTAwLjAxLTM0LjM0NSIvPgogICAgPC9nPgogICA8L2c+CiAgPC9nPgogIDxwYXRoIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuMjQ3NCAtMS44OTE4KSBtYXRyaXgoMSAwIDAgMSAzOTIuNTYgMjg3LjUyKSIgZD0ibS0xNTQuMzUtMjMxLjI3YzEyLjkyNyA3LjIyNDYgMzIuMDkgOS43NzI5IDM1LjM1NSAyNC4yNDRtLTYwLjYwOS0xOS4xOTNjMTMuOTggOS43OTkyIDM1Ljk4MyA5LjU2OSA0MC40MDYgMzEuMzE1bS00OC40ODctMy4wMzA1YzguNjIxOCA2LjA2OTggMTUuMjU0IDIuMTkgMjYuMjY0IDIwLjIwM2wyLjAyMDMgMS4wMTAyIiBmaWxsPSJub25lIiBmaWx0ZXI9InVybCgjaW1hZ2Vib3RfNykiIHN0cm9rZT0iIzE1NGU3MyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjMuNCIgbGFiZWw9IkViZW5lIDEiLz4KICA8dGl0bGU+RWJlbmUgMTwvdGl0bGU+CiAgPHBhdGggdHJhbnNmb3JtPSJtYXRyaXgoMS42MTA1IC41MzMwOSAtLjUzMzA5IDEuNjEwNSAyNDkuNTQgLTQ5Ny4zMikiIGQ9Im0yNDAuOSAzNjMuODVjMCAxOS43MTgtMTUuOTg1IDM1LjcwMy0zNS43MDMgMzUuNzAzLTE5LjcxOCAwLTM1LjcwMy0xNS45ODUtMzUuNzAzLTM1LjcwMyAwLTE5LjcxOCAxNS45ODUtMzUuNzAzIDM1LjcwMy0zNS43MDMgMTkuNzE4IDAgMzUuNzAzIDE1Ljk4NSAzNS43MDMgMzUuNzAzeiIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utb3BhY2l0eT0iLjYxNDk3IiBzdHJva2Utd2lkdGg9IjUuNyIgbGFiZWw9IkNhcGEgMSIvPgogIDxwYXRoIHRyYW5zZm9ybT0ibWF0cml4KDEuNjEwNSAuNTMzMDkgLS41MzMwOSAxLjYxMDUgMjQ5LjU0IC00OTcuMzIpIiBkPSJtMzM2LjczIDM2My44NWMwIDE5LjcxOC0xNS45ODUgMzUuNzAzLTM1LjcwMyAzNS43MDMtMTkuNzE4IDAtMzUuNzAzLTE1Ljk4NS0zNS43MDMtMzUuNzAzIDAtMTkuNzE4IDE1Ljk4NS0zNS43MDMgMzUuNzAzLTM1LjcwMyAxOS43MTggMCAzNS43MDMgMTUuOTg1IDM1LjcwMyAzNS43MDN6IiBmaWxsPSIjZmZmIiBzdHJva2U9InVybCgjaW1hZ2Vib3RfMTI0KSIgc3Ryb2tlLW9wYWNpdHk9Ii42MTQ5NyIgc3Ryb2tlLXdpZHRoPSI1LjciIGxhYmVsPSJDYXBhIDEiLz4KICA8cGF0aCB0cmFuc2Zvcm09Im1hdHJpeCgxLjYzMzkgLjU0MDgxIC0uNTQwODEgMS42MzM5IDE4Mi4xOSAtNDE0LjM5KSIgZD0ibTI0NC4yOSAzMDYuNTRjMCA2Ljc0NTgtNS44MDUxIDEyLjIxNC0xMi45NjYgMTIuMjE0cy0xMi45NjYtNS40Njg1LTEyLjk2Ni0xMi4yMTQgNS44MDUtMTIuMjE0IDEyLjk2Ni0xMi4yMTQgMTIuOTY2IDUuNDY4NSAxMi45NjYgMTIuMjE0eiIgb3BhY2l0eT0iLjgzODU3IiBsYWJlbD0iQ2FwYSAxIi8+CiAgPHBhdGggdHJhbnNmb3JtPSJtYXRyaXgoMS42MzM5IC41NDA4MSAtLjU0MDgxIDEuNjMzOSAzMzcuMTIgLTM2My4xMSkiIGQ9Im0yNDQuMjkgMzA2LjU0YzAgNi43NDU4LTUuODA1MSAxMi4yMTQtMTIuOTY2IDEyLjIxNHMtMTIuOTY2LTUuNDY4NS0xMi45NjYtMTIuMjE0IDUuODA1LTEyLjIxNCAxMi45NjYtMTIuMjE0IDEyLjk2NiA1LjQ2ODUgMTIuOTY2IDEyLjIxNHoiIG9wYWNpdHk9Ii44Mzg1NyIgbGFiZWw9IkNhcGEgMSIvPgogIDxwYXRoIHRyYW5zZm9ybT0icm90YXRlKDIxLjIwNiA0MjYuMTIgMzQyLjU0KSBtYXRyaXgoNi4wNjI1IDAgMCA2LjA2MjUgMjU4LjQ2IDE3Mi4xOSkiIGQ9Im00MC4yMjUgMzMuMDU1Yy00Ljk0NTQtNy44MjI3LTcuMzg3Ni0xMC41NzktMTIuNjg2LTEwLjU3OS01LjE4MTMgMC04LjYzMjQgMy4xNzEyLTEyLjQ1MSAxMS4yNDMgNC41NTk5LTQuNDEyNiA3LjA1MTktNi44NTYxIDEyLjA5OS02Ljg1NjEgNC45Mjk4IDAgNy42MzgxIDEuOTczOSAxMy4wMzggNi4xOTE5eiIgZmlsbD0idXJsKCNpbWFnZWJvdF8xNTMpIiBsYWJlbD0iTGF5ZXIgMSIvPgogPC9nPgo8L3N2Zz4K ng-src=\"/api/v2/cms/contents/mb-preloading-brand/content\"> <h3>Loading...</h3> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div>"
+    "<div id=mb-view-loading layout=column layout-align=\"center center\" layout-fill> <img width=256px ng-src-error=images/logo.svg ng-src=\"/api/v2/cms/contents/mb-preloading-brand/content\"> <h3>Loading...</h3> <md-progress-linear style=\"width: 50%\" md-mode=indeterminate> </md-progress-linear> <md-button ng-if=\"app.state.status === 'fail'\" class=\"md-raised md-primary\" ng-click=restart() aria-label=Retry> <wb-icon>replay</wb-icon> retry </md-button> </div>"
   );
 
 
@@ -16398,6 +18944,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/resources/mb-language-custome.html',
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <md-autocomplete flex required md-input-name=Language md-selected-item=language md-search-text=resourceCtrl.searchText md-items=\"item in resourceCtrl.querySearch(resourceCtrl.searchText)\" md-item-text=item.key md-require-match=\"\" md-floating-label=Key input-aria-describedby=\"Language Key\"> <md-item-template> <span md-highlight-text=resourceCtrl.searchText>{{item.title}} ({{item.key}})</span> </md-item-template> <div ng-messages=searchForm.autocompleteField.$error ng-if=searchForm.autocompleteField.$touched> <div ng-message=required>You <b>must</b> have a language key.</div> <div ng-message=md-require-match>Please select an existing language.</div> <div ng-message=minlength>Your entry is not long enough.</div> <div ng-message=maxlength>Your entry is too long.</div> </div> </md-autocomplete> <md-input-container> <label translate>Title</label> <input ng-model=language.title> </md-input-container> </form>"
+  );
+
+
+  $templateCache.put('views/resources/mb-language-list.html',
+    "<md-list flex> <md-list-item class=md-3-line ng-repeat=\"item in languages\" ng-click=resourceCtrl.setLanguage(item)> <wb-icon>language</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.key }}</h3> <h4>{{ item.title }}</h4> <p>{{ item.description }}</p> </div> </md-list-item> </md-list>"
+  );
+
+
+  $templateCache.put('views/resources/mb-language-upload.html',
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <lf-ng-md-file-input name=files lf-files=files lf-required lf-maxcount=5 lf-filesize=10MB lf-totalsize=20MB drag preview> </lf-ng-md-file-input> </form>"
+  );
+
+
   $templateCache.put('views/resources/mb-local-file.html',
     "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
   );
@@ -16449,7 +19010,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-navigator.html',
-    "<md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
+    "<md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
   );
 
 

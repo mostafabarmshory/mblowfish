@@ -1,0 +1,16 @@
+<form 
+	layout-margin
+    layout="column"
+	ng-submit="$event.preventDefault()" 
+	name="searchForm">
+	 <lf-ng-md-file-input
+	 	name="files" 
+	 	lf-files="files" 
+	 	lf-required 
+	 	lf-maxcount="5" 
+	 	lf-filesize="10MB" 
+	 	lf-totalsize="20MB" 
+	 	drag 
+	 	preview>
+	</lf-ng-md-file-input>
+</form>

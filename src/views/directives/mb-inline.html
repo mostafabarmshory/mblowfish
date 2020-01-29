@@ -13,18 +13,85 @@
 		ng-transclude>
 		<div 
 			ng-show="$parent.mbInlineEnable"
-			layout="row" layout-align="center center" 
+			layout="row" 
+			layout-align="center center" 
 			class="overlay-bottom"
 			md-colors="{backgroundColor: 'primary-700'}">
-    		<md-button 
-    			class="md-icon-button" 
+		<md-button 
+			class="md-icon-button" 
 				aria-label="Change image"
 				ng-click="ctrlInline.updateImage()"> 
 				<wb-icon>photo_camera</md-icon>
 			</md-button>
-	  	</div>
+		</div>
 	</div>
 	
+	<!-- File -->
+	<div 
+		ng-switch-when="file"
+		class="overlay-parent"
+		ng-class="{'my-editable' : $parent.mbInlineEnable}" 
+		md-colors="::{borderColor: 'primary-100'}"
+		style="overflow: hidden;"
+		ng-click="ctrlInline.updateFile()"
+		ng-transclude>
+		<div 
+			ng-show="$parent.mbInlineEnable"
+			layout="row" 
+			layout-align="center center" 
+			class="overlay-bottom"
+			md-colors="{backgroundColor: 'primary-700'}">
+		<md-button 
+			class="md-icon-button" 
+			aria-label="Change image"
+			ng-click="ctrlInline.updateFile()"> 
+				<wb-icon>file</md-icon>
+			</md-button>
+		</div>
+	</div>
+	
+	<!-- 	DATE -->
+ 	<div 
+		ng-switch-when="datetime"> 
+		<mb-datepicker
+			ng-show="ctrlInline.editMode"
+			ng-model="ctrlInline.model"
+			ng-change="ctrlInline.save()"
+			mb-placeholder="Click to set date"
+			mb-hide-icons="calendar">
+		</mb-datepicker>
+		<button 
+			ng-if="mbInlineCancelButton && ctrlInline.editMode"
+			ng-click="ctrlInline.cancel()">cancel</button>
+		<button 
+			ng-if="mbInlineSaveButton && ctrlInline.editMode"
+			ng-click="ctrlInline.save()">save</button>
+		<ng-transclude 
+			ng-hide="ctrlInline.editMode" 
+			ng-click="ctrlInline.edit()"
+			flex></ng-transclude>
+	</div>
+	<div 
+		ng-switch-when="date"> 
+		<mb-datepicker
+			ng-show="ctrlInline.editMode"
+			ng-model="ctrlInline.model"
+			ng-change="ctrlInline.save()"
+			mb-date-format="YYYY-MM-DD"
+			mb-placeholder="Click to set date"
+			mb-hide-icons="calendar">
+		</mb-datepicker>
+		<button 
+			ng-if="mbInlineCancelButton && ctrlInline.editMode"
+			ng-click="ctrlInline.cancel()">cancel</button>
+		<button 
+			ng-if="mbInlineSaveButton && ctrlInline.editMode"
+			ng-click="ctrlInline.save()">save</button>
+		<ng-transclude 
+			ng-hide="ctrlInline.editMode" 
+			ng-click="ctrlInline.edit()"
+			flex></ng-transclude>
+	</div>
 	<!-- 	TEXT -->
 <!-- 	<div ng-switch-when="text"  -->
 <!-- 		editable-text="$parent.myDataModel" -->
@@ -111,16 +178,6 @@
 	<!-- 	COLOR -->
 <!-- 	<div ng-switch-when="color"  -->
 <!-- 		editable-color="$parent.myDataModel" -->
-<!-- 		onbeforesave="$parent.ok($data)" -->
-<!-- 		layout="column" -->
-<!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
-<!-- 		md-colors="::{borderColor: 'primary-100'}"> -->
-<!-- 		<ng-transclude flex></ng-transclude> -->
-<!-- 	</div> -->
-	
-	<!-- 	DATE -->
-<!-- 	<div ng-switch-when="date"  -->
-<!-- 		editable-date="$parent.myDataModel" -->
 <!-- 		onbeforesave="$parent.ok($data)" -->
 <!-- 		layout="column" -->
 <!-- 		ng-class="{'my-editable' : $parent.mbInlineEnable}"  -->
