@@ -23,7 +23,31 @@
 				ng-click="ctrlInline.updateImage()"> 
 				<wb-icon>photo_camera</md-icon>
 			</md-button>
-	  	</div>
+		</div>
+	</div>
+	
+	<!-- File -->
+	<div 
+		ng-switch-when="file"
+		class="overlay-parent"
+		ng-class="{'my-editable' : $parent.mbInlineEnable}" 
+		md-colors="::{borderColor: 'primary-100'}"
+		style="overflow: hidden;"
+		ng-click="ctrlInline.updateFile()"
+		ng-transclude>
+		<div 
+			ng-show="$parent.mbInlineEnable"
+			layout="row" 
+			layout-align="center center" 
+			class="overlay-bottom"
+			md-colors="{backgroundColor: 'primary-700'}">
+		<md-button 
+			class="md-icon-button" 
+			aria-label="Change image"
+			ng-click="ctrlInline.updateFile()"> 
+				<wb-icon>file</md-icon>
+			</md-button>
+		</div>
 	</div>
 	
 	<!-- 	DATE -->

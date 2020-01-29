@@ -58,6 +58,9 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
 			ctrl.model = ngModel.$viewValue;
 		};
 
+		/*
+		 * @depricated use ngChange
+		 */
 		ctrl.saveModel = function(d) {
 			ngModel.$setViewValue(d);
 			if (attr.mbInlineOnSave) {
@@ -109,9 +112,9 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
              * Select image url
              */
 			this.updateImage = function() {
-				if (!$scope.mbInlineEnable) {
-					return;
-				}
+//				if (!$scope.mbInlineEnable) {
+//					return;
+//				}
 				var ctrl = this;
 				return $resource.get('image', {
 					style: {
@@ -125,6 +128,27 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
 						ctrl.model = url;
 						ctrl.save();
 					});
+			};
+
+			/*
+             * Select image url
+             */
+			this.updateFile = function() {
+//				if (!$scope.mbInlineEnable) {
+//					return;
+//				}
+				var ctrl = this;
+				return $resource.get('local-file', {
+					style: {
+						icon: 'file',
+						title: $scope.mbInlineLabel || 'Select file',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
+					},
+					data: this.model
+				}).then(function(file) {
+					ctrl.model = file;
+					ctrl.save();
+				});
 			};
 		},
 		controllerAs: 'ctrlInline',
