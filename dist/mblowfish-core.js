@@ -9950,10 +9950,10 @@ angular.module('mblowfish-core')
  * @description
  * Emitted every time the mbView content is reloaded.
  */
-angular.module('mblowfish-core')
-.directive('mbView', function (
-		$templateRequest, $compile, $controller,
-		$route, $dispatcher, $app) {
+angular.module('mblowfish-core').directive('mbView', function(
+	/* AngularJS */ $location,
+	$templateRequest, $compile, $controller, $rootScope,
+	$route, $dispatcher, $app) {
 	return {
 		restrict: 'ECA',
 		terminal: true,
@@ -9962,31 +9962,41 @@ angular.module('mblowfish-core')
 		link: function(scope, $element, attr) {
 			// Variables
 			var currentScope,
-			onloadExp = attr.onload || '',
-			mainElement = null;;
+				onloadExp = attr.onload || '',
+				mainElement = null;;
 
 			// staso, 2019: fire the state is changed
 			$dispatcher.on('/app/state', checkApp);
-			scope.$on('$destroy',function(){
+			scope.$on('$destroy', function() {
 				$dispatcher.off('/app/state', update);
 			});
 			
-			function checkApp(){
-				if($app.getState() === 'ready'){
+			function canAccess(route) {
+				if (_.isUndefined(route.protect)) {
+					return true;
+				}
+				if (angular.isFunction(route.protect)) {
+					return !$injector.invoke(route.protect, route);
+				}
+				return !$rootScope.__account.anonymous;
+			}
+
+			function checkApp() {
+				if ($app.getState() === 'ready') {
 					scope.$on('$routeChangeSuccess', update);
 					loadMainView()
-					.then(update);
+						.then(update);
 				}
 			}
-			
-			function loadMainView(){
+
+			function loadMainView() {
 				return $templateRequest('views/partials/mb-view-main.html')
-				.then(function(template){
-					$element.html(template);
-					var link = $compile($element.contents());
-					link(scope);
-					mainElement = $element.find('#mb-view-main-anchor');
-				});
+					.then(function(template) {
+						$element.html(template);
+						var link = $compile($element.contents());
+						link(scope);
+						mainElement = $element.find('#mb-view-main-anchor');
+					});
 			}
 
 			function cleanupLastView() {
@@ -9994,18 +10004,21 @@ angular.module('mblowfish-core')
 					currentScope.$destroy();
 					currentScope = null;
 				}
-//				$element.empty();
+				//				$element.empty();
 			}
 
 			function update() {
+				if(!canAccess($route.current)){
+					return $location.path('users/login');
+				}
 				var locals = $route.current && $route.current.locals,
-				template = locals && locals.$template;
+					template = locals && locals.$template;
 
 				cleanupLastView();
 				if (angular.isDefined(template)) {
 					var newScope = scope.$new();
 					var current = $route.current;
-					
+
 					mainElement.html(template);
 					var link = $compile(mainElement.contents());
 					if (current.controller) {
@@ -10020,7 +10033,7 @@ angular.module('mblowfish-core')
 					}
 					scope[current.resolveAs || '$resolve'] = locals;
 					link(newScope);
-					
+
 					currentScope = current.scope = newScope;
 					currentScope.$emit('$viewContentLoaded');
 					currentScope.$eval(onloadExp);
@@ -12602,6 +12615,7 @@ angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function
 //    return wbWindow;
 //});
 
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12624,53 +12638,52 @@ angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
+
 /*
  * TODO: maso, 2019: add filter document
  */
-.filter('currencyFilter', function (numberFilter, translateFilter) {
-	
+angular.module('mblowfish-core').filter('currencyFilter', function(numberFilter, translateFilter) {
 
-    return function (price, unit) {
+	return function(price, unit) {
 
-        if (!price) {
-            return translateFilter('free');
-        }
-        // TODO: maso, 2019: set unit with system default currency if is null
-        if (unit === 'iran-rial' || unit === 'iran-tooman') {
-            return numberFilter(price) + ' '
-                    + translateFilter(unit);
-        } else if (unit === 'bahrain-dinar') {
-            return numberFilter(price) + ' '
-                    + translateFilter('bahrain-dinar');
-        } else if (unit === 'euro') {
-            return numberFilter(price) + ' '
-                    + translateFilter('euro');
-        } else if (unit === 'dollar') {
-            return translateFilter('dollar') + ' '
-                    + numberFilter(price);
-        } else if (unit === 'pound') {
-            return translateFilter('pound') + ' '
-                    + numberFilter(price);
-        } else if (unit === 'iraq-dinar') {
-            return numberFilter(price) + ' '
-                    + translateFilter('iraq-dinar');
-        } else if (unit === 'kuwait-dinar') {
-            return numberFilter(price) + ' '
-                    + translateFilter('kuwait-dinar');
-        } else if (unit === 'oman-rial') {
-            return numberFilter(price) + ' '
-                    + translateFilter('oman-rial');
-        } else if (unit === 'turkish-lira') {
-            return numberFilter(price) + ' '
-                    + translateFilter('turkish-lira');
-        } else if (unit === 'uae-dirham') {
-            return numberFilter(price) + ' '
-                    + translateFilter('uae-dirham');
-        } else {
-            return numberFilter(price) + ' ?';
-        }
-    };
+		if (!price) {
+			return translateFilter('free');
+		}
+		// TODO: maso, 2019: set unit with system default currency if is null
+		if (unit === 'iran-rial' || unit === 'iran-tooman') {
+			return numberFilter(price) + ' '
+				+ translateFilter(unit);
+		} else if (unit === 'bahrain-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('bahrain-dinar');
+		} else if (unit === 'euro') {
+			return numberFilter(price) + ' '
+				+ translateFilter('euro');
+		} else if (unit === 'dollar') {
+			return translateFilter('dollar') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'pound') {
+			return translateFilter('pound') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'iraq-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('iraq-dinar');
+		} else if (unit === 'kuwait-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('kuwait-dinar');
+		} else if (unit === 'oman-rial') {
+			return numberFilter(price) + ' '
+				+ translateFilter('oman-rial');
+		} else if (unit === 'turkish-lira') {
+			return numberFilter(price) + ' '
+				+ translateFilter('turkish-lira');
+		} else if (unit === 'uae-dirham') {
+			return numberFilter(price) + ' '
+				+ translateFilter('uae-dirham');
+		} else {
+			return numberFilter(price) + ' ?';
+		}
+	};
 });
 
 
@@ -12717,7 +12730,7 @@ angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
  * @name mbDateTime
  * @description # Format date time
  */
-angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+angular.module('mblowfish-core').filter('mbDateTime', function($mbLocal) {
 	return function(inputDate, format) {
 		return $mbLocal.formatDateTime(inputDate, format);
 	};
@@ -13584,21 +13597,16 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-/*
- * Help dialog 
- */
-.run(function($help, $rootScope, $route) {
-    // Watch current state
-    $rootScope.$watch(function(){
-        return $route.current;
-    }, 
-    function(val){
-        // TODO: maso, 2018: Check protection of the current route
-        
-        // set help page
-        $help.setCurrentItem(val);
-    });
+angular.module('mblowfish-core').run(function($help, $rootScope, $route) {
+	// Watch current state
+	$rootScope.$watch(function() {
+		return $route.current;
+	}, function(val) {
+		// TODO: maso, 2018: Check protection of the current route
+
+		// set help page
+		$help.setCurrentItem(val);
+	});
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -19045,7 +19053,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<div layout-gt-sm=row layout=column style=\"width: 100%; height: fit-content\">  <mb-titled-block flex-gt-sm=50 mb-title=Avatar mb-progress=ctrl.avatarLoading layout=column style=\"margin: 8px\"> <div flex layout=column layout-fill> <div layout=row style=\"flex-grow: 1; min-height: 100px\" layout-align=\"center center\"> <lf-ng-md-file-input style=\"flex-grow: 1; padding: 10px\" ng-show=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img style=\"max-width: 300px; max-height: 300px; min-width: 24px; min-height: 24px\" ng-if=\"ctrl.avatarState === 'normal'\" ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div style=\"flex-grow:0; min-height: 40px\"> <div layout=column layout-align=\"center none\" style=\"flex-grow: 0\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div style=\"flex-grow: 0\" layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancel</sapn> </md-button> </div> </div> </div> </mb-titled-block>  <mb-titled-block flex-gt-sm=50 mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" layout=column style=\"margin: 8px\"> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </div>"
+    "<md-content layout-gt-sm=row layout=column style=\"width: 100%; height: fit-content\">  <mb-titled-block flex-gt-sm=50 mb-title=Avatar mb-progress=ctrl.avatarLoading layout=column style=\"margin: 8px\"> <div flex layout=column layout-fill> <div layout=row style=\"flex-grow: 1; min-height: 100px\" layout-align=\"center center\"> <lf-ng-md-file-input style=\"flex-grow: 1; padding: 10px\" ng-show=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img style=\"max-width: 300px; max-height: 300px; min-width: 24px; min-height: 24px\" ng-if=\"ctrl.avatarState === 'normal'\" ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div style=\"flex-grow:0; min-height: 40px\"> <div layout=column layout-align=\"center none\" style=\"flex-grow: 0\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div style=\"flex-grow: 0\" layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancel</sapn> </md-button> </div> </div> </div> </mb-titled-block>  <mb-titled-block flex-gt-sm=50 mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" layout=column style=\"margin: 8px\"> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </md-content>"
   );
 
 

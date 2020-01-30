@@ -21,19 +21,14 @@
  */
 
 
-angular.module('mblowfish-core')
-/*
- * Help dialog 
- */
-.run(function($help, $rootScope, $route) {
-    // Watch current state
-    $rootScope.$watch(function(){
-        return $route.current;
-    }, 
-    function(val){
-        // TODO: maso, 2018: Check protection of the current route
-        
-        // set help page
-        $help.setCurrentItem(val);
-    });
+angular.module('mblowfish-core').run(function($help, $rootScope, $route) {
+	// Watch current state
+	$rootScope.$watch(function() {
+		return $route.current;
+	}, function(val) {
+		// TODO: maso, 2018: Check protection of the current route
+
+		// set help page
+		$help.setCurrentItem(val);
+	});
 });

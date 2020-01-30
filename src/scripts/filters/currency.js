@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -20,53 +21,52 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
+
 /*
  * TODO: maso, 2019: add filter document
  */
-.filter('currencyFilter', function (numberFilter, translateFilter) {
-	
+angular.module('mblowfish-core').filter('currencyFilter', function(numberFilter, translateFilter) {
 
-    return function (price, unit) {
+	return function(price, unit) {
 
-        if (!price) {
-            return translateFilter('free');
-        }
-        // TODO: maso, 2019: set unit with system default currency if is null
-        if (unit === 'iran-rial' || unit === 'iran-tooman') {
-            return numberFilter(price) + ' '
-                    + translateFilter(unit);
-        } else if (unit === 'bahrain-dinar') {
-            return numberFilter(price) + ' '
-                    + translateFilter('bahrain-dinar');
-        } else if (unit === 'euro') {
-            return numberFilter(price) + ' '
-                    + translateFilter('euro');
-        } else if (unit === 'dollar') {
-            return translateFilter('dollar') + ' '
-                    + numberFilter(price);
-        } else if (unit === 'pound') {
-            return translateFilter('pound') + ' '
-                    + numberFilter(price);
-        } else if (unit === 'iraq-dinar') {
-            return numberFilter(price) + ' '
-                    + translateFilter('iraq-dinar');
-        } else if (unit === 'kuwait-dinar') {
-            return numberFilter(price) + ' '
-                    + translateFilter('kuwait-dinar');
-        } else if (unit === 'oman-rial') {
-            return numberFilter(price) + ' '
-                    + translateFilter('oman-rial');
-        } else if (unit === 'turkish-lira') {
-            return numberFilter(price) + ' '
-                    + translateFilter('turkish-lira');
-        } else if (unit === 'uae-dirham') {
-            return numberFilter(price) + ' '
-                    + translateFilter('uae-dirham');
-        } else {
-            return numberFilter(price) + ' ?';
-        }
-    };
+		if (!price) {
+			return translateFilter('free');
+		}
+		// TODO: maso, 2019: set unit with system default currency if is null
+		if (unit === 'iran-rial' || unit === 'iran-tooman') {
+			return numberFilter(price) + ' '
+				+ translateFilter(unit);
+		} else if (unit === 'bahrain-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('bahrain-dinar');
+		} else if (unit === 'euro') {
+			return numberFilter(price) + ' '
+				+ translateFilter('euro');
+		} else if (unit === 'dollar') {
+			return translateFilter('dollar') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'pound') {
+			return translateFilter('pound') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'iraq-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('iraq-dinar');
+		} else if (unit === 'kuwait-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('kuwait-dinar');
+		} else if (unit === 'oman-rial') {
+			return numberFilter(price) + ' '
+				+ translateFilter('oman-rial');
+		} else if (unit === 'turkish-lira') {
+			return numberFilter(price) + ' '
+				+ translateFilter('turkish-lira');
+		} else if (unit === 'uae-dirham') {
+			return numberFilter(price) + ' '
+				+ translateFilter('uae-dirham');
+		} else {
+			return numberFilter(price) + ' ?';
+		}
+	};
 });
 
 
