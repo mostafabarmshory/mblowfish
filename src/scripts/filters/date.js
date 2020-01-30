@@ -40,7 +40,7 @@ angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
  * @name mbDateTime
  * @description # Format date time
  */
-angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+angular.module('mblowfish-core').filter('mbDateTime', function($mbLocal) {
 	return function(inputDate, format) {
 		return $mbLocal.formatDateTime(inputDate, format);
 	};
