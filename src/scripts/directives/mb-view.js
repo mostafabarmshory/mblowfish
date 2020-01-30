@@ -192,10 +192,10 @@
  * @description
  * Emitted every time the mbView content is reloaded.
  */
-angular.module('mblowfish-core')
-.directive('mbView', function (
-		$templateRequest, $compile, $controller,
-		$route, $dispatcher, $app) {
+angular.module('mblowfish-core').directive('mbView', function(
+	/* AngularJS */ $location,
+	$templateRequest, $compile, $controller, $rootScope,
+	$route, $dispatcher, $app) {
 	return {
 		restrict: 'ECA',
 		terminal: true,
@@ -204,31 +204,41 @@ angular.module('mblowfish-core')
 		link: function(scope, $element, attr) {
 			// Variables
 			var currentScope,
-			onloadExp = attr.onload || '',
-			mainElement = null;;
+				onloadExp = attr.onload || '',
+				mainElement = null;;
 
 			// staso, 2019: fire the state is changed
 			$dispatcher.on('/app/state', checkApp);
-			scope.$on('$destroy',function(){
+			scope.$on('$destroy', function() {
 				$dispatcher.off('/app/state', update);
 			});
 			
-			function checkApp(){
-				if($app.getState() === 'ready'){
+			function canAccess(route) {
+				if (_.isUndefined(route.protect)) {
+					return true;
+				}
+				if (angular.isFunction(route.protect)) {
+					return !$injector.invoke(route.protect, route);
+				}
+				return !$rootScope.__account.anonymous;
+			}
+
+			function checkApp() {
+				if ($app.getState() === 'ready') {
 					scope.$on('$routeChangeSuccess', update);
 					loadMainView()
-					.then(update);
+						.then(update);
 				}
 			}
-			
-			function loadMainView(){
+
+			function loadMainView() {
 				return $templateRequest('views/partials/mb-view-main.html')
-				.then(function(template){
-					$element.html(template);
-					var link = $compile($element.contents());
-					link(scope);
-					mainElement = $element.find('#mb-view-main-anchor');
-				});
+					.then(function(template) {
+						$element.html(template);
+						var link = $compile($element.contents());
+						link(scope);
+						mainElement = $element.find('#mb-view-main-anchor');
+					});
 			}
 
 			function cleanupLastView() {
@@ -236,18 +246,21 @@ angular.module('mblowfish-core')
 					currentScope.$destroy();
 					currentScope = null;
 				}
-//				$element.empty();
+				//				$element.empty();
 			}
 
 			function update() {
+				if(!canAccess($route.current)){
+					return $location.path('users/login');
+				}
 				var locals = $route.current && $route.current.locals,
-				template = locals && locals.$template;
+					template = locals && locals.$template;
 
 				cleanupLastView();
 				if (angular.isDefined(template)) {
 					var newScope = scope.$new();
 					var current = $route.current;
-					
+
 					mainElement.html(template);
 					var link = $compile(mainElement.contents());
 					if (current.controller) {
@@ -262,7 +275,7 @@ angular.module('mblowfish-core')
 					}
 					scope[current.resolveAs || '$resolve'] = locals;
 					link(newScope);
-					
+
 					currentScope = current.scope = newScope;
 					currentScope.$emit('$viewContentLoaded');
 					currentScope.$eval(onloadExp);
