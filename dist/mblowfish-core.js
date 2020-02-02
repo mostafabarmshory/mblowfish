@@ -9951,7 +9951,7 @@ angular.module('mblowfish-core')
  * Emitted every time the mbView content is reloaded.
  */
 angular.module('mblowfish-core').directive('mbView', function(
-	/* AngularJS */ $location,
+	/* AngularJS */ $location, $injector,
 	$templateRequest, $compile, $controller, $rootScope,
 	$route, $dispatcher, $app) {
 	return {
