@@ -102,7 +102,7 @@ angular.module('mblowfish-core')
             };
 
 //          var ctrl = this;
-            $window.loadLibrary('resources/libs/ace.js')
+            $window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
             .then(function(){
                 ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
             });
