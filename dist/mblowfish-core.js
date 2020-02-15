@@ -5399,11 +5399,6 @@ angular.module('mblowfish-core')//
  */
 
 
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
-
 /**
  * @ngdoc Controllers
  * @name MbSeenAbstractCollectionCtrl
@@ -5436,40 +5431,40 @@ angular.module('mblowfish-core')//
  * - addModel: model
  * - addViewItem: view
  */
-.controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    
+angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator,
+	$log,
+	$window, QueryParameter, Action) {
+
 
     /*
      * Extends collection controller from MbAbstractCtrl 
      */
-    angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
+	angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
+		$scope: $scope
+	}));
 
     /*
      * util function
      */
-    function differenceBy (source, filters, key) {
-        var result = source;
-        for(var i = 0; i < filters.length; i++){
-            result = _.remove(result, function(item){
-                return item[key] !== filters[i][key];
-            });
-        }
-        return result;
-    };
+	function differenceBy(source, filters, key) {
+		for (var i = 0; i < filters.length; i++) {
+			_.remove(source, function(item) {
+				return item[key] === filters[i][key];
+			});
+		}
+	};
 
-    var STATE_INIT = 'init';
-    var STATE_BUSY = 'busy';
-    var STATE_IDEAL = 'ideal';
-    this.state = STATE_IDEAL;
+	var STATE_INIT = 'init';
+	var STATE_BUSY = 'busy';
+	var STATE_IDEAL = 'ideal';
+	this.state = STATE_IDEAL;
 
 
-    // Messages
-    var ADD_ACTION_FAIL_MESSAGE = 'Fail to add new item';
-    var DELETE_MODEL_MESSAGE = 'Delete item?';
+	// Messages
+	var ADD_ACTION_FAIL_MESSAGE = 'Fail to add new item';
+	var DELETE_MODEL_MESSAGE = 'Delete item?';
 
-    this.actions = [];
+	this.actions = [];
 
 
     /**
@@ -5487,7 +5482,7 @@ angular.module('mblowfish-core')//
      * @type string
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.state = STATE_INIT;
+	this.state = STATE_INIT;
 
     /**
      * Store last paginated response
@@ -5499,7 +5494,7 @@ angular.module('mblowfish-core')//
      * @type PaginatedCollection
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.lastResponse = null;
+	this.lastResponse = null;
 
     /**
      * Query parameter
@@ -5510,18 +5505,18 @@ angular.module('mblowfish-core')//
      * @type QueryParameter
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.queryParameter = new QueryParameter();
-    this.queryParameter.setOrder('id', 'd');
+	this.queryParameter = new QueryParameter();
+	this.queryParameter.setOrder('id', 'd');
 
-    // -------------------------------------------------------------------------
-    // View
-    //
-    //
-    //
-    //
-    //
-    //
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// View
+	//
+	//
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
     /**
      * List of all loaded items
      * 
@@ -5531,51 +5526,52 @@ angular.module('mblowfish-core')//
      * @type array
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.items = [];
+	this.items = [];
 
     /**
      * Adds items to view
      * 
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.pushViewItems = function(items) {
-        if(!angular.isDefined(items)){
-            return;
-        }
-        // Push new items
-        var deff = differenceBy(items, this.items, 'id');
-        // TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
-        // update the following part in the next version.
-        // this.items = _.concat(items, deff);
-        for(var i = 0; i < deff.length; i++){
-            this.items.push(deff[i]);
-        }
-    };
+	this.pushViewItems = function(items) {
+		if (!angular.isDefined(items)) {
+			return;
+		}
+		// Push new items
+		differenceBy(items, this.items, 'id');
+		// TODO: maso, 2019: The current version (V3.x) of lodash dose not support concat
+		// update the following part in the next version.
+		// this.items = _.concat(items, deff);
+		var ctrl = this;
+		_.forEach(items, function(item){
+			ctrl.items.push(item);
+		})
+	};
 
     /**
      * Adds items to view
      * 
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.addViewItems = this.pushViewItems;
+	this.addViewItems = this.pushViewItems;
 
     /**
      * remove item from view
      * 
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.removeViewItems = function(items) {
-        this.items = differenceBy(this.items, items, 'id');
-    };
+	this.removeViewItems = function(items) {
+		differenceBy(this.items, items, 'id');
+	};
 
     /**
      * Updates an item in the view with the given one
      * 
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.updateViewItems = function(items) {
-        // XXX: maso, 2019: update view items
-    };
+	this.updateViewItems = function(items) {
+		// XXX: maso, 2019: update view items
+	};
 
     /**
      * Returns list of all items in the view
@@ -5584,29 +5580,29 @@ angular.module('mblowfish-core')//
      * 
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.getViewItems = function(){
-        return this.items;
-    };
+	this.getViewItems = function() {
+		return this.items;
+	};
 
     /**
      * Removes all items from view
      * 
      * @memberof MbSeenAbstractCollectionCtrl
      */
-    this.clearViewItems = function(){
-        this.items = [];
-    };
+	this.clearViewItems = function() {
+		this.items = [];
+	};
 
 
-    // -------------------------------------------------------------------------
-    // Model
-    //
-    // We suppose that all model action be overid by the new controllers.
-    //
-    //
-    //
-    //
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// Model
+	//
+	// We suppose that all model action be overid by the new controllers.
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
     /**
      * Deletes model
      * 
@@ -5614,7 +5610,7 @@ angular.module('mblowfish-core')//
      * @param item
      * @return promiss to delete item
      */
-//  this.deleteModel = function(item){};
+	//  this.deleteModel = function(item){};
 
     /**
      * Gets object schema
@@ -5622,7 +5618,7 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @return promise to get schema
      */
-//  this.getModelSchema = function(){};
+	//  this.getModelSchema = function(){};
 
     /**
      * Query and get items
@@ -5630,7 +5626,7 @@ angular.module('mblowfish-core')//
      * @param queryParameter to apply search
      * @return promiss to get items
      */
-//  this.getModels = function(queryParameter){};
+	//  this.getModels = function(queryParameter){};
 
     /**
      * Get item with id
@@ -5638,7 +5634,7 @@ angular.module('mblowfish-core')//
      * @param id of the item
      * @return promiss to get item
      */
-//  this.getModel = function(id){};
+	//  this.getModel = function(id){};
 
     /**
      * Adds new item
@@ -5649,74 +5645,73 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @return promiss to add and return an item
      */
-//  this.addModel = function(model){};
+	//  this.addModel = function(model){};
 
 
 
-    // -------------------------------------------------------------------------
-    // Controller
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    // -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+	// Controller
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
 
     /**
      * Creates new item with the createItemDialog
      * 
      * XXX: maso, 2019: handle state machine
      */
-    this.addItem = function(){
-        var ctrl = this;
-        $navigator.openDialog({
-            templateUrl: this._addDialog,
-            config: {
-                model:{}
-            }
-        })//
-        .then(function(model){
-            return ctrl.addModel(model);
-        })//
-        .then(function(item){
-            ctrl.fireCreated(ctrl.eventType, item);
-        }, function(){
-            $window.alert(ADD_ACTION_FAIL_MESSAGE);
-        });
-    };
+	this.addItem = function()  {
+		var ctrl = this;
+		$navigator.openDialog({
+			templateUrl: this._addDialog,
+			config: {
+				model: {}
+			}
+		}).then(function(model) {
+			return ctrl.addModel(model);
+		}).then(function(item) {
+			ctrl.fireCreated(ctrl.eventType, item);
+		}, function() {
+			$window.alert(ADD_ACTION_FAIL_MESSAGE);
+		});
+	};
 
     /**
      * Creates new item with the createItemDialog
      */
-    this.deleteItem = function(item, $event){
-        // prevent default evetn
-        if($event){
-            $event.preventDefault();
-            $event.stopPropagation();
-        }
-        // XXX: maso, 2019: update state
-        var ctrl = this;
-        var tempItem = _.clone(item);
-        function _deleteInternal() {
-            return ctrl.deleteModel(item)
-            .then(function(){
-                ctrl.fireDeleted(ctrl.eventType, tempItem);
-            }, function(){
-                // XXX: maso, 2019: handle error
-            });
-        }
-        // delete the item
-        if(this.deleteConfirm){
-            $window.confirm(DELETE_MODEL_MESSAGE)
-            .then(function(){
-                return _deleteInternal();
-            });
-        } else {
-            return _deleteInternal();
-        }
-    };
+	this.deleteItem = function(item, $event) {
+		// prevent default evetn
+		if ($event) {
+			$event.preventDefault();
+			$event.stopPropagation();
+		}
+		// XXX: maso, 2019: update state
+		var ctrl = this;
+		var tempItem = _.clone(item);
+		function _deleteInternal() {
+			return ctrl.deleteModel(item)
+				.then(function() {
+					ctrl.fireDeleted(ctrl.eventType, tempItem);
+				}, function(ex) {
+					$log.error(ex);
+					$window.alert('Fail to delete item.')
+				});
+		}
+		// delete the item
+		if (this.deleteConfirm) {
+			$window.confirm(DELETE_MODEL_MESSAGE)
+				.then(function() {
+					return _deleteInternal();
+				});
+		} else {
+			return _deleteInternal();
+		}
+	};
 
     /**
      * Reload the controller
@@ -5727,23 +5722,23 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @returns promiss to reload
      */
-    this.reload = function(){
-        // safe reload
-        var ctrl = this;
-        function safeReload(){
-            delete ctrl.lastResponse;
-            ctrl.clearViewItems();
-            ctrl.queryParameter.setPage(1);
-            return ctrl.loadNextPage();
-        }
+	this.reload = function() {
+		// safe reload
+		var ctrl = this;
+		function safeReload() {
+			delete ctrl.lastResponse;
+			ctrl.clearViewItems();
+			ctrl.queryParameter.setPage(1);
+			return ctrl.loadNextPage();
+		}
 
-        // check states
-        if(this.isBusy()){
-            return this.getLastQeury()
-            .then(safeReload);
-        }
-        return safeReload();
-    };
+		// check states
+		if (this.isBusy()) {
+			return this.getLastQeury()
+				.then(safeReload);
+		}
+		return safeReload();
+	};
 
 
 
@@ -5755,107 +5750,107 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @returns promiss to load next page
      */
-    this.loadNextPage = function() {
-        // Check functions
-        if(!angular.isFunction(this.getModels)){
-            throw 'The controller does not implement getModels function';
-        }
+	this.loadNextPage = function() {
+		// Check functions
+		if (!angular.isFunction(this.getModels)) {
+			throw 'The controller does not implement getModels function';
+		}
 
-        if (this.state === STATE_INIT) {
-            throw 'this.init() function is not called in the controller';
-        }
+		if (this.state === STATE_INIT) {
+			throw 'this.init() function is not called in the controller';
+		}
 
-        // check state
-        if (this.state !== STATE_IDEAL) {
-            if(this.lastQuery){
-                return this.lastQuery;
-            }
-            throw 'Models controller is not in ideal state';
-        }
+		// check state
+		if (this.state !== STATE_IDEAL) {
+			if (this.lastQuery) {
+				return this.lastQuery;
+			}
+			throw 'Models controller is not in ideal state';
+		}
 
-        // set next page
-        if (this.lastResponse) {
-            if(!this.lastResponse.hasMore()){
-                return $q.resolve();
-            }
-            this.queryParameter.setPage(this.lastResponse.getNextPageIndex());
-        }
+		// set next page
+		if (this.lastResponse) {
+			if (!this.lastResponse.hasMore()) {
+				return $q.resolve();
+			}
+			this.queryParameter.setPage(this.lastResponse.getNextPageIndex());
+		}
 
-        // Get new items
-        this.state = STATE_BUSY;
-        var ctrl = this;
-        this.lastQuery = this.getModels(this.queryParameter)//
-        .then(function(response) {
-            ctrl.lastResponse = response;
-            ctrl.addViewItems(response.items);
-            // XXX: maso, 2019: handle error
-            ctrl.error = null;
-        }, function(error){
-            ctrl.error = error;
-        })//
-        .finally(function(){
-            ctrl.state = STATE_IDEAL;
-            delete ctrl.lastQuery;
-        });
-        return this.lastQuery;
-    };
+		// Get new items
+		this.state = STATE_BUSY;
+		var ctrl = this;
+		this.lastQuery = this.getModels(this.queryParameter)//
+			.then(function(response) {
+				ctrl.lastResponse = response;
+				ctrl.addViewItems(response.items);
+				// XXX: maso, 2019: handle error
+				ctrl.error = null;
+			}, function(error) {
+				ctrl.error = error;
+			})//
+			.finally(function() {
+				ctrl.state = STATE_IDEAL;
+				delete ctrl.lastQuery;
+			});
+		return this.lastQuery;
+	};
 
 
 
-    this.seen_abstract_collection_superInit = this.init;
+	this.seen_abstract_collection_superInit = this.init;
 
     /**
      * Loads and init the controller
      * 
      * All children must call this function at the end of the cycle
      */
-    this.init = function(configs){
-        if(angular.isFunction(this.seen_abstract_collection_superInit)){
-            this.seen_abstract_collection_superInit(configs);
-        }
-        var ctrl = this;
-        this.state = STATE_IDEAL;
-        if(!angular.isDefined(configs)){
-            return;
-        }
+	this.init = function(configs) {
+		if (angular.isFunction(this.seen_abstract_collection_superInit)) {
+			this.seen_abstract_collection_superInit(configs);
+		}
+		var ctrl = this;
+		this.state = STATE_IDEAL;
+		if (!angular.isDefined(configs)) {
+			return;
+		}
 
-        // add actions
-        if(angular.isArray(configs.actions)){
-            this.addActions(configs.actions)
-        }
+		// add actions
+		if (angular.isArray(configs.actions)) {
+			this.addActions(configs.actions)
+		}
 
-        // DEPRECATED: enable create action
-        if(configs.addAction && angular.isFunction(this.addItem)){
-            var temp = configs.addAction;
-            var createAction = {
-                    title: temp.title || 'New item',
-                    icon: temp.icocn || 'add',
-                    action: temp.action,
-            };
-            if(!angular.isFunction(temp.action) && temp.dialog) {
-                this._addDialog = temp.dialog;
-                createAction.action = function(){
-                    ctrl.addItem();
-                };
-            }
-            if(angular.isFunction(createAction.action)) {
-                this.addAction(createAction);
-            }
-        }
+		// DEPRECATED: enable create action
+		if (configs.addAction && angular.isFunction(this.addItem)) {
+			var temp = configs.addAction;
+			var createAction = {
+				title: temp.title || 'New item',
+				icon: temp.icocn || 'add',
+				action: temp.action,
+			};
+			if (!angular.isFunction(temp.action) && temp.dialog) {
+				this._addDialog = temp.dialog;
+				createAction.action = function() {
+					ctrl.addItem();
+				};
+			}
+			if (angular.isFunction(createAction.action)) {
+				this.addAction(createAction);
+			}
+		}
 
-        // add path
-        this._setEventType(configs.eventType);
+		// add path
+		this._setEventType(configs.eventType);
 
-        // confirm delete
-        this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
-    };
+		// confirm delete
+		this.deleteConfirm = !angular.isDefined(configs.deleteConfirm) || configs.deleteConfirm;
+	};
 
     /**
      * Returns last executed query
      */
-    this.getLastQeury = function(){
-        return this.lastQuery;
-    };
+	this.getLastQeury = function() {
+		return this.lastQuery;
+	};
 
 
     /**
@@ -5867,10 +5862,10 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @param graphql
      */
-    this.setDataQuery = function(grqphql){
-        this.queryParameter.put('graphql', '{page_number, current_page, items'+grqphql+'}');
-        // TODO: maso, 2018: check if refresh is required
-    };
+	this.setDataQuery = function(grqphql) {
+		this.queryParameter.put('graphql', '{page_number, current_page, items' + grqphql + '}');
+		// TODO: maso, 2018: check if refresh is required
+	};
 
     /**
      * Adding custom filter
@@ -5881,35 +5876,35 @@ angular.module('mblowfish-core')//
      * @param key of the filter
      * @param value of the filter
      */
-    this.addFilter = function(key, value){
-        this.queryParameter.setFilter(key, value);
-    };
+	this.addFilter = function(key, value) {
+		this.queryParameter.setFilter(key, value);
+	};
 
     /**
      * Load controller actions
      * 
      * @return list of actions
      */
-    this.getActions = function(){
-        return this.actions;
-    };
+	this.getActions = function() {
+		return this.actions;
+	};
 
     /**
      * Adds new action into the controller
      * 
      * @param action to add to list
      */
-    this.addAction = function(action) {
-        if(!angular.isDefined(this.actions)){
-            this.actions = [];
-        }
-        // TODO: maso, 2018: assert the action is MbAction
-        if(!(action instanceof Action)){
-            action = new Action(action);
-        }
-        this.actions.push(action);
-        return this;
-    };
+	this.addAction = function(action) {
+		if (!angular.isDefined(this.actions)) {
+			this.actions = [];
+		}
+		// TODO: maso, 2018: assert the action is MbAction
+		if (!(action instanceof Action)) {
+			action = new Action(action);
+		}
+		this.actions.push(action);
+		return this;
+	};
 
     /**
      * Adds list of actions to the controller
@@ -5917,11 +5912,11 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @params array of actions
      */
-    this.addActions = function(actions) {
-        for(var i = 0; i < actions.length; i++){
-            this.addAction(actions[i]);
-        }
-    };
+	this.addActions = function(actions) {
+		for (var i = 0; i < actions.length; i++) {
+			this.addAction(actions[i]);
+		}
+	};
 
     /**
      * Gets the query parameter
@@ -5932,9 +5927,9 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @returns QueryParameter
      */
-    this.getQueryParameter = function(){
-        return this.queryParameter;
-    };
+	this.getQueryParameter = function() {
+		return this.queryParameter;
+	};
 
     /**
      * Checks if the state is busy
@@ -5942,9 +5937,9 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @returns true if the state is ideal
      */
-    this.isBusy = function(){
-        return this.state === STATE_BUSY;
-    };
+	this.isBusy = function() {
+		return this.state === STATE_BUSY;
+	};
 
     /**
      * Checks if the state is ideal
@@ -5952,9 +5947,9 @@ angular.module('mblowfish-core')//
      * @memberof SeenAbstractCollectionCtrl
      * @returns true if the state is ideal
      */
-    this.isIdeal = function(){
-        return this.state === STATE_IDEAL;
-    };
+	this.isIdeal = function() {
+		return this.state === STATE_IDEAL;
+	};
 
     /**
      * Generate default event handler
@@ -5964,43 +5959,43 @@ angular.module('mblowfish-core')//
      * 
      * @memberof SeenAbstractCollectionCtrl
      */
-    this.eventHandlerCallBack = function(){
-        if(this._eventHandlerCallBack){
-            return this._eventHandlerCallBack ;
-        }
-        var ctrl = this;
-        this._eventHandlerCallBack = function($event){
-            switch ($event.key) {
-            case 'create':
-                ctrl.pushViewItems($event.values);
-                break;
-            case 'update':
-                ctrl.updateViewItems($event.values);
-                break;
-            case 'delete':
-                ctrl.removeViewItems($event.values);
-                break;
-            default:
-                break;
-            }
-        };
-        return this._eventHandlerCallBack;
-    };
+	this.eventHandlerCallBack = function() {
+		if (this._eventHandlerCallBack) {
+			return this._eventHandlerCallBack;
+		}
+		var ctrl = this;
+		this._eventHandlerCallBack = function($event) {
+			switch ($event.key) {
+				case 'create':
+					ctrl.pushViewItems($event.values);
+					break;
+				case 'update':
+					ctrl.updateViewItems($event.values);
+					break;
+				case 'delete':
+					ctrl.removeViewItems($event.values);
+					break;
+				default:
+					break;
+			}
+		};
+		return this._eventHandlerCallBack;
+	};
 
     /*
      * Listen to dispatcher for new event
      */
-    this._setEventType = function(eventType) {
-        if(this.eventType === eventType){
-            return;
-        }
-        var callback = this.eventHandlerCallBack();
-        if(this.eventType){
-            this.removeEventHandler(callback);
-        }
-        this.eventType = eventType;
-        this.addEventHandler(this.eventType, callback);
-    };
+	this._setEventType = function(eventType) {
+		if (this.eventType === eventType) {
+			return;
+		}
+		var callback = this.eventHandlerCallBack();
+		if (this.eventType) {
+			this.removeEventHandler(callback);
+		}
+		this.eventType = eventType;
+		this.addEventHandler(this.eventType, callback);
+	};
 
 });
 
@@ -7314,7 +7309,7 @@ angular.module('mblowfish-core')
 });
 
 angular.module('mblowfish-core')
-.directive('mbBadge', function($mdTheming, $mdColors, $timeout, $window, $compile, $rootScope) {
+.directive('mbBadge', function($mdTheming,/* $mdColors, $timeout, $window,*/ $compile, $rootScope) {
 
 
 	function __badge_toRGB(color){
