@@ -21,43 +21,44 @@
  */
 
 
-
-angular.module('mblowfish-core')
 /**
  * @ngdoc Factories
  * @name MbAction
  * @description An action item
  * 
  */
-.factory('MbAction', function ($injector, $navigator, $window) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window) {
 
-    function Action(data) {
-        if (!angular.isDefined(data)) {
-            data = {};
-        }
-        angular.extend(this, data, {
-            priority: data.priority || 10
-        });
-        this.visible = this.visible || function () {
-            return true;
-        };
-        return this;
-    };
+	function Action(data) {
+		data = data || {};
+		angular.extend(this, data, {
+			priority: data.priority || 10
+		});
+		this.visible = this.visible || function() {
+			return true;
+		};
+		return this;
+	};
 
-    Action.prototype.exec = function ($event) {
-    	if ($event) {
-    		$event.stopPropagation();
-    		$event.preventDefault();
-    	}
-        if (this.action) {
-            return $injector.invoke(this.action, this, {
-            	$event: $event
-            });
-        } else if (this.url){
-            return $navigator.openPage(this.url);
-        }
-        $window.alert('Action \'' + this.id + '\' is not executable!?')
-    };
+	Action.prototype.exec = function($event) {
+//		if ($event) {
+//			$event.stopPropagation();
+//			$event.preventDefault();
+//		}
+		if(this.alias){
+			var actionId = this.actionId || this.id;
+			var $actions = $injector.get('$actions');
+			return $actions.exec(actionId, $event);
+		}
+		if (this.action) {
+			return $injector.invoke(this.action, this, {
+				$event: $event
+			});
+		} else if (this.url) {
+			return $navigator.openPage(this.url);
+		}
+		$window.alert('Action \'' + this.id + '\' is not executable!?')
+	};
 
-    return Action;
+	return Action;
 });

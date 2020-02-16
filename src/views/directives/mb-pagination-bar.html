@@ -61,7 +61,7 @@
                         <md-menu-item
                             ng-repeat="item in mbMoreActions">
                             <md-button
-                                ng-click="item.action()"
+                                ng-click="runAction(item, $event)"
                                 aria-label="{{::item.title}}">
                                 <wb-icon ng-show="item.icon">{{::item.icon}}</wb-icon>
                                 <span translate="">{{::item.title}}</span>

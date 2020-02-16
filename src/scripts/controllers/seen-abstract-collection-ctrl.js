@@ -517,7 +517,7 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      * @param action to add to list
      */
 	this.addAction = function(action) {
-		if (!angular.isDefined(this.actions)) {
+		if (_.isUndefined(this.actions)) {
 			this.actions = [];
 		}
 		// TODO: maso, 2018: assert the action is MbAction
