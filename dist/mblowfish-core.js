@@ -5895,7 +5895,7 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      * @param action to add to list
      */
 	this.addAction = function(action) {
-		if (!angular.isDefined(this.actions)) {
+		if (_.isUndefined(this.actions)) {
 			this.actions = [];
 		}
 		// TODO: maso, 2018: assert the action is MbAction
@@ -8255,8 +8255,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Directives
  * @name mb-pagination-bar
@@ -8280,190 +8278,194 @@ angular.module('mblowfish-core')
  * in filter section.
  * 
  */
-.directive('mbPaginationBar', function ($window, $timeout, $mdMenu, $parse) {
+angular.module('mblowfish-core').directive('mbPaginationBar', function($window, $timeout, $mdMenu, $parse) {
 
-    function postLink(scope, element, attrs) {
+	function postLink(scope, element, attrs) {
 
-        var query = {
-                sortDesc: true,
-                sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-                        searchTerm: null
-        };
+		var query = {
+			sortDesc: true,
+			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+			searchTerm: null
+		};
         /*
          * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
          */
-        function __reload() {
-            if (!angular.isDefined(attrs.mbReload)) {
-                return;
-            }
-            $parse(attrs.mbReload)(scope.$parent);
-        }
+		function __reload() {
+			if (!angular.isDefined(attrs.mbReload)) {
+				return;
+			}
+			$parse(attrs.mbReload)(scope.$parent);
+		}
         /**
          * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
          */
-        function exportData() {
-            if (!angular.isFunction(scope.mbExport)) {
-                return;
-            }
-            scope.mbExport(scope.mbModel);
-        }
+		function exportData() {
+			if (!angular.isFunction(scope.mbExport)) {
+				return;
+			}
+			scope.mbExport(scope.mbModel);
+		}
 
-        function searchQuery() {
-            scope.mbModel.setQuery(scope.query.searchTerm);
-            __reload();
-        }
+		function searchQuery() {
+			scope.mbModel.setQuery(scope.query.searchTerm);
+			__reload();
+		}
 
-        function focusToElementById(id) {
-            $timeout(function () {
-                var searchControl;
-                searchControl = $window.document.getElementById(id);
-                searchControl.focus();
-            }, 50);
-        }
+		function focusToElementById(id) {
+			$timeout(function() {
+				var searchControl;
+				searchControl = $window.document.getElementById(id);
+				searchControl.focus();
+			}, 50);
+		}
 
-        function setSortOrder() {
-            scope.mbModel.clearSorters();
-            var key = scope.query.sortBy;
-            var order = scope.query.sortDesc ? 'd' : 'a';
-            scope.mbModel.addSorter(key, order);
-            __reload();
-        }
+		function setSortOrder() {
+			scope.mbModel.clearSorters();
+			var key = scope.query.sortBy;
+			var order = scope.query.sortDesc ? 'd' : 'a';
+			scope.mbModel.addSorter(key, order);
+			__reload();
+		}
 
         /*
          * Add filter to the current filters
          */
-        function addFilter() {
-            if (!scope.filters) {
-                scope.filters = [];
-            }
-            scope.filters.push({
-                key: '',
-                value: ''
-            });
-        }
+		function addFilter() {
+			if (!scope.filters) {
+				scope.filters = [];
+			}
+			scope.filters.push({
+				key: '',
+				value: ''
+			});
+		}
 
-        function putFilter(filter, index) {
-            scope.filters[index] = {
-                    key: filter.key,
-                    value: filter.value
-            };
-        }
+		function putFilter(filter, index) {
+			scope.filters[index] = {
+				key: filter.key,
+				value: filter.value
+			};
+		}
 
-        function applyFilter() {
-            scope.reload = false;
-            scope.mbModel.clearFilters();
-            if (scope.filters && scope.filters.length > 0) {
-                scope.filters.forEach(function (filter) {
-                    if (filter.key !== '' && filter.value && filter.value !== '') {
-                        scope.mbModel.addFilter(filter.key, filter.value);
-                        scope.reload = true;
-                    }
-                });
-            }
-            if (scope.reload) {
-                __reload();
-            }
-        }
+		function applyFilter() {
+			scope.reload = false;
+			scope.mbModel.clearFilters();
+			if (scope.filters && scope.filters.length > 0) {
+				scope.filters.forEach(function(filter) {
+					if (filter.key !== '' && filter.value && filter.value !== '') {
+						scope.mbModel.addFilter(filter.key, filter.value);
+						scope.reload = true;
+					}
+				});
+			}
+			if (scope.reload) {
+				__reload();
+			}
+		}
 
         /*
          * Remove filter to the current filters
          */
-        function removeFilter(filter, index) {
-            Object.keys(scope.mbModel.filterMap).forEach(function (key) {
-                if (key === filter.key) {
-                    scope.mbModel.removeFilter(scope.filters[index].key);
-                }
-            });
-            scope.filters.splice(index, 1);
-            if (scope.filters.length === 0) {
-                __reload();
-            }
-        }
+		function removeFilter(filter, index) {
+			Object.keys(scope.mbModel.filterMap).forEach(function(key) {
+				if (key === filter.key) {
+					scope.mbModel.removeFilter(scope.filters[index].key);
+				}
+			});
+			scope.filters.splice(index, 1);
+			if (scope.filters.length === 0) {
+				__reload();
+			}
+		}
 
-        function setFilterValue(value, index) {
-            scope.filterValue = value;
-            putFilter(index);
-        }
+		function setFilterValue(value, index) {
+			scope.filterValue = value;
+			putFilter(index);
+		}
 
 
-        //Fetch filters from children array of collection schema
-        function fetchFilterKeys() {
-            scope.mbProperties.forEach(function (object) {
-                scope.filterKeys.push(object.name);
-            });
-        }
+		//Fetch filters from children array of collection schema
+		function fetchFilterKeys() {
+			scope.mbProperties.forEach(function(object) {
+				scope.filterKeys.push(object.name);
+			});
+		}
+		
+		scope.runAction = function(action, $event){
+			action.exec($event);
+		};
 
-        scope.showBoxOne = false;
-        scope.focusToElement = focusToElementById;
-        // configure scope:
-        scope.searchQuery = searchQuery;
-        scope.setSortOrder = setSortOrder;
-        scope.addFilter = addFilter;
-        scope.putFilter = putFilter;
-        scope.applyFilter = applyFilter;
-        scope.removeFilter = removeFilter;
-        //scope.setFilterKey = setFilterKey;
-        scope.setFilterValue = setFilterValue;
-        scope.__reload = __reload;
-        scope.query = query;
-        if (angular.isFunction(scope.mbExport)) {
-            scope.exportData = exportData;
-        }
-        if (typeof scope.mbEnableSearch === 'undefined') {
-            scope.mbEnableSearch = true;
-        }
+		scope.showBoxOne = false;
+		scope.focusToElement = focusToElementById;
+		// configure scope:
+		scope.searchQuery = searchQuery;
+		scope.setSortOrder = setSortOrder;
+		scope.addFilter = addFilter;
+		scope.putFilter = putFilter;
+		scope.applyFilter = applyFilter;
+		scope.removeFilter = removeFilter;
+		//scope.setFilterKey = setFilterKey;
+		scope.setFilterValue = setFilterValue;
+		scope.__reload = __reload;
+		scope.query = query;
+		if (angular.isFunction(scope.mbExport)) {
+			scope.exportData = exportData;
+		}
+		if (typeof scope.mbEnableSearch === 'undefined') {
+			scope.mbEnableSearch = true;
+		}
 
-        scope.$watch('mbProperties', function (mbProperties) {
-            if (angular.isArray(mbProperties)) {
-                scope.filterKeys = [];
-                fetchFilterKeys();
-            }
-        });
-    }
+		scope.$watch('mbProperties', function(mbProperties) {
+			if (angular.isArray(mbProperties)) {
+				scope.filterKeys = [];
+				fetchFilterKeys();
+			}
+		});
+	}
 
-    return {
-        restrict: 'E',
-        templateUrl: 'views/directives/mb-pagination-bar.html',
-        scope: {
+	return {
+		restrict: 'E',
+		templateUrl: 'views/directives/mb-pagination-bar.html',
+		scope: {
             /*
              * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
              */
-            mbModel: '=',
+			mbModel: '=',
             /*
              * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
              * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
              */
-            mbReload: '@?',
+			mbReload: '@?',
             /*
              * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
              * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
              */
-            mbExport: '=',
+			mbExport: '=',
             /*
              * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
              * بشن.
              */
-            mbSortKeys: '=',
+			mbSortKeys: '=',
             /*
              * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
              */
-            mbProperties: '=?',
+			mbProperties: '=?',
 
-            /* titles corresponding to sort keys */
-            mbSortKeysTitles: '=?',
+			/* titles corresponding to sort keys */
+			mbSortKeysTitles: '=?',
 
             /*
              * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
              */
-            mbMoreActions: '=',
+			mbMoreActions: '=',
 
-            mbTitle: '@?',
-            mbIcon: '@?',
+			mbTitle: '@?',
+			mbIcon: '@?',
 
-            mbEnableSearch: '=?'
-        },
-        link: postLink
-    };
+			mbEnableSearch: '=?'
+		},
+		link: postLink
+	};
 });
 
 /*
@@ -11845,45 +11847,46 @@ angular.module('mblowfish-core')
  */
 
 
-
-angular.module('mblowfish-core')
 /**
  * @ngdoc Factories
  * @name MbAction
  * @description An action item
  * 
  */
-.factory('MbAction', function ($injector, $navigator, $window) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window) {
 
-    function Action(data) {
-        if (!angular.isDefined(data)) {
-            data = {};
-        }
-        angular.extend(this, data, {
-            priority: data.priority || 10
-        });
-        this.visible = this.visible || function () {
-            return true;
-        };
-        return this;
-    };
+	function Action(data) {
+		data = data || {};
+		angular.extend(this, data, {
+			priority: data.priority || 10
+		});
+		this.visible = this.visible || function() {
+			return true;
+		};
+		return this;
+	};
 
-    Action.prototype.exec = function ($event) {
-    	if ($event) {
-    		$event.stopPropagation();
-    		$event.preventDefault();
-    	}
-        if (this.action) {
-            return $injector.invoke(this.action, this, {
-            	$event: $event
-            });
-        } else if (this.url){
-            return $navigator.openPage(this.url);
-        }
-        $window.alert('Action \'' + this.id + '\' is not executable!?')
-    };
+	Action.prototype.exec = function($event) {
+//		if ($event) {
+//			$event.stopPropagation();
+//			$event.preventDefault();
+//		}
+		if(this.alias){
+			var actionId = this.actionId || this.id;
+			var $actions = $injector.get('$actions');
+			return $actions.exec(actionId, $event);
+		}
+		if (this.action) {
+			return $injector.invoke(this.action, this, {
+				$event: $event
+			});
+		} else if (this.url) {
+			return $navigator.openPage(this.url);
+		}
+		$window.alert('Action \'' + this.id + '\' is not executable!?')
+	};
 
-    return Action;
+	return Action;
 });
 
 /*
@@ -18788,7 +18791,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=runAction(item) aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
   );
 
 
