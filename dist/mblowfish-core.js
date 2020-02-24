@@ -3578,7 +3578,6 @@ angular.module('mblowfish-core')
 /*
  * Add to angular
  */
-angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
@@ -3586,8 +3585,8 @@ angular.module('mblowfish-core')//
  * @description Generic controller which is used as base in the platform
  * 
  */
-.controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
-	
+angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
+
 
 	this._hids = [];
 
@@ -3595,7 +3594,7 @@ angular.module('mblowfish-core')//
 	//--------------------------------------------------------
 	// --Events--
 	//--------------------------------------------------------
-	var EventHandlerId = function(type, id, callback){
+	var EventHandlerId = function(type, id, callback) {
 		this.type = type;
 		this.id = id;
 		this.callback = callback;
@@ -3606,17 +3605,17 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.addEventHandler = function(type, callback){
+	this.addEventHandler = function(type, callback) {
 		var callbackId = $dispatcher.on(type, callback);
 		this._hids.push(new EventHandlerId(type, callbackId, callback));
 	};
-	
+
 	/**
 	 * Remove a callback for an specific type
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.removeEventHandler = function(type, callback){
+	this.removeEventHandler = function(type, callback) {
 		// XXX: maso, 2019: remove handler
 	};
 
@@ -3663,7 +3662,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireCreated = function(type, items){
+	this.fireCreated = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'create', values);
 	};
@@ -3674,7 +3673,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireRead = function(type, items){
+	this.fireRead = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'read', values);
 	};
@@ -3685,7 +3684,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireUpdated = function(type, items){
+	this.fireUpdated = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'update', values);
 	};
@@ -3696,7 +3695,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireDeleted = function(type, items){
+	this.fireDeleted = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'delete', values);
 	};
@@ -3710,7 +3709,7 @@ angular.module('mblowfish-core')//
 	 */
 	var ctrl = this;
 	$scope.$on('$destroy', function() {
-		for(var i = 0; i < ctrl._hids.length; i++){
+		for (var i = 0; i < ctrl._hids.length; i++) {
 			var handlerId = ctrl._hids[i];
 			$dispatcher.off(handlerId.type, handlerId.id);
 		}
@@ -5543,9 +5542,12 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
 		// update the following part in the next version.
 		// this.items = _.concat(items, deff);
 		var ctrl = this;
-		_.forEach(items, function(item){
+		_.forEach(items, function(item) {
 			ctrl.items.push(item);
-		})
+		});
+		if (this.id) {
+			this.fireEvent(this.id, 'update', this.items);
+		}
 	};
 
     /**
@@ -5562,6 +5564,9 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      */
 	this.removeViewItems = function(items) {
 		differenceBy(this.items, items, 'id');
+		if (this.id) {
+			this.fireEvent(this.id, 'update', this.items);
+		}
 	};
 
     /**
@@ -5591,6 +5596,9 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      */
 	this.clearViewItems = function() {
 		this.items = [];
+		if (this.id) {
+			this.fireEvent(this.id, 'update', this.items);
+		}
 	};
 
 
@@ -5665,7 +5673,7 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      * 
      * XXX: maso, 2019: handle state machine
      */
-	this.addItem = function()  {
+	this.addItem = function() {
 		var ctrl = this;
 		$navigator.openDialog({
 			templateUrl: this._addDialog,
@@ -5805,10 +5813,12 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      * All children must call this function at the end of the cycle
      */
 	this.init = function(configs) {
+		configs = configs || {};
 		if (angular.isFunction(this.seen_abstract_collection_superInit)) {
 			this.seen_abstract_collection_superInit(configs);
 		}
 		var ctrl = this;
+		this.id = configs.id;
 		this.state = STATE_IDEAL;
 		if (!angular.isDefined(configs)) {
 			return;
@@ -18791,7 +18801,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=runAction(item) aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <wb-icon>{{::mbIcon}}</wb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <wb-icon>repeat</wb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <wb-icon>sort</wb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <wb-icon>filter_list</wb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <wb-icon>search</wb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <wb-icon>save</wb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <wb-icon>more_vert</wb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <wb-icon ng-show=item.icon>{{::item.icon}}</wb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <wb-icon ng-if=\"query.sortBy === key\">check_circle</wb-icon> <wb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</wb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <wb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</wb-icon> <wb-icon ng-if=query.sortDesc>filter_list</wb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <wb-icon ng-if=!query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=query.sortDesc>radio_button_unchecked</wb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <wb-icon ng-if=query.sortDesc>check_circle</wb-icon> <wb-icon ng-if=!query.sortDesc>radio_button_unchecked</wb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <wb-icon class=icon-rotate-180-for-rtl>arrow_back</wb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <wb-icon>done</wb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <wb-icon>add</wb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <wb-icon>delete</wb-icon> </md-button> </div> </div> </div>"
   );
 
 
