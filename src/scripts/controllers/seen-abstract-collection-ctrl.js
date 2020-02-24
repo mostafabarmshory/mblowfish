@@ -165,9 +165,12 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
 		// update the following part in the next version.
 		// this.items = _.concat(items, deff);
 		var ctrl = this;
-		_.forEach(items, function(item){
+		_.forEach(items, function(item) {
 			ctrl.items.push(item);
-		})
+		});
+		if (this.id) {
+			this.fireEvent(this.id, 'update', this.items);
+		}
 	};
 
     /**
@@ -184,6 +187,9 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      */
 	this.removeViewItems = function(items) {
 		differenceBy(this.items, items, 'id');
+		if (this.id) {
+			this.fireEvent(this.id, 'update', this.items);
+		}
 	};
 
     /**
@@ -213,6 +219,9 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      */
 	this.clearViewItems = function() {
 		this.items = [];
+		if (this.id) {
+			this.fireEvent(this.id, 'update', this.items);
+		}
 	};
 
 
@@ -287,7 +296,7 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      * 
      * XXX: maso, 2019: handle state machine
      */
-	this.addItem = function()  {
+	this.addItem = function() {
 		var ctrl = this;
 		$navigator.openDialog({
 			templateUrl: this._addDialog,
@@ -427,10 +436,12 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
      * All children must call this function at the end of the cycle
      */
 	this.init = function(configs) {
+		configs = configs || {};
 		if (angular.isFunction(this.seen_abstract_collection_superInit)) {
 			this.seen_abstract_collection_superInit(configs);
 		}
 		var ctrl = this;
+		this.id = configs.id;
 		this.state = STATE_IDEAL;
 		if (!angular.isDefined(configs)) {
 			return;

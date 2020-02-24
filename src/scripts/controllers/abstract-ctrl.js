@@ -24,7 +24,6 @@
 /*
  * Add to angular
  */
-angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
@@ -32,8 +31,8 @@ angular.module('mblowfish-core')//
  * @description Generic controller which is used as base in the platform
  * 
  */
-.controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
-	
+angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
+
 
 	this._hids = [];
 
@@ -41,7 +40,7 @@ angular.module('mblowfish-core')//
 	//--------------------------------------------------------
 	// --Events--
 	//--------------------------------------------------------
-	var EventHandlerId = function(type, id, callback){
+	var EventHandlerId = function(type, id, callback) {
 		this.type = type;
 		this.id = id;
 		this.callback = callback;
@@ -52,17 +51,17 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.addEventHandler = function(type, callback){
+	this.addEventHandler = function(type, callback) {
 		var callbackId = $dispatcher.on(type, callback);
 		this._hids.push(new EventHandlerId(type, callbackId, callback));
 	};
-	
+
 	/**
 	 * Remove a callback for an specific type
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.removeEventHandler = function(type, callback){
+	this.removeEventHandler = function(type, callback) {
 		// XXX: maso, 2019: remove handler
 	};
 
@@ -109,7 +108,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireCreated = function(type, items){
+	this.fireCreated = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'create', values);
 	};
@@ -120,7 +119,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireRead = function(type, items){
+	this.fireRead = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'read', values);
 	};
@@ -131,7 +130,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireUpdated = function(type, items){
+	this.fireUpdated = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'update', values);
 	};
@@ -142,7 +141,7 @@ angular.module('mblowfish-core')//
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireDeleted = function(type, items){
+	this.fireDeleted = function(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'delete', values);
 	};
@@ -156,7 +155,7 @@ angular.module('mblowfish-core')//
 	 */
 	var ctrl = this;
 	$scope.$on('$destroy', function() {
-		for(var i = 0; i < ctrl._hids.length; i++){
+		for (var i = 0; i < ctrl._hids.length; i++) {
 			var handlerId = ctrl._hids[i];
 			$dispatcher.off(handlerId.type, handlerId.id);
 		}
