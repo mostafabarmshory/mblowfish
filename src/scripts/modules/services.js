@@ -32,28 +32,76 @@ angular.module('mblowfish-core').service('$modules', function(
 	var LOCAL_MODULE_KEY = 'app.settings.modules';
 	var GLOBAL_MODULE_KEY = 'app.configs.modules';
 
-	this.addGlobalModule = function() { };
-	this.removeGlobalModule = function() { };
+	this.addGlobalModule = function(module1) {
+		this.loadModule(module1);
+		this.globalModules.push(module1);
+		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
+		$dispatcher.dispatch('/app/global/modules', {
+			type: 'create',
+			values: [module1]
+		});
+	};
+
+	this.removeGlobalModule = function(module1) {
+		var targetModule;
+		_.forEach(this.globalModules, function(item) {
+			if (module1.url === item.url) {
+				targetModule = item;
+			}
+		});
+
+		if (_.isUndefined(targetModule)) {
+			return;
+		}
+
+		var index = this.globalModules.indexOf(targetModule);
+		this.globalModules.splice(index, 1);
+		$app.setProperty(GloGLOBAL_MODULE_KEY, this.globalModules);
+		$dispatcher.dispatch('/app/global/modules', {
+			type: 'delete',
+			values: [module1]
+		});
+	};
+
+	this.removeGlobalModules = function() {
+		var modules = this.globalModules;
+		this.globalModules = [];
+		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
+		$dispatcher.dispatch('/app/global/modules', {
+			type: 'delete',
+			values: modules
+		});
+	};
+
 	this.getGlobalModules = function() {
 		return this.globalModules;
 	};
 
 
-	this.addLocalModule = function(module) {
-		this.loadModule(module);
-		this.localModules.push(module);
+	this.addLocalModule = function(module1) {
+		this.loadModule(module1);
+		this.localModules.push(module1);
 		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+		$dispatcher.dispatch('/app/local/modules', {
+			type: 'create',
+			values: [module1]
+		});
 	};
 
 	this.removeLocalModules = function() {
+		var modules = this.localModules;
 		this.localModules = [];
 		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+		$dispatcher.dispatch('/app/local/modules', {
+			type: 'delete',
+			values: modules
+		});
 	};
 
-	this.removeLocalModule = function(module) {
+	this.removeLocalModule = function(module1) {
 		var targetModule;
 		_.forEach(this.localModules, function(item) {
-			if (module.url === item.url) {
+			if (module1.url === item.url) {
 				targetModule = item;
 			}
 		});
@@ -65,7 +113,10 @@ angular.module('mblowfish-core').service('$modules', function(
 		var index = this.localModules.indexOf(targetModule);
 		this.localModules.splice(index, 1);
 		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
-		// TODO: need to reload the page
+		$dispatcher.dispatch('/app/local/modules', {
+			type: 'delete',
+			values: [module1]
+		});
 	};
 
 	this.getLocalModules = function() {
@@ -104,7 +155,16 @@ angular.module('mblowfish-core').service('$modules', function(
 			jobs.push(ctrl.loadModule(module));
 		});
 
-		return $q.all(jobs);
+		return $q.all(jobs).finally(function() {
+			$dispatcher.dispatch('/app/local/modules', {
+				type: 'read',
+				values: this.localModules
+			});
+			$dispatcher.dispatch('/app/global/modules', {
+				type: 'read',
+				values: this.globalModules
+			});
+		});
 	};
 
 	// staso, 2019: fire the state is changed
