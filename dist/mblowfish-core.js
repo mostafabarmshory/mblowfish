@@ -12840,6 +12840,216 @@ angular.module('mblowfish-core')
 	};
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * @ngdoc Controllers
+ * @name MbHelpCtrl
+ * @description Help page controller
+ * 
+ * Watches total system and update help data.
+ * 
+ */
+angular.module('mblowfish-core').controller('MbLocalModulesCtrl', function(
+	/* angularjs */ $scope, $controller,
+	/* Mblowfish */ $modules, $actions
+) {
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
+	 */
+	angular.extend(this, $controller('MbAbstractCtrl', {
+		$scope: $scope
+	}));
+
+	this.loadModules = function() {
+		this.modules = $modules.getLocalModules();
+	}
+
+	this.addModule = function($event) {
+		$actions.exec('mb.app.local.modules.create', $event);
+	};
+
+	this.deleteModule = function(item, $event) {
+		$event.modules = [item];
+		$actions.exec('mb.app.local.modules.delete', $event);
+	};
+
+	var ctrl = this;
+	this.addEventHandler('/app/local/modules', function() {
+		ctrl.loadModules();
+	});
+	ctrl.loadModules();
+});
+
+angular.module('mblowfish-core').controller('MGlobalModulesCtrl', function(
+	/* angularjs */ $scope, $controller,
+	/* Mblowfish */ $modules, $actions
+) {
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
+	 */
+	angular.extend(this, $controller('MbAbstractCtrl', {
+		$scope: $scope
+	}));
+
+	this.loadModules = function() {
+		this.modules = $modules.getGlobalModules();
+	}
+
+	this.addModule = function($event) {
+		$actions.exec('mb.app.global.modules.create', $event);
+	};
+
+	this.deleteModule = function(item, $event) {
+		$event.modules = [item];
+		$actions.exec('mb.app.global.modules.delete', $event);
+	};
+
+	var ctrl = this;
+	this.addEventHandler('/app/global/modules', function() {
+		ctrl.loadModules();
+	});
+	ctrl.loadModules();
+});
+
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Manages system moduels
+ */
+angular.module('mblowfish-core').run(function($actions, $modules, $resource, $window, $app) {
+	$actions.newAction({
+		id: 'mb.app.local.modules.create',
+		type: 'action',
+		priority: 1,
+		icon: 'view_module',
+		title: 'Add local module',
+		description: 'Adds new module into the application.',
+		/*
+		 * @ngInject
+		 */
+		action: function() {
+			return $resource.get('/app/modules', {
+				style: {},
+			}).then(function(modules) {
+				$modules.addLocalModule(modules[0]);
+			});
+		},
+		groups: []
+	});
+	$actions.newAction({
+		id: 'mb.app.local.modules.delete',
+		type: 'action',
+		priority: 1,
+		icon: 'view_module',
+		title: 'Delete local module',
+		description: 'Delete a module from the application.',
+		/*
+		 * @ngInject
+		 */
+		action: function($event) {
+			return $window.confirm('Delete modules?')
+				.then(function() {
+					_.forEach($event.modules, function(module1) {
+						$modules.removeLocalModule(module1);
+					});
+				});
+		},
+		groups: []
+	});
+
+
+
+	//--------------------------------------------------------------------------------
+	// Global
+	//--------------------------------------------------------------------------------
+	$actions.newAction({
+		id: 'mb.app.global.modules.create',
+		type: 'action',
+		priority: 1,
+		icon: 'view_module',
+		title: 'Add global module',
+		description: 'Adds new module into the application.',
+		/*
+		 * @ngInject
+		 */
+		action: function() {
+			return $resource.get('/app/modules', {
+				style: {},
+			}).then(function(modules) {
+				$modules.addGlobalModule(modules[0]);
+				return $app.storeApplicationConfig();
+			});
+		},
+		groups: []
+	});
+	$actions.newAction({
+		id: 'mb.app.global.modules.delete',
+		type: 'action',
+		priority: 1,
+		icon: 'view_module',
+		title: 'Delete global module',
+		description: 'Delete a module from the application.',
+		/*
+		 * @ngInject
+		 */
+		action: function($event) {
+			return $window.confirm('Delete modules?')
+				.then(function() {
+					_.forEach($event.modules, function(module1) {
+						$modules.removeGlobalModule(module1);
+					});
+					return $app.storeApplicationConfig();
+				});
+		},
+		groups: []
+	});
+});
+
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -12935,586 +13145,30 @@ angular.module('mblowfish-core').run(function($preferences) {
  */
 
 
-angular.module('mblowfish-core')
-/*
- * Init application resources
- */
-.run(function ($resource, $location, $controller) {
-
-    $resource.newPage({
-        type : 'wb-url',
-        icon: 'link',
-        label : 'URL',
-        templateUrl : 'views/resources/wb-url.html',
-        /*
-         * @ngInject
-         */
-        controller : function($scope) {
-            $scope.$watch('value', function(value) {
-                $scope.$parent.setValue(value);
-            });
-        },
-        controllerAs: 'ctrl',
-        tags : [ 'file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
-            'avatar', 'thumbnail',
-            // new models
-            'image-url', 'vedio-url', 'audio-url', 'page-url']
-    });
-
-    $resource.newPage({
-        type : 'script',
-        icon : 'script',
-        label : 'Script',
-        templateUrl : 'views/resources/wb-event-code-editor.html',
-        /*
-         * @ngInject
-         */
-        controller : function($scope, $window, $element) {
-            var ctrl = this;
-            this.value = $scope.value || {
-                code: '',
-                language: 'javascript',
-                languages: [{
-                    text: 'HTML/XML',
-                    value: 'markup'
-                },
-                {
-                    text: 'JavaScript',
-                    value: 'javascript'
-                },
-                {
-                    text: 'CSS',
-                    value: 'css'
-                }]
-            };
-            this.setCode = function(code) {
-                this.value.code = code;
-                $scope.$parent.setValue(this.value);
-            };
-
-            this.setLanguage = function(language){
-                this.value.code = language;
-                $scope.$parent.setValue(this.value);
-            };
-
-            this.setEditor = function(editor) {
-                this.editor = editor;
-                editor.setOptions({
-                    enableBasicAutocompletion: true, 
-                    enableLiveAutocompletion: true, 
-                    showPrintMargin: false, 
-                    maxLines: Infinity,
-                    fontSize: '100%'
-                });
-                $scope.editor = editor;
-//              editor.setTheme('resources/libs/ace/theme/chrome');
-//              editor.session.setMode('resources/libs/ace/mode/javascript');
-                editor.setValue(ctrl.value.code || '');
-                editor.on('change', function(){
-                    ctrl.setCode(editor.getValue());
-                });
-            };
-
-//          var ctrl = this;
-            $window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-            .then(function(){
-                ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-            });
-        },
-        controllerAs: 'ctrl',
-        tags : [ 'code', 'script']
-    });
-
-    function getDomain() {
-        return $location.protocol() + //
-        '://' + //
-        $location.host() + //
-        (($location.port() ? ':' + $location.port() : ''));
-    }
-
-//  TODO: maso, 2018: replace with class
-    function getSelection() {
-        if (!this.__selections) {
-            this.__selections = angular.isArray(this.value) ? this.value : [];
-        }
-        return this.__selections;
-    }
-
-    function getIndexOf(list, item) {
-        if (!angular.isDefined(item.id)) {
-            return list.indexOf(item);
-        }
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].id === item.id) {
-                return i;
-            }
-        }
-    }
-
-    function setSelected(item, selected) {
-        var selectionList = this.getSelection();
-        var index = getIndexOf(selectionList, item);
-        if (selected) {
-            // add to selection
-            if (index >= 0) {
-                return;
-            }
-            selectionList.push(item);
-        } else {
-            // remove from selection
-            if (index > -1) {
-                selectionList.splice(index, 1);
-            }
-        }
-    }
-
-    function isSelected(item) {
-        var selectionList = this.getSelection();
-        return getIndexOf(selectionList, item) >= 0;
-    }
-
-
-    /**
-     * @ngdoc Resources
-     * @name Account
-     * @description Get an account from resource
-     *
-     * Enable user to select an account
-     */
-    $resource.newPage({
-        label: 'Account',
-        type: 'account',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = false;
-            this.value = $scope.value;
-            this.setSelected = function (item) {
-                $scope.$parent.setValue(item);
-                $scope.$parent.answer();
-            };
-            this.isSelected = function (item) {
-                return item === this.value || item.id === this.value.id;
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['account']
-    });
-
-    $resource.newPage({
-        label: 'Account',
-        type: 'account id',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = false;
-            this.value = $scope.value;
-            this.setSelected = function (item) {
-                $scope.$parent.setValue(item.id);
-                $scope.$parent.answer();
-            };
-            this.isSelected = function (item) {
-                return item.id === this.value;
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['account_id', 'owner_id']
-    });
-
-    /**
-     * @ngdoc Resources
-     * @name Accounts
-     * @description Gets list of accounts
-     *
-     * Display a list of accounts and allow user to select them.
-     */
-    $resource.newPage({
-        label: 'Accounts',
-        type: 'account-list',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['accounts', '/user/accounts']
-    });
-
-    // Resource for role-list
-    $resource.newPage({
-        label: 'Role List',
-        type: 'role-list',
-        templateUrl: 'views/resources/mb-roles.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['roles', '/user/roles']
-    });
-
-
-    // Resource for group-list
-    $resource.newPage({
-        label: 'Group List',
-        type: 'group-list',
-        templateUrl: 'views/resources/mb-groups.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['groups']
-    });
-
-
-    /**
-     * @ngdoc WB Resources
-     * @name cms-content-image
-     * @description Load an Image URL from contents
-     */
-    $resource.newPage({
-        type: 'cms-content-image',
-        icon: 'image',
-        label: 'Images',
-        templateUrl: 'views/resources/mb-cms-images.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            /**
-             * Sets the absolute mode
-             *
-             * @param {boolean}
-             *            absolute mode of the controler
-             */
-            this.setAbsolute = function (absolute) {
-                this.absolute = absolute;
-            }
-
-            /**
-             * Checks if the mode is absolute
-             *
-             * @return absolute mode of the controller
-             */
-            this.isAbsolute = function () {
-                return this.absolute;
-            }
-
-            /*
-             * Sets value
-             */
-            this.setSelected = function (content) {
-                var path = '/api/v2/cms/contents/' + content.id + '/content';
-                if (this.isAbsolute()) {
-                    path = getDomain() + path;
-                }
-                this.value = path;
-                $scope.$parent.setValue(path);
-            }
-
-            // init the controller
-            this.init()
-        },
-        controllerAs: 'ctrl',
-        priority: 10,
-        tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
-    });
-    // TODO: maso, 2018: Add video resource
-    // TODO: maso, 2018: Add audio resource
-
-    /**
-     * @ngdoc WB Resources
-     * @name content-upload
-     * @description Upload a content and returns its URL
-     */
-    $resource.newPage({
-        type: 'content-upload',
-        icon: 'file_upload',
-        label: 'Upload',
-        templateUrl: 'views/resources/mb-cms-content-upload.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope, $cms, $translate, uuid4) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            this.absolute = false;
-            this.files = [];
-
-            /**
-             * Sets the absolute mode
-             *
-             * @param {boolean}
-             *            absolute mode of the controler
-             */
-            this.setAbsolute = function (absolute) {
-                this.absolute = absolute;
-            }
-
-            /**
-             * Checks if the mode is absolute
-             *
-             * @return absolute mode of the controller
-             */
-            this.isAbsolute = function () {
-                return this.absolute;
-            }
-
-            /*
-             * Add answer to controller
-             */
-            var ctrl = this;
-            $scope.answer = function () {
-                // create data
-                var data = {};
-                data.name = this.name || uuid4.generate();
-                data.description = this.description || 'Auto loaded content';
-                var file = null;
-                if (angular.isArray(ctrl.files) && ctrl.files.length) {
-                    file = ctrl.files[0].lfFile;
-                    data.title = file.name;
-                }
-                // upload data to server
-                return ctrl.uploadFile(data, file)//
-                .then(function (content) {
-                    var value = '/api/v2/cms/contents/' + content.id + '/content';
-                    if (ctrl.isAbsolute()) {
-                        value = getDomain() + value;
-                    }
-                    return value;
-                })//
-                .catch(function () {
-                    alert('Failed to create or upload content');
-                });
-            };
-            // init the controller
-            this.init();
-
-            // re-labeling lf-ng-md-file component for multi languages support
-            angular.element(function () {
-                var elm = angular.element('.lf-ng-md-file-input-drag-text');
-                if (elm[0]) {
-                    elm.text($translate.instant('Drag & Drop File Here'));
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-button-brower');
-                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-button-remove');
-                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-                    elm[0].childNodes[1].data = $translate.instant('Remove');
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-                if (elm[0]) {
-                    elm.text($translate.instant('Select File'));
-                }
-            });
-        },
-        controllerAs: 'ctrl',
-        priority: 1,
-        tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
-    });
-
-
-
-
-    /**
-     * @ngdoc WB Resources
-     * @name file-local
-     * @description Select a local file and return the object
-     * 
-     * This is used to select local file. It may be used in any part of the system. For example,
-     * to upload as content.
-     */
-    $resource.newPage({
-        type: 'local-file',
-        icon: 'file_upload',
-        label: 'Local file',
-        templateUrl: 'views/resources/mb-local-file.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope, $q, style) {
-            var ctrl = this;
-            $scope.style = style;
-            $scope.answer = function () {
-                if (angular.isArray(ctrl.files) && ctrl.files.length) {
-                    return $q.resolve(ctrl.files[0].lfFile);
-                }
-                return $q.reject('No file selected');
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 1,
-        tags: ['local-file']
-    });
-
-
-
-    //-------------------------------------------------------------//
-    // CMS:
-    //
-    // - Term Taxonomies
-    //-------------------------------------------------------------//
-    $resource.newPage({
-        label: 'Term Taxonomies',
-        type: '/cms/term-taxonomies',
-        templateUrl: 'views/resources/mb-term-taxonomies.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['/cms/term-taxonomies']
-    });
-
-    //-------------------------------------------------------------//
-    // Modules:
-    //
-    // - CMS module
-    // - Manual module
-    //-------------------------------------------------------------//
-    $resource.newPage({
-        label: 'Manual',
-        type: 'mb-module-manual',
-        templateUrl: 'views/resources/mb-module-manual.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            $scope.$watch('module', function(value) {
-                $scope.$parent.setValue([value]);
-            }, true);
-            $scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['/app/modules']
-    });
-
-    $resource.newPage({
-        type: 'cms-content-module',
-        icon: 'image',
-        label: 'On Domain Modules',
-        templateUrl: 'views/resources/mb-module-cms.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            /*
-             * Sets value
-             */
-            this.setSelected = function (content) {
-                var modules = [{
-                    title: content.title,
-                    load: this.loadType,
-                    url: '/api/v2/cms/contents/' + content.name + '/content',
-                    type: content.mime_type === 'application/javascript' ? 'js' : 'css'
-                }];
-                this.value = modules;
-                $scope.$parent.setValue(modules);
-            };
-
-            /*
-             * Sets load type
-             */
-            this.setLoadType = function(loadType){
-                this.loadType = loadType;
-                _.forEach(this.value, function(module){
-                    module.load = loadType;
-                });
-                $scope.$parent.setValue(this.value);
-            };
-
-            // init the controller
-            this.loadType = 'lazy';
-            this.init();
-        },
-        controllerAs: 'ctrl',
-        priority: 7,
-        tags: ['/app/modules']
-    });
+angular.module('mblowfish-core').run(function($resource, $location, $controller) {
+	//-------------------------------------------------------------//
+	// Modules:
+	//
+	// - CMS module
+	// - Manual module
+	//-------------------------------------------------------------//
+	$resource.newPage({
+		label: 'Manual',
+		type: 'mb-module-manual',
+		templateUrl: 'views/modules/mb-resources-manual.html',
+		/*
+		 * @ngInject
+		 */
+		controller: function($scope) {
+			$scope.$watch('module', function(value) {
+				$scope.$parent.setValue([value]);
+			}, true);
+			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+		},
+		controllerAs: 'resourceCtrl',
+		priority: 8,
+		tags: ['/app/modules']
+	});
 });
 
 /*
@@ -13551,28 +13205,76 @@ angular.module('mblowfish-core').service('$modules', function(
 	var LOCAL_MODULE_KEY = 'app.settings.modules';
 	var GLOBAL_MODULE_KEY = 'app.configs.modules';
 
-	this.addGlobalModule = function() { };
-	this.removeGlobalModule = function() { };
+	this.addGlobalModule = function(module1) {
+		this.loadModule(module1);
+		this.globalModules.push(module1);
+		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
+		$dispatcher.dispatch('/app/global/modules', {
+			type: 'create',
+			values: [module1]
+		});
+	};
+
+	this.removeGlobalModule = function(module1) {
+		var targetModule;
+		_.forEach(this.globalModules, function(item) {
+			if (module1.url === item.url) {
+				targetModule = item;
+			}
+		});
+
+		if (_.isUndefined(targetModule)) {
+			return;
+		}
+
+		var index = this.globalModules.indexOf(targetModule);
+		this.globalModules.splice(index, 1);
+		$app.setProperty(GloGLOBAL_MODULE_KEY, this.globalModules);
+		$dispatcher.dispatch('/app/global/modules', {
+			type: 'delete',
+			values: [module1]
+		});
+	};
+
+	this.removeGlobalModules = function() {
+		var modules = this.globalModules;
+		this.globalModules = [];
+		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
+		$dispatcher.dispatch('/app/global/modules', {
+			type: 'delete',
+			values: modules
+		});
+	};
+
 	this.getGlobalModules = function() {
 		return this.globalModules;
 	};
 
 
-	this.addLocalModule = function(module) {
-		this.loadModule(module);
-		this.localModules.push(module);
+	this.addLocalModule = function(module1) {
+		this.loadModule(module1);
+		this.localModules.push(module1);
 		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+		$dispatcher.dispatch('/app/local/modules', {
+			type: 'create',
+			values: [module1]
+		});
 	};
 
 	this.removeLocalModules = function() {
+		var modules = this.localModules;
 		this.localModules = [];
 		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+		$dispatcher.dispatch('/app/local/modules', {
+			type: 'delete',
+			values: modules
+		});
 	};
 
-	this.removeLocalModule = function(module) {
+	this.removeLocalModule = function(module1) {
 		var targetModule;
 		_.forEach(this.localModules, function(item) {
-			if (module.url === item.url) {
+			if (module1.url === item.url) {
 				targetModule = item;
 			}
 		});
@@ -13584,7 +13286,10 @@ angular.module('mblowfish-core').service('$modules', function(
 		var index = this.localModules.indexOf(targetModule);
 		this.localModules.splice(index, 1);
 		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
-		// TODO: need to reload the page
+		$dispatcher.dispatch('/app/local/modules', {
+			type: 'delete',
+			values: [module1]
+		});
 	};
 
 	this.getLocalModules = function() {
@@ -13623,7 +13328,16 @@ angular.module('mblowfish-core').service('$modules', function(
 			jobs.push(ctrl.loadModule(module));
 		});
 
-		return $q.all(jobs);
+		return $q.all(jobs).finally(function() {
+			$dispatcher.dispatch('/app/local/modules', {
+				type: 'read',
+				values: this.localModules
+			});
+			$dispatcher.dispatch('/app/global/modules', {
+				type: 'read',
+				values: this.globalModules
+			});
+		});
 	};
 
 	// staso, 2019: fire the state is changed
@@ -15347,586 +15061,511 @@ angular.module('mblowfish-core').run(function($language,
 
 
 angular.module('mblowfish-core')
-/*
- * Init application resources
- */
-.run(function ($resource, $location, $controller) {
+	/*
+	 * Init application resources
+	 */
+	.run(function($resource, $location, $controller) {
 
-    $resource.newPage({
-        type : 'wb-url',
-        icon: 'link',
-        label : 'URL',
-        templateUrl : 'views/resources/wb-url.html',
-        /*
-         * @ngInject
-         */
-        controller : function($scope) {
-            $scope.$watch('value', function(value) {
-                $scope.$parent.setValue(value);
-            });
-        },
-        controllerAs: 'ctrl',
-        tags : [ 'file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
-            'avatar', 'thumbnail',
-            // new models
-            'image-url', 'vedio-url', 'audio-url', 'page-url']
-    });
+		$resource.newPage({
+			type: 'wb-url',
+			icon: 'link',
+			label: 'URL',
+			templateUrl: 'views/resources/wb-url.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				$scope.$watch('value', function(value) {
+					$scope.$parent.setValue(value);
+				});
+			},
+			controllerAs: 'ctrl',
+			tags: ['file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
+				'avatar', 'thumbnail',
+				// new models
+				'image-url', 'vedio-url', 'audio-url', 'page-url']
+		});
 
-    $resource.newPage({
-        type : 'script',
-        icon : 'script',
-        label : 'Script',
-        templateUrl : 'views/resources/wb-event-code-editor.html',
-        /*
-         * @ngInject
-         */
-        controller : function($scope, $window, $element) {
-            var ctrl = this;
-            this.value = $scope.value || {
-                code: '',
-                language: 'javascript',
-                languages: [{
-                    text: 'HTML/XML',
-                    value: 'markup'
-                },
-                {
-                    text: 'JavaScript',
-                    value: 'javascript'
-                },
-                {
-                    text: 'CSS',
-                    value: 'css'
-                }]
-            };
-            this.setCode = function(code) {
-                this.value.code = code;
-                $scope.$parent.setValue(this.value);
-            };
+		$resource.newPage({
+			type: 'script',
+			icon: 'script',
+			label: 'Script',
+			templateUrl: 'views/resources/wb-event-code-editor.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope, $window, $element) {
+				var ctrl = this;
+				this.value = $scope.value || {
+					code: '',
+					language: 'javascript',
+					languages: [{
+						text: 'HTML/XML',
+						value: 'markup'
+					},
+					{
+						text: 'JavaScript',
+						value: 'javascript'
+					},
+					{
+						text: 'CSS',
+						value: 'css'
+					}]
+				};
+				this.setCode = function(code) {
+					this.value.code = code;
+					$scope.$parent.setValue(this.value);
+				};
 
-            this.setLanguage = function(language){
-                this.value.code = language;
-                $scope.$parent.setValue(this.value);
-            };
+				this.setLanguage = function(language) {
+					this.value.code = language;
+					$scope.$parent.setValue(this.value);
+				};
 
-            this.setEditor = function(editor) {
-                this.editor = editor;
-                editor.setOptions({
-                    enableBasicAutocompletion: true, 
-                    enableLiveAutocompletion: true, 
-                    showPrintMargin: false, 
-                    maxLines: Infinity,
-                    fontSize: '100%'
-                });
-                $scope.editor = editor;
-//              editor.setTheme('resources/libs/ace/theme/chrome');
-//              editor.session.setMode('resources/libs/ace/mode/javascript');
-                editor.setValue(ctrl.value.code || '');
-                editor.on('change', function(){
-                    ctrl.setCode(editor.getValue());
-                });
-            };
+				this.setEditor = function(editor) {
+					this.editor = editor;
+					editor.setOptions({
+						enableBasicAutocompletion: true,
+						enableLiveAutocompletion: true,
+						showPrintMargin: false,
+						maxLines: Infinity,
+						fontSize: '100%'
+					});
+					$scope.editor = editor;
+					//              editor.setTheme('resources/libs/ace/theme/chrome');
+					//              editor.session.setMode('resources/libs/ace/mode/javascript');
+					editor.setValue(ctrl.value.code || '');
+					editor.on('change', function() {
+						ctrl.setCode(editor.getValue());
+					});
+				};
 
-//          var ctrl = this;
-            $window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-            .then(function(){
-                ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-            });
-        },
-        controllerAs: 'ctrl',
-        tags : [ 'code', 'script']
-    });
+				//          var ctrl = this;
+				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
+					.then(function() {
+						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
+					});
+			},
+			controllerAs: 'ctrl',
+			tags: ['code', 'script']
+		});
 
-    function getDomain() {
-        return $location.protocol() + //
-        '://' + //
-        $location.host() + //
-        (($location.port() ? ':' + $location.port() : ''));
-    }
+		function getDomain() {
+			return $location.protocol() + //
+				'://' + //
+				$location.host() + //
+				(($location.port() ? ':' + $location.port() : ''));
+		}
 
-//  TODO: maso, 2018: replace with class
-    function getSelection() {
-        if (!this.__selections) {
-            this.__selections = angular.isArray(this.value) ? this.value : [];
-        }
-        return this.__selections;
-    }
+		//  TODO: maso, 2018: replace with class
+		function getSelection() {
+			if (!this.__selections) {
+				this.__selections = angular.isArray(this.value) ? this.value : [];
+			}
+			return this.__selections;
+		}
 
-    function getIndexOf(list, item) {
-        if (!angular.isDefined(item.id)) {
-            return list.indexOf(item);
-        }
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].id === item.id) {
-                return i;
-            }
-        }
-    }
+		function getIndexOf(list, item) {
+			if (!angular.isDefined(item.id)) {
+				return list.indexOf(item);
+			}
+			for (var i = 0; i < list.length; i++) {
+				if (list[i].id === item.id) {
+					return i;
+				}
+			}
+		}
 
-    function setSelected(item, selected) {
-        var selectionList = this.getSelection();
-        var index = getIndexOf(selectionList, item);
-        if (selected) {
-            // add to selection
-            if (index >= 0) {
-                return;
-            }
-            selectionList.push(item);
-        } else {
-            // remove from selection
-            if (index > -1) {
-                selectionList.splice(index, 1);
-            }
-        }
-    }
+		function setSelected(item, selected) {
+			var selectionList = this.getSelection();
+			var index = getIndexOf(selectionList, item);
+			if (selected) {
+				// add to selection
+				if (index >= 0) {
+					return;
+				}
+				selectionList.push(item);
+			} else {
+				// remove from selection
+				if (index > -1) {
+					selectionList.splice(index, 1);
+				}
+			}
+		}
 
-    function isSelected(item) {
-        var selectionList = this.getSelection();
-        return getIndexOf(selectionList, item) >= 0;
-    }
-
-
-    /**
-     * @ngdoc Resources
-     * @name Account
-     * @description Get an account from resource
-     *
-     * Enable user to select an account
-     */
-    $resource.newPage({
-        label: 'Account',
-        type: 'account',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = false;
-            this.value = $scope.value;
-            this.setSelected = function (item) {
-                $scope.$parent.setValue(item);
-                $scope.$parent.answer();
-            };
-            this.isSelected = function (item) {
-                return item === this.value || item.id === this.value.id;
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['account']
-    });
-
-    $resource.newPage({
-        label: 'Account',
-        type: 'account id',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = false;
-            this.value = $scope.value;
-            this.setSelected = function (item) {
-                $scope.$parent.setValue(item.id);
-                $scope.$parent.answer();
-            };
-            this.isSelected = function (item) {
-                return item.id === this.value;
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['account_id', 'owner_id']
-    });
-
-    /**
-     * @ngdoc Resources
-     * @name Accounts
-     * @description Gets list of accounts
-     *
-     * Display a list of accounts and allow user to select them.
-     */
-    $resource.newPage({
-        label: 'Accounts',
-        type: 'account-list',
-        templateUrl: 'views/resources/mb-accounts.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['accounts', '/user/accounts']
-    });
-
-    // Resource for role-list
-    $resource.newPage({
-        label: 'Role List',
-        type: 'role-list',
-        templateUrl: 'views/resources/mb-roles.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['roles', '/user/roles']
-    });
+		function isSelected(item) {
+			var selectionList = this.getSelection();
+			return getIndexOf(selectionList, item) >= 0;
+		}
 
 
-    // Resource for group-list
-    $resource.newPage({
-        label: 'Group List',
-        type: 'group-list',
-        templateUrl: 'views/resources/mb-groups.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            // TODO: maso, 2018: load selected item
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['groups']
-    });
+		/**
+		 * @ngdoc Resources
+		 * @name Account
+		 * @description Get an account from resource
+		 *
+		 * Enable user to select an account
+		 */
+		$resource.newPage({
+			label: 'Account',
+			type: 'account',
+			templateUrl: 'views/resources/mb-accounts.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				// TODO: maso, 2018: load selected item
+				$scope.multi = false;
+				this.value = $scope.value;
+				this.setSelected = function(item) {
+					$scope.$parent.setValue(item);
+					$scope.$parent.answer();
+				};
+				this.isSelected = function(item) {
+					return item === this.value || item.id === this.value.id;
+				};
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 8,
+			tags: ['account']
+		});
+
+		$resource.newPage({
+			label: 'Account',
+			type: 'account id',
+			templateUrl: 'views/resources/mb-accounts.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				// TODO: maso, 2018: load selected item
+				$scope.multi = false;
+				this.value = $scope.value;
+				this.setSelected = function(item) {
+					$scope.$parent.setValue(item.id);
+					$scope.$parent.answer();
+				};
+				this.isSelected = function(item) {
+					return item.id === this.value;
+				};
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 8,
+			tags: ['account_id', 'owner_id']
+		});
+
+		/**
+		 * @ngdoc Resources
+		 * @name Accounts
+		 * @description Gets list of accounts
+		 *
+		 * Display a list of accounts and allow user to select them.
+		 */
+		$resource.newPage({
+			label: 'Accounts',
+			type: 'account-list',
+			templateUrl: 'views/resources/mb-accounts.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				// TODO: maso, 2018: load selected item
+				$scope.multi = true;
+				this.value = $scope.value;
+				this.setSelected = function(item, selected) {
+					this._setSelected(item, selected);
+					$scope.$parent.setValue(this.getSelection());
+				};
+				this._setSelected = setSelected;
+				this.isSelected = isSelected;
+				this.getSelection = getSelection;
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 8,
+			tags: ['accounts', '/user/accounts']
+		});
+
+		// Resource for role-list
+		$resource.newPage({
+			label: 'Role List',
+			type: 'role-list',
+			templateUrl: 'views/resources/mb-roles.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				// TODO: maso, 2018: load selected item
+				$scope.multi = true;
+				this.value = $scope.value;
+				this.setSelected = function(item, selected) {
+					this._setSelected(item, selected);
+					$scope.$parent.setValue(this.getSelection());
+				};
+				this._setSelected = setSelected;
+				this.isSelected = isSelected;
+				this.getSelection = getSelection;
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 8,
+			tags: ['roles', '/user/roles']
+		});
 
 
-    /**
-     * @ngdoc WB Resources
-     * @name cms-content-image
-     * @description Load an Image URL from contents
-     */
-    $resource.newPage({
-        type: 'cms-content-image',
-        icon: 'image',
-        label: 'Images',
-        templateUrl: 'views/resources/mb-cms-images.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            /**
-             * Sets the absolute mode
-             *
-             * @param {boolean}
-             *            absolute mode of the controler
-             */
-            this.setAbsolute = function (absolute) {
-                this.absolute = absolute;
-            }
-
-            /**
-             * Checks if the mode is absolute
-             *
-             * @return absolute mode of the controller
-             */
-            this.isAbsolute = function () {
-                return this.absolute;
-            }
-
-            /*
-             * Sets value
-             */
-            this.setSelected = function (content) {
-                var path = '/api/v2/cms/contents/' + content.id + '/content';
-                if (this.isAbsolute()) {
-                    path = getDomain() + path;
-                }
-                this.value = path;
-                $scope.$parent.setValue(path);
-            }
-
-            // init the controller
-            this.init()
-        },
-        controllerAs: 'ctrl',
-        priority: 10,
-        tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
-    });
-    // TODO: maso, 2018: Add video resource
-    // TODO: maso, 2018: Add audio resource
-
-    /**
-     * @ngdoc WB Resources
-     * @name content-upload
-     * @description Upload a content and returns its URL
-     */
-    $resource.newPage({
-        type: 'content-upload',
-        icon: 'file_upload',
-        label: 'Upload',
-        templateUrl: 'views/resources/mb-cms-content-upload.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope, $cms, $translate, uuid4) {
-
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
-
-            this.absolute = false;
-            this.files = [];
-
-            /**
-             * Sets the absolute mode
-             *
-             * @param {boolean}
-             *            absolute mode of the controler
-             */
-            this.setAbsolute = function (absolute) {
-                this.absolute = absolute;
-            }
-
-            /**
-             * Checks if the mode is absolute
-             *
-             * @return absolute mode of the controller
-             */
-            this.isAbsolute = function () {
-                return this.absolute;
-            }
-
-            /*
-             * Add answer to controller
-             */
-            var ctrl = this;
-            $scope.answer = function () {
-                // create data
-                var data = {};
-                data.name = this.name || uuid4.generate();
-                data.description = this.description || 'Auto loaded content';
-                var file = null;
-                if (angular.isArray(ctrl.files) && ctrl.files.length) {
-                    file = ctrl.files[0].lfFile;
-                    data.title = file.name;
-                }
-                // upload data to server
-                return ctrl.uploadFile(data, file)//
-                .then(function (content) {
-                    var value = '/api/v2/cms/contents/' + content.id + '/content';
-                    if (ctrl.isAbsolute()) {
-                        value = getDomain() + value;
-                    }
-                    return value;
-                })//
-                .catch(function () {
-                    alert('Failed to create or upload content');
-                });
-            };
-            // init the controller
-            this.init();
-
-            // re-labeling lf-ng-md-file component for multi languages support
-            angular.element(function () {
-                var elm = angular.element('.lf-ng-md-file-input-drag-text');
-                if (elm[0]) {
-                    elm.text($translate.instant('Drag & Drop File Here'));
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-button-brower');
-                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-button-remove');
-                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-                    elm[0].childNodes[1].data = $translate.instant('Remove');
-                }
-
-                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-                if (elm[0]) {
-                    elm.text($translate.instant('Select File'));
-                }
-            });
-        },
-        controllerAs: 'ctrl',
-        priority: 1,
-        tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
-    });
+		// Resource for group-list
+		$resource.newPage({
+			label: 'Group List',
+			type: 'group-list',
+			templateUrl: 'views/resources/mb-groups.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				// TODO: maso, 2018: load selected item
+				$scope.multi = true;
+				this.value = $scope.value;
+				this.setSelected = function(item, selected) {
+					this._setSelected(item, selected);
+					$scope.$parent.setValue(this.getSelection());
+				};
+				this._setSelected = setSelected;
+				this.isSelected = isSelected;
+				this.getSelection = getSelection;
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 8,
+			tags: ['groups']
+		});
 
 
+		/**
+		 * @ngdoc WB Resources
+		 * @name cms-content-image
+		 * @description Load an Image URL from contents
+		 */
+		$resource.newPage({
+			type: 'cms-content-image',
+			icon: 'image',
+			label: 'Images',
+			templateUrl: 'views/resources/mb-cms-images.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
 
+				/*
+				 * Extends collection controller
+				 */
+				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+					$scope: $scope
+				}));
 
-    /**
-     * @ngdoc WB Resources
-     * @name file-local
-     * @description Select a local file and return the object
-     * 
-     * This is used to select local file. It may be used in any part of the system. For example,
-     * to upload as content.
-     */
-    $resource.newPage({
-        type: 'local-file',
-        icon: 'file_upload',
-        label: 'Local file',
-        templateUrl: 'views/resources/mb-local-file.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope, $q, style) {
-            var ctrl = this;
-            $scope.style = style;
-            $scope.answer = function () {
-                if (angular.isArray(ctrl.files) && ctrl.files.length) {
-                    return $q.resolve(ctrl.files[0].lfFile);
-                }
-                return $q.reject('No file selected');
-            };
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 1,
-        tags: ['local-file']
-    });
+				/**
+				 * Sets the absolute mode
+				 *
+				 * @param {boolean}
+				 *            absolute mode of the controler
+				 */
+				this.setAbsolute = function(absolute) {
+					this.absolute = absolute;
+				}
+
+				/**
+				 * Checks if the mode is absolute
+				 *
+				 * @return absolute mode of the controller
+				 */
+				this.isAbsolute = function() {
+					return this.absolute;
+				}
+
+				/*
+				 * Sets value
+				 */
+				this.setSelected = function(content) {
+					var path = '/api/v2/cms/contents/' + content.id + '/content';
+					if (this.isAbsolute()) {
+						path = getDomain() + path;
+					}
+					this.value = path;
+					$scope.$parent.setValue(path);
+				}
+
+				// init the controller
+				this.init()
+			},
+			controllerAs: 'ctrl',
+			priority: 10,
+			tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
+		});
+		// TODO: maso, 2018: Add video resource
+		// TODO: maso, 2018: Add audio resource
+
+		/**
+		 * @ngdoc WB Resources
+		 * @name content-upload
+		 * @description Upload a content and returns its URL
+		 */
+		$resource.newPage({
+			type: 'content-upload',
+			icon: 'file_upload',
+			label: 'Upload',
+			templateUrl: 'views/resources/mb-cms-content-upload.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope, $cms, $translate, uuid4) {
+
+				/*
+				 * Extends collection controller
+				 */
+				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+					$scope: $scope
+				}));
+
+				this.absolute = false;
+				this.files = [];
+
+				/**
+				 * Sets the absolute mode
+				 *
+				 * @param {boolean}
+				 *            absolute mode of the controler
+				 */
+				this.setAbsolute = function(absolute) {
+					this.absolute = absolute;
+				}
+
+				/**
+				 * Checks if the mode is absolute
+				 *
+				 * @return absolute mode of the controller
+				 */
+				this.isAbsolute = function() {
+					return this.absolute;
+				}
+
+				/*
+				 * Add answer to controller
+				 */
+				var ctrl = this;
+				$scope.answer = function() {
+					// create data
+					var data = {};
+					data.name = this.name || uuid4.generate();
+					data.description = this.description || 'Auto loaded content';
+					var file = null;
+					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+						file = ctrl.files[0].lfFile;
+						data.title = file.name;
+					}
+					// upload data to server
+					return ctrl.uploadFile(data, file)//
+						.then(function(content) {
+							var value = '/api/v2/cms/contents/' + content.id + '/content';
+							if (ctrl.isAbsolute()) {
+								value = getDomain() + value;
+							}
+							return value;
+						})//
+						.catch(function() {
+							alert('Failed to create or upload content');
+						});
+				};
+				// init the controller
+				this.init();
+
+				// re-labeling lf-ng-md-file component for multi languages support
+				angular.element(function() {
+					var elm = angular.element('.lf-ng-md-file-input-drag-text');
+					if (elm[0]) {
+						elm.text($translate.instant('Drag & Drop File Here'));
+					}
+
+					elm = angular.element('.lf-ng-md-file-input-button-brower');
+					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+						elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+					}
+
+					elm = angular.element('.lf-ng-md-file-input-button-remove');
+					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+						elm[0].childNodes[1].data = $translate.instant('Remove');
+					}
+
+					elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+					if (elm[0]) {
+						elm.text($translate.instant('Select File'));
+					}
+				});
+			},
+			controllerAs: 'ctrl',
+			priority: 1,
+			tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
+		});
 
 
 
-    //-------------------------------------------------------------//
-    // CMS:
-    //
-    // - Term Taxonomies
-    //-------------------------------------------------------------//
-    $resource.newPage({
-        label: 'Term Taxonomies',
-        type: '/cms/term-taxonomies',
-        templateUrl: 'views/resources/mb-term-taxonomies.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            $scope.multi = true;
-            this.value = $scope.value;
-            this.setSelected = function (item, selected) {
-                this._setSelected(item, selected);
-                $scope.$parent.setValue(this.getSelection());
-            };
-            this._setSelected = setSelected;
-            this.isSelected = isSelected;
-            this.getSelection = getSelection;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['/cms/term-taxonomies']
-    });
 
-    //-------------------------------------------------------------//
-    // Modules:
-    //
-    // - CMS module
-    // - Manual module
-    //-------------------------------------------------------------//
-    $resource.newPage({
-        label: 'Manual',
-        type: 'mb-module-manual',
-        templateUrl: 'views/resources/mb-module-manual.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
-            $scope.$watch('module', function(value) {
-                $scope.$parent.setValue([value]);
-            }, true);
-            $scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-        },
-        controllerAs: 'resourceCtrl',
-        priority: 8,
-        tags: ['/app/modules']
-    });
+		/**
+		 * @ngdoc WB Resources
+		 * @name file-local
+		 * @description Select a local file and return the object
+		 * 
+		 * This is used to select local file. It may be used in any part of the system. For example,
+		 * to upload as content.
+		 */
+		$resource.newPage({
+			type: 'local-file',
+			icon: 'file_upload',
+			label: 'Local file',
+			templateUrl: 'views/resources/mb-local-file.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope, $q, style) {
+				var ctrl = this;
+				$scope.style = style;
+				$scope.answer = function() {
+					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+						return $q.resolve(ctrl.files[0].lfFile);
+					}
+					return $q.reject('No file selected');
+				};
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 1,
+			tags: ['local-file']
+		});
 
-    $resource.newPage({
-        type: 'cms-content-module',
-        icon: 'image',
-        label: 'On Domain Modules',
-        templateUrl: 'views/resources/mb-module-cms.html',
-        /*
-         * @ngInject
-         */
-        controller: function ($scope) {
 
-            /*
-             * Extends collection controller
-             */
-            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-                $scope: $scope
-            }));
 
-            /*
-             * Sets value
-             */
-            this.setSelected = function (content) {
-                var modules = [{
-                    title: content.title,
-                    load: this.loadType,
-                    url: '/api/v2/cms/contents/' + content.name + '/content',
-                    type: content.mime_type === 'application/javascript' ? 'js' : 'css'
-                }];
-                this.value = modules;
-                $scope.$parent.setValue(modules);
-            };
-
-            /*
-             * Sets load type
-             */
-            this.setLoadType = function(loadType){
-                this.loadType = loadType;
-                _.forEach(this.value, function(module){
-                    module.load = loadType;
-                });
-                $scope.$parent.setValue(this.value);
-            };
-
-            // init the controller
-            this.loadType = 'lazy';
-            this.init();
-        },
-        controllerAs: 'ctrl',
-        priority: 7,
-        tags: ['/app/modules']
-    });
-});
+		//-------------------------------------------------------------//
+		// CMS:
+		//
+		// - Term Taxonomies
+		//-------------------------------------------------------------//
+		$resource.newPage({
+			label: 'Term Taxonomies',
+			type: '/cms/term-taxonomies',
+			templateUrl: 'views/resources/mb-term-taxonomies.html',
+			/*
+			 * @ngInject
+			 */
+			controller: function($scope) {
+				$scope.multi = true;
+				this.value = $scope.value;
+				this.setSelected = function(item, selected) {
+					this._setSelected(item, selected);
+					$scope.$parent.setValue(this.getSelection());
+				};
+				this._setSelected = setSelected;
+				this.isSelected = isSelected;
+				this.getSelection = getSelection;
+			},
+			controllerAs: 'resourceCtrl',
+			priority: 8,
+			tags: ['/cms/term-taxonomies']
+		});
+	});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -19694,12 +19333,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/modules/mb-option.html',
-    "<div> Module options </div>"
+    "<form ng-cloak ng-controller=\"MbLocalModulesCtrl as ctrl\" flex layout=column> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <wb-icon ng-if=\"item.type == 'css'\">style</wb-icon> <wb-icon ng-if=\"item.type == 'js'\">tune</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <wb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</wb-icon> </md-list-item> </md-list> </md-content> <div layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <wb-icon>add</wb-icon> </md-button> </div> </form>"
   );
 
 
   $templateCache.put('views/modules/mb-preference.html',
-    "<div> Module options </div>"
+    "<form ng-cloak ng-controller=\"MGlobalModulesCtrl as ctrl\" flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <wb-icon>add</wb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <wb-icon ng-if=\"item.type == 'css'\">style</wb-icon> <wb-icon ng-if=\"item.type == 'js'\">tune</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <wb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</wb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
   );
 
 
@@ -19854,7 +19493,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/sidenavs/mb-options.html',
-    " <mb-user-toolbar mb-actions=userActions> </mb-user-toolbar>  <md-content layout-padding> <mb-dynamic-tabs mb-tabs=tabs> </mb-dynamic-tabs> </md-content>"
+    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex style=\"position: relative; height: 100%\">   <mb-user-toolbar mb-actions=userActions> </mb-user-toolbar>  <md-content layout-padding flex> <mb-dynamic-tabs mb-tabs=tabs> </mb-dynamic-tabs> </md-content> </div>"
   );
 
 
