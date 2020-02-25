@@ -36,23 +36,22 @@
  * 
  */
 
-
 angular.module('mblowfish-core', [ //
-//	Angular
-	'ngMaterial', 
-	'ngAnimate', 
+	//	Angular
+	'ngMaterial',
+	'ngAnimate',
 	'ngCookies',
 	'ngSanitize', //
 	'ngRoute',
-//	Seen
+	//	Seen
 	'seen-core',
 	'seen-user',
 	'seen-tenant',
 	'seen-cms',
 	'seen-monitor',
-//	AM-WB
-	'am-wb-core', 
-//	Others
+	//	AM-WB
+	'am-wb-core',
+	//	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
 	'ng-appcache',//
@@ -62,32 +61,48 @@ angular.module('mblowfish-core', [ //
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'pascalprecht.translate',
 	'mdColorPicker',
-])
-.run(function instantiateRoute($widget, $routeParams) {
+]).run(function instantiateRoute($widget, $routeParams, $injector, $window) {
 	$widget.setProvider('$routeParams', $routeParams);
+
+	/***************************************************************************
+	 * Mblowfish global service
+	 ***************************************************************************/
+	$window.mblowfish = (function($injector) {
+		this.extensions = [];
+		
+		/**
+		 * Enable an extionsion
+		 */
+		this.addExtension = function(loader) {
+			this.extensions.push(loader);
+			$injector.invoke(loader);
+		};
+		
+		return this;
+	})($injector);
 })
 
-/*******************************************************
- * Compatibility with old version
- *******************************************************/ 
-.factory('Action', function (MbAction) {
-	return MbAction;
-})
-.factory('ActionGroup', function (MbActionGroup) {
-	return MbActionGroup;
-})
-.factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
-	return MbHttpRequestInterceptor;
-})
-.controller('MessagesCtrl', function ($scope, $controller) {
-    angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
-        $scope : $scope
-    }));
-})
-.controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
-    angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
-        $scope : $scope
-    }));
-})
+	/*******************************************************
+	 * Compatibility with old version
+	 *******************************************************/
+	.factory('Action', function(MbAction) {
+		return MbAction;
+	})
+	.factory('ActionGroup', function(MbActionGroup) {
+		return MbActionGroup;
+	})
+	.factory('httpRequestInterceptor', function(MbHttpRequestInterceptor) {
+		return MbHttpRequestInterceptor;
+	})
+	.controller('MessagesCtrl', function($scope, $controller) {
+		angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
+			$scope: $scope
+		}));
+	})
+	.controller('AmWbSeenCmsContentsCtrl', function($scope, $controller) {
+		angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
+			$scope: $scope
+		}));
+	})
 
-;
+	;

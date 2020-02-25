@@ -141,6 +141,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/modules/mb-option.html',
+    "<div> Module options </div>"
+  );
+
+
+  $templateCache.put('views/modules/mb-preference.html',
+    "<div> Module options </div>"
+  );
+
+
+  $templateCache.put('views/modules/mb-resources-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
+  );
+
+
   $templateCache.put('views/options/mb-local.html',
     "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
@@ -196,6 +211,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/preferences/mb-modules.html',
+    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
+  );
+
+
   $templateCache.put('views/preferences/mb-update.html',
     "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
   );
@@ -238,16 +258,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/resources/mb-local-file.html',
     "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
-  );
-
-
-  $templateCache.put('views/resources/mb-module-cms.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> <div id=extra-config> <md-input-container> <label translate=\"\">Load Type</label> <md-select ng-change=ctrl.setLoadType(ctrl.loadType) ng-model=ctrl.loadType> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </div> </div>"
-  );
-
-
-  $templateCache.put('views/resources/mb-module-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
   );
 
 

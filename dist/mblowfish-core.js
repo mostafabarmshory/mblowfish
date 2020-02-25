@@ -2001,23 +2001,22 @@ if (typeof exports == "object") {
  * 
  */
 
-
 angular.module('mblowfish-core', [ //
-//	Angular
-	'ngMaterial', 
-	'ngAnimate', 
+	//	Angular
+	'ngMaterial',
+	'ngAnimate',
 	'ngCookies',
 	'ngSanitize', //
 	'ngRoute',
-//	Seen
+	//	Seen
 	'seen-core',
 	'seen-user',
 	'seen-tenant',
 	'seen-cms',
 	'seen-monitor',
-//	AM-WB
-	'am-wb-core', 
-//	Others
+	//	AM-WB
+	'am-wb-core',
+	//	Others
 	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
 	'ng-appcache',//
@@ -2027,35 +2026,51 @@ angular.module('mblowfish-core', [ //
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'pascalprecht.translate',
 	'mdColorPicker',
-])
-.run(function instantiateRoute($widget, $routeParams) {
+]).run(function instantiateRoute($widget, $routeParams, $injector, $window) {
 	$widget.setProvider('$routeParams', $routeParams);
+
+	/***************************************************************************
+	 * Mblowfish global service
+	 ***************************************************************************/
+	$window.mblowfish = (function($injector) {
+		this.extensions = [];
+		
+		/**
+		 * Enable an extionsion
+		 */
+		this.addExtension = function(loader) {
+			this.extensions.push(loader);
+			$injector.invoke(loader);
+		};
+		
+		return this;
+	})($injector);
 })
 
-/*******************************************************
- * Compatibility with old version
- *******************************************************/ 
-.factory('Action', function (MbAction) {
-	return MbAction;
-})
-.factory('ActionGroup', function (MbActionGroup) {
-	return MbActionGroup;
-})
-.factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
-	return MbHttpRequestInterceptor;
-})
-.controller('MessagesCtrl', function ($scope, $controller) {
-    angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
-        $scope : $scope
-    }));
-})
-.controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
-    angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
-        $scope : $scope
-    }));
-})
+	/*******************************************************
+	 * Compatibility with old version
+	 *******************************************************/
+	.factory('Action', function(MbAction) {
+		return MbAction;
+	})
+	.factory('ActionGroup', function(MbActionGroup) {
+		return MbActionGroup;
+	})
+	.factory('httpRequestInterceptor', function(MbHttpRequestInterceptor) {
+		return MbHttpRequestInterceptor;
+	})
+	.controller('MessagesCtrl', function($scope, $controller) {
+		angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
+			$scope: $scope
+		}));
+	})
+	.controller('AmWbSeenCmsContentsCtrl', function($scope, $controller) {
+		angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
+			$scope: $scope
+		}));
+	})
 
-;
+	;
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -12825,6 +12840,802 @@ angular.module('mblowfish-core')
 	};
 });
 
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Manages system moduels
+ */
+angular.module('mblowfish-core').run(function($options) {
+	$options.newPage({
+		title: 'modules',
+		description: 'Manage user modules to enable for all current device.',
+		templateUrl: 'views/modules/mb-option.html',
+		tags: ['modules']
+	});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Manages system moduels
+ */
+angular.module('mblowfish-core').run(function($preferences) {
+	// Pages
+	$preferences.newPage({
+		id: 'modules',
+		title: 'Modules',
+		description: 'Manage global modules to enable for all users.',
+		templateUrl: 'views/modules/mb-preference.html',
+		icon: 'language',
+		tags: ['modules']
+	});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+/*
+ * Init application resources
+ */
+.run(function ($resource, $location, $controller) {
+
+    $resource.newPage({
+        type : 'wb-url',
+        icon: 'link',
+        label : 'URL',
+        templateUrl : 'views/resources/wb-url.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope) {
+            $scope.$watch('value', function(value) {
+                $scope.$parent.setValue(value);
+            });
+        },
+        controllerAs: 'ctrl',
+        tags : [ 'file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
+            'avatar', 'thumbnail',
+            // new models
+            'image-url', 'vedio-url', 'audio-url', 'page-url']
+    });
+
+    $resource.newPage({
+        type : 'script',
+        icon : 'script',
+        label : 'Script',
+        templateUrl : 'views/resources/wb-event-code-editor.html',
+        /*
+         * @ngInject
+         */
+        controller : function($scope, $window, $element) {
+            var ctrl = this;
+            this.value = $scope.value || {
+                code: '',
+                language: 'javascript',
+                languages: [{
+                    text: 'HTML/XML',
+                    value: 'markup'
+                },
+                {
+                    text: 'JavaScript',
+                    value: 'javascript'
+                },
+                {
+                    text: 'CSS',
+                    value: 'css'
+                }]
+            };
+            this.setCode = function(code) {
+                this.value.code = code;
+                $scope.$parent.setValue(this.value);
+            };
+
+            this.setLanguage = function(language){
+                this.value.code = language;
+                $scope.$parent.setValue(this.value);
+            };
+
+            this.setEditor = function(editor) {
+                this.editor = editor;
+                editor.setOptions({
+                    enableBasicAutocompletion: true, 
+                    enableLiveAutocompletion: true, 
+                    showPrintMargin: false, 
+                    maxLines: Infinity,
+                    fontSize: '100%'
+                });
+                $scope.editor = editor;
+//              editor.setTheme('resources/libs/ace/theme/chrome');
+//              editor.session.setMode('resources/libs/ace/mode/javascript');
+                editor.setValue(ctrl.value.code || '');
+                editor.on('change', function(){
+                    ctrl.setCode(editor.getValue());
+                });
+            };
+
+//          var ctrl = this;
+            $window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
+            .then(function(){
+                ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
+            });
+        },
+        controllerAs: 'ctrl',
+        tags : [ 'code', 'script']
+    });
+
+    function getDomain() {
+        return $location.protocol() + //
+        '://' + //
+        $location.host() + //
+        (($location.port() ? ':' + $location.port() : ''));
+    }
+
+//  TODO: maso, 2018: replace with class
+    function getSelection() {
+        if (!this.__selections) {
+            this.__selections = angular.isArray(this.value) ? this.value : [];
+        }
+        return this.__selections;
+    }
+
+    function getIndexOf(list, item) {
+        if (!angular.isDefined(item.id)) {
+            return list.indexOf(item);
+        }
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === item.id) {
+                return i;
+            }
+        }
+    }
+
+    function setSelected(item, selected) {
+        var selectionList = this.getSelection();
+        var index = getIndexOf(selectionList, item);
+        if (selected) {
+            // add to selection
+            if (index >= 0) {
+                return;
+            }
+            selectionList.push(item);
+        } else {
+            // remove from selection
+            if (index > -1) {
+                selectionList.splice(index, 1);
+            }
+        }
+    }
+
+    function isSelected(item) {
+        var selectionList = this.getSelection();
+        return getIndexOf(selectionList, item) >= 0;
+    }
+
+
+    /**
+     * @ngdoc Resources
+     * @name Account
+     * @description Get an account from resource
+     *
+     * Enable user to select an account
+     */
+    $resource.newPage({
+        label: 'Account',
+        type: 'account',
+        templateUrl: 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = false;
+            this.value = $scope.value;
+            this.setSelected = function (item) {
+                $scope.$parent.setValue(item);
+                $scope.$parent.answer();
+            };
+            this.isSelected = function (item) {
+                return item === this.value || item.id === this.value.id;
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['account']
+    });
+
+    $resource.newPage({
+        label: 'Account',
+        type: 'account id',
+        templateUrl: 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = false;
+            this.value = $scope.value;
+            this.setSelected = function (item) {
+                $scope.$parent.setValue(item.id);
+                $scope.$parent.answer();
+            };
+            this.isSelected = function (item) {
+                return item.id === this.value;
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['account_id', 'owner_id']
+    });
+
+    /**
+     * @ngdoc Resources
+     * @name Accounts
+     * @description Gets list of accounts
+     *
+     * Display a list of accounts and allow user to select them.
+     */
+    $resource.newPage({
+        label: 'Accounts',
+        type: 'account-list',
+        templateUrl: 'views/resources/mb-accounts.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['accounts', '/user/accounts']
+    });
+
+    // Resource for role-list
+    $resource.newPage({
+        label: 'Role List',
+        type: 'role-list',
+        templateUrl: 'views/resources/mb-roles.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['roles', '/user/roles']
+    });
+
+
+    // Resource for group-list
+    $resource.newPage({
+        label: 'Group List',
+        type: 'group-list',
+        templateUrl: 'views/resources/mb-groups.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            // TODO: maso, 2018: load selected item
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['groups']
+    });
+
+
+    /**
+     * @ngdoc WB Resources
+     * @name cms-content-image
+     * @description Load an Image URL from contents
+     */
+    $resource.newPage({
+        type: 'cms-content-image',
+        icon: 'image',
+        label: 'Images',
+        templateUrl: 'views/resources/mb-cms-images.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
+
+            /**
+             * Sets the absolute mode
+             *
+             * @param {boolean}
+             *            absolute mode of the controler
+             */
+            this.setAbsolute = function (absolute) {
+                this.absolute = absolute;
+            }
+
+            /**
+             * Checks if the mode is absolute
+             *
+             * @return absolute mode of the controller
+             */
+            this.isAbsolute = function () {
+                return this.absolute;
+            }
+
+            /*
+             * Sets value
+             */
+            this.setSelected = function (content) {
+                var path = '/api/v2/cms/contents/' + content.id + '/content';
+                if (this.isAbsolute()) {
+                    path = getDomain() + path;
+                }
+                this.value = path;
+                $scope.$parent.setValue(path);
+            }
+
+            // init the controller
+            this.init()
+        },
+        controllerAs: 'ctrl',
+        priority: 10,
+        tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
+    });
+    // TODO: maso, 2018: Add video resource
+    // TODO: maso, 2018: Add audio resource
+
+    /**
+     * @ngdoc WB Resources
+     * @name content-upload
+     * @description Upload a content and returns its URL
+     */
+    $resource.newPage({
+        type: 'content-upload',
+        icon: 'file_upload',
+        label: 'Upload',
+        templateUrl: 'views/resources/mb-cms-content-upload.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope, $cms, $translate, uuid4) {
+
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
+
+            this.absolute = false;
+            this.files = [];
+
+            /**
+             * Sets the absolute mode
+             *
+             * @param {boolean}
+             *            absolute mode of the controler
+             */
+            this.setAbsolute = function (absolute) {
+                this.absolute = absolute;
+            }
+
+            /**
+             * Checks if the mode is absolute
+             *
+             * @return absolute mode of the controller
+             */
+            this.isAbsolute = function () {
+                return this.absolute;
+            }
+
+            /*
+             * Add answer to controller
+             */
+            var ctrl = this;
+            $scope.answer = function () {
+                // create data
+                var data = {};
+                data.name = this.name || uuid4.generate();
+                data.description = this.description || 'Auto loaded content';
+                var file = null;
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    file = ctrl.files[0].lfFile;
+                    data.title = file.name;
+                }
+                // upload data to server
+                return ctrl.uploadFile(data, file)//
+                .then(function (content) {
+                    var value = '/api/v2/cms/contents/' + content.id + '/content';
+                    if (ctrl.isAbsolute()) {
+                        value = getDomain() + value;
+                    }
+                    return value;
+                })//
+                .catch(function () {
+                    alert('Failed to create or upload content');
+                });
+            };
+            // init the controller
+            this.init();
+
+            // re-labeling lf-ng-md-file component for multi languages support
+            angular.element(function () {
+                var elm = angular.element('.lf-ng-md-file-input-drag-text');
+                if (elm[0]) {
+                    elm.text($translate.instant('Drag & Drop File Here'));
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-brower');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-button-remove');
+                if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+                    elm[0].childNodes[1].data = $translate.instant('Remove');
+                }
+
+                elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+                if (elm[0]) {
+                    elm.text($translate.instant('Select File'));
+                }
+            });
+        },
+        controllerAs: 'ctrl',
+        priority: 1,
+        tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
+    });
+
+
+
+
+    /**
+     * @ngdoc WB Resources
+     * @name file-local
+     * @description Select a local file and return the object
+     * 
+     * This is used to select local file. It may be used in any part of the system. For example,
+     * to upload as content.
+     */
+    $resource.newPage({
+        type: 'local-file',
+        icon: 'file_upload',
+        label: 'Local file',
+        templateUrl: 'views/resources/mb-local-file.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope, $q, style) {
+            var ctrl = this;
+            $scope.style = style;
+            $scope.answer = function () {
+                if (angular.isArray(ctrl.files) && ctrl.files.length) {
+                    return $q.resolve(ctrl.files[0].lfFile);
+                }
+                return $q.reject('No file selected');
+            };
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 1,
+        tags: ['local-file']
+    });
+
+
+
+    //-------------------------------------------------------------//
+    // CMS:
+    //
+    // - Term Taxonomies
+    //-------------------------------------------------------------//
+    $resource.newPage({
+        label: 'Term Taxonomies',
+        type: '/cms/term-taxonomies',
+        templateUrl: 'views/resources/mb-term-taxonomies.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            $scope.multi = true;
+            this.value = $scope.value;
+            this.setSelected = function (item, selected) {
+                this._setSelected(item, selected);
+                $scope.$parent.setValue(this.getSelection());
+            };
+            this._setSelected = setSelected;
+            this.isSelected = isSelected;
+            this.getSelection = getSelection;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['/cms/term-taxonomies']
+    });
+
+    //-------------------------------------------------------------//
+    // Modules:
+    //
+    // - CMS module
+    // - Manual module
+    //-------------------------------------------------------------//
+    $resource.newPage({
+        label: 'Manual',
+        type: 'mb-module-manual',
+        templateUrl: 'views/resources/mb-module-manual.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+            $scope.$watch('module', function(value) {
+                $scope.$parent.setValue([value]);
+            }, true);
+            $scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+        },
+        controllerAs: 'resourceCtrl',
+        priority: 8,
+        tags: ['/app/modules']
+    });
+
+    $resource.newPage({
+        type: 'cms-content-module',
+        icon: 'image',
+        label: 'On Domain Modules',
+        templateUrl: 'views/resources/mb-module-cms.html',
+        /*
+         * @ngInject
+         */
+        controller: function ($scope) {
+
+            /*
+             * Extends collection controller
+             */
+            angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+                $scope: $scope
+            }));
+
+            /*
+             * Sets value
+             */
+            this.setSelected = function (content) {
+                var modules = [{
+                    title: content.title,
+                    load: this.loadType,
+                    url: '/api/v2/cms/contents/' + content.name + '/content',
+                    type: content.mime_type === 'application/javascript' ? 'js' : 'css'
+                }];
+                this.value = modules;
+                $scope.$parent.setValue(modules);
+            };
+
+            /*
+             * Sets load type
+             */
+            this.setLoadType = function(loadType){
+                this.loadType = loadType;
+                _.forEach(this.value, function(module){
+                    module.load = loadType;
+                });
+                $scope.$parent.setValue(this.value);
+            };
+
+            // init the controller
+            this.loadType = 'lazy';
+            this.init();
+        },
+        controllerAs: 'ctrl',
+        priority: 7,
+        tags: ['/app/modules']
+    });
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Manages system moduels
+ */
+angular.module('mblowfish-core').service('$modules', function(
+	/* MBlowfish */ $app,
+	/* Angularjs */ $window, $q,
+	/* am-wb     */ $dispatcher
+) {
+
+	var LOCAL_MODULE_KEY = 'app.settings.modules';
+	var GLOBAL_MODULE_KEY = 'app.configs.modules';
+
+	this.addGlobalModule = function() { };
+	this.removeGlobalModule = function() { };
+	this.getGlobalModules = function() {
+		return this.globalModules;
+	};
+
+
+	this.addLocalModule = function(module) {
+		this.loadModule(module);
+		this.localModules.push(module);
+		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+	};
+
+	this.removeLocalModules = function() {
+		this.localModules = [];
+		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+	};
+
+	this.removeLocalModule = function(module) {
+		var targetModule;
+		_.forEach(this.localModules, function(item) {
+			if (module.url === item.url) {
+				targetModule = item;
+			}
+		});
+
+		if (_.isUndefined(targetModule)) {
+			return;
+		}
+
+		var index = this.localModules.indexOf(targetModule);
+		this.localModules.splice(index, 1);
+		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+		// TODO: need to reload the page
+	};
+
+	this.getLocalModules = function() {
+		return this.localModules;
+	};
+
+	this.loadModule = function(module) {
+		var job;
+		switch (module.type) {
+			case 'js':
+				job = $window.loadLibrary(module.url);
+				break;
+			case 'css':
+				job = $window.loadStyle(module.url);
+				break;
+		}
+		return job;
+	};
+
+	this.isLoaded = function() {
+		return this._loaded;
+	};
+
+	this.load = function() {
+		this._loaded = true;
+
+		this.localModules = $app.getProperty(LOCAL_MODULE_KEY) || [];
+		this.globalModules = $app.getProperty(GLOBAL_MODULE_KEY) || [];
+
+		var jobs = [];
+		var ctrl = this;
+		_.forEach(this.localModules, function(module) {
+			jobs.push(ctrl.loadModule(module));
+		});
+		_.forEach(this.globalModules, function(module) {
+			jobs.push(ctrl.loadModule(module));
+		});
+
+		return $q.all(jobs);
+	};
+
+	// staso, 2019: fire the state is changed
+	this.localModules = [];
+	this.globalModules = [];
+	var ctrl = this;
+	$dispatcher.on('/app/state', function($event) {
+		if ($event.value === 'ready' && !ctrl.isLoaded()) {
+			ctrl.load();
+		}
+	});
+});
 /*
  * angular-material-icons v0.7.1
  * (c) 2014 Klar Systems
@@ -13283,10 +14094,8 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
-.run(function($window, $rootScope, $location) {
+// Deprecated, will be removed
+angular.module('mblowfish-core').run(function($window, $rootScope, $location) {
 	var watcherIsLoaded = false;
 	var googleValue;
 
@@ -15310,7 +16119,6 @@ angular.module('mblowfish-core')
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-angular.module('mblowfish-core') //
 
 /**
  * @ngdoc Services
@@ -15376,7 +16184,7 @@ angular.module('mblowfish-core') //
  * @property {object} app.user - Current user information
  * @property {object} app.user.profile - The first profile of current user
  */
-.service('$app', function (
+angular.module('mblowfish-core').service('$app', function (
 		/* seen          */ $usr, $cms, $tenant, UserAccount, $translate, $localStorage, 
 		/* am-wb-core    */ $dispatcher, $objectPath,
 		/* material      */ $mdDateLocale,
@@ -16004,12 +16812,17 @@ angular.module('mblowfish-core') //
 				app: $rootScope.__app,
 				tenant: $rootScope.__tenant,
 				account: $rootScope.__account,
-		}
+		};
 		return $objectPath.get(tempObject, key) || defaultValue;
 	};
 
 	this.setProperty = function(key, value){
-		// TODO:
+		var tempObject = {
+				app: $rootScope.__app,
+				tenant: $rootScope.__tenant,
+				account: $rootScope.__account,
+		};
+		$objectPath.set(tempObject, key, value)
 	};
 
 	this.setProperties = function(map){
@@ -18880,6 +19693,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/modules/mb-option.html',
+    "<div> Module options </div>"
+  );
+
+
+  $templateCache.put('views/modules/mb-preference.html',
+    "<div> Module options </div>"
+  );
+
+
+  $templateCache.put('views/modules/mb-resources-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
+  );
+
+
   $templateCache.put('views/options/mb-local.html',
     "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
@@ -18935,6 +19763,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/preferences/mb-modules.html',
+    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
+  );
+
+
   $templateCache.put('views/preferences/mb-update.html',
     "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
   );
@@ -18977,16 +19810,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/resources/mb-local-file.html',
     "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
-  );
-
-
-  $templateCache.put('views/resources/mb-module-cms.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'mb-module')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() flex> <md-list> <md-list-item ng-repeat=\"pobject in ctrl.items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img class=md-avatar style=\"width: 32px; height: 30px\" ng-src={{pobject.logo}}> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.version}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> <div id=extra-config> <md-input-container> <label translate=\"\">Load Type</label> <md-select ng-change=ctrl.setLoadType(ctrl.loadType) ng-model=ctrl.loadType> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </div> </div>"
-  );
-
-
-  $templateCache.put('views/resources/mb-module-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
   );
 
 

@@ -20,51 +20,14 @@
  * SOFTWARE.
  */
 
-// Deprecated, will be removed
-angular.module('mblowfish-core').run(function($window, $rootScope, $location) {
-	var watcherIsLoaded = false;
-	var googleValue;
-
-	function loadScript(value){
-		$window.loadLibrary('https://www.googletagmanager.com/gtag/js')
-		.then(function(){
-			$window.dataLayer = $window.dataLayer || [];
-			function gtag(){
-				$window.dataLayer.push(arguments);
-			};
-			$window.gtag = gtag
-			$window.gtag('js', new Date());
-			$window.gtag('config', value);
-		});
-	}
-
-	function loadWatchers() {
-		if(watcherIsLoaded){
-			return;
-		}
-		$rootScope.$on('$routeChangeStart', handleRouteChange);
-		watcherIsLoaded = true;
-	}
-
-	function createEvent(){
-		var event = {
-				page_path: $location.path()
-		};
-		return event;
-	}
-
-	function handleRouteChange(){
-		var event = createEvent();
-		$window.gtag('config', googleValue, event);
-	}
-
-	// initialize google analytics
-	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-		if (!value) {
-			return;
-		}
-
-		loadScript(value);
-		loadWatchers();
+/**
+ * Manages system moduels
+ */
+angular.module('mblowfish-core').run(function($options) {
+	$options.newPage({
+		title: 'modules',
+		description: 'Manage user modules to enable for all current device.',
+		templateUrl: 'views/modules/mb-option.html',
+		tags: ['modules']
 	});
 });

@@ -19,7 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-angular.module('mblowfish-core') //
 
 /**
  * @ngdoc Services
@@ -85,7 +84,7 @@ angular.module('mblowfish-core') //
  * @property {object} app.user - Current user information
  * @property {object} app.user.profile - The first profile of current user
  */
-.service('$app', function (
+angular.module('mblowfish-core').service('$app', function (
 		/* seen          */ $usr, $cms, $tenant, UserAccount, $translate, $localStorage, 
 		/* am-wb-core    */ $dispatcher, $objectPath,
 		/* material      */ $mdDateLocale,
@@ -713,12 +712,17 @@ angular.module('mblowfish-core') //
 				app: $rootScope.__app,
 				tenant: $rootScope.__tenant,
 				account: $rootScope.__account,
-		}
+		};
 		return $objectPath.get(tempObject, key) || defaultValue;
 	};
 
 	this.setProperty = function(key, value){
-		// TODO:
+		var tempObject = {
+				app: $rootScope.__app,
+				tenant: $rootScope.__tenant,
+				account: $rootScope.__account,
+		};
+		$objectPath.set(tempObject, key, value)
 	};
 
 	this.setProperties = function(map){
