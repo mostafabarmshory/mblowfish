@@ -21,10 +21,6 @@
  */
 
 
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
@@ -38,23 +34,23 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractItemCtrl', function(
-	/* AngularJS  */ $scope, $controller, $q, $window, 
+angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
+	/* AngularJS  */ $scope, $controller, $q, $window,
 	/* MBlowfish  */ $navigator, QueryParameter, Action,
 	/* ngRoute    */ $routeParams) {
-	
+
 
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
 	 */
 	angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
-		$scope : $scope
+		$scope: $scope
 	}));
 
 
 	// Messages
 	var DELETE_MODEL_MESSAGE = 'Delete the item?';
-	var Load_ACTION_FAIL_MESSAGE = 'Fail to load item';
+	var LOAD_ACTION_FAIL_MESSAGE = 'Fail to load item';
 	var IMPLEMENT_BY_CHILDREN_ERROR = 'This method must be override in clild class';
 
 	/*
@@ -97,7 +93,7 @@ angular.module('mblowfish-core')//
 	 * @return promiss to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.deleteModel = function(item){
+	this.deleteModel = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -107,7 +103,7 @@ angular.module('mblowfish-core')//
 	 * @return promise to get schema
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getModelSchema = function(){
+	this.getModelSchema = function() {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -118,7 +114,7 @@ angular.module('mblowfish-core')//
 	 * @return promiss to get items
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getModel = function(id){
+	this.getModel = function(id) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -128,7 +124,7 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 * @return promiss to add and return an item
 	 */
-	this.updateModel = function(model){
+	this.updateModel = function(model) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -136,19 +132,18 @@ angular.module('mblowfish-core')//
 	// -------------------------------------------------------------------------
 	// View
 	//
-	//
-	//
-	//
-	//
+	//  Actions used in item view and manage the loaded item. To desinge a page 
+	// you must use following API.
 	//
 	// -------------------------------------------------------------------------
 	/**
-	 * Current item 
+	 * Current manged item 
 	 * 
 	 * @type Object
 	 * @memberof SeenAbstractItemCtrl
 	 */
 	this.item;
+	this.itemId;
 
 	/**
 	 * Sets item to view
@@ -164,7 +159,7 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItem = function(){
+	this.getItem = function() {
 		return this.item;
 	}
 
@@ -173,7 +168,7 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItemId = function(){
+	this.getItemId = function() {
 		return this.itemId;
 	}
 
@@ -182,28 +177,33 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setItemId = function(itemId){
+	this.setItemId = function(itemId) {
 		this.itemId = itemId;
 	}
 
-	this.loadItem = function(){
+	/**
+	 * Reload item by its ID
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.loadItem = function() {
 		var ctrl = this;
 		var job = this.getModel(this.itemId)
-		.then(function(item){
-			ctrl.setItem(item);
-		},function(error){
-			$window.alert('Fail to load the item '+ ctrl.itemId);
-		});
+			.then(function(item) {
+				ctrl.setItem(item);
+			}, function(error) {
+				$window.alert('Fail to load the item ' + ctrl.itemId);
+			});
 		// TODO: maso, 2020: add application job
 		// $app.addJob('Loading itm' + this.itemId, job);
 		return job;
 	}
 
-	this.setLastPromis = function(p){
+	this.setLastPromis = function(p) {
 		this.__lastPromis = p;
 	}
 
-	this.getLastPromis = function(){
+	this.getLastPromis = function() {
 		return this.__lastPromis;
 	}
 
@@ -223,9 +223,9 @@ angular.module('mblowfish-core')//
 	 * @return {boolean} true if the controller is dirty
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.dirty = function(){
+	this.isDirty = function() {
 		return this.dirty;
-	}
+	};
 
 	/**
 	 * Check if confirmation is required for critical tasks
@@ -233,7 +233,7 @@ angular.module('mblowfish-core')//
 	 * @return {boolean} true if the confirmation is required
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.isConfirmationRequired = function(){
+	this.isConfirmationRequired = function() {
 		return this.confirmationRequired;
 	}
 
@@ -243,13 +243,13 @@ angular.module('mblowfish-core')//
 	 * @params confirmationRequired {boolean}
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setConfirmationRequired = function(confirmationRequired){
+	this.setConfirmationRequired = function(confirmationRequired) {
 		this.confirmationRequired = confirmationRequired;
 	}
 
-	this.updateItem = function($event){
+	this.updateItem = function($event) {
 		// prevent default event
-		if($event){
+		if ($event) {
 			$event.preventDefault();
 			$event.stopPropagation();
 		}
@@ -265,9 +265,9 @@ angular.module('mblowfish-core')//
 	/**
 	 * Creates new item with the createItemDialog
 	 */
-	this.deleteItem = function($event){
+	this.deleteItem = function($event) {
 		// prevent default event
-		if($event){
+		if ($event) {
 			$event.preventDefault();
 			$event.stopPropagation();
 		}
@@ -278,21 +278,21 @@ angular.module('mblowfish-core')//
 		function _deleteInternal() {
 			ctrl.busy = true;
 			return ctrl.deleteModel(ctrl.item)
-			.then(function(){
-				ctrl.fireDeleted(ctrl.eventType, tempItem);
-			}, function(){
-				// XXX: maso, 2019: handle error
-			})
-			.finally(function(){
-				ctrl.busy = false;
-			});
+				.then(function() {
+					ctrl.fireDeleted(ctrl.eventType, tempItem);
+				}, function() {
+					// XXX: maso, 2019: handle error
+				})
+				.finally(function() {
+					ctrl.busy = false;
+				});
 		}
 		// delete the item
-		if(this.isConfirmationRequired()){
+		if (this.isConfirmationRequired()) {
 			$window.confirm(DELETE_MODEL_MESSAGE)
-			.then(function(){
-				return _deleteInternal();
-			});
+				.then(function() {
+					return _deleteInternal();
+				});
 		} else {
 			return _deleteInternal();
 		}
@@ -305,20 +305,20 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 * @returns promise to reload
 	 */
-	this.reload = function(){
+	this.reload = function() {
 		// safe reload
 		var ctrl = this;
-		function safeReload(){
+		function safeReload() {
 			ctrl.setItem(null);
 			return ctrl.loadItem(ctrl.getItemId());
 		}
 
 		// attache to old promise
-		if(this.isBusy()){
+		if (this.isBusy()) {
 			return this.getLastPromis()
-			.then(safeReload);
+				.then(safeReload);
 		}
-		
+
 		// create new promise
 		var promise = safeReload();
 		this.setLastPromis(promise);
@@ -334,7 +334,7 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 * @param graphql
 	 */
-	this.setDataQuery = function(grqphql){
+	this.setDataQuery = function(grqphql) {
 		this.queryParameter.put('graphql', grqphql);
 		// TODO: maso, 2018: check if refresh is required
 	};
@@ -347,21 +347,21 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.eventHandlerCallBack = function(){
-		if(this._eventHandlerCallBack){
-			return this._eventHandlerCallBack ;
+	this.eventHandlerCallBack = function() {
+		if (this._eventHandlerCallBack) {
+			return this._eventHandlerCallBack;
 		}
 		var ctrl = this;
-		this._eventHandlerCallBack = function($event){
+		this._eventHandlerCallBack = function($event) {
 			switch ($event.key) {
-			case 'updated':
-				ctrl.updateViewItems($event.values);
-				break;
-			case 'removed':
-				ctrl.removeViewItems($event.values);
-				break;
-			default:
-				break;
+				case 'updated':
+					ctrl.updateViewItems($event.values);
+					break;
+				case 'removed':
+					ctrl.removeViewItems($event.values);
+					break;
+				default:
+					break;
 			}
 		};
 		return this._eventHandlerCallBack;
@@ -373,18 +373,18 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 */
 	this.setEventType = function(eventType) {
-		if(this.eventType === eventType){
+		if (this.eventType === eventType) {
 			return;
 		}
 		var callback = this.eventHandlerCallBack();
-		if(this.eventType){
+		if (this.eventType) {
 			this.removeEventHandler(callback);
 		}
 		this.eventType = eventType;
 		this.addEventHandler(this.eventType, callback);
 	};
-	
-	
+
+
 	this.seen_abstract_item_supperInit = this.init;
 	/**
 	 * Loads and init the controller
@@ -401,12 +401,12 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.init = function(configs){
-	    if(this.seen_abstract_item_supperInit){
-		this.seen_abstract_item_supperInit(configs);
-	    }
+	this.init = function(configs) {
+		if (this.seen_abstract_item_supperInit) {
+			this.seen_abstract_item_supperInit(configs);
+		}
 		var ctrl = this;
-		if(!angular.isDefined(configs)){
+		if (!angular.isDefined(configs)) {
 			return;
 		}
 
@@ -415,17 +415,17 @@ angular.module('mblowfish-core')//
 
 		// confirm delete
 		this.setConfirmationRequired(!angular.isDefined(configs.confirmation) || configs.confirmation);
-		
+
 		// data query
-		if(configs.dataQuery) {
+		if (configs.dataQuery) {
 			this.setDataQuery(config.dataQuery);
 		}
-		
+
 		// model id
 		this.setItemId(configs.modelId || $routeParams.itemId);
-		
+
 		// Modl
-		if(configs.model){
+		if (configs.model) {
 			// TODO: load model
 		}
 
