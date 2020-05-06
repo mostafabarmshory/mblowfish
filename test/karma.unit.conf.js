@@ -76,7 +76,6 @@ module.exports = function(config) {
 			'bower_components/angular-file-saver/dist/angular-file-saver.bundle.js',
 			'bower_components/material-steppers/dist/material-steppers.js',
 			'bower_components/angular-material-persian-datepicker/dist/datePicker.min.js',
-			'bower_components/jspanel4x/dist/jspanel.js',
 			'bower_components/tinymce/tinymce.js',
 			'bower_components/tinycolor/tinycolor.js',
 			'bower_components/md-color-picker/dist/md-color-picker.js',
@@ -85,6 +84,7 @@ module.exports = function(config) {
 			'bower_components/ngstorage/ngStorage.js',
 			'bower_components/loglevel/dist/loglevel.min.js',
 			'bower_components/moment/moment.js',
+			'bower_components/golden-layout/dist/goldenlayout.min.js',
 			'bower_components/angular-mocks/angular-mocks.js',
 			// endbower
 			'src/libs/**/*.js',

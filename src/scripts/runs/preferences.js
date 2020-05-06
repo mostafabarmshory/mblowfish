@@ -49,14 +49,6 @@ angular.module('mblowfish-core')
 		tags : [ 'brand' ]
 	})//
 	.newPage({
-		id : 'google-analytic',
-		title : 'Google Analytic',
-		templateUrl : 'views/preferences/mb-google-analytic.html',
-		description : 'Enable google analytic for your application.',
-		icon : 'timeline',
-		tags : [ 'analysis' ]
-	})
-	.newPage({
 		id: 'update',
 		templateUrl : 'views/preferences/mb-update.html',
 		title: 'Update application',

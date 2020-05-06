@@ -21,7 +21,6 @@
 	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
 	<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
 	<link rel="stylesheet" href="bower_components/material-steppers/dist/material-steppers.css" />
-	<link rel="stylesheet" href="bower_components/jspanel4x/dist/jspanel.css" />
 	<link rel="stylesheet" href="bower_components/md-color-picker/dist/md-color-picker.css" />
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -37,7 +36,10 @@
 	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
 	<link rel="stylesheet" href="styles/infinate-scroll.css">
 	<link rel="stylesheet" href="styles/inline.css">
+	<link rel="stylesheet" href="styles/lm-base.css">
+	<link rel="stylesheet" href="styles/lm-dark-theme.css">
 	<link rel="stylesheet" href="styles/main.css">
+	<link rel="stylesheet" href="styles/mb-ui.css">
 	<link rel="stylesheet" href="styles/md-expansion-panel .css">
 	<link rel="stylesheet" href="styles/navigation-path-bar.css">
 	<link rel="stylesheet" href="styles/preload.css">
@@ -80,7 +82,6 @@
 	<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
 	<script src="bower_components/material-steppers/dist/material-steppers.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
-	<script src="bower_components/jspanel4x/dist/jspanel.js"></script>
 	<script src="bower_components/tinymce/tinymce.js"></script>
 	<script src="bower_components/tinycolor/tinycolor.js"></script>
 	<script src="bower_components/md-color-picker/dist/md-color-picker.js"></script>
@@ -89,6 +90,7 @@
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
 	<script src="bower_components/loglevel/dist/loglevel.min.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
+	<script src="bower_components/golden-layout/dist/goldenlayout.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -179,7 +181,6 @@
 	<script src="scripts/factories/Interceptor.js"></script>
 	<script src="scripts/factories/MbLanguageLoader.js"></script>
 	<script src="scripts/factories/MbMissingTranslationHandler.js"></script>
-	<script src="scripts/factories/dialog-window.js"></script>
 	<script src="scripts/filters/currency.js"></script>
 	<script src="scripts/filters/date.js"></script>
 	<script src="scripts/filters/wb-md5.js"></script>
@@ -194,7 +195,6 @@
 	<script src="scripts/runs/app-extension-config-autosave.js"></script>
 	<script src="scripts/runs/app.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
-	<script src="scripts/runs/google-analytics.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
 	<script src="scripts/runs/language.js"></script>
 	<script src="scripts/runs/page-init.js"></script>
@@ -207,8 +207,6 @@
 	<script src="scripts/services/clipboard.js"></script>
 	<script src="scripts/services/crypto.js"></script>
 	<script src="scripts/services/error-handler.js"></script>
-	<script src="scripts/services/export.js"></script>
-	<script src="scripts/services/float.js"></script>
 	<script src="scripts/services/help.js"></script>
 	<script src="scripts/services/language.js"></script>
 	<script src="scripts/services/local.js"></script>
@@ -222,7 +220,6 @@
 	<script src="scripts/services/sidenav.js"></script>
 	<script src="scripts/services/storage.js"></script>
 	<script src="scripts/services/toolbar.js"></script>
-	<script src="scripts/services/uuid.js"></script>
 	<script src="scripts/test-app.js"></script>
 	<script src="scripts/test-configs/language.js"></script>
 	<script src="scripts/test-configs/path.js"></script>
@@ -243,7 +240,7 @@
 	<script src="scripts/test-runs/test-app.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
-	<meta name="test" value="{{__app.dir}}">
+
 </head>
 <body 
 	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"

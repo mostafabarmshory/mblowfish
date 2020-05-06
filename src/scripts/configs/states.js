@@ -27,7 +27,7 @@ angular.module('mblowfish-core')
 	 */
 	.config(function($routeProvider, $locationProvider) {
 		$routeProvider//
-		
+
 			/**
 			 * @ngdoc ngRoute
 			 * @name /preferences/languages/manager
@@ -98,7 +98,7 @@ angular.module('mblowfish-core')
 				sidenavs: [],
 				toolbars: []
 			})
-			
+
 			//-----------------------------------------------------------------------------
 			// Move to account (vw-dashboard)
 			//-----------------------------------------------------------------------------
@@ -163,6 +163,16 @@ angular.module('mblowfish-core')
 				sidenavs: [],
 				toolbars: []
 			})//
+
+
+
+			.when('/mb/ui/views/navigator/', {
+				title: 'Navigator',
+				description: 'Navigate all path and routs of the pandel',
+				controller: 'AmdNavigatorCtrl',
+				controllerAs: 'ctrl',
+				templateUrl: 'views/mb-navigator.html',
+			})
 			;//
 
 		$locationProvider.html5Mode(true);

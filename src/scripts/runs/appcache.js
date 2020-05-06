@@ -64,14 +64,13 @@ angular.module('mblowfish-core')
 
 	oldWatch = $rootScope.$watch('__app.state', function(status) {
 		if (status && status.startsWith('ready')) {
+			// Remove the watch
+			oldWatch();
+
 			// check for update
 			return appcache//
 			.checkUpdate()//
 			.then(doUpdate);
-			// Test
-//			updateApplication();
-			// Remove the watch
-			oldWatch();
 		}
 	});
 });

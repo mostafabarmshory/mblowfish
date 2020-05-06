@@ -30,6 +30,9 @@
  * Every time the current route changes, the included view changes with it according to the
  * configuration of the `$route` service.
  *
+ *  Dependeing on the version of the MB, it may open the view in the main page or a tab wiht in
+ * a docker layout.
+ *
  * Requires the {@link ngRoute `ngRoute`} module to be installed.
  *
  * @animations
@@ -193,9 +196,57 @@
  * Emitted every time the mbView content is reloaded.
  */
 angular.module('mblowfish-core').directive('mbView', function(
+	/* amwb core */ $wbUtil,
 	/* AngularJS */ $location, $injector,
 	$templateRequest, $compile, $controller, $rootScope,
 	$route, $dispatcher, $app) {
+	var myLayout;
+	var editorStack;
+	var config = {
+		settings: {
+			hasHeaders: true,
+			constrainDragToContainer: true,
+			reorderEnabled: true,
+			selectionEnabled: true,
+			popoutWholeStack: false,
+			blockedPopoutsThrowError: true,
+			closePopoutsOnUnload: true,
+			showPopoutIcon: false,
+			showMaximiseIcon: true,
+			showCloseIcon: true
+		},
+		dimensions: {
+			borderWidth: 5,
+			minItemHeight: 16,
+			minItemWidth: 50,
+			headerHeight: 20,
+			dragProxyWidth: 300,
+			dragProxyHeight: 200
+		},
+		content: [{
+			type: 'row',
+			isClosable: false,
+			componentState: {
+				url: '/wb/ui/',
+			},
+			content: [{
+				id: 'navigator',
+				type: 'component',
+				componentName: 'view',
+				width: 20,
+				componentState: {
+					url: '/mb/ui/views/navigator/'
+				},
+			}, {
+				type: 'stack',
+				title: 'Editors',
+				isClosable: false,
+				componentState: {
+					url: '/wb/ui/editors/',
+				}
+			}]
+		}]
+	};
 	return {
 		restrict: 'ECA',
 		terminal: true,
@@ -204,15 +255,14 @@ angular.module('mblowfish-core').directive('mbView', function(
 		link: function(scope, $element, attr) {
 			// Variables
 			var currentScope,
-				onloadExp = attr.onload || '',
-				mainElement = null;;
+				onloadExp = attr.onload || '';
 
 			// staso, 2019: fire the state is changed
 			$dispatcher.on('/app/state', checkApp);
 			scope.$on('$destroy', function() {
 				$dispatcher.off('/app/state', update);
 			});
-			
+
 			function canAccess(route) {
 				if (_.isUndefined(route.protect)) {
 					return true;
@@ -237,49 +287,125 @@ angular.module('mblowfish-core').directive('mbView', function(
 						$element.html(template);
 						var link = $compile($element.contents());
 						link(scope);
-						mainElement = $element.find('#mb-view-main-anchor');
+
+						// load docker view
+						myLayout = new GoldenLayout(config, $element.find('#mb-view-main-anchor'));
+						myLayout.on('stackCreated', function(stack) {
+							if (stack.config.title === 'Editors') {
+								editorStack = stack;
+							}
+						});
+						myLayout.registerComponent('view', loadView);
+						myLayout.registerComponent('editor', loadEditor);
+						myLayout.init();
 					});
 			}
 
 			function cleanupLastView() {
-				if (currentScope) {
-					currentScope.$destroy();
-					currentScope = null;
-				}
+				//				if (currentScope) {
+				//					currentScope.$destroy();
+				//					currentScope = null;
+				//				}
 				//				$element.empty();
 			}
 
+			/*
+			 *  If the path change, this function will update the view and add the request
+			 * page into the view.
+			 */
 			function update() {
-				if(!canAccess($route.current)){
+				if (!canAccess($route.current)) {
 					return $location.path('users/login');
 				}
-				var locals = $route.current && $route.current.locals,
-					template = locals && locals.$template;
-
 				cleanupLastView();
+				var locals = $route.current && $route.current.locals;
+				var template = locals && locals.$template;
 				if (angular.isDefined(template)) {
-					var newScope = scope.$new();
-					var current = $route.current;
+					var route = $route.current.$$route || {};
+					var newItemConfig = {
+						//					title: title,
+						id: locals.path,
+						type: 'component',
+						componentName: 'editor',
+						title: route.name,
+						componentState: {
+							locals: locals,
+							template: template,
+							route: route
+						}
+					};
+					// TODO: maso, 2020: find the editor container and add the page
+					editorStack.addChild(newItemConfig);
+				}
+			}
 
+			/*
+			 *  In docker view, this will create a new tap and add into the editor area
+			 * based on Golden Layout Manager.
+			 */
+			function loadEditor(editor, state) {
+				var newScope = scope.$new();
+				var current = $route.current;
+				var mainElement = editor.getElement();
+				mainElement.html(state.template);
+				mainElement.addClass('mb_ui_editor');
+				var link = $compile(editor.getElement());
+				if (current.controller) {
+					state.locals.$scope = scope;
+					var controller = $controller(current.controller, state.locals);
+					if (current.controllerAs) {
+						scope[current.controllerAs] = controller;
+					}
+					mainElement.data('$ngControllerController', controller);
+					mainElement.children()
+						.data('$ngControllerController', controller);
+				}
+				scope[current.resolveAs || '$resolve'] = state.locals;
+				link(newScope);
+				currentScope = current.scope = newScope;
+				currentScope.$emit('$viewContentLoaded');
+				currentScope.$eval(onloadExp);
+
+				editor.on('destroy', function() {
+					// release scope and other resources
+					newScope.$destroy();
+				});
+			}
+
+			/*
+			 *  Loads view into the docker layout system.
+			 */
+			function loadView(view, state) {
+				var relatedRoute = $route.routes[state.url];
+				state.locals = state.locals || {};
+				$wbUtil.getTemplateFor(relatedRoute).then(function(template) {
+					var newScope = scope.$new();
+					var mainElement = view.getElement();
+					var relatedRoute = $route.routes[state.url];
 					mainElement.html(template);
-					var link = $compile(mainElement.contents());
-					if (current.controller) {
-						locals.$scope = scope;
-						var controller = $controller(current.controller, locals);
-						if (current.controllerAs) {
-							scope[current.controllerAs] = controller;
+					mainElement.addClass('mb_ui_view');
+					var link = $compile(view.getElement());
+					if (relatedRoute.controller) {
+						state.locals.$scope = scope;
+						var controller = $controller(relatedRoute.controller, state.locals);
+						if (relatedRoute.controllerAs) {
+							scope[relatedRoute.controllerAs] = controller;
 						}
 						mainElement.data('$ngControllerController', controller);
 						mainElement.children()
 							.data('$ngControllerController', controller);
 					}
-					scope[current.resolveAs || '$resolve'] = locals;
+					scope[relatedRoute.resolveAs || '$resolve'] = state.locals;
 					link(newScope);
-
-					currentScope = current.scope = newScope;
+					currentScope = relatedRoute.scope = newScope;
 					currentScope.$emit('$viewContentLoaded');
 					currentScope.$eval(onloadExp);
-				}
+				});
+
+				// xxx: maso, 2020: load based on state
+				view.on('destroy', function() {
+					// release scope and other resources
+				});
 			}
 		}
 	};
