@@ -3359,7 +3359,7 @@ angular.module('mblowfish-core')
 	 */
 	.config(function($routeProvider, $locationProvider) {
 		$routeProvider//
-		
+
 			/**
 			 * @ngdoc ngRoute
 			 * @name /preferences/languages/manager
@@ -3430,7 +3430,7 @@ angular.module('mblowfish-core')
 				sidenavs: [],
 				toolbars: []
 			})
-			
+
 			//-----------------------------------------------------------------------------
 			// Move to account (vw-dashboard)
 			//-----------------------------------------------------------------------------
@@ -3495,6 +3495,16 @@ angular.module('mblowfish-core')
 				sidenavs: [],
 				toolbars: []
 			})//
+
+
+
+			.when('/mb/ui/views/navigator/', {
+				title: 'Navigator',
+				description: 'Navigate all path and routs of the pandel',
+				controller: 'AmdNavigatorCtrl',
+				controllerAs: 'ctrl',
+				templateUrl: 'views/mb-navigator.html',
+			})
 			;//
 
 		$locationProvider.html5Mode(true);
@@ -6047,10 +6057,6 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
  */
 
 
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
@@ -6064,23 +6070,23 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractItemCtrl', function(
-	/* AngularJS  */ $scope, $controller, $q, $window, 
+angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
+	/* AngularJS  */ $scope, $controller, $q, $window,
 	/* MBlowfish  */ $navigator, QueryParameter, Action,
 	/* ngRoute    */ $routeParams) {
-	
+
 
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
 	 */
 	angular.extend(this, $controller('MbSeenGeneralAbstractCollectionCtrl', {
-		$scope : $scope
+		$scope: $scope
 	}));
 
 
 	// Messages
 	var DELETE_MODEL_MESSAGE = 'Delete the item?';
-	var Load_ACTION_FAIL_MESSAGE = 'Fail to load item';
+	var LOAD_ACTION_FAIL_MESSAGE = 'Fail to load item';
 	var IMPLEMENT_BY_CHILDREN_ERROR = 'This method must be override in clild class';
 
 	/*
@@ -6123,7 +6129,7 @@ angular.module('mblowfish-core')//
 	 * @return promiss to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.deleteModel = function(item){
+	this.deleteModel = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -6133,7 +6139,7 @@ angular.module('mblowfish-core')//
 	 * @return promise to get schema
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getModelSchema = function(){
+	this.getModelSchema = function() {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -6144,7 +6150,7 @@ angular.module('mblowfish-core')//
 	 * @return promiss to get items
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getModel = function(id){
+	this.getModel = function(id) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -6154,7 +6160,7 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 * @return promiss to add and return an item
 	 */
-	this.updateModel = function(model){
+	this.updateModel = function(model) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
 
@@ -6162,19 +6168,18 @@ angular.module('mblowfish-core')//
 	// -------------------------------------------------------------------------
 	// View
 	//
-	//
-	//
-	//
-	//
+	//  Actions used in item view and manage the loaded item. To desinge a page 
+	// you must use following API.
 	//
 	// -------------------------------------------------------------------------
 	/**
-	 * Current item 
+	 * Current manged item 
 	 * 
 	 * @type Object
 	 * @memberof SeenAbstractItemCtrl
 	 */
 	this.item;
+	this.itemId;
 
 	/**
 	 * Sets item to view
@@ -6190,7 +6195,7 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItem = function(){
+	this.getItem = function() {
 		return this.item;
 	}
 
@@ -6199,7 +6204,7 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getItemId = function(){
+	this.getItemId = function() {
 		return this.itemId;
 	}
 
@@ -6208,28 +6213,33 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setItemId = function(itemId){
+	this.setItemId = function(itemId) {
 		this.itemId = itemId;
 	}
 
-	this.loadItem = function(){
+	/**
+	 * Reload item by its ID
+	 * 
+	 * @memberof SeenAbstractItemCtrl
+	 */
+	this.loadItem = function() {
 		var ctrl = this;
 		var job = this.getModel(this.itemId)
-		.then(function(item){
-			ctrl.setItem(item);
-		},function(error){
-			$window.alert('Fail to load the item '+ ctrl.itemId);
-		});
+			.then(function(item) {
+				ctrl.setItem(item);
+			}, function(error) {
+				$window.alert('Fail to load the item ' + ctrl.itemId);
+			});
 		// TODO: maso, 2020: add application job
 		// $app.addJob('Loading itm' + this.itemId, job);
 		return job;
 	}
 
-	this.setLastPromis = function(p){
+	this.setLastPromis = function(p) {
 		this.__lastPromis = p;
 	}
 
-	this.getLastPromis = function(){
+	this.getLastPromis = function() {
 		return this.__lastPromis;
 	}
 
@@ -6249,9 +6259,9 @@ angular.module('mblowfish-core')//
 	 * @return {boolean} true if the controller is dirty
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.dirty = function(){
+	this.isDirty = function() {
 		return this.dirty;
-	}
+	};
 
 	/**
 	 * Check if confirmation is required for critical tasks
@@ -6259,7 +6269,7 @@ angular.module('mblowfish-core')//
 	 * @return {boolean} true if the confirmation is required
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.isConfirmationRequired = function(){
+	this.isConfirmationRequired = function() {
 		return this.confirmationRequired;
 	}
 
@@ -6269,13 +6279,13 @@ angular.module('mblowfish-core')//
 	 * @params confirmationRequired {boolean}
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.setConfirmationRequired = function(confirmationRequired){
+	this.setConfirmationRequired = function(confirmationRequired) {
 		this.confirmationRequired = confirmationRequired;
 	}
 
-	this.updateItem = function($event){
+	this.updateItem = function($event) {
 		// prevent default event
-		if($event){
+		if ($event) {
 			$event.preventDefault();
 			$event.stopPropagation();
 		}
@@ -6291,9 +6301,9 @@ angular.module('mblowfish-core')//
 	/**
 	 * Creates new item with the createItemDialog
 	 */
-	this.deleteItem = function($event){
+	this.deleteItem = function($event) {
 		// prevent default event
-		if($event){
+		if ($event) {
 			$event.preventDefault();
 			$event.stopPropagation();
 		}
@@ -6304,21 +6314,21 @@ angular.module('mblowfish-core')//
 		function _deleteInternal() {
 			ctrl.busy = true;
 			return ctrl.deleteModel(ctrl.item)
-			.then(function(){
-				ctrl.fireDeleted(ctrl.eventType, tempItem);
-			}, function(){
-				// XXX: maso, 2019: handle error
-			})
-			.finally(function(){
-				ctrl.busy = false;
-			});
+				.then(function() {
+					ctrl.fireDeleted(ctrl.eventType, tempItem);
+				}, function() {
+					// XXX: maso, 2019: handle error
+				})
+				.finally(function() {
+					ctrl.busy = false;
+				});
 		}
 		// delete the item
-		if(this.isConfirmationRequired()){
+		if (this.isConfirmationRequired()) {
 			$window.confirm(DELETE_MODEL_MESSAGE)
-			.then(function(){
-				return _deleteInternal();
-			});
+				.then(function() {
+					return _deleteInternal();
+				});
 		} else {
 			return _deleteInternal();
 		}
@@ -6331,20 +6341,20 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 * @returns promise to reload
 	 */
-	this.reload = function(){
+	this.reload = function() {
 		// safe reload
 		var ctrl = this;
-		function safeReload(){
+		function safeReload() {
 			ctrl.setItem(null);
 			return ctrl.loadItem(ctrl.getItemId());
 		}
 
 		// attache to old promise
-		if(this.isBusy()){
+		if (this.isBusy()) {
 			return this.getLastPromis()
-			.then(safeReload);
+				.then(safeReload);
 		}
-		
+
 		// create new promise
 		var promise = safeReload();
 		this.setLastPromis(promise);
@@ -6360,7 +6370,7 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 * @param graphql
 	 */
-	this.setDataQuery = function(grqphql){
+	this.setDataQuery = function(grqphql) {
 		this.queryParameter.put('graphql', grqphql);
 		// TODO: maso, 2018: check if refresh is required
 	};
@@ -6373,21 +6383,21 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.eventHandlerCallBack = function(){
-		if(this._eventHandlerCallBack){
-			return this._eventHandlerCallBack ;
+	this.eventHandlerCallBack = function() {
+		if (this._eventHandlerCallBack) {
+			return this._eventHandlerCallBack;
 		}
 		var ctrl = this;
-		this._eventHandlerCallBack = function($event){
+		this._eventHandlerCallBack = function($event) {
 			switch ($event.key) {
-			case 'updated':
-				ctrl.updateViewItems($event.values);
-				break;
-			case 'removed':
-				ctrl.removeViewItems($event.values);
-				break;
-			default:
-				break;
+				case 'updated':
+					ctrl.updateViewItems($event.values);
+					break;
+				case 'removed':
+					ctrl.removeViewItems($event.values);
+					break;
+				default:
+					break;
 			}
 		};
 		return this._eventHandlerCallBack;
@@ -6399,18 +6409,18 @@ angular.module('mblowfish-core')//
 	 * @memberof SeenAbstractItemCtrl
 	 */
 	this.setEventType = function(eventType) {
-		if(this.eventType === eventType){
+		if (this.eventType === eventType) {
 			return;
 		}
 		var callback = this.eventHandlerCallBack();
-		if(this.eventType){
+		if (this.eventType) {
 			this.removeEventHandler(callback);
 		}
 		this.eventType = eventType;
 		this.addEventHandler(this.eventType, callback);
 	};
-	
-	
+
+
 	this.seen_abstract_item_supperInit = this.init;
 	/**
 	 * Loads and init the controller
@@ -6427,12 +6437,12 @@ angular.module('mblowfish-core')//
 	 * 
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.init = function(configs){
-	    if(this.seen_abstract_item_supperInit){
-		this.seen_abstract_item_supperInit(configs);
-	    }
+	this.init = function(configs) {
+		if (this.seen_abstract_item_supperInit) {
+			this.seen_abstract_item_supperInit(configs);
+		}
 		var ctrl = this;
-		if(!angular.isDefined(configs)){
+		if (!angular.isDefined(configs)) {
 			return;
 		}
 
@@ -6441,17 +6451,17 @@ angular.module('mblowfish-core')//
 
 		// confirm delete
 		this.setConfirmationRequired(!angular.isDefined(configs.confirmation) || configs.confirmation);
-		
+
 		// data query
-		if(configs.dataQuery) {
+		if (configs.dataQuery) {
 			this.setDataQuery(config.dataQuery);
 		}
-		
+
 		// model id
 		this.setItemId(configs.modelId || $routeParams.itemId);
-		
+
 		// Modl
-		if(configs.model){
+		if (configs.model) {
 			// TODO: load model
 		}
 
@@ -8093,12 +8103,11 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
 			if (attr.mbInlineOnSave) {
 				scope.$data = d;
 				var value = $parse(attr.mbInlineOnSave)(scope);
-				$q.when(value)//
-					.then(function() {
-						delete scope.error;
-					}, function(error) {
-						scope.error = error;
-					});
+				$q.when(value).then(function() {
+					delete scope.error;
+				}, function(error) {
+					scope.error = error;
+				});
 			}
 		};
 	}
@@ -8139,9 +8148,6 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
              * Select image url
              */
 			this.updateImage = function() {
-//				if (!$scope.mbInlineEnable) {
-//					return;
-//				}
 				var ctrl = this;
 				return $resource.get('image', {
 					style: {
@@ -8150,20 +8156,16 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
 						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
 					},
 					data: this.model
-				}) //
-					.then(function(url) {
-						ctrl.model = url;
-						ctrl.save();
-					});
+				}).then(function(url) {
+					ctrl.model = url;
+					ctrl.save();
+				});
 			};
 
 			/*
              * Select image url
              */
 			this.updateFile = function() {
-//				if (!$scope.mbInlineEnable) {
-//					return;
-//				}
 				var ctrl = this;
 				return $resource.get('local-file', {
 					style: {
@@ -9810,6 +9812,9 @@ angular.module('mblowfish-core')
  * Every time the current route changes, the included view changes with it according to the
  * configuration of the `$route` service.
  *
+ *  Dependeing on the version of the MB, it may open the view in the main page or a tab wiht in
+ * a docker layout.
+ *
  * Requires the {@link ngRoute `ngRoute`} module to be installed.
  *
  * @animations
@@ -9973,9 +9978,57 @@ angular.module('mblowfish-core')
  * Emitted every time the mbView content is reloaded.
  */
 angular.module('mblowfish-core').directive('mbView', function(
+	/* amwb core */ $wbUtil,
 	/* AngularJS */ $location, $injector,
 	$templateRequest, $compile, $controller, $rootScope,
 	$route, $dispatcher, $app) {
+	var myLayout;
+	var editorStack;
+	var config = {
+		settings: {
+			hasHeaders: true,
+			constrainDragToContainer: true,
+			reorderEnabled: true,
+			selectionEnabled: true,
+			popoutWholeStack: false,
+			blockedPopoutsThrowError: true,
+			closePopoutsOnUnload: true,
+			showPopoutIcon: false,
+			showMaximiseIcon: true,
+			showCloseIcon: true
+		},
+		dimensions: {
+			borderWidth: 5,
+			minItemHeight: 16,
+			minItemWidth: 50,
+			headerHeight: 20,
+			dragProxyWidth: 300,
+			dragProxyHeight: 200
+		},
+		content: [{
+			type: 'row',
+			isClosable: false,
+			componentState: {
+				url: '/wb/ui/',
+			},
+			content: [{
+				id: 'navigator',
+				type: 'component',
+				componentName: 'view',
+				width: 20,
+				componentState: {
+					url: '/mb/ui/views/navigator/'
+				},
+			}, {
+				type: 'stack',
+				title: 'Editors',
+				isClosable: false,
+				componentState: {
+					url: '/wb/ui/editors/',
+				}
+			}]
+		}]
+	};
 	return {
 		restrict: 'ECA',
 		terminal: true,
@@ -9984,15 +10037,14 @@ angular.module('mblowfish-core').directive('mbView', function(
 		link: function(scope, $element, attr) {
 			// Variables
 			var currentScope,
-				onloadExp = attr.onload || '',
-				mainElement = null;;
+				onloadExp = attr.onload || '';
 
 			// staso, 2019: fire the state is changed
 			$dispatcher.on('/app/state', checkApp);
 			scope.$on('$destroy', function() {
 				$dispatcher.off('/app/state', update);
 			});
-			
+
 			function canAccess(route) {
 				if (_.isUndefined(route.protect)) {
 					return true;
@@ -10017,49 +10069,125 @@ angular.module('mblowfish-core').directive('mbView', function(
 						$element.html(template);
 						var link = $compile($element.contents());
 						link(scope);
-						mainElement = $element.find('#mb-view-main-anchor');
+
+						// load docker view
+						myLayout = new GoldenLayout(config, $element.find('#mb-view-main-anchor'));
+						myLayout.on('stackCreated', function(stack) {
+							if (stack.config.title === 'Editors') {
+								editorStack = stack;
+							}
+						});
+						myLayout.registerComponent('view', loadView);
+						myLayout.registerComponent('editor', loadEditor);
+						myLayout.init();
 					});
 			}
 
 			function cleanupLastView() {
-				if (currentScope) {
-					currentScope.$destroy();
-					currentScope = null;
-				}
+				//				if (currentScope) {
+				//					currentScope.$destroy();
+				//					currentScope = null;
+				//				}
 				//				$element.empty();
 			}
 
+			/*
+			 *  If the path change, this function will update the view and add the request
+			 * page into the view.
+			 */
 			function update() {
-				if(!canAccess($route.current)){
+				if (!canAccess($route.current)) {
 					return $location.path('users/login');
 				}
-				var locals = $route.current && $route.current.locals,
-					template = locals && locals.$template;
-
 				cleanupLastView();
+				var locals = $route.current && $route.current.locals;
+				var template = locals && locals.$template;
 				if (angular.isDefined(template)) {
-					var newScope = scope.$new();
-					var current = $route.current;
+					var route = $route.current.$$route || {};
+					var newItemConfig = {
+						//					title: title,
+						id: locals.path,
+						type: 'component',
+						componentName: 'editor',
+						title: route.name,
+						componentState: {
+							locals: locals,
+							template: template,
+							route: route
+						}
+					};
+					// TODO: maso, 2020: find the editor container and add the page
+					editorStack.addChild(newItemConfig);
+				}
+			}
 
+			/*
+			 *  In docker view, this will create a new tap and add into the editor area
+			 * based on Golden Layout Manager.
+			 */
+			function loadEditor(editor, state) {
+				var newScope = scope.$new();
+				var current = $route.current;
+				var mainElement = editor.getElement();
+				mainElement.html(state.template);
+				mainElement.addClass('mb_ui_editor');
+				var link = $compile(editor.getElement());
+				if (current.controller) {
+					state.locals.$scope = scope;
+					var controller = $controller(current.controller, state.locals);
+					if (current.controllerAs) {
+						scope[current.controllerAs] = controller;
+					}
+					mainElement.data('$ngControllerController', controller);
+					mainElement.children()
+						.data('$ngControllerController', controller);
+				}
+				scope[current.resolveAs || '$resolve'] = state.locals;
+				link(newScope);
+				currentScope = current.scope = newScope;
+				currentScope.$emit('$viewContentLoaded');
+				currentScope.$eval(onloadExp);
+
+				editor.on('destroy', function() {
+					// release scope and other resources
+					newScope.$destroy();
+				});
+			}
+
+			/*
+			 *  Loads view into the docker layout system.
+			 */
+			function loadView(view, state) {
+				var relatedRoute = $route.routes[state.url];
+				state.locals = state.locals || {};
+				$wbUtil.getTemplateFor(relatedRoute).then(function(template) {
+					var newScope = scope.$new();
+					var mainElement = view.getElement();
+					var relatedRoute = $route.routes[state.url];
 					mainElement.html(template);
-					var link = $compile(mainElement.contents());
-					if (current.controller) {
-						locals.$scope = scope;
-						var controller = $controller(current.controller, locals);
-						if (current.controllerAs) {
-							scope[current.controllerAs] = controller;
+					mainElement.addClass('mb_ui_view');
+					var link = $compile(view.getElement());
+					if (relatedRoute.controller) {
+						state.locals.$scope = scope;
+						var controller = $controller(relatedRoute.controller, state.locals);
+						if (relatedRoute.controllerAs) {
+							scope[relatedRoute.controllerAs] = controller;
 						}
 						mainElement.data('$ngControllerController', controller);
 						mainElement.children()
 							.data('$ngControllerController', controller);
 					}
-					scope[current.resolveAs || '$resolve'] = locals;
+					scope[relatedRoute.resolveAs || '$resolve'] = state.locals;
 					link(newScope);
-
-					currentScope = current.scope = newScope;
+					currentScope = relatedRoute.scope = newScope;
 					currentScope.$emit('$viewContentLoaded');
 					currentScope.$eval(onloadExp);
-				}
+				});
+
+				// xxx: maso, 2020: load based on state
+				view.on('destroy', function() {
+					// release scope and other resources
+				});
 			}
 		}
 	};
@@ -12250,394 +12378,6 @@ angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function
 		}
 	};
 });
-///* 
-// * The MIT License (MIT)
-// * 
-// * Copyright (c) 2016 weburger
-// * 
-// * Permission is hereby granted, free of charge, to any person obtaining a copy
-// * of this software and associated documentation files (the "Software"), to deal
-// * in the Software without restriction, including without limitation the rights
-// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// * copies of the Software, and to permit persons to whom the Software is
-// * furnished to do so, subject to the following conditions:
-// * 
-// * The above copyright notice and this permission notice shall be included in all
-// * copies or substantial portions of the Software.
-// * 
-// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// * SOFTWARE.
-// */
-//
-//angular.module('mblowfish-core')
-//.factory('WbDialogWindow', function($window, $document, $wbFloat) {
-//    
-//
-//
-//    // Utils
-//    function covertToFloadConfig(dialogWindow) {
-//        var options = {
-//                closeOnEscape: dialogWindow.closeOnEscape,
-//                header: dialogWindow.isTitleVisible(),
-//                headerTitle: dialogWindow.getTitle(),
-//                headerLogo: '',
-//                headerControls: {
-////                  close: 'remove',
-////                  maximize: 'remove',
-////                  normalize: 'remove',
-////                  minimize: 'remove',
-////                  smallify: 'remove',
-////                  smallifyrev: 'remove',
-//                }
-//        };
-//
-//        if(angular.isDefined(dialogWindow.x)){
-//            options.position = {
-//                    type: 'fixed',
-//                    my: 'left-top',
-//                    at: 'left-top',
-//                    of: 'body',
-//                    container: 'body',
-//                    offsetX: dialogWindow.x,
-//                    offsetY: dialogWindow.y
-//            };
-//        }
-//        if(angular.isDefined(dialogWindow.width)){
-//            options.panelSize = {
-//                    width: dialogWindow.width, 
-//                    height: dialogWindow.width
-//            };
-//        }
-//
-//        return options;
-//    }
-//
-//    /**
-//     * @ngdoc Factory
-//     * @name WbDialogWindow
-//     * @description WbDialogWindow a dialog manager
-//     * 
-//     */
-//    var wbWindow = function(parent){
-//        this.parent = parent || $window;
-//        this.floatDialogElement = null;
-//        this.setTitleVisible(true);
-//    };
-//
-//    /**
-//     * Gets parent of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     */
-//    wbWindow.prototype.getParent = function(){
-//        return this.parent;
-//    };
-//
-//    /**
-//     * Sets title of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params title {string} the window title
-//     */
-//    wbWindow.prototype.setTitle = function(title){
-//        this.title = title;
-//        if(this.isVisible()){
-//            // TODO: maso, 2019: set title of the current dialog
-//        }
-//    };
-//
-//    /**
-//     * Sets title of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     * @return {string} the window title
-//     */
-//    wbWindow.prototype.getTitle = function(){
-//        return this.title;
-//    };
-//
-//
-//    /**
-//     * Sets language of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params language {string} the window language
-//     */
-//    wbWindow.prototype.setLanguage = function(language){
-//        this.language = language;
-//        if(this.isVisible()){
-//            // TODO: maso, 2019: set title of the current dialog
-//        }
-//    };
-//
-//    /**
-//     * Sets title of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     * @return {string} the window language
-//     */
-//    wbWindow.prototype.getLanguage = function(){
-//        return this.language;
-//    };
-//
-//    /**
-//     * 
-//     * The open() method opens a new browser window, or a new tab, depending 
-//     * on your browser settings.
-//     * 
-//     * Tip: Use the close() method to close the window.
-//     * 
-//     * @memberof WbDialogWindow
-//     * @return window object
-//     */
-//    wbWindow.prototype.open = function(url, name, options, replace){
-//        return $window.open(url, name, options, replace);
-//    };
-//
-//    /**
-//     * Close current window
-//     * 
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params visible {boolean} of the window
-//     */
-//    wbWindow.prototype.close = function(){
-//        this.setVisible(false);
-//        // TODO: maso, 2019: remove dome and destroy scope.
-//    };
-//
-//    /**
-//     * Sets visible of the window
-//     * 
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params visible {boolean} of the window
-//     */
-//    wbWindow.prototype.setVisible = function(visible){
-//        if(!this.floatDialogElement) {
-//            this.floatDialogElement = $wbFloat.create(covertToFloadConfig(this));
-//        } else if(this.floatDialogElement.isVisible() === visible) {
-//            return;
-//        }
-//
-//        this.floatDialogElement.setVisible(visible);
-//    };
-//
-//    /**
-//     * Gets visible of the window
-//     * 
-//     * 
-//     * @memberof WbDialogWindow
-//     * @returns true if the window is visible
-//     */
-//    wbWindow.prototype.isVisible = function(){
-//        if(! this.floatDialogElement){
-//            return false;
-//        }
-//        return this.floatDialogElement.isVisible();
-//    };
-//
-//    /**
-//     * Sets position of the window
-//     * 
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params x {string|int} absolute position
-//     * @params y {string|int} absolute position
-//     */
-//    wbWindow.prototype.setPosition = function(x, y) {
-//        this.x = x;
-//        this.y = y;
-//        if(this.floatDialogElement){
-//            // TODO: reload the window position
-//        }
-//    };
-//
-//    /**
-//     * Gets current position of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     * @return position
-//     */
-//    wbWindow.prototype.getPosition = function() {
-//        return {
-//            x: this.x,
-//            y:this.y,
-//        };
-//    };
-//
-//
-//
-//    /**
-//     * Close window on Escape
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params x {string|int} absolute position
-//     * @params y {string|int} absolute position
-//     */
-//    wbWindow.prototype.setCloseOnEscape = function(closeOnEscape) {
-//        this.closeOnEscape = closeOnEscape;
-//        if(this.floatDialogElement){
-//            // TODO: reload the window close
-//        }
-//    };
-//
-//    /**
-//     * Sets size of the window
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params width {string|int} absolute position
-//     * @params height {string|int} absolute position
-//     */
-//    wbWindow.prototype.setSize = function(width, height) {
-//        this.width = width;
-//        this.height = height;
-//        if(this.floatDialogElement){
-//            // TODO: reload the window size
-//        }
-//    };
-//
-//    /**
-//     * Loads a library
-//     * 
-//     * @memberof WbDialogWindow
-//     * @path path of library
-//     * @return promise to load the library
-//     */
-//    wbWindow.prototype.loadLibrary = function(path){
-//        return $window.loadLibrary(path);
-//    };
-//
-//    /**
-//     * Check if the library is loaded
-//     * 
-//     * @memberof WbDialogWindow
-//     * @return true if the library is loaded
-//     */
-//    wbWindow.prototype.isLibraryLoaded = function(path){
-//        return $window.isLibraryLoaded(path);
-//    };
-//
-//    /**
-//     * Loads a library
-//     * 
-//     * @memberof WbDialogWindow
-//     * @path path of library
-//     * @return promise to load the library
-//     */
-//    wbWindow.prototype.loadStyle = function(path){
-//        return $window.loadStyle(path);
-//    };
-//
-//    /**
-//     * Check if the library is loaded
-//     * 
-//     * @memberof WbDialogWindow
-//     * @return true if the library is loaded
-//     */
-//    wbWindow.prototype.isStyleLoaded = function(path){
-//        return $window.isStyleLoaded(path);
-//    };
-//
-//
-//    /**
-//     * Set meta
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params key {string} the key of meta
-//     * @params value {string} the value of meta
-//     */
-//    wbWindow.prototype.setMeta = function (key, value){
-//        var parent = this.getParent();
-//        if(parent) {
-//            parent.setMeta(key, value);
-//        }
-//    };
-//
-//    /**
-//     * Set link
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params key {string} the key of link
-//     * @params data {string} the value of link
-//     */
-//    wbWindow.prototype.setLink = function (key, data){
-//        var parent = this.getParent();
-//        if(parent) {
-//            parent.setLink(key, data);
-//        }
-//    };
-//
-//
-//    /**
-//     * Write the body
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params data {string} the value
-//     */
-//    wbWindow.prototype.write = function (data){
-//        this.floatDialogElement.getElement()
-//        .then(function(parentElement){
-//            // string
-//            var element = angular.element(data);
-//            parentElement.empty();
-//            parentElement.append(element);
-//        });
-//    };
-//
-//    /**
-//     * Set view the body
-//     * 
-//     * @memberof WbDialogWindow
-//     * @params data {Object} the view
-//     */
-//    wbWindow.prototype.setView = function (view){
-//        return this.floatDialogElement.setView(view);
-//    };
-//
-//    wbWindow.prototype.setWidth = function(width){
-//        this.resizeTo(width, this.getHeight());
-//    };
-//
-//    wbWindow.prototype.getWidth = function(){
-//        return this.width;
-//    };
-//
-//    wbWindow.prototype.setHeight = function(height){
-//        this.resizeTo(this.getWidth(), height);
-//    };
-//
-//    wbWindow.prototype.getHeight = function(){
-//        return this.height;
-//    };
-//
-//    wbWindow.prototype.resizeTo = function(width, height) {
-//        this.width = width;
-//        this.height = height;
-//        if(this.floatDialogElement){
-//            this.floatDialogElement.resize(width, height);
-//        }
-//    };
-//
-//    wbWindow.prototype.setTitleVisible = function(visible){
-//        this._titleVisible = visible;
-//        if(this.floatDialogElement){
-//            // TODO: maso, 2019: Check if the JPanel supports title visibility online.
-//        }
-//    };
-//
-//    wbWindow.prototype.isTitleVisible = function(){
-//        return this._titleVisible;
-//    };
-//
-//    return wbWindow;
-//});
-
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -13524,191 +13264,189 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-	/**
-	 * دریچه‌های محاوره‌ای
+/**
+ * دریچه‌های محاوره‌ای
+ */
+angular.module('mblowfish-core').run(function($sidenav, $toolbar, $rootScope, $navigator, $route, $actions, $help) {
+	/***************************************************************************
+	 * New app state
+	 * 
+	 * Application state is saved in the root scope
+	 **************************************************************************/
+	/*
+	 * Store application state
 	 */
-	.run(function ($toolbar, $sidenav, $rootScope, $navigator, $route, $actions, $help) {
-		/***************************************************************************
-		 * New app state
-		 * 
-		 * Application state is saved in the root scope
-		 **************************************************************************/
-		/*
-		 * Store application state
-		 */
-		$rootScope.__app = {
-			/******************************************************************
-			 * New model
-			 ******************************************************************/
-			state: 'waiting',
-			key: '',
-			configs: {},
-			settings: {},
-			language: 'en',
-			/******************************************************************
-			 * Old model
-			 ******************************************************************/
-			logs: [],
-			user: {
-				current: {},
-				profile: {},
-				anonymous: true,
-				administrator: false,
-				owner: false,
-				member: false,
-				authorized: false
-			},
-			// application settings
-			config: {},
-			// user settings
-			setting: {},
-			/*
-			 * NOTE: this part is deprecated use tenant
-			 */
-			// tenant settings
-			options: {},
-			local: 'en', // Default local and language
-			dir: 'rtl'
-		};
-		$rootScope.app = $rootScope.__app;
-
-		/*
-		 * Store tenant sate
-		 */
-		$rootScope.__tenant = {
-			id: 0,
-			title: 'notitle',
-			description: 'nodescription',
-			configs: {},
-			settings: {},
-			domains: {}
-		};
-
-		/*
-		 * Store account state
-		 */
-		$rootScope.__account = {
-			anonymous: true,
-			id: 0,
-			login: '',
+	$rootScope.__app = {
+		/******************************************************************
+		 * New model
+		 ******************************************************************/
+		state: 'waiting',
+		key: '',
+		configs: {},
+		settings: {},
+		language: 'en',
+		/******************************************************************
+		 * Old model
+		 ******************************************************************/
+		logs: [],
+		user: {
+			current: {},
 			profile: {},
-			roles: {},
-			groups: {},
-			permissions: {},
-			messages: []
-		}
+			anonymous: true,
+			administrator: false,
+			owner: false,
+			member: false,
+			authorized: false
+		},
+		// application settings
+		config: {},
+		// user settings
+		setting: {},
+		/*
+		 * NOTE: this part is deprecated use tenant
+		 */
+		// tenant settings
+		options: {},
+		local: 'en', // Default local and language
+		dir: 'rtl'
+	};
+	$rootScope.app = $rootScope.__app;
+
+	/*
+	 * Store tenant sate
+	 */
+	$rootScope.__tenant = {
+		id: 0,
+		title: 'notitle',
+		description: 'nodescription',
+		configs: {},
+		settings: {},
+		domains: {}
+	};
+
+	/*
+	 * Store account state
+	 */
+	$rootScope.__account = {
+		anonymous: true,
+		id: 0,
+		login: '',
+		profile: {},
+		roles: {},
+		groups: {},
+		permissions: {},
+		messages: []
+	}
 
 
-		/***************************************************************************
-		 * Application actions
-		 **************************************************************************/
-		$actions.newAction({
-			id: 'mb.preferences',
-			priority: 15,
-			icon: 'settings',
-			title: 'Preferences',
-			description: 'Open preferences panel',
-			visible: function () {
-				return $rootScope.__account.permissions.tenant_owner;
-			},
-			action: function () {
-				return $navigator.openPage('preferences');
-			},
-			groups: ['mb.toolbar.menu']
-		});
-		$actions.newAction({// help
-			id: 'mb.help',
-			priority: 15,
-			icon: 'help',
-			title: 'Help',
-			description: 'Display help in sidenav',
-			visible: function () {
-				return $help.hasHelp($route.current);
-			},
-			action: function () {
-				$help.openHelp($route.current);
-			},
-			groups: ['mb.toolbar.menu']
-		});
-		$actions.newAction({
-			icon: 'account_circle',
-			title: 'Profile',
-			description: 'User profile',
-			groups: ['mb.user'],
-			action: function () {
-				return $navigator.openPage('users/profile');
-			}
-		});
-		$actions.newAction({
-			icon: 'account_box',
-			title: 'Account',
-			description: 'User account',
-			groups: ['mb.user'],
-			action: function () {
-				return $navigator.openPage('users/account');
-			}
-		});
-		$actions.newAction({
-			icon: 'fingerprint',
-			title: 'Password',
-			description: 'Manage password',
-			groups: ['mb.user'],
-			action: function () {
-				return $navigator.openPage('users/password');
-			}
-		});
-
-		$toolbar.newToolbar({
-			id: 'dashboard',
-			title: 'Dashboard toolbar',
-			description: 'Main dashboard toolbar',
-			controller: 'MbToolbarDashboardCtrl',
-			templateUrl: 'views/toolbars/mb-dashboard.html'
-		});
-
-		$sidenav.newSidenav({
-			id: 'navigator',
-			title: 'Navigator',
-			description: 'Navigate all path and routs of the pandel',
-			controller: 'AmdNavigatorCtrl',
-			templateUrl: 'views/sidenavs/mb-navigator.html',
-			locked: true,
-			position: 'start'
-		});
-		$sidenav.newSidenav({
-			id: 'help',
-			title: 'Help',
-			description: 'System online help',
-			controller: 'MbHelpCtrl',
-			templateUrl: 'views/sidenavs/mb-help.html',
-			locked: true,
-			visible: function () {
-				return $rootScope.showHelp;
-			},
-			position: 'end'
-		});
-		$sidenav.newSidenav({
-			id: 'settings',
-			title: 'Options',
-			description: 'User options',
-			controller: 'MbOptionsCtrl',
-			templateUrl: 'views/sidenavs/mb-options.html',
-			locked: false,
-			position: 'end'
-		});
-		$sidenav.newSidenav({
-			id: 'messages',
-			title: 'Messages',
-			description: 'User message queue',
-			controller: 'MessagesCtrl',
-			controllerAs: 'ctrl',
-			templateUrl: 'views/sidenavs/mb-messages.html',
-			locked: false,
-			position: 'start'
-		});
+	/***************************************************************************
+	 * Application actions
+	 **************************************************************************/
+	$actions.newAction({
+		id: 'mb.preferences',
+		priority: 15,
+		icon: 'settings',
+		title: 'Preferences',
+		description: 'Open preferences panel',
+		visible: function() {
+			return $rootScope.__account.permissions.tenant_owner;
+		},
+		action: function() {
+			return $navigator.openPage('preferences');
+		},
+		groups: ['mb.toolbar.menu']
 	});
+	$actions.newAction({// help
+		id: 'mb.help',
+		priority: 15,
+		icon: 'help',
+		title: 'Help',
+		description: 'Display help in sidenav',
+		visible: function() {
+			return $help.hasHelp($route.current);
+		},
+		action: function() {
+			$help.openHelp($route.current);
+		},
+		groups: ['mb.toolbar.menu']
+	});
+	$actions.newAction({
+		icon: 'account_circle',
+		title: 'Profile',
+		description: 'User profile',
+		groups: ['mb.user'],
+		action: function() {
+			return $navigator.openPage('users/profile');
+		}
+	});
+	$actions.newAction({
+		icon: 'account_box',
+		title: 'Account',
+		description: 'User account',
+		groups: ['mb.user'],
+		action: function() {
+			return $navigator.openPage('users/account');
+		}
+	});
+	$actions.newAction({
+		icon: 'fingerprint',
+		title: 'Password',
+		description: 'Manage password',
+		groups: ['mb.user'],
+		action: function() {
+			return $navigator.openPage('users/password');
+		}
+	});
+
+	$toolbar.newToolbar({
+		id: 'dashboard',
+		title: 'Dashboard toolbar',
+		description: 'Main dashboard toolbar',
+		controller: 'MbToolbarDashboardCtrl',
+		templateUrl: 'views/toolbars/mb-dashboard.html'
+	});
+
+	$sidenav.newSidenav({
+		id: 'navigator',
+		title: 'Navigator',
+		description: 'Navigate all path and routs of the pandel',
+		controller: 'AmdNavigatorCtrl',
+		templateUrl: 'views/mb-navigator.html',
+		locked: true,
+		position: 'start'
+	});
+	$sidenav.newSidenav({
+		id: 'help',
+		title: 'Help',
+		description: 'System online help',
+		controller: 'MbHelpCtrl',
+		templateUrl: 'views/sidenavs/mb-help.html',
+		locked: true,
+		visible: function() {
+			return $rootScope.showHelp;
+		},
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'settings',
+		title: 'Options',
+		description: 'User options',
+		controller: 'MbOptionsCtrl',
+		templateUrl: 'views/sidenavs/mb-options.html',
+		locked: false,
+		position: 'end'
+	});
+	$sidenav.newSidenav({
+		id: 'messages',
+		title: 'Messages',
+		description: 'User message queue',
+		controller: 'MessagesCtrl',
+		controllerAs: 'ctrl',
+		templateUrl: 'views/sidenavs/mb-messages.html',
+		locked: false,
+		position: 'start'
+	});
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -13775,85 +13513,14 @@ angular.module('mblowfish-core')
 
 	oldWatch = $rootScope.$watch('__app.state', function(status) {
 		if (status && status.startsWith('ready')) {
+			// Remove the watch
+			oldWatch();
+
 			// check for update
 			return appcache//
 			.checkUpdate()//
 			.then(doUpdate);
-			// Test
-//			updateApplication();
-			// Remove the watch
-			oldWatch();
 		}
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-// Deprecated, will be removed
-angular.module('mblowfish-core').run(function($window, $rootScope, $location) {
-	var watcherIsLoaded = false;
-	var googleValue;
-
-	function loadScript(value){
-		$window.loadLibrary('https://www.googletagmanager.com/gtag/js')
-		.then(function(){
-			$window.dataLayer = $window.dataLayer || [];
-			function gtag(){
-				$window.dataLayer.push(arguments);
-			};
-			$window.gtag = gtag
-			$window.gtag('js', new Date());
-			$window.gtag('config', value);
-		});
-	}
-
-	function loadWatchers() {
-		if(watcherIsLoaded){
-			return;
-		}
-		$rootScope.$on('$routeChangeStart', handleRouteChange);
-		watcherIsLoaded = true;
-	}
-
-	function createEvent(){
-		var event = {
-				page_path: $location.path()
-		};
-		return event;
-	}
-
-	function handleRouteChange(){
-		var event = createEvent();
-		$window.gtag('config', googleValue, event);
-	}
-
-	// initialize google analytics
-	$rootScope.$watch('app.config.googleAnalytic.property', function(value){
-		if (!value) {
-			return;
-		}
-
-		loadScript(value);
-		loadWatchers();
 	});
 });
 /*
@@ -14075,14 +13742,6 @@ angular.module('mblowfish-core')
 		required: true,
 		tags : [ 'brand' ]
 	})//
-	.newPage({
-		id : 'google-analytic',
-		title : 'Google Analytic',
-		templateUrl : 'views/preferences/mb-google-analytic.html',
-		description : 'Enable google analytic for your application.',
-		icon : 'timeline',
-		tags : [ 'analysis' ]
-	})
 	.newPage({
 		id: 'update',
 		templateUrl : 'views/preferences/mb-update.html',
@@ -16544,8 +16203,6 @@ angular.module('mblowfish-core') //
  */
 
 
-/* eslint no-bitwise: 0 */
-angular.module('mblowfish-core')
 /**
  * @ngdoc Services
  * @name $$wbCrypto
@@ -16553,201 +16210,202 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.service('$wbCrypto', function() {
+angular.module('mblowfish-core').service('$wbCrypto', function() {
 
-    function md5cycle(x, k) {
-        var a = x[0], b = x[1], c = x[2], d = x[3];
+	function md5cycle(x, k) {
+		var a = x[0], b = x[1], c = x[2], d = x[3];
 
-        a = ff(a, b, c, d, k[0], 7, -680876936);
-        d = ff(d, a, b, c, k[1], 12, -389564586);
-        c = ff(c, d, a, b, k[2], 17, 606105819);
-        b = ff(b, c, d, a, k[3], 22, -1044525330);
-        a = ff(a, b, c, d, k[4], 7, -176418897);
-        d = ff(d, a, b, c, k[5], 12, 1200080426);
-        c = ff(c, d, a, b, k[6], 17, -1473231341);
-        b = ff(b, c, d, a, k[7], 22, -45705983);
-        a = ff(a, b, c, d, k[8], 7, 1770035416);
-        d = ff(d, a, b, c, k[9], 12, -1958414417);
-        c = ff(c, d, a, b, k[10], 17, -42063);
-        b = ff(b, c, d, a, k[11], 22, -1990404162);
-        a = ff(a, b, c, d, k[12], 7, 1804603682);
-        d = ff(d, a, b, c, k[13], 12, -40341101);
-        c = ff(c, d, a, b, k[14], 17, -1502002290);
-        b = ff(b, c, d, a, k[15], 22, 1236535329);
+		a = ff(a, b, c, d, k[0], 7, -680876936);
+		d = ff(d, a, b, c, k[1], 12, -389564586);
+		c = ff(c, d, a, b, k[2], 17, 606105819);
+		b = ff(b, c, d, a, k[3], 22, -1044525330);
+		a = ff(a, b, c, d, k[4], 7, -176418897);
+		d = ff(d, a, b, c, k[5], 12, 1200080426);
+		c = ff(c, d, a, b, k[6], 17, -1473231341);
+		b = ff(b, c, d, a, k[7], 22, -45705983);
+		a = ff(a, b, c, d, k[8], 7, 1770035416);
+		d = ff(d, a, b, c, k[9], 12, -1958414417);
+		c = ff(c, d, a, b, k[10], 17, -42063);
+		b = ff(b, c, d, a, k[11], 22, -1990404162);
+		a = ff(a, b, c, d, k[12], 7, 1804603682);
+		d = ff(d, a, b, c, k[13], 12, -40341101);
+		c = ff(c, d, a, b, k[14], 17, -1502002290);
+		b = ff(b, c, d, a, k[15], 22, 1236535329);
 
-        a = gg(a, b, c, d, k[1], 5, -165796510);
-        d = gg(d, a, b, c, k[6], 9, -1069501632);
-        c = gg(c, d, a, b, k[11], 14, 643717713);
-        b = gg(b, c, d, a, k[0], 20, -373897302);
-        a = gg(a, b, c, d, k[5], 5, -701558691);
-        d = gg(d, a, b, c, k[10], 9, 38016083);
-        c = gg(c, d, a, b, k[15], 14, -660478335);
-        b = gg(b, c, d, a, k[4], 20, -405537848);
-        a = gg(a, b, c, d, k[9], 5, 568446438);
-        d = gg(d, a, b, c, k[14], 9, -1019803690);
-        c = gg(c, d, a, b, k[3], 14, -187363961);
-        b = gg(b, c, d, a, k[8], 20, 1163531501);
-        a = gg(a, b, c, d, k[13], 5, -1444681467);
-        d = gg(d, a, b, c, k[2], 9, -51403784);
-        c = gg(c, d, a, b, k[7], 14, 1735328473);
-        b = gg(b, c, d, a, k[12], 20, -1926607734);
+		a = gg(a, b, c, d, k[1], 5, -165796510);
+		d = gg(d, a, b, c, k[6], 9, -1069501632);
+		c = gg(c, d, a, b, k[11], 14, 643717713);
+		b = gg(b, c, d, a, k[0], 20, -373897302);
+		a = gg(a, b, c, d, k[5], 5, -701558691);
+		d = gg(d, a, b, c, k[10], 9, 38016083);
+		c = gg(c, d, a, b, k[15], 14, -660478335);
+		b = gg(b, c, d, a, k[4], 20, -405537848);
+		a = gg(a, b, c, d, k[9], 5, 568446438);
+		d = gg(d, a, b, c, k[14], 9, -1019803690);
+		c = gg(c, d, a, b, k[3], 14, -187363961);
+		b = gg(b, c, d, a, k[8], 20, 1163531501);
+		a = gg(a, b, c, d, k[13], 5, -1444681467);
+		d = gg(d, a, b, c, k[2], 9, -51403784);
+		c = gg(c, d, a, b, k[7], 14, 1735328473);
+		b = gg(b, c, d, a, k[12], 20, -1926607734);
 
-        a = hh(a, b, c, d, k[5], 4, -378558);
-        d = hh(d, a, b, c, k[8], 11, -2022574463);
-        c = hh(c, d, a, b, k[11], 16, 1839030562);
-        b = hh(b, c, d, a, k[14], 23, -35309556);
-        a = hh(a, b, c, d, k[1], 4, -1530992060);
-        d = hh(d, a, b, c, k[4], 11, 1272893353);
-        c = hh(c, d, a, b, k[7], 16, -155497632);
-        b = hh(b, c, d, a, k[10], 23, -1094730640);
-        a = hh(a, b, c, d, k[13], 4, 681279174);
-        d = hh(d, a, b, c, k[0], 11, -358537222);
-        c = hh(c, d, a, b, k[3], 16, -722521979);
-        b = hh(b, c, d, a, k[6], 23, 76029189);
-        a = hh(a, b, c, d, k[9], 4, -640364487);
-        d = hh(d, a, b, c, k[12], 11, -421815835);
-        c = hh(c, d, a, b, k[15], 16, 530742520);
-        b = hh(b, c, d, a, k[2], 23, -995338651);
+		a = hh(a, b, c, d, k[5], 4, -378558);
+		d = hh(d, a, b, c, k[8], 11, -2022574463);
+		c = hh(c, d, a, b, k[11], 16, 1839030562);
+		b = hh(b, c, d, a, k[14], 23, -35309556);
+		a = hh(a, b, c, d, k[1], 4, -1530992060);
+		d = hh(d, a, b, c, k[4], 11, 1272893353);
+		c = hh(c, d, a, b, k[7], 16, -155497632);
+		b = hh(b, c, d, a, k[10], 23, -1094730640);
+		a = hh(a, b, c, d, k[13], 4, 681279174);
+		d = hh(d, a, b, c, k[0], 11, -358537222);
+		c = hh(c, d, a, b, k[3], 16, -722521979);
+		b = hh(b, c, d, a, k[6], 23, 76029189);
+		a = hh(a, b, c, d, k[9], 4, -640364487);
+		d = hh(d, a, b, c, k[12], 11, -421815835);
+		c = hh(c, d, a, b, k[15], 16, 530742520);
+		b = hh(b, c, d, a, k[2], 23, -995338651);
 
-        a = ii(a, b, c, d, k[0], 6, -198630844);
-        d = ii(d, a, b, c, k[7], 10, 1126891415);
-        c = ii(c, d, a, b, k[14], 15, -1416354905);
-        b = ii(b, c, d, a, k[5], 21, -57434055);
-        a = ii(a, b, c, d, k[12], 6, 1700485571);
-        d = ii(d, a, b, c, k[3], 10, -1894986606);
-        c = ii(c, d, a, b, k[10], 15, -1051523);
-        b = ii(b, c, d, a, k[1], 21, -2054922799);
-        a = ii(a, b, c, d, k[8], 6, 1873313359);
-        d = ii(d, a, b, c, k[15], 10, -30611744);
-        c = ii(c, d, a, b, k[6], 15, -1560198380);
-        b = ii(b, c, d, a, k[13], 21, 1309151649);
-        a = ii(a, b, c, d, k[4], 6, -145523070);
-        d = ii(d, a, b, c, k[11], 10, -1120210379);
-        c = ii(c, d, a, b, k[2], 15, 718787259);
-        b = ii(b, c, d, a, k[9], 21, -343485551);
+		a = ii(a, b, c, d, k[0], 6, -198630844);
+		d = ii(d, a, b, c, k[7], 10, 1126891415);
+		c = ii(c, d, a, b, k[14], 15, -1416354905);
+		b = ii(b, c, d, a, k[5], 21, -57434055);
+		a = ii(a, b, c, d, k[12], 6, 1700485571);
+		d = ii(d, a, b, c, k[3], 10, -1894986606);
+		c = ii(c, d, a, b, k[10], 15, -1051523);
+		b = ii(b, c, d, a, k[1], 21, -2054922799);
+		a = ii(a, b, c, d, k[8], 6, 1873313359);
+		d = ii(d, a, b, c, k[15], 10, -30611744);
+		c = ii(c, d, a, b, k[6], 15, -1560198380);
+		b = ii(b, c, d, a, k[13], 21, 1309151649);
+		a = ii(a, b, c, d, k[4], 6, -145523070);
+		d = ii(d, a, b, c, k[11], 10, -1120210379);
+		c = ii(c, d, a, b, k[2], 15, 718787259);
+		b = ii(b, c, d, a, k[9], 21, -343485551);
 
-        x[0] = add32(a, x[0]);
-        x[1] = add32(b, x[1]);
-        x[2] = add32(c, x[2]);
-        x[3] = add32(d, x[3]);
+		x[0] = add32(a, x[0]);
+		x[1] = add32(b, x[1]);
+		x[2] = add32(c, x[2]);
+		x[3] = add32(d, x[3]);
 
-    }
+	}
 
-    function cmn(q, a, b, x, s, t) {
-        a = add32(add32(a, q), add32(x, t));
-        return add32((a << s) | (a >>> (32 - s)), b);
-    }
+	function cmn(q, a, b, x, s, t) {
+		a = add32(add32(a, q), add32(x, t));
+		return add32((a << s) | (a >>> (32 - s)), b);
+	}
 
-    function ff(a, b, c, d, x, s, t) {
-        return cmn((b & c) | ((~b) & d), a, b, x, s, t);
-    }
+	function ff(a, b, c, d, x, s, t) {
+		return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+	}
 
-    function gg(a, b, c, d, x, s, t) {
-        return cmn((b & d) | (c & (~d)), a, b, x, s, t);
-    }
+	function gg(a, b, c, d, x, s, t) {
+		return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+	}
 
-    function hh(a, b, c, d, x, s, t) {
-        return cmn(b ^ c ^ d, a, b, x, s, t);
-    }
+	function hh(a, b, c, d, x, s, t) {
+		return cmn(b ^ c ^ d, a, b, x, s, t);
+	}
 
-    function ii(a, b, c, d, x, s, t) {
-        return cmn(c ^ (b | (~d)), a, b, x, s, t);
-    }
+	function ii(a, b, c, d, x, s, t) {
+		return cmn(c ^ (b | (~d)), a, b, x, s, t);
+	}
 
-    function md51(s) {
-//        var txt = '';
-        var n = s.length, state = [ 1732584193, -271733879,
-            -1732584194, 271733878 ], i;
-        for (i = 64; i <= s.length; i += 64) {
-            md5cycle(state, md5blk(s.substring(i - 64, i)));
-        }
-        s = s.substring(i - 64);
-        var tail = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0 ];
-        for (i = 0; i < s.length; i++)
-            tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
-        tail[i >> 2] |= 0x80 << ((i % 4) << 3);
-        if (i > 55) {
-            md5cycle(state, tail);
-            for (i = 0; i < 16; i++)
-                tail[i] = 0;
-        }
-        tail[14] = n * 8;
-        md5cycle(state, tail);
-        return state;
-    }
+	function md51(s) {
+		//        var txt = '';
+		var n = s.length, state = [1732584193, -271733879,
+			-1732584194, 271733878], i;
+		for (i = 64; i <= s.length; i += 64) {
+			md5cycle(state, md5blk(s.substring(i - 64, i)));
+		}
+		s = s.substring(i - 64);
+		var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0];
+		for (i = 0; i < s.length; i++)
+			tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
+		tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+		if (i > 55) {
+			md5cycle(state, tail);
+			for (i = 0; i < 16; i++)
+				tail[i] = 0;
+		}
+		tail[14] = n * 8;
+		md5cycle(state, tail);
+		return state;
+	}
 
-    /*
-     * there needs to be support for Unicode here, unless we
-     * pretend that we can redefine the MD-5 algorithm for
-     * multi-byte characters (perhaps by adding every four
-     * 16-bit characters and shortening the sum to 32 bits).
-     * Otherwise I suggest performing MD-5 as if every
-     * character was two bytes--e.g., 0040 0025 = @%--but
-     * then how will an ordinary MD-5 sum be matched? There
-     * is no way to standardize text to something like UTF-8
-     * before transformation; speed cost is utterly
-     * prohibitive. The JavaScript standard itself needs to
-     * look at this: it should start providing access to
-     * strings as preformed UTF-8 8-bit unsigned value
-     * arrays.
-     */
-    function md5blk(s) { /* I figured global was faster. */
-        var md5blks = [], i;
-        /*
-         * Andy King said do it this
-         * way.
-         */
-        for (i = 0; i < 64; i += 4) {
-            md5blks[i >> 2] = s.charCodeAt(i)
-            + (s.charCodeAt(i + 1) << 8)
-            + (s.charCodeAt(i + 2) << 16)
-            + (s.charCodeAt(i + 3) << 24);
-        }
-        return md5blks;
-    }
+	/*
+	 * there needs to be support for Unicode here, unless we
+	 * pretend that we can redefine the MD-5 algorithm for
+	 * multi-byte characters (perhaps by adding every four
+	 * 16-bit characters and shortening the sum to 32 bits).
+	 * Otherwise I suggest performing MD-5 as if every
+	 * character was two bytes--e.g., 0040 0025 = @%--but
+	 * then how will an ordinary MD-5 sum be matched? There
+	 * is no way to standardize text to something like UTF-8
+	 * before transformation; speed cost is utterly
+	 * prohibitive. The JavaScript standard itself needs to
+	 * look at this: it should start providing access to
+	 * strings as preformed UTF-8 8-bit unsigned value
+	 * arrays.
+	 */
+	function md5blk(s) { /* I figured global was faster. */
+		var md5blks = [], i;
+		/*
+		 * Andy King said do it this
+		 * way.
+		 */
+		for (i = 0; i < 64; i += 4) {
+			md5blks[i >> 2] = s.charCodeAt(i)
+				+ (s.charCodeAt(i + 1) << 8)
+				+ (s.charCodeAt(i + 2) << 16)
+				+ (s.charCodeAt(i + 3) << 24);
+		}
+		return md5blks;
+	}
 
-    var hex_chr = '0123456789abcdef'.split('');
+	var hex_chr = '0123456789abcdef'.split('');
 
-    function rhex(n) {
-        var s = '', j = 0;
-        for (; j < 4; j++)
-            s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
-        + hex_chr[(n >> (j * 8)) & 0x0F];
-        return s;
-    }
+	function rhex(n) {
+		var s = '', j = 0;
+		for (; j < 4; j++)
+			s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
+				+ hex_chr[(n >> (j * 8)) & 0x0F];
+		return s;
+	}
 
-    function hex(x) {
-        for (var i = 0; i < x.length; i++)
-            x[i] = rhex(x[i]);
-        return x.join('');
-    }
+	function hex(x) {
+		for (var i = 0; i < x.length; i++)
+			x[i] = rhex(x[i]);
+		return x.join('');
+	}
 
-    function md5(s) {
-        return hex(md51(s));
-    }
+	function md5(s) {
+		return hex(md51(s));
+	}
 
-    /*
-     * this function is much faster, so if possible we use
-     * it. Some IEs are the only ones I know of that need
-     * the idiotic second function, generated by an if
-     * clause.
-     */
+	/*
+	 * this function is much faster, so if possible we use
+	 * it. Some IEs are the only ones I know of that need
+	 * the idiotic second function, generated by an if
+	 * clause.
+	 */
 
-    function add32(a, b) {
-        return (a + b) & 0xFFFFFFFF;
-    }
+	function add32(a, b) {
+		return (a + b) & 0xFFFFFFFF;
+	}
 
-//    if (md5('hello') != '5d41402abc4b2a76b9719d911017c592') {
-//        function add32(x, y) {
-//            var lsw = (x & 0xFFFF) + (y & 0xFFFF), msw = (x >> 16)
-//            + (y >> 16) + (lsw >> 16);
-//            return (msw << 16) | (lsw & 0xFFFF);
-//        }
-//    }
+	/**! http://stackoverflow.com/a/2117523/377392 */
+	var fmt = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	this.uuid = function() {
+		return fmt.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		});
+	};
 
-    this.md5 = md5;
-    return this;
+	this.md5 = md5;
+	return this;
 });
 
 /*
@@ -16811,405 +16469,6 @@ angular.module('mblowfish-core')
 
 	return {
 		handleError : handleError
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Services
- * @name $amdExport
- * @description Data model exporter
- * 
- * Export data model into a CSV file.
- * 
- */
-.service('$amdExport', function(FileSaver, $q, QueryParameter) {
-
-	/**
-	 * 
-	 * @param findMethod
-	 * @param paginationParams
-	 * @param type
-	 * @param name
-	 * @returns
-	 */
-	function exportList(objectRef, findMethod, QueryParameter, type, name) {
-		var params = new QueryParameter();
-		// TODO: maso, 2017: adding funnction to clone params
-		//
-		// Example: params = new QueryParameter(old);
-		params.put('_px_q ', QueryParameter.get('_px_q'));
-		params.put('_px_sk ', QueryParameter.get('_px_sk'));
-		params.put('_px_so ', QueryParameter.get('_px_so'));
-		params.put('_px_fk ', QueryParameter.get('_px_fk'));
-		params.put('_px_fv ', QueryParameter.get('_px_fv'));
-		params.setPage(0);
-
-		var dataString = '';
-		var attrs;
-
-		function toString(response) {
-			var str = '';
-			angular.forEach(response.items, function(item) {
-				var line = '';
-				angular.forEach(attrs, function(key) {
-					line = line + (item[key] || ' ') + ',';
-				});
-				str = str + line.slice(0, -1) + '\n';
-			});
-			return str;
-		}
-
-		/*
-		 * Load page
-		 */
-		function storeData(response) {
-			// save  result
-			dataString = dataString + toString(response);
-			if (!response.hasMore()) {
-				var data = new Blob([ dataString ], {
-					type : 'text/plain;charset=utf-8'
-				});
-				return FileSaver.saveAs(data, name + '.' + type);
-			}
-			params.setPage(response.next());
-			return findMethod.apply(objectRef, [ params ]) //
-			.then(storeData);
-		}
-
-		return findMethod.apply(objectRef, [ params ])
-		.then(function(response) {
-			// initial list of fields to save
-			if (!attrs) {
-				var keys = Object.keys(response.items[0]);
-				attrs = [];
-				angular.forEach(keys, function(key) {
-					if (!(angular.isFunction(response.items[0][key]) || angular.isObject(response.items[0][key]))) {
-						attrs.push(key);
-					}
-				});
-			}
-			// first line of result file (titles of columns)
-			var keysStr = '';
-			angular.forEach(attrs, function(key) {
-				keysStr = keysStr + key + ',';
-			});
-
-			dataString = keysStr.slice(0, -1) + '\n';
-			return storeData(response);
-		});
-	}
-
-	return {
-		'list' : exportList
-	};
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Services
- * @name $wbFloat
- * @description Open and manage float panels
- * 
- * 
- * The base of this implementation is https://jspanel.de/api.html
- */
-.service('$wbFloat', function($q, $wbUtil, $rootScope, $compile, $controller) {
-	
-
-	/**
-	 * @ngdoc Factory
-	 * @name InternalDialog
-	 * @description The internal dialog
-	 * 
-	 * Manage an internal dialog
-	 */
-	function InternalDialog(optionsOrPreset){
-		this.setUserOptions(optionsOrPreset);
-		var dialog = this;
-		this.callback = function() {
-			var element = angular.element(this.content);
-			dialog.setElement(element);
-		};
-		this.onclosed = function(){
-			/*
-			 * Remove scope
-			 * 
-			 * NOTE: if there is a $watch, then this return an error
-			 */
-			if(dialog.scope){
-				dialog.scope.$destroy();
-				delete dialog.scope;
-			}
-		};
-	}
-
-	InternalDialog.prototype.setUserOptions = function(optionsOrPreset) {
-		this._userOptions = optionsOrPreset;
-		this.theme = 'primary';
-
-		this.closeOnEscape =  optionsOrPreset.closeOnEscape;
-
-		this.header = optionsOrPreset.header;
-		this.headerTitle = optionsOrPreset.headerTitle || 'my panel #1';
-		this.headerControls = optionsOrPreset.headerControls || 'all';
-
-		this.position = optionsOrPreset.position || 'center-top 0 0';
-		this.panelSize = optionsOrPreset.panelSize || '400 400';
-		this.contentSize = optionsOrPreset.contentSize || '450 250';
-	};
-
-	InternalDialog.prototype.getUserOptions = function() {
-		return this._userOptions;
-	};
-
-	InternalDialog.prototype.setRootElement = function(element){
-		this._rootElement = element;
-		element.css('visibility', this._isVisible ? 'visible' : 'hidden');
-	};
-
-	InternalDialog.prototype.getRootElement = function(){
-		return this._rootElement;
-	};
-
-	InternalDialog.prototype.setElement = function(element){
-		this._element = element;
-		if(this._element){
-			if(this._elementPromise){
-				this._elementPromise.resolve(element);
-			}
-		}
-	};
-
-	InternalDialog.prototype.getElement = function(){
-		if(!this._element){
-			if(!this._elementPromise){
-				this._elementPromise = $q.defer();
-			}
-			return this._elementPromise.promise;
-		}
-		return $q.when(this._element);
-	};
-
-	InternalDialog.prototype.setScope = function(scope){
-		this._scope = scope;
-	};
-
-	InternalDialog.prototype.getScope = function(){
-		return this._scope;
-	};
-
-	InternalDialog.prototype.setVisible = function(flag){
-		this._isVisible = flag;
-		var element = this.getRootElement();
-		if(element){
-			element.css('visibility', this._isVisible ? 'visible' : 'hidden');
-		}
-	};
-	
-	InternalDialog.prototype.hide = function(){
-		this.setVisible(false);
-	};
-
-	InternalDialog.prototype.isVisible = function(){
-		return this._isVisible;
-	};
-	
-	InternalDialog.prototype.setPanel = function(panel){
-		this._panel = panel;
-	};
-	
-	InternalDialog.prototype.getPanel = function(){
-		return this._panel;
-	};
-	
-	/**
-	 * Changes size of the panel
-	 * 
-	 * @memberof InternalDialog
-	 * @params w {String|Integer} the width of the panel
-	 * @params h {String|Integer} the height of the panel
-	 */
-	InternalDialog.prototype.resize = function(w, h){
-		var panel = this.getPanel();
-		panel.resize({
-			width: w,
-			height: h
-		});
-	};
-	
-	InternalDialog.prototype.setView = function(optionsOrPreset){
-		var dialog = this;
-		var contentElement = null;
-		var template = null;
-		/*
-		 * Create view
-		 */
-		function createView() {
-			// TODO: maso, 2018: check contentElement
-			// TODO: maso, 2019: check template
-			var parenScope = optionsOrPreset.parent || $rootScope;
-			var childScope = optionsOrPreset.scope || parenScope.$new(false, parenScope);
-
-			// 3- bind controller
-			var element = angular.element(template);
-			var link = $compile(element);
-			if (angular.isDefined(optionsOrPreset.controller)) {
-				var controller = $controller(optionsOrPreset.controller, {
-					$scope: childScope,
-					$element: element,
-					$wbFloat: dialog
-				});
-				if (optionsOrPreset.controllerAs) {
-					childScope[optionsOrPreset.controllerAs] = controller;
-				}
-				element.data('$ngControllerController', controller);
-			}
-			link(childScope);
-
-			contentElement.empty();
-			contentElement.append(element);
-		}
-
-		// 2- create element
-		return this.getElement()
-		.then(function(element){
-			contentElement = element;
-			return $wbUtil.getTemplateFor(optionsOrPreset);
-		})
-		.then(function(templateL){
-			template = templateL;
-			return createView();
-		});
-	};
-	
-	
-
-	/**
-	 * Hide an existing float and resolve the promise returned from
-	 * $wbFloat.show()
-	 * 
-	 * @name hide
-	 * @memberof $wbFloat
-	 * @param response
-	 *            An argument for the resolved promise.
-	 * @return promise A promise that is resolved when the float has been
-	 *         closed.
-	 */
-	/**
-	 * Hide an existing float and reject the promise returned from
-	 * $wbFloat.show().
-	 * 
-	 * @name hide
-	 * @memberof $wbFloat
-	 * @param response
-	 *            An argument for the rejected promise.
-	 * @return promise A promise that is resolved when the float has been
-	 *         closed.
-	 */
-	/**
-	 * Display an element with a float dialog
-	 * 
-	 * @name show
-	 * @memberof $wbFloat
-	 * @param optionsOrPreset
-	 *            {object}
-	 *            <ul>
-	 *            <li>title - {=string}: title of the float</li>
-	 *            <li></li>
-	 *            <li></li>
-	 *            
-	 *            
-	 *            <li>templateUrl - {string=}: The URL of a template that will
-	 *            be used as the content of the dialog.</li>
-	 *            <li>template- {string=}: HTML template to show in the dialog.
-	 *            This must be trusted HTML with respect to Angular's $sce
-	 *            service. This template should never be constructed with any
-	 *            kind of user input or user data.</li>
-	 *            <li>contentElement:</li>
-	 *            <li>scope - {object=}: the scope to link the template
-	 *            controller to. If none is specified, it will create a new
-	 *            isolate scope. This scope will be destroyed when the dialog is
-	 *            removed unless preserveScope is set to true.</li>
-	 *            <li>controller - {function|string=}: The controller to
-	 *            associate with the dialog. The controller will be injected
-	 *            with the local $mdDialog, which passes along a scope for the
-	 *            dialog.</li>
-	 *            <li>controllerAs - {string=}: An alias to assign the
-	 *            controller to on the scope.</li>
-	 *            <li>parent - {element=}: The element to append the dialog to.
-	 *            Defaults to appending to the root element of the application.</li>
-	 *            </ul>
-	 * @return promise A promise that can be resolved with $mdFloat.hide() or
-	 *         rejected with $mdFloat.cancel().
-	 */
-	this.show = function(optionsOrPreset) {
-		return $q.resolve(this.create(optionsOrPreset))
-		.then(function(dialog){
-			dialog.setView(optionsOrPreset);
-			return dialog;
-		});
-	};
-
-	/**
-	 * Creates and return a dialog
-	 * 
-	 * @memberof $wbFloat
-	 */
-	this.create = function(optionsOrPreset) {
-		var dialog = new InternalDialog(optionsOrPreset);
-		var panel = jsPanel.create(dialog);
-		dialog.setPanel(panel);
-		dialog.setRootElement(angular.element(panel));
-		return dialog;
 	};
 });
 
@@ -19155,40 +18414,6 @@ angular.module('mblowfish-core') //
     return apps;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core') //
-.service('uuid4', function() {
-	/**! http://stackoverflow.com/a/2117523/377392 */
-	var fmt = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-	this.generate = function() {
-		return fmt.replace(/[xy]/g, function(c) {
-			var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
-			return v.toString(16);
-		});
-	};
-}); 
-
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -19317,6 +18542,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/mb-navigator.html',
+    "<div> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content> </div>"
+  );
+
+
   $templateCache.put('views/mb-passowrd-recover.html',
     " <md-toolbar layout-padding>  <h3>Forget Your PassWord ?</h3> </md-toolbar>  <div layout=column layout-padding> <md-input-container> <label>Username or Email</label> <input ng-model=credit.login required> </md-input-container> </div> <div layout=column layout-align=none layout-gt-sm=row layout-align-gt-sm=\"space-between center\" layout-padding> <a ui-sref=login flex-order=1 flex-order-gt-sm=-1>Back To Login Page</a> <md-button flex-order=0 class=\"md-primary md-raised\" ng-click=login(credit)>Send</md-button> </div>"
   );
@@ -19384,11 +18614,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/preferences/mb-brand.html',
     "<div layout=column layout-margin ng-cloak flex> <mb-titled-block mb-title=\"{{'Configurations' | translate}}\"> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> </mb-titled-block> <div layout=row layout-wrap layout-margin> <mb-titled-block mb-title=\"{{'Brand' | translate}}\"> <mb-inline ng-model=app.config.logo mb-inline-type=image mb-inline-label=\"Application Logo\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.logo}}> </mb-inline> </mb-titled-block> <mb-titled-block mb-title=\"{{'Favicon' | translate }}\"> <mb-inline ng-model=app.config.favicon mb-inline-type=image mb-inline-label=\"Application Favicon\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.favicon}}> </mb-inline> </mb-titled-block> </div> </div>"
-  );
-
-
-  $templateCache.put('views/preferences/mb-google-analytic.html',
-    "<div layout=column layout-margin ng-cloak flex> <md-input-container class=md-block> <label>Google analytic property</label> <input required md-no-asterisk name=property ng-model=\"app.config.googleAnalytic.property\"> </md-input-container> </div>"
   );
 
 
@@ -19484,11 +18709,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/sidenavs/mb-messages.html',
     "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-title=Messages mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"message in ctrl.items track by message.id\" class=md-3-line> <wb-icon ng-class=\"\">mail</wb-icon> <div class=md-list-item-text> <p>{{::message.message}}</p> </div> <md-button class=\"md-secondary md-icon-button\" ng-click=ctrl.deleteItem(message) aria-label=remove> <wb-icon>delete</wb-icon> </md-button> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/sidenavs/mb-navigator.html',
-    "<md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu md-colors=\"{backgroundColor: 'primary'}\" flex> <mb-tree mb-section=menuItems> </mb-tree> </md-content>"
   );
 
 
