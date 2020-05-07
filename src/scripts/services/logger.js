@@ -1,7 +1,5 @@
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,44 +20,45 @@
  * SOFTWARE.
  */
 
+
 /**
  * @ngdoc Services
- * @name $storage
- * @description A service to work with storage of browser
+ * @name $mbLogger
+ * @description Manage and translate all backend error and messages
+ * 
+ * 
  * 
  */
-angular.module('mblowfish-core').service('$storage', function($localStorage) {
-    /*
-     * @param 
-     * @returns
-     */
-	function get(key) {
-		return $localStorage[key];
-	}
-    /*
-     * @param 
-     * @returns
-     */
-	function put(key, value) {
-		$localStorage[key] = value;
-	}
-    /*
-     * @param 
-     * @returns
-     */
-	function remove(key) {
-		delete $localStorage[key];
-	}
-    /*
-     * @param 
-     * @returns
-     */
-	function has(key) {
-		return ($localStorage[key] ? true : false);
-	}
+angular.module('mblowfish-core').service('$mbLogger', function() {
 
-	this.get = get;
-	this.put = put;
-	this.remove = remove;
-	this.has = has;
+	/**
+	 * Checks status, message and data of the error. If given form is not null,
+	 * it set related values in $error of fields in the form. It also returns a
+	 * general message to show to the user.
+	 */
+	this.errorMessage = function(error, form) {
+		var message = null;
+		if (error.status === 400 && form) { // Bad request
+			message = 'Form is not valid. Fix errors and retry.';
+			error.data.data.forEach(function(item) {
+				form[item.name].$error = {};
+				item.constraints.map(function(cons) {
+					if (form[item.name]) {
+						form[item.name].$error[cons.toLowerCase()] = true;
+					}
+				});
+			});
+		} else {
+			message = error.data.message;
+		}
+		return message;
+	}
+	
+	this.error = function(){};
+	this.warn = function(){};
+	this.debug = function(){};
+	this.info = function(){};
+	
+
+	return this;
 });

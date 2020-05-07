@@ -19,21 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
-angular.module('app')
-/**
- * 
- */
-.controller('TestPaginationBarCtrl', function($scope, $resource, $navigator, $amdExport, $usr,
-        QueryParameter) {
+angular.module('app').controller('TestPaginationBarCtrl', function($scope, QueryParameter) {
 	// 
 	var QueryParameter = new QueryParameter();
 	QueryParameter.setOrder('id', 'a');
 	var requests = null;
 	var ctrl = {
-			state: 'relax',
-			items: []
+		state: 'relax',
+		items: []
 	};
 
 	/**
@@ -64,7 +58,7 @@ angular.module('app')
 		}
 		// start state (device list)
 		ctrl.status = 'working';
-		var items={
+		var items = {
 			'items': [
 				{
 					'id': 2,
@@ -87,32 +81,16 @@ angular.module('app')
 		ctrl.status = 'relax';
 	}
 
-	function reload(){
+	function reload() {
 		requests = null;
 		ctrl.items = [];
 		nextPage();
-		
+
 		toast('page is reloaded');
 	}
 
-	function add(){
+	function add() {
 		// do nothing
-	}
-
-	function exportList(){
-		if (ctrl.status === 'working') {
-			return;
-		}
-		// TODO: work and complete
-		ctrl.status = 'working';
-		return $amdExport.list( $usr, $usr.getAccounts, 
-				QueryParameter, 'csv', 'exampel')//
-		.then(function(){
-			ctrl.status = 'ok';
-		}, function(){
-			ctrl.status = 'ok';
-			alert('Fail to export data');
-		});
 	}
 
 	$scope.items = [];
@@ -122,19 +100,18 @@ angular.module('app')
 	$scope.search = find;
 	$scope.nextPage = nextPage;
 	$scope.reload = reload;
-	$scope.exportList = exportList;
-	
-	$scope.sortKeys= [
-		'id', 
+
+	$scope.sortKeys = [
+		'id',
 		'name',
 		'description'
-		];
-	$scope.moreActions=[{
+	];
+	$scope.moreActions = [{
 		title: 'New item',
 		icon: 'add',
 		action: add
 	}];
-	$scope.moreActions2=[{
+	$scope.moreActions2 = [{
 		title: 'Menu item 1',
 		icon: 'add',
 		action: add

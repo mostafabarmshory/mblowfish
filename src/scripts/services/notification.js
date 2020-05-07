@@ -20,9 +20,6 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
  * @name $notification
@@ -31,7 +28,7 @@ angular.module('mblowfish-core')
  * 
  * 
  */
-.service('$notification', function($navigator, $mdToast) {
+angular.module('mblowfish-core').service('$notification', function($navigator, $mdToast) {
 
 	/**
 	 * The alert() method displays an alert box with a specified message and an

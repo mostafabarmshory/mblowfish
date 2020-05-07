@@ -1,7 +1,4 @@
-<md-content
-	layout="column"
-	layout-align="center none"
-	flex>
+<md-content>
 	<md-button class="md-raised md-accent" ng-click="toggleXEdit()">{{editable ? 'Disable' : 'Enable'}} Editing</md-button>
 	<mb-inline
 		ng-model="object.img"
@@ -36,8 +33,6 @@
 		 	mb-inline-cancel-button="true">
 		 	Email: {{ myemail || 'empty' }}
 		</mb-inline>
-<!-- 	  <div>Tel: <a href="#" editable-tel="user.tel" e-pattern="\d{3}-\d{2}-\d{2}" e-title="xxx-xx-xx">{{ user.tel || 'empty' }}</a></div> -->
-<!-- 	  <div>Number: <a href="#" editable-number="user.number" e-min="18">{{ user.number || 'empty' }}</a></div>   -->
 		<mb-inline 
 		 	ng-model="myrange" 
 		 	mb-inline-type="range" 
@@ -70,7 +65,6 @@
 		 	mb-inline-enable="editable">
 		 	Date: {{ (mydate | date: "yyyy-MM-dd") || 'empty' }}
 		</mb-inline>
-<!-- 	  <div>Time: <a href="#" editable-time="user.time">{{ (user.time | date: "HH:mm") || 'empty' }}</a></div> -->
 		<mb-inline
 			ng-model="mymonth"
 			mb-inline-type="month"
@@ -94,19 +88,13 @@
 			ng-model="object.mydatetime"
 			mb-inline-type="datetime"
 			mb-inline-enable="editable">Date Time : {{ (object.mydatetime | mbDate) || 'empty' }}</mb-inline>
-			
 		<mb-inline
 			ng-model="myfile"
 			mb-inline-type="file"
 			mb-inline-enable="editable">
 			File: {{ myfile || 'empty' }}
 		</mb-inline>
-<!-- 	</div> -->
-
 	<mb-titled-block
 		mb-title="GTW Inline Edit">
-		
 	</mb-titled-block>
-	
-
 </md-content>

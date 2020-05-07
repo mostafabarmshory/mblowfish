@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core') //
 
 /**
  * @ngdoc Services
@@ -28,7 +27,7 @@ angular.module('mblowfish-core') //
  * @description toolbars manager
  * 
  */
-.service('$toolbar', function ($q) {
+angular.module('mblowfish-core').service('$toolbar', function ($q) {
 
     var _toolbars = [];
 

@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
  * @name $options
@@ -29,7 +27,7 @@ angular.module('mblowfish-core')
  * 
  * Option is user configurations
  */
-.service('$options', function($q) {
+angular.module('mblowfish-core').service('$options', function($q) {
 	var _pages = [ ];
 
 	/**

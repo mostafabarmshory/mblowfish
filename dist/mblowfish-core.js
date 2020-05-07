@@ -9979,56 +9979,12 @@ angular.module('mblowfish-core')
  */
 angular.module('mblowfish-core').directive('mbView', function(
 	/* amwb core */ $wbUtil,
+	/* MB        */ $mbUi,
 	/* AngularJS */ $location, $injector,
 	$templateRequest, $compile, $controller, $rootScope,
 	$route, $dispatcher, $app) {
 	var myLayout;
 	var editorStack;
-	var config = {
-		settings: {
-			hasHeaders: true,
-			constrainDragToContainer: true,
-			reorderEnabled: true,
-			selectionEnabled: true,
-			popoutWholeStack: false,
-			blockedPopoutsThrowError: true,
-			closePopoutsOnUnload: true,
-			showPopoutIcon: false,
-			showMaximiseIcon: true,
-			showCloseIcon: true
-		},
-		dimensions: {
-			borderWidth: 5,
-			minItemHeight: 16,
-			minItemWidth: 50,
-			headerHeight: 20,
-			dragProxyWidth: 300,
-			dragProxyHeight: 200
-		},
-		content: [{
-			type: 'row',
-			isClosable: false,
-			componentState: {
-				url: '/wb/ui/',
-			},
-			content: [{
-				id: 'navigator',
-				type: 'component',
-				componentName: 'view',
-				width: 20,
-				componentState: {
-					url: '/mb/ui/views/navigator/'
-				},
-			}, {
-				type: 'stack',
-				title: 'Editors',
-				isClosable: false,
-				componentState: {
-					url: '/wb/ui/editors/',
-				}
-			}]
-		}]
-	};
 	return {
 		restrict: 'ECA',
 		terminal: true,
@@ -10071,7 +10027,7 @@ angular.module('mblowfish-core').directive('mbView', function(
 						link(scope);
 
 						// load docker view
-						myLayout = new GoldenLayout(config, $element.find('#mb-view-main-anchor'));
+						myLayout = new GoldenLayout($mbUi.getLayout(), $element.find('#mb-view-main-anchor'));
 						myLayout.on('stackCreated', function(stack) {
 							if (stack.config.title === 'Editors') {
 								editorStack = stack;
@@ -13604,94 +13560,6 @@ angular.module('mblowfish-core').run(function($rootScope, $language) {
 	
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-/**
- * حالت امنیتی را بررسی می‌کند
- * 
- * در صورتی که یک حالت حالتی امن باشد، و کاربر وارد سیستم نشده باشد، حالت ماشین
- * را به حالت لاگین می‌برد.
- */
-.run(function($rootScope, $page, $location) {
-
-	/**
-	 * Rests settings of page (title, description, keywords and favicon) to values defined in branding
-	 */
-	function _initBranding() {
-
-		var app = $rootScope.app || {};
-		if( app.config){			
-			$page.setTitle(app.config.title);
-			$page.setDescription(app.config.description);
-			$page.setKeywords(app.config.keywords);
-			$page.setFavicon(app.config.favicon || app.config.logo);
-		}
-	}
-
-	/**
-	 * If an item of settings of page does not set yet, sets it by value defined in branding
-	 */
-	function _fillUnsetFields() {
-		var app = $rootScope.app || {};
-		var config = app.config ? app.config : null;
-		if(!config){
-			return;
-		}
-		$page.setTitle($page.getTitle() || config.title);
-		$page.setDescription($page.getDescription() || config.description);
-		$page.setKeywords($page.getKeywords() || config.keywords);
-		$page.setFavicon(config.favicon || config.logo);
-		$page.setMeta('og:site_name', config.title);
-	}
-	/*
-	 * Listen on change route
-	 */
-	$rootScope.$on('$routeChangeStart', function( /* event */ ) {
-		_initBranding();
-	});
-	$rootScope.$on('$routeChangeSuccess', function( /*event, current*/ ) {
-		var path = $location.absUrl();
-		$page
-		.setMeta('twitter:url', path) //
-		.setMeta('og:url', path);
-	});
-
-	$rootScope.$watch(function(){
-		var app = $rootScope.app || {};
-		var conf = app.config;
-		if(!conf){
-			return conf;
-		}
-		return conf.title +'#'+ conf.description +'#'+ conf.keywords +'#'+ conf.logo +'#'+ conf.favicon;
-	}, function() {
-		_fillUnsetFields();
-	});
-
-	$page.setMeta('twitter:card', 'summary');
-	$page.setMeta('og:type', 'object');
-});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -17580,193 +17448,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-// TODO: hadi: move it to new module angular-material-home-seo
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc service
- * @name $page
- * @description A page management service
- */
-.service('$page', function(
-		/* angularjs */ $rootScope, $rootElement, 
-		/* wb-core */ $window) {
-
-	// ------------------------------------------------------------------
-	// Utility function
-	//
-	//
-	// ------------------------------------------------------------------
-	/*
-	 * <!-- OG -->
-	 * <meta property="og:site_name" content="$title">
-	 */
-	
-	$rootScope.page = {
-			title: '',
-			description: '',
-			keywords: [],
-			links:[]
-	};
-	var page = $rootScope.page;
-	var headElement = $rootElement.find('head');
-	var bodyElement = $rootElement.find('body');
-	
-	/*
-	 * Get elements by name
-	 */
-	function getHeadElementByName(name){
-		var elements = headElement.find(name);
-		if(elements.length){
-			return angular.element(elements[0]);
-		}
-		// title element not found
-		var metaElement = angular.element('<' + name +'/>');
-		headElement.append(metaElement);
-		return metaElement;
-	}
-
-	// ------------------------------------------------------------------
-	// Utility function
-	//
-	//
-	// ------------------------------------------------------------------
-
-	/**
-	 * 
-	 * @param title
-	 * @returns
-	 */
-	this.setTitle = function(title){
-		page.title = title;
-		getHeadElementByName('title').text(title);
-		this.setMeta('twitter:title', title);
-		this.setMeta('og:title', title);
-		return this;
-	}
-
-	/**
-	 * Gets current page title
-	 * 
-	 * @returns
-	 */
-	this.getTitle = function (){
-		return page.title;
-	}
-
-	/**
-	 * Sets page description
-	 * 
-	 * @param description
-	 * @returns
-	 */
-	this.setDescription = function (description){
-		page.description = description;
-		this.setMeta('description', description);
-		this.setMeta('twitter:description', description);
-		this.setMeta('og:description', description);
-		return this;
-	}
-
-	/**
-	 * 
-	 * @returns
-	 */
-	this.getDescription = function (){
-		return page.description;
-	}
-
-	/**
-	 * 
-	 * @param keywords
-	 * @returns
-	 */
-	this.setKeywords = function (keywords){
-		page.keywords = keywords;
-		this.setMeta('keywords', keywords);
-		return this;
-	}
-
-	/**
-	 * Gets current keywords
-	 * 
-	 * @returns
-	 */
-	this.getKeywords = function (){
-		return page.keywords;
-	};
-	
-	/**
-	 * Sets favicon
-	 */
-	this.setFavicon = function (favicon){
-		this.updateLink('favicon-link', {
-			href: favicon,
-			rel: 'icon'
-		});
-		return this;
-	};
-	
-	/**
-	 * Sets page cover
-	 */
-	this.setCover = function(imageUrl) {
-		this.setMeta('twitter:image', imageUrl);
-		this.setMeta('og:image', imageUrl);
-		return this;
-	};
-	
-	this.setCanonicalLink = function(url) {
-		this.setLink('canonical', {
-			href: url,
-			rel: 'canonical'
-		});
-		return this;
-	};
-
-	this.updateLink = function(key, data){
-		$window.setLink(key, data);
-		return this;
-	};
-	
-	this.setLink = this.updateLink;
-
-	this.setMeta = function (key, value){
-		$window.setMeta(key, value);
-		return this;
-	};
-	
-	this.setLanguage = function(language){
-		bodyElement.attr('lang', language);
-		return this;
-	};
-	
-	return this;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 angular.module('mblowfish-core')
 
 /**
@@ -18158,6 +17839,40 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
+
+/**
+ * @ngdoc service
+ * @name $mbSelection
+ * @description Default selection system.
+ */
+angular.module('mblowfish-core').service('$mbUi', function() {
+
+
+	return this;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 angular.module('mblowfish-core') //
 
 /**
@@ -18412,6 +18127,114 @@ angular.module('mblowfish-core') //
     apps.defaultToolbars = defaultToolbars;
 
     return apps;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc service
+ * @name $ui
+ * @description A page management service
+ */
+angular.module('mblowfish-core').service('$mbUi', function(
+		/* angularjs */ $rootScope, $rootElement, $window) {
+	var defaultLayout = {
+		settings: {
+			hasHeaders: true,
+			constrainDragToContainer: true,
+			reorderEnabled: true,
+			selectionEnabled: true,
+			popoutWholeStack: false,
+			blockedPopoutsThrowError: true,
+			closePopoutsOnUnload: true,
+			showPopoutIcon: false,
+			showMaximiseIcon: true,
+			showCloseIcon: true
+		},
+		dimensions: {
+			borderWidth: 5,
+			minItemHeight: 16,
+			minItemWidth: 50,
+			headerHeight: 20,
+			dragProxyWidth: 300,
+			dragProxyHeight: 200
+		},
+		content: [{
+			type: 'row',
+			isClosable: false,
+			componentState: {
+				url: '/wb/ui/',
+			},
+			content: [{
+				id: 'navigator',
+				type: 'component',
+				componentName: 'view',
+				width: 20,
+				componentState: {
+					url: '/mb/ui/views/navigator/'
+				},
+			}, {
+				type: 'stack',
+				title: 'Editors',
+				isClosable: false,
+				componentState: {
+					url: '/wb/ui/editors/',
+				}
+			}]
+		}]
+	};
+	var editors;
+	var views;
+
+	// ------------------------------------------------------------------
+	// Utility function
+	//
+	//
+	// ------------------------------------------------------------------
+	this.getLayout = function() {
+		var layout = null;
+		return defaultLayout || layout;
+	};
+	this.saveLayout = function() { };
+	this.setDefaultLayout = function(layout) {
+		defaultLayout = layout;
+	};
+
+	this.openEditor = function() { };
+	this.getEditor = function() { };
+	this.getActiveEditor = function() { };
+
+	this.openView = function() { };
+	this.getView = function() { };
+	this.getViews = function() { };
+
+	this.getLanguage = function() { };
+	this.setLanguage = function(language) {
+	};
+
+	return this;
 });
 
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {

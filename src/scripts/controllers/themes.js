@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
 
 
 /**
@@ -29,9 +28,9 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MbThemesCtrl', function($scope, $mdTheming) {
-	$scope.themes =[];
-	angular.forEach($mdTheming.THEMES, function(value, key){
+angular.module('mblowfish-core').controller('MbThemesCtrl', function($scope, $mdTheming) {
+	$scope.themes = [];
+	angular.forEach($mdTheming.THEMES, function(value, key) {
 		$scope.themes.push({
 			'id': key,
 			'label': value.name

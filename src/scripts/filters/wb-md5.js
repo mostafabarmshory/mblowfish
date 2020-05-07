@@ -22,9 +22,6 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Filters
  * @name wbmd5
@@ -36,8 +33,8 @@ angular.module('mblowfish-core')
  <span>{{ 'text to hash' | wbmd5 }}</span> 
  ```
  */
-.filter('wbmd5', function ($wbCrypto) {
-    return function (val) {
-        return $wbCrypto.md5(val+'');
-    };
+angular.module('mblowfish-core').filter('wbmd5', function($mbCrypto) {
+	return function(val) {
+		return $mbCrypto.md5(val + '');
+	};
 });

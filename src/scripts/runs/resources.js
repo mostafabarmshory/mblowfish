@@ -374,7 +374,7 @@ angular.module('mblowfish-core')
 			/*
 			 * @ngInject
 			 */
-			controller: function($scope, $cms, $translate, uuid4) {
+			controller: function($scope, $cms, $translate, $mbCrypto) {
 
 				/*
 				 * Extends collection controller
@@ -412,7 +412,7 @@ angular.module('mblowfish-core')
 				$scope.answer = function() {
 					// create data
 					var data = {};
-					data.name = this.name || uuid4.generate();
+					data.name = this.name || $mbCrypto.uuid();
 					data.description = this.description || 'Auto loaded content';
 					var file = null;
 					if (angular.isArray(ctrl.files) && ctrl.files.length) {

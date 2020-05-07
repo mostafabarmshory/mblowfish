@@ -197,56 +197,12 @@
  */
 angular.module('mblowfish-core').directive('mbView', function(
 	/* amwb core */ $wbUtil,
+	/* MB        */ $mbUi,
 	/* AngularJS */ $location, $injector,
 	$templateRequest, $compile, $controller, $rootScope,
 	$route, $dispatcher, $app) {
 	var myLayout;
 	var editorStack;
-	var config = {
-		settings: {
-			hasHeaders: true,
-			constrainDragToContainer: true,
-			reorderEnabled: true,
-			selectionEnabled: true,
-			popoutWholeStack: false,
-			blockedPopoutsThrowError: true,
-			closePopoutsOnUnload: true,
-			showPopoutIcon: false,
-			showMaximiseIcon: true,
-			showCloseIcon: true
-		},
-		dimensions: {
-			borderWidth: 5,
-			minItemHeight: 16,
-			minItemWidth: 50,
-			headerHeight: 20,
-			dragProxyWidth: 300,
-			dragProxyHeight: 200
-		},
-		content: [{
-			type: 'row',
-			isClosable: false,
-			componentState: {
-				url: '/wb/ui/',
-			},
-			content: [{
-				id: 'navigator',
-				type: 'component',
-				componentName: 'view',
-				width: 20,
-				componentState: {
-					url: '/mb/ui/views/navigator/'
-				},
-			}, {
-				type: 'stack',
-				title: 'Editors',
-				isClosable: false,
-				componentState: {
-					url: '/wb/ui/editors/',
-				}
-			}]
-		}]
-	};
 	return {
 		restrict: 'ECA',
 		terminal: true,
@@ -289,7 +245,7 @@ angular.module('mblowfish-core').directive('mbView', function(
 						link(scope);
 
 						// load docker view
-						myLayout = new GoldenLayout(config, $element.find('#mb-view-main-anchor'));
+						myLayout = new GoldenLayout($mbUi.getLayout(), $element.find('#mb-view-main-anchor'));
 						myLayout.on('stackCreated', function(stack) {
 							if (stack.config.title === 'Editors') {
 								editorStack = stack;

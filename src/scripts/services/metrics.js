@@ -21,8 +21,6 @@
  */
 
 
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
  * @name $metrics
@@ -44,7 +42,7 @@ angular.module('mblowfish-core')
  * 
  * Metrics must be tracked by the following 
  */
-.service('$metrics', function($q/*, $timeout, $monitor*/) {
+angular.module('mblowfish-core').service('$metrics', function($q/*, $timeout, $monitor*/) {
 	/*
 	 * store list of metrics
 	 */

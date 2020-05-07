@@ -23,7 +23,7 @@
  */
 
 
-angular.module('mblowfish-core')
+
 /**
  * @ngdoc Directives
  * @name ngSrcError
@@ -48,14 +48,14 @@ angular.module('mblowfish-core')
       ng-src-error="https://www.gravatar.com/avatar/{{account.id}}?">
   ```
  */
-.directive('ngSrcError', function () {
-    return {
-        link : function (scope, element, attrs) {
-            element.bind('error', function () {
-                if (attrs.src !== attrs.ngSrcError) {
-                    attrs.$set('src', attrs.ngSrcError);
-                }
-            });
-        }
-    };
+angular.module('mblowfish-core').directive('ngSrcError', function() {
+	return {
+		link: function(scope, element, attrs) {
+			element.bind('error', function() {
+				if (attrs.src !== attrs.ngSrcError) {
+					attrs.$set('src', attrs.ngSrcError);
+				}
+			});
+		}
+	};
 });

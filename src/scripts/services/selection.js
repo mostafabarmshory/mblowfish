@@ -21,43 +21,18 @@
  */
 
 
-angular.module('mblowfish-core')
-
 /**
- * @ngdoc Services
- * @name $errorHandler
- * @description A service to handle errors in forms.
- * 
- * 
- * 
+ * @ngdoc service
+ * @name $mbSelection
+ * @description Default selection system.
  */
-.service('$errorHandler', function() {
-
-	/**
-	 * Checks status, message and data of the error. If given form is not null,
-	 * it set related values in $error of fields in the form. It also returns a
-	 * general message to show to the user.
-	 */
-	function handleError(error, form) {
-		var message = null;
-		if (error.status === 400 && form) { // Bad request
-			message = 'Form is not valid. Fix errors and retry.';
-			error.data.data.forEach(function(item) {
-				form[item.name].$error = {};
-				item.constraints.map(function(cons) {
-					if (form[item.name]) {
-						form[item.name].$error[cons.toLowerCase()] = true;
-					}
-				});
-			});
-		} else {
-			message = error.data.message;
-		}
-
-		return message;
-	}
-
-	return {
-		handleError : handleError
-	};
+angular.module('mblowfish-core').service('$mbSelection', function() {
+	var selection = [];
+	
+	this.addItem = function($item, $event){};
+	this.clearItems = function(){};
+	this.getItems = function(){};
+	this.isSelected = function(){};
+	
+	return this;
 });

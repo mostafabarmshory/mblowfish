@@ -22,9 +22,6 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
  * @name $resource
@@ -33,7 +30,7 @@ angular.module('mblowfish-core')
  * This is a service to get resources. 
  * 
  */
-.service('$resource', function($mdDialog, $rootScope) {
+angular.module('mblowfish-core').service('$resource', function($mdDialog, $rootScope) {
     var CHILDREN_AUNCHOR = 'wb-select-resource-children';
     var resourcePages = {};
     /*

@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core') //
 
 /**
  * @ngdoc Services
@@ -29,8 +28,8 @@ angular.module('mblowfish-core') //
  * @description sidenavs manager
  * 
  */
-.service('$sidenav', function ($q, $mdSidenav) {
-    var _sidenavs = [];
+angular.module('mblowfish-core').service('$sidenav', function($q, $mdSidenav) {
+	var _sidenavs = [];
 
     /**
      * Get list of all sidenavs
@@ -38,11 +37,11 @@ angular.module('mblowfish-core') //
      * @memberof $sidenav
      * @return promiss
      */
-    function sidenavs(){
-        return $q.when({
-            items: _sidenavs
-        });
-    }
+	function sidenavs() {
+		return $q.when({
+			items: _sidenavs
+		});
+	}
 
     /**
      * Add new sidenav
@@ -51,9 +50,9 @@ angular.module('mblowfish-core') //
      * @param {} sidenav
      * @return promiss
      */
-    function newSidenav(sidenav){
-        _sidenavs.push(sidenav);
-    }
+	function newSidenav(sidenav) {
+		_sidenavs.push(sidenav);
+	}
 
     /**
      * Get a sidnav by id
@@ -62,23 +61,23 @@ angular.module('mblowfish-core') //
      * @param {} id
      * @return promiss
      */
-    function sidenav(id){
-        for(var i = 0; i < _sidenavs.length; i++){
-            if(_sidenavs[i].id === id){
-                return $q.when(_sidenavs[i]);
-            }
-        }
-        return $q.reject('Sidenav not found');
-    }
-    
+	function sidenav(id) {
+		for (var i = 0; i < _sidenavs.length; i++) {
+			if (_sidenavs[i].id === id) {
+				return $q.when(_sidenavs[i]);
+			}
+		}
+		return $q.reject('Sidenav not found');
+	}
+
     /**
      * Find and return a sidenav
      */
-    this.getSidenav = function(id){
-    	return $mdSidenav(id);
-    }
-    
-    var _defaultSidenavs = [];
+	this.getSidenav = function(id) {
+		return $mdSidenav(id);
+	}
+
+	var _defaultSidenavs = [];
 
     /**
      * Add new sidenav
@@ -87,10 +86,10 @@ angular.module('mblowfish-core') //
      * @param {} defaultSidenavs
      * @return promiss
      */
-    function setDefaultSidenavs(defaultSidenavs){
-        _defaultSidenavs = defaultSidenavs || [];
-        return this;
-    }
+	function setDefaultSidenavs(defaultSidenavs) {
+		_defaultSidenavs = defaultSidenavs || [];
+		return this;
+	}
 
     /**
      * Add new sidenav
@@ -98,17 +97,17 @@ angular.module('mblowfish-core') //
      * @memberof $sidenav
      * @return promiss
      */
-    function defaultSidenavs(){
-        return _defaultSidenavs;
-    }
+	function defaultSidenavs() {
+		return _defaultSidenavs;
+	}
 
-    this.sidenavs = sidenavs;
-    this.newSidenav = newSidenav;
-    this.sidenav = sidenav;
-    this.setDefaultSidenavs = setDefaultSidenavs;
-    this.defaultSidenavs = defaultSidenavs;
+	this.sidenavs = sidenavs;
+	this.newSidenav = newSidenav;
+	this.sidenav = sidenav;
+	this.setDefaultSidenavs = setDefaultSidenavs;
+	this.defaultSidenavs = defaultSidenavs;
 
-    return this;
+	return this;
 });
 
 
