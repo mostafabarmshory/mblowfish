@@ -20,51 +20,41 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
-	var oldWatch;
+/**
+ * @ngdoc Services
+ * @name $mbUtil
+ * @description utility in Mblowfish
+ * 
+ */
+angular.module('mblowfish-core').service('$mbUtil', function() {
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
+	/**
+	 * Creates a shallow copy of an object, an array or a primitive.
+	 *
+	 * Assumes that there are no proto properties for objects.
 	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
+	this.shallowCopy = function(src, dst) {
+		if (this.isArray(src)) {
+			dst = dst || [];
+			for (var i = 0, ii = src.length; i < ii; i++) {
+				dst[i] = src[i];
 			}
-		} else {
-			toast('Application is updated.');
+		} else if (this.isObject(src)) {
+			dst = dst || {};
+			for (var key in src) {
+				if (!(key.charAt(0) === '$' && key.charAt(1) === '$')) {
+					dst[key] = src[key];
+				}
+			}
 		}
-	}
+		return dst || src;
+	};
 
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
 
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+
+	this.noop = angular.noop;
+	this.isArray = angular.isArray;
+	this.isObject = angular.isObject;
+	this.isDefined = angular.isDefined;
 });

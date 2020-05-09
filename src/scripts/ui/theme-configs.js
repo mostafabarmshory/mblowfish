@@ -20,51 +20,43 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
-	var oldWatch;
+angular.module('mblowfish-core').config(function($mdThemingProvider) {
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
-
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
+	// AMD default palette
+	$mdThemingProvider.definePalette('amdPrimaryPalette', {
+		'50': '#FFFFFF',
+		'100': 'rgb(255, 198, 197)',
+		'200': '#E75753',
+		'300': '#E75753',
+		'400': '#E75753',
+		'500': '#E75753',
+		'600': '#E75753',
+		'700': '#E75753',
+		'800': '#E75753',
+		'900': '#E75753',
+		'A100': '#E75753',
+		'A200': '#E75753',
+		'A400': '#E75753',
+		'A700': '#E75753'
 	});
+
+	// Dark theme
+	$mdThemingProvider
+		.theme('dark')//
+		.primaryPalette('grey', {
+			'default': '900',
+			'hue-1': '700',
+			'hue-2': '600',
+			'hue-3': '500'
+		})//
+		.accentPalette('grey', {
+			'default': '700'
+		})//
+		.warnPalette('red')
+		.backgroundPalette('grey')
+
+		.dark();
+
+	$mdThemingProvider.alwaysWatchTheme(true);
 });

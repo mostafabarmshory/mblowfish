@@ -20,51 +20,45 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
-	var oldWatch;
+/**
+@ngdoc Services
+@name $mbLogger
+@description Manage and translate all backend error and messages
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
+
+
+ */
+angular.module('mblowfish-core').service('$mbLogger', function() {
+
+	/**
+	 * Checks status, message and data of the error. If given form is not null,
+	 * it set related values in $error of fields in the form. It also returns a
+	 * general message to show to the user.
 	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
+	this.errorMessage = function(error, form) {
+		var message = null;
+		if (error.status === 400 && form) { // Bad request
+			message = 'Form is not valid. Fix errors and retry.';
+			error.data.data.forEach(function(item) {
+				form[item.name].$error = {};
+				item.constraints.map(function(cons) {
+					if (form[item.name]) {
+						form[item.name].$error[cons.toLowerCase()] = true;
+					}
+				});
+			});
 		} else {
-			toast('Application is updated.');
+			message = error.data.message;
 		}
+		return message;
 	}
+	
+	this.error = function(){};
+	this.warn = function(){};
+	this.debug = function(){};
+	this.info = function(){};
+	
 
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+	return this;
 });

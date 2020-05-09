@@ -21,41 +21,36 @@
  */
 
 
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($options, $preferences) {
+angular.module('mblowfish-core').run(function($options, $preferences) {
 	// Pages
-	$preferences
-	.newPage({
-		id : 'local',
-		title : 'local',
-		description : 'manage dashboard locality and language.',
-		templateUrl : 'views/preferences/mb-local.html',
+	$preferences.newPage({
+		id: 'local',
+		title: 'local',
+		description: 'manage dashboard locality and language.',
+		templateUrl: 'views/preferences/mb-local.html',
 		controller: 'MbLocalCtrl',
-		icon : 'language',
-		tags : [ 'local', 'language' ]
-	})//
-	.newPage({
-		id : 'brand',
-		title : 'Branding',
-		description : 'Manage application branding such as title, logo and descritpions.',
-		templateUrl : 'views/preferences/mb-brand.html',
-//		controller : 'settingsBrandCtrl',
-		icon : 'copyright',
+		icon: 'language',
+		tags: ['local', 'language']
+	});
+	$preferences.newPage({
+		id: 'brand',
+		title: 'Branding',
+		description: 'Manage application branding such as title, logo and descritpions.',
+		templateUrl: 'views/preferences/mb-brand.html',
+		//		controller : 'settingsBrandCtrl',
+		icon: 'copyright',
 		priority: 2,
 		required: true,
-		tags : [ 'brand' ]
-	})//
-	.newPage({
+		tags: ['brand']
+	});
+	$preferences.newPage({
 		id: 'update',
-		templateUrl : 'views/preferences/mb-update.html',
+		templateUrl: 'views/preferences/mb-update.html',
 		title: 'Update application',
 		description: 'Settings of updating process and how to update the application.',
 		icon: 'autorenew'
 	});
-	
+
 	// Settings
 	$options.newPage({
 		title: 'Local',

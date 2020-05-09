@@ -27,7 +27,7 @@ angular.module('app')//
 /**
  * 
  */
-.run(function($navigator, $toolbar, $rootScope){
+.run(function($navigator, $mbToolbar, $rootScope){
 		// add category
 	$navigator.newGroup({
 		id: 'navigation-bar',
@@ -121,15 +121,15 @@ angular.module('app')//
 		title: 'Online help',
 		icon: 'help'
 	});
-	
-	$toolbar.newToolbar({
-		id : 'testToolbar',
-		title : 'Test toolbar',
-		description : 'Main dashboard toolbar',
-		controller: 'MbToolbarDashboardCtrl',
-		templateUrl : 'views/toolbars/test.html',
-		visible: function(){
-			return $rootScope.testToolbar;
-		}
-	});
+//	
+//	$toolbar.newToolbar({
+//		id : 'testToolbar',
+//		title : 'Test toolbar',
+//		description : 'Main dashboard toolbar',
+//		controller: 'MbToolbarDashboardCtrl',
+//		templateUrl : 'views/toolbars/test.html',
+//		visible: function(){
+//			return $rootScope.testToolbar;
+//		}
+//	});
 });

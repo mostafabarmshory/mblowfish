@@ -20,51 +20,58 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
-	var oldWatch;
+/**
+ * @ngdoc service
+ * @name $mbEditor
+ * @description A page management service
+ */
+angular.module('mblowfish-core').service('$mbView', function(
+	/* AngularJS */ $rootScope,
+	/* Mblowfish */ $mbRoute, MbView) {
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
+	var views = [];
+	var viewsRootScope = $rootScope.$new(false);
 
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
+	this.add = function(name, viewConfig) {
+		var config = _.assign({
+			id: name,
+			url: name,
+			rootScope: viewsRootScope,
+			isView: true,
+			isEditor: false,
+		}, viewConfig)
+		// create view
+		var view = new MbView(config);
+		views[name] = view;
+		// Add to routes
+		$mbRoute.when(name, config);
+		// TODO: Add toolbar
+		// TODO: Add menu
+	};
+
+	this.get = function(name) {
+		return views[name];
+	};
+
+	this.has = function(name) {
+		var view = this.get(name);
+		return !_.isUndefined(view);
+	};
+
+	this.open = function(name, where) {
+		var view = this.get(name);
+		if (_.isUndefined(view)) {
+			// TODO: maso, 2020: View not found throw error
+			return;
 		}
+		view.setAnchor(where);
+		view.setVisible(true);
+	};
+
+	this.getScope = function() {
+		return viewsRootScope;
 	}
 
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+	return this;
 });

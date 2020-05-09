@@ -30,7 +30,7 @@
  * An item is a single navigation part which may be a page, link, action, and etc.
  *
  */
-angular.module('mblowfish-core').service('$navigator', function($q, $route, $mdDialog, $location, $window) {
+angular.module('mblowfish-core').service('$navigator', function($q, $mbRoute, $mdDialog, $location, $window) {
 
 	var _items = [];
 	var _groups = [];

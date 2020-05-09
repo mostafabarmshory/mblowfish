@@ -30,14 +30,14 @@ angular.module('mblowfish-core')
  * Display preference view and load its controller.
  * 
  */
-.controller('MbPreferenceCtrl', function($scope, $routeParams, $navigator, $preferences) {
+.controller('MbPreferenceCtrl', function($scope, $mbRouteParams, $navigator, $preferences) {
 
-	$preferences.page($routeParams.preferenceId)
+	$preferences.page($mbRouteParams.preferenceId)
 	.then(function(preference) {
 		$scope.preference = preference;
 	}, function() {
 		$navigator.openPage('preferences');
 	});
 	
-	$scope.preferenceId = $routeParams.preferenceId;
+	$scope.preferenceId = $mbRouteParams.preferenceId;
 });

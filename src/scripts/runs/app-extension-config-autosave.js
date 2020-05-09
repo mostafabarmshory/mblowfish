@@ -21,7 +21,6 @@
  */
 
 
-angular.module('mblowfish-core')
 /*
  * Application extensions
  * 
@@ -29,17 +28,17 @@ angular.module('mblowfish-core')
  * application and add more functionality. For example auto save
  * configuration is one of the application extension
  */
-.run(function ($app, $dispatcher) {
-    
+angular.module('mblowfish-core').run(function($app, $dispatcher) {
+
     /*
      * Store application config if there is change
      */
-    function storeApplicationConfig(event){
-        if(event.type === 'update' && $app.getState() === 'ready'){
-            $app.storeApplicationConfig();
-        }
-    }
+	function storeApplicationConfig(event) {
+		if (event.type === 'update' && $app.getState() === 'ready') {
+			$app.storeApplicationConfig();
+		}
+	}
 
-    // watch the configurations of the application
-    $dispatcher.on('/app/configs', storeApplicationConfig);
+	// watch the configurations of the application
+	$dispatcher.on('/app/configs', storeApplicationConfig);
 });

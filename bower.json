@@ -11,7 +11,6 @@
   ],
   "dependencies": {
     "angular-cookies": "1.7.x",
-    "angular-route": "1.7.x",
     "angular-animate": "1.7.x",
     "angular-aria": "1.7.x",
     "angular-messages": "1.7.x",

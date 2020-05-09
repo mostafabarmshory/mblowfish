@@ -20,51 +20,17 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
-	var oldWatch;
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
+/**
+ * @ngdoc service
+ * @name $mbEditor
+ * @description A page management service
+ */
+angular.module('mblowfish-core').service('$mbEditor', function() {
+
+	this.get = function(name) {
+		return {};
 	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
-
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+	return this;
 });

@@ -37,7 +37,7 @@
 angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 	/* AngularJS  */ $scope, $controller, $q, $window,
 	/* MBlowfish  */ $navigator, QueryParameter, Action,
-	/* ngRoute    */ $routeParams) {
+	/* ngRoute    */ $mbRouteParams) {
 
 
 	/*
@@ -422,7 +422,7 @@ angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 		}
 
 		// model id
-		this.setItemId(configs.modelId || $routeParams.itemId);
+		this.setItemId(configs.modelId || $mbRouteParams.itemId);
 
 		// Modl
 		if (configs.model) {

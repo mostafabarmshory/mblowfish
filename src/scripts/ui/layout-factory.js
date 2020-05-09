@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,51 +20,21 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
-	var oldWatch;
+/**
+ * @ngdoc Factories
+ * @name MbLayout
+ * @description An action item
+ * 
+ */
+angular.module('mblowfish-core').factory('MbLayout', function() {
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
+	function MbLayout() {
+		return this;
+	};
 
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
+	MbLayout.prototype.foo = function($) {
+	};
 
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+	return MbLayout;
 });

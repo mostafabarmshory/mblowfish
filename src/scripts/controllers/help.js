@@ -31,7 +31,7 @@ angular.module('mblowfish-core')
  * Watches total system and update help data.
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $route, $http, $translate, $help, $wbUtil) {
+.controller('MbHelpCtrl', function($scope, $rootScope, $mbRoute, $http, $translate, $help, $wbUtil) {
     $rootScope.showHelp = false;
     var lastLoaded;
 

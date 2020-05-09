@@ -48,7 +48,7 @@
 //  * NOTE: the controller works with an stepper and $mdStepper (id:
 //  * setting-stepper)
 //  */
-// .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $routeParams) {
+// .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $mbRouteParams) {
 
 //     /*
 //      * ID of the stepper
@@ -100,7 +100,7 @@
 //      * NOTE: maso, 2018: check runs/initial.js for changes
 //      */
 //     function _isInitialized(){
-//         return !$routeParams.force && $rootScope.app.config.is_initialized;
+//         return !$mbRouteParams.force && $rootScope.app.config.is_initialized;
 //     }
 
 //     /*

@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Navigator controller
  * 
  */
-.controller('AmdNavigatorCtrl', function($scope, $navigator, $route) {
+.controller('AmdNavigatorCtrl', function($scope, $navigator, $mbRoute) {
 
 
 	// Get items from navigator
@@ -40,7 +40,7 @@ angular.module('mblowfish-core')
 		/* 
 		 * Push navigation states
 		 */
-		angular.forEach($route.routes, function(config/*, route*/) {
+		angular.forEach($mbRoute.routes, function(config/*, route*/) {
 			if (config.navigate) {
 				// init conifg
 				config.type = 'link';

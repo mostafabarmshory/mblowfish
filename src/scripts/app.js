@@ -42,7 +42,6 @@ angular.module('mblowfish-core', [ //
 	'ngAnimate',
 	'ngCookies',
 	'ngSanitize', //
-	'ngRoute',
 	//	Seen
 	'seen-core',
 	'seen-user',
@@ -61,8 +60,8 @@ angular.module('mblowfish-core', [ //
 	'ngStorage', // https://github.com/gsklee/ngStorage
 	'pascalprecht.translate',
 	'mdColorPicker',
-]).run(function instantiateRoute($widget, $routeParams, $injector, $window) {
-	$widget.setProvider('$routeParams', $routeParams);
+]).run(function instantiateRoute($widget, $mbRouteParams, $injector, $window) {
+	$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
 	/***************************************************************************
 	 * Mblowfish global service

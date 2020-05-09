@@ -20,51 +20,25 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
+/**
 
-	var oldWatch;
+Manages clipboard
+ */
+angular.module('mblowfish-core').service('$clipboard', function() {
 
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
-
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+	this.copyTo = function(model) {
+        /*
+         * TODO: Masood, 2019: There is also another solution but now it doesn't
+         * work because of browsers problem A detailed solution is presented in:
+         * https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+         */
+		var js = JSON.stringify(model);
+		var fakeElement = document.createElement('textarea');
+		fakeElement.value = js;
+		document.body.appendChild(fakeElement);
+		fakeElement.select();
+		document.execCommand('copy');
+		document.body.removeChild(fakeElement);
+		return;
+	};
 });

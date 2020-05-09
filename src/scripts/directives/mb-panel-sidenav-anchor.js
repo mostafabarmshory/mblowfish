@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  * @description Display a sidenave anchor
  * 
  */
-.directive('mbPanelSidenavAnchor', function ($route, $sidenav, $rootScope, $mdSidenav, $q,
+.directive('mbPanelSidenavAnchor', function ($mbRoute, $sidenav, $rootScope, $mdSidenav, $q,
         $wbUtil, $controller, $compile) {
 
     /*
@@ -180,11 +180,11 @@ angular.module('mblowfish-core')
          * them.
          */
         function _reloadUi() {
-            if (!angular.isDefined($route.current)) {
+            if (!angular.isDefined($mbRoute.current)) {
                 return;
             }
             // Sidenavs
-            var sdid = $route.current.sidenavs || $sidenav.defaultSidenavs();
+            var sdid = $mbRoute.current.sidenavs || $sidenav.defaultSidenavs();
             sdid = sdid.slice(0);
             sdid.push('settings');
             sdid.push('help');
@@ -203,7 +203,7 @@ angular.module('mblowfish-core')
         }
 
         $scope.$watch(function () {
-            return $route.current;
+            return $mbRoute.current;
         }, _reloadUi);
     }
 
