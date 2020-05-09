@@ -1,3 +1,28 @@
+/*********************************************************************************
+mene
+*********************************************************************************/
+/*
+ * User menu root
+ */
+.amd-user-menu {
+/* 	background: red; */
+}
+
+/*
+ * A button is used in user menu
+ */
+.amd-user-menu-button {
+	margin: 0px;
+	padding: 4px;
+}
+
+
+
+
+
+/**********************************************************************************
+mbIcon
+**********************************************************************************/
 /*!
  * Angular Material Design
  * https://github.com/angular/material
@@ -301,4 +326,29 @@ md-input-container > wb-icon + input {
 	font-size: 1rem;
 	line-height: 1rem;
 	min-height: 1rem;
+}
+
+/**********************************************************************************
+ * Style of all tables
+ **********************************************************************************/
+table.mb-table {
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	table-layout: auto;
+	border-collapse: collapse;
+}
+
+table.mb-table caption {
+	font-size: 14px;
+	margin: 2px;
+}
+
+table.mb-table tr {
+	border-bottom: 1px solid #6a7475;
+}
+
+table.mb-table-description tr td:first-child {
+	font-weight: bold;
 }

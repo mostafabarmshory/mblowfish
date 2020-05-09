@@ -227,7 +227,7 @@ angular.module('app', ['mblowfish-core'])//
 	 *  Runtime configurations: some part of system can be updated at the runtime. 
 	 * This help moldules to update the application and contributes new functionality.
 	 */
-	.run(function($mbView, $mbLayout) {
+	.run(function($mbView) {
 		//
 		//  $mbView: manages all views of an application. you can add a new view 
 		// dynamically.
@@ -238,7 +238,21 @@ angular.module('app', ['mblowfish-core'])//
 			icon: 'load',
 			navigate: true,
 			templateUrl: 'views/index.html',
-			groups: ['navigation-bar'],
+		}).add('/demo/core', {
+			title: 'Core Features',
+			navigate: true,
+			anchor: 'editors',
+			templateUrl: 'views/core/index.html',
+		}).add('/demo/ui', {
+			title: 'UI',
+			navigate: true,
+			anchor: 'editors',
+			templateUrl: 'views/ui/index.html',
+		}).add('/demo/components', {
+			title: 'Components',
+			navigate: true,
+			anchor: 'editors',
+			templateUrl: 'views/components/index.html',
 		});
 
 		//

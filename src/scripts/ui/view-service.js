@@ -48,6 +48,8 @@ angular.module('mblowfish-core').service('$mbView', function(
 		$mbRoute.when(name, config);
 		// TODO: Add toolbar
 		// TODO: Add menu
+
+		return this;
 	};
 
 	this.get = function(name) {
@@ -65,7 +67,9 @@ angular.module('mblowfish-core').service('$mbView', function(
 			// TODO: maso, 2020: View not found throw error
 			return;
 		}
-		view.setAnchor(where);
+		if (where) {
+			view.setAnchor(where);
+		}
 		view.setVisible(true);
 	};
 

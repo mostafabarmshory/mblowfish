@@ -138,6 +138,15 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			var dockerBodyElement;
 			var dockerPanelElement;
 			var dockerViewElement;
+			
+			var DOCKER_COMPONENT_EDITOR_ID = 'editors';
+			var DOCKER_COMPONENT_VIEW_CLASS = 'mb_docker_component_view';
+			var DOCKER_COMPONENT_EDITOR_CLASS = 'mb_docker_component_editor';
+
+			var DOCKER_BODY_CLASS = 'mb_docker_body';
+			var DOCKER_PANEL_CLASS = 'mb_docker_panel';
+			var DOCKER_VIEW_CLASS = 'mb_docker_view';
+			
 
 
 			function loadDockerLayout() {
@@ -148,10 +157,9 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 				dockerViewElement = dockerPanelElement.find('#mb_docker_view')
 				dockerBodyElement.append(dockerPanelElement);
 
-				dockerBodyElement.addClass('mb_docker_body');
-				dockerPanelElement.addClass('mb_docker_panel');
-				dockerViewElement.addClass('mb_docker_view');
-
+				dockerBodyElement.addClass(DOCKER_BODY_CLASS);
+				dockerPanelElement.addClass(DOCKER_PANEL_CLASS);
+				dockerViewElement.addClass(DOCKER_VIEW_CLASS);
 
 				// link element
 				var link = $compile(dockerBodyElement.contents());
@@ -185,6 +193,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 
 				// load element
 				var element = editor.getElement();
+				element.addClass(DOCKER_COMPONENT_VIEW_CLASS);
 				editor.on('destroy', function() {
 					component.$destroy();
 				});
@@ -206,7 +215,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 
 			function openDockerContent(component, anchor) {
 				if (component.isEditor) {
-					anchor = anchor || 'editors';
+					anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 				}
 				var anchorContent = getDockerContentById(anchor) || getDockerRootContent();
 				// TODO: maso, 2020: load component info to load later
