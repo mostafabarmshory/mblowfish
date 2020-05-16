@@ -27,10 +27,62 @@
  * @name $mbEditor
  * @description A page management service
  */
-angular.module('mblowfish-core').service('$mbEditor', function() {
+angular.module('mblowfish-core').service('$mbEditor', function(
+	/* AngularJS */ $rootScope,
+	/* Mblowfish */ $mbRoute, MbEditor) {
 
-	this.get = function(name) {
-		return {};
+	var editorConfigs = [];
+	var editorsRootScope = $rootScope.$new(false);
+	var editors = [];
+
+	this.add = function(name, editorConfig) {
+		var config = _.assign({
+			rootScope: editorsRootScope,
+			isEditor: true,
+			componentState: {
+				originalUrl: name,
+			}
+		}, editorConfig)
+		editorConfigs[name] = config;
+		// Add to routes
+		$mbRoute.when(name, config);
+		// TODO: Add toolbar
+		// TODO: Add menu
+		return this;
 	}
+	
+	
+	this.get = function(name) {
+		return editors[name];
+	};
+
+	this.has = function(name) {
+		var editor = this.get(name);
+		return !_.isUndefined(editor);
+	};
+
+	/**
+	Opens a new editor
+	
+	To open a new editor, name (unique path of the view) is required. As you know, editors
+	are registered with a dynamic path (e.g. /users/:userId) but you must open a new editor
+	with static path (e.g. /users/1).
+	
+	@memberof $mbEditor
+	 */
+	this.open = function(name, params) {
+		var editor = this.get(name);
+		if (_.isUndefined(editor)) {
+			// TODO: maso, 2020: View not found throw error
+			return;
+		}
+		editor = 
+		view.setVisible(true);
+	};
+
+	this.getScope = function() {
+		return editorsRootScope;
+	}
+
 	return this;
 });

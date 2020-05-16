@@ -227,7 +227,7 @@ angular.module('app', ['mblowfish-core'])//
 	 *  Runtime configurations: some part of system can be updated at the runtime. 
 	 * This help moldules to update the application and contributes new functionality.
 	 */
-	.run(function($mbView) {
+	.run(function($mbView, $mbEditor) {
 		//
 		//  $mbView: manages all views of an application. you can add a new view 
 		// dynamically.
@@ -236,21 +236,17 @@ angular.module('app', ['mblowfish-core'])//
 			title: 'Demo&Tutorials',
 			description: 'Demo explorer.',
 			icon: 'load',
-			navigate: true,
 			templateUrl: 'views/index.html',
 		}).add('/demo/core', {
 			title: 'Core Features',
-			navigate: true,
 			anchor: 'editors',
 			templateUrl: 'views/core/index.html',
 		}).add('/demo/ui', {
 			title: 'UI',
-			navigate: true,
 			anchor: 'editors',
 			templateUrl: 'views/ui/index.html',
 		}).add('/demo/components', {
 			title: 'Components',
-			navigate: true,
 			anchor: 'editors',
 			templateUrl: 'views/components/index.html',
 		});
@@ -259,6 +255,11 @@ angular.module('app', ['mblowfish-core'])//
 		//  $mbEditor: manages all editor of an application. An editor has a dynamic
 		// address and is used to manage differnt items at the same tiem.
 		//
+		$mbEditor.add('/demo/ui/iframe/:url', {
+			title: 'IFrame',
+			controller: 'TestIframeEditorCtrl',
+			templateUrl: 'views/ui/iframe-editor.html',
+		});
 
 
 	});

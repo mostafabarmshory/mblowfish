@@ -47,7 +47,7 @@ In this part we manage all basic component of the mb-ui
 }
 
 /****************************************************************************
- Editor
+ Editor component
 ****************************************************************************/
 .mb_docker_component_editor > * {
 	height: 100% !important;
@@ -57,7 +57,7 @@ In this part we manage all basic component of the mb-ui
 }
 
 /****************************************************************************
- View
+ View component
 ****************************************************************************/
 .mb_docker_component_view > * {
 	height: 100% !important;

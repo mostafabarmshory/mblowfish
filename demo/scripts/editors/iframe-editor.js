@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,18 @@
 
 
 /**
- * @ngdoc Factories
- * @name MbEditor
- * @description An action item
- * 
+@ngdoc Controller
+@name TestIframeEditorCtrl
+@description A simple IFrame editor
+
+This is an editor to show a remote page based on input parameters. A url is fetchs from
+input parameters and then the view is updated based on the input.
+
+$mbRouteParam is the main reference to get parameters. Prameters fetch from path and query
+parameters. You can pass more option to an editor with query parameter whiel the path
+parameters are fixed. Note that, path parameters are most important from query parameters.
+
  */
-angular.module('mblowfish-core').factory('MbEditor', function() {
-
-	function MbEditor() {
-		return this;
-	};
-
-	MbEditor.prototype.foo = function() {
-	};
-
-	return MbEditor;
+angular.module('app').controller('TestIframeEditorCtrl', function($scope, $mbRouteParam) {
+	$scope.url = $mbRouteParam.url;
 });
