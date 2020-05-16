@@ -30,14 +30,14 @@ angular.module('app', ['mblowfish-core'])//
 		$applicationProvider, $mbLayoutProvider,
 		// TODO: replace with $mbTranslateProvider
 		$translateProvider,
-		$localStorageProvider, $locationProvider) {
+		$mbStorageProvider, $locationProvider) {
 		//
 		// Application storage prefix
 		//
 		//  All data will be stored in local storage with key. This will be
 		// added to all keys. So you can run several application which is 
 		// designed based on MB
-		$localStorageProvider.setKeyPrefix('demo.');
+		$mbStorageProvider.setKeyPrefix('demo.');
 
 		//
 		// HTML5 Addess style
@@ -63,7 +63,9 @@ angular.module('app', ['mblowfish-core'])//
 		// system to manage views, editors and etc. You are free to add layouts dynamically
 		// at runtime.
 		//
-		$mbLayoutProvider.setDefault({
+		// $mbLayoutProvider.setMode('auto');
+		$mbLayoutProvider.setDefault('Demo Layout');
+		$mbLayoutProvider.addLayout('Demo Layout', {
 			settings: {
 				hasHeaders: true,
 				constrainDragToContainer: true,

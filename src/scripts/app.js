@@ -57,7 +57,6 @@ angular.module('mblowfish-core', [ //
 	'ngFileSaver',//
 	'mdSteppers',//
 	'angular-material-persian-datepicker',
-	'ngStorage', // https://github.com/gsklee/ngStorage
 	'pascalprecht.translate',
 	'mdColorPicker',
 ]).run(function instantiateRoute($widget, $mbRouteParams, $injector, $window) {

@@ -23,40 +23,40 @@
  */
 'use strict';
 
-describe('Service $storage', function () {
-    var $storage;
+describe('Service $mbStorage', function () {
+    var $mbStorage;
 
     // load the service's module
     beforeEach(module('mblowfish-core'));
 
     // instantiate service
-    beforeEach(inject(function (_$storage_) {
-        $storage = _$storage_;
+    beforeEach(inject(function (_$mbStorage_) {
+        $mbStorage = _$mbStorage_;
     }));
 
-    it('must implements WB $storage API', function () {
-        expect(angular.isFunction($storage.get)).toBe(true);
-        expect(angular.isFunction($storage.put)).toBe(true);
-        expect(angular.isFunction($storage.remove)).toBe(true);
-        expect(angular.isFunction($storage.has)).toBe(true);
+    it('must implements WB $mbStorage API', function () {
+        expect(angular.isFunction($mbStorage.get)).toBe(true);
+        expect(angular.isFunction($mbStorage.put)).toBe(true);
+        expect(angular.isFunction($mbStorage.remove)).toBe(true);
+        expect(angular.isFunction($mbStorage.has)).toBe(true);
     });
 
     it('should be same the pushed and poped data in storage', function () {
-        $storage.put('number' , 10);
-        var data = $storage.get('number');
+        $mbStorage.put('number' , 10);
+        var data = $mbStorage.get('number');
         expect(data).toBe(10);
     });
 
     it('should remove data with a spacial key', function () {
-        $storage.put('number' , 10);
-        $storage.remove('number');
-        var data = $storage.get('number');
+        $mbStorage.put('number' , 10);
+        $mbStorage.remove('number');
+        var data = $mbStorage.get('number');
         expect(data).toBe(undefined);
     });
 
     it('should check the existense of a spacial item in storage', function () {
-        $storage.put('number' , 10);
-        var flag = $storage.has('number');
+        $mbStorage.put('number' , 10);
+        var flag = $mbStorage.has('number');
         expect(flag).toBe(true);
     });
 });

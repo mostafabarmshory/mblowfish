@@ -34,212 +34,269 @@ to show in the next sessions too.
 
  */
 angular.module('mblowfish-core').provider('$mbLayout', function() {
-	var defaultLayout = {
-		settings: {
-			hasHeaders: true,
-			constrainDragToContainer: true,
-			reorderEnabled: true,
-			selectionEnabled: true,
-			popoutWholeStack: false,
-			blockedPopoutsThrowError: true,
-			closePopoutsOnUnload: true,
-			showPopoutIcon: false,
-			showMaximiseIcon: true,
-			showCloseIcon: true
-		},
-		dimensions: {
-			borderWidth: 5,
-			minItemHeight: 16,
-			minItemWidth: 50,
-			headerHeight: 20,
-			dragProxyWidth: 300,
-			dragProxyHeight: 200
-		},
-		content: []
-	};
+	/*
+	List of layouts which is loaded at run time by configurations. These are not
+	editable
+	*/
+	var hardCodeLayout = {};
 
-	var layouts = []
+	var defaultLayoutName = 'default';
+	var currentLayoutName;
+
+	/*
+	Default layout of the sysetm. If there is no layout then this one will be
+	used as default layout.
+	This field will be stored in local storage for farther usage.
+	 */
+	var layouts = {}
 
 	// Root element of the layout system
 	var rootElement;
-	var rootScope;
 
 	// layout mode
 	var mode = 'docker';
 
 
+	var rootScope; // = $rootScope
+	var compile; // = $compile
+	var injector;// = $injector;
+	var mbStorage; // = $mbStorage
+
+	//-----------------------------------------------------------------------------------
+	// Global functions
+	//-----------------------------------------------------------------------------------
+	function getLayout(name) {
+		name = name || defaultLayoutName;
+		var layout = layouts[name];
+		if (!layout) {
+			layout = _.cloneDeep(hardCodeLayout[name]);
+			layouts[name] = layout;
+		}
+		return layout;
+	}
+
+	function setLayout(name, layout) {
+		layouts[name] = layout;
+	}
+
+	function open(component, anchor) {
+		var result;
+		switch (mode) {
+			case 'docker':
+				result = openDockerContent(component, anchor);
+				break;
+			default:
+				result = openMobileView(component, anchor);
+				break;
+		}
+		return result;
+	}
+	
+	function reload(element, layoutName) {
+		rootElement = element;
+		currentLayoutName = layoutName || defaultLayoutName;
+		switch (mode) {
+			case 'docker':
+				loadDockerLayout();
+				break;
+			default:
+				loadMobileView();
+				break;
+		}
+	}
+
+	function setFocuse(component) {
+		// TODO:
+	}
+
+	function storeState() {
+		// 1 - create new config
+		storage = {};
+		storage.layouts = layouts;
+		storage.currentLayoutName = currentLayoutName;
+		
+		// 2- store
+		mbStorage.mbLayout = storage;
+	}
+
+	function init() {
+		// 1 - load layout from storage
+		storage = mbStorage.mbLayout || {};
+		layouts = storage.layouts || {};
+		currentLayoutName = storage.currentLayoutName || defaultLayoutName;
+	}
+
+	//-----------------------------------------------------------------------------------
+	// Mobile Layout
+	//-----------------------------------------------------------------------------------
+	function loadMobileView() { }
+	function openMobileView(component, anchor) { }
+
+
+	//-----------------------------------------------------------------------------------
+	// Docker Layout
+	//-----------------------------------------------------------------------------------
+	var docker;
+	var dockerBodyElement;
+	var dockerPanelElement;
+	var dockerViewElement;
+
+	var DOCKER_COMPONENT_EDITOR_ID = 'editors';
+	var DOCKER_COMPONENT_VIEW_CLASS = 'mb_docker_component_view';
+	var DOCKER_COMPONENT_EDITOR_CLASS = 'mb_docker_component_editor';
+
+	var DOCKER_BODY_CLASS = 'mb_docker_body';
+	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
+	var DOCKER_VIEW_CLASS = 'mb_docker_view';
+
+
+
+	function loadDockerLayout() {
+		// load element
+		var template = '<div id="mb_docker_panel"><div id="mb_docker_view"></div></div>';
+		dockerBodyElement = rootElement;
+		dockerPanelElement = angular.element(template);
+		dockerViewElement = dockerPanelElement.find('#mb_docker_view')
+		dockerBodyElement.append(dockerPanelElement);
+
+		dockerBodyElement.addClass(DOCKER_BODY_CLASS);
+		dockerPanelElement.addClass(DOCKER_PANEL_CLASS);
+		dockerViewElement.addClass(DOCKER_VIEW_CLASS);
+
+		// link element
+		var link = compile(dockerBodyElement.contents());
+		link(rootScope);
+
+		// load docker view
+		docker = new GoldenLayout(getLayout(currentLayoutName), dockerViewElement);
+		docker.registerComponent('component', loadComponent);
+		docker.init();
+		
+		docker.on('stateChanged', function(){
+			layouts[currentLayoutName] = docker.toConfig();
+			storeState();
+		});
+		docker.on('selectionChanged', function(){
+			// XXX: maso, 2020: change active view or editor
+		});
+	}
+	/*
+	 *  In docker view, this will create a new tap and add into the editor area
+	 * based on Golden Layout Manager.
+	 */
+	function loadComponent(editor, state) {
+		// Component is loaded before
+		var component;
+		var $mbView = injector.get('$mbView');
+		var $mbEditor = injector.get('$mbEditor');
+		if (state.isView) {
+			component = $mbView.get(state.url);
+		} else {
+			component = $mbEditor.get(state.url);
+		}
+		if (_.isUndefined(component)) {
+			component = $mbEditor.get('/mb/core/ui/notfound/' + state.url);
+		}
+
+		// discannect all resrouces
+		component.destroy();
+
+		// load element
+		var element = editor.getElement();
+		element.addClass(DOCKER_COMPONENT_VIEW_CLASS);
+		editor.on('destroy', function() {
+			component.destroy();
+		});
+		return component.load({
+			$editor: editor,
+			$element: element
+		});
+		// TODO: maso,2020: dispatc view is loaded
+	}
+
+	function getDockerContentById(id) {
+		var items = docker.root.getItemsById(id);
+		return items[0];
+	}
+
+	function getDockerRootContent() {
+		return docker.root;
+	}
+
+	function openDockerContent(component, anchor) {
+		if (component.isEditor) {
+			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
+		}
+		var anchorContent = getDockerContentById(anchor) || getDockerRootContent();
+		// TODO: maso, 2020: load component info to load later
+		var contentConfig = {
+			//Non ReactJS
+			type: 'component',
+			componentName: 'component',
+			componentState: {
+				url: component.url,
+				isEditor: component.isEditor,
+				isView: component.isView,
+			},
+			//General
+			content: [],
+			id: component.url,
+			//			width: 30,
+			//			height: 30,
+			isClosable: true,
+			title: component.title,
+			activeItemIndex: 1
+		};
+		var ret = anchorContent.addChild(contentConfig);
+		return ret;
+	}
+
+
+	/*
+	Profider
+	*/
 	return {
-		setDefault: function(userDefaultLayout) {
-			defaultLayout = userDefaultLayout;
+		setDefault: function(name) {
+			defaultLayoutName = name;
 		},
 		addLayout: function(name, layout) {
-			layouts[name] = layout;
+			hardCodeLayout[name] = layout;
+		},
+		getLayout: function(name) {
+			return hardCodeLayout[name];
 		},
 		setMode: function(appMode) {
 			mode = appMode;
 		},
+		/* @ngInject */
 		$get: function(
-			/* Angularjs */ $compile, $rootScope, $injector) {
+			/* Angularjs */ $compile, $rootScope, $injector,
+			/* MblowFish */ $mbStorage) {
+			//
+			// 1- Init layouts
+			//
 			rootScope = rootScope || $rootScope;
-			var $mbLayout = this;
+			compile = $compile;
+			injector = $injector;
 
-			this.get = function(name) {
-				var layout = null;
-				return layout || defaultLayout;
-			};
+			mbStorage = $mbStorage;
 
-			this.set = function(name, layout) {
-				layouts[name] = layout;
-			};
-
-			this.setDefault = function(layout) {
-				defaultLayout = layout;
-			};
-
-			this.open = function(component, anchor) {
-				var result;
-				switch (mode) {
-					case 'docker':
-						result = openDockerContent(component, anchor);
-						break;
-					default:
-						result = openMobileView(component, anchor);
-						break;
-				}
-				return result;
-			};
-
-			this.reload = function(element) {
-				rootElement = element;
-				switch (mode) {
-					case 'docker':
-						loadDockerLayout();
-						break;
-					default:
-						loadMobileView();
-						break;
-				}
-			};
-
-			this.setFocuse = function(component) {
-				// TODO:
-			};
-
-			//-----------------------------------------------------------------------------------
-			// Mobile Layout
-			//-----------------------------------------------------------------------------------
-			function loadMobileView() { }
-			function openMobileView(component, anchor) { }
-
-			//-----------------------------------------------------------------------------------
-			// Docker Layout
-			//-----------------------------------------------------------------------------------
-			var docker;
-			var dockerBodyElement;
-			var dockerPanelElement;
-			var dockerViewElement;
+			//
+			// 2- Set layout API
+			//
+			// global api
+			this.reload = reload;
+			this.open = open;
+			this.setFocuse = setFocuse;
 			
-			var DOCKER_COMPONENT_EDITOR_ID = 'editors';
-			var DOCKER_COMPONENT_VIEW_CLASS = 'mb_docker_component_view';
-			var DOCKER_COMPONENT_EDITOR_CLASS = 'mb_docker_component_editor';
+			// Docker API
+			this.setLayout = setLayout;
+			this.getLayout = getLayout;
 
-			var DOCKER_BODY_CLASS = 'mb_docker_body';
-			var DOCKER_PANEL_CLASS = 'mb_docker_panel';
-			var DOCKER_VIEW_CLASS = 'mb_docker_view';
-			
-
-
-			function loadDockerLayout() {
-				// load element
-				var template = '<div id="mb_docker_panel"><div id="mb_docker_view"></div></div>';
-				dockerBodyElement = rootElement;
-				dockerPanelElement = angular.element(template);
-				dockerViewElement = dockerPanelElement.find('#mb_docker_view')
-				dockerBodyElement.append(dockerPanelElement);
-
-				dockerBodyElement.addClass(DOCKER_BODY_CLASS);
-				dockerPanelElement.addClass(DOCKER_PANEL_CLASS);
-				dockerViewElement.addClass(DOCKER_VIEW_CLASS);
-
-				// link element
-				var link = $compile(dockerBodyElement.contents());
-				link(rootScope);
-
-				// load docker view
-				docker = new GoldenLayout($mbLayout.get(), dockerViewElement);
-				docker.registerComponent('component', loadComponent);
-				docker.init();
-			}
-			/*
-			 *  In docker view, this will create a new tap and add into the editor area
-			 * based on Golden Layout Manager.
-			 */
-			function loadComponent(editor, state) {
-				// Component is loaded before
-				var component;
-				var $mbView = $injector.get('$mbView');
-				var $mbEditor = $injector.get('$mbEditor');
-				if (state.isView) {
-					component = $mbView.get(state.url);
-				} else {
-					component = $mbEditor.get(state.url);
-				}
-				if (_.isUndefined(component)) {
-					component = $mbEditor.get('/mb/core/ui/notfound/' + state.url);
-				}
-
-				// discannect all resrouces
-				component.destroy();
-
-				// load element
-				var element = editor.getElement();
-				element.addClass(DOCKER_COMPONENT_VIEW_CLASS);
-				editor.on('destroy', function() {
-					component.$destroy();
-				});
-				return component.load({
-					$editor: editor,
-					$element: element
-				});
-				// TODO: maso,2020: dispatc view is loaded
-			}
-
-			function getDockerContentById(id) {
-				var items = docker.root.getItemsById(id);
-				return items[0];
-			}
-
-			function getDockerRootContent() {
-				return docker.root;
-			}
-
-			function openDockerContent(component, anchor) {
-				if (component.isEditor) {
-					anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
-				}
-				var anchorContent = getDockerContentById(anchor) || getDockerRootContent();
-				// TODO: maso, 2020: load component info to load later
-				var contentConfig = {
-					//Non ReactJS
-					type: 'component',
-					componentName: 'component',
-					componentState: {
-						url: component.url,
-						isEditor: component.isEditor,
-						isView: component.isView,
-					},
-					//General
-					content: [],
-					id: component.url,
-					//			width: 30,
-					//			height: 30,
-					isClosable: true,
-					title: component.title,
-					activeItemIndex: 1
-				};
-				var ret = anchorContent.addChild(contentConfig);
-				return ret;
-			}
+			//
+			// 3- Initialize the laytout
+			//
+			init();
 			return this;
 		}
 	};

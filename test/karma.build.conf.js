@@ -80,7 +80,6 @@ module.exports = function(config) {
 			'bower_components/md-color-picker/dist/md-color-picker.js',
 			'bower_components/angular-translate/angular-translate.js',
 			'bower_components/weakmap-polyfill/weakmap-polyfill.js',
-			'bower_components/ngstorage/ngStorage.js',
 			'bower_components/loglevel/dist/loglevel.min.js',
 			'bower_components/moment/moment.js',
 			'bower_components/golden-layout/dist/goldenlayout.min.js',

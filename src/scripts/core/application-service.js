@@ -85,8 +85,8 @@
  * @property {object} app.user.profile - The first profile of current user
  */
 angular.module('mblowfish-core').service('$app', function(
-		/* MB            */ $application,
-		/* seen          */ $usr, $cms, $tenant, UserAccount, $translate, $localStorage,
+		/* MB            */ $application, $mbStorage,
+		/* seen          */ $usr, $cms, $tenant, UserAccount, $translate,
 		/* am-wb-core    */ $dispatcher, $objectPath,
 		/* material      */ $mdDateLocale,
 		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
@@ -460,9 +460,9 @@ angular.module('mblowfish-core').service('$app', function(
 		 * TODO: masood, 2018: The lines below is an alternative for lines above
 		 * but not recommended.
 		 * 
-		 * TODO: 'key' of app should be used $localStorage.setPrefix(key);
+		 * TODO: 'key' of app should be used $mbStorage,.setPrefix(key);
 		 */
-		var settings = $localStorage.$default({
+		var settings =  $mbStorage.$default({
 			dashboardModel: {}
 		});
 		return $q.resolve(settings)
