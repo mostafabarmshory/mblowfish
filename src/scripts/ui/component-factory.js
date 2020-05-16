@@ -74,6 +74,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 
 	MbComponent.prototype.load = function(locals) {
 		var cmp = this;
+		this.visible = true;
 		return $q.when(this.getTemplate(), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
 			var $scope = rootScope.$new(false);
@@ -100,6 +101,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	}
 
 	MbComponent.prototype.destroy = function() {
+		this.visible = false;
 		if (this.$scope) {
 			this.$scope.$destroy();
 			this.$scope = undefined;
