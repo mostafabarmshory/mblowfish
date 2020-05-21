@@ -63,10 +63,9 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	@param {object} configs - A configuration set to crate a new instance
 	*/
 	function MbComponent(configs) {
-		_.assignIn(this, {
+		_.assignIn(this, configs, {
 			// global attributes
 			id: undefined,
-			url: undefined,
 			isEditor: false,
 			isView: false,
 			isToolbar: false,
@@ -79,7 +78,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 			controller: undefined,
 			controllerAs: undefined,
 			priority: 0,
-		}, configs);
+		});
 
 		// $element, $controller, $scope pairs
 		this.$binds = [];

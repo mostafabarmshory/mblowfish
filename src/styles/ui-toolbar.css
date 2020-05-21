@@ -1,0 +1,17 @@
+/**********************************************************************************
+mbToolbar
+**********************************************************************************/
+mb-toolbar-group {
+	min-height: 24px !important;
+	padding: 0px !important;
+	margin: 0px !important;
+}
+mb-toolbar {
+	height: 24px !important;
+}
+
+mb-toolbar>mb-toolbar-item.mbAction {
+	margin: 0px !important;
+	padding: 4px !important;
+	cursor: pointer !important;
+}

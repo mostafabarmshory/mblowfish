@@ -37,10 +37,19 @@ system.
  */
 angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window, MbComponent) {
 
+	/* @ngInject */
+	var defaultActionController = function($element, $action, $mbActions){
+		$element.on('click', function($event){
+			$mbActions.exec($action.id, $event);
+		});
+	};
+	
+	
 	function Action(data) {
 		data = data || {};
 		data.isAction = true;
 		MbComponent.call(this, data)
+		this.controller = defaultActionController;
 		this.visible = this.visible || function() {
 			return true;
 		};
@@ -85,7 +94,7 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<wb-icon>' + (this.icon || 'close') + '</wb-icon>';
+				html = '<wb-icon size="16">' + (this.icon || 'close') + '</wb-icon>';
 				break;
 			case 'menu':
 				// XXX
@@ -96,6 +105,9 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 
 		var element = locals.$element;
 		element.html(html);
+		element.addClass('mbAction')
+		
+		locals.$action = this;
 		return MbComponent.prototype.render.call(this, locals);
 	};
 

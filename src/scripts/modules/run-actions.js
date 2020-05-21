@@ -19,96 +19,96 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-/**
- * Manages system moduels
- */
-angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $app) {
-	$mbActions.addAction({
-		id: 'mb.app.local.modules.create',
-		type: 'action',
-		priority: 1,
-		icon: 'view_module',
-		title: 'Add local module',
-		description: 'Adds new module into the application.',
-		/*
-		 * @ngInject
-		 */
-		action: function() {
-			return $resource.get('/app/modules', {
-				style: {},
-			}).then(function(modules) {
-				$modules.addLocalModule(modules[0]);
-			});
-		},
-		groups: []
-	});
-	$mbActions.addAction({
-		id: 'mb.app.local.modules.delete',
-		type: 'action',
-		priority: 1,
-		icon: 'view_module',
-		title: 'Delete local module',
-		description: 'Delete a module from the application.',
-		/*
-		 * @ngInject
-		 */
-		action: function($event) {
-			return $window.confirm('Delete modules?')
-				.then(function() {
-					_.forEach($event.modules, function(module1) {
-						$modules.removeLocalModule(module1);
-					});
-				});
-		},
-		groups: []
-	});
-
-
-
-	//--------------------------------------------------------------------------------
-	// Global
-	//--------------------------------------------------------------------------------
-	$mbActions.addAction({
-		id: 'mb.app.global.modules.create',
-		type: 'action',
-		priority: 1,
-		icon: 'view_module',
-		title: 'Add global module',
-		description: 'Adds new module into the application.',
-		/*
-		 * @ngInject
-		 */
-		action: function() {
-			return $resource.get('/app/modules', {
-				style: {},
-			}).then(function(modules) {
-				$modules.addGlobalModule(modules[0]);
-				return $app.storeApplicationConfig();
-			});
-		},
-		groups: []
-	});
-	$mbActions.addAction({
-		id: 'mb.app.global.modules.delete',
-		type: 'action',
-		priority: 1,
-		icon: 'view_module',
-		title: 'Delete global module',
-		description: 'Delete a module from the application.',
-		/*
-		 * @ngInject
-		 */
-		action: function($event) {
-			return $window.confirm('Delete modules?')
-				.then(function() {
-					_.forEach($event.modules, function(module1) {
-						$modules.removeGlobalModule(module1);
-					});
-					return $app.storeApplicationConfig();
-				});
-		},
-		groups: []
-	});
-});
+//
+///**
+// * Manages system moduels
+// */
+//angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $app) {
+//	$mbActions.addAction({
+//		id: 'mb.app.local.modules.create',
+//		type: 'action',
+//		priority: 1,
+//		icon: 'view_module',
+//		title: 'Add local module',
+//		description: 'Adds new module into the application.',
+//		/*
+//		 * @ngInject
+//		 */
+//		action: function() {
+//			return $resource.get('/app/modules', {
+//				style: {},
+//			}).then(function(modules) {
+//				$modules.addLocalModule(modules[0]);
+//			});
+//		},
+//		groups: []
+//	});
+//	$mbActions.addAction({
+//		id: 'mb.app.local.modules.delete',
+//		type: 'action',
+//		priority: 1,
+//		icon: 'view_module',
+//		title: 'Delete local module',
+//		description: 'Delete a module from the application.',
+//		/*
+//		 * @ngInject
+//		 */
+//		action: function($event) {
+//			return $window.confirm('Delete modules?')
+//				.then(function() {
+//					_.forEach($event.modules, function(module1) {
+//						$modules.removeLocalModule(module1);
+//					});
+//				});
+//		},
+//		groups: []
+//	});
+//
+//
+//
+//	//--------------------------------------------------------------------------------
+//	// Global
+//	//--------------------------------------------------------------------------------
+//	$mbActions.addAction({
+//		id: 'mb.app.global.modules.create',
+//		type: 'action',
+//		priority: 1,
+//		icon: 'view_module',
+//		title: 'Add global module',
+//		description: 'Adds new module into the application.',
+//		/*
+//		 * @ngInject
+//		 */
+//		action: function() {
+//			return $resource.get('/app/modules', {
+//				style: {},
+//			}).then(function(modules) {
+//				$modules.addGlobalModule(modules[0]);
+//				return $app.storeApplicationConfig();
+//			});
+//		},
+//		groups: []
+//	});
+//	$mbActions.addAction({
+//		id: 'mb.app.global.modules.delete',
+//		type: 'action',
+//		priority: 1,
+//		icon: 'view_module',
+//		title: 'Delete global module',
+//		description: 'Delete a module from the application.',
+//		/*
+//		 * @ngInject
+//		 */
+//		action: function($event) {
+//			return $window.confirm('Delete modules?')
+//				.then(function() {
+//					_.forEach($event.modules, function(module1) {
+//						$modules.removeGlobalModule(module1);
+//					});
+//					return $app.storeApplicationConfig();
+//				});
+//		},
+//		groups: []
+//	});
+//});
 

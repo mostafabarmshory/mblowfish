@@ -164,6 +164,7 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 
 	function addAction(commandId, action) {
 		actions[commandId] = action;
+		action.id = commandId;
 		return service;
 	}
 
