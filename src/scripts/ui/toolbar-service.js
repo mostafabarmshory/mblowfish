@@ -73,7 +73,7 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 	function loadDefaultToolbars() {
 		_.forEach(mainToolbarConfig, function(toolbarConfig) {
 			var toolbar = new Toolbar(toolbarConfig);
-			addToolbar(toolbarConfig.id, toolbar);
+			addToolbar(toolbarConfig.url, toolbar);
 		});
 	}
 	

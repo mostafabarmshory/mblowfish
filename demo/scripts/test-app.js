@@ -27,7 +27,7 @@ angular.module('app', ['mblowfish-core'])//
 	 * Application configuration
 	 */
 	.config(function(
-		$applicationProvider, $mbLayoutProvider, $mbToolbarProvider,
+		$applicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider, 
 		// TODO: replace with $mbTranslateProvider
 		$translateProvider,
 		$mbStorageProvider, $locationProvider) {
@@ -231,12 +231,30 @@ angular.module('app', ['mblowfish-core'])//
 		// into the toolbar.
 		//
 		$mbToolbarProvider.init([{
-			id: '/app/demo',
+			url: '/app/demo',
 			items: ['demo.alert']
-		},{
-			id: '/app/io',
+		}, {
+			url: '/app/io',
 			items: ['demo.alert', 'demo.alert']
 		}]);
+
+
+		//
+		// $mbAction: manages all actions
+		//
+		$mbActionsProvider.init({
+			items: {
+				'demo.alert': {
+					icon: 'face',
+					title: 'Add local module',
+					description: 'Adds new module into the application.',
+					/* @ngInject */
+					action: function($window) {
+						$window.alert('Alert action is called!?');
+					}
+				}
+			}
+		});
 	})
 	/*
 	 *  Runtime configurations: some part of system can be updated at the runtime. 
@@ -276,16 +294,5 @@ angular.module('app', ['mblowfish-core'])//
 			templateUrl: 'views/ui/iframe-editor.html',
 		});
 
-		//
-		// $mbAction: manages all actions
-		//
-		$mbActions.addAction('mb.demo.alert', {
-			icon: 'view_module',
-			title: 'Add local module',
-			description: 'Adds new module into the application.',
-			/* @ngInject */
-			action: function($window) {
-				$window.alert('Alert action is called!?');
-			}
-		});
+
 	});

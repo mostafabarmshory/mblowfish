@@ -119,6 +119,10 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 	MbContainer.prototype.render = function(locals) {
 		var cmp = this;
 		this.$handler = true;
+		// If there is no root element, then we create a new one
+		if(_.isUndefined(locals.$element)){
+			locals.$element = angualr.element('<div></div>');
+		}
 		return $q.when(this.getTemplate(), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
 			var $scope = rootScope.$new(false);

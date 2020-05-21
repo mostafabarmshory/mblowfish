@@ -117,7 +117,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	
 	@memberof MbComponent
 	 */
-	MbComponent.prototype.load = function(locals) {
+	MbComponent.prototype.render = function(locals) {
 		var cmp = this;
 		var paires = {
 			$controller: undefined,

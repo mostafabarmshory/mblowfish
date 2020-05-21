@@ -32,7 +32,9 @@ It is not possible to add a toolbar with aa specific url into the view more than
 
 @example
 	<mb-toolbar-group
-		mb-urls="/app/main,/app/editor/save,/app/print">
+		mb-url="/app/main"
+		mb-default="true"
+		mb-toolbars="['/app/main', '/app/editor/save', '/app/print']">
 	</mb-toolbar-group>
 
 
@@ -41,25 +43,27 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 
 
 	function link($scope, $element, $attr, $ctrl) {
+		// 0- init UI
+		$element.empty();
+
 		// 1- load toolbars
-//		var toolbarIds = $attr.mbUrls || '/app/toolbar';
-		var toolbarIds = [];
-		_.forEach(toolbarIds, function(toolbarId){
+		var toolbarIds = $scope.$eval($attr.mbToolbars);
+		_.forEach(toolbarIds, function(toolbarId) {
 			var toolbar = $mbToolbar.getToolbar(toolbarId);
-			if(toolbar){
+			if (toolbar) {
 				$ctrl.addToolbar(toolbar);
 			} else {
 				// TODO: maso, 2020: add a log to show the error
 			}
 		})
-		
+
 		// 2- register toolbar group
 		$mbToolbar.addToolbarGroup($attr.mbUrl, $ctrl);
-		if(!_.isUndefined($attr.mbDefault)){
+		if (!_.isUndefined($attr.mbDefault)) {
 			$mbToolbar.setMainToolbarGroup($ctrl);
 		}
-		
-		$scope.$on('$destroy', function(){
+
+		$scope.$on('$destroy', function() {
 			$ctrl.destroy();
 		});
 	}
@@ -72,22 +76,30 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 		/* @ngInject */
 		controller: function($scope, $element) {
 			this.handlers = {};
-			
-			this.addToolbar = function(toolbar){
-				if(!_.isUndefined(this.handler[toolbar.url])){
+
+			this.addToolbar = function(toolbar) {
+				if (!_.isUndefined(this.handlers[toolbar.url])) {
 					// FIXME: log and throw exception: the toolbar is added befor
 					return;
 				}
-				var locals = {
+				// reserve a postions
+				var element = angular.element('<mb-toolbar></mb-toolbar>');
+				element.attr('id', toolbar.url);
+				$element.append(element);
+
+				// render toolbar
+				var ctrl = this;
+				toolbar.render({
 					$rootScope: $scope,
-					$parent: this
-				};
-				var handler = toolbar.render(locals);
-				this.handlers.push(handler);
+					$toolbarGroup: ctrl,
+					$element: element
+				}).then(function(handler) {
+					ctrl.handlers[toolbar.url] = handler;
+				});
 			};
-			
-			this.removeToolbar = function(toolbar){
-				if(_.isUndefined(this.handler[toolbar.url])){
+
+			this.removeToolbar = function(toolbar) {
+				if (_.isUndefined(this.handler[toolbar.url])) {
 					// TODO: maso, 2020: toolbar not exist, add a warning log
 					return;
 				}
@@ -95,10 +107,10 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				delete this.handler[toolbar.url];
 				handler.destroy();
 			};
-			
-			this.destoy = function(){
+
+			this.destoy = function() {
 				var handlers = this.handlers;
-				_.forEach(handlers, function(handler){
+				_.forEach(handlers, function(handler) {
 					handler.destroy();
 				});
 				delete this.handler;

@@ -211,6 +211,7 @@
 	<script src="scripts/ui/action-group-factory.js"></script>
 	<script src="scripts/ui/actions-service.js"></script>
 	<script src="scripts/ui/component-factory.js"></script>
+	<script src="scripts/ui/component-service.js"></script>
 	<script src="scripts/ui/container-factory.js"></script>
 	<script src="scripts/ui/editor-factory.js"></script>
 	<script src="scripts/ui/editor-service.js"></script>
@@ -257,7 +258,8 @@
 <body 
 	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}">
 	<mb-toolbar-group
-		mb-url="/app/main">
+		mb-url="/app/main"
+		mb-toolbars="['/app/demo', '/app/io']">
 		This is a toolbar
 	</mb-toolbar-group>
 	<mb-view

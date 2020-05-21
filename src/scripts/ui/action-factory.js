@@ -35,29 +35,26 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window, MbComponent) {
 
 	function Action(data) {
 		data = data || {};
-		angular.extend(this, data, {
-			priority: data.priority || 10,
-			isAction: true,
-//			isComponent: false,
-//			isView: false,
-//			isEditor: false,
-		});
+		data.isAction = true;
+		MbComponent.call(this, data)
 		this.visible = this.visible || function() {
 			return true;
 		};
 		return this;
 	};
+	// Circle derives from Shape
+	Action.prototype = Object.create(MbComponent.prototype);
 
 	Action.prototype.exec = function($event) {
-//		if ($event) {
-//			$event.stopPropagation();
-//			$event.preventDefault();
-//		}
-		if(this.alias){
+		//		if ($event) {
+		//			$event.stopPropagation();
+		//			$event.preventDefault();
+		//		}
+		if (this.alias) {
 			var actionId = this.actionId || this.id;
 			var $actions = $injector.get('$actions');
 			return $actions.exec(actionId, $event);
@@ -70,6 +67,36 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 			return $navigator.openPage(this.url);
 		}
 		$window.alert('Action \'' + this.id + '\' is not executable!?')
+	};
+
+	Action.prototype.render = function(locals) {
+		// find parent type
+		var parent;
+		var parentType;
+		if (locals.$toolbar) {
+			parentType = 'toolbar';
+			parent = locals.$toolbar;
+		} else if (locals.$menu) {
+			parentType = 'menu';
+			parent = locals.$menu;
+		}
+
+		var html;
+
+		switch (parentType) {
+			case 'toolbar':
+				html = '<wb-icon>' + (this.icon || 'close') + '</wb-icon>';
+				break;
+			case 'menu':
+				// XXX
+				break;
+			default:
+			// TODO: maso, 2020 log error
+		}
+
+		var element = locals.$element;
+		element.html(html);
+		return MbComponent.prototype.render.call(this, locals);
 	};
 
 	return Action;
