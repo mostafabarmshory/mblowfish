@@ -23,18 +23,18 @@
 
 /**
 @ngdoc Factories
-@name MbComponent
-@description A basic UI Component wich is used to build views, editor, tooblars and others.
+@name MbContainer
+@description A basic UI Component wich is used to build views, editor, and tooblars.
 @public
 @type {Object}
 
-@property {string}  id           - The identitifier of the component. Must be unique in a list
+It 
+
 @property {string}  url          - An alias fo the id
 @property {boolean} isEditor     - A falg used for editors (special types of ui Components)
 @property {boolean} isView       - A flag used for views (special types of UI components)
 @property {boolean} isToolbar    - Is a toolbar
 @property {boolean} isMenu       - Is a menu
-@property {boolean} isComponent  - This is a basic UI component and must be used inside other components
 @property {string}  title        - Title of the UI component
 @property {string}  description  - A brife description of the UI component.
 @property {string}  icon         - An Icon to display for the component
@@ -42,30 +42,28 @@
 @property {string}  templateUrl  - A URL of HTML resources to use as UI of the component
 @property {string}  controller   - Name of a controller to used with UI
 @property {string}  controllerAs - Alias of the controller in the UI
-@property {number}  priority     - the priority of the component in the component list for example in toolbar
+
 
 UI component is the basic of the whoule view. All part wil be registerd as a UI component such as a menu, toolbar,
 view, or an editor.
 
 
-@tutorial ui-component-action
  */
-angular.module('mblowfish-core').factory('MbComponent', function(
+angular.module('mblowfish-core').factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
-	/* Mblowfish */ $mbUiUtil) {
+	/* Mblowfish */ $mbUiUtil, MbUiHandler) {
 
 	/*
 	Create new instance of a UI component. It may used as view, editor
 	or other part of UI.
 	
-	@memberof MbComponent
+	@memberof MbContainer
 	@constructor
 	@param {object} configs - A configuration set to crate a new instance
 	*/
-	function MbComponent(configs) {
+	function MbContainer(configs) {
 		_.assignIn(this, {
 			// global attributes
-			id: undefined,
 			url: undefined,
 			isEditor: false,
 			isView: false,
@@ -82,7 +80,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 		}, configs);
 
 		// $element, $controller, $scope pairs
-		this.$binds = [];
+		this.$handler = undefined;
 		return this;
 	};
 
@@ -92,9 +90,9 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	Template is a HTML text which is used to build a view of the component.
 	
 	@returns {promisse} To resolve the template value
-	@memberof MbComponent
+	@memberof MbContainer
 	 */
-	MbComponent.prototype.getTemplate = function() {
+	MbContainer.prototype.getTemplate = function() {
 		return $q.when(this.template || $mbUiUtil.getTemplateFor(this));
 	}
 
@@ -106,26 +104,21 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	it is created and append to the view by MVC elements.
 	
 	@returns {boolean} True if the component is visible.
-	@memberof MbComponent
+	@memberof MbContainer
 	 */
-	MbComponent.prototype.isVisible = function() {
-		return this.$binds.length > 0;
+	MbContainer.prototype.isVisible = function() {
+		return !_.isUndefined(this.$handler);
 	}
 
 
 	/**
+	Renders the container and return its handler
 	
-	@memberof MbComponent
+	@memberof MbContainer
 	 */
-	MbComponent.prototype.load = function(locals) {
+	MbContainer.prototype.render = function(locals) {
 		var cmp = this;
-		var paires = {
-			$controller: undefined,
-			$element: undefined,
-			$scope: undefined
-		};
-		this.$binds.push(paires);
-		this.visible = true;
+		this.$handler = true;
 		return $q.when(this.getTemplate(), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
 			var $scope = rootScope.$new(false);
@@ -145,9 +138,14 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
 			link($scope);
-			_.assign(paires, locals, {
+			
+			
+			cmp.$handler = new MbUiHandler({
+				$scope: $scope,
+				$element: $element,
 				$controller: $ctrl
 			});
+			return cmp.$handler;
 		});
 	}
 
@@ -155,23 +153,15 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	/**
 	Destroy all visible parts and free all resources
 	
-	@memberof MbComponent
+	@memberof MbContainer
 	 */
-	MbComponent.prototype.destroy = function() {
-		var $bind = this.$binds;
-		this.$binds = [];
-		_.forEach($bind, function(pair) {
-			if (pair.$scope) {
-				pair.$scope.$destroy();
-				pair.$scope = undefined;
-			}
-			if (pair.$element) {
-				pair.$element.remove();
-				pair.$element = undefined;
-			}
-			pair.$controller = undefined;
-		})
+	MbContainer.prototype.destroy = function() {
+		if(_.isUndefined(this.$handler)){
+			return;
+		}
+		this.$handler.destroy();
+		delete this.$handler;
 	};
 
-	return MbComponent;
+	return MbContainer;
 });

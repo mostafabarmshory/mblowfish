@@ -23,61 +23,57 @@
 
 /**
 @ngdoc Factories
-@name MbView
-@description An system view
+@name MbUiHandler
+@description An handler to a ui component or container
 
-A view is consists fo a toolbar, menu and the main view. You are free to 
-contributes directly into them.
+It handles visible part of components or containers.
 
  */
-angular.module('mblowfish-core').factory('MbView', function(
-	/* AngularJS */ $q,
-	/* Mblowfish */ $mbLayout, MbWindow) {
+angular.module('mblowfish-core').factory('MbUiHandler', function() {
 
-	function MbView(configs) {
-		// Call constructor of superclass to initialize superclass-derived members.
-		this.anchor = null;
-		MbWindow.call(this, configs);
-		this.toolbar = undefined;
-		this.menu = undefined;
-		return this;
+	function MbUiHandler(configs) {
+		_.assign(this, configs);
 	};
+	
 	// Circle derives from Shape
-	MbView.prototype = Object.create(MbWindow.prototype);
+	MbUiHandler.prototype = Object.create(Object.prototype);
 
-	MbView.prototype.getTooblar = function() {
-		return this.toolbar;
-	};
-
-	MbView.prototype.getMenu = function() {
-		return this.menu;
-	};
-
-	MbView.prototype.setFocuse = function() {
-		$mbLayout.setFocuse(this);
-	};
-
-	MbView.prototype.setVisible = function(visible) {
-		if (visible) {
-			if (this.isVisible()) {
-				this.setFocuse();
-				return;
-			}
-			var view = this;
-			$q.when($mbLayout.open(this, this.anchor))
-				.then(function() {
-					view.visible = true;
-				}, function() {
-					view.destory();
-				})
-		} else {
-			return this.destroy();
+	MbUiHandler.prototype.destroy = function() {
+		if (this.$isDestoried) {
+			// TODO: maso, 2020: add a log
+			return;
 		}
+		this.$isDestoried = true;
+		try {
+			this.$scope.$destroy();
+			delete this.$scope;
+		} catch (err) {
+			// TODO: log
+		}
+
+		try {
+			this.$element.remove();
+			delete this.$element;
+		} catch (err) {
+			// TODO: log
+		}
+
+		delete this.$controller;
 	};
 
-	MbView.prototype.setAnchor = function(anchor) {
-		this.anchor = anchor;
+
+	MbUiHandler.prototype.isDestroied = function() {
+		return this.$isDestoried;
 	};
 
-	return MbView;
+	MbUiHandler.prototype.setVisible = function(visible) {
+		// XXX: maso, 2020: set display none
+	};
+
+	MbUiHandler.prototype.isVisible = function() {
+		// XXX: maso, 2020: check if the display of the element is not none
+		return false;
+	};
+
+	return MbUiHandler;
 });

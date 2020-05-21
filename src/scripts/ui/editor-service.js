@@ -23,9 +23,35 @@
 
 
 /**
- * @ngdoc service
- * @name $mbEditor
- * @description A page management service
+@ngdoc Services
+@name $mbEditor
+@description Manages editors
+
+/**
+@ngdoc Serivces
+@name $mbView
+@description Manages list of views 
+
+Editor is a multiple instance page whit a unique  path in the system. There is one ore more
+variable. However original path is unique to each editor.
+
+Path parameters are not writable by editor controller.
+
+It is possiblet to create (or register an editor) with parametirzed path. If there is no variable
+part in the path, this is not an editor.
+
+There may be some additional parameters which is send to an editor by 
+query parameters. Note that, path parameter is more important than query parameters.
+
+Here is list of services related to an specific editor:
+
+- $params: list of param from query and path
+- $editor: related editor controller from layout system
+- $element: HTML view
+- $scope: data scope of the editor
+
+These are injectable to an editor contrller.
+
  */
 angular.module('mblowfish-core').service('$mbEditor', function(
 	/* AngularJS */ $rootScope,
@@ -50,8 +76,8 @@ angular.module('mblowfish-core').service('$mbEditor', function(
 		// TODO: Add menu
 		return this;
 	}
-	
-	
+
+
 	this.get = function(name) {
 		return editors[name];
 	};
@@ -76,8 +102,8 @@ angular.module('mblowfish-core').service('$mbEditor', function(
 			// TODO: maso, 2020: View not found throw error
 			return;
 		}
-		editor = 
-		view.setVisible(true);
+		editor =
+			view.setVisible(true);
 	};
 
 	this.getScope = function() {

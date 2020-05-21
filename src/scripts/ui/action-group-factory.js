@@ -22,43 +22,36 @@
 
 
 /**
- * @ngdoc Factories
- * @name MbAction
- * @description An action item
- * 
- */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window) {
+@ngdoc Factories
+@name MbActionGroup
+@description A collection of actions
 
-	function Action(data) {
+This is used to group actions, which usefull in UI.
+
+ */
+angular.module('mblowfish-core').factory('MbActionGroup', function($injector, $navigator, $window) {
+
+	function ActionGroup(data) {
 		data = data || {};
 		angular.extend(this, data, {
-			priority: data.priority || 10
+			actions: [],
+			isActionGroup: true
 		});
-		this.visible = this.visible || function() {
-			return true;
-		};
 		return this;
 	};
 
-	Action.prototype.exec = function($event) {
-//		if ($event) {
-//			$event.stopPropagation();
-//			$event.preventDefault();
-//		}
-		if(this.alias){
-			var actionId = this.actionId || this.id;
-			var $actions = $injector.get('$actions');
-			return $actions.exec(actionId, $event);
-		}
-		if (this.action) {
-			return $injector.invoke(this.action, this, {
-				$event: $event
-			});
-		} else if (this.url) {
-			return $navigator.openPage(this.url);
-		}
-		$window.alert('Action \'' + this.id + '\' is not executable!?')
+	ActionGroup.prototype.add = function(action) {
 	};
 
-	return Action;
+
+	ActionGroup.prototype.has = function(action) {
+	};
+
+	ActionGroup.prototype.remove = function(action) {
+	};
+
+	ActionGroup.prototype.clear = function(action) {
+	};
+	
+	return ActionGroup;
 });

@@ -22,19 +22,38 @@
 
 
 /**
- * @ngdoc Factories
- * @name MbSidenav
- * @description An action item
- * 
- */
-angular.module('mblowfish-core').factory('MbSidenav', function() {
+@ngdoc Factories
+@name MbToolbar
+@description A toolbar model
 
-	function MbSidenav() {
+Toolbar display list of ui component on top of a view, editor or the main application.
+
+A unique address is used for each toolbar for example
+
+	/demo/view/test
+
+Default toolbar is '/app/toolbar'.
+
+Toolbar is a UI component.
+
+You can add a toolbar into a toolbar, however, do not add them more than two lever.
+
+ */
+angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer) {
+
+	function MbToolbar(configs) {
+		MbContainer.call(this, configs);
 		return this;
 	};
+	
+	// Circle derives from Shape
+	MbToolbar.prototype = Object.create(MbContainer.prototype);
 
-	MbSidenav.prototype.foo = function($) {
+	MbToolbar.prototype.addAction = function(action) {
 	};
 
-	return MbSidenav;
+	MbToolbar.prototype.addComponent = function(component) {
+	};
+
+	return MbToolbar;
 });

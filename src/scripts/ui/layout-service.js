@@ -207,7 +207,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		editor.on('destroy', function() {
 			component.destroy();
 		});
-		return component.load({
+		return component.render({
 			$editor: editor,
 			$element: element
 		});

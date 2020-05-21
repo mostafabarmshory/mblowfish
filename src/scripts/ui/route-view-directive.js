@@ -197,10 +197,8 @@
 
 
 angular.module('mblowfish-core').directive('mbView', function(
-	/* amwb core */ $wbUtil,
-	/* MB        */ $mbView, $mbEditor, $mbToolbar, $mbSidenav, $mbLayout,
-	/* AngularJS */ $location, $injector, $compile, $controller, $rootScope,
-	$mbRoute, $dispatcher, $app, $q) {
+	/* MB        */ $mbView, $mbEditor, $mbLayout, $mbRoute,
+	/* AngularJS */ $dispatcher, $app, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -248,7 +246,7 @@ angular.module('mblowfish-core').directive('mbView', function(
 	}
 
 	return {
-		restrict: 'A',
+		restrict: 'AE',
 		terminal: true,
 		priority: 400,
 		link: link

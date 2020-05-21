@@ -352,3 +352,11 @@ table.mb-table tr {
 table.mb-table-description tr td:first-child {
 	font-weight: bold;
 }
+
+
+/**********************************************************************************
+mbToolbar
+**********************************************************************************/
+mb-toolbar {
+	min-height: 24px;
+}

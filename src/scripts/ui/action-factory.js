@@ -22,22 +22,55 @@
 
 
 /**
- * @ngdoc Factories
- * @name MbEditor
- * @description An action item
- * 
- */
-angular.module('mblowfish-core').factory('MbEditor', function(MbWindow) {
+@ngdoc Factories
+@name MbAction
+@description An action item
 
-	function MbEditor(configs) {
-		MbWindow.call(this, configs);
+Action is a named function which can be executed with its command id and parameters
+from every where.
+
+In the other word, MbAction divides defineition and usage of a function in a complex
+system.
+
+
+@tutorial core-action-callById
+ */
+angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window) {
+
+	function Action(data) {
+		data = data || {};
+		angular.extend(this, data, {
+			priority: data.priority || 10,
+			isAction: true,
+//			isComponent: false,
+//			isView: false,
+//			isEditor: false,
+		});
+		this.visible = this.visible || function() {
+			return true;
+		};
 		return this;
 	};
-	// Circle derives from Shape
-	MbEditor.prototype = Object.create(MbWindow.prototype);
 
-	MbEditor.prototype.foo = function() {
+	Action.prototype.exec = function($event) {
+//		if ($event) {
+//			$event.stopPropagation();
+//			$event.preventDefault();
+//		}
+		if(this.alias){
+			var actionId = this.actionId || this.id;
+			var $actions = $injector.get('$actions');
+			return $actions.exec(actionId, $event);
+		}
+		if (this.action) {
+			return $injector.invoke(this.action, this, {
+				$event: $event
+			});
+		} else if (this.url) {
+			return $navigator.openPage(this.url);
+		}
+		$window.alert('Action \'' + this.id + '\' is not executable!?')
 	};
 
-	return MbEditor;
+	return Action;
 });

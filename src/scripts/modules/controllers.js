@@ -30,7 +30,7 @@
  */
 angular.module('mblowfish-core').controller('MbLocalModulesCtrl', function(
 	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules, $actions
+	/* Mblowfish */ $modules, $mbActions
 ) {
 
 	/*
@@ -62,7 +62,7 @@ angular.module('mblowfish-core').controller('MbLocalModulesCtrl', function(
 
 angular.module('mblowfish-core').controller('MGlobalModulesCtrl', function(
 	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules, $actions
+	/* Mblowfish */ $modules, $mbActions
 ) {
 
 	/*

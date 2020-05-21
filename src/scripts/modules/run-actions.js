@@ -23,8 +23,8 @@
 /**
  * Manages system moduels
  */
-angular.module('mblowfish-core').run(function($actions, $modules, $resource, $window, $app) {
-	$actions.newAction({
+angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $app) {
+	$mbActions.addAction({
 		id: 'mb.app.local.modules.create',
 		type: 'action',
 		priority: 1,
@@ -43,7 +43,7 @@ angular.module('mblowfish-core').run(function($actions, $modules, $resource, $wi
 		},
 		groups: []
 	});
-	$actions.newAction({
+	$mbActions.addAction({
 		id: 'mb.app.local.modules.delete',
 		type: 'action',
 		priority: 1,
@@ -69,7 +69,7 @@ angular.module('mblowfish-core').run(function($actions, $modules, $resource, $wi
 	//--------------------------------------------------------------------------------
 	// Global
 	//--------------------------------------------------------------------------------
-	$actions.newAction({
+	$mbActions.addAction({
 		id: 'mb.app.global.modules.create',
 		type: 'action',
 		priority: 1,
@@ -89,7 +89,7 @@ angular.module('mblowfish-core').run(function($actions, $modules, $resource, $wi
 		},
 		groups: []
 	});
-	$actions.newAction({
+	$mbActions.addAction({
 		id: 'mb.app.global.modules.delete',
 		type: 'action',
 		priority: 1,

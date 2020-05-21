@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Display tree menu
  * 
  */
-.directive('mbUserToolbar', function($actions) {
+.directive('mbUserToolbar', function($mbActions) {
 	return {
 		restrict: 'E',
 		replace: true,

@@ -22,9 +22,31 @@
 
 
 /**
- * @ngdoc service
- * @name $mbEditor
- * @description A page management service
+@ngdoc Serivces
+@name $mbView
+@description Manages list of views 
+
+View is a singletone page whit a unique path in the system. 
+
+It is not possiblet to create (or register a view) with parametirzed path.
+
+There may be some additional parameters for a view which is send to the view by 
+query parameters.
+
+Here is list of services related to an specific view:
+
+- $params: list of param from query
+- $view: related view controller (controll the view in layout system)
+- $element: HTML view
+- $scope: data scope of the view
+
+These are injectable to view contrller.
+
+Note: A Toolbar with the same path will be registerd for a view.
+
+Note: A Menu with the same path will be registerd fro a view.
+
+
  */
 angular.module('mblowfish-core').service('$mbView', function(
 	/* AngularJS */ $rootScope,
@@ -39,7 +61,6 @@ angular.module('mblowfish-core').service('$mbView', function(
 			url: name,
 			rootScope: viewsRootScope,
 			isView: true,
-			isEditor: false,
 		}, viewConfig)
 		// create view
 		var view = new MbView(config);

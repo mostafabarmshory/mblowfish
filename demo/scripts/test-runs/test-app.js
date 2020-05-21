@@ -27,7 +27,9 @@ angular.module('app')//
 /**
  * 
  */
-.run(function($navigator, $mbToolbar, $rootScope){
+.run(function($navigator, $rootScope){
+	
+	
 		// add category
 	$navigator.newGroup({
 		id: 'navigation-bar',

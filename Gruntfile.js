@@ -287,7 +287,7 @@ module.exports = function(grunt) {
 					destination : 'doc',
 					configure : 'node_modules/angular-jsdoc/common/conf.json',
 					template : 'node_modules/angular-jsdoc/default',
-					tutorial : 'tutorials',
+					tutorial : 'docs/tutorials',
 					readme : 'README.md'
 				}
 			}

@@ -33,7 +33,7 @@ angular.module('mblowfish-core')
  * Load current user action into the scope. It is used to show user menu
  * in several parts of the system.
  */
-.directive('mbUserMenu', function($actions, $app, $mdSidenav) {
+.directive('mbUserMenu', function($mbActions, $app, $mdSidenav) {
 	/**
 	 * Post link 
 	 */

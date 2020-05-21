@@ -29,8 +29,8 @@ angular.module('mblowfish-core')
  * @description Toolbar
  * 
  */
-.controller('MbToolbarDashboardCtrl', function($scope, $actions, $mdSidenav, $monitor) {
-	$scope.toolbarMenu = $actions.group('mb.toolbar.menu');
+.controller('MbToolbarDashboardCtrl', function($scope, $mbActions, $mdSidenav, $monitor) {
+	$scope.toolbarMenu = $mbActions.group('mb.toolbar.menu');
 	
 	function toggleNavigationSidenav(){
 		$mdSidenav('navigator').toggle();

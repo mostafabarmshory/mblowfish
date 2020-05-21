@@ -22,7 +22,7 @@
 
 angular.module('mblowfish-core').run(function(
 	$mbSidenav, $mbToolbar, 
-	$rootScope, $navigator, $mbRoute, $actions, $help) {
+	$rootScope, $navigator, $mbRoute, $mbActions, $help) {
 //
 //	/***************************************************************************
 //	 * Application actions

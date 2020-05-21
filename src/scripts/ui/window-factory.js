@@ -23,61 +23,26 @@
 
 /**
 @ngdoc Factories
-@name MbView
-@description An system view
-
-A view is consists fo a toolbar, menu and the main view. You are free to 
-contributes directly into them.
+@name MbWindow
+@description A container which is managed with layout manager to display
 
  */
-angular.module('mblowfish-core').factory('MbView', function(
-	/* AngularJS */ $q,
-	/* Mblowfish */ $mbLayout, MbWindow) {
+angular.module('mblowfish-core').factory('MbWindow', function(MbContainer) {
 
-	function MbView(configs) {
-		// Call constructor of superclass to initialize superclass-derived members.
-		this.anchor = null;
-		MbWindow.call(this, configs);
+	function MbWindow(configs) {
+		MbContainer.call(this, configs);
 		this.toolbar = undefined;
 		this.menu = undefined;
 		return this;
 	};
+
 	// Circle derives from Shape
-	MbView.prototype = Object.create(MbWindow.prototype);
+	MbWindow.prototype = Object.create(MbContainer.prototype);
 
-	MbView.prototype.getTooblar = function() {
-		return this.toolbar;
-	};
+	MbWindow.prototype.getToolbar = function() { };
+	MbWindow.prototype.getMenu = function() { };
+	MbWindow.prototype.setTitle = function() { };
+	MbWindow.prototype.close = function() { };
 
-	MbView.prototype.getMenu = function() {
-		return this.menu;
-	};
-
-	MbView.prototype.setFocuse = function() {
-		$mbLayout.setFocuse(this);
-	};
-
-	MbView.prototype.setVisible = function(visible) {
-		if (visible) {
-			if (this.isVisible()) {
-				this.setFocuse();
-				return;
-			}
-			var view = this;
-			$q.when($mbLayout.open(this, this.anchor))
-				.then(function() {
-					view.visible = true;
-				}, function() {
-					view.destory();
-				})
-		} else {
-			return this.destroy();
-		}
-	};
-
-	MbView.prototype.setAnchor = function(anchor) {
-		this.anchor = anchor;
-	};
-
-	return MbView;
+	return MbWindow;
 });

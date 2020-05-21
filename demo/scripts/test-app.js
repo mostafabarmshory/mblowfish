@@ -27,7 +27,7 @@ angular.module('app', ['mblowfish-core'])//
 	 * Application configuration
 	 */
 	.config(function(
-		$applicationProvider, $mbLayoutProvider,
+		$applicationProvider, $mbLayoutProvider, $mbToolbarProvider,
 		// TODO: replace with $mbTranslateProvider
 		$translateProvider,
 		$mbStorageProvider, $locationProvider) {
@@ -224,12 +224,25 @@ angular.module('app', ['mblowfish-core'])//
 			'next': 'بعدی'
 		});
 		$translateProvider.preferredLanguage('fa');
+
+
+		//
+		//  By initializing the main toolbar you can add list of action or component
+		// into the toolbar.
+		//
+		$mbToolbarProvider.init([{
+			id: '/app/demo',
+			items: ['demo.alert']
+		},{
+			id: '/app/io',
+			items: ['demo.alert', 'demo.alert']
+		}]);
 	})
 	/*
 	 *  Runtime configurations: some part of system can be updated at the runtime. 
 	 * This help moldules to update the application and contributes new functionality.
 	 */
-	.run(function($mbView, $mbEditor) {
+	.run(function($mbView, $mbEditor, $mbActions) {
 		//
 		//  $mbView: manages all views of an application. you can add a new view 
 		// dynamically.
@@ -263,5 +276,16 @@ angular.module('app', ['mblowfish-core'])//
 			templateUrl: 'views/ui/iframe-editor.html',
 		});
 
-
+		//
+		// $mbAction: manages all actions
+		//
+		$mbActions.addAction('mb.demo.alert', {
+			icon: 'view_module',
+			title: 'Add local module',
+			description: 'Adds new module into the application.',
+			/* @ngInject */
+			action: function($window) {
+				$window.alert('Alert action is called!?');
+			}
+		});
 	});
