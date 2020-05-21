@@ -39,12 +39,13 @@ It is not possible to add a toolbar with aa specific url into the view more than
 
 
  */
-angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar) {
+angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 
 
 	function link($scope, $element, $attr, $ctrl) {
 		// 0- init UI
 		$element.empty();
+		$mbTheming($element);
 
 		// 1- load toolbars
 		var toolbarIds = $scope.$eval($attr.mbToolbars);

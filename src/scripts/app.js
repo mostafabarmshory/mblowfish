@@ -59,48 +59,43 @@ angular.module('mblowfish-core', [ //
 	'angular-material-persian-datepicker',
 	'pascalprecht.translate',
 	'mdColorPicker',
-]).run(function instantiateRoute($widget, $mbRouteParams, $injector, $window) {
-	$widget.setProvider('$mbRouteParams', $mbRouteParams);
+])
+	.config(function($mdThemingProvider) {
+		// Dark theme
+		$mdThemingProvider
+			.theme('dark')//
+			.primaryPalette('grey', {
+				'default': '900',
+				'hue-1': '700',
+				'hue-2': '600',
+				'hue-3': '500'
+			})//
+			.accentPalette('grey', {
+				'default': '700'
+			})//
+			.warnPalette('red')
+			.backgroundPalette('grey')
+			.dark();
 
-	/***************************************************************************
-	 * Mblowfish global service
-	 ***************************************************************************/
-	$window.mblowfish = (function($injector) {
-		this.extensions = [];
-		
-		/**
-		 * Enable an extionsion
-		 */
-		this.addExtension = function(loader) {
-			this.extensions.push(loader);
-			$injector.invoke(loader);
-		};
-		
-		return this;
-	})($injector);
-})
+		$mdThemingProvider.alwaysWatchTheme(true);
+	})
+	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window) {
+		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
-	/*******************************************************
-	 * Compatibility with old version
-	 *******************************************************/
-	.factory('Action', function(MbAction) {
-		return MbAction;
-	})
-	.factory('ActionGroup', function(MbActionGroup) {
-		return MbActionGroup;
-	})
-	.factory('httpRequestInterceptor', function(MbHttpRequestInterceptor) {
-		return MbHttpRequestInterceptor;
-	})
-	.controller('MessagesCtrl', function($scope, $controller) {
-		angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
-			$scope: $scope
-		}));
-	})
-	.controller('AmWbSeenCmsContentsCtrl', function($scope, $controller) {
-		angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
-			$scope: $scope
-		}));
-	})
+		/***************************************************************************
+		 * Mblowfish global service
+		 ***************************************************************************/
+		$window.mblowfish = (function($injector) {
+			this.extensions = [];
 
-	;
+			/**
+			 * Enable an extionsion
+			 */
+			this.addExtension = function(loader) {
+				this.extensions.push(loader);
+				$injector.invoke(loader);
+			};
+
+			return this;
+		})($injector);
+	});

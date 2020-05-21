@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,43 +22,26 @@
  * SOFTWARE.
  */
 
+/**
+@ngdoc Services
+@name $mbTheming
+@description Manages theme of an element
 
-angular.module('mblowfish-core').config(function($mdThemingProvider) {
+ */
+angular.module('mblowfish-core').provider('$mbTheming', function() {
+	var mdTheming;
 
-	// AMD default palette
-	$mdThemingProvider.definePalette('amdPrimaryPalette', {
-		'50': '#FFFFFF',
-		'100': 'rgb(255, 198, 197)',
-		'200': '#E75753',
-		'300': '#E75753',
-		'400': '#E75753',
-		'500': '#E75753',
-		'600': '#E75753',
-		'700': '#E75753',
-		'800': '#E75753',
-		'900': '#E75753',
-		'A100': '#E75753',
-		'A200': '#E75753',
-		'A400': '#E75753',
-		'A700': '#E75753'
-	});
+	function applyTheme(element) {
+		element.addClass('_mb');
+		element.addClass('_md');
+		mdTheming(element);
+	}
 
-	// Dark theme
-	$mdThemingProvider
-		.theme('dark')//
-		.primaryPalette('grey', {
-			'default': '900',
-			'hue-1': '700',
-			'hue-2': '600',
-			'hue-3': '500'
-		})//
-		.accentPalette('grey', {
-			'default': '700'
-		})//
-		.warnPalette('red')
-		.backgroundPalette('grey')
-
-		.dark();
-
-	$mdThemingProvider.alwaysWatchTheme(true);
-});
+	return {
+		/* @ngInject */
+		$get: function($mdTheming) {
+			mdTheming = $mdTheming;
+			return applyTheme;
+		}
+	};
+})

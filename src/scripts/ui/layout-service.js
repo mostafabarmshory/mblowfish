@@ -91,7 +91,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		}
 		return result;
 	}
-	
+
 	function reload(element, layoutName) {
 		rootElement = element;
 		currentLayoutName = layoutName || defaultLayoutName;
@@ -114,7 +114,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		storage = {};
 		storage.layouts = layouts;
 		storage.currentLayoutName = currentLayoutName;
-		
+
 		// 2- store
 		mbStorage.mbLayout = storage;
 	}
@@ -163,22 +163,26 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		dockerPanelElement.addClass(DOCKER_PANEL_CLASS);
 		dockerViewElement.addClass(DOCKER_VIEW_CLASS);
 
-		// link element
-		var link = compile(dockerBodyElement.contents());
-		link(rootScope);
-
 		// load docker view
 		docker = new GoldenLayout(getLayout(currentLayoutName), dockerViewElement);
 		docker.registerComponent('component', loadComponent);
-		docker.init();
-		
-		docker.on('stateChanged', function(){
+
+
+		docker.on('stateChanged', function() {
 			layouts[currentLayoutName] = docker.toConfig();
 			storeState();
 		});
-		docker.on('selectionChanged', function(){
+
+		docker.on('selectionChanged', function() {
 			// XXX: maso, 2020: change active view or editor
 		});
+
+		docker.on('initialised', function() {
+			// link element
+			var link = compile(dockerBodyElement.contents());
+			link(rootScope);
+		});
+		docker.init();
 	}
 	/*
 	 *  In docker view, this will create a new tap and add into the editor area
@@ -288,7 +292,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			this.reload = reload;
 			this.open = open;
 			this.setFocuse = setFocuse;
-			
+
 			// Docker API
 			this.setLayout = setLayout;
 			this.getLayout = getLayout;
@@ -301,3 +305,27 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		}
 	};
 });
+
+(function() {
+	var mlModeule = angular.module('mblowfish-core');
+	var mlDirectiveItems = [
+		'lmGoldenlayout',
+		'lmContent',
+		'lmSplitter',
+		'lmHeader',
+		'lmControls',
+		'lmMaximised',
+		'lmTransitionIndicator'
+	];
+	_.forEach(mlDirectiveItems, function(directiveName) {
+		mlModeule.directive(directiveName, function($mbTheming) {
+			return {
+				restrict: 'C',
+				link: function($scope, $element) {
+					$mbTheming($element);
+				}
+			};
+		});
+	});
+})();
+

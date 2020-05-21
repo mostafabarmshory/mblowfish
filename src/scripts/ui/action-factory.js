@@ -38,9 +38,9 @@ system.
 angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window, MbComponent) {
 
 	/* @ngInject */
-	var defaultActionController = function($element, $action, $mbActions){
+	var defaultActionController = function($element, $action){
 		$element.on('click', function($event){
-			$mbActions.exec($action.id, $event);
+			$action.exec($event);
 		});
 	};
 	
@@ -48,6 +48,7 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 	function Action(data) {
 		data = data || {};
 		data.isAction = true;
+		data.id = data.id || Math.random();
 		MbComponent.call(this, data)
 		this.controller = defaultActionController;
 		this.visible = this.visible || function() {

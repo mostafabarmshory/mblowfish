@@ -125,7 +125,7 @@ angular.module('mblowfish-core').run(function(
 //		id: 'messages',
 //		title: 'Messages',
 //		description: 'User message queue',
-//		controller: 'MessagesCtrl',
+//		controller: 'MbSeenUserMessagesCtrl',
 //		controllerAs: 'ctrl',
 //		templateUrl: 'views/sidenavs/mb-messages.html',
 //		locked: false,

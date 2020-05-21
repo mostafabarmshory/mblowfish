@@ -339,3 +339,334 @@
 }
 
 
+
+
+
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+*****************************************************************************************/
+.lm_goldenlayout.md-default-theme {
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAGFBMVEX29vb19fXw8PDy8vL09PTz8/Pv7+/x8fGKuegbAAAAyUlEQVR42pXRQQ7CMBRDwST9pfe/MahEmgURbt7WmpVb6+vG0dd9REnn66xRy/qXiCgmEIIJhGACIZhACCYQgvlDCDFIEAwSBIMEwSBBMEgQDBIEgwTBIEEwCJEMQiSDENFMQmQzCZEbNyGemd6KeGZ6u4hnXe2qbdLHFjhf1XqNLXHev4wdMd9nspiEiWISJgqECQJhgkCYIBAmCIQJAmGCQJggECYJhAkCEUMEwhCBMEQgDJEIQ2RSg0iEIRJhiB/S+rrjqvXQ3paIJUgPBXxiAAAAAElFTkSuQmCC)
+}
+
+.lm_content.md-default-theme {
+	background: #e1e1e1;
+	border: 1px solid #cccccc
+}
+
+.lm_content.md-default-theme {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+	box-sizing: border-box
+}
+
+.lm_splitter.md-default-theme {
+	background: #999999;
+	opacity: .001;
+	transition: opacity 200ms ease
+}
+
+.lm_splitter.md-default-theme:hover,
+.lm_splitter.lm_dragging.md-default-theme {
+	background: #bbbbbb;
+	opacity: 1
+}
+
+.lm_header.md-default-theme {
+	height: 20px
+}
+.lm_header.lm_selectable.md-default-theme {
+	cursor: pointer
+}
+.lm_header.md-default-theme .lm_tab {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	color: #888888;
+	background: #fafafa;
+	margin-right: 2px;
+	padding-bottom: 4px;
+	border: 1px solid #cccccc;
+	border-bottom: none
+}
+.lm_header.md-default-theme .lm_tab .lm_title {
+	padding-top: 1px
+}
+.lm_header.md-default-theme .lm_tab .lm_close_tab {
+	width: 11px;
+	height: 11px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAIklEQVR4nGNgYGD4z4Ad/Mdg4ODDBXCZRFgCp5EEHQMXBwAQAgz0SVCcggAAAABJRU5ErkJggg==);
+	background-position: center center;
+	background-repeat: no-repeat;
+	right: 6px;
+	top: 4px;
+	opacity: .4
+}
+.lm_header.md-default-theme .lm_tab .lm_close_tab:hover {
+	opacity: 1
+}
+.lm_header.md-default-theme .lm_tab.lm_active {
+	border-bottom: none;
+	box-shadow: 2px -2px 2px -2px rgba(0, 0, 0, 0.2);
+	padding-bottom: 5px
+}
+.lm_header.md-default-theme .lm_tab.lm_active .lm_close_tab {
+	opacity: 1
+}
+
+.lm_header.md-default-theme .lm_tab:hover,
+.lm_header.md-default-theme .lm_tab.lm_active {
+	background: #e1e1e1;
+	color: #777777
+}
+
+.lm_selected .lm_header.md-default-theme {
+	background-color: #452500
+}
+.lm_header.md-default-theme .lm_controls .lm_tabdropdown:before {
+	color: #000000
+}
+
+.lm_controls.md-default-theme>li {
+	position: relative;
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .4;
+	transition: opacity 300ms ease
+}
+.lm_controls.md-default-theme>li:hover {
+	opacity: 1
+}
+.lm_controls.md-default-theme .lm_popout {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAANUlEQVR4nI2QMQoAMAwCz5L/f9mOzZIaN0E9UDyZhaaQz6atgBHgambEJ5wBKoS0WaIvfT+6K2MIECN19MAAAAAASUVORK5CYII=)
+}
+.lm_controls.md-default-theme .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAIklEQVR4nGNkYGD4z0AAMBFSAAOETPpPlEmDUREjAxHhBABPvAQLFv3qngAAAABJRU5ErkJggg==)
+}
+.lm_controls.md-default-theme .lm_close {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVR4nGNgYGD4z4Af/Mdg4FKASwCnDf8JKSBoAtEmEXQTQd8RDCcA6+4Q8OvIgasAAAAASUVORK5CYII=)
+}
+
+.lm_maximised.md-default-theme .lm_header {
+	background-color: #ffffff
+}
+.lm_maximised.md-default-theme .lm_controls .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAJklEQVR4nGP8//8/AyHARFDFUFbEwsDAwMDIyIgzHP7//89IlEkApSkHEScJTKoAAAAASUVORK5CYII=)
+}
+.lm_transition_indicator.md-default-theme {
+	background-color: #000000;
+	border: 1px dashed #555555
+}
+.lm_popin.md-default-theme {
+	cursor: pointer
+}
+.lm_popin.md-default-theme .lm_bg {
+	background: #000000;
+	opacity: .7
+}
+.lm_popin.md-default-theme .lm_icon {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJCAYAAADpeqZqAAAAWklEQVR4nJWOyw3AIAxDHcQC7L8jbwT3AlJBfNp3SiI7dtRaLSlKKeoA1oEsKSQZCEluexw8Tm3ohk+E7bnOUHUGcNh+HwbBygw4AZ7FN/Lt84p0l+yTflV8AKQyLdcCRJi/AAAAAElFTkSuQmCC);
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .7
+}
+.lm_popin.md-default-theme:hover .lm_icon {
+	opacity: 1
+}
+.lm_goldenlayout.md-default-theme .lm_dragProxy {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+	box-sizing: border-box
+}
+.lm_goldenlayout.md-default-theme .lm_dropTargetIndicator {
+	box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+	outline: 1px dashed #cccccc;
+	margin: 1px;
+	transition: all 200ms ease
+}
+.lm_goldenlayout.md-default-theme .lm_dropTargetIndicator .lm_inner {
+	background: #000000;
+	opacity: .1
+}
+
+.lm_goldenlayout.md-default-theme .lm_dragProxy.lm_bottom .lm_header .lm_tab.lm_active,
+.lm_goldenlayout.md-default-theme .lm_stack.lm_bottom .lm_header .lm_tab.lm_active {
+	box-shadow: 2px 2px 2px -2px rgba(0, 0, 0, 0.2)
+}
+
+
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+Manages theme of the layout manager. This css manages Golden Layout package.
+
+NOTE: this will be converted into directive in the next release to support dynamic theme
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+.lm_goldenlayout.md-dark-theme {
+	background: #000000
+}
+
+.lm_content.md-dark-theme {
+	background: #222222
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dragProxy .lm_content {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9)
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dropTargetIndicator {
+	box-shadow: inset 0 0 30px #000000;
+	outline: 1px dashed #cccccc;
+	transition: all 200ms ease
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dropTargetIndicator .lm_inner {
+	background: #000000;
+	opacity: .2
+}
+
+.lm_splitter.md-dark-theme {
+	background: #000000;
+	opacity: .001;
+	transition: opacity 200ms ease
+}
+
+.lm_splitter.md-dark-theme:hover,
+.lm_splitter.lm_draggin.md-dark-themeg {
+	background: #444444;
+	opacity: 1
+}
+
+.lm_header.md-dark-theme {
+	height: 20px;
+	user-select: none
+}
+
+.lm_header.lm_selectable.md-dark-theme {
+	cursor: pointer
+}
+
+.lm_header.md-dark-theme .lm_tab {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	color: #999999;
+	background: #111111;
+	margin-right: 2px;
+	padding-bottom: 2px;
+	padding-top: 2px
+}
+
+.lm_header.md-dark-theme .lm_tab .lm_close_tab {
+	width: 11px;
+	height: 11px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAATElEQVR4nG3OwQ0DMQwDwZGRBtR/j1YJzMc5+IDoR+yCVO29g+pu981MFgqZmRdAfU7+CYWcbF11LwALjpBL0N0qybNx/RPU+gOeiS/+XCRwDlTgkQAAAABJRU5ErkJggg==);
+	background-position: center center;
+	background-repeat: no-repeat;
+	top: 4px;
+	right: 6px;
+	opacity: .4
+}
+
+.lm_header.md-dark-theme .lm_tab .lm_close_tab:hover {
+	opacity: 1
+}
+
+.lm_header.md-dark-theme .lm_tab.lm_active {
+	border-bottom: none;
+	padding-bottom: 3px
+}
+
+.lm_header.md-dark-theme .lm_tab.lm_active .lm_close_tab {
+	opacity: 1
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dragProxy.lm_bottom .lm_header .lm_tab,
+.lm_goldenlayout.md-dark-theme .lm_stack.lm_bottom .lm_header .lm_tab {
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3)
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dragProxy.lm_bottom .lm_header .lm_tab.lm_active,
+.lm_goldenlayout.md-dark-theme .lm_stack.lm_bottom .lm_header .lm_tab.lm_active {
+	box-shadow: 0 2px 2px #000000
+}
+
+.lm_selected .lm_header.md-dark-theme  {
+	background-color: #452500
+}
+
+.lm_tab.md-dark-theme :hover,
+.lm_tab.lm_active.md-dark-theme  {
+	background: #222222;
+	color: #dddddd
+}
+
+.lm_header.md-dark-theme  .lm_controls .lm_tabdropdown:before {
+	color: #ffffff
+}
+
+.lm_controls.md-dark-theme >li {
+	position: relative;
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .4;
+	transition: opacity 300ms ease
+}
+
+.lm_controls.md-dark-theme >li:hover {
+	opacity: 1
+}
+
+.lm_controls.md-dark-theme  .lm_popout {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPklEQVR4nI2Q0QoAIAwCNfr/X7aXCpGN8snBdgejJOzckpkxs9jR6K6T5JpU0nWl5pSXTk7qwh8SnNT+CAAWCgkKFpuSWsUAAAAASUVORK5CYII=)
+}
+
+.lm_controls.md-dark-theme  .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKElEQVR4nGP8////fwYCgImQAgYGBgYWKM2IR81/okwajIpgvsMbVgAwgQYRVakEKQAAAABJRU5ErkJggg==)
+}
+
+.lm_controls.md-dark-theme  .lm_close {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAQUlEQVR4nHXOQQ4AMAgCQeT/f6aXpsGK3jSTuCVJAAr7iBdoAwCKd0nwfaAdHbYERw5b44+E8JoBjEYGMBq5gAYP3usUDu2IvoUAAAAASUVORK5CYII=)
+}
+
+.lm_maximised.md-dark-theme  .lm_header {
+	background-color: #000000
+}
+
+.lm_maximised.md-dark-theme  .lm_controls .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJ0lEQVR4nGP8//8/AzGAiShVI1YhCwMDA8OsWbPwBmZaWhoj0SYCAN1lBxMAX4n0AAAAAElFTkSuQmCC)
+}
+
+.lm_transition_indicator.md-dark-theme  {
+	background-color: #000000;
+	border: 1px dashed #555555
+}
+
+.lm_popin.md-dark-theme  {
+	cursor: pointer
+}
+
+.lm_popin.md-dark-theme  .lm_bg {
+	background: #ffffff;
+	opacity: .3
+}
+
+.lm_popin.md-dark-theme  .lm_icon {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJCAYAAADpeqZqAAAAWklEQVR4nJWOyw3AIAxDHcQC7L8jbwT3AlJBfNp3SiI7dtRaLSlKKeoA1oEsKSQZCEluexw8Tm3ohk+E7bnOUHUGcNh+HwbBygw4AZ7FN/Lt84p0l+yTflV8AKQyLdcCRJi/AAAAAElFTkSuQmCC);
+	background-position: center center;
+	background-repeat: no-repeat;
+	border-left: 1px solid #eeeeee;
+	border-top: 1px solid #eeeeee;
+	opacity: .7
+}
+
+.lm_popin.md-dark-theme :hover .lm_icon {
+	opacity: 1
+}
+
+
+

@@ -260,7 +260,7 @@ angular.module('app', ['mblowfish-core'])//
 	 *  Runtime configurations: some part of system can be updated at the runtime. 
 	 * This help moldules to update the application and contributes new functionality.
 	 */
-	.run(function($mbView, $mbEditor, $mbActions) {
+	.run(function($mbView, $mbEditor, MbAction, $mbToolbar, $mbActions) {
 		//
 		//  $mbView: manages all views of an application. you can add a new view 
 		// dynamically.
@@ -294,5 +294,16 @@ angular.module('app', ['mblowfish-core'])//
 			templateUrl: 'views/ui/iframe-editor.html',
 		});
 
+		// Create and add action automatically
+		var action = new MbAction({
+			title: 'Auto action',
+			icon: 'save',
+			/* @ngInject */
+			action: function($window){
+				$window.alert('Autoloaded action is called');
+			}
+		});
+		var toolbar = $mbToolbar.getToolbar('/app/demo');
+		toolbar.addAction(action);
 
 	});

@@ -2,7 +2,7 @@
 <html 
 	ng-app="app"
 	dir="{{__app.dir}}"
-	md-theme="{{__app.test.theme || __app.setting.theme || __app.config.theme || 'default'}}"
+	md-theme="{{ __app.setting.theme || __app.config.theme || 'default'}}"
 	md-theme-watch>
 <head>
 	<title>MBlowfis - Advanced Online IDE</title>
@@ -37,16 +37,17 @@
 	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
 	<link rel="stylesheet" href="styles/infinate-scroll.css">
 	<link rel="stylesheet" href="styles/inline.css">
-	<link rel="stylesheet" href="styles/lm-dark-theme.css">
 	<link rel="stylesheet" href="styles/md-expansion-panel .css">
 	<link rel="stylesheet" href="styles/navigation-path-bar.css">
 	<link rel="stylesheet" href="styles/preload.css">
 	<link rel="stylesheet" href="styles/print.css">
 	<link rel="stylesheet" href="styles/sidenave.css">
 	<link rel="stylesheet" href="styles/tree.css">
+	<link rel="stylesheet" href="styles/ui-component-status.css">
+	<link rel="stylesheet" href="styles/ui-component-toolbar.css">
 	<link rel="stylesheet" href="styles/ui-components.css">
 	<link rel="stylesheet" href="styles/ui-layout-base.css">
-	<link rel="stylesheet" href="styles/ui-toolbar.css">
+	<link rel="stylesheet" href="styles/ui-status.css">
 	<link rel="stylesheet" href="styles/ui.css">
 	<link rel="stylesheet" href="styles/demo-theme.css">
 	<!-- endinjector -->
@@ -142,6 +143,7 @@
 	<script src="scripts/core/resource-service.js"></script>
 	<script src="scripts/core/selection-service.js"></script>
 	<script src="scripts/core/storage-service.js"></script>
+	<script src="scripts/core/theming-service.js"></script>
 	<script src="scripts/core/util-service.js"></script>
 	<script src="scripts/directives/compare-to.js"></script>
 	<script src="scripts/directives/mb-badge.js"></script>
@@ -226,7 +228,7 @@
 	<script src="scripts/ui/routeParam-service.js"></script>
 	<script src="scripts/ui/sidenav-factory.js"></script>
 	<script src="scripts/ui/sidenav-service.js"></script>
-	<script src="scripts/ui/theme-configs.js"></script>
+	<script src="scripts/ui/status-directive.js"></script>
 	<script src="scripts/ui/toolbar-factory.js"></script>
 	<script src="scripts/ui/toolbar-group-directive.js"></script>
 	<script src="scripts/ui/toolbar-service.js"></script>

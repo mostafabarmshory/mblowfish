@@ -43,7 +43,9 @@ angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbA
 
 	function MbToolbar(configs) {
 		MbContainer.call(this, configs);
+		this.actions = [];
 		this.actionHandlers = {};
+		this.components = [];
 		this.componentHandlers = {};
 		return this;
 	};
@@ -65,6 +67,10 @@ angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbA
 	};
 
 	MbToolbar.prototype.addAction = function(action) {
+		if (_.isUndefined(this.$handler)) {
+			this.actions.push(action);
+			return;
+		}
 		// keep action handler
 		var toolbar = this;
 		return loadComponent(toolbar, action).then(function(handler) {
@@ -113,6 +119,12 @@ angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbA
 			}
 			// TODO: maso, 2020: add log
 		});
+
+		// adding dynamci action
+		_.forEach(toolbar.actions, function(action) {
+			toolbar.addAction(action);
+		});
+		toolbar.actions = [];
 	}
 
 
