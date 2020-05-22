@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +21,23 @@
  */
 
 
-/**
-@ngdoc Factories
-@name MbWindow
-@description A container which is managed with layout manager to display
+angular.module('mblowfish-core').config(function($mdThemingProvider) {
 
- */
-angular.module('mblowfish-core').factory('MbWindow', function(MbContainer) {
+	// Dark theme
+	$mdThemingProvider
+		.theme('dark')//
+		.primaryPalette('grey', {
+			'default': '900',
+			'hue-1': '700',
+			'hue-2': '600',
+			'hue-3': '500'
+		})//
+		.accentPalette('grey', {
+			'default': '700'
+		})//
+		.warnPalette('red')
+		.backgroundPalette('grey')
+		.dark();
 
-	function MbWindow(configs) {
-		MbContainer.call(this, configs);
-		this.toolbar = undefined;
-		this.menu = undefined;
-		return this;
-	};
-
-	// Circle derives from Shape
-	MbWindow.prototype = Object.create(MbContainer.prototype);
-
-	MbWindow.prototype.getToolbar = function() { };
-	MbWindow.prototype.getMenu = function() { };
-	MbWindow.prototype.setTitle = function() { };
-	MbWindow.prototype.close = function() { };
-
-	return MbWindow;
+	$mdThemingProvider.alwaysWatchTheme(true);
 });

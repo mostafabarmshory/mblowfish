@@ -142,8 +142,8 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	var dockerViewElement;
 
 	var DOCKER_COMPONENT_EDITOR_ID = 'editors';
-	var DOCKER_COMPONENT_VIEW_CLASS = 'mb_docker_component_view';
-	var DOCKER_COMPONENT_EDITOR_CLASS = 'mb_docker_component_editor';
+	var DOCKER_COMPONENT_VIEW_CLASS = 'mb_docker_container_view';
+	var DOCKER_COMPONENT_EDITOR_CLASS = 'mb_docker_container_editor';
 
 	var DOCKER_BODY_CLASS = 'mb_docker_body';
 	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
@@ -231,7 +231,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		if (component.isEditor) {
 			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
-		var anchorContent = getDockerContentById(anchor) || getDockerRootContent();
+		var anchorContent = getDockerContentById(anchor) || getDockerRootContent().contentItems[0];
 		// TODO: maso, 2020: load component info to load later
 		var contentConfig = {
 			//Non ReactJS

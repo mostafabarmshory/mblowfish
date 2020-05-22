@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,49 +22,40 @@
  * SOFTWARE.
  */
 
+angular.module('app')
+	.controller('DemoExplorerViewCtrl', function(
+		MbAction,
+		/* Service injected into a view controller */
+		$toolbar, // The main toolbar of the view
+		$menu,    // The main menu of the view
+		$frame    // The frame (visible element in layout manager) of the view
+	) {
 
-/**
-@ngdoc Factories
-@name MbView
-@description An system view
+		this.refreshList = function() {
+			alert('Not implemented');
+		};
 
-A view is consists fo a toolbar, menu and the main view. You are free to 
-contributes directly into them.
+		var ctrl = this;
 
- */
-angular.module('mblowfish-core').factory('MbView', function(
-	/* AngularJS */ $q,
-	/* Mblowfish */ $mbLayout, MbFrame) {
-
-	function MbView(configs) {
-		// Call constructor of superclass to initialize superclass-derived members.
-		MbFrame.call(this, configs);
-		return this;
-	};
-	// Circle derives from Shape
-	MbView.prototype = Object.create(MbFrame.prototype);
-
-	MbView.prototype.setVisible = function(visible) {
-		if (visible) {
-			if (this.isVisible()) {
-				this.setFocuse();
-				return;
+		/*
+		Here is an example to create and add action into the view toolbar
+		*/
+		var refreshAction = new MbAction({
+			title: 'Refresh',
+			description: 'Refresh list of demo items',
+			icon: 'save',
+			action: function() {
+				ctrl.refreshList();
 			}
-			var view = this;
-			$q.when($mbLayout.open(this, this.anchor))
-				.then(function() {
-					view.visible = true;
-				}, function() {
-					view.destory();
-				})
-		} else {
-			return this.destroy();
-		}
-	};
-
-	MbView.prototype.setAnchor = function(anchor) {
-		this.anchor = anchor;
-	};
-
-	return MbView;
-});
+		});
+		$toolbar.addAction(refreshAction);
+	})
+	.run(function($mbView) {
+		$mbView.add('/demo/explorer', {
+			title: 'Demo Explorer',
+			description: 'List of all demo and tutorials.',
+			controller: 'DemoExplorerViewCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/demo-explorer.html',
+		})
+	})

@@ -11,7 +11,7 @@ mb-toolbar-group {
 	flex-wrap: wrap;
 }
 
-mb-toolbar {
+mb-toolbar-group>mb-toolbar {
 	height: 24px !important;
 }
 
@@ -36,6 +36,7 @@ mb-toolbar-group.md-default-theme {
 
 mb-toolbar.md-default-theme {
 	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
 }
 
 /****************************************************************************************
@@ -53,6 +54,7 @@ mb-toolbar-group.md-dark-theme {
 
 mb-toolbar.md-dark-theme {
 	background: rgb(46, 52, 54);
+	color: rgb(243, 243, 243);
 }
 
 

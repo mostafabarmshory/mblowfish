@@ -22,19 +22,19 @@
 
 
 /**
- * @ngdoc Factories
- * @name MbEditor
- * @description An action item
- * 
+@ngdoc Factories
+@name MbEditor
+@description An action item
+
  */
-angular.module('mblowfish-core').factory('MbEditor', function(MbWindow) {
+angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
 
 	function MbEditor(configs) {
-		MbWindow.call(this, configs);
+		MbFrame.call(this, configs);
 		return this;
 	};
 	// Circle derives from Shape
-	MbEditor.prototype = Object.create(MbWindow.prototype);
+	MbEditor.prototype = Object.create(MbFrame.prototype);
 
 	MbEditor.prototype.foo = function() {
 	};

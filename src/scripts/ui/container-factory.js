@@ -51,7 +51,7 @@ view, or an editor.
  */
 angular.module('mblowfish-core').factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
-	/* Mblowfish */ $mbUiUtil, MbUiHandler) {
+	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming) {
 
 	/*
 	Create new instance of a UI component. It may used as view, editor
@@ -131,12 +131,13 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 			var controllerDef;
 
 			$element.html(template);
+			$mbTheming($element);
 			var link = $compile($element);
 			locals.$scope = $scope;
 			if ((controllerDef = cmp.controller)) {
 				$ctrl = $controller(controllerDef, locals);
 				if ((cmp.controllerAs)) {
-					$scope[cpm.controllerAs] = $ctrl;
+					$scope[cmp.controllerAs] = $ctrl;
 				}
 				$element.data('$ngControllerController', $ctrl);
 			}
