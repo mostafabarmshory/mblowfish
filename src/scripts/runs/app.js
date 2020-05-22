@@ -92,15 +92,6 @@ angular.module('mblowfish-core').run(function(
 //	});
 //
 //	$sidenav.newSidenav({
-//		id: 'navigator',
-//		title: 'Navigator',
-//		description: 'Navigate all path and routs of the pandel',
-//		controller: 'AmdNavigatorCtrl',
-//		templateUrl: 'views/mb-navigator.html',
-//		locked: true,
-//		position: 'start'
-//	});
-//	$sidenav.newSidenav({
 //		id: 'help',
 //		title: 'Help',
 //		description: 'System online help',

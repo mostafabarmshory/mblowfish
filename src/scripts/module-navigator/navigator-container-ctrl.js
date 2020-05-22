@@ -22,23 +22,34 @@
 
 
 
-angular.module('mblowfish-core')
 
 /**
- * @ngdoc Directives
- * @name mb-tree-heading
- * @description Tree heading
- * 
- * Display tree heading
- * 
+ @ngdoc Controllers
+ @name MbNavigatorContainerCtrl
+ @description Navigator controller
+ 
  */
-.directive('mbTreeHeading', function(/*$animate*/) {
-	return {
-        restrict: 'E',
-        replace: true,
-        scope: {
-            mbSection: '='
-        },
-		templateUrl: 'views/directives/mb-tree-heading.html'
+angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function($scope, $mbView) {
+	var groups = {
+		'others': {
+			title: 'Others',
+			items: {}
+		}
 	};
+
+	var items = $mbView.getViews();
+	_.forEach(items, function(item, url) {
+		var itmeGroups = item.groups || ['others'];
+		_.forEach(itmeGroups, function(groupId) {
+			if (_.isUndefined(groups[groupId])) {
+				groups[groupId] = {
+					title: groupId,
+					items: {}
+				};
+			}
+			groups[groupId].items[url] = item;
+		});
+	});
+
+	$scope.groups = groups
 });

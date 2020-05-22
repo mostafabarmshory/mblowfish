@@ -52,7 +52,7 @@ angular.module('mblowfish-core').service('$mbView', function(
 	/* AngularJS */ $rootScope,
 	/* Mblowfish */ $mbRoute, MbView) {
 
-	var views = [];
+	var views = {};
 	var viewsRootScope = $rootScope.$new(false);
 
 	this.add = function(name, viewConfig) {
@@ -92,6 +92,10 @@ angular.module('mblowfish-core').service('$mbView', function(
 			view.setAnchor(where);
 		}
 		view.setVisible(true);
+	};
+
+	this.getViews = function() {
+		return views;
 	};
 
 	this.getScope = function() {

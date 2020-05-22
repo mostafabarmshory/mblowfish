@@ -27,7 +27,8 @@ angular.module('app', ['mblowfish-core'])//
 	 * Application configuration
 	 */
 	.config(function(
-		$applicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider, 
+		$applicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
+		$mbSidenavProvider,
 		// TODO: replace with $mbTranslateProvider
 		$translateProvider,
 		$mbStorageProvider, $locationProvider) {
@@ -255,6 +256,16 @@ angular.module('app', ['mblowfish-core'])//
 				}
 			}
 		});
+
+		$mbSidenavProvider.addSidenav('/app/navigator', {
+			title: 'Navigator',
+			description: 'Navigate all path and routs of the pandel',
+			controller: 'MbNavigatorContainerCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/mb-navigator.html',
+			locked: '$mdMedia("min-width: 333px")',
+			position: 'start'
+		});
 	})
 	/*
 	 *  Runtime configurations: some part of system can be updated at the runtime. 
@@ -268,20 +279,26 @@ angular.module('app', ['mblowfish-core'])//
 		$mbView.add('/demo', {
 			title: 'Demo&Tutorials',
 			description: 'Demo explorer.',
-			icon: 'load',
+			icon: 'wb_sunny',
 			templateUrl: 'views/index.html',
+			groups:['Tutorials&Demo']
 		}).add('/demo/core', {
 			title: 'Core Features',
 			anchor: 'editors',
 			templateUrl: 'views/core/index.html',
+			groups:['Tutorials&Demo']
 		}).add('/demo/ui', {
 			title: 'UI',
+			icon: 'layers_clear',
 			anchor: 'editors',
 			templateUrl: 'views/ui/index.html',
+			groups:['Tutorials&Demo']
 		}).add('/demo/components', {
 			title: 'Components',
+			icon: 'hotel',
 			anchor: 'editors',
 			templateUrl: 'views/components/index.html',
+			groups:['Tutorials&Demo']
 		});
 
 		//
@@ -299,7 +316,7 @@ angular.module('app', ['mblowfish-core'])//
 			title: 'Auto action',
 			icon: 'save',
 			/* @ngInject */
-			action: function($window){
+			action: function($window) {
 				$window.alert('Autoloaded action is called');
 			}
 		});

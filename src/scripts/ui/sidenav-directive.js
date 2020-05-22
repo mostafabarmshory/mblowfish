@@ -22,24 +22,19 @@
 
 
 /**
-@ngdoc Factories
-@name MbSidenav
-@description An action item
+@ngdoc Directive
+@name mb-sidenav
+@description Defines a place to add sidenaves
+
+
 
  */
-angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer) {
-
-	function MbSidenav(config) {
-		MbContainer.call(this, config);
-		return this;
+angular.module('mblowfish-core').directive('mbSidenavs', function($mbSidenav) {
+	return {
+		restrict: 'AE',
+		replace: false,
+		link: function($scope, $element) {
+			$mbSidenav.setRootElement($element);
+		}
 	};
-	// Circle derives from Shape
-	MbSidenav.prototype = Object.create(MbContainer.prototype);
-	
-	MbSidenav.prototype.render = function(locals){
-		locals.$sidnav = this;
-		return MbContainer.prototype.render.call(this, locals);
-	};
-
-	return MbSidenav;
 });

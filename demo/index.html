@@ -107,7 +107,6 @@
 	<script src="scripts/controllers/mb-language.js"></script>
 	<script src="scripts/controllers/mb-local.js"></script>
 	<script src="scripts/controllers/navigator-dialog.js"></script>
-	<script src="scripts/controllers/navigator.js"></script>
 	<script src="scripts/controllers/options.js"></script>
 	<script src="scripts/controllers/preference.js"></script>
 	<script src="scripts/controllers/preferences.js"></script>
@@ -140,6 +139,8 @@
 	<script src="scripts/core/local-language-loader-factory.js"></script>
 	<script src="scripts/core/local-service.js"></script>
 	<script src="scripts/core/logger-service.js"></script>
+	<script src="scripts/core/module-factory.js"></script>
+	<script src="scripts/core/module-services.js"></script>
 	<script src="scripts/core/resource-service.js"></script>
 	<script src="scripts/core/selection-service.js"></script>
 	<script src="scripts/core/storage-service.js"></script>
@@ -157,16 +158,10 @@
 	<script src="scripts/directives/mb-inline.js"></script>
 	<script src="scripts/directives/mb-navigation-bar.js"></script>
 	<script src="scripts/directives/mb-pagination-bar.js"></script>
-	<script src="scripts/directives/mb-panel-sidenav-anchor.js"></script>
-	<script src="scripts/directives/mb-panel-toolbar-anchor.js"></script>
 	<script src="scripts/directives/mb-pay.js"></script>
 	<script src="scripts/directives/mb-preference-page.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-titled-block.js"></script>
-	<script src="scripts/directives/mb-tree-heading.js"></script>
-	<script src="scripts/directives/mb-tree-link.js"></script>
-	<script src="scripts/directives/mb-tree-toggle.js"></script>
-	<script src="scripts/directives/mb-tree.js"></script>
 	<script src="scripts/directives/mb-user-menu.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
 	<script src="scripts/directives/ng-src-error.js"></script>
@@ -183,13 +178,14 @@
 	<script src="scripts/expan/expansionPanelGroupService.js"></script>
 	<script src="scripts/expan/expansionPanelHeaderDirective.js"></script>
 	<script src="scripts/expan/expansionPanelService.js"></script>
-	<script src="scripts/modules/controllers.js"></script>
-	<script src="scripts/modules/run-actions.js"></script>
-	<script src="scripts/modules/run-options.js"></script>
-	<script src="scripts/modules/run-preference.js"></script>
-	<script src="scripts/modules/run-resources.js"></script>
-	<script src="scripts/modules/services.js"></script>
-	<script src="scripts/runs/app-extension-config-autosave.js"></script>
+	<script src="scripts/module-moduleManager/controllers.js"></script>
+	<script src="scripts/module-moduleManager/run-actions.js"></script>
+	<script src="scripts/module-moduleManager/run-options.js"></script>
+	<script src="scripts/module-moduleManager/run-preference.js"></script>
+	<script src="scripts/module-moduleManager/run-resources.js"></script>
+	<script src="scripts/module-navigator/module.js"></script>
+	<script src="scripts/module-navigator/navigator-container-ctrl.js"></script>
+	<script src="scripts/module-preferences/app-extension-config-autosave.js"></script>
 	<script src="scripts/runs/app.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
@@ -227,6 +223,7 @@
 	<script src="scripts/ui/route-service.js"></script>
 	<script src="scripts/ui/route-view-directive.js"></script>
 	<script src="scripts/ui/routeParam-service.js"></script>
+	<script src="scripts/ui/sidenav-directive.js"></script>
 	<script src="scripts/ui/sidenav-factory.js"></script>
 	<script src="scripts/ui/sidenav-service.js"></script>
 	<script src="scripts/ui/status-directive.js"></script>
@@ -261,18 +258,21 @@
 
 </head>
 <body 
-	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}">
-	<mb-toolbar-group
-		mb-url="/app/main"
-		mb-toolbars="['/app/demo', '/app/io']">
-		This is a toolbar
-	</mb-toolbar-group>
-	<mb-view
-		mb-mode="docker"></mb-view>
-	<mb-status
-		mb-url="/app/main">
-		This is status
-	</mb-status>
+	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"
+	mb-sidenavs>
+	<main>
+		<mb-toolbar-group
+			mb-url="/app/main"
+			mb-toolbars="['/app/demo', '/app/io']">
+			This is a toolbar
+		</mb-toolbar-group>
+		<mb-view
+			mb-mode="docker"></mb-view>
+		<mb-status
+			mb-url="/app/main">
+			This is status
+		</mb-status>
+	</main>
 </body>
 </html>
 

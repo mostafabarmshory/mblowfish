@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,45 +21,27 @@
  */
 
 
-
-angular.module('mblowfish-core')
-
 /**
- * @ngdoc Directives
- * @name mb-tree-link
- * @description Tree link
- * 
- * Display and link section item
- * 
- */
-.directive('mbTreeLink', function() {
-	return {
-		restrict : 'E',
-		scope: {
-			mbSection: '='
-		},
-		templateUrl: 'views/directives/mb-tree-link.html',
-		controller : function($scope, $navigator) {
-			/**
-			 * Check if page is selected.
-			 * 
-			 * Selection is implemented in the Tree, so if the item is not placed in
-			 * a tree the result is false.
-			 * 
-			 * @return the selection state of the page
-			 * @param page address for example /user/profile
-			 */
-			$scope.isSelected = function(section) {
-				return section && $navigator.isPageSelected(section.link);
-			};
+@ngdoc Factories
+@name MbModule
+@description A module item of the Mblowfish
 
-			/**
-			 * Run action of section
-			 */
-			$scope.focusSection = function(section) {
-				// XXX: maso, 2017: check action call
-				return $navigator.openPage(section.link);
-			};
-		}
+ */
+angular.module('mblowfish-core').factory('MbModule', function() {
+
+	function MbModule(data) {
+		_.asign(this, data, {
+			isGlobal: false,
+			url: undefined,
+			type: undefined,
+		});
 	};
+
+	MbModule.prototype.load = function() {
+	};
+
+	MbModule.prototype.unload = function() {
+	};
+
+	return MbModule;
 });

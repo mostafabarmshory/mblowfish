@@ -160,14 +160,4 @@ angular.module('mblowfish-core').run(function($mbView) {
 //				toolbars: []
 //			})//
 
-
-
-			$mbView.add('/mb/ui/views/navigator/', {
-				title: 'Navigator',
-				description: 'Navigate all path and routs of the pandel',
-				controller: 'AmdNavigatorCtrl',
-				controllerAs: 'ctrl',
-				templateUrl: 'views/mb-navigator.html',
-			})
-			;//
 	});

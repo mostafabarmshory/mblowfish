@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,27 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-
-/**
-@ngdoc Factories
-@name MbSidenav
-@description An action item
-
- */
-angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer) {
-
-	function MbSidenav(config) {
-		MbContainer.call(this, config);
-		return this;
-	};
-	// Circle derives from Shape
-	MbSidenav.prototype = Object.create(MbContainer.prototype);
-	
-	MbSidenav.prototype.render = function(locals){
-		locals.$sidnav = this;
-		return MbContainer.prototype.render.call(this, locals);
-	};
-
-	return MbSidenav;
+angular.module('mblowfish-core').run(function($mbView) {
+	$mbView.add('/mb/ui/views/navigator/', {
+		title: 'Navigator',
+		description: 'Navigate all path and routs of the pandel',
+		controller: 'MbNavigatorContainerCtrl',
+		controllerAs: 'ctrl',
+		templateUrl: 'views/mb-navigator.html',
+		groups: ['Utilities']
+	});//
 });
