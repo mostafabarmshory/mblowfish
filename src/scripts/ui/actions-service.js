@@ -163,6 +163,9 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	var groups = {};
 
 	function addAction(commandId, action) {
+		if (!(action instanceof Action)) {
+			action = new Action(action);
+		}
 		actions[commandId] = action;
 		action.id = commandId;
 		return service;

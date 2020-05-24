@@ -49,9 +49,14 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 	/* variables */
 	var mainToolbarConfig = [];
 	var toolbars = {};
+	var toolbarGroups = {};
+	var toolbarGroupsConfig = {};
 
 
 	function addToolbar(toolbarId, toolbar) {
+		if (!(toolbar instanceof Toolbar)) {
+			toolbar = new Toolbar(toolbar);
+		}
 		toolbars[toolbarId] = toolbar;
 		return toolbar;
 	}
@@ -76,17 +81,57 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 			addToolbar(toolbarConfig.url, toolbar);
 		});
 	}
-	
-	function addToolbarGroup(toolbarGroupId, toolbarGroup){
-		// TODO:
+
+	function addToolbarGroup(toolbarGroupId, toolbarGroup) {
+		// TODO: maso, 2020: support lazy load of a toolbar
+		toolbarGroups[toolbarGroupId] = toolbarGroup;
+		toolbarGroupConfig = toolbarGroupsConfig[toolbarGroupId];
+		if (toolbarGroupConfig) {
+			_.forEach(toolbarGroupConfig, function(toolbar) {
+				toolbarGroup.addToolbar(toolbar);
+			});
+		}
 	}
 
-	
-	function getToolbarGroup(toolbarGroupId){
-		// TODO:
+
+	function getToolbarGroup(toolbarGroupId) {
+		if (_.isUndefined(toolbarGroupId)) {
+			toolbarGroupId = '/app/main'
+		}
+		// TODO: maso,2020: support lazy load of toolbar groups
+		var toolbarGroup = toolbarGroups[toolbarGroupId];
+		var toolbarGroupConfig = toolbarGroupsConfig[toolbarGroupId];
+		if (_.isUndefined(toolbarGroupConfig)) {
+			toolbarGroupsConfig[toolbarGroupId] = toolbarGroupConfig = [];
+		}
+		var wrapper = {
+			addToolbar: function(toolbar) {
+				toolbarGroupConfig.push(toolbar);
+				if (toolbarGroup) {
+					toolbarGroup.addToolbar(toolbar);
+				}
+			},
+			removeToolbar: function(toolbar) {
+				const index = toolbarGroupConfig.indexOf(toolbar);
+				if (index > -1) {
+					toolbarGroupConfig.splice(index, 1);
+				}
+				if (toolbarGroup) {
+					toolbarGroup.removeToolbar(toolbar);
+				}
+			},
+			destroty: function() {
+				toolbarGroupsConfig[toolbarGroupId] = [];
+				toolbarGroupConfig = toolbarGroupsConfig[toolbarGroupId];
+				if (toolbarGroup) {
+					toolbarGroup.destroy();
+				}
+			}
+		};
+		return wrapper;
 	}
-	
-	function removeToolbarGroup(toolbarGroupId){
+
+	function removeToolbarGroup(toolbarGroupId) {
 		// TODO:
 	}
 
@@ -110,7 +155,7 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 			this.getToolbar = getToolbar;
 			this.addToolbar = addToolbar;
 			this.removeToolbar = removeToolbar;
-			
+
 			// To manage toolbars group
 			this.addToolbarGroup = addToolbarGroup;
 			this.getToolbarGroup = getToolbarGroup;

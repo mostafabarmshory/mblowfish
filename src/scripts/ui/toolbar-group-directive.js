@@ -79,6 +79,9 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 			this.handlers = {};
 
 			this.addToolbar = function(toolbar) {
+				if(_.isString(toolbar)){
+					toolbar = $mbToolbar.getToolbar(toolbar);
+				}
 				if (!_.isUndefined(this.handlers[toolbar.url])) {
 					// FIXME: log and throw exception: the toolbar is added befor
 					return;
@@ -100,12 +103,16 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 			};
 
 			this.removeToolbar = function(toolbar) {
-				if (_.isUndefined(this.handler[toolbar.url])) {
+				var url = toolbar;
+				if(toolbar instanceof MbToolbar){
+					url = toolbar.url;
+				}
+				if (_.isUndefined(this.handler[url])) {
 					// TODO: maso, 2020: toolbar not exist, add a warning log
 					return;
 				}
-				var handler = this.handler[toolbar.url];
-				delete this.handler[toolbar.url];
+				var handler = this.handler[url];
+				delete this.handler[url];
 				handler.destroy();
 			};
 
