@@ -197,8 +197,8 @@
 
 
 angular.module('mblowfish-core').directive('mbView', function(
-	/* MB        */ $mbView, $mbEditor, $mbLayout, $mbRoute,
-	/* AngularJS */ $dispatcher, $app, $q) {
+	/* MB        */ $mbLayout, $mbRoute,
+	/* AngularJS */ $location, $dispatcher, $app, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -234,13 +234,12 @@ angular.module('mblowfish-core').directive('mbView', function(
 				return;
 			}
 			var route = $mbRoute.current;
-			var originalPath = route.$route.originalPath;
-			if ($mbRoute.current.$route.isView) {
-				return $mbView.open(originalPath);
-			} else {
-				return $mbEditor.open(originalPath, route);
-			}
-			// NOTE: if there is other type of views, you must add theme here
+			var state = {
+				params: route.params,
+				pathParams: route.pathParams,
+			};
+			route.$route.url = $location.url();
+			return $mbLayout.open(route.$route, state);
 		}
 
 	}

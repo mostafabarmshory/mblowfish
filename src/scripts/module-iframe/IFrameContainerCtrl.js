@@ -21,35 +21,16 @@
  */
 
 
-
-
 /**
  @ngdoc Editor
  @name MbIFrameContainerCtrl
  @description A page preview editor
  
  */
-angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($scope, $mbView) {
-	var groups = {
-		'others': {
-			title: 'Others',
-			items: {}
-		}
-	};
+angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($sce, $state) {
 
-	var items = $mbView.getViews();
-	_.forEach(items, function(item, url) {
-		var itmeGroups = item.groups || ['others'];
-		_.forEach(itmeGroups, function(groupId) {
-			if (_.isUndefined(groups[groupId])) {
-				groups[groupId] = {
-					title: groupId,
-					items: {}
-				};
-			}
-			groups[groupId].items[url] = item;
-		});
-	});
+	// Load secure path
+	this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
 
-	$scope.groups = groups
 });
+

@@ -9,10 +9,13 @@ mb-toolbar-group {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
+	
+	overflow: hidden;
 }
 
 mb-toolbar-group>mb-toolbar {
 	height: 24px !important;
+	overflow: hidden;
 }
 
 mb-toolbar>mb-toolbar-item.mbAction {

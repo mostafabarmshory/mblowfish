@@ -120,12 +120,16 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 		var cmp = this;
 		this.$handler = true;
 		// If there is no root element, then we create a new one
-		if(_.isUndefined(locals.$element)){
+		if (_.isUndefined(locals.$element)) {
 			locals.$element = angualr.element('<div></div>');
 		}
+
+		// If there is no root element, then we create a new one
+		if (_.isUndefined(locals.$scope)) {
+			locals.$scope = $rootScope.$new(false);
+		}
 		return $q.when(this.getTemplate(), function(template) {
-			var rootScope = cmp.rootScope || $rootScope;
-			var $scope = rootScope.$new(false);
+			var $scope = locals.$scope
 			var $element = locals.$element;
 			var $ctrl;
 			var controllerDef;
@@ -133,7 +137,6 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 			$element.html(template);
 			$mbTheming($element);
 			var link = $compile($element);
-			locals.$scope = $scope;
 			if ((controllerDef = cmp.controller)) {
 				$ctrl = $controller(controllerDef, locals);
 				if ((cmp.controllerAs)) {
@@ -143,8 +146,8 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
 			link($scope);
-			
-			
+
+
 			cmp.$handler = new MbUiHandler({
 				$scope: $scope,
 				$element: $element,
@@ -161,7 +164,7 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 	@memberof MbContainer
 	 */
 	MbContainer.prototype.destroy = function() {
-		if(_.isUndefined(this.$handler)){
+		if (_.isUndefined(this.$handler)) {
 			return;
 		}
 		this.$handler.destroy();

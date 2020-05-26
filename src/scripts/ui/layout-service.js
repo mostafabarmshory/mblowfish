@@ -79,14 +79,30 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		layouts[name] = layout;
 	}
 
-	function open(component, anchor) {
+	/**
+	@description Open a frame on the layout system and stores the configuration
+	
+	All frames will be stored and reopen with the layout system.
+	
+	The state of a frame will be stored by the layout system to be used later.
+	
+	The address of the frame will be used for the first time to put the frame. User may change the place
+	dynamically at the runtime, so, the anchor may be changed with the firs one.
+	
+	@memberof $mbLayout
+	@name open
+	@param {MbFrame} frame A component to open in a place on the layout system
+	@param {Object} state A list of configuration, parameters and settings to send to the container
+	@param {string} anchor An address where the container must be placed for example 'editor' is a place to put all editors
+	 */
+	function open(frame, state, anchor) {
 		var result;
 		switch (mode) {
 			case 'docker':
-				result = openDockerContent(component, anchor);
+				result = openDockerContent(frame, state, anchor);
 				break;
 			default:
-				result = openMobileView(component, anchor);
+				result = openMobileView(frame, state, anchor);
 				break;
 		}
 		return result;
@@ -105,7 +121,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		}
 	}
 
-	function setFocuse(component) {
+	function setFocus(frame) {
 		// TODO:
 	}
 
@@ -191,19 +207,23 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	function loadComponent(editor, state) {
 		// Component is loaded before
 		var component;
-		var $mbView = injector.get('$mbView');
-		var $mbEditor = injector.get('$mbEditor');
 		if (state.isView) {
+			var $mbView = injector.get('$mbView');
 			component = $mbView.get(state.url);
 		} else {
-			component = $mbEditor.get(state.url);
+			var $mbEditor = injector.get('$mbEditor');
+			component = $mbEditor.fetch(
+				state.url, // path
+				state);    // parameters
 		}
 		if (_.isUndefined(component)) {
-			component = $mbEditor.get('/mb/core/ui/notfound/' + state.url);
+			component = $mbEditor.open('/mb/notfound/' + state.url);
 		}
 
 		// discannect all resrouces
-		component.destroy();
+		if (component.isVisible()) {
+			return component.setFocus();
+		}
 
 		// load element
 		var element = editor.getElement();
@@ -212,8 +232,9 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			component.destroy();
 		});
 		return component.render({
-			$editor: editor,
-			$element: element
+			$frame: editor,
+			$element: element,
+			$state: state
 		});
 		// TODO: maso,2020: dispatc view is loaded
 	}
@@ -227,21 +248,46 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		return docker.root;
 	}
 
-	function openDockerContent(component, anchor) {
+	function openDockerContent(component, state, anchor) {
 		if (component.isEditor) {
 			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
+
+
+		if (component.isView) {
+			var $mbView = injector.get('$mbView');
+			component = $mbView.fetch(
+				component.url,   // path
+				state,           // state
+				anchor);        // anchor
+		} else {
+			var $mbEditor = injector.get('$mbEditor');
+			component = $mbEditor.fetch(
+				component.url,    // path
+				state,           // state
+				anchor);        // anchor
+		}
+
+		if (_.isUndefined(component)) {
+			// TODO: maso, 2020: support undefined view
+			return;
+		}
+		// discannect all resrouces
+		if (component.isVisible()) {
+			return component.setFocus();
+		}
+
 		var anchorContent = getDockerContentById(anchor) || getDockerRootContent().contentItems[0];
 		// TODO: maso, 2020: load component info to load later
 		var contentConfig = {
 			//Non ReactJS
 			type: 'component',
 			componentName: 'component',
-			componentState: {
+			componentState: _.assign({}, state, {
 				url: component.url,
 				isEditor: component.isEditor,
 				isView: component.isView,
-			},
+			}),
 			//General
 			content: [],
 			id: component.url,
@@ -291,7 +337,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			// global api
 			this.reload = reload;
 			this.open = open;
-			this.setFocuse = setFocuse;
+			this.setFocus = setFocus;
 
 			// Docker API
 			this.setLayout = setLayout;

@@ -23,32 +23,47 @@ angular.module('mblowfish-core').run(function(
 	/* AngularJs */ $window,
 	/* Mblowfish */ $mbEditor, $mbActions, $mbToolbar) {
 
-	$mbEditor.add('/mb/ui/iframe/:url', {
+	//
+	//  $mbEditor: manages all editor of an application. An editor has a dynamic
+	// address and there may be multiple instance of it at the same time but with
+	// different parameter.
+	//
+	// There are serveral editor registered here to cover some of our system 
+	// functionalities such as:
+	//
+	// - Open a new URL
+	//
+	$mbEditor.registerEditor('/mb/iframe/:url*', {
 		title: 'IFrame',
 		description: 'Open external page',
 		controller: 'MbIFrameContainerCtrl',
 		controllerAs: 'ctrl',
-		template: '<iframe src="https://7tooti.com/wb/blog"></iframe>',
+		template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
 		groups: ['Utilities']
-	});//
-
+	});
 
 	$mbActions.addAction('mb.iframe.open', {
 		title: 'Open URL',
 		description: 'Open a url',
 		icon: 'open_in_browser',
-		action: function() {
+		/* @ngInject */
+		action: function($location) {
 			$window.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
 				.then(function(input) {
-					return $mbEditor.open('/mb/ui/editor/iframe/' + input);
+					$location.url('/mb/iframe/' + input);
+					// $mbEditor.open('/mb/iframe/' + input, {param1: 'value1'});
 				});
 		}
 	});
 
-	$mbToolbar.addToolbar('/mb/ui/iframe', {
+	$mbToolbar.addToolbar('/mb/iframe', {
 		items: ['mb.iframe.open']
 	});
 
+	//-----------------------------------------------------------------------
+	//  Adds iframe toolbar into the main toolbar group. Note that, this 
+	// must handle in the final application.
+	//-----------------------------------------------------------------------
 	$mbToolbar.getToolbarGroup()
-		.addToolbar('/mb/ui/iframe');
+		.addToolbar('/mb/iframe');
 });

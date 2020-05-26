@@ -284,42 +284,8 @@ angular.module('mblowfish-core').service('$mbRoute', function(
 	/***********************************************************************************
 	 * Utility
 	 ***********************************************************************************/
-
-	function inherit(parent, extra) {
-		return angular.extend(Object.create(parent), extra);
-	}
-	
-	/**
-	 * @param on {string} current url
-	 * @param route {Object} route regexp to match the url against
-	 * @return {?Object}
-	 *
-	 * @description
-	 * Check if the route matches the current url.
-	 *
-	 * Inspired by match in
-	 * visionmedia/express/lib/router/router.js.
-	 */
-	function switchRouteMatcher(on, route) {
-		var keys = route.keys,
-			params = {};
-
-		if (!route.regexp) return null;
-
-		var m = route.regexp.exec(on);
-		if (!m) return null;
-
-		for (var i = 1, len = m.length; i < len; ++i) {
-			var key = keys[i - 1];
-
-			var val = m[i];
-
-			if (key && val) {
-				params[key.name] = val;
-			}
-		}
-		return params;
-	}
+	inherit = $mbUiUtil.inherit;
+	switchRouteMatcher = $mbUiUtil.switchRouteMatcher;
 
 	function prepareRoute($locationEvent) {
 		var lastRoute = $mbRoute.current;
@@ -475,7 +441,7 @@ angular.module('mblowfish-core').service('$mbRoute', function(
 	function parseRoute() {
 		// Match a route
 		var params, match;
-		angular.forEach(routes, function(route, path) {
+		_.forEach(routes, function(route, path) {
 			if (!match && (params = switchRouteMatcher($location.path(), route))) {
 				match = inherit(route, {
 					params: angular.extend({}, $location.search(), params),

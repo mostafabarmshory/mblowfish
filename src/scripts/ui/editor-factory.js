@@ -36,8 +36,13 @@ angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
 	// Circle derives from Shape
 	MbEditor.prototype = Object.create(MbFrame.prototype);
 
-	MbEditor.prototype.foo = function() {
+	MbEditor.prototype.render = function(locals) {
+		locals.$editor = this;
+		locals.$mbRouteParams = this.$route;
+		locals.$routeParams = this.$route;
+		// add othere services to push
+		return MbFrame.prototype.render.call(this, locals);
 	};
-
+	
 	return MbEditor;
 });

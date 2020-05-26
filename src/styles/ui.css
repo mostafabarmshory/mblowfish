@@ -62,6 +62,7 @@ In this part we manage all basic component of the mb-ui
 .mb_docker_container_view  {
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 }
 
 .mb_docker_container_view>mb-toolbar {
@@ -79,4 +80,5 @@ In this part we manage all basic component of the mb-ui
 	flex-basis: 0px;
 	padding: 0px !important;
 	margin: 0px !important;
+	overflow: hidden;
 }

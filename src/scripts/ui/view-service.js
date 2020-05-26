@@ -61,6 +61,8 @@ angular.module('mblowfish-core').service('$mbView', function(
 			url: name,
 			rootScope: viewsRootScope,
 			isView: true,
+			reloadOnSearch: false,
+			reloadOnUrl: true,
 		}, viewConfig)
 		// create view
 		var view = new MbView(config);
@@ -82,17 +84,44 @@ angular.module('mblowfish-core').service('$mbView', function(
 		return !_.isUndefined(view);
 	};
 
-	this.open = function(name, where) {
+	/**
+	Fetch a View 
+	
+	If the view is open, then se send focus to it and other parameters will be ignored.
+	
+	State will be saved by the layout system and used in launch time. It is accessible with $state from the
+	view controller. If the controller changes the state then, it will be stored and used in the next time.
+	
+	The param is reserved in the state and it is forbiden to be canged by the controllers.
+	
+	Anchore is used for the first time. 
+	It may be changed by the user.
+	The layout system is responsible to track the location of the view.
+	
+	@name fetch
+	@memberof $mbView
+	@param {string} url The name/URL of the view
+	@param {Object} state List of key-value to use in view (it is accessable with $state from view controller)
+	@param {string} anchor Where the view placed.
+	 */
+	this.fetch = function(name, state, anchor) {
 		var view = this.get(name);
 		if (_.isUndefined(view)) {
 			// TODO: maso, 2020: View not found throw error
 			return;
 		}
-		if (where) {
-			view.setAnchor(where);
+		if (view.isVisible()) {
+			return view.setFocus();
 		}
-		view.setVisible(true);
+		return view
+			.setAnchor(anchor)
+			.setState(state);
 	};
+
+	this.open = function(name, state, anchor) {
+		return this.fetch(name, state, anchor)
+			.setVisible(true);
+	}
 
 	this.getViews = function() {
 		return views;

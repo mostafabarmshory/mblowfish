@@ -53,39 +53,133 @@ Here is list of services related to an specific editor:
 These are injectable to an editor contrller.
 
  */
-angular.module('mblowfish-core').service('$mbEditor', function(
-	/* AngularJS */ $rootScope,
-	/* Mblowfish */ $mbRoute, MbEditor) {
+angular.module('mblowfish-core').provider('$mbEditor', function() {
+	/***********************************************************************************
+	 * Utility
+	 ***********************************************************************************/
+	var inherit;// = $mbUiUtil.inherit;
+	var switchRouteMatcher; // = $mbUiUtil.switchRouteMatcher;
 
-	var editorConfigs = [];
-	var editorsRootScope = $rootScope.$new(false);
-	var editors = [];
+	var editorConfigs = {};
+	var editors = {};
 
-	this.add = function(name, editorConfig) {
+	//	var editorsRootScope;
+	var rootScope;
+	var mbRoute;
+	var Editor;
+
+	var service;
+	var provider;
+
+
+	/**
+	Adds new editor descritpion
+	
+	@name registerEditor	
+	@memberof $mbEditor
+	 */
+	function registerEditor(name, editorConfig) {
 		var config = _.assign({
-			rootScope: editorsRootScope,
 			isEditor: true,
+			reloadOnSearch: false,
+			reloadOnUrl: true,
 			componentState: {
 				originalUrl: name,
 			}
 		}, editorConfig)
 		editorConfigs[name] = config;
 		// Add to routes
-		$mbRoute.when(name, config);
+		mbRoute.when(name, config);
+		config.route = mbRoute.getRoutes(name);
 		// TODO: Add toolbar
 		// TODO: Add menu
-		return this;
+		return service;
+	}
+
+	/**
+	Removes editor description from system
+	
+	@name registerEditor	
+	@memberof $mbEditor
+	 */
+	function unregisterEditor(name) {
+		// TODO: remove toolbar
+		// TODO: remove menu
+		delete editorConfigs[name];
+		return service;
+	}
+
+	function getEditorConfigMatch(url, inputParams) {
+		// Match a route
+		var params;
+		var match;
+		_.forEach(editorConfigs, function(editorConfig, name) {
+			if (!match && (params = switchRouteMatcher(url, editorConfig.route))) {
+				route = _.assign({}, editorConfig.route, {
+					params: angular.extend({}, inputParams, params),
+					pathParams: params
+				});
+				match = _.assign({}, editorConfig, {
+					url: url,
+					name: name,
+					$route: route
+				});
+			}
+		});
+		return match;
 	}
 
 
-	this.get = function(name) {
+	/**
+	Find and return existed editor
+	
+	@name getEditor	
+	@memberof $mbEditor
+	 */
+	function getEditor(name) {
 		return editors[name];
-	};
+	}
 
-	this.has = function(name) {
-		var editor = this.get(name);
+
+	/**
+	Check if the editor exist
+	
+	@name has	
+	@memberof $mbEditor
+	 */
+	function hasEditor(name) {
+		var editor = getEditor(name);
 		return !_.isUndefined(editor);
-	};
+	}
+	
+	/**
+	Opens a new editor
+	
+	To open a new editor, name (unique path of the view) is required. As you know, editors
+	are registered with a dynamic path (e.g. /users/:userId) but you must open a new editor
+	with static path (e.g. /users/1).
+	
+	@memberof $mbEditor
+	 */
+	function fetch(name, state) {
+		// 0- check if editor is open
+		var editor = editors[name];
+		if (editor) {
+			return editor;
+		}
+
+		// 1- Get editor configuration
+		var editorConfig = getEditorConfigMatch(name, state);
+		if (_.isUndefined(editorConfig)) {
+			// XXX: maso, 2020: View not found throw error
+			return;
+		}
+
+		// 3- Creat new editor
+		return editors[name] = new Editor(editorConfig)
+			.setAnchor('editors')
+			.setState(state);
+	}
 
 	/**
 	Opens a new editor
@@ -96,19 +190,40 @@ angular.module('mblowfish-core').service('$mbEditor', function(
 	
 	@memberof $mbEditor
 	 */
-	this.open = function(name, params) {
-		var editor = this.get(name);
-		if (_.isUndefined(editor)) {
-			// TODO: maso, 2020: View not found throw error
-			return;
-		}
-		editor =
-			view.setVisible(true);
-	};
-
-	this.getScope = function() {
-		return editorsRootScope;
+	function open(name, state) {
+		return fetch(name, state)
+			.setVisible(true);
 	}
 
-	return this;
+	//	function getScope() {
+	//		return editorsRootScope;
+	//	}
+
+	provider = {
+		$get: function(
+			/* AngularJS */ $rootScope,
+			/* Mblowfish */ $mbUiUtil, $mbRoute, MbEditor) {
+			inherit = $mbUiUtil.inherit;
+			switchRouteMatcher = $mbUiUtil.switchRouteMatcher;
+
+			// Services
+			rootScope = $rootScope;
+			mbRoute = $mbRoute;
+			Editor = MbEditor;
+
+			// Editor description
+			this.registerEditor = registerEditor;
+			this.unregisterEditor = unregisterEditor;
+
+			// MbEditor
+			this.open = open;
+			this.fetch = fetch;
+			this.has = hasEditor;
+			this.getEditor = getEditor;
+
+			service = this;
+			return this;
+		}
+	};
+	return provider;
 });

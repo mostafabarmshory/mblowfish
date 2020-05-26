@@ -27,13 +27,16 @@
 @description A container which is managed with layout manager to display
 
  */
-angular.module('mblowfish-core').factory('MbFrame', function(MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
+angular.module('mblowfish-core').factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
 		var toolbar = new MbToolbar({
 			url: configs.url,
-			isToolbar: true,
+			//isToolbar: false,
+			//isView: false,
+			//isEditor: false,
+			//isMenu: false,
 			controller: function() { },
 			controllerAs: 'toolbarCtrl'
 		});
@@ -44,6 +47,7 @@ angular.module('mblowfish-core').factory('MbFrame', function(MbContainer, $mbLay
 		this.menu = undefined;
 
 		// 3- call container initialization
+		configs.state = configs.state || {};
 		MbContainer.call(this, configs);
 		return this;
 	};
@@ -62,8 +66,8 @@ angular.module('mblowfish-core').factory('MbFrame', function(MbContainer, $mbLay
 	MbFrame.prototype.setTitle = function() { };
 	MbFrame.prototype.close = function() { };
 
-	MbFrame.prototype.setFocuse = function() {
-		$mbLayout.setFocuse(this);
+	MbFrame.prototype.setFocus = function() {
+		$mbLayout.setFocus(this);
 	};
 
 	MbFrame.prototype.render = function(locals) {
@@ -75,6 +79,9 @@ angular.module('mblowfish-core').factory('MbFrame', function(MbContainer, $mbLay
 		var toolbar = locals.$toolbar;
 		var toolbarElement = angular.element('<mb-toolbar></mb-toolbar>');
 		toolbarElement.attr('id', this.url);
+
+		// store criticla services
+		this.state = locals.$state;
 
 
 		return MbContainer.prototype.render.call(this, locals)
@@ -100,8 +107,44 @@ angular.module('mblowfish-core').factory('MbFrame', function(MbContainer, $mbLay
 		if (this.menu) {
 			this.menu.destroy();
 		}
-		MbContainer.prototype.destroy.call(this);
+		this.state = {};
+		return MbContainer.prototype.destroy.call(this);
 	};
+
+
+	/**
+	Set visible or un visible the frame
+	
+	@name setVisible
+	@memberof MbFrame
+	@param {boolean} visible If true, the frame will be show or it will be removed from the layout system
+	 */
+	MbFrame.prototype.setVisible = function(visible) {
+		if (visible) {
+			$location.url($mbUiUtil.frameToUrl(this));
+			return this;
+		}
+		return this.destroy();
+	};
+
+	/**
+	Set the place where the frame will be display
+	
+	@name setAnchor
+	@memberof MbFrame
+	 */
+	MbFrame.prototype.setAnchor = function(anchor) {
+		this.anchor = anchor;
+		return this;
+	};
+
+	// TODO: maso, 2020: send new params to editor
+	MbFrame.prototype.setState = function(state) {
+		this.state = _.assign(this.state, state);
+		// TOOD: fire params changed
+		return this;
+	};
+
 
 	return MbFrame;
 });

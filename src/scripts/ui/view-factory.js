@@ -30,9 +30,7 @@ A view is consists fo a toolbar, menu and the main view. You are free to
 contributes directly into them.
 
  */
-angular.module('mblowfish-core').factory('MbView', function(
-	/* AngularJS */ $q,
-	/* Mblowfish */ $mbLayout, MbFrame) {
+angular.module('mblowfish-core').factory('MbView', function(MbFrame) {
 
 	function MbView(configs) {
 		// Call constructor of superclass to initialize superclass-derived members.
@@ -42,26 +40,9 @@ angular.module('mblowfish-core').factory('MbView', function(
 	// Circle derives from Shape
 	MbView.prototype = Object.create(MbFrame.prototype);
 
-	MbView.prototype.setVisible = function(visible) {
-		if (visible) {
-			if (this.isVisible()) {
-				this.setFocuse();
-				return;
-			}
-			var view = this;
-			$q.when($mbLayout.open(this, this.anchor))
-				.then(function() {
-					view.visible = true;
-				}, function() {
-					view.destory();
-				})
-		} else {
-			return this.destroy();
-		}
-	};
-
-	MbView.prototype.setAnchor = function(anchor) {
-		this.anchor = anchor;
+	MbView.prototype.render = function(locals) {
+		locals.$view = this;
+		return MbFrame.prototype.render.call(this, locals);
 	};
 
 	return MbView;
