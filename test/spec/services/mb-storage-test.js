@@ -21,35 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+describe('Service $mbStorage', function() {
+	var $mbStorage;
 
-describe('Service $resource ', function () {
-    // instantiate service
-    var $resource;
+	// load the service's module
+	beforeEach(module('mblowfish-core'));
 
-    // load the service's module
-    beforeEach(module('mblowfish-core'));
+	// instantiate service
+	beforeEach(inject(function(_$mbStorage_) {
+		$mbStorage = _$mbStorage_;
+	}));
 
-    // instantiate service
-    beforeEach(inject(function (_$resource_) {
-        $resource = _$resource_;
-    }));
+	it('must implements WB $mbStorage API', function() {
+		expect(angular.isFunction($mbStorage.$default)).toBe(true);
+		expect(angular.isFunction($mbStorage.$reset)).toBe(true);
+		expect(angular.isFunction($mbStorage.$sync)).toBe(true);
+		expect(angular.isFunction($mbStorage.$apply)).toBe(true);
+		expect(angular.isFunction($mbStorage.$supported)).toBe(true);
+	});
 
-    /**************************************************************************************
-     *  Providers
-     * 
-     * Default providers:
-     * 
-     **************************************************************************************/
-    it('should check if tag is supported ', function () {
-        expect($resource.hasPeagFor('xwedc')).toBe(false);
-    });
-    
-    it('should check if tag is supported ', function () {
-        $resource.newPage({
-            type : 'test-page',
-            tags : [ 'xxyyzz']
-        });
-        expect($resource.hasPeagFor('xxyyzz')).toBe(true);
-    });
 });
