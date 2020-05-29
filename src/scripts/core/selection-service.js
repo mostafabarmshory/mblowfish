@@ -22,17 +22,17 @@
 
 
 /**
- * @ngdoc service
- * @name $mbSelection
- * @description Default selection system.
+@ngdoc service
+@name $mbSelection
+@description Default selection system.
  */
 angular.module('mblowfish-core').service('$mbSelection', function() {
 	var selection = [];
-	
-	this.addItem = function($item, $event){};
-	this.clearItems = function(){};
-	this.getItems = function(){};
-	this.isSelected = function(){};
-	
+
+	this.addItem = function($item, $event) { };
+	this.clearItems = function() { };
+	this.getItems = function() { };
+	this.isSelected = function() { };
+
 	return this;
 });

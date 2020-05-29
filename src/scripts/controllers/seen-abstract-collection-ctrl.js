@@ -55,7 +55,7 @@
  */
 angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator,
 	$log,
-	$window, QueryParameter, Action) {
+	$window, QueryParameter, MbAction) {
 
 
     /*
@@ -532,8 +532,8 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
 			this.actions = [];
 		}
 		// TODO: maso, 2018: assert the action is MbAction
-		if (!(action instanceof Action)) {
-			action = new Action(action);
+		if (!(action instanceof MbAction)) {
+			action = new MbAction(action);
 		}
 		this.actions.push(action);
 		return this;

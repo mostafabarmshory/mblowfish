@@ -34,7 +34,7 @@ angular.module('mblowfish-core').service('$mbUtil', function() {
 	 *
 	 * Assumes that there are no proto properties for objects.
 	 */
-	this.shallowCopy = function(src, dst) {
+	function shallowCopy(src, dst) {
 		if (this.isArray(src)) {
 			dst = dst || [];
 			for (var i = 0, ii = src.length; i < ii; i++) {
@@ -53,6 +53,45 @@ angular.module('mblowfish-core').service('$mbUtil', function() {
 
 
 
+	function parseBooleanValue(value) {
+		value = value.toLowerCase();
+		switch (value) {
+			case true:
+			case 'true':
+			case '1':
+			case 'on':
+			case 'yes':
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/*
+	 * Bind list of roles to app data
+	 */
+	function rolesToPermissions(roles) {
+		var permissions = [];
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			permissions[role.application + '_' + role.code_name] = true;
+		}
+		return permissions;
+	}
+
+	function keyValueToMap(keyvals) {
+		var map = [];
+		for (var i = 0; i < keyvals.length; i++) {
+			var keyval = keyvals[i];
+			map[keyval.key] = keyval.value;
+		}
+		return map;
+	}
+
+	this.rolesToPermissions = rolesToPermissions;
+	this.keyValueToMap = keyValueToMap;
+	this.shallowCopy = shallowCopy;
+	this.parseBooleanValue = parseBooleanValue;
 	this.noop = angular.noop;
 	this.isArray = angular.isArray;
 	this.isObject = angular.isObject;

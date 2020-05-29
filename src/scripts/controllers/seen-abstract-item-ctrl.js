@@ -36,7 +36,7 @@
  */
 angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 	/* AngularJS  */ $scope, $controller, $q, $window,
-	/* MBlowfish  */ $navigator, QueryParameter, Action,
+	/* MBlowfish  */ 
 	/* ngRoute    */ $mbRouteParams) {
 
 
@@ -195,7 +195,6 @@ angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 				$window.alert('Fail to load the item ' + ctrl.itemId);
 			});
 		// TODO: maso, 2020: add application job
-		// $app.addJob('Loading itm' + this.itemId, job);
 		return job;
 	}
 

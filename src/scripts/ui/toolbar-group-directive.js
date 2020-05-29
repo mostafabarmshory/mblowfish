@@ -100,6 +100,7 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				}).then(function(handler) {
 					ctrl.handlers[toolbar.url] = handler;
 				});
+				return this;
 			};
 
 			this.removeToolbar = function(toolbar) {
@@ -109,11 +110,12 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				}
 				if (_.isUndefined(this.handler[url])) {
 					// TODO: maso, 2020: toolbar not exist, add a warning log
-					return;
+					return this;
 				}
 				var handler = this.handler[url];
 				delete this.handler[url];
 				handler.destroy();
+				return this;
 			};
 
 			this.destoy = function() {

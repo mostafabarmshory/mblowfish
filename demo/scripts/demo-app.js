@@ -26,13 +26,36 @@
  * Application configuration
  */
 angular.module('app', ['mblowfish-core']).config(function(
-	$applicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
-	$mbSidenavProvider,
+	$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
+	$mbSidenavProvider, $mbSettingsProvider,
 	// TODO: replace with $mbTranslateProvider
 	$translateProvider,
 	$mbStorageProvider, $locationProvider) {
 	//
-	// Application storage prefix
+	// Application manager
+	//
+	// Application ID is used to seperate applications from each other. for
+	// example you may have studo and dashboard application.
+	//
+	$mbApplicationProvider
+		.setKey('demo')
+		.setPreloadingEnabled(true)
+		//.setPreloadingFrame({
+		//	templateUrl: 'views/mb-application-preloading.html',
+		//	controller: 'MbApplicationPreloadingContainerCtrl',
+		//	controllerAs: 'ctrl',
+		//})
+		.setTenantRequired(false)
+		.setAccountDetailRequired(false)
+		.setSettingsRequired(true)
+		.setLogingRequired(false);
+
+	$mbSettingsProvider
+		.setAutosaveEnabled(false)
+		.setTemplateUrl('resources/settings-template.json');
+
+	//
+	// Storage prefix
 	//
 	//  All data will be stored in local storage with key. This will be
 	// added to all keys. So you can run several application which is 
@@ -45,18 +68,6 @@ angular.module('app', ['mblowfish-core']).config(function(
 	// Enables HTML5 addresss style. SO the #! sign will be removed from
 	// the path.
 	$locationProvider.html5Mode(true);
-
-	//
-	// Application ID
-	//
-	// Application ID is used to seperate applications from each other. for
-	// example you may have studo and dashboard application.
-	//
-	$applicationProvider.setKey('demo');
-	$applicationProvider.setAutoloadConfigs(true);
-	$applicationProvider.setAutosaveConfigs(true);
-
-
 
 	//
 	//  $mbLayout: manages layouts of the system. It is used as a basic layout
@@ -262,7 +273,7 @@ angular.module('app', ['mblowfish-core']).config(function(
 		controller: 'MbNavigatorContainerCtrl',
 		controllerAs: 'ctrl',
 		templateUrl: 'views/mb-navigator.html',
-		locked: '$mdMedia("min-width: 333px")',
+//		locked: '$mdMedia("min-width: 333px");',
 		position: 'start'
 	});
 });

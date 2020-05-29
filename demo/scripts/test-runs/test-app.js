@@ -21,100 +21,100 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-angular.module('app').run(function($navigator) {
-
-	// add category
-	$navigator.newGroup({
-		id: 'navigation-bar',
-		title: 'Navigation Bar',
-		icon: 'navigation',
-		priority: 20
-	});
-	$navigator.newGroup({
-		id: 'tables',
-		title: 'Tables',
-		icon: 'label',
-		priority: 20
-	});
-	$navigator.newGroup({
-		id: 'example',
-		title: 'Examples',
-		icon: 'face',
-		priority: 20
-	});
-	$navigator.newGroup({
-		id: 'navigator',
-		title: 'Navigator',
-		icon: 'navigator',
-		priority: 20,
-		hidden: 'navigatorGroupHiddenTestFlag'
-	});
-	$navigator.newGroup({
-		id: 'pagination',
-		title: 'Pagination',
-		icon: 'lsit',
-		priority: 20
-	});
-	$navigator.newGroup({
-		id: 'example2',
-		title: 'Examples 2',
-		icon: 'edit',
-		priority: 30
-	});
-	$navigator.newGroup({
-		id: 'example2',
-		title: 'Examples 2',
-		icon: 'edit',
-		priority: 30
-	});
-	$navigator.newGroup({
-		id: 'sidenav',
-		title: 'Sidenav',
-		icon: 'list',
-		priority: 40
-	});
-	$navigator.newGroup({
-		id: 'help',
-		title: 'Help',
-		icon: 'help',
-		priority: 40
-	});
-	$navigator.newGroup({
-		id: 'mb-panel',
-		title: 'MB Panel',
-		icon: 'web',
-		priority: 40
-	});
-	$navigator.newGroup({
-		id: 'mb-toolbar',
-		title: 'MB Toolbar',
-		icon: 'toolbar',
-		priority: 40
-	});
-	$navigator.newGroup({
-		id: 'resources',
-		title: 'Resources',
-		icon: 'settings',
-		priority: 50
-	});
-	$navigator.newGroup({
-		id: 'themes',
-		title: 'Themes',
-		icon: 'color_lens',
-		priority: 60
-	});
-	$navigator.newGroup({
-		id: 'content',
-		title: 'Content',
-		icon: 'color_lens',
-		priority: 60
-	});
-
-	$navigator.newItem({
-		type: 'link',
-		link: 'https://gitlab.com/angular-material-dashboard/angular-material-dashboard/wikis/home',
-		title: 'Online help',
-		icon: 'help'
-	});
-});
+//
+//angular.module('app').run(function($navigator) {
+//
+//	// add category
+//	$navigator.newGroup({
+//		id: 'navigation-bar',
+//		title: 'Navigation Bar',
+//		icon: 'navigation',
+//		priority: 20
+//	});
+//	$navigator.newGroup({
+//		id: 'tables',
+//		title: 'Tables',
+//		icon: 'label',
+//		priority: 20
+//	});
+//	$navigator.newGroup({
+//		id: 'example',
+//		title: 'Examples',
+//		icon: 'face',
+//		priority: 20
+//	});
+//	$navigator.newGroup({
+//		id: 'navigator',
+//		title: 'Navigator',
+//		icon: 'navigator',
+//		priority: 20,
+//		hidden: 'navigatorGroupHiddenTestFlag'
+//	});
+//	$navigator.newGroup({
+//		id: 'pagination',
+//		title: 'Pagination',
+//		icon: 'lsit',
+//		priority: 20
+//	});
+//	$navigator.newGroup({
+//		id: 'example2',
+//		title: 'Examples 2',
+//		icon: 'edit',
+//		priority: 30
+//	});
+//	$navigator.newGroup({
+//		id: 'example2',
+//		title: 'Examples 2',
+//		icon: 'edit',
+//		priority: 30
+//	});
+//	$navigator.newGroup({
+//		id: 'sidenav',
+//		title: 'Sidenav',
+//		icon: 'list',
+//		priority: 40
+//	});
+//	$navigator.newGroup({
+//		id: 'help',
+//		title: 'Help',
+//		icon: 'help',
+//		priority: 40
+//	});
+//	$navigator.newGroup({
+//		id: 'mb-panel',
+//		title: 'MB Panel',
+//		icon: 'web',
+//		priority: 40
+//	});
+//	$navigator.newGroup({
+//		id: 'mb-toolbar',
+//		title: 'MB Toolbar',
+//		icon: 'toolbar',
+//		priority: 40
+//	});
+//	$navigator.newGroup({
+//		id: 'resources',
+//		title: 'Resources',
+//		icon: 'settings',
+//		priority: 50
+//	});
+//	$navigator.newGroup({
+//		id: 'themes',
+//		title: 'Themes',
+//		icon: 'color_lens',
+//		priority: 60
+//	});
+//	$navigator.newGroup({
+//		id: 'content',
+//		title: 'Content',
+//		icon: 'color_lens',
+//		priority: 60
+//	});
+//
+//	$navigator.newItem({
+//		type: 'link',
+//		link: 'https://gitlab.com/angular-material-dashboard/angular-material-dashboard/wikis/home',
+//		title: 'Online help',
+//		icon: 'help'
+//	});
+//});

@@ -190,7 +190,6 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	function getGroups() { }
 
 
-
 	function exec(actionId, $event) {
 		$event = $event || {
 			stopPropagation: function() { },

@@ -60,10 +60,10 @@ angular.module('mblowfish-core').run(function(
 		items: ['mb.iframe.open']
 	});
 
-	//-----------------------------------------------------------------------
-	//  Adds iframe toolbar into the main toolbar group. Note that, this 
-	// must handle in the final application.
-	//-----------------------------------------------------------------------
-	$mbToolbar.getToolbarGroup()
-		.addToolbar('/mb/iframe');
+//	//-----------------------------------------------------------------------
+//	//  Adds iframe toolbar into the main toolbar group. Note that, this 
+//	// must handle in the final application.
+//	//-----------------------------------------------------------------------
+//	$mbToolbar.getToolbarGroup()
+//		.addToolbar('/mb/iframe');
 });

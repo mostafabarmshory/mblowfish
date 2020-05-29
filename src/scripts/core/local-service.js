@@ -29,16 +29,32 @@
  * 
  * Deprecated : use $window
  */
-angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
+angular.module('mblowfish-core').provider('$mbLocal', function() {
+
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var provider;
+	var service;
+	var rootScope;
+
+
+	//---------------------------------------
+	// variables
+	//---------------------------------------
 	var defaultDateFormat = 'jYYYY-jMM-jDD';
 	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
 
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
 	/**
 	 * Gets current data of the system.
 	 * 
 	 * @memberof $mbLocal
 	 */
-	this.getDate = function() {
+	function getDate() {
 		return new Date();
 	};
 
@@ -68,7 +84,7 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	 * @params format {String} of the output
 	 * @memberof $mbLocal
 	 */
-	this.formatDate = function(inputDate, format) {
+	function formatDate(inputDate, format) {
 		return formatDateInternal(inputDate, format ||
 			$rootScope.app.setting.dateFormat ||
 			$rootScope.app.config.dateFormat ||
@@ -84,7 +100,7 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	 * @params format {String} of the output
 	 * @memberof $mbLocal
 	 */
-	this.formatDateTime = function(inputDate, format) {
+	function formatDateTime(inputDate, format) {
 		return formatDateInternal(inputDate, format ||
 			$rootScope.app.setting.dateFormatTime ||
 			$rootScope.app.config.dateFormatTime ||
@@ -96,7 +112,7 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	 * @return currency ISO code
 	 * @memberof $mbLocal
 	 */
-	this.getCurrency = function() {
+	function getCurrency() {
 		return this.currency || 'USD';
 	};
 
@@ -106,7 +122,7 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	 * @param currency {String} ISO code
 	 * @memberof $mbLocal
 	 */
-	this.setCurrency = function(currency) {
+	function setCurrency(currency) {
 		this.currency = currency;
 	};
 
@@ -116,7 +132,7 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	 * @return language ISO code
 	 * @memberof $mbLocal
 	 */
-	this.getLanguage = function() {
+	function getLanguage() {
 		return $rootScope.app.language;
 	};
 
@@ -126,10 +142,79 @@ angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
 	 * @params language {String} ISO code
 	 * @memberof $mbLocal
 	 */
-	this.setLanguage = function(language) {
+	function setLanguage(language) {
 		this.language = language;
 	};
 
 
-	return this;
+	function setApplicationDirection(dir) {
+		$rootScope.__app.dir = dir;
+	}
+
+	function setApplicationLanguage(key) {
+		if ($rootScope.__app.state !== 'ready') {
+			return;
+		}
+		// 0- set app local
+		$rootScope.__app.language = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	}
+
+	function setApplicationCalendar(key) {
+		// 0- set app local
+		$rootScope.__app.calendar = key;
+	}
+
+	function reload(){
+	//	/*
+	//	 * watch direction and update app.dir
+	//	 */
+	//	$rootScope.$watch(function() {
+	//		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
+	//	}, setApplicationDirection);
+	//
+	//	/*
+	//	 * watch local and update language
+	//	 */
+	//	$rootScope.$watch(function() {
+	//		// Check language
+	//		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
+	//	}, setApplicationLanguage);
+	//
+	//	/*
+	//	 * watch calendar
+	//	 */
+	//	$rootScope.$watch(function() {
+	//		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
+	//	}, setApplicationCalendar);
+	}
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		reload: reload
+	};
+
+	provider = {
+		$get: function() {
+			return service;
+		}
+	};
+	return provider;
 });

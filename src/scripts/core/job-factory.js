@@ -20,32 +20,52 @@
  * SOFTWARE.
  */
 
-
 /**
-@ngdoc Factories
-@name MbSidenav
-@description An action item
-
+ @ngdoc Factories
+ @name MbJob
+ @description A wrapper of Promise
+ 
  */
-angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer, $mdSidenav) {
+angular.module('mblowfish-core').factory('MbJob', function($mbJobs, $q, $injector, $mbCrypto) {
 
-	function MbSidenav(config) {
-		MbContainer.call(this, config);
-		return this;
-	};
-	// Circle derives from Shape
-	MbSidenav.prototype = Object.create(MbContainer.prototype);
+	STATE_WORKING = 'working';
+	STATE_FAILED = 'failed';
+	STATE_SUCCESS = 'success';
 
-	MbSidenav.prototype.render = function(locals) {
-		locals.$sidnav = this;
-		return MbContainer.prototype.render.call(this, locals);
+	function MbJob(configs) {
+		_.assign(this, configs);
+		this.id = $mbCrypto.uuid();
 	};
 
-	MbSidenav.prototype.toggle = function() {
-		$mdSidenav(this.url)
-			.toggle();
-		return this;
+	MbJob.prototype.then = function() {
+		this.promise.then.apply(this.promise, arguments);
 	};
 
-	return MbSidenav;
+	MbJob.prototype.finally = function() {
+		this.promise.finally.apply(this.promise, arguments);
+	};
+
+	MbJob.prototype.catch = function() {
+		this.promise.catch.apply(this.promise, arguments);
+	};
+
+	MbJob.prototype.schedule = function() {
+		var job = this;
+		$mbJobs.addJob(job);
+		job.state = STATE_WORKING;
+		return $q.when($injector.invoke(this.action))
+			.then(function() {
+				job.state = STATE_SUCCESS;
+			}, function() {
+				job.state = STATE_FAILED;
+			})
+			.finally(function() {
+				$mbJobs.removeJob(job);
+			});
+	};
+
+	MbJob.STATE_WORKING = STATE_WORKING;
+	MbJob.STATE_FAILED = STATE_FAILED;
+	MbJob.STATE_SUCCESS = STATE_SUCCESS;
+	return MbJob;
 });

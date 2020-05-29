@@ -36,30 +36,32 @@
  * 
  */
 
-angular.module('mblowfish-core', [ //
-	//	Angular
-	'ngMaterial',
-	'ngAnimate',
-	'ngCookies',
-	'ngSanitize', //
-	//	Seen
-	'seen-core',
-	'seen-user',
-	'seen-tenant',
-	'seen-cms',
-	'seen-monitor',
-	//	AM-WB
-	'am-wb-core',
-	//	Others
-	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'ng-appcache',//
-	'ngFileSaver',//
-	'mdSteppers',//
-	'angular-material-persian-datepicker',
-	'pascalprecht.translate',
-	'mdColorPicker',
-])
+
+var mbApplicationModule = angular
+	.module('mblowfish-core', [ //
+		//	Angular
+		'ngMaterial',
+		'ngAnimate',
+		'ngCookies',
+		'ngSanitize', //
+		//	Seen
+		'seen-core',
+		'seen-user',
+		'seen-tenant',
+		'seen-cms',
+		'seen-monitor',
+		//	AM-WB
+		'am-wb-core',
+		//	Others
+		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
+		'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
+		'ng-appcache',//
+		'ngFileSaver',//
+		'mdSteppers',//
+		'angular-material-persian-datepicker',
+		'pascalprecht.translate',
+		'mdColorPicker',
+	])
 	.config(function($mdThemingProvider) {
 		// Dark theme
 		$mdThemingProvider
@@ -79,23 +81,45 @@ angular.module('mblowfish-core', [ //
 
 		$mdThemingProvider.alwaysWatchTheme(true);
 	})
-	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window) {
+	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window, $mbEditor) {
 		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
-		/***************************************************************************
-		 * Mblowfish global service
-		 ***************************************************************************/
-		$window.mblowfish = (function($injector) {
-			this.extensions = [];
+		$mbEditor.registerEditor('/ui/notfound/:path*', {
+			template: '<h1>Not found</h1>'
+		});
 
-			/**
-			 * Enable an extionsion
-			 */
-			this.addExtension = function(loader) {
-				this.extensions.push(loader);
-				$injector.invoke(loader);
-			};
+		var extensions = $window.mblowfish.extensions;
+		$window.mblowfish.extensions = [];
 
-			return this;
-		})($injector);
+		/**
+		 * Enable an extionsion
+		 */
+		$window.mblowfish.addExtension = function(loader) {
+			$window.mblowfish.extensions.push(loader);
+			$injector.invoke(loader);
+		};
+
+		angular.forEach(extensions, function(ext) {
+			$window.mblowfish.addExtension(ext);
+		});
 	});
+
+/***************************************************************************
+ * Mblowfish global service
+ ***************************************************************************/
+window.mblowfish = {
+	extensions: [],
+	addExtension: function(loader) {
+		this.extensions.push(loader);
+	},
+	controller: function() {
+		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+	},
+	directive: function() {
+		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+	},
+	run: function() {
+		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+	}
+};
+

@@ -198,7 +198,7 @@
 
 angular.module('mblowfish-core').directive('mbView', function(
 	/* MB        */ $mbLayout, $mbRoute,
-	/* AngularJS */ $location, $dispatcher, $app, $q) {
+	/* AngularJS */ $location, $dispatcher, $mbApplication, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -215,7 +215,7 @@ angular.module('mblowfish-core').directive('mbView', function(
 
 		function checkApp() {
 			scope.$on('$mbRouteChangeSuccess', update);
-			if ($app.getState() === 'ready') {
+			if ($mbApplication.getState() === 'ready') {
 				$q.when(loadMainView())
 					.then(update());
 			}

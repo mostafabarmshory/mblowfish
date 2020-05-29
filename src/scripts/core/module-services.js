@@ -46,7 +46,7 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//	this.addGlobalModule = function(module1) {
 	//		this.loadModule(module1);
 	//		this.globalModules.push(module1);
-	//		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
+	//		$mbApplicaion.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
 	//		$mbDispatcher.dispatch('/app/global/modules', {
 	//			type: 'create',
 	//			values: [module1]
@@ -67,7 +67,7 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//
 	//		var index = this.globalModules.indexOf(targetModule);
 	//		this.globalModules.splice(index, 1);
-	//		$app.setProperty(GloGLOBAL_MODULE_KEY, this.globalModules);
+	//		$mbApplicaion.setProperty(GloGLOBAL_MODULE_KEY, this.globalModules);
 	//		$mbDispatcher.dispatch('/app/global/modules', {
 	//			type: 'delete',
 	//			values: [module1]
@@ -77,7 +77,7 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//	this.removeGlobalModules = function() {
 	//		var modules = this.globalModules;
 	//		this.globalModules = [];
-	//		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
+	//		$mbApplicaion.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
 	//		$mbDispatcher.dispatch('/app/global/modules', {
 	//			type: 'delete',
 	//			values: modules
@@ -92,7 +92,7 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//	this.addLocalModule = function(module1) {
 	//		this.loadModule(module1);
 	//		this.localModules.push(module1);
-	//		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+	//		$mbApplicaion.setProperty(LOCAL_MODULE_KEY, this.localModules);
 	//		$mbDispatcher.dispatch('/app/local/modules', {
 	//			type: 'create',
 	//			values: [module1]
@@ -102,7 +102,7 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//	this.removeLocalModules = function() {
 	//		var modules = this.localModules;
 	//		this.localModules = [];
-	//		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+	//		$mbApplicaion.setProperty(LOCAL_MODULE_KEY, this.localModules);
 	//		$mbDispatcher.dispatch('/app/local/modules', {
 	//			type: 'delete',
 	//			values: modules
@@ -123,7 +123,7 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//
 	//		var index = this.localModules.indexOf(targetModule);
 	//		this.localModules.splice(index, 1);
-	//		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
+	//		$mbApplicaion.setProperty(LOCAL_MODULE_KEY, this.localModules);
 	//		$mbDispatcher.dispatch('/app/local/modules', {
 	//			type: 'delete',
 	//			values: [module1]
@@ -153,8 +153,8 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	//	this.load = function() {
 	//		this._loaded = true;
 	//
-	//		this.localModules = $app.getProperty(LOCAL_MODULE_KEY) || [];
-	//		this.globalModules = $app.getProperty(GLOBAL_MODULE_KEY) || [];
+	//		this.localModules = $mbApplicaion.getProperty(LOCAL_MODULE_KEY) || [];
+	//		this.globalModules = $mbApplicaion.getProperty(GLOBAL_MODULE_KEY) || [];
 	//
 	//		var jobs = [];
 	//		var ctrl = this;
@@ -231,12 +231,12 @@ angular.module('mblowfish-core').provider('$mbModules', function() {
 	provider = {
 		/* @ngInject */
 		$get: function(
-			/* MBlowfish */ $app,
+			/* MBlowfish */ $mbApplicaion,
 			/* Angularjs */ $window, $q,
 			/* am-wb     */ $mbDispatcher, MbModule) {
 			q = $q;
 			window = $window;
-			mbApplication = $app;
+			mbApplication = $mbApplicaion;
 			mbDispatcher = $mbDispatcher;
 			Module = MbModule;
 

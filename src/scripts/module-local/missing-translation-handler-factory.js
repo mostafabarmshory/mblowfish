@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,24 +20,17 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Factories
- * @name httpRequestInterceptor
- * @description An interceptor to handle the error 401 of http response
- * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
- */
-.factory('MbHttpRequestInterceptor', function ($q, $injector) {
-	
-	var httpRequestInterceptor = function(){};
-	httpRequestInterceptor.prototype.responseError = function (rejection) {
-		var app = $injector.get('$app');
-		// do something on error
-		if (rejection.status === 401) {
-			app.logout();
-		}
-		return $q.reject(rejection);
+angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($rootScope) {
+	// has to return a function which gets a tranlation ID
+	return function(translationID) {
+//		var app = $rootScope.__app;
+//		//        var key = $language.use()
+//		if (!app.settings.languageMissIds) {
+//			app.settings.languageMissIds = [];
+//		}
+//		var index = app.settings.languageMissIds.indexOf(translationID);
+//		if (index === -1) {
+//			app.settings.languageMissIds.push(translationID);
+//		}
 	};
-	return httpRequestInterceptor;
 });

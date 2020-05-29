@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
+
 
 
 /**
@@ -29,44 +29,44 @@ angular.module('mblowfish-core')
  * @description Dashboard
  * 
  */
-.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $language) {
+mblowfish.controller('MbLanguageCtrl', function($scope, $rootScope, $http, $language) {
 
-	function init(){	
+	function init() {
 		$http.get('resources/languages.json')//
-		.then(function(res){
-			var data = res ? res.data : {};
-			$scope.languages = data.languages;
-//			$rootScope.app.config.languages = $scope.languages;
-		})
-//		$app.config('languages')//
-//		.then(function(langs){
-//			$scope.languages = langs;
-//			return langs;
-//		})//
-//		.then(function(){
-//			if(!$scope.languages){
-//				$http.get('resources/languages.json')//
-//				.then(function(res){
-//					var data = res ? res.data : {};
-//					$scope.languages = data.languages;
-//					$rootScope.app.config.languages = $scope.languages;
-//				});
-//			}
-//		})//
-		.finally(function(){	
-			var langKey =  $language.use();
-			if($scope.languages){				
-				for(var i=0 ; i<$scope.languages.length ; i++){				
-					if($scope.languages[i].key === langKey){
-						setLanguage($scope.languages[i]);
-						return;
+			.then(function(res) {
+				var data = res ? res.data : {};
+				$scope.languages = data.languages;
+				//			$rootScope.app.config.languages = $scope.languages;
+			})
+			//		$mbSettings.config('languages')//
+			//		.then(function(langs){
+			//			$scope.languages = langs;
+			//			return langs;
+			//		})//
+			//		.then(function(){
+			//			if(!$scope.languages){
+			//				$http.get('resources/languages.json')//
+			//				.then(function(res){
+			//					var data = res ? res.data : {};
+			//					$scope.languages = data.languages;
+			//					$rootScope.app.config.languages = $scope.languages;
+			//				});
+			//			}
+			//		})//
+			.finally(function() {
+				var langKey = $language.use();
+				if ($scope.languages) {
+					for (var i = 0; i < $scope.languages.length; i++) {
+						if ($scope.languages[i].key === langKey) {
+							setLanguage($scope.languages[i]);
+							return;
+						}
 					}
 				}
-			}
-		});
+			});
 	}
 
-	function setLanguage(lang){
+	function setLanguage(lang) {
 		$scope.myLanguage = lang;
 		// Load langauge
 		$rootScope.app.config.languages = [];
@@ -75,7 +75,7 @@ angular.module('mblowfish-core')
 		$language.use($scope.myLanguage.key);
 		// Set local
 		$rootScope.app.config.local = $rootScope.app.config.local || {};
-		if(!angular.isObject($rootScope.app.config.local)){
+		if (!angular.isObject($rootScope.app.config.local)) {
 			$rootScope.app.config.local = {};
 		}
 		$rootScope.app.config.local.language = $scope.myLanguage.key;

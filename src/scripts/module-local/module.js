@@ -20,38 +20,14 @@
  * SOFTWARE.
  */
 
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-user-menu
- * @restrict E
- * @description Display global user menu
- * 
- * Load current user action into the scope. It is used to show user menu
- * in several parts of the system.
- */
-.directive('mbUserMenu', function($mbActions, $app, $mdSidenav) {
-	/**
-	 * Post link 
-	 */
-	function postLink($scope) {
-		// maso, 2017: Get user menu
-		$scope.menu = $actions.group('mb.user');
-		$scope.logout = $app.logout;
-		$scope.settings = function(){
-			return $mdSidenav('settings').toggle();
-		};
-	}
-	
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: true,
-		templateUrl: 'views/directives/mb-user-menu.html',
-		link: postLink,
-		controller : 'MbAccountCtrl'
-	};
-});
+mblowfish
+	.run(function($rootScope) {
+		//		$rootScope.$watch(function() {
+		//			var localLanguage = $rootScope.app.setting.language;
+		//			var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
+		//			return localLanguage || confLanguage;
+		//		}, function(key) {
+		//			return $language.use(key);
+		//		});
+		//
+	});

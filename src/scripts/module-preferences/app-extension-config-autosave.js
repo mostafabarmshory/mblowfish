@@ -28,14 +28,14 @@
  * application and add more functionality. For example auto save
  * configuration is one of the application extension
  */
-angular.module('mblowfish-core').run(function($app, $dispatcher) {
+angular.module('mblowfish-core').run(function($mbSettings, $dispatcher, $mbApplication) {
 
     /*
      * Store application config if there is change
      */
 	function storeApplicationConfig(event) {
-		if (event.type === 'update' && $app.getState() === 'ready') {
-			$app.storeApplicationConfig();
+		if (event.type === 'update' && $mbApplication.getState() === 'ready') {
+			$mbSettings.save();
 		}
 	}
 

@@ -55,7 +55,17 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 
 	function addToolbar(toolbarId, toolbar) {
 		if (!(toolbar instanceof Toolbar)) {
-			toolbar = new Toolbar(toolbar);
+			toolbar = new Toolbar(_.assign(toolbar, {
+				url: toolbarId
+			}));
+		}
+		if(toolbars[toolbarId]){
+			// TODO: merge old toolbar with new one
+			// toolbar.merge(toolbars[toolbarId]);
+			var items = toolbars[toolbarId].items;
+			var titems = toolbar.items;
+			toolbar = _.assign(toolbar, toolbars[toolbarId]);
+			toolbar.items = _.concat(items, titems);
 		}
 		toolbars[toolbarId] = toolbar;
 		return toolbar;
@@ -72,6 +82,9 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 
 	function getToolbar(toolbarId) {
 		var toolbar = toolbars[toolbarId];
+		if(!toolbar){
+			return addToolbar(toolbarId, {});
+		}
 		return toolbar;
 	}
 
@@ -110,6 +123,7 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 				if (toolbarGroup) {
 					toolbarGroup.addToolbar(toolbar);
 				}
+				return this;
 			},
 			removeToolbar: function(toolbar) {
 				const index = toolbarGroupConfig.indexOf(toolbar);
@@ -119,6 +133,7 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 				if (toolbarGroup) {
 					toolbarGroup.removeToolbar(toolbar);
 				}
+				return this;
 			},
 			destroty: function() {
 				toolbarGroupsConfig[toolbarGroupId] = [];

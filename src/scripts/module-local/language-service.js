@@ -21,7 +21,7 @@
  */
 
 
-angular.module('mblowfish-core')
+
 
 /**
  * @ngdoc Services
@@ -32,7 +32,7 @@ angular.module('mblowfish-core')
  * Also provides functionlity to manage languages (add, remove or edit translations).
  * 
  */
-.service('$language', function ($rootScope, $q, $translate) {
+angular.module('mblowfish-core').service('$language', function($rootScope, $q, $translate) {
 
     /**
      * Returns language determined by given key.
@@ -42,18 +42,18 @@ angular.module('mblowfish-core')
      * @return {object}  Returns language with given key. 
      * @Returns 'undefined' if language does not exist or is not loaded yet.
      */
-    function language(key) {
-        var languages = $rootScope.app.config.languages;
-        if (!languages || !languages.length) {
-            return undefined;
-        }
-        for (var i = 0; i < languages.length; i++) {
-            if (languages[i].key === key) {
-                return languages[i];
-            }
-        }
-        return undefined;
-    }
+	function language(key) {
+		var languages = $rootScope.app.config.languages;
+		if (!languages || !languages.length) {
+			return undefined;
+		}
+		for (var i = 0; i < languages.length; i++) {
+			if (languages[i].key === key) {
+				return languages[i];
+			}
+		}
+		return undefined;
+	}
 
     /**
      * Returns list of defined and loaded languages.
@@ -61,16 +61,16 @@ angular.module('mblowfish-core')
      * @memberof $language
      * @return {promise<Array>} of languages
      */
-    function languages() {
-        var langs = $rootScope.app.config.languages;
-        var res = {items: langs || []};
-        return $q.when(res);
+	function languages() {
+		var langs = $rootScope.app.config.languages;
+		var res = { items: langs || [] };
+		return $q.when(res);
 
 
-//      var deferred = $q.defer();
-//deferred.resolve(res);
-//      return deferred.promise;
-    }
+		//      var deferred = $q.defer();
+		//deferred.resolve(res);
+		//      return deferred.promise;
+	}
 
     /**
      * Adds a new language
@@ -85,24 +85,24 @@ angular.module('mblowfish-core')
      * 
      * @memberof $language
      */
-    function newLanguage(lang) {
-        if (!$rootScope.__account.permissions.tenant_owner) {
-            return $q.reject('not allowed');
-        }
-        if (!$rootScope.app.config.languages) {
-            $rootScope.app.config.languages = [];
-        } else {
-            var languages = $rootScope.app.config.languages;
-            for (var i = 0; i < languages.length; i++) {
-                if (lang.key === languages[i].key) {
-                    return $q.reject('Sorry! Languages with the same key are not allowed.');
-                }
-            }
-        }
-        $rootScope.app.config.languages.push(lang);
-        $translate.refresh(lang.key);
-        return $q.resolve(lang);
-    }
+	function newLanguage(lang) {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return $q.reject('not allowed');
+		}
+		if (!$rootScope.app.config.languages) {
+			$rootScope.app.config.languages = [];
+		} else {
+			var languages = $rootScope.app.config.languages;
+			for (var i = 0; i < languages.length; i++) {
+				if (lang.key === languages[i].key) {
+					return $q.reject('Sorry! Languages with the same key are not allowed.');
+				}
+			}
+		}
+		$rootScope.app.config.languages.push(lang);
+		$translate.refresh(lang.key);
+		return $q.resolve(lang);
+	}
 
     /**
      * Delete a language
@@ -111,33 +111,33 @@ angular.module('mblowfish-core')
      * @param {object|string} lang - The Language to delete or key of language to delete
      * @return {promise} promise of deleted language
      */
-    function deleteLanguage(lang) {
-        if (!$rootScope.__account.permissions.tenant_owner) {
-            return $q.reject('not allowed');
-        }
-        var languages = $rootScope.app.config.languages;
-        if (!languages || !languages.length) {
-            return $q.reject('Not found');
-        }
-        var index = -1;
-        if (angular.isString(lang)) {
-            // lang is key of language
-            for (var i = 0; i < languages.length; i++) {
-                if (languages[i].key === lang) {
-                    index = i;
-                    break;
-                }
-            }
-        } else {
-            index = languages.indexOf(lang);
-        }
+	function deleteLanguage(lang) {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return $q.reject('not allowed');
+		}
+		var languages = $rootScope.app.config.languages;
+		if (!languages || !languages.length) {
+			return $q.reject('Not found');
+		}
+		var index = -1;
+		if (angular.isString(lang)) {
+			// lang is key of language
+			for (var i = 0; i < languages.length; i++) {
+				if (languages[i].key === lang) {
+					index = i;
+					break;
+				}
+			}
+		} else {
+			index = languages.indexOf(lang);
+		}
 
-        if (index !== -1) {
-            languages.splice(index, 1);
-            return $q.resolve(lang);
-        }
-        return $q.reject('Not found');
-    }
+		if (index !== -1) {
+			languages.splice(index, 1);
+			return $q.resolve(lang);
+		}
+		return $q.reject('Not found');
+	}
 
     /**
      * Returns the language key of language that is currently loaded asynchronously.
@@ -145,9 +145,9 @@ angular.module('mblowfish-core')
      * @memberof $language
      * @return {string} language key
      */
-    function proposedLanguage() {
-        return $translate.proposedLanguage();
-    }
+	function proposedLanguage() {
+		return $translate.proposedLanguage();
+	}
 
     /**
      * Tells angular-translate which language to use by given language key. This 
@@ -170,9 +170,9 @@ angular.module('mblowfish-core')
      * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
      * 
      */
-    function use(key) {
-        return $translate.use(key);
-    }
+	function use(key) {
+		return $translate.use(key);
+	}
 
     /**
      * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
@@ -198,20 +198,20 @@ angular.module('mblowfish-core')
      * @return {promise} Promise, which will be resolved in case a translation tables refreshing
      * process is finished successfully, and reject if not.
      */
-    function refresh(key) {
-        return $translate.refresh(key);
-    }
+	function refresh(key) {
+		return $translate.refresh(key);
+	}
 
     /*
      * Service struct
      */
-    return {
-        language: language,
-        languages: languages,
-        newLanguage: newLanguage,
-        deleteLanguage: deleteLanguage,
-        proposedLanguage: proposedLanguage,
-        refresh: refresh,
-        use: use
-    };
+	return {
+		language: language,
+		languages: languages,
+		newLanguage: newLanguage,
+		deleteLanguage: deleteLanguage,
+		proposedLanguage: proposedLanguage,
+		refresh: refresh,
+		use: use
+	};
 });

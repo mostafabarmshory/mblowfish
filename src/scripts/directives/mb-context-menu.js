@@ -23,25 +23,23 @@
  */
 
 
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Directives
  * @name mb-context-menu
  * @description Set internal md-menu as context menu
  * 
  */
-.directive('mbContextMenu', function() {
+angular.module('mblowfish-core').directive('mbContextMenu', function() {
 	return {
-		restrict : 'A',
-		require : 'mdMenu',
-		scope : true,
-		link : function(scope, element, attrs, menu) {
+		restrict: 'A',
+		require: 'mdMenu',
+		scope: true,
+		link: function(scope, element, attrs, menu) {
 			element.bind('contextmenu', function(event) {
-	            scope.$apply(function() {
+				scope.$apply(function() {
 					menu.open(event);
-	            });
-	        });
+				});
+			});
 		}
 	};
 });

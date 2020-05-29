@@ -34,8 +34,10 @@ angular.module('mblowfish-core').provider('$mbSidenav', function() {
 			if (!sidenav.isVisible()) {
 				// XXX: maso, 2020: 
 				// support left, right
-				// support locked
-				var element = angular.element('<md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="true"  md-whiteframe="4"></md-sidenav>');
+				var element = angular.element('<md-sidenav class="md-sidenav-left" ' +
+					' md-component-id="' + id + '"' +
+					'md-is-locked-open="' + sidenav.locked + '"' +
+					'md-whiteframe="4"></md-sidenav>');
 				// rootElement.append(element);
 				rootElement.prepend(element);
 				sidenav.render({
@@ -59,6 +61,10 @@ angular.module('mblowfish-core').provider('$mbSidenav', function() {
 		return service;
 	}
 
+	function getSidenav(sidenavId) {
+		return sidenavs[sidenavId];
+	}
+
 	function removeSidenav(sidenavId) {
 		var sidenav = sidenavs[sidenavId];
 		if (sidenav) {
@@ -76,6 +82,7 @@ angular.module('mblowfish-core').provider('$mbSidenav', function() {
 			loadSidenavs();
 
 			this.addSidenav = addSidenav;
+			this.getSidenav = getSidenav;
 			this.removeSidenav = removeSidenav;
 			this.setRootElement = function(element) {
 				rootElement = element;

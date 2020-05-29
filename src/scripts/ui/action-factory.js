@@ -35,16 +35,16 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window, MbComponent) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent) {
 
 	/* @ngInject */
-	var defaultActionController = function($element, $action){
-		$element.on('click', function($event){
+	var defaultActionController = function($element, $action) {
+		$element.on('click', function($event) {
 			$action.exec($event);
 		});
 	};
-	
-	
+
+
 	function Action(data) {
 		data = data || {};
 		data.isAction = true;
@@ -60,10 +60,6 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 	Action.prototype = Object.create(MbComponent.prototype);
 
 	Action.prototype.exec = function($event) {
-		//		if ($event) {
-		//			$event.stopPropagation();
-		//			$event.preventDefault();
-		//		}
 		if (this.alias) {
 			var actionId = this.actionId || this.id;
 			var $actions = $injector.get('$actions');
@@ -73,10 +69,12 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 			return $injector.invoke(this.action, this, {
 				$event: $event
 			});
-		} else if (this.url) {
-			return $navigator.openPage(this.url);
 		}
-		$window.alert('Action \'' + this.id + '\' is not executable!?')
+		if (this.url) {
+			return $location.url(this.url);
+		}
+		// TODO: maso, 2020: log to show the error
+		// $window.alert('Action \'' + this.id + '\' is not executable!?')
 	};
 
 	Action.prototype.render = function(locals) {
@@ -107,7 +105,7 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 		var element = locals.$element;
 		element.html(html);
 		element.addClass('mbAction')
-		
+
 		locals.$action = this;
 		return MbComponent.prototype.render.call(this, locals);
 	};

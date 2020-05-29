@@ -2001,30 +2001,32 @@ if (typeof exports == "object") {
  * 
  */
 
-angular.module('mblowfish-core', [ //
-	//	Angular
-	'ngMaterial',
-	'ngAnimate',
-	'ngCookies',
-	'ngSanitize', //
-	//	Seen
-	'seen-core',
-	'seen-user',
-	'seen-tenant',
-	'seen-cms',
-	'seen-monitor',
-	//	AM-WB
-	'am-wb-core',
-	//	Others
-	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'ng-appcache',//
-	'ngFileSaver',//
-	'mdSteppers',//
-	'angular-material-persian-datepicker',
-	'pascalprecht.translate',
-	'mdColorPicker',
-])
+
+var module = angular
+	.module('mblowfish-core', [ //
+		//	Angular
+		'ngMaterial',
+		'ngAnimate',
+		'ngCookies',
+		'ngSanitize', //
+		//	Seen
+		'seen-core',
+		'seen-user',
+		'seen-tenant',
+		'seen-cms',
+		'seen-monitor',
+		//	AM-WB
+		'am-wb-core',
+		//	Others
+		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
+		'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
+		'ng-appcache',//
+		'ngFileSaver',//
+		'mdSteppers',//
+		'angular-material-persian-datepicker',
+		'pascalprecht.translate',
+		'mdColorPicker',
+	])
 	.config(function($mdThemingProvider) {
 		// Dark theme
 		$mdThemingProvider
@@ -2044,26 +2046,48 @@ angular.module('mblowfish-core', [ //
 
 		$mdThemingProvider.alwaysWatchTheme(true);
 	})
-	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window) {
+	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window, $mbEditor) {
 		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
-		/***************************************************************************
-		 * Mblowfish global service
-		 ***************************************************************************/
-		$window.mblowfish = (function($injector) {
-			this.extensions = [];
+		$mbEditor.registerEditor('/ui/notfound/:path*', {
+			template: '<h1>Not found</h1>'
+		});
 
-			/**
-			 * Enable an extionsion
-			 */
-			this.addExtension = function(loader) {
-				this.extensions.push(loader);
-				$injector.invoke(loader);
-			};
+		var extensions = $window.mblowfish.extensions;
+		$window.mblowfish.extensions = [];
 
-			return this;
-		})($injector);
+		/**
+		 * Enable an extionsion
+		 */
+		$window.mblowfish.addExtension = function(loader) {
+			$window.mblowfish.extensions.push(loader);
+			$injector.invoke(loader);
+		};
+
+		angular.forEach(extensions, function(ext) {
+			$window.mblowfish.addExtension(ext);
+		});
 	});
+
+/***************************************************************************
+ * Mblowfish global service
+ ***************************************************************************/
+window.mblowfish = {
+	extensions: [],
+	addExtension: function(loader) {
+		this.extensions.push(loader);
+	},
+	controller: function() {
+		module.controller.apply(module, arguments);
+	},
+	directive: function() {
+		module.directive.apply(module, arguments);
+	},
+	run: function() {
+		module.run.apply(module, arguments);
+	}
+};
+
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3528,10 +3552,6 @@ angular.module('mblowfish-core')
  */
 
 
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
@@ -3545,18 +3565,18 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    
+angular.module('mblowfish-core').controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $window) {
 
-    /*
-     * Extends collection controller from MbAbstractCtrl 
-     */
-    angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
-        $scope : $scope
-    }));
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
+	 */
+	angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
+		$scope: $scope
+	}));
 
 	// Messages
-    var DELETE_MODEL_BINARY_MESSAGE = 'Delete binary content?';
+	var DELETE_MODEL_BINARY_MESSAGE = 'Delete binary content?';
 	var IMPLEMENT_BY_CHILDREN_ERROR = 'This method must be override in clild class';
 
 	// -------------------------------------------------------------------------
@@ -3575,10 +3595,10 @@ angular.module('mblowfish-core')//
 	 * @return promise to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.deleteModelBinary = function(item){
+	this.deleteModelBinary = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
-	
+
 	/**
 	 * Upload model binary
 	 * 
@@ -3586,10 +3606,10 @@ angular.module('mblowfish-core')//
 	 * @return promise to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.uploadModelBinary = function(item){
+	this.uploadModelBinary = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
-	
+
 	/**
 	 * Get model binary path
 	 * 
@@ -3597,49 +3617,49 @@ angular.module('mblowfish-core')//
 	 * @return promise to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getModelBinaryUrl = function(item){
+	this.getModelBinaryUrl = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
-	
-	
-    
-    // -------------------------------------------------------------------------
-    // View
-    //
-    //
-    //
-    //
-    //
-    //
-    // -------------------------------------------------------------------------
-    this.itemUrl;
 
-    /**
-     * Sets itemUrl to view
-     * 
-     * @memberof SeenAbstractBinaryItemCtrl
-     */
-    this.setItemUrl = function(itemUrl) {
-        this.itemUrl = itemUrl;
-    };
-    
-    /**
-     * Get view itemUrl
-     * 
-     * @memberof SeenAbstractBinaryItemCtrl
-     */
-    this.getItemUrl = function(){
-    	return this.itemUrl;
-    };
 
-    /**
-     * Deletes item binary file
-     * 
-     * @memberof SeenAbstractBinaryItemCtrl
-     */
-    this.deleteItemBinary = function(){
-    	// prevent default event
-		if($event){
+
+	// -------------------------------------------------------------------------
+	// View
+	//
+	//
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
+	this.itemUrl;
+
+	/**
+	 * Sets itemUrl to view
+	 * 
+	 * @memberof SeenAbstractBinaryItemCtrl
+	 */
+	this.setItemUrl = function(itemUrl) {
+		this.itemUrl = itemUrl;
+	};
+
+	/**
+	 * Get view itemUrl
+	 * 
+	 * @memberof SeenAbstractBinaryItemCtrl
+	 */
+	this.getItemUrl = function() {
+		return this.itemUrl;
+	};
+
+	/**
+	 * Deletes item binary file
+	 * 
+	 * @memberof SeenAbstractBinaryItemCtrl
+	 */
+	this.deleteItemBinary = function() {
+		// prevent default event
+		if ($event) {
 			$event.preventDefault();
 			$event.stopPropagation();
 		}
@@ -3650,41 +3670,41 @@ angular.module('mblowfish-core')//
 		function _deleteInternal() {
 			ctrl.busy = true;
 			return ctrl.getModelBinaryUrl(item)
-			.then(function(){
-				ctrl.fireDeleted(ctrl.getModelBinaryUrl(item), item);
-			}, function(){
-				// XXX: maso, 2019: handle error
-			})
-			.finally(function(){
-				ctrl.busy = false;
-			});
+				.then(function() {
+					ctrl.fireDeleted(ctrl.getModelBinaryUrl(item), item);
+				}, function() {
+					// XXX: maso, 2019: handle error
+				})
+				.finally(function() {
+					ctrl.busy = false;
+				});
 		}
-		
+
 		// TODO: maso, 2018: get current promise
 		// delete the item
-		if(this.isConfirmationRequired()){
+		if (this.isConfirmationRequired()) {
 			$window.confirm(DELETE_MODEL_BINARY_MESSAGE)
-			.then(function(){
-				return _deleteInternal();
-			});
+				.then(function() {
+					return _deleteInternal();
+				});
 		} else {
 			return _deleteInternal();
 		}
-    };
+	};
 
-    /*
-     * Extends init method
-     */
-    this.supperInit = this.init;
-    this.init = function(config){
+	/*
+	 * Extends init method
+	 */
+	this.supperInit = this.init;
+	this.init = function(config) {
 		var ctrl = this;
-		if(!angular.isDefined(configs)){
+		if (!angular.isDefined(configs)) {
 			return;
 		}
 		this.setItemUrl(config.url);
 		this.supperInit(config);
-    };
-    
+	};
+
 });
 
 /*
@@ -3744,7 +3764,7 @@ angular.module('mblowfish-core')//
  */
 angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator,
 	$log,
-	$window, QueryParameter, Action) {
+	$window, QueryParameter, MbAction) {
 
 
     /*
@@ -4221,8 +4241,8 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
 			this.actions = [];
 		}
 		// TODO: maso, 2018: assert the action is MbAction
-		if (!(action instanceof Action)) {
-			action = new Action(action);
+		if (!(action instanceof MbAction)) {
+			action = new MbAction(action);
 		}
 		this.actions.push(action);
 		return this;
@@ -4359,7 +4379,7 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
  */
 angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 	/* AngularJS  */ $scope, $controller, $q, $window,
-	/* MBlowfish  */ $navigator, QueryParameter, Action,
+	/* MBlowfish  */ 
 	/* ngRoute    */ $mbRouteParams) {
 
 
@@ -5631,6 +5651,21 @@ angular.module('mblowfish-core').service('$app', function(
 ) {
 
 
+	/***************************************************************************
+	 * applicaiton data
+	 **************************************************************************/
+	var appConfigurationContent;
+	var stateMachine;
+
+	// Constants
+	var APP_CNF_MIMETYPE = 'application/amd-cnf';
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
+	var TENANT_GRAPHQL = '{id,title,description,' +
+		'account' + USER_DETAIL_GRAPHQL +
+		'configurations{key,value}' +
+		'settings{key,value}' +
+		'}';
+
 	//	/*
 	//	 * Extends application to be observable
 	//	 */
@@ -5675,22 +5710,8 @@ angular.module('mblowfish-core').service('$app', function(
 	}
 
 	/***************************************************************************
-	 * applicaiton data
+	 * functions
 	 **************************************************************************/
-	var appConfigurationContent = null;
-
-	// the state machine
-	var stateMachine;
-
-	// Constants
-	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-	var TENANT_GRAPHQL = '{id,title,description,' +
-		'account' + USER_DETAIL_GRAPHQL +
-		'configurations{key,value}' +
-		'settings{key,value}' +
-		'}';
-
 
 	/**
 	 * Handles internal service events
@@ -6000,7 +6021,7 @@ angular.module('mblowfish-core').service('$app', function(
 		 * 
 		 * TODO: 'key' of app should be used $mbStorage,.setPrefix(key);
 		 */
-		var settings =  $mbStorage.$default({
+		var settings = $mbStorage.$default({
 			dashboardModel: {}
 		});
 		return $q.resolve(settings)
@@ -6267,10 +6288,10 @@ angular.module('mblowfish-core').service('$app', function(
 
 	function start(key) {
 		/***************************************************************************
-	 * New app state
-	 * 
-	 * Application state is saved in the root scope
-	 **************************************************************************/
+		 * New app state
+		 * 
+		 * Application state is saved in the root scope
+		 **************************************************************************/
 		/*
 		 * Store application state
 		 */
@@ -6358,6 +6379,13 @@ angular.module('mblowfish-core').service('$app', function(
 		var key = 'demo';
 		var autoloadConfigs = false;
 		var autosaveConfigs = false;
+		var preloadingEnabled = false;
+		var preloadingFrame = {
+			templateUrl: 'views/mb-application-preloading.html',
+			controller: 'MbApplicationPreloadingContainerCtrl',
+			controllerAs: 'ctrl',
+		};
+		var logingRequired = false;
 
 
 		function setKey(appkey) {
@@ -6391,16 +6419,49 @@ angular.module('mblowfish-core').service('$app', function(
 			return autosaveConfigs;
 		}
 
+		function setPreloadingEnabled(flag) {
+			preloadingEnabled = flag;
+			return provider;
+		}
+
+		function isPreloadingEnabled() {
+			return preloadingEnabled;
+		}
+
+		function setPreloadingFrame(frame) {
+			preloadingFrame = frame;
+			return provider;
+		}
+
+		function getPreloadingFrame() {
+			return preloadingFrame;
+		}
+
+		function setLogingRequired(flag) {
+			logingRequired = flag;
+			return provider;
+		}
+
+		function isLoginRequired() {
+			return logingRequired;
+		}
+
 		service = {
 			getKey: getKey,
 			isAutoloadConfigs: isAutoloadConfigs,
 			isAutosaveConfigs: isAutosaveConfigs,
+			isPreloadingEnabled: isPreloadingEnabled,
+			getPreloadingFrame: getPreloadingFrame,
+			isLoginRequired: isLoginRequired,
 		};
 		provider = {
 			$get: serviceFactory,
 			setKey: setKey,
 			setAutoloadConfigs: setAutoloadConfigs,
-			setAutosaveConfigs: setAutosaveConfigs
+			setAutosaveConfigs: setAutosaveConfigs,
+			setPreloadingEnabled: setPreloadingEnabled,
+			setPreloadingFrame: setPreloadingFrame,
+			setLogingRequired: setLogingRequired,
 		};
 		return provider;
 	});
@@ -11885,12 +11946,12 @@ angular.module('mblowfish-core').run(function(
 		items: ['mb.iframe.open']
 	});
 
-	//-----------------------------------------------------------------------
-	//  Adds iframe toolbar into the main toolbar group. Note that, this 
-	// must handle in the final application.
-	//-----------------------------------------------------------------------
-	$mbToolbar.getToolbarGroup()
-		.addToolbar('/mb/iframe');
+//	//-----------------------------------------------------------------------
+//	//  Adds iframe toolbar into the main toolbar group. Note that, this 
+//	// must handle in the final application.
+//	//-----------------------------------------------------------------------
+//	$mbToolbar.getToolbarGroup()
+//		.addToolbar('/mb/iframe');
 });
 
 /*
@@ -18463,7 +18524,20 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 				state);    // parameters
 		}
 		if (_.isUndefined(component)) {
-			component = $mbEditor.open('/mb/notfound/' + state.url);
+			$mbEditor = injector.get('$mbEditor');
+			component = $mbEditor.fetch(
+				'/ui/notfound/' + state.url, // path
+				state);                      // parameters
+			// TODO: add the editor
+			//		$mbEditor
+			//			.add('/mb/notfound/:path*', {
+			//				template: '<h1>Path not found</h1><p>path: {{:path}}</p>',
+			//				anchore: 'editors',
+			//				/* @ngInject */
+			//				controller: function($scope, $state) {
+			//					$scope.path = $state.params.path;
+			//				},
+			//			});
 		}
 
 		// discannect all resrouces
@@ -18537,8 +18611,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			//General
 			content: [],
 			id: component.url,
-			//			width: 30,
-			//			height: 30,
 			isClosable: true,
 			title: component.title,
 			activeItemIndex: 1
@@ -19861,7 +19933,7 @@ angular.module('mblowfish-core').directive('mbSidenavs', function($mbSidenav) {
 @description An action item
 
  */
-angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer) {
+angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer, $mdSidenav) {
 
 	function MbSidenav(config) {
 		MbContainer.call(this, config);
@@ -19869,10 +19941,16 @@ angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer) {
 	};
 	// Circle derives from Shape
 	MbSidenav.prototype = Object.create(MbContainer.prototype);
-	
-	MbSidenav.prototype.render = function(locals){
+
+	MbSidenav.prototype.render = function(locals) {
 		locals.$sidnav = this;
 		return MbContainer.prototype.render.call(this, locals);
+	};
+
+	MbSidenav.prototype.toggle = function() {
+		$mdSidenav(this.url)
+			.toggle();
+		return this;
 	};
 
 	return MbSidenav;
@@ -19914,8 +19992,10 @@ angular.module('mblowfish-core').provider('$mbSidenav', function() {
 			if (!sidenav.isVisible()) {
 				// XXX: maso, 2020: 
 				// support left, right
-				// support locked
-				var element = angular.element('<md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="true"  md-whiteframe="4"></md-sidenav>');
+				var element = angular.element('<md-sidenav class="md-sidenav-left" ' +
+					' md-component-id="' + id + '"' +
+					'md-is-locked-open="' + sidenav.locked + '"' +
+					'md-whiteframe="4"></md-sidenav>');
 				// rootElement.append(element);
 				rootElement.prepend(element);
 				sidenav.render({
@@ -19939,6 +20019,10 @@ angular.module('mblowfish-core').provider('$mbSidenav', function() {
 		return service;
 	}
 
+	function getSidenav(sidenavId) {
+		return sidenavs[sidenavId];
+	}
+
 	function removeSidenav(sidenavId) {
 		var sidenav = sidenavs[sidenavId];
 		if (sidenav) {
@@ -19956,6 +20040,7 @@ angular.module('mblowfish-core').provider('$mbSidenav', function() {
 			loadSidenavs();
 
 			this.addSidenav = addSidenav;
+			this.getSidenav = getSidenav;
 			this.removeSidenav = removeSidenav;
 			this.setRootElement = function(element) {
 				rootElement = element;
@@ -20316,6 +20401,7 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				}).then(function(handler) {
 					ctrl.handlers[toolbar.url] = handler;
 				});
+				return this;
 			};
 
 			this.removeToolbar = function(toolbar) {
@@ -20325,11 +20411,12 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				}
 				if (_.isUndefined(this.handler[url])) {
 					// TODO: maso, 2020: toolbar not exist, add a warning log
-					return;
+					return this;
 				}
 				var handler = this.handler[url];
 				delete this.handler[url];
 				handler.destroy();
+				return this;
 			};
 
 			this.destoy = function() {
@@ -20405,7 +20492,17 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 
 	function addToolbar(toolbarId, toolbar) {
 		if (!(toolbar instanceof Toolbar)) {
-			toolbar = new Toolbar(toolbar);
+			toolbar = new Toolbar(_.assign(toolbar, {
+				url: toolbarId
+			}));
+		}
+		if(toolbars[toolbarId]){
+			// TODO: merge old toolbar with new one
+			// toolbar.merge(toolbars[toolbarId]);
+			var items = toolbars[toolbarId].items;
+			var titems = toolbar.items;
+			toolbar = _.assign(toolbar, toolbars[toolbarId]);
+			toolbar.items = _.concat(items, titems);
 		}
 		toolbars[toolbarId] = toolbar;
 		return toolbar;
@@ -20422,6 +20519,9 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 
 	function getToolbar(toolbarId) {
 		var toolbar = toolbars[toolbarId];
+		if(!toolbar){
+			return addToolbar(toolbarId, {});
+		}
 		return toolbar;
 	}
 
@@ -20460,6 +20560,7 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 				if (toolbarGroup) {
 					toolbarGroup.addToolbar(toolbar);
 				}
+				return this;
 			},
 			removeToolbar: function(toolbar) {
 				const index = toolbarGroupConfig.indexOf(toolbar);
@@ -20469,6 +20570,7 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 				if (toolbarGroup) {
 					toolbarGroup.removeToolbar(toolbar);
 				}
+				return this;
 			},
 			destroty: function() {
 				toolbarGroupsConfig[toolbarGroupId] = [];
@@ -21017,6 +21119,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
     "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <wb-icon class=material-icons>keyboard_arrow_down</wb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <wb-icon ng-if=item.icon>{{item.icon}}</wb-icon> <span ng-if=item.title>{{item.title | translate}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout();>{{'Logout' | translate}}</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+  );
+
+
+  $templateCache.put('views/mb-application-preloading.html',
+    "<div> Loading ... </div>"
   );
 
 

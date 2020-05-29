@@ -100,12 +100,9 @@
 	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/app.js"></script>
 	<script src="scripts/controllers/abstract-ctrl.js"></script>
-	<script src="scripts/controllers/account.js"></script>
-	<script src="scripts/controllers/dashboard.js"></script>
 	<script src="scripts/controllers/help.js"></script>
 	<script src="scripts/controllers/initial.js"></script>
 	<script src="scripts/controllers/languages.js"></script>
-	<script src="scripts/controllers/mb-language.js"></script>
 	<script src="scripts/controllers/mb-local.js"></script>
 	<script src="scripts/controllers/navigator-dialog.js"></script>
 	<script src="scripts/controllers/options.js"></script>
@@ -126,6 +123,7 @@
 	<script src="scripts/controllers/seen-user-roles.js"></script>
 	<script src="scripts/controllers/themes.js"></script>
 	<script src="scripts/controllers/toolbar-dashboard.js"></script>
+	<script src="scripts/core/account-service.js"></script>
 	<script src="scripts/core/angular-hack-configs.js"></script>
 	<script src="scripts/core/application-service.js"></script>
 	<script src="scripts/core/clipboard-service.js"></script>
@@ -133,7 +131,8 @@
 	<script src="scripts/core/crypto-service.js"></script>
 	<script src="scripts/core/dispatcher.js"></script>
 	<script src="scripts/core/event-factory.js"></script>
-	<script src="scripts/core/http-interceptor-factory.js"></script>
+	<script src="scripts/core/job-factory.js"></script>
+	<script src="scripts/core/job-service.js"></script>
 	<script src="scripts/core/local-configs.js"></script>
 	<script src="scripts/core/local-currency-filter.js"></script>
 	<script src="scripts/core/local-date-filter.js"></script>
@@ -142,9 +141,12 @@
 	<script src="scripts/core/logger-service.js"></script>
 	<script src="scripts/core/module-factory.js"></script>
 	<script src="scripts/core/module-services.js"></script>
+	<script src="scripts/core/network-http-interceptor-factory.js"></script>
 	<script src="scripts/core/resource-service.js"></script>
 	<script src="scripts/core/selection-service.js"></script>
+	<script src="scripts/core/settings-service.js"></script>
 	<script src="scripts/core/storage-service.js"></script>
+	<script src="scripts/core/tenant-services.js"></script>
 	<script src="scripts/core/theming-service.js"></script>
 	<script src="scripts/core/util-service.js"></script>
 	<script src="scripts/directives/compare-to.js"></script>
@@ -163,7 +165,6 @@
 	<script src="scripts/directives/mb-preference-page.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-titled-block.js"></script>
-	<script src="scripts/directives/mb-user-menu.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
 	<script src="scripts/directives/ng-src-error.js"></script>
 	<script src="scripts/directives/wb-on-dragstart.js"></script>
@@ -179,8 +180,14 @@
 	<script src="scripts/expan/expansionPanelGroupService.js"></script>
 	<script src="scripts/expan/expansionPanelHeaderDirective.js"></script>
 	<script src="scripts/expan/expansionPanelService.js"></script>
+	<script src="scripts/module-account/account.js"></script>
+	<script src="scripts/module-account/mb-account-actions-ctrl.js"></script>
 	<script src="scripts/module-iframe/IFrameContainerCtrl.js"></script>
 	<script src="scripts/module-iframe/module.js"></script>
+	<script src="scripts/module-local/language-service.js"></script>
+	<script src="scripts/module-local/mb-language.js"></script>
+	<script src="scripts/module-local/missing-translation-handler-factory.js"></script>
+	<script src="scripts/module-local/module.js"></script>
 	<script src="scripts/module-moduleManager/controllers.js"></script>
 	<script src="scripts/module-moduleManager/run-actions.js"></script>
 	<script src="scripts/module-moduleManager/run-options.js"></script>
@@ -192,7 +199,6 @@
 	<script src="scripts/runs/app.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
-	<script src="scripts/runs/language.js"></script>
 	<script src="scripts/runs/preferences.js"></script>
 	<script src="scripts/runs/resources-lang.js"></script>
 	<script src="scripts/runs/resources.js"></script>
@@ -203,8 +209,6 @@
 	<script src="scripts/services/notification.js"></script>
 	<script src="scripts/services/options.js"></script>
 	<script src="scripts/services/preferences.js"></script>
-	<script src="scripts/translator/language-service.js"></script>
-	<script src="scripts/translator/missing-translation-handler-factory.js"></script>
 	<script src="scripts/ui-components/html-unsafe-filter.js"></script>
 	<script src="scripts/ui-components/icon-directive.js"></script>
 	<script src="scripts/ui-components/icon-servic.js"></script>
@@ -268,13 +272,11 @@
 		<mb-toolbar-group
 			mb-url="/app/main"
 			mb-toolbars="['/app/demo', '/app/io']">
-			This is a toolbar
 		</mb-toolbar-group>
 		<mb-view
 			mb-mode="docker"></mb-view>
 		<mb-status
 			mb-url="/app/main">
-			This is status
 		</mb-status>
 	</main>
 </body>

@@ -217,7 +217,20 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 				state);    // parameters
 		}
 		if (_.isUndefined(component)) {
-			component = $mbEditor.open('/mb/notfound/' + state.url);
+			$mbEditor = injector.get('$mbEditor');
+			component = $mbEditor.fetch(
+				'/ui/notfound/' + state.url, // path
+				state);                      // parameters
+			// TODO: add the editor
+			//		$mbEditor
+			//			.add('/mb/notfound/:path*', {
+			//				template: '<h1>Path not found</h1><p>path: {{:path}}</p>',
+			//				anchore: 'editors',
+			//				/* @ngInject */
+			//				controller: function($scope, $state) {
+			//					$scope.path = $state.params.path;
+			//				},
+			//			});
 		}
 
 		// discannect all resrouces
@@ -291,8 +304,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			//General
 			content: [],
 			id: component.url,
-			//			width: 30,
-			//			height: 30,
 			isClosable: true,
 			title: component.title,
 			activeItemIndex: 1

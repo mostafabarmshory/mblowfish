@@ -21,10 +21,6 @@
  */
 
 
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
 
 /**
  * @ngdoc Controllers
@@ -38,18 +34,18 @@ angular.module('mblowfish-core')//
  * - controller
  * 
  */
-.controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $navigator, $window, QueryParameter, Action) {
-    
+angular.module('mblowfish-core').controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $window) {
 
-    /*
-     * Extends collection controller from MbAbstractCtrl 
-     */
-    angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
-        $scope : $scope
-    }));
+
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
+	 */
+	angular.extend(this, $controller('MbSeenAbstractItemCtrl', {
+		$scope: $scope
+	}));
 
 	// Messages
-    var DELETE_MODEL_BINARY_MESSAGE = 'Delete binary content?';
+	var DELETE_MODEL_BINARY_MESSAGE = 'Delete binary content?';
 	var IMPLEMENT_BY_CHILDREN_ERROR = 'This method must be override in clild class';
 
 	// -------------------------------------------------------------------------
@@ -68,10 +64,10 @@ angular.module('mblowfish-core')//
 	 * @return promise to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.deleteModelBinary = function(item){
+	this.deleteModelBinary = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
-	
+
 	/**
 	 * Upload model binary
 	 * 
@@ -79,10 +75,10 @@ angular.module('mblowfish-core')//
 	 * @return promise to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.uploadModelBinary = function(item){
+	this.uploadModelBinary = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
-	
+
 	/**
 	 * Get model binary path
 	 * 
@@ -90,49 +86,49 @@ angular.module('mblowfish-core')//
 	 * @return promise to delete item
 	 * @memberof SeenAbstractItemCtrl
 	 */
-	this.getModelBinaryUrl = function(item){
+	this.getModelBinaryUrl = function(item) {
 		return $q.reject(IMPLEMENT_BY_CHILDREN_ERROR);
 	};
-	
-	
-    
-    // -------------------------------------------------------------------------
-    // View
-    //
-    //
-    //
-    //
-    //
-    //
-    // -------------------------------------------------------------------------
-    this.itemUrl;
 
-    /**
-     * Sets itemUrl to view
-     * 
-     * @memberof SeenAbstractBinaryItemCtrl
-     */
-    this.setItemUrl = function(itemUrl) {
-        this.itemUrl = itemUrl;
-    };
-    
-    /**
-     * Get view itemUrl
-     * 
-     * @memberof SeenAbstractBinaryItemCtrl
-     */
-    this.getItemUrl = function(){
-    	return this.itemUrl;
-    };
 
-    /**
-     * Deletes item binary file
-     * 
-     * @memberof SeenAbstractBinaryItemCtrl
-     */
-    this.deleteItemBinary = function(){
-    	// prevent default event
-		if($event){
+
+	// -------------------------------------------------------------------------
+	// View
+	//
+	//
+	//
+	//
+	//
+	//
+	// -------------------------------------------------------------------------
+	this.itemUrl;
+
+	/**
+	 * Sets itemUrl to view
+	 * 
+	 * @memberof SeenAbstractBinaryItemCtrl
+	 */
+	this.setItemUrl = function(itemUrl) {
+		this.itemUrl = itemUrl;
+	};
+
+	/**
+	 * Get view itemUrl
+	 * 
+	 * @memberof SeenAbstractBinaryItemCtrl
+	 */
+	this.getItemUrl = function() {
+		return this.itemUrl;
+	};
+
+	/**
+	 * Deletes item binary file
+	 * 
+	 * @memberof SeenAbstractBinaryItemCtrl
+	 */
+	this.deleteItemBinary = function() {
+		// prevent default event
+		if ($event) {
 			$event.preventDefault();
 			$event.stopPropagation();
 		}
@@ -143,39 +139,39 @@ angular.module('mblowfish-core')//
 		function _deleteInternal() {
 			ctrl.busy = true;
 			return ctrl.getModelBinaryUrl(item)
-			.then(function(){
-				ctrl.fireDeleted(ctrl.getModelBinaryUrl(item), item);
-			}, function(){
-				// XXX: maso, 2019: handle error
-			})
-			.finally(function(){
-				ctrl.busy = false;
-			});
+				.then(function() {
+					ctrl.fireDeleted(ctrl.getModelBinaryUrl(item), item);
+				}, function() {
+					// XXX: maso, 2019: handle error
+				})
+				.finally(function() {
+					ctrl.busy = false;
+				});
 		}
-		
+
 		// TODO: maso, 2018: get current promise
 		// delete the item
-		if(this.isConfirmationRequired()){
+		if (this.isConfirmationRequired()) {
 			$window.confirm(DELETE_MODEL_BINARY_MESSAGE)
-			.then(function(){
-				return _deleteInternal();
-			});
+				.then(function() {
+					return _deleteInternal();
+				});
 		} else {
 			return _deleteInternal();
 		}
-    };
+	};
 
-    /*
-     * Extends init method
-     */
-    this.supperInit = this.init;
-    this.init = function(config){
+	/*
+	 * Extends init method
+	 */
+	this.supperInit = this.init;
+	this.init = function(config) {
 		var ctrl = this;
-		if(!angular.isDefined(configs)){
+		if (!angular.isDefined(configs)) {
 			return;
 		}
 		this.setItemUrl(config.url);
 		this.supperInit(config);
-    };
-    
+	};
+
 });

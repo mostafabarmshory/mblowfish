@@ -19,19 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
 
-angular.module('mblowfish-core').run(function($rootScope, $language) {
-	
-	/*
-	 * Lesson on page
+/**
+ * @ngdoc Directives
+ * @name mb-user-menu
+ * @restrict E
+ * @description Display global user menu
+ * 
+ * Load current user action into the scope. It is used to show user menu
+ * in several parts of the system.
+ */
+angular.module('mblowfish-core').directive('mbUserMenu', function($mbAccount, $mdSidenav) {
+	/**
+	 * Post link 
 	 */
-	$rootScope.$watch(function(){
-		var localLanguage = $rootScope.app.setting.language;
-		var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
-		return localLanguage || confLanguage;
-	}, function(key){
-		return $language.use(key);
-	});
-	
+	function postLink($scope) {
+		// maso, 2017: Get user menu
+		$scope.menu = $actions.group('mb.user');
+		$scope.logout = $mbAccount.logout;
+		$scope.settings = function() {
+			return $mdSidenav('settings').toggle();
+		};
+	}
+
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: true,
+		templateUrl: 'views/directives/mb-user-menu.html',
+		link: postLink,
+		controller: 'MbAccountCtrl'
+	};
 });

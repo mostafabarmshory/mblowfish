@@ -23,7 +23,7 @@
 ///**
 // * Manages system moduels
 // */
-//angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $app) {
+//angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $mbApplication) {
 //	$mbActions.addAction({
 //		id: 'mb.app.local.modules.create',
 //		type: 'action',
@@ -84,7 +84,7 @@
 //				style: {},
 //			}).then(function(modules) {
 //				$modules.addGlobalModule(modules[0]);
-//				return $app.storeApplicationConfig();
+//				return $mbApplication.storeApplicationConfig();
 //			});
 //		},
 //		groups: []
@@ -105,7 +105,7 @@
 //					_.forEach($event.modules, function(module1) {
 //						$modules.removeGlobalModule(module1);
 //					});
-//					return $app.storeApplicationConfig();
+//					return $mbApplication.storeApplicationConfig();
 //				});
 //		},
 //		groups: []
