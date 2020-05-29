@@ -46,9 +46,13 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	var provider;
 	var service;
 	var q;
-	var injector;
 	var dispatcher;
 
+
+
+	//-------------------------------------------------
+	// Common jobs
+	//-------------------------------------------------
 	var loadSettingsJob = {
 		title: 'Loading Application Settings',
 		/* @ngInject */
@@ -79,7 +83,29 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		action: function() {
 
 		}
-	}
+	};
+
+	var loadPreloadingContainer = {
+		title: 'Load Preloading View',
+		/* @ngInject */
+		action: function(MbComponent, $rootElement) {
+			element = angular.element('<mb-preloading-panel></mb-preloading-panel>');
+			$rootElement.append(element);
+
+			preloadingComponent = new MbComponent(preloadingComponentConfig);
+			return preloadingComponent.render({
+				$element: element
+			});
+		}
+	};
+
+	var removePreloadingContainer = {
+		title: 'Remove Preloading View',
+		/* @ngInject */
+		action: function() {
+			preloadingComponent.destroy();
+		}
+	};
 
 	//-------------------------------------------------
 	// Local Variables
@@ -103,8 +129,9 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	}
 
 	var preloadingEnabled = false;
-	var preloadingFrame = {
-		templateUrl: 'views/mb-application-preloading.html',
+	var preloadingComponent;
+	var preloadingComponentConfig = {
+		templateUrl: 'views/mb-preloading-default.html',
 		controller: 'MbApplicationPreloadingContainerCtrl',
 		controllerAs: 'ctrl',
 	};
@@ -131,13 +158,13 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		return preloadingEnabled;
 	}
 
-	function setPreloadingFrame(frame) {
-		preloadingFrame = frame;
+	function setPreloadingComponent(componentConfig) {
+		preloadingComponentConfig = componentConfig;
 		return provider;
 	}
 
-	function getPreloadingFrame() {
-		return preloadingFrame;
+	function getPreloadingComponent() {
+		return preloadingComponent;
 	}
 
 	function setLogingRequired(flag) {
@@ -178,6 +205,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 
 	function addAction(state, action) {
 		actions[state].push(action);
+		return provider;
 	}
 
 
@@ -204,12 +232,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 
 		//>> Loading extra jobs
 		_.forEach(stateActions, function(actionConfig) {
-			var job = new Job({
-				title: actionConfig.title,
-				action: function() {
-					injector.invoke(actionConfig.action, actionConfig);
-				}
-			});
+			var job = new Job(actionConfig);
 			jobs.push(job.schedule());
 		});
 
@@ -227,6 +250,10 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 
 	function load() {
 		//>> Loading common jobs
+		if (preloadingEnabled) {
+			addAction(STATE_INIT, loadPreloadingContainer);
+			addAction(STATE_READY, removePreloadingContainer);
+		}
 		if (settinsRequired) {
 			addAction(STATE_INIT, loadSettingsJob);
 		}
@@ -252,7 +279,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	service = {
 		getKey: getKey,
 		isPreloadingEnabled: isPreloadingEnabled,
-		getPreloadingFrame: getPreloadingFrame,
+		getPreloadingComponent: getPreloadingComponent,
 		isLoginRequired: isLoginRequired,
 		isTenantRequired: isTenantRequired,
 		isAccountDetailRequired: isAccountDetailRequired,
@@ -260,9 +287,8 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		getState: getState,
 	};
 	provider = {
-		$get: function($q, $mbSettings, MbJob, $injector, $dispatcher) {
+		$get: function($q, $mbSettings, MbJob, $dispatcher) {
 			//>> Set services
-			injector = $injector;
 			mbSettings = $mbSettings;
 			q = $q;
 			Job = MbJob;
@@ -277,7 +303,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		setKey: setKey,
 		addAction: addAction,
 		setPreloadingEnabled: setPreloadingEnabled,
-		setPreloadingFrame: setPreloadingFrame,
+		setPreloadingComponent: setPreloadingComponent,
 		setTenantRequired: setTenantRequired,
 		setAccountDetailRequired: setAccountDetailRequired,
 		setSettingsRequired: setSettingsRequired,

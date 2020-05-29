@@ -40,11 +40,21 @@ angular.module('app', ['mblowfish-core']).config(function(
 	$mbApplicationProvider
 		.setKey('demo')
 		.setPreloadingEnabled(true)
-		//.setPreloadingFrame({
-		//	templateUrl: 'views/mb-application-preloading.html',
-		//	controller: 'MbApplicationPreloadingContainerCtrl',
-		//	controllerAs: 'ctrl',
-		//})
+		// Add a custom preloading container
+		//		.setPreloadingComponent({
+		//			template: '<h1 style="width: 100%; height: 100%; margin: 0px; padding: 150px; background: red;">Loading</h1>',
+		//			controller: 'MbApplicationPreloadingContainerCtrl',
+		//			controllerAs: 'ctrl',
+		//		})
+		// Add a customer action 
+		//		.addAction('init', {
+		//			title: 'Unlimited test wait',
+		//			/*@ngInject*/
+		//			action: function($q) {
+		//				var deferred = $q.defer();
+		//				return deferred.promise;
+		//			}
+		//		})
 		.setTenantRequired(false)
 		.setAccountDetailRequired(false)
 		.setSettingsRequired(true)
@@ -273,7 +283,7 @@ angular.module('app', ['mblowfish-core']).config(function(
 		controller: 'MbNavigatorContainerCtrl',
 		controllerAs: 'ctrl',
 		templateUrl: 'views/mb-navigator.html',
-//		locked: '$mdMedia("min-width: 333px");',
+		//		locked: '$mdMedia("min-width: 333px");',
 		position: 'start'
 	});
 });

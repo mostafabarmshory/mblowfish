@@ -28,7 +28,8 @@
  * application and add more functionality. For example auto save
  * configuration is one of the application extension
  */
-angular.module('mblowfish-core').run(function($mbSettings, $dispatcher, $mbApplication) {
+mblowfish.run(function($mbSettings, $dispatcher, $mbApplication) {
+	'ngInject';
 
     /*
      * Store application config if there is change

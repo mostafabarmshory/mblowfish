@@ -51,7 +51,7 @@ view, or an editor.
 @tutorial ui-component-action
  */
 angular.module('mblowfish-core').factory('MbComponent', function(
-	/* Angularjs */ $rootScope, $compile, $controller, $q,
+	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming,
 	/* Mblowfish */ $mbUiUtil) {
 
 	/*
@@ -63,7 +63,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	@param {object} configs - A configuration set to crate a new instance
 	*/
 	function MbComponent(configs) {
-		_.assignIn(this, configs, {
+		_.assign(this, {
 			// global attributes
 			id: undefined,
 			isEditor: false,
@@ -78,7 +78,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 			controller: undefined,
 			controllerAs: undefined,
 			priority: 0,
-		});
+		}, configs);
 
 		// $element, $controller, $scope pairs
 		this.$binds = [];
@@ -118,12 +118,6 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	 */
 	MbComponent.prototype.render = function(locals) {
 		var cmp = this;
-		var paires = {
-			$controller: undefined,
-			$element: undefined,
-			$scope: undefined
-		};
-		this.$binds.push(paires);
 		this.visible = true;
 		return $q.when(this.getTemplate(), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
@@ -133,19 +127,22 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 			var controllerDef;
 
 			$element.html(template);
+			$mbTheming($element);
 			var link = $compile($element);
 			locals.$scope = $scope;
 			if ((controllerDef = cmp.controller)) {
 				$ctrl = $controller(controllerDef, locals);
 				if ((cmp.controllerAs)) {
-					$scope[cpm.controllerAs] = $ctrl;
+					$scope[cmp.controllerAs] = $ctrl;
 				}
 				$element.data('$ngControllerController', $ctrl);
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
 			link($scope);
-			_.assign(paires, locals, {
-				$controller: $ctrl
+			cmp.$binds.push({
+				$controller: $ctrl,
+				$element: $element,
+				$scope: $scope
 			});
 		});
 	}
