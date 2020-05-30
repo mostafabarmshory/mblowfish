@@ -27,20 +27,32 @@
 @description a wrapper of FLUX
 
 Dispatcher is used to broadcast payloads to registered callbacks. This is
-different from generic pub-sub systems in two ways: - Callbacks are not
-subscribed to particular events. Every payload is dispatched to every
-registered callback. - Callbacks can be deferred in whole or part until other
-callbacks have been executed.
+different from generic pub-sub systems in two ways: 
 
+- Callbacks are not subscribed to particular events. Every payload is dispatched to every registered callback.
+- Callbacks can be deferred in whole or part until other callbacks have been executed.
+
+@tutorial core-flux-dispatcher-hypotheticalFligh
  */
-angular.module('mblowfish-core').service('$mbDispatcher', function() {
+angular.module('mblowfish-core').provider('$mbDispatcher', function() {
 
+	//---------------------------------------
+	// service
+	//---------------------------------------
+	var service;
+	var provider;
 
+	//---------------------------------------
+	// variables
+	//---------------------------------------
     /*
 	List of all dispatcher
 	*/
 	var dispatchers = {};
 
+	//---------------------------------------
+	// Function
+	//---------------------------------------
     /*
 	Finds dispatcher for the type
 	*/
@@ -112,11 +124,21 @@ angular.module('mblowfish-core').service('$mbDispatcher', function() {
 		return getDispatcherFor(type).isDispatching();
 	};
 
-	return {
+
+	//---------------------------------------
+	// end
+	//---------------------------------------
+	service = {
 		on: on,
 		off: off,
 		waitFor: waitFor,
 		dispatch: dispatch,
 		isDispatching: isDispatching,
 	};
+	provider = {
+		$get: function() {
+			return service;
+		}
+	};
+	return provider;
 });

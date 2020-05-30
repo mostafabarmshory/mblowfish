@@ -22,53 +22,59 @@
 
 
 
-angular.module('mblowfish-core')
 /**
- * @ngdoc Factories
- * @name MbEvent
- * @description An event item
- * 
- * Events are used to propagate signals to the application. It is based on $dispatcher. 
- * 
- * NOTE: All platform events (from mb or children) are instance of this factory.
- * 
+@ngdoc Factories
+@name MbEvent
+@description An event item
+
+Events are used to propagate signals to the application. It is based on $dispatcher. 
+
+NOTE: All platform events (from mb or children) are instance of this factory.
+
  */
-.factory('MbEvent', function () {
+angular.module('mblowfish-core').factory('MbEvent', function() {
 
-    function mbEvent(data) {
-        if (!angular.isDefined(data)) {
-            data = {};
-        }
-        angular.extend(this, data);
-    };
+	/**
+	Creates new instance of event
+		
+	@generator
+	@memberof MbEvent
+	@params {Objct} data To bind as initial data
+	 */
+	function mbEvent(data) {
+		if (!angular.isDefined(data)) {
+			data = {};
+		}
+		angular.extend(this, data);
+	};
 
-    mbEvent.prototype.getType = function () {
-        return this.type || 'unknown';
-    };
+	mbEvent.prototype.getType = function() {
+		return this.type || 'unknown';
+	};
 
-    mbEvent.prototype.getKey = function () {
-        return this.key || 'unknown';
-    };
+	mbEvent.prototype.getKey = function() {
+		return this.key || 'unknown';
+	};
 
-    mbEvent.prototype.getValues = function () {
-        return this.values || [];
-    };
+	mbEvent.prototype.getValues = function() {
+		return this.values || [];
+	};
 
-    mbEvent.prototype.isCreated = function () {
-        return this.key === 'create';
-    };
+	mbEvent.prototype.isCreated = function() {
+		return this.key === 'create';
+	};
 
-    mbEvent.prototype.isRead = function () {
-        return this.key === 'read';
-    };
+	mbEvent.prototype.isRead = function() {
+		return this.key === 'read';
+	};
 
-    mbEvent.prototype.isUpdated = function () {
-        return this.key === 'update';
-    };
+	mbEvent.prototype.isUpdated = function() {
+		return this.key === 'update';
+	};
 
-    mbEvent.prototype.isDeleted = function () {
-        return this.key === 'delete';
-    };
+	mbEvent.prototype.isDeleted = function() {
+		return this.key === 'delete';
+	};
 
-    return mbEvent;
+	return mbEvent;
 });

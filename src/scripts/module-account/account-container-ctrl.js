@@ -21,19 +21,22 @@
  */
 
 
-
-
 /**
- * @ngdoc Controllers
- * @name MbAccountCtrl
- * @description Manages account of users.
- * 
- * Manages current user action:
- *  - login - logout - change password - recover password
+@ngdoc Controllers
+@name MbAccountCtrl
+@description Manages account of users.
+
+Manages current user action:
+
+- login
+- logout
+- change password
+- recover password
+
  */
-mblowfish.controller('MbAccountCtrl', function(
+mblowfish.controller('MbAccountContainerCtrl', function(
 	/* Angularjs */ $scope, $rootScope, $translate, $window, $usr,
-	/* MBlowfish */ $mbApplication, $mbLogger) {
+	/* MBlowfish */ $mbAccount, $mbLogger) {
 
 	this.loginProcess = false;
 	this.loginState = null;

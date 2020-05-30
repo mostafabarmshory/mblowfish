@@ -56,7 +56,7 @@ angular.module('app', ['mblowfish-core']).config(function(
 		//			}
 		//		})
 		.setTenantRequired(false)
-		.setAccountDetailRequired(false)
+		.setAccountDetailRequired(true)
 		.setSettingsRequired(true)
 		.setLogingRequired(false);
 

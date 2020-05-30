@@ -1,12 +1,11 @@
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Controllers
  * @name AmdNavigatorDialogCtrl
  * @description # AccountCtrl Controller of the mblowfish-core
  */
-.controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
+angular.module('mblowfish-core').controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
 	$scope.config = config;
 	$scope.hide = function() {
 		$mdDialog.cancel();

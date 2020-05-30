@@ -65,15 +65,15 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		title: 'Loading Tenant Settings',
 		/* @ngInject */
 		action: function() {
-
+			// XXX: maso, 2020: 
 		}
 	};
 
 	var loadAccountDetail = {
 		title: 'Loading Account Details',
 		/* @ngInject */
-		action: function() {
-
+		action: function($mbAccount) {
+			return $mbAccount.reload();
 		}
 	};
 
@@ -81,7 +81,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		title: 'Login',
 		/* @ngInject */
 		action: function() {
-
+			// XXX: maso, 2020: 
 		}
 	};
 
