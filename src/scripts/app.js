@@ -37,57 +37,89 @@
  */
 
 
-angular.module('mblowfish-core', [ //
-//	Angular
-	'ngMaterial', 
-	'ngAnimate', 
-	'ngCookies',
-	'ngSanitize', //
-	'ngRoute',
-//	Seen
-	'seen-core',
-	'seen-user',
-	'seen-tenant',
-	'seen-cms',
-	'seen-monitor',
-//	AM-WB
-	'am-wb-core', 
-//	Others
-	'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-	'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
-	'ng-appcache',//
-	'ngFileSaver',//
-	'mdSteppers',//
-	'angular-material-persian-datepicker',
-	'ngStorage', // https://github.com/gsklee/ngStorage
-	'pascalprecht.translate',
-	'mdColorPicker',
-])
-.run(function instantiateRoute($widget, $routeParams) {
-	$widget.setProvider('$routeParams', $routeParams);
-})
+var mbApplicationModule = angular
+	.module('mblowfish-core', [ //
+		//	Angular
+		'ngMaterial',
+		'ngAnimate',
+		'ngCookies',
+		'ngSanitize', //
+		//	Seen
+		'seen-core',
+		'seen-user',
+		'seen-tenant',
+		'seen-cms',
+		'seen-monitor',
+		//	AM-WB
+		'am-wb-core',
+		//	Others
+		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
+		'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
+		'ng-appcache',//
+		'ngFileSaver',//
+		'mdSteppers',//
+		'angular-material-persian-datepicker',
+		'pascalprecht.translate',
+		'mdColorPicker',
+	])
+	.config(function($mdThemingProvider) {
+		// Dark theme
+		$mdThemingProvider
+			.theme('dark')//
+			.primaryPalette('grey', {
+				'default': '900',
+				'hue-1': '700',
+				'hue-2': '600',
+				'hue-3': '500'
+			})//
+			.accentPalette('grey', {
+				'default': '700'
+			})//
+			.warnPalette('red')
+			.backgroundPalette('grey')
+			.dark();
 
-/*******************************************************
- * Compatibility with old version
- *******************************************************/ 
-.factory('Action', function (MbAction) {
-	return MbAction;
-})
-.factory('ActionGroup', function (MbActionGroup) {
-	return MbActionGroup;
-})
-.factory('httpRequestInterceptor', function (MbHttpRequestInterceptor) {
-	return MbHttpRequestInterceptor;
-})
-.controller('MessagesCtrl', function ($scope, $controller) {
-    angular.extend(this, $controller('MbSeenUserMessagesCtrl', {
-        $scope : $scope
-    }));
-})
-.controller('AmWbSeenCmsContentsCtrl', function ($scope, $controller) {
-    angular.extend(this, $controller('MbSeenCmsContentsCtrl', {
-        $scope : $scope
-    }));
-})
+		$mdThemingProvider.alwaysWatchTheme(true);
+	})
+	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window, $mbEditor) {
+		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
-;
+		$mbEditor.registerEditor('/ui/notfound/:path*', {
+			template: '<h1>Not found</h1>'
+		});
+
+		var extensions = $window.mblowfish.extensions;
+		$window.mblowfish.extensions = [];
+
+		/**
+		 * Enable an extionsion
+		 */
+		$window.mblowfish.addExtension = function(loader) {
+			$window.mblowfish.extensions.push(loader);
+			$injector.invoke(loader);
+		};
+
+		angular.forEach(extensions, function(ext) {
+			$window.mblowfish.addExtension(ext);
+		});
+	});
+
+/***************************************************************************
+ * Mblowfish global service
+ ***************************************************************************/
+window.mblowfish = {
+	extensions: [],
+	addExtension: function(loader) {
+		this.extensions.push(loader);
+	},
+	controller: function() {
+		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+	},
+	directive: function() {
+		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+	},
+	run: function() {
+		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+	}
+};
+

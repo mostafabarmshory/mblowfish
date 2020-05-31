@@ -1,0 +1,56 @@
+body {
+	height: 100vh !important;
+	overflow: hidden !important;
+	
+	display: flex;
+	flex-direction: row;
+	
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+}
+
+body>main {
+	height: 100% !important;
+	overflow: hidden !important;
+	
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	flex-shrink: 1;
+	
+/*	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;*/
+}
+
+body>main>mb-toolbar-group {
+	width: 100% !important;
+	flex-grow: 0;
+	flex-shrink: 0;
+}
+
+body>main>mb-view {
+	width: 100vw !important;
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+
+body>main>mb-status {
+	width: 100vw !important;
+	flex-grow: 0;
+	flex-shrink: 0;
+}
+
+
+.mb_docker_body {
+	width: 100% !important;
+}
+
+.mb_docker_panel{
+	width: 100% !important;
+}

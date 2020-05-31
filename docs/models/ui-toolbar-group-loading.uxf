@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>6</zoom_level>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>0</x>
+      <y>24</y>
+      <w>1248</w>
+      <h>276</h>
+    </coordinates>
+    <panel_attributes>title=Loading a Toolbar Group
+// Items in the process
+obj=Browser~browser ACTOR EXECUTION
+obj=MbToolbarGroup : group~group
+obj=$mbToolbar~mbToolbar
+obj=MbToolbar : toolbar~toolbar
+// The body of the process
+browser-&gt;&gt;&gt;group : link($element, $scope, $attr, $ctrl); on=group
+combinedFragment= Load all toolbars~getToolbars group toolbar
+	group-&gt;&gt;&gt;mbToolbar : getToolbar(toolbarId); on=mbToolbar
+	mbToolbar.&gt;group; off=mbToolbar
+	group-&gt;&gt;&gt;toolbar: render(locals): handler; on=toolbar
+	toolbar.&gt;group; off=toolbar
+	group-&gt;&gt;&gt;group + : storeToolbarHander(handler);
+--=getToolbars
+group.&gt;browser;off=group
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>0</x>
+      <y>324</y>
+      <w>1248</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>title=Destroy a Toolbar Group
+obj=Browser~browser ACTOR EXECUTION
+obj=MbToolbarGroup : group~group
+obj=MbComponentHandler~handler
+obj=MbToolbar : toolbar~toolbar
+
+
+
+// The body of the process
+browser-&gt;&gt;&gt;group : $destroy(); on=group
+	group-&gt;&gt;&gt;group + : getComponentHandlers();on=group
+	off=group
+	combinedFragment= Destroy all handlers~getToolbars group toolbar
+		group-&gt;&gt;&gt;handler: destroy(); on=handler
+			handler-&gt;&gt;&gt;toolbar: removeHandler(this);on=toolbar
+			toolbar.&gt;handler;off=toolbar
+		handler.&gt;group;off=handler
+	--=getToolbars
+	group-&gt;&gt;&gt;group + : clearComponentHandlers();on=group
+	off=group
+group.&gt;browser;off=group
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

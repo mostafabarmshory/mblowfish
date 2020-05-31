@@ -20,15 +20,13 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Services
  * @name $preferences
  * @description System setting manager
  * 
  */
-.service('$preferences', function($q, $navigator) {
+angular.module('mblowfish-core').service('$preferences', function($q, $navigator) {
 	var preferences = [ ];
 
 	/**

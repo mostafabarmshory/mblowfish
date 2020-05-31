@@ -91,7 +91,7 @@ angular.module('mblowfish-core')
 });
 
 angular.module('mblowfish-core')
-.directive('mbBadge', function($mdTheming, $mdColors, $timeout, $window, $compile, $rootScope) {
+.directive('mbBadge', function($mdTheming,/* $mdColors, $timeout, $window,*/ $compile, $rootScope) {
 
 
 	function __badge_toRGB(color){

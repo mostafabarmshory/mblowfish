@@ -180,8 +180,6 @@ Some of this services are in introduced in previous sections, such as $app and $
 
  - $app
  - $actions
- - $errorHandler
- - $export
  - $help
  - $navigator
  - $notification

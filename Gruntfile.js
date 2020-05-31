@@ -163,7 +163,10 @@ module.exports = function(grunt) {
 					middleware : function(connect, options) {
 						var middlewares = [];
 						//Matches everything that does not contain a '.' (period)
-						middlewares.push(modRewrite([ '!/api/.*|^.*\\..*$ /index.html [L]' ]));
+						middlewares.push(modRewrite([ 
+							'!/api/.*|^.*\\..*$ /index.html [L]',
+							'[^\.]*http?s:\/\/.*$ /index.html [L]',
+						]));
 						middlewares.push(connect.static('.tmp'));
 						middlewares.push(
 								connect()
@@ -287,7 +290,7 @@ module.exports = function(grunt) {
 					destination : 'doc',
 					configure : 'node_modules/angular-jsdoc/common/conf.json',
 					template : 'node_modules/angular-jsdoc/default',
-					tutorial : 'tutorials',
+					tutorial : 'docs/tutorials',
 					readme : 'README.md'
 				}
 			}

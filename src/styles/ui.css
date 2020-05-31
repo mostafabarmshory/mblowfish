@@ -1,0 +1,84 @@
+/*
+ Namespace: mb_ui
+ Title: Manages MB UI components
+
+Here is list of UI components:
+
+- view
+- eidtor
+- toolbar
+- statusbar
+
+In this part we manage all basic component of the mb-ui
+  
+ */
+
+/****************************************************************************
+ Layout
+ - mb_docker_xxx: used for docker view
+ - mb_mobile_xxx: used for mobile view
+****************************************************************************/
+.mb_docker_body {
+	position: relative !important;
+	top: 0px !important;
+	left: 0px !important;
+/*	height: 100% !important;
+	width: 100% !important;*/
+	margin: 0px !important;
+	padding: 0px !important;
+	display: flex !important;
+	flex-direction: row !important;
+}
+
+.mb_docker_panel{
+	position: relative !important;
+	top: 0px !important;
+	left: 0px !important;
+/*	height: 100% !important;
+	width: 100% !important;*/
+	margin: 0px !important;
+	padding: 0px !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+.mb_docker_view{
+	flex-grow: 1;
+}
+
+/****************************************************************************
+ Editor component
+****************************************************************************/
+.mb_docker_container_editor > * {
+	height: 100% !important;
+	width: 100% !important;
+	padding: 0px !important;
+	margin: 0px !important;
+}
+
+/****************************************************************************
+ View component
+****************************************************************************/
+.mb_docker_container_view  {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.mb_docker_container_view>mb-toolbar {
+	flex-grow: 0;
+	flex-shrink: 0;
+	flex-basis: auto;
+	padding: 0px;
+	margin: 0px;
+	height: auto;
+}
+
+.mb_docker_container_view>.mb-container-content {
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0px;
+	padding: 0px !important;
+	margin: 0px !important;
+	overflow: hidden;
+}

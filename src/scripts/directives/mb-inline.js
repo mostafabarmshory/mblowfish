@@ -66,12 +66,11 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
 			if (attr.mbInlineOnSave) {
 				scope.$data = d;
 				var value = $parse(attr.mbInlineOnSave)(scope);
-				$q.when(value)//
-					.then(function() {
-						delete scope.error;
-					}, function(error) {
-						scope.error = error;
-					});
+				$q.when(value).then(function() {
+					delete scope.error;
+				}, function(error) {
+					scope.error = error;
+				});
 			}
 		};
 	}
@@ -112,9 +111,6 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
              * Select image url
              */
 			this.updateImage = function() {
-//				if (!$scope.mbInlineEnable) {
-//					return;
-//				}
 				var ctrl = this;
 				return $resource.get('image', {
 					style: {
@@ -123,20 +119,16 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
 						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
 					},
 					data: this.model
-				}) //
-					.then(function(url) {
-						ctrl.model = url;
-						ctrl.save();
-					});
+				}).then(function(url) {
+					ctrl.model = url;
+					ctrl.save();
+				});
 			};
 
 			/*
              * Select image url
              */
 			this.updateFile = function() {
-//				if (!$scope.mbInlineEnable) {
-//					return;
-//				}
 				var ctrl = this;
 				return $resource.get('local-file', {
 					style: {

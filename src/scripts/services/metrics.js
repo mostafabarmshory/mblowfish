@@ -20,88 +20,86 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Services
- * @name $metrics
- * @description collects and manages metrics from application and server
- * 
- * Metrics are stored in application space:
- * 
- * In view:
- * 
- * <code><pre>
- * 	<span>{{app.metrics['message.count']}}</span>
- * </pre></code>
- * 
- * In code:
- * 
- * <code><pre>
- * 	var messageCount = $rootScope.app.metrics['message.count'];
- * </pre></code>
- * 
- * Metrics must be tracked by the following 
- */
-.service('$metrics', function($q/*, $timeout, $monitor*/) {
-	/*
-	 * store list of metrics
-	 */
-//	var metrics = [];
-//	
-//	var remoteMetrics = []
-//	var localMetrics = []
-
-	// XXX: maso, 1395: metric interval
-//	var defaultInterval = 60000;
-
-
-	/**
-	 * Add a monitor in track list
-	 * 
-	 * با این فراخوانی مانیتور معادل ایجاد شده و به عنوان نتیجه برگردانده
-	 * می‌شود.
-	 * 
-	 * <pre><code>
-	 * $metrics.trackMetric('message.count')//
-	 * 		.then(function() {
-	 * 				// Success
-	 * 			}, function(){
-	 * 				// error
-	 * 			});
-	 * </code></pre>
-	 * 
-	 * @memberof $monitor
-	 * @param {string}
-	 *            key to track
-	 * @param {string}
-	 *            $scope which is follower (may be null)
-	 *            
-	 * @return {promise(PMonitor)}
-	 */
-	function trackMetric(/*key, $scope*/) {
-		// track metric with key
-		return $q.resolve('hi');
-	}
-
-
-	/**
-	 * Break a monitor
-	 * 
-	 * @param {Object}
-	 *            monitor
-	 */
-	function breakMonitor(/*key*/) {
-//		var def = $q.defer();
-//		$timeout(function() {
-//			// XXX: maso, 1395: remove monitor
-//			def.resolve(monitor);
-//		}, 1);
-//		return def.promise;
-	}
-
-
-	this.breakMonitor = breakMonitor;
-	this.trackMetric = trackMetric;
-});
+//
+///**
+// * @ngdoc Services
+// * @name $metrics
+// * @description collects and manages metrics from application and server
+// * 
+// * Metrics are stored in application space:
+// * 
+// * In view:
+// * 
+// * <code><pre>
+// * 	<span>{{app.metrics['message.count']}}</span>
+// * </pre></code>
+// * 
+// * In code:
+// * 
+// * <code><pre>
+// * 	var messageCount = $rootScope.app.metrics['message.count'];
+// * </pre></code>
+// * 
+// * Metrics must be tracked by the following 
+// */
+//angular.module('mblowfish-core').service('$metrics', function($q/*, $timeout, $monitor*/) {
+//	/*
+//	 * store list of metrics
+//	 */
+////	var metrics = [];
+////	
+////	var remoteMetrics = []
+////	var localMetrics = []
+//
+//	// XXX: maso, 1395: metric interval
+////	var defaultInterval = 60000;
+//
+//
+//	/**
+//	 * Add a monitor in track list
+//	 * 
+//	 * با این فراخوانی مانیتور معادل ایجاد شده و به عنوان نتیجه برگردانده
+//	 * می‌شود.
+//	 * 
+//	 * <pre><code>
+//	 * $metrics.trackMetric('message.count')//
+//	 * 		.then(function() {
+//	 * 				// Success
+//	 * 			}, function(){
+//	 * 				// error
+//	 * 			});
+//	 * </code></pre>
+//	 * 
+//	 * @memberof $monitor
+//	 * @param {string}
+//	 *            key to track
+//	 * @param {string}
+//	 *            $scope which is follower (may be null)
+//	 *            
+//	 * @return {promise(PMonitor)}
+//	 */
+//	function trackMetric(/*key, $scope*/) {
+//		// track metric with key
+//		return $q.resolve('hi');
+//	}
+//
+//
+//	/**
+//	 * Break a monitor
+//	 * 
+//	 * @param {Object}
+//	 *            monitor
+//	 */
+//	function breakMonitor(/*key*/) {
+////		var def = $q.defer();
+////		$timeout(function() {
+////			// XXX: maso, 1395: remove monitor
+////			def.resolve(monitor);
+////		}, 1);
+////		return def.promise;
+//	}
+//
+//
+//	this.breakMonitor = breakMonitor;
+//	this.trackMetric = trackMetric;
+//});

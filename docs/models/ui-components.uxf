@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>6</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1518</x>
+      <y>612</y>
+      <w>126</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+View
+{Container}
+--
++ isView: boolean (true)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>144</x>
+      <y>84</y>
+      <w>180</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+Component
+--
++ id: String
++ title: string
++ description: string
++ icon: string
+--
++ render(locals: map): MbComponentHandler</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1764</x>
+      <y>612</y>
+      <w>126</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+Editor
+{Container}
+--
++ isEditor: boolean (true)
+--
++ setDerty(derty: boolean): MbEditor
++ isDerty(): boolean
++ getInput(): MbInput</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>276</y>
+      <w>126</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+Seperator
+{Component}
+--
++ isSeperator: boolean (true)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>792</x>
+      <y>384</y>
+      <w>252</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbToolbar
+{Container}
+--
++ isToolbar: boolean (true)
++ items: string[]
+- itemHandlers: MbUiHandler[]
+--
++ render(locals: complex): Promise
++ addComponent(componenet: MbComponenet): MbToolbar
++ removeComponenet(component: MbCompoenent): MbToolbar</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1128</x>
+      <y>30</y>
+      <w>126</w>
+      <h>186</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+Container
+--
++ url: string
++ title: string
++ description: string
++ icon: string
++ state: object {composit}
++ controller: string|function
++ controllerAs: string
++ template: string | function
++ templateUrl: string | function
+--
++ destroy(): Undefined
++ render(): Promise
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1578</x>
+      <y>486</y>
+      <w>114</w>
+      <h>138</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>170.0;10.0;10.0;210.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>906</x>
+      <y>210</y>
+      <w>282</w>
+      <h>186</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>450.0;10.0;10.0;290.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1710</x>
+      <y>486</y>
+      <w>126</w>
+      <h>138</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;190.0;210.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>54</x>
+      <y>192</y>
+      <w>162</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>250.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>144</x>
+      <y>276</y>
+      <w>126</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbAction
+{Component}
+--
+--
++ exec($event: complex, $params: complex): Promise
++ setEnable(flag: boolean): Undeinfed
++ isEnable(): boolean</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>204</x>
+      <y>192</y>
+      <w>18</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>504</y>
+      <w>174</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbActionGroup
+--
++ title: string
++ description: string
++ isActionGroup: boolean (true)
+--
++ add(action:MbAction): MbActionGroup
++ remove(action:MbAction): MbActionGroup
++ has(action:MbAction): boolean
++ get(commandId:string): MbAction</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>198</x>
+      <y>384</y>
+      <w>42</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=*
+m2=*
+actions</panel_attributes>
+    <additional_attributes>10.0;200.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>492</x>
+      <y>90</y>
+      <w>180</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbUiHandler
+{internal}
+--
++ $controller
++ $element
++ $scope
+--
++ destroy(): Undefined
++ isDestroyed(): boolean
++ setVisible(flag:boolean): Undefined
++ isVisible(): boolean
+
+
+
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>318</x>
+      <y>126</y>
+      <w>186</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+instances
+m2=0..n</panel_attributes>
+    <additional_attributes>10.0;20.0;290.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>480</x>
+      <y>402</y>
+      <w>192</w>
+      <h>78</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+ToolbarGroup
+{Directive}
+--
++ addToolbar(toolbar:MbToolbar):Undefined
++ removeToolbar(toolbar:MbToolbar):Undefined
++ destroy(): Undefined</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>666</x>
+      <y>132</y>
+      <w>474</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+instance
+m1=1..1</panel_attributes>
+    <additional_attributes>770.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>198</y>
+      <w>48</w>
+      <h>216</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+handlers
+m2=0..n</panel_attributes>
+    <additional_attributes>10.0;340.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>654</x>
+      <y>438</y>
+      <w>150</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>230.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1632</x>
+      <y>378</y>
+      <w>126</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbFrame
+{Container}
+--
++ isView: boolean (true)
+--
++ getToolbar(): MbToolbar
++ getMenu(): MbMenu
++ setTitle(title: string): MbFrame
++ close(): undefined
+
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1206</x>
+      <y>210</y>
+      <w>498</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;810.0;280.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1992</x>
+      <y>432</y>
+      <w>66</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lw=2
+$mbLayout</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1752</x>
+      <y>432</y>
+      <w>252</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+frames
+m2=0..n</panel_attributes>
+    <additional_attributes>400.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1086</x>
+      <y>378</y>
+      <w>252</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbMenu
+{Container}
+--
++ isMenu: boolean (true)
++ items: string[]
+- itemHandlers: MbUiHandler[]
+--
++ render(locals: complex): Promise
++ addComponent(componenet: MbComponenet): MbToolbar
++ removeComponenet(component: MbCompoenent): MbToolbar</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1182</x>
+      <y>210</y>
+      <w>42</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;50.0;280.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1350</x>
+      <y>378</y>
+      <w>252</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;UI&gt;&gt;
+MbSidenav
+{Container}
+--
++ isMenu: boolean (true)
++ items: string[]
+- itemHandlers: MbUiHandler[]
+--
++ render(locals: complex): Promise
++ addComponent(componenet: MbComponenet): MbToolbar
++ removeComponenet(component: MbCompoenent): MbToolbar</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1194</x>
+      <y>210</y>
+      <w>294</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;470.0;280.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>1872</x>
+      <y>264</y>
+      <w>138</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>Frame is the only part of the UI
+system which is accessable by its
+URL. It is th the same as regular
+HTML Page or application frame.
+
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1740</x>
+      <y>294</y>
+      <w>144</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>10.0;140.0;220.0;10.0</additional_attributes>
+  </element>
+</diagram>

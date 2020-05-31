@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>170</x>
+      <y>170</y>
+      <w>420</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Services&gt;&gt;
+UI::$mbActions
+{singletone, provider}
+--
+// Action supports
++ addAction(commandId:string, action:{complex}): $mbActions
++ removeAction(commandId:string): $mbActions
++ getAction(commandId:string): MbAction
++ getActions(): MbActions[]
++ exec(commandId:string, $event:complex, $params:complex)
+// Action group supports
++ addGroup(groupId:string, groupConfigs:{complex}): $mbActions
++ removeGroup(groupId:string): $mbActions
++ getGroup(groupId:string): MbActionGroup
++ getGroups(): MbActionGroup[]</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>610</x>
+      <y>440</y>
+      <w>420</w>
+      <h>220</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Services&gt;&gt;
+UI::$mbToolbar
+{singletone, provider}
+--
+// Action supports
++ init(config)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

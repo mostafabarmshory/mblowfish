@@ -1,0 +1,27 @@
+<md-content
+	mb-infinate-scroll="nextPage()"
+	mb-preloading="ctrl.state === 'working'"
+	layout="column">
+	<mb-pagination-bar
+		mb-model="paginatorParameter"
+		mb-reload="reload"
+		mb-sort-keys="sortKeys"
+		mb-more-actions="moreActions">
+	</mb-pagination-bar>
+	
+	<md-list flex>
+		<md-list-item 
+			ng-repeat="object in ctrl.items"
+			class="md-3-line">
+			<wb-icon>setting</wb-icon>
+			<div 
+				class="md-list-item-text" 
+				layout="column">
+				<h3>{{object.title}}</h3>
+				<h4>{{object.subTitle}}</h4>
+				<p>{{object.description}}</p>
+			</div>
+		</md-list-item>
+	</md-list>
+</md-content>
+

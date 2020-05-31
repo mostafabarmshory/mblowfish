@@ -20,24 +20,21 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
-/**
- * دریچه‌های محاوره‌ای
- */
-.run(function($notification, $help) {
-	
+
+angular.module('mblowfish-core').run(function($notification, $help) {
+
 
     /*
      * Display help for an item
      */
-    window.openHelp = function(item){
-        return $help.openHelp(item);
-    };
+	window.openHelp = function(item) {
+		return $help.openHelp(item);
+	};
 
-    // Hadi 1396-12-22: update alerts
-    window.alert = $notification.alert;
-    window.confirm = $notification.confirm;
-    window.prompt = $notification.prompt;
-    window.toast = $notification.toast;
+	// Hadi 1396-12-22: update alerts
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
 
 });

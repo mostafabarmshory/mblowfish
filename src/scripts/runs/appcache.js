@@ -20,12 +20,7 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-/*
- * دریچه‌های محاوره‌ای
- */
-.run(function(appcache, $window, $rootScope) {
+angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
 	var oldWatch;
 
@@ -44,12 +39,12 @@ angular.module('mblowfish-core')
 	function updateApplication() {
 		var setting = $rootScope.app.config.update || {};
 		if (setting.showMessage) {
-			if(setting.autoReload) {
+			if (setting.autoReload) {
 				alert('Application is update. Page will be reload automatically.')//
-				.then(reload);
+					.then(reload);
 			} else {
 				confirm('Application is update. Reload the page for new version?')//
-				.then(reload);
+					.then(reload);
 			}
 		} else {
 			toast('Application is updated.');
@@ -59,19 +54,17 @@ angular.module('mblowfish-core')
 	// Check update
 	function doUpdate() {
 		appcache.swapCache()//
-		.then(updateApplication());
+			.then(updateApplication());
 	}
 
 	oldWatch = $rootScope.$watch('__app.state', function(status) {
 		if (status && status.startsWith('ready')) {
-			// check for update
-			return appcache//
-			.checkUpdate()//
-			.then(doUpdate);
-			// Test
-//			updateApplication();
 			// Remove the watch
 			oldWatch();
+			// check for update
+			return appcache//
+				.checkUpdate()//
+				.then(doUpdate);
 		}
 	});
 });

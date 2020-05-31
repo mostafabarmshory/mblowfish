@@ -116,6 +116,47 @@
   align-content: center;
 }
 /*
+ * main area. it is main panel in center of panel.
+ * To customize style this panel dont change this css. Do your changes in your application. 
+ */
+.amd-page-content {
+	width: 100%;
+/* 	margin: 15px; */
+}
+
+/*
+ * Right to left direction
+ *
+ *  This class will be applied to elements with RTL direction. For example in the
+ * amd-panel this class is used to effect app.setting.dir into the entire elements.
+ */
+.amd-rtl-direction {
+	/* TODO: maso, 2017: update direction */
+	direction: rtl;
+	text-align: right;
+}
+
+/*
+ * Left to right direction
+ *
+ * This class will be applied to elements with LTR direction
+ *
+ * see: .amd-rtl-direction
+ */
+.amd-ltr-direction {
+	/* TODO: maso, 2017: update direction */
+	direction: ltr;
+	text-align: left;
+}
+
+
+
+.input-container input:-webkit-autofill ~ label {
+  color: #757575;
+  -webkit-transform: translate(-12%, -50%) scale(0.75);
+          transform: translate(-12%, -50%) scale(0.75);
+}
+/*
  * in fullscreen mode in dialog, this css class in large screen, makes 
  * dialog width about 60% of screen.
  */
@@ -178,47 +219,6 @@ a.editable-click:hover {
 }
 
 
-/*
- * main area. it is main panel in center of panel.
- * To customize style this panel dont change this css. Do your changes in your application. 
- */
-.amd-page-content {
-	width: 100%;
-/* 	margin: 15px; */
-}
-
-/*
- * Right to left direction
- *
- *  This class will be applied to elements with RTL direction. For example in the
- * amd-panel this class is used to effect app.setting.dir into the entire elements.
- */
-.amd-rtl-direction {
-	/* TODO: maso, 2017: update direction */
-	direction: rtl;
-	text-align: right;
-}
-
-/*
- * Left to right direction
- *
- * This class will be applied to elements with LTR direction
- *
- * see: .amd-rtl-direction
- */
-.amd-ltr-direction {
-	/* TODO: maso, 2017: update direction */
-	direction: ltr;
-	text-align: left;
-}
-
-
-
-.input-container input:-webkit-autofill ~ label {
-  color: #757575;
-  -webkit-transform: translate(-12%, -50%) scale(0.75);
-          transform: translate(-12%, -50%) scale(0.75);
-}
 /*md-expansion-panel {
 
   md-expansion-panel-collapsed,
@@ -478,6 +478,20 @@ md-expansion-panel.md-open>md-expansion-panel.md-open>md-expansion-panel-collaps
   100% {
     box-shadow: 0 0 0 0 transparent; } }
 
+.mb-module-iframe {
+	border: none;
+}
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+*****************************************************************************************/
+
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+*****************************************************************************************/
 /*
  *
  */
@@ -545,34 +559,6 @@ and open the template in the editor.
 .mb-sidenav-ontop {
 	z-index: 61;
 }
-/*************************************************
- * Style of all tables
- *************************************************/
-table.mb-table {
-	border: none;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	table-layout: auto;
-	border-collapse: collapse;
-}
-
-table.mb-table caption {
-	font-size: 14px;
-	margin: 2px;
-}
-
-table.mb-table tr {
-	border-bottom: 1px solid #6a7475;
-}
-
-/*************************************************
- * mb-table-description
- *************************************************/
-table.mb-table-description tr td:first-child {
-	font-weight: bold;
-}
-
 /*
  * Tree 
  * 
@@ -698,12 +684,113 @@ table.mb-table-description tr td:first-child {
 .mb-toggle-title {
 	padding: 0px 5px 0px 5px;
 }
+/**********************************************************************************
+ mbStatus
+**********************************************************************************/
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+
+Pallet:
+- Primary: rgb(63,81,181)
+*****************************************************************************************/
+mb-status.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+mb-status.md-dark-theme {
+	background: rgb(0, 0, 0);
+	color: rgba(255,255,255,0.87);
+}
+
+
+
+
+/**********************************************************************************
+mbToolbar
+**********************************************************************************/
+mb-toolbar-group {
+	min-height: 24px !important;
+	padding: 0px !important;
+	margin: 0px !important;
+	
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	
+	overflow: hidden;
+}
+
+mb-toolbar-group>mb-toolbar {
+	height: 24px !important;
+	overflow: hidden;
+}
+
+mb-toolbar>mb-toolbar-item.mbAction {
+	margin: 0px !important;
+	padding: 4px !important;
+	cursor: pointer !important;
+}
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+
+Pallet:
+- Primary: rgb(63,81,181)
+*****************************************************************************************/
+mb-toolbar-group.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+mb-toolbar.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+mb-toolbar-group.md-dark-theme {
+	background: rgb(0, 0, 0);
+	color: rgba(255,255,255,0.87);
+}
+
+mb-toolbar.md-dark-theme {
+	background: rgb(46, 52, 54);
+	color: rgb(243, 243, 243);
+}
+
+
+
+
+/*********************************************************************************
+mene
+*********************************************************************************/
 /*
  * User menu root
  */
-.amd-user-menu {
-/* 	background: red; */
-}
+/*.amd-user-menu {
+	background: red;
+}*/
 
 /*
  * A button is used in user menu
@@ -713,6 +800,13 @@ table.mb-table-description tr td:first-child {
 	padding: 4px;
 }
 
+
+
+
+
+/**********************************************************************************
+mbIcon
+**********************************************************************************/
 /*!
  * Angular Material Design
  * https://github.com/angular/material
@@ -1016,4 +1110,802 @@ md-input-container > wb-icon + input {
 	font-size: 1rem;
 	line-height: 1rem;
 	min-height: 1rem;
+}
+
+/**********************************************************************************
+ * Style of all tables
+ **********************************************************************************/
+table.mb-table {
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	table-layout: auto;
+	border-collapse: collapse;
+}
+
+table.mb-table caption {
+	font-size: 14px;
+	margin: 2px;
+}
+
+table.mb-table tr {
+	border-bottom: 1px solid #6a7475;
+}
+
+table.mb-table-description tr td:first-child {
+	font-weight: bold;
+}
+
+
+/*
+ * Namespace: lm
+ * Title: Layout Manager Base CSS
+ *
+ *  This is a default layout manager configuration. Its all about the layout
+ * and view. This css manages Golden Layout package.
+ */
+
+.lm_root {
+	position: relative
+}
+
+.lm_row>.lm_item {
+	float: left
+}
+
+.lm_content {
+	overflow: hidden;
+	position: relative
+}
+
+.lm_dragging,
+.lm_dragging * {
+	cursor: move !important;
+	user-select: none
+}
+
+.lm_maximised {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 40
+}
+
+.lm_maximise_placeholder {
+	display: none
+}
+
+.lm_splitter {
+	position: relative;
+	z-index: 20
+}
+
+.lm_splitter:hover,
+.lm_splitter.lm_dragging {
+	background: orange
+}
+
+.lm_splitter.lm_vertical .lm_drag_handle {
+	width: 100%;
+	position: absolute;
+	cursor: ns-resize
+}
+
+.lm_splitter.lm_horizontal {
+	float: left;
+	height: 100%
+}
+
+.lm_splitter.lm_horizontal .lm_drag_handle {
+	height: 100%;
+	position: absolute;
+	cursor: ew-resize
+}
+
+.lm_header {
+	overflow: visible;
+	position: relative;
+	z-index: 1
+}
+
+.lm_header [class^=lm_] {
+	box-sizing: content-box !important
+}
+
+.lm_header .lm_controls {
+	position: absolute;
+	right: 3px
+}
+
+.lm_header .lm_controls>li {
+	cursor: pointer;
+	float: left;
+	width: 18px;
+	height: 18px;
+	text-align: center
+}
+
+.lm_header ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none
+}
+
+.lm_header .lm_tabs {
+	position: absolute
+}
+
+.lm_header .lm_tab {
+	cursor: pointer;
+	float: left;
+	height: 14px;
+	margin-top: 1px;
+	padding: 0 10px 5px;
+	padding-right: 25px;
+	position: relative
+}
+
+.lm_header .lm_tab i {
+	width: 2px;
+	height: 19px;
+	position: absolute
+}
+
+.lm_header .lm_tab i.lm_left {
+	top: 0;
+	left: -2px
+}
+
+.lm_header .lm_tab i.lm_right {
+	top: 0;
+	right: -2px
+}
+
+.lm_header .lm_tab .lm_title {
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.lm_header .lm_tab .lm_close_tab {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	text-align: center
+}
+
+.lm_stack.lm_left .lm_header,
+.lm_stack.lm_right .lm_header {
+	height: 100%
+}
+
+.lm_dragProxy.lm_left .lm_header,
+.lm_dragProxy.lm_right .lm_header,
+.lm_stack.lm_left .lm_header,
+.lm_stack.lm_right .lm_header {
+	width: 20px;
+	float: left;
+	vertical-align: top
+}
+
+.lm_dragProxy.lm_left .lm_header .lm_tabs,
+.lm_dragProxy.lm_right .lm_header .lm_tabs,
+.lm_stack.lm_left .lm_header .lm_tabs,
+.lm_stack.lm_right .lm_header .lm_tabs {
+	transform-origin: left top;
+	top: 0;
+	width: 1000px
+}
+
+.lm_dragProxy.lm_left .lm_header .lm_controls,
+.lm_dragProxy.lm_right .lm_header .lm_controls,
+.lm_stack.lm_left .lm_header .lm_controls,
+.lm_stack.lm_right .lm_header .lm_controls {
+	bottom: 0
+}
+
+.lm_dragProxy.lm_left .lm_items,
+.lm_dragProxy.lm_right .lm_items,
+.lm_stack.lm_left .lm_items,
+.lm_stack.lm_right .lm_items {
+	float: left
+}
+
+.lm_dragProxy.lm_left .lm_header .lm_tabs,
+.lm_stack.lm_left .lm_header .lm_tabs {
+	transform: rotate(-90deg) scaleX(-1);
+	left: 0
+}
+
+.lm_dragProxy.lm_left .lm_header .lm_tabs .lm_tab,
+.lm_stack.lm_left .lm_header .lm_tabs .lm_tab {
+	transform: scaleX(-1);
+	margin-top: 1px
+}
+
+.lm_dragProxy.lm_left .lm_header .lm_tabdropdown_list,
+.lm_stack.lm_left .lm_header .lm_tabdropdown_list {
+	top: initial;
+	right: initial;
+	left: 20px
+}
+
+.lm_dragProxy.lm_right .lm_content {
+	float: left
+}
+
+.lm_dragProxy.lm_right .lm_header .lm_tabs,
+.lm_stack.lm_right .lm_header .lm_tabs {
+	transform: rotate(90deg) scaleX(1);
+	left: 100%;
+	margin-left: 0
+}
+
+.lm_dragProxy.lm_right .lm_header .lm_controls,
+.lm_stack.lm_right .lm_header .lm_controls {
+	left: 3px
+}
+
+.lm_dragProxy.lm_right .lm_header .lm_tabdropdown_list,
+.lm_stack.lm_right .lm_header .lm_tabdropdown_list {
+	top: initial;
+	right: 20px
+}
+
+.lm_dragProxy.lm_bottom .lm_header .lm_tab,
+.lm_stack.lm_bottom .lm_header .lm_tab {
+	margin-top: 0;
+	border-top: none
+}
+
+.lm_dragProxy.lm_bottom .lm_header .lm_controls,
+.lm_stack.lm_bottom .lm_header .lm_controls {
+	top: 3px
+}
+
+.lm_dragProxy.lm_bottom .lm_header .lm_tabdropdown_list,
+.lm_stack.lm_bottom .lm_header .lm_tabdropdown_list {
+	top: initial;
+	bottom: 20px
+}
+
+.lm_drop_tab_placeholder {
+	float: left;
+	width: 100px;
+	height: 10px;
+	visibility: hidden
+}
+
+.lm_header .lm_controls .lm_tabdropdown:before {
+	content: '';
+	width: 0;
+	height: 0;
+	vertical-align: middle;
+	display: inline-block;
+	border-top: 5px dashed;
+	border-right: 5px solid transparent;
+	border-left: 5px solid transparent;
+	color: white
+}
+
+.lm_header .lm_tabdropdown_list {
+	position: absolute;
+	top: 20px;
+	right: 0;
+	z-index: 5;
+	overflow: hidden
+}
+
+.lm_header .lm_tabdropdown_list .lm_tab {
+	clear: both;
+	padding-right: 10px;
+	margin: 0
+}
+
+.lm_header .lm_tabdropdown_list .lm_tab .lm_title {
+	width: 100px
+}
+
+.lm_header .lm_tabdropdown_list .lm_close_tab {
+	display: none !important
+}
+
+.lm_dragProxy {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 30
+}
+
+.lm_dragProxy .lm_header {
+	background: transparent
+}
+
+.lm_dragProxy .lm_content {
+	border-top: none;
+	overflow: hidden
+}
+
+.lm_dropTargetIndicator {
+	display: none;
+	position: absolute;
+	z-index: 20
+}
+
+.lm_dropTargetIndicator .lm_inner {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	top: 0;
+	left: 0
+}
+
+.lm_transition_indicator {
+	display: none;
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 20
+}
+
+.lm_popin {
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	z-index: 9999
+}
+
+.lm_popin>* {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0
+}
+
+.lm_popin>.lm_bg {
+	z-index: 10
+}
+
+.lm_popin>.lm_icon {
+	z-index: 20
+}
+
+
+
+
+
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+*****************************************************************************************/
+.lm_goldenlayout.md-default-theme {
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAGFBMVEX29vb19fXw8PDy8vL09PTz8/Pv7+/x8fGKuegbAAAAyUlEQVR42pXRQQ7CMBRDwST9pfe/MahEmgURbt7WmpVb6+vG0dd9REnn66xRy/qXiCgmEIIJhGACIZhACCYQgvlDCDFIEAwSBIMEwSBBMEgQDBIEgwTBIEEwCJEMQiSDENFMQmQzCZEbNyGemd6KeGZ6u4hnXe2qbdLHFjhf1XqNLXHev4wdMd9nspiEiWISJgqECQJhgkCYIBAmCIQJAmGCQJggECYJhAkCEUMEwhCBMEQgDJEIQ2RSg0iEIRJhiB/S+rrjqvXQ3paIJUgPBXxiAAAAAElFTkSuQmCC)
+}
+
+.lm_content.md-default-theme {
+	background: #e1e1e1;
+	border: 1px solid #cccccc
+}
+
+.lm_content.md-default-theme {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+	box-sizing: border-box
+}
+
+.lm_splitter.md-default-theme {
+	background: #999999;
+	opacity: .001;
+	transition: opacity 200ms ease
+}
+
+.lm_splitter.md-default-theme:hover,
+.lm_splitter.lm_dragging.md-default-theme {
+	background: #bbbbbb;
+	opacity: 1
+}
+
+.lm_header.md-default-theme {
+	height: 20px
+}
+.lm_header.lm_selectable.md-default-theme {
+	cursor: pointer
+}
+.lm_header.md-default-theme .lm_tab {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	color: #888888;
+	background: #fafafa;
+	margin-right: 2px;
+	padding-bottom: 4px;
+	border: 1px solid #cccccc;
+	border-bottom: none
+}
+.lm_header.md-default-theme .lm_tab .lm_title {
+	padding-top: 1px
+}
+.lm_header.md-default-theme .lm_tab .lm_close_tab {
+	width: 11px;
+	height: 11px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAIklEQVR4nGNgYGD4z4Ad/Mdg4ODDBXCZRFgCp5EEHQMXBwAQAgz0SVCcggAAAABJRU5ErkJggg==);
+	background-position: center center;
+	background-repeat: no-repeat;
+	right: 6px;
+	top: 4px;
+	opacity: .4
+}
+.lm_header.md-default-theme .lm_tab .lm_close_tab:hover {
+	opacity: 1
+}
+.lm_header.md-default-theme .lm_tab.lm_active {
+	border-bottom: none;
+	box-shadow: 2px -2px 2px -2px rgba(0, 0, 0, 0.2);
+	padding-bottom: 5px
+}
+.lm_header.md-default-theme .lm_tab.lm_active .lm_close_tab {
+	opacity: 1
+}
+
+.lm_header.md-default-theme .lm_tab:hover,
+.lm_header.md-default-theme .lm_tab.lm_active {
+	background: #e1e1e1;
+	color: #777777
+}
+
+.lm_selected .lm_header.md-default-theme {
+	background-color: #452500
+}
+.lm_header.md-default-theme .lm_controls .lm_tabdropdown:before {
+	color: #000000
+}
+
+.lm_controls.md-default-theme>li {
+	position: relative;
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .4;
+	transition: opacity 300ms ease
+}
+.lm_controls.md-default-theme>li:hover {
+	opacity: 1
+}
+.lm_controls.md-default-theme .lm_popout {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAANUlEQVR4nI2QMQoAMAwCz5L/f9mOzZIaN0E9UDyZhaaQz6atgBHgambEJ5wBKoS0WaIvfT+6K2MIECN19MAAAAAASUVORK5CYII=)
+}
+.lm_controls.md-default-theme .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAIklEQVR4nGNkYGD4z0AAMBFSAAOETPpPlEmDUREjAxHhBABPvAQLFv3qngAAAABJRU5ErkJggg==)
+}
+.lm_controls.md-default-theme .lm_close {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVR4nGNgYGD4z4Af/Mdg4FKASwCnDf8JKSBoAtEmEXQTQd8RDCcA6+4Q8OvIgasAAAAASUVORK5CYII=)
+}
+
+.lm_maximised.md-default-theme .lm_header {
+	background-color: #ffffff
+}
+.lm_maximised.md-default-theme .lm_controls .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAJklEQVR4nGP8//8/AyHARFDFUFbEwsDAwMDIyIgzHP7//89IlEkApSkHEScJTKoAAAAASUVORK5CYII=)
+}
+.lm_transition_indicator.md-default-theme {
+	background-color: #000000;
+	border: 1px dashed #555555
+}
+.lm_popin.md-default-theme {
+	cursor: pointer
+}
+.lm_popin.md-default-theme .lm_bg {
+	background: #000000;
+	opacity: .7
+}
+.lm_popin.md-default-theme .lm_icon {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJCAYAAADpeqZqAAAAWklEQVR4nJWOyw3AIAxDHcQC7L8jbwT3AlJBfNp3SiI7dtRaLSlKKeoA1oEsKSQZCEluexw8Tm3ohk+E7bnOUHUGcNh+HwbBygw4AZ7FN/Lt84p0l+yTflV8AKQyLdcCRJi/AAAAAElFTkSuQmCC);
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .7
+}
+.lm_popin.md-default-theme:hover .lm_icon {
+	opacity: 1
+}
+.lm_goldenlayout.md-default-theme .lm_dragProxy {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+	box-sizing: border-box
+}
+.lm_goldenlayout.md-default-theme .lm_dropTargetIndicator {
+	box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+	outline: 1px dashed #cccccc;
+	margin: 1px;
+	transition: all 200ms ease
+}
+.lm_goldenlayout.md-default-theme .lm_dropTargetIndicator .lm_inner {
+	background: #000000;
+	opacity: .1
+}
+
+.lm_goldenlayout.md-default-theme .lm_dragProxy.lm_bottom .lm_header .lm_tab.lm_active,
+.lm_goldenlayout.md-default-theme .lm_stack.lm_bottom .lm_header .lm_tab.lm_active {
+	box-shadow: 2px 2px 2px -2px rgba(0, 0, 0, 0.2)
+}
+
+
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+Manages theme of the layout manager. This css manages Golden Layout package.
+
+NOTE: this will be converted into directive in the next release to support dynamic theme
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+.lm_goldenlayout.md-dark-theme {
+	background: #000000
+}
+
+.lm_content.md-dark-theme {
+	background: #222222
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dragProxy .lm_content {
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9)
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dropTargetIndicator {
+	box-shadow: inset 0 0 30px #000000;
+	outline: 1px dashed #cccccc;
+	transition: all 200ms ease
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dropTargetIndicator .lm_inner {
+	background: #000000;
+	opacity: .2
+}
+
+.lm_splitter.md-dark-theme {
+	background: #000000;
+	opacity: .001;
+	transition: opacity 200ms ease
+}
+
+.lm_splitter.md-dark-theme:hover,
+.lm_splitter.lm_draggin.md-dark-themeg {
+	background: #444444;
+	opacity: 1
+}
+
+.lm_header.md-dark-theme {
+	height: 20px;
+	user-select: none
+}
+
+.lm_header.lm_selectable.md-dark-theme {
+	cursor: pointer
+}
+
+.lm_header.md-dark-theme .lm_tab {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+	color: #999999;
+	background: #111111;
+	margin-right: 2px;
+	padding-bottom: 2px;
+	padding-top: 2px
+}
+
+.lm_header.md-dark-theme .lm_tab .lm_close_tab {
+	width: 11px;
+	height: 11px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAATElEQVR4nG3OwQ0DMQwDwZGRBtR/j1YJzMc5+IDoR+yCVO29g+pu981MFgqZmRdAfU7+CYWcbF11LwALjpBL0N0qybNx/RPU+gOeiS/+XCRwDlTgkQAAAABJRU5ErkJggg==);
+	background-position: center center;
+	background-repeat: no-repeat;
+	top: 4px;
+	right: 6px;
+	opacity: .4
+}
+
+.lm_header.md-dark-theme .lm_tab .lm_close_tab:hover {
+	opacity: 1
+}
+
+.lm_header.md-dark-theme .lm_tab.lm_active {
+	border-bottom: none;
+	padding-bottom: 3px
+}
+
+.lm_header.md-dark-theme .lm_tab.lm_active .lm_close_tab {
+	opacity: 1
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dragProxy.lm_bottom .lm_header .lm_tab,
+.lm_goldenlayout.md-dark-theme .lm_stack.lm_bottom .lm_header .lm_tab {
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3)
+}
+
+.lm_goldenlayout.md-dark-theme .lm_dragProxy.lm_bottom .lm_header .lm_tab.lm_active,
+.lm_goldenlayout.md-dark-theme .lm_stack.lm_bottom .lm_header .lm_tab.lm_active {
+	box-shadow: 0 2px 2px #000000
+}
+
+.lm_selected .lm_header.md-dark-theme  {
+	background-color: #452500
+}
+
+.lm_tab.md-dark-theme :hover,
+.lm_tab.lm_active.md-dark-theme  {
+	background: #222222;
+	color: #dddddd
+}
+
+.lm_header.md-dark-theme  .lm_controls .lm_tabdropdown:before {
+	color: #ffffff
+}
+
+.lm_controls.md-dark-theme >li {
+	position: relative;
+	background-position: center center;
+	background-repeat: no-repeat;
+	opacity: .4;
+	transition: opacity 300ms ease
+}
+
+.lm_controls.md-dark-theme >li:hover {
+	opacity: 1
+}
+
+.lm_controls.md-dark-theme  .lm_popout {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAPklEQVR4nI2Q0QoAIAwCNfr/X7aXCpGN8snBdgejJOzckpkxs9jR6K6T5JpU0nWl5pSXTk7qwh8SnNT+CAAWCgkKFpuSWsUAAAAASUVORK5CYII=)
+}
+
+.lm_controls.md-dark-theme  .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKElEQVR4nGP8////fwYCgImQAgYGBgYWKM2IR81/okwajIpgvsMbVgAwgQYRVakEKQAAAABJRU5ErkJggg==)
+}
+
+.lm_controls.md-dark-theme  .lm_close {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAQUlEQVR4nHXOQQ4AMAgCQeT/f6aXpsGK3jSTuCVJAAr7iBdoAwCKd0nwfaAdHbYERw5b44+E8JoBjEYGMBq5gAYP3usUDu2IvoUAAAAASUVORK5CYII=)
+}
+
+.lm_maximised.md-dark-theme  .lm_header {
+	background-color: #000000
+}
+
+.lm_maximised.md-dark-theme  .lm_controls .lm_maximise {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJ0lEQVR4nGP8//8/AzGAiShVI1YhCwMDA8OsWbPwBmZaWhoj0SYCAN1lBxMAX4n0AAAAAElFTkSuQmCC)
+}
+
+.lm_transition_indicator.md-dark-theme  {
+	background-color: #000000;
+	border: 1px dashed #555555
+}
+
+.lm_popin.md-dark-theme  {
+	cursor: pointer
+}
+
+.lm_popin.md-dark-theme  .lm_bg {
+	background: #ffffff;
+	opacity: .3
+}
+
+.lm_popin.md-dark-theme  .lm_icon {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJCAYAAADpeqZqAAAAWklEQVR4nJWOyw3AIAxDHcQC7L8jbwT3AlJBfNp3SiI7dtRaLSlKKeoA1oEsKSQZCEluexw8Tm3ohk+E7bnOUHUGcNh+HwbBygw4AZ7FN/Lt84p0l+yTflV8AKQyLdcCRJi/AAAAAElFTkSuQmCC);
+	background-position: center center;
+	background-repeat: no-repeat;
+	border-left: 1px solid #eeeeee;
+	border-top: 1px solid #eeeeee;
+	opacity: .7
+}
+
+.lm_popin.md-dark-theme :hover .lm_icon {
+	opacity: 1
+}
+
+
+
+
+
+
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+*****************************************************************************************/
+
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+*****************************************************************************************/
+/*
+ Namespace: mb_ui
+ Title: Manages MB UI components
+
+Here is list of UI components:
+
+- view
+- eidtor
+- toolbar
+- statusbar
+
+In this part we manage all basic component of the mb-ui
+  
+ */
+
+/****************************************************************************
+ Layout
+ - mb_docker_xxx: used for docker view
+ - mb_mobile_xxx: used for mobile view
+****************************************************************************/
+.mb_docker_body {
+	position: relative !important;
+	top: 0px !important;
+	left: 0px !important;
+/*	height: 100% !important;
+	width: 100% !important;*/
+	margin: 0px !important;
+	padding: 0px !important;
+	display: flex !important;
+	flex-direction: row !important;
+}
+
+.mb_docker_panel{
+	position: relative !important;
+	top: 0px !important;
+	left: 0px !important;
+/*	height: 100% !important;
+	width: 100% !important;*/
+	margin: 0px !important;
+	padding: 0px !important;
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+.mb_docker_view{
+	flex-grow: 1;
+}
+
+/****************************************************************************
+ Editor component
+****************************************************************************/
+.mb_docker_container_editor > * {
+	height: 100% !important;
+	width: 100% !important;
+	padding: 0px !important;
+	margin: 0px !important;
+}
+
+/****************************************************************************
+ View component
+****************************************************************************/
+.mb_docker_container_view  {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.mb_docker_container_view>mb-toolbar {
+	flex-grow: 0;
+	flex-shrink: 0;
+	flex-basis: auto;
+	padding: 0px;
+	margin: 0px;
+	height: auto;
+}
+
+.mb_docker_container_view>.mb-container-content {
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0px;
+	padding: 0px !important;
+	margin: 0px !important;
+	overflow: hidden;
 }

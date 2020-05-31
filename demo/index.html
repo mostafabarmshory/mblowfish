@@ -2,10 +2,10 @@
 <html 
 	ng-app="app"
 	dir="{{__app.dir}}"
-	md-theme="{{__app.test.theme || __app.setting.theme || __app.config.theme || 'default'}}"
+	md-theme="{{ __app.setting.theme || __app.config.theme || 'default'}}"
 	md-theme-watch>
 <head>
-	<title>Angular Material Dashboard</title>
+	<title>MBlowfis - Advanced Online IDE</title>
 	<meta charset="utf-8">
 	<meta name="description" content="Angular admin dashboard with material design">
 	<meta name="author" content="flatlogic.com">
@@ -21,7 +21,6 @@
 	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
 	<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
 	<link rel="stylesheet" href="bower_components/material-steppers/dist/material-steppers.css" />
-	<link rel="stylesheet" href="bower_components/jspanel4x/dist/jspanel.css" />
 	<link rel="stylesheet" href="bower_components/md-color-picker/dist/md-color-picker.css" />
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -33,21 +32,26 @@
 	<link rel="stylesheet" href="styles/angular-material.css">
 	<link rel="stylesheet" href="styles/badge.css">
 	<link rel="stylesheet" href="styles/container.css">
+	<link rel="stylesheet" href="styles/core.css">
 	<link rel="stylesheet" href="styles/dialogs.css">
 	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
 	<link rel="stylesheet" href="styles/infinate-scroll.css">
 	<link rel="stylesheet" href="styles/inline.css">
-	<link rel="stylesheet" href="styles/main.css">
 	<link rel="stylesheet" href="styles/md-expansion-panel .css">
+	<link rel="stylesheet" href="styles/module-iframe.css">
 	<link rel="stylesheet" href="styles/navigation-path-bar.css">
 	<link rel="stylesheet" href="styles/preload.css">
 	<link rel="stylesheet" href="styles/print.css">
 	<link rel="stylesheet" href="styles/sidenave.css">
-	<link rel="stylesheet" href="styles/tables.css">
 	<link rel="stylesheet" href="styles/tree.css">
-	<link rel="stylesheet" href="styles/user-menu.css">
-	<link rel="stylesheet" href="styles/wb-icon.css">
-	<link rel="stylesheet" href="styles/test-preloader.css">
+	<link rel="stylesheet" href="styles/ui-component-preloading.css">
+	<link rel="stylesheet" href="styles/ui-component-status.css">
+	<link rel="stylesheet" href="styles/ui-component-toolbar.css">
+	<link rel="stylesheet" href="styles/ui-components.css">
+	<link rel="stylesheet" href="styles/ui-layout-base.css">
+	<link rel="stylesheet" href="styles/ui-status.css">
+	<link rel="stylesheet" href="styles/ui.css">
+	<link rel="stylesheet" href="styles/demo-theme.css">
 	<!-- endinjector -->
 	<!-- endbuild -->
 
@@ -56,7 +60,6 @@
 	<script src="bower_components/jquery/dist/jquery.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-cookies/angular-cookies.js"></script>
-	<script src="bower_components/angular-route/angular-route.js"></script>
 	<script src="bower_components/angular-animate/angular-animate.js"></script>
 	<script src="bower_components/angular-aria/angular-aria.js"></script>
 	<script src="bower_components/angular-messages/angular-messages.js"></script>
@@ -71,7 +74,7 @@
 	<script src="bower_components/seen-cms/dist/seen-cms.js"></script>
 	<script src="bower_components/seen-monitor/dist/seen-monitor.js"></script>
 	<script src="bower_components/flux/dist/Flux.js"></script>
-	<script src="bower_components/am-wb-core/dist/am-wb-core.js"></script>
+	<script src="bower_components/am-wb-core/dist/am-wb-core.min.js"></script>
 	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
 	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
 	<script src="bower_components/angular-recaptcha/release/angular-recaptcha.js"></script>
@@ -80,15 +83,14 @@
 	<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
 	<script src="bower_components/material-steppers/dist/material-steppers.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
-	<script src="bower_components/jspanel4x/dist/jspanel.js"></script>
 	<script src="bower_components/tinymce/tinymce.js"></script>
 	<script src="bower_components/tinycolor/tinycolor.js"></script>
 	<script src="bower_components/md-color-picker/dist/md-color-picker.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
 	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
-	<script src="bower_components/ngstorage/ngStorage.js"></script>
 	<script src="bower_components/loglevel/dist/loglevel.min.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
+	<script src="bower_components/golden-layout/dist/goldenlayout.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -98,41 +100,33 @@
 	<script src="libs/machina.js"></script>
 	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/app.js"></script>
-	<script src="scripts/configs/angular-hack-http.js"></script>
-	<script src="scripts/configs/icons.js"></script>
-	<script src="scripts/configs/language.js"></script>
-	<script src="scripts/configs/local.js"></script>
-	<script src="scripts/configs/states.js"></script>
-	<script src="scripts/configs/theme.js"></script>
-	<script src="scripts/controllers/abstract-ctrl.js"></script>
-	<script src="scripts/controllers/account.js"></script>
-	<script src="scripts/controllers/dashboard.js"></script>
-	<script src="scripts/controllers/help.js"></script>
-	<script src="scripts/controllers/initial.js"></script>
-	<script src="scripts/controllers/languages.js"></script>
-	<script src="scripts/controllers/mb-language.js"></script>
-	<script src="scripts/controllers/mb-local.js"></script>
-	<script src="scripts/controllers/navigator-dialog.js"></script>
-	<script src="scripts/controllers/navigator.js"></script>
-	<script src="scripts/controllers/options.js"></script>
-	<script src="scripts/controllers/password.js"></script>
-	<script src="scripts/controllers/preference.js"></script>
-	<script src="scripts/controllers/preferences.js"></script>
-	<script src="scripts/controllers/profile.js"></script>
-	<script src="scripts/controllers/seen-abstract-binaryItem-ctrl.js"></script>
-	<script src="scripts/controllers/seen-abstract-collection-ctrl.js"></script>
-	<script src="scripts/controllers/seen-abstract-item-ctrl.js"></script>
-	<script src="scripts/controllers/seen-cms-contents-ctrl.js"></script>
-	<script src="scripts/controllers/seen-cms-termTaxonomies-ctrl.js"></script>
-	<script src="scripts/controllers/seen-general-abstract-collection-ctrl.js"></script>
-	<script src="scripts/controllers/seen-user-account.js"></script>
-	<script src="scripts/controllers/seen-user-accounts.js"></script>
-	<script src="scripts/controllers/seen-user-groups.js"></script>
-	<script src="scripts/controllers/seen-user-messages.js"></script>
-	<script src="scripts/controllers/seen-user-profiles.js"></script>
-	<script src="scripts/controllers/seen-user-roles.js"></script>
-	<script src="scripts/controllers/themes.js"></script>
-	<script src="scripts/controllers/toolbar-dashboard.js"></script>
+	<script src="scripts/core/account-service.js"></script>
+	<script src="scripts/core/angular-hack-configs.js"></script>
+	<script src="scripts/core/application-service.js"></script>
+	<script src="scripts/core/clipboard-service.js"></script>
+	<script src="scripts/core/crypto-md5-filter.js"></script>
+	<script src="scripts/core/crypto-service.js"></script>
+	<script src="scripts/core/dispatcher-util.js"></script>
+	<script src="scripts/core/dispatcher.js"></script>
+	<script src="scripts/core/event-factory.js"></script>
+	<script src="scripts/core/job-factory.js"></script>
+	<script src="scripts/core/job-service.js"></script>
+	<script src="scripts/core/local-configs.js"></script>
+	<script src="scripts/core/local-currency-filter.js"></script>
+	<script src="scripts/core/local-date-filter.js"></script>
+	<script src="scripts/core/local-language-loader-factory.js"></script>
+	<script src="scripts/core/local-service.js"></script>
+	<script src="scripts/core/logger-service.js"></script>
+	<script src="scripts/core/module-factory.js"></script>
+	<script src="scripts/core/module-services.js"></script>
+	<script src="scripts/core/network-http-interceptor-factory.js"></script>
+	<script src="scripts/core/resource-service.js"></script>
+	<script src="scripts/core/selection-service.js"></script>
+	<script src="scripts/core/settings-service.js"></script>
+	<script src="scripts/core/storage-service.js"></script>
+	<script src="scripts/core/tenant-services.js"></script>
+	<script src="scripts/core/theming-service.js"></script>
+	<script src="scripts/core/util-service.js"></script>
 	<script src="scripts/directives/compare-to.js"></script>
 	<script src="scripts/directives/mb-badge.js"></script>
 	<script src="scripts/directives/mb-captcha.js"></script>
@@ -145,81 +139,103 @@
 	<script src="scripts/directives/mb-inline.js"></script>
 	<script src="scripts/directives/mb-navigation-bar.js"></script>
 	<script src="scripts/directives/mb-pagination-bar.js"></script>
-	<script src="scripts/directives/mb-panel-sidenav-anchor.js"></script>
-	<script src="scripts/directives/mb-panel-toolbar-anchor.js"></script>
 	<script src="scripts/directives/mb-pay.js"></script>
 	<script src="scripts/directives/mb-preference-page.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-titled-block.js"></script>
-	<script src="scripts/directives/mb-tree-heading.js"></script>
-	<script src="scripts/directives/mb-tree-link.js"></script>
-	<script src="scripts/directives/mb-tree-toggle.js"></script>
-	<script src="scripts/directives/mb-tree.js"></script>
-	<script src="scripts/directives/mb-user-menu.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
-	<script src="scripts/directives/mb-view.js"></script>
 	<script src="scripts/directives/ng-src-error.js"></script>
-	<script src="scripts/directives/wb-icon.js"></script>
 	<script src="scripts/directives/wb-on-dragstart.js"></script>
 	<script src="scripts/directives/wb-on-enter.js"></script>
 	<script src="scripts/directives/wb-on-error.js"></script>
 	<script src="scripts/directives/wb-on-esc.js"></script>
 	<script src="scripts/directives/wb-on-load.js"></script>
-	<script src="scripts/expan/expansionPanelCollapsedDirective.js"></script>
-	<script src="scripts/expan/expansionPanelDirective.js"></script>
-	<script src="scripts/expan/expansionPanelExpandedDirective.js"></script>
-	<script src="scripts/expan/expansionPanelFooterDirective.js"></script>
-	<script src="scripts/expan/expansionPanelGroupDirective.js"></script>
-	<script src="scripts/expan/expansionPanelGroupService.js"></script>
-	<script src="scripts/expan/expansionPanelHeaderDirective.js"></script>
-	<script src="scripts/expan/expansionPanelService.js"></script>
-	<script src="scripts/factories/Action.js"></script>
-	<script src="scripts/factories/ActionGroup.js"></script>
-	<script src="scripts/factories/Event.js"></script>
-	<script src="scripts/factories/Interceptor.js"></script>
-	<script src="scripts/factories/MbLanguageLoader.js"></script>
-	<script src="scripts/factories/MbMissingTranslationHandler.js"></script>
-	<script src="scripts/factories/dialog-window.js"></script>
-	<script src="scripts/filters/currency.js"></script>
-	<script src="scripts/filters/date.js"></script>
-	<script src="scripts/filters/wb-md5.js"></script>
-	<script src="scripts/filters/wb-unsafe.js"></script>
-	<script src="scripts/providers/icon-servic.js"></script>
-	<script src="scripts/runs/app-extension-config-autosave.js"></script>
-	<script src="scripts/runs/app.js"></script>
+	<script src="scripts/module-account/account-actions-ctrl.js"></script>
+	<script src="scripts/module-account/account-container-ctrl.js"></script>
+	<script src="scripts/module-account/account-profile-editor-ctrl.js"></script>
+	<script src="scripts/module-account/module.js"></script>
+	<script src="scripts/module-cms/seen-cms-contents-ctrl.js"></script>
+	<script src="scripts/module-cms/seen-cms-termTaxonomies-ctrl.js"></script>
+	<script src="scripts/module-help/help.js"></script>
+	<script src="scripts/module-iframe/IFrameContainerCtrl.js"></script>
+	<script src="scripts/module-iframe/module.js"></script>
+	<script src="scripts/module-local/language-service.js"></script>
+	<script src="scripts/module-local/languages.js"></script>
+	<script src="scripts/module-local/mb-language.js"></script>
+	<script src="scripts/module-local/mb-local.js"></script>
+	<script src="scripts/module-local/missing-translation-handler-factory.js"></script>
+	<script src="scripts/module-local/module.js"></script>
+	<script src="scripts/module-moduleManager/controllers.js"></script>
+	<script src="scripts/module-moduleManager/run-actions.js"></script>
+	<script src="scripts/module-moduleManager/run-options.js"></script>
+	<script src="scripts/module-moduleManager/run-preference.js"></script>
+	<script src="scripts/module-moduleManager/run-resources.js"></script>
+	<script src="scripts/module-navigator/module.js"></script>
+	<script src="scripts/module-navigator/navigator-container-ctrl.js"></script>
+	<script src="scripts/module-preferences/app-extension-config-autosave.js"></script>
+	<script src="scripts/module-preferences/preference.js"></script>
+	<script src="scripts/module-preferences/preferences.js"></script>
+	<script src="scripts/module-preload/preload-component-ctrl.js"></script>
+	<script src="scripts/module-seen/abstract-ctrl.js"></script>
+	<script src="scripts/module-seen/seen-abstract-binaryItem-ctrl.js"></script>
+	<script src="scripts/module-seen/seen-abstract-collection-ctrl.js"></script>
+	<script src="scripts/module-seen/seen-abstract-item-ctrl.js"></script>
+	<script src="scripts/module-seen/seen-general-abstract-collection-ctrl.js"></script>
+	<script src="scripts/module-users/seen-user-account.js"></script>
+	<script src="scripts/module-users/seen-user-accounts.js"></script>
+	<script src="scripts/module-users/seen-user-groups.js"></script>
+	<script src="scripts/module-users/seen-user-messages.js"></script>
+	<script src="scripts/module-users/seen-user-profiles.js"></script>
+	<script src="scripts/module-users/seen-user-roles.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
-	<script src="scripts/runs/google-analytics.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
-	<script src="scripts/runs/language.js"></script>
-	<script src="scripts/runs/page-init.js"></script>
 	<script src="scripts/runs/preferences.js"></script>
-	<script src="scripts/runs/protection.js"></script>
 	<script src="scripts/runs/resources-lang.js"></script>
 	<script src="scripts/runs/resources.js"></script>
-	<script src="scripts/services/actions.js"></script>
-	<script src="scripts/services/app.js"></script>
-	<script src="scripts/services/clipboard.js"></script>
-	<script src="scripts/services/crypto.js"></script>
-	<script src="scripts/services/error-handler.js"></script>
-	<script src="scripts/services/export.js"></script>
-	<script src="scripts/services/float.js"></script>
 	<script src="scripts/services/help.js"></script>
-	<script src="scripts/services/language.js"></script>
-	<script src="scripts/services/local.js"></script>
 	<script src="scripts/services/metrics.js"></script>
 	<script src="scripts/services/navigator.js"></script>
 	<script src="scripts/services/notification.js"></script>
 	<script src="scripts/services/options.js"></script>
-	<script src="scripts/services/page.js"></script>
 	<script src="scripts/services/preferences.js"></script>
-	<script src="scripts/services/resource.js"></script>
-	<script src="scripts/services/sidenav.js"></script>
-	<script src="scripts/services/storage.js"></script>
-	<script src="scripts/services/toolbar.js"></script>
-	<script src="scripts/services/uuid.js"></script>
-	<script src="scripts/test-app.js"></script>
-	<script src="scripts/test-configs/language.js"></script>
-	<script src="scripts/test-configs/path.js"></script>
+	<script src="scripts/ui-components/html-unsafe-filter.js"></script>
+	<script src="scripts/ui-dialog/dialog-default-ctrl.js"></script>
+	<script src="scripts/ui-dialog/dialog-factory.js"></script>
+	<script src="scripts/ui-dialog/dialog-service.js"></script>
+	<script src="scripts/ui-icon/icon-directive.js"></script>
+	<script src="scripts/ui-icon/icon-servic.js"></script>
+	<script src="scripts/ui-icon/icons-configs.js"></script>
+	<script src="scripts/ui-sidenav/sidenav-directive.js"></script>
+	<script src="scripts/ui-sidenav/sidenav-factory.js"></script>
+	<script src="scripts/ui-sidenav/sidenav-service.js"></script>
+	<script src="scripts/ui/action-factory.js"></script>
+	<script src="scripts/ui/action-group-factory.js"></script>
+	<script src="scripts/ui/actions-service.js"></script>
+	<script src="scripts/ui/component-factory.js"></script>
+	<script src="scripts/ui/component-service.js"></script>
+	<script src="scripts/ui/container-factory.js"></script>
+	<script src="scripts/ui/editor-factory.js"></script>
+	<script src="scripts/ui/editor-service.js"></script>
+	<script src="scripts/ui/frame-factory.js"></script>
+	<script src="scripts/ui/group-factory.js"></script>
+	<script src="scripts/ui/layout-factory.js"></script>
+	<script src="scripts/ui/layout-service.js"></script>
+	<script src="scripts/ui/menu-factory.js"></script>
+	<script src="scripts/ui/menu-service.js"></script>
+	<script src="scripts/ui/route-service.js"></script>
+	<script src="scripts/ui/route-view-directive.js"></script>
+	<script src="scripts/ui/routeParam-service.js"></script>
+	<script src="scripts/ui/status-directive.js"></script>
+	<script src="scripts/ui/theme-configs.js"></script>
+	<script src="scripts/ui/toolbar-factory.js"></script>
+	<script src="scripts/ui/toolbar-group-directive.js"></script>
+	<script src="scripts/ui/toolbar-service.js"></script>
+	<script src="scripts/ui/ui-handler-factory.js"></script>
+	<script src="scripts/ui/uiUtil-service.js"></script>
+	<script src="scripts/ui/view-factory.js"></script>
+	<script src="scripts/ui/view-service.js"></script>
+	<script src="scripts/demo-app.js"></script>
+	<script src="scripts/module-demo/module.js"></script>
 	<script src="scripts/test-controller/content-wburger.js"></script>
 	<script src="scripts/test-controller/dynamic-form.js"></script>
 	<script src="scripts/test-controller/help.js"></script>
@@ -234,16 +250,27 @@
 	<script src="scripts/test-controller/themes.js"></script>
 	<script src="scripts/test-controller/titled-block.js"></script>
 	<script src="scripts/test-controller/toolbar.js"></script>
+	<script src="scripts/test-editors/iframe-editor.js"></script>
 	<script src="scripts/test-runs/test-app.js"></script>
+	<script src="scripts/test-views/demo-explorer.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
-	<meta name="test" value="{{__app.dir}}">
+
 </head>
 <body 
 	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"
-	layout="column"
-	mb-view
-	style="height: 100vh; width: 100vw;">
+	mb-sidenavs>
+	<main>
+		<mb-toolbar-group
+			mb-url="/app/main"
+			mb-toolbars="['/app/demo', '/app/io']">
+		</mb-toolbar-group>
+		<mb-view
+			mb-mode="docker"></mb-view>
+		<mb-status
+			mb-url="/app/main">
+		</mb-status>
+	</main>
 </body>
 </html>
 
