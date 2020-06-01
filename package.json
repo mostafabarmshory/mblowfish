@@ -1,10 +1,12 @@
 {
 	"private": false,
+	"main": "dist/mblowfish.js",
 	"devDependencies": {
-		"@babel/core": "^7.10.1",
+		"@babel/core": "^7.10.2",
 		"@babel/preset-env": "^7.10.1",
 		"angular-jsdoc": "^1.5.0",
 		"angular-mocks": "^1.7.9",
+		"angularjs-template-loader": "^0.1.2",
 		"autoprefixer": "^9.1.5",
 		"autoprefixer-core": "^5.2.1",
 		"babel-cli": "^6.26.0",
@@ -68,6 +70,7 @@
 		"karma-safaritechpreview-launcher": "0.0.6",
 		"karma-sourcemap-loader": "^0.3.7",
 		"karma-webpack": "^4.0.2",
+		"mini-css-extract-plugin": "^0.9.0",
 		"ng-annotate-loader": "^0.6.1",
 		"node-json-minify": "^1.0.0",
 		"pixrem": "^4.0.1",
@@ -85,5 +88,8 @@
 	"scripts": {
 		"test": "karma start test/karma.conf.js",
 		"build": "webpack --config webpack.config.js"
+	},
+	"dependencies": {
+		"angular": "^1.7.9"
 	}
 }

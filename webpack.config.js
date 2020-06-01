@@ -2,21 +2,26 @@ const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 //const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-//const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 
 const sourcePath = path.resolve(__dirname, 'src');
 const distPath = path.resolve(__dirname, 'dist');
 
 module.exports = {
+	mode: 'production',
 	entry: {
-		app: sourcePath + '/scripts/app.js',
+		app: sourcePath + '/index.js',
 	},
 	output: {
 		filename: '[name].bundle.js',
-		path: distPath
+		path: distPath,
+		library: 'mblowfish',
 	},
+	externals: [
+		'angular',
+//		'loadash'
+	],
 	devtool: 'inline-source-map',
 	devServer: {
 		contentBase: './dist'
@@ -36,8 +41,7 @@ module.exports = {
 		new CleanWebpackPlugin({
 			// Simulate the removal of files
 			//
-			// default: false
-			dry: true,
+			// dry: false,
 
 			// Write Logs to Console
 			// (Always enabled when dry is true)
@@ -75,7 +79,7 @@ module.exports = {
 			// Use !negative patterns to exclude files
 			//
 			// default: ['**/*']
-			cleanOnceBeforeBuildPatterns: ['**/*', '!static-files*'],
+			cleanOnceBeforeBuildPatterns: ['**/*'],
 			cleanOnceBeforeBuildPatterns: [], // disables cleanOnceBeforeBuildPatterns
 
 			// Removes files after every build (including watch mode) that match this pattern.
@@ -97,31 +101,40 @@ module.exports = {
 		//			title: 'Webpack Starter App',
 		//			template: '/templates/index.html'
 		//		})
+		new MiniCssExtractPlugin(),
 	],
 	module: {
 		rules: [
 			{
 				test: /\.css$/,
-				use: [
-					'style-loader',
-					'css-loader'
-				]
-			},
-			{
+				use: [{
+					loader: 'style-loader'
+				}, {
+					loader: 'css-loader'
+				}]
+			}, {
 				test: /\.(png|svg|jpg|gif)$/,
-				use: [
-					'file-loader'
-				]
-			},
-			{
+				use: [{
+					loader: 'file-loader'
+				}]
+			}, {
 				test: /\.m?js$/,
 				exclude: /(node_modules|bower_components)/,
-				use: {
+				use: [{
+					loader: 'angularjs-template-loader',
+					//options: {}
+				}, {
 					loader: 'babel-loader',
 					options: {
 						presets: ['@babel/preset-env']
 					}
-				}
+				}]
+			}, {
+				test: /\.html$/,
+				use: [{
+					loader: 'file-loader',
+					options: {}
+				}]
 			}
 		]
 	}
