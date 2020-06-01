@@ -80,8 +80,31 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	var forceAccountLogin = {
 		title: 'Login',
 		/* @ngInject */
-		action: function() {
-			// XXX: maso, 2020: 
+		action: function(MbComponent, $rootElement, $mbAccount, $mbDispatcher) {
+			loginComponent = new MbComponent(loginComponentConfig);
+			function renderPanel() {
+				element = angular.element('<mb-login-panel></mb-login-panel>');
+				$rootElement.append(element);
+				return loginComponent.render({
+					$element: element,
+				});
+			}
+
+			function destroy() {
+				loginComponent.destroy();
+			}
+
+			$mbDispatcher.on('/account', function() {
+				if ($mbAccount.isAnonymous()) {
+					renderPanel();
+				} else {
+					destroy();
+				}
+			});
+
+			if ($mbAccount.isAnonymous()) {
+				return renderPanel();
+			}
 		}
 	};
 
@@ -115,6 +138,12 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	var accountDetailRequired = false;
 	var settingsRequired = true;
 	var logingRequired = false;
+	var loginComponentConfig = {
+		templateUrl: 'views/mb-login-default.html',
+		controller: 'MbAccountContainerCtrl',
+		controllerAs: 'ctrl',
+	};
+	var loginComponent;
 	var settinsRequired = true;
 
 	var STATE_INIT = 'init';
@@ -174,6 +203,11 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 
 	function isLoginRequired() {
 		return logingRequired;
+	}
+
+	function setLoginComponent(componentConfig) {
+		loginComponentConfig = componentConfig;
+		return provider;
 	}
 
 	function setTenantRequired(flag) {
@@ -308,6 +342,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		setAccountDetailRequired: setAccountDetailRequired,
 		setSettingsRequired: setSettingsRequired,
 		setLogingRequired: setLogingRequired,
+		setLoginComponent: setLoginComponent,
 	};
 	return provider;
 });

@@ -30,79 +30,68 @@ Manages current user action:
 
 - login
 - logout
-- change password
-- recover password
+- recover pass
+- login with CAS
+
+@param {string} isProcessingLogout True if the controller is wait for logout
+@param {string} isProcessingLogin True if the controller is wait for login
 
  */
 mblowfish.controller('MbAccountContainerCtrl', function(
 	/* Angularjs */ $scope, $rootScope, $translate, $window, $usr,
 	/* MBlowfish */ $mbAccount, $mbLogger) {
 
-	this.loginProcess = false;
-	this.loginState = null;
-	this.logoutProcess = false;
-	this.logoutState = null;
-	this.changingPassword = false;
-	this.changePassState = null;
-	this.updatingAvatar = false;
-	this.loadingUser = false;
-	this.savingUser = false;
+
+	// support old systems
+	var ctrl = this;
+
 
 	/**
-	 * Call login process for current user
-	 * 
-	 * @memberof AmhUserAccountCtrl
-	 * @name login
-	 * @param {object}
-	 *            cridet username and password
-	 * @param {string}
-	 *            cridet.login username
-	 * @param {stirng}
-	 *            cridig.password Password
-	 * @returns {promiss} to do the login
+	 Call login process for current user
+	 
+	 @memberof MbAccountContainerCtrl
+	 @name login
+	 @param {object} cridet Username, password, token and others required in login
+	 @param {string} cridet.login Login name of the user
+	 @param {stirng} cridet.password Password ot the user
+	 @param {stirng} cridet.token Token to use in the login
+	 @param {stirng} cridet.captcha captcah to send
+	 @returns {promiss} TO do the login
 	 */
-	this.login = function(cridet, form) {
-		if (ctrl.loginProcess) {
+	function login(cridet) {
+		if (ctrl.isProcessingLogin) {
 			return false;
 		}
-		ctrl.loginProcess = true;
-		return $mbAccount.login(cridet)//
-			.then(function() {
-				ctrl.loginState = 'success';
-				$scope.loginMessage = null;
-			}, function(error) {
-				ctrl.loginState = 'fail';
-				$scope.loginMessage = $mbLogger.errorMessage(error, form);
+		return ctrl.isProcessingLogin = $mbAccount.login(cridet)
+			.catch(function(error) {
+				// TODO: maso, 2020: chanage state to error
 			})
 			.finally(function() {
-				ctrl.loginProcess = false;
+				delete ctrl.isProcessingLogin;
 			});
 	}
 
-	this.logout = function() {
-		if (ctrl.logoutProcess) {
+	function logout() {
+		if (ctrl.isProcessingLogout) {
 			return false;
 		}
-		ctrl.logoutProcess = true;
-		return $mbAccount.logout()//
-			.then(function() {
-				ctrl.logoutState = 'success';
-			}, function() {
-				ctrl.logoutState = 'fail';
+		return ctrl.isProcessingLogout = $mbAccount.logout()//
+			.catch(function(error) {
+				// TODO: maso, 2020: chanage state to error
 			})
 			.finally(function() {
-				ctrl.logoutProcess = false;
+				delete ctrl.isProcessingLogout;
 			});
 	}
 
 	/**
-	 * Change password of the current user
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to change password
+	 Creates a new request to recover password
+	 
+	 @name load
+	 @memberof MbAccountCtrl
+	 @returns {promiss} to change password
 	 */
-	this.changePassword = function(data, form) {
+	function recoverPasswrodRequest(data) {
 		if (ctrl.changingPassword) {
 			return;
 		}
@@ -130,144 +119,17 @@ mblowfish.controller('MbAccountContainerCtrl', function(
 	}
 
 
-	/**
-	 * Update avatar of the current user
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to update avatar
-	 */
-	this.updateAvatar = function(avatarFiles) {
-		// XXX: maso, 1395: reset avatar
-		if (ctrl.updatingAvatar) {
-			return;
-		}
-		ctrl.updatingAvatar = true;
-		return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
-			.then(function() {
-				// TODO: hadi 1397-03-02: only reload avatar image by clear and set
-				// (again) avatar address in view
-				// clear address before upload and set it again after upload.
-				$window.location.reload();
-				toast($translate.instant('Your avatar updated successfully.'));
-			}, function() {
-				alert($translate.instant('Failed to update avatar'));
-			})//
-			.finally(function() {
-				ctrl.updatingAvatar = false;
-			});
+	function isAnonymous() {
+		return $mbAccount.isAnonymous();
 	}
 
-	this.back = function() {
-		$window.history.back();
-	}
+	//-----------------------------------------------------------------
+	// END
+	//-----------------------------------------------------------------
+	ctrl.login = login;
+	ctrl.logout = logout;
 
-
-	/**
-	 * Loads user data
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to load user data
-	 */
-	this.loadUser = function() {
-		if (ctrl.loadingUser) {
-			return;
-		}
-		ctrl.loadingUser = true;
-		return $usr.getAccount('current')//
-			.then(function(user) {
-				ctrl.user = user;
-			}, function(error) {
-				ctrl.error = error;
-			})//
-			.finally(function() {
-				ctrl.loadingUser = false;
-			});
-	}
-
-
-	/**
-	 * Save current user
-	 * 
-	 * @name load
-	 * @memberof MbAccountCtrl
-	 * @returns {promiss} to save
-	 */
-	this.saveUser = function(form) {
-		if (ctrl.savingUser) {
-			return;
-		}
-		ctrl.savingUser = true;
-		return ctrl.user.update()//
-			.then(function(user) {
-				ctrl.user = user;
-				$scope.saveUserMessage = null;
-				toast($translate.instant('Your information updated successfully.'));
-			}, function(error) {
-				$scope.saveUserMessage = $mbLogger.errorMessage(error, form);
-				alert($translate.instant('Failed to update.'));
-			})//
-			.finally(function() {
-				ctrl.savingUser = false;
-			});
-	}
-
-	// TODO: maso, 2017: getting from server
-	// Account property descriptor
-	$scope.apds = [{
-		key: 'first_name',
-		title: 'First name',
-		type: 'string'
-	}, {
-		key: 'last_name',
-		title: 'Last name',
-		type: 'string'
-	}, {
-		key: 'language',
-		title: 'language',
-		type: 'string'
-	}, {
-		key: 'timezone',
-		title: 'timezone',
-		type: 'string'
-	}];
-
-	$scope.$watch(function() {
-		return $rootScope.app.user;
-	}, function(usrStruct) {
-		$scope.appUser = usrStruct;
-	}, true);
-
-	// support old systems
-	var ctrl = this;
-	$scope.login = function(cridet, form) {
-		ctrl.login(cridet, form);
-	};
-	$scope.logout = function() {
-		ctrl.logout();
-	};
-	$scope.changePassword = function() {
-		ctrl.changePassword();
-	};
-	$scope.updateAvatar = function() {
-		ctrl.updateAvatar();
-	};
-	$scope.load = function() {
-		ctrl.loadUser();
-	};
-	$scope.reload = function() {
-		trl.loadUser();
-	};
-	$scope.saveUser = function() {
-		ctrl.saveUser();
-	};
-
-	this.cancel = function() {
-		ctrl.back();
-	};
-
-	this.loadUser();
+	ctrl.isAnonymous = isAnonymous;
 });
 
 

@@ -1,0 +1,49 @@
+/**********************************************************************************
+ mbStatus
+**********************************************************************************/
+mb-login-panel {
+	z-index: 10000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+}
+
+
+mb-login-panel .default-login-panel {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	
+/*	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;*/
+}
+
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+
+Pallet:
+- Primary: rgb(63,81,181)
+*****************************************************************************************/
+
+mb-login-panel.md-default-theme .default-login-panel {
+	background: rgb(238, 238, 236);
+}
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+
+

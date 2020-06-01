@@ -105,6 +105,9 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	//---------------------------------------
 	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
 
+	var ACCOUNT_STORE_NAME = '/user/account/current';
+	var ACCOUNT_PROFILES_STORE_NAME = '/user/account/current';
+
 	var STATE_INIT = 0;
 	var STATE_LOGIN = 1;
 	var STATE_ANONYMOUS = 2;
@@ -137,8 +140,8 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 		return provider;
 	}
 
-	function parsAccount(account) {
-		var oldAccount = currentAccount;
+	function parsAccount(accountData) {
+		var oldAccount = account;
 		var oldProfiles = profiles;
 		var oldProfile = profile;
 		var oldGroups = groups;
@@ -146,8 +149,8 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 		//>> Load profiles
 		profiles = [];
 		profile = undefined;
-		if (angular.isArray(account.profiles)) {
-			_.forEach(account.profiles, function(profileConfig) {
+		if (angular.isArray(accountData.profiles)) {
+			_.forEach(accountData.profiles, function(profileConfig) {
 				profiles.push(new Profile(profileConfig))
 			});
 		}
@@ -156,34 +159,34 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 		}
 
 		//>> Load rolses
-		permissions = rolesToPermissions(account.roles || []);
+		permissions = rolesToPermissions(accountData.roles || []);
 		roles = [];
-		_.forEach(account.roles, function(role) {
+		_.forEach(accountData.roles, function(role) {
 			roles[role.application + '_' + role.code_name] = new Role(role);
 		});
 
 		//>> Load groups
 		var groups = {};
-		_.forEach(account.groups, function(group) {
+		_.forEach(accountData.groups, function(group) {
 			groups[group.name] = new Group(group);
 			_.assign(permissions, rolesToPermissions(group.roles || []));
 		});
 
 
 		//>> set account
-		currentAccount = new Account(account);
+		account = new Account(accountData);
 
 
 		//>> Fire events
-		if (exprexrpressionsEnabled) {
+		if (exrpressionsEnabled) {
 			updateRootScope();
 		}
 		var $event = {
 			src: this,
 			type: 'update',
 		};
-		dispatcher.dispatch('/account', _.assign({}, $event, {
-			value: currentAccount,
+		dispatcher.dispatch(ACCOUNT_STORE_NAME, _.assign({}, $event, {
+			value: account,
 			oldValue: oldAccount
 		}));
 	}
@@ -307,7 +310,7 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	@memberof $mbAccount
 	 */
 	function isAnonymous() {
-		return state != STATE_LOGIN;
+		return !account || account.isAnonymous();
 	}
 
 	/**
@@ -333,14 +336,14 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	Returns true if the user is not anonymous
 	 */
 	function isAuthenticated() {
-		return state == STATE_LOGIN;
+		return account && !account.isAnonymous();
 	}
 
 	/**
 	Returns true if the user is not an anonymous or a remember-me user
 	 */
 	function isFullyAuthenticated() {
-		return sate == STATE_LOGIN && authenticated;
+		return authenticated && isAuthenticated();
 	}
 
 
