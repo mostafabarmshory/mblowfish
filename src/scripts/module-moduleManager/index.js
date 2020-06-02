@@ -19,12 +19,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-//
-///**
-// * Manages system moduels
-// */
-//angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $mbApplication) {
-//	$mbActions.addAction({
+
+/**
+ * Manages system moduels
+ */
+mblowfish.config(function($mbPreferencesProvider) {
+	
+	//-------------------------------------------------------------
+	// Preferences:
+	// Pages: modules, application,
+	//-------------------------------------------------------------
+	$mbPreferencesProvider
+		.addPage('modules', {
+			title: 'Modules',
+			icon: 'language',
+			description: 'Manage global modules to enable for all users.',
+			templateUrl: 'views/modules/mb-preference.html',
+		});
+		//	$preferences.newPage({
+//		id: 'update',
+//		templateUrl: 'views/preferences/mb-update.html',
+//		title: 'Update application',
+//		description: 'Settings of updating process and how to update the application.',
+//		icon: 'autorenew'
+//	});
+//	$options.newPage({
+//		title: 'modules',
+//		description: 'Manage user modules to enable for all current device.',
+//		templateUrl: 'views/modules/mb-option.html',
+//		tags: ['modules']
+//	});
+
+
+
+
+	//-------------------------------------------------------------
+	// Actions:
+	//-------------------------------------------------------------
+
+//	$mbActionsProvider.addAction({
 //		id: 'mb.app.local.modules.create',
 //		type: 'action',
 //		priority: 1,
@@ -42,8 +75,8 @@
 //			});
 //		},
 //		groups: []
-//	});
-//	$mbActions.addAction({
+//	})
+//	.addAction({
 //		id: 'mb.app.local.modules.delete',
 //		type: 'action',
 //		priority: 1,
@@ -63,12 +96,9 @@
 //		},
 //		groups: []
 //	});
+
 //
 //
-//
-//	//--------------------------------------------------------------------------------
-//	// Global
-//	//--------------------------------------------------------------------------------
 //	$mbActions.addAction({
 //		id: 'mb.app.global.modules.create',
 //		type: 'action',
@@ -110,5 +140,25 @@
 //		},
 //		groups: []
 //	});
-//});
 
+
+
+
+	//-------------------------------------------------------------
+	// Resources:
+	//-------------------------------------------------------------
+//	$mbResourcePreferences
+//		.addPage('mb-module-manual', {
+//		label: 'Manual',
+//		templateUrl: 'views/modules/mb-resources-manual.html',
+//		/*@ngInject*/
+//		controller: function($scope) {
+//			$scope.$watch('module', function(value) {
+//				$scope.$parent.setValue([value]);
+//			}, true);
+//			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+//		},
+//		controllerAs: 'resourceCtrl',
+//		tags: ['/app/modules']
+//	});
+});

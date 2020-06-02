@@ -19,15 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
+	$mbActionsProvider
+		.addAction('mb.preferences', {
+			title: 'Preferences',
+			icon: 'settings',
+			/* @ngInject */
+			action: function($location) {
+				return $location.url('preferences');
+			}
+		});//
 
-/**
- * Manages system moduels
- */
-angular.module('mblowfish-core').run(function($options) {
-	$options.newPage({
-		title: 'modules',
-		description: 'Manage user modules to enable for all current device.',
-		templateUrl: 'views/modules/mb-option.html',
-		tags: ['modules']
-	});
+	$mbViewProvider
+		.addView('/preferences', {
+			title: 'Preferences',
+			templateUrl: 'views/mb-preferences.html',
+			aunchor: 'editors',
+			controller: 'MbPreferencesCtrl',
+			controllerAs: 'ctrl'
+		});
+
+	$mbEditorProvider
+		.addEditor('/preferences/:preferenceId', {
+			title: 'Preference',
+			templateUrl: 'views/mb-preference.html',
+			controller: 'MbPreferenceEditorCtrl',
+			controllerAs: 'ctrl',
+		});
 });

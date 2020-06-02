@@ -48,14 +48,32 @@ Note: A Menu with the same path will be registerd fro a view.
 
 
  */
-angular.module('mblowfish-core').service('$mbView', function(
-	/* AngularJS */ $rootScope,
-	/* Mblowfish */ $mbRoute, MbView) {
+angular.module('mblowfish-core').provider('$mbView', function() {
 
+
+	//-----------------------------------------------------------------------------------
+	// Service and Factory
+	//-----------------------------------------------------------------------------------
+	var provider;
+	var service;
+
+	var mbRoute;
+	var rootScope;
+	var View;
+
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
 	var views = {};
-	var viewsRootScope = $rootScope.$new(false);
+	var viewsConfig = {};
+	var viewsRootScope;
 
-	this.add = function(name, viewConfig) {
+
+	//-----------------------------------------------------------------------------------
+	// functions
+	//-----------------------------------------------------------------------------------
+	function addView(name, viewConfig) {
 		var config = _.assign({
 			id: name,
 			url: name,
@@ -65,22 +83,22 @@ angular.module('mblowfish-core').service('$mbView', function(
 			reloadOnUrl: true,
 		}, viewConfig)
 		// create view
-		var view = new MbView(config);
+		var view = new View(config);
 		views[name] = view;
 		// Add to routes
-		$mbRoute.when(name, config);
+		mbRoute.when(name, config);
 		// TODO: Add toolbar
 		// TODO: Add menu
 
-		return this;
+		return service;
 	};
 
-	this.get = function(name) {
+	function getView(name) {
 		return views[name];
 	};
 
-	this.has = function(name) {
-		var view = this.get(name);
+	function hasView(name) {
+		var view = get(name);
 		return !_.isUndefined(view);
 	};
 
@@ -104,8 +122,9 @@ angular.module('mblowfish-core').service('$mbView', function(
 	@param {Object} state List of key-value to use in view (it is accessable with $state from view controller)
 	@param {string} anchor Where the view placed.
 	 */
-	this.fetch = function(name, state, anchor) {
+	function fetchView(name, state, anchor) {
 		var view = this.get(name);
+		anchor = anchor || view.anchor;
 		if (_.isUndefined(view)) {
 			// TODO: maso, 2020: View not found throw error
 			return;
@@ -118,18 +137,53 @@ angular.module('mblowfish-core').service('$mbView', function(
 			.setState(state);
 	};
 
-	this.open = function(name, state, anchor) {
-		return this.fetch(name, state, anchor)
+	function open(name, state, anchor) {
+		return fetch(name, state, anchor)
 			.setVisible(true);
 	}
 
-	this.getViews = function() {
+	function getViews() {
 		return views;
 	};
 
-	this.getScope = function() {
+	function getScope() {
 		return viewsRootScope;
 	}
 
-	return this;
+	function init() {
+		// Load all views
+		_.forEach(viewsConfig, function(viewConfig, viewId) {
+			addView(viewId, viewConfig);
+		})
+	}
+
+	//-----------------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------------
+	service = {
+		add: addView,
+		get: getView,
+		has: hasView,
+		fetch: fetchView,
+		open: open,
+		getViews: getViews
+	};
+	provider = {
+		$get: function(
+		/* AngularJS */ $rootScope,
+		/* Mblowfish */ $mbRoute, MbView) {
+			// Service
+			rootScope = $rootScope;
+			mbRoute = $mbRoute;
+			View = MbView;
+
+			init();
+			return service;
+		},
+		addView: function(viewId, viewConfig) {
+			viewsConfig[viewId] = viewConfig;
+			return provider;
+		}
+	}
+	return provider;
 });

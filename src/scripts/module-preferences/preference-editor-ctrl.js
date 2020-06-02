@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +22,30 @@
  * SOFTWARE.
  */
 
-mblowfish
-	.run(function($rootScope) {
-		//		$rootScope.$watch(function() {
-		//			var localLanguage = $rootScope.app.setting.language;
-		//			var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
-		//			return localLanguage || confLanguage;
-		//		}, function(key) {
-		//			return $language.use(key);
-		//		});
-		//
-	});
+mblowfish.controller('MbPreferenceEditorCtrl', function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
+	//------------------------------------------------
+	// variables
+	//------------------------------------------------
+	var preferenceId = $state.params.preferenceId;
+	var pageConfig = $mbPreferences.getPage(preferenceId);
+	var pageComponent = new MbComponent(pageConfig);
+	var anchor = $element.find('#page-panel');
+	
+	
+	//------------------------------------------------
+	// functions
+	//------------------------------------------------
+	function renderPage(){
+		return pageComponent.render({
+			$element: anchor,
+			$scope: $scope,
+			$editor: $editor
+		});
+	}
+
+
+	//------------------------------------------------
+	// end
+	//------------------------------------------------
+	renderPage();
+});

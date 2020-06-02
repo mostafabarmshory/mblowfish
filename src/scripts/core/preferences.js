@@ -21,64 +21,48 @@
  */
 
 /**
- * @ngdoc Services
- * @name $preferences
- * @description System setting manager
- * 
+@ngdoc Services
+@name $mbPreferences
+@description System setting manager
+
  */
-angular.module('mblowfish-core').service('$preferences', function($q, $navigator) {
-	var preferences = [ ];
+angular.module('mblowfish-core').provider('$mbPreferences', function() {
+
+	//-------------------------------------------------
+	// Services
+	//-------------------------------------------------
+	var provider;
+	var service;
+
+	var location;
+
+
+	//-------------------------------------------------
+	// Variables
+	//-------------------------------------------------
+	var preferences = {};
+
+	//-------------------------------------------------
+	// Functions
+	//-------------------------------------------------
 
 	/**
 	 * Lists all created pages.
 	 * 
 	 * @returns
 	 */
-	function pages() {
-		// SORT:
-		preferences.sort(_pageComparator);
-		// Return list
-		return $q.when({
-			'items' : preferences
-		});
+	function getPages() {
+		return preferences;
 	}
 
-	function _pageComparator(page1, page2){
-		if(page1.priority === page2.priority){
-			return 0;
-		}
-		if(page1.priority === 'first' || page2.priority === 'last'){
-			return -1;
-		}
-		if(page1.priority === 'last' || page2.priority === 'first'){
-			return +1;
-		}
-		if(typeof page1.priority === 'undefined'){
-			return +1;
-		}
-		if(typeof page2.priority === 'undefined'){
-			return -1;
-		}
-		return page1.priority - page2.priority;
-	}
-	
 	/**
 	 * Gets a preference page
 	 * 
-	 * @memberof $preferences
+	 * @memberof $mbPreferences
 	 * @param id {string} Pereference page id
 	 */
-	function page(id){
-		// get preferences
-		for (var i = 0, len = preferences.length; i < len; i++) {
-			if(preferences[i].id === id){
-				return $q.when(preferences[i]);
-			}
-		}
-		// not found
-		return $q.reject({
-			message: 'Not found'
-		});
+	function getPage(id) {
+		return preferences[id];
 	}
 
 
@@ -88,8 +72,8 @@ angular.module('mblowfish-core').service('$preferences', function($q, $navigator
 	 * @param page
 	 * @returns
 	 */
-	function open(page){
-		return $navigator.openPage('/preferences/'+page.id);
+	function open(page) {
+		return location.url('preferences/' + page.id);
 	}
 
 	/**
@@ -98,15 +82,38 @@ angular.module('mblowfish-core').service('$preferences', function($q, $navigator
 	 * @param page
 	 * @returns
 	 */
-	function newPage(page){
-		preferences.push(page);
-		return this;
+	function addPage(pageId, page) {
+		page.id = pageId;
+		preferences[pageId] = page;
+		return service;
 	}
 
-	return  {
-		'pages' : pages,
-		'page': page,
-		'newPage': newPage,
-		'openPage' : open
+
+	function init() {
+
+	}
+
+	//-------------------------------------------------
+	// End
+	//-------------------------------------------------
+	service = {
+		getPages: getPages,
+		getPage: getPage,
+		addPage: addPage,
+		open: open
 	};
+	provider = {
+		$get: function($location, $mbEditor) {
+			location = $location;
+
+			init();
+			return service;
+		},
+		addPage: function(pageId, page) {
+			page.id = pageId;
+			preferences[pageId] = page;
+			return provider;
+		}
+	};
+	return provider;
 });

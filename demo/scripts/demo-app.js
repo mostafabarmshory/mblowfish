@@ -262,25 +262,23 @@ angular.module('app', ['mblowfish-core']).config(function(
 		url: '/app/demo',
 		items: ['demo.alert']
 	}, {
-		url: '/app/io',
-		items: ['demo.alert', 'demo.alert']
+		url: '/app',
+		items: [
+			'mb.preferences',
+		]
 	}]);
 
 
 	//
 	// $mbAction: manages all actions
 	//
-	$mbActionsProvider.init({
-		items: {
-			'demo.alert': {
-				icon: 'face',
-				title: 'Add local module',
-				description: 'Adds new module into the application.',
-				/* @ngInject */
-				action: function($window) {
-					$window.alert('Alert action is called!?');
-				}
-			}
+	$mbActionsProvider.addAction('demo.alert', {
+		icon: 'face',
+		title: 'Add local module',
+		description: 'Adds new module into the application.',
+		/* @ngInject */
+		action: function($window) {
+			$window.alert('Alert action is called!?');
 		}
 	});
 

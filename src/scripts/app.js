@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -22,21 +21,18 @@
  */
 
 /**
- * @ngdoc action-group
- * @name User
- * @description Global user menu
- * 
- * There are several registred menu in the $actions service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - mb.user : All action related to the current user
- * - mb.toolbar.menu : All action related to the toolbar menu
- * 
- * - navigationPathMenu: All items related to navigation.
- * 
+@ngdoc action-group
+@name User
+@description Global user menu
+
+There are several registred menu in the $actions service. Modules can contribute
+to the dashbord by addin action into it.
+
+- mb.user : All action related to the current user
+- mb.toolbar.menu : All action related to the toolbar menu
+- navigationPathMenu: All items related to navigation.
+
  */
-
-
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
@@ -120,6 +116,9 @@ window.mblowfish = {
 	},
 	run: function() {
 		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+	},
+	config: function() {
+		mbApplicationModule.config.apply(mbApplicationModule, arguments);
 	}
 };
 

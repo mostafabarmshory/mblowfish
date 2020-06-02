@@ -54,16 +54,9 @@ These are injectable to an editor contrller.
 
  */
 angular.module('mblowfish-core').provider('$mbEditor', function() {
-	/***********************************************************************************
-	 * Utility
-	 ***********************************************************************************/
-	var inherit;// = $mbUiUtil.inherit;
-	var switchRouteMatcher; // = $mbUiUtil.switchRouteMatcher;
-
-	var editorConfigs = {};
-	var editors = {};
-
-	//	var editorsRootScope;
+	//------------------------------------------------
+	// Services
+	//------------------------------------------------
 	var rootScope;
 	var mbRoute;
 	var Editor;
@@ -71,6 +64,20 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	var service;
 	var provider;
 
+	//------------------------------------------------
+	// variables
+	//------------------------------------------------
+	var inherit;// = $mbUiUtil.inherit;
+	var switchRouteMatcher; // = $mbUiUtil.switchRouteMatcher;
+
+	var editorConfigProvider = {};
+	var editorConfigs = {};
+	var editors = {};
+
+
+	//------------------------------------------------
+	// functions
+	//------------------------------------------------
 
 	/**
 	Adds new editor descritpion
@@ -151,7 +158,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 		var editor = getEditor(name);
 		return !_.isUndefined(editor);
 	}
-	
+
 	/**
 	Opens a new editor
 	
@@ -195,9 +202,25 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 			.setVisible(true);
 	}
 
-	//	function getScope() {
-	//		return editorsRootScope;
-	//	}
+	function init() {
+		_.forEach(editorConfigProvider, function(config, id) {
+			registerEditor(id, config);
+		});
+	}
+
+
+	//------------------------------------------------
+	// End
+	//------------------------------------------------
+	service = {
+		registerEditor: registerEditor,
+		unregisterEditor: unregisterEditor,
+
+		open: open,
+		fetch: fetch,
+		has: hasEditor,
+		getEditor: getEditor,
+	};
 
 	provider = {
 		$get: function(
@@ -211,18 +234,12 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 			mbRoute = $mbRoute;
 			Editor = MbEditor;
 
-			// Editor description
-			this.registerEditor = registerEditor;
-			this.unregisterEditor = unregisterEditor;
-
-			// MbEditor
-			this.open = open;
-			this.fetch = fetch;
-			this.has = hasEditor;
-			this.getEditor = getEditor;
-
-			service = this;
-			return this;
+			init();
+			return service;
+		},
+		addEditor: function(editorId, editorConfig) {
+			editorConfigProvider[editorId] = editorConfig;
+			return provider;
 		}
 	};
 	return provider;

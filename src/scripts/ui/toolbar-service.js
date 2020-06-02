@@ -41,18 +41,25 @@ You can register a toolbar with an url. For example
 All icons will be managed
  */
 angular.module('mblowfish-core').provider('$mbToolbar', function() {
-	// TODO: load toolbar config from local storage
-
-	/* Type and srvices */
+	
+	//-----------------------------------------------------------------------------------
+	// Type and service
+	//-----------------------------------------------------------------------------------
 	var Toolbar;
 
-	/* variables */
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
 	var mainToolbarConfig = [];
 	var toolbars = {};
 	var toolbarGroups = {};
 	var toolbarGroupsConfig = {};
 
 
+	//-----------------------------------------------------------------------------------
+	// Functions
+	// TODO: load toolbar config from local storage
+	//-----------------------------------------------------------------------------------
 	function addToolbar(toolbarId, toolbar) {
 		if (!(toolbar instanceof Toolbar)) {
 			toolbar = new Toolbar(_.assign(toolbar, {
@@ -159,6 +166,9 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 		mainToolbarConfig = config || [];
 	}
 
+	//-----------------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------------
 	return {
 		/* @ngInject */
 		$get: function(MbToolbar) {

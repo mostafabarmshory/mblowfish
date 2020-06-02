@@ -21,16 +21,16 @@
  */
 
 /**
- * @ngdoc Controllers
- * @name MbHelpCtrl
- * @description Help page controller
- * 
- * Watches total system and update help data.
- * 
+@ngdoc Controllers
+@name MbHelpCtrl
+@description Help page controller
+
+Watches total system and update help data.
+
  */
-angular.module('mblowfish-core').controller('MbLocalModulesCtrl', function(
+mblowfish.controller('MbLocalModulesCtrl', function(
 	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules, $mbActions
+	/* Mblowfish */ $modules
 ) {
 
 	/*
@@ -60,9 +60,9 @@ angular.module('mblowfish-core').controller('MbLocalModulesCtrl', function(
 	ctrl.loadModules();
 });
 
-angular.module('mblowfish-core').controller('MGlobalModulesCtrl', function(
+mblowfish.controller('MGlobalModulesCtrl', function(
 	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules, $mbActions
+	/* Mblowfish */ $modules
 ) {
 
 	/*

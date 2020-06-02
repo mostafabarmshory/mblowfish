@@ -1,21 +1,3 @@
-<md-content
-	ng-cloak
-	flex>
-	<div
-		layout="row"
-		layout-align="start center">
-		<wb-icon 
-			wb-icon-name="{{::preference.icon}}" 
-			size="128">
-		</wb-icon>
-		<div
-			flex>
-			<h1 translate>{{::preference.title}}</h1>
-			<p translate>{{::preference.description}}</p>
-		</div>
-	</div>
-	<mb-preference-page
-			mb-preference-id="preference.id"
-			flex>
-	</mb-preference-page>
+<md-content style="width: 100%; height: 100%; overflow: auto;">
+	<div id="page-panel"></div>
 </md-content>

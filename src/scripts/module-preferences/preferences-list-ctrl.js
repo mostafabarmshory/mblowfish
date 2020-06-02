@@ -21,25 +21,17 @@
  */
 
 
-/*
- * Application extensions
+/**
+ * @ngdoc Controllers
+ * @name MbPreferencesCtrl
+ * @description Manages preferences page
  * 
- *  An extension is responsible to extends the state of the
- * application and add more functionality. For example auto save
- * configuration is one of the application extension
+ * In the preferences page, all configs of the system are displayed and
+ * users are able to change them. These preferences pages are related to
+ * the current SPA usually.
+ * 
  */
-mblowfish.run(function($mbSettings, $dispatcher, $mbApplication) {
-	'ngInject';
-
-    /*
-     * Store application config if there is change
-     */
-	function storeApplicationConfig(event) {
-		if (event.type === 'update' && $mbApplication.getState() === 'ready') {
-			$mbSettings.save();
-		}
-	}
-
-	// watch the configurations of the application
-	$dispatcher.on('/app/configs', storeApplicationConfig);
+mblowfish.controller('MbPreferencesCtrl', function($scope, $mbPreferences) {
+	// Load settings
+	$scope.pages = $mbPreferences.getPages()//
 });

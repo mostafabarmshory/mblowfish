@@ -121,6 +121,7 @@
 	<script src="scripts/core/module-factory.js"></script>
 	<script src="scripts/core/module-services.js"></script>
 	<script src="scripts/core/network-http-interceptor-factory.js"></script>
+	<script src="scripts/core/preferences.js"></script>
 	<script src="scripts/core/resource-service.js"></script>
 	<script src="scripts/core/selection-service.js"></script>
 	<script src="scripts/core/settings-service.js"></script>
@@ -141,7 +142,6 @@
 	<script src="scripts/directives/mb-navigation-bar.js"></script>
 	<script src="scripts/directives/mb-pagination-bar.js"></script>
 	<script src="scripts/directives/mb-pay.js"></script>
-	<script src="scripts/directives/mb-preference-page.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-titled-block.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
@@ -160,22 +160,19 @@
 	<script src="scripts/module-help/help.js"></script>
 	<script src="scripts/module-iframe/IFrameContainerCtrl.js"></script>
 	<script src="scripts/module-iframe/module.js"></script>
+	<script src="scripts/module-local/index.js"></script>
 	<script src="scripts/module-local/language-service.js"></script>
 	<script src="scripts/module-local/languages.js"></script>
 	<script src="scripts/module-local/mb-language.js"></script>
 	<script src="scripts/module-local/mb-local.js"></script>
 	<script src="scripts/module-local/missing-translation-handler-factory.js"></script>
-	<script src="scripts/module-local/module.js"></script>
 	<script src="scripts/module-moduleManager/controllers.js"></script>
-	<script src="scripts/module-moduleManager/run-actions.js"></script>
-	<script src="scripts/module-moduleManager/run-options.js"></script>
-	<script src="scripts/module-moduleManager/run-preference.js"></script>
-	<script src="scripts/module-moduleManager/run-resources.js"></script>
+	<script src="scripts/module-moduleManager/index.js"></script>
 	<script src="scripts/module-navigator/module.js"></script>
 	<script src="scripts/module-navigator/navigator-container-ctrl.js"></script>
-	<script src="scripts/module-preferences/app-extension-config-autosave.js"></script>
-	<script src="scripts/module-preferences/preference.js"></script>
-	<script src="scripts/module-preferences/preferences.js"></script>
+	<script src="scripts/module-preferences/index.js"></script>
+	<script src="scripts/module-preferences/preference-editor-ctrl.js"></script>
+	<script src="scripts/module-preferences/preferences-list-ctrl.js"></script>
 	<script src="scripts/module-preload/preload-component-ctrl.js"></script>
 	<script src="scripts/module-seen/abstract-ctrl.js"></script>
 	<script src="scripts/module-seen/seen-abstract-binaryItem-ctrl.js"></script>
@@ -190,15 +187,12 @@
 	<script src="scripts/module-users/seen-user-roles.js"></script>
 	<script src="scripts/runs/appcache.js"></script>
 	<script src="scripts/runs/hack-window.js"></script>
-	<script src="scripts/runs/preferences.js"></script>
 	<script src="scripts/runs/resources-lang.js"></script>
 	<script src="scripts/runs/resources.js"></script>
 	<script src="scripts/services/help.js"></script>
 	<script src="scripts/services/metrics.js"></script>
 	<script src="scripts/services/navigator.js"></script>
 	<script src="scripts/services/notification.js"></script>
-	<script src="scripts/services/options.js"></script>
-	<script src="scripts/services/preferences.js"></script>
 	<script src="scripts/ui-components/html-unsafe-filter.js"></script>
 	<script src="scripts/ui-dialog/dialog-default-ctrl.js"></script>
 	<script src="scripts/ui-dialog/dialog-factory.js"></script>
@@ -264,7 +258,7 @@
 	<main>
 		<mb-toolbar-group
 			mb-url="/app/main"
-			mb-toolbars="['/app/demo', '/app/io']">
+			mb-toolbars="['/app/demo', '/app']">
 		</mb-toolbar-group>
 		<mb-view
 			mb-mode="docker"></mb-view>
