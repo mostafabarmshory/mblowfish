@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('DynamicFormCtrl', function($scope) {
+mblowfish.controller('DynamicFormCtrl', function($scope) {
     $scope.properties = [{
         name: 'x',
         title: 'Latitude',

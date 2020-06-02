@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html 
-	ng-app="app"
 	dir="{{__app.dir}}"
 	md-theme="{{ __app.setting.theme || __app.config.theme || 'default'}}"
 	md-theme-watch>
@@ -98,7 +97,6 @@
 
 	<!-- build:js({.tmp,app}) scripts/scripts.js -->
 	<!-- injector:js -->
-	<script src="libs/machina.js"></script>
 	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/app.js"></script>
 	<script src="scripts/core/account-service.js"></script>
@@ -118,7 +116,6 @@
 	<script src="scripts/core/local-language-loader-factory.js"></script>
 	<script src="scripts/core/local-service.js"></script>
 	<script src="scripts/core/logger-service.js"></script>
-	<script src="scripts/core/module-factory.js"></script>
 	<script src="scripts/core/module-services.js"></script>
 	<script src="scripts/core/network-http-interceptor-factory.js"></script>
 	<script src="scripts/core/preferences-service.js"></script>
@@ -230,8 +227,7 @@
 	<script src="scripts/ui/uiUtil-service.js"></script>
 	<script src="scripts/ui/view-factory.js"></script>
 	<script src="scripts/ui/view-service.js"></script>
-	<script src="scripts/demo-app.js"></script>
-	<script src="scripts/module-demo/module.js"></script>
+	<script src="scripts/demo-index.js"></script>
 	<script src="scripts/test-controller/content-wburger.js"></script>
 	<script src="scripts/test-controller/dynamic-form.js"></script>
 	<script src="scripts/test-controller/help.js"></script>

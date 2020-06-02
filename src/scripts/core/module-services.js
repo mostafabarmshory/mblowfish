@@ -19,230 +19,150 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+var MODULE_STORAGE_KEY = 'mbModules';
+var MODULE_STORE_PATH = '/modules';
+
+function moduleLoadLibrary(path) {
+	var defer = jQuery.Deferred();
+	var script = document.createElement('script');
+	script.src = path;
+	script.async = 1;
+	script.onload = function() {
+		defer.resolve();
+	};
+	script.onerror = function() {
+		defer.reject({
+			path: path,
+			message: 'fail'
+		});
+	};
+	document.getElementsByTagName('head')[0].appendChild(script);
+	return defer;
+}
+
+/**
+ * Loads a style
+ * 
+ * loads css 
+ * 
+ * @memberof NativeWindowWrapper
+ * @path path of library
+ * @return promise to load the library
+ */
+function moduleLoadStyle(path) {
+	var defer = jQuery.Deferred();
+	var style = document.createElement('link');
+	style.setAttribute('rel', 'stylesheet');
+	style.setAttribute('type', 'text/css');
+	style.setAttribute('href', path);
+	style.onload = function() {
+		defer.resolve(path);
+	};
+	style.onerror = function() {
+		defer.reject({
+			path: path,
+			message: 'fail'
+		});
+	};
+	document.getElementsByTagName('head')[0].appendChild(style);
+	return defer;
+}
+
+function moduleLoad(module) {
+	var deferred;
+	switch (module.type) {
+		case 'js':
+			deferred = moduleLoadLibrary(module.url);
+			break;
+		case 'css':
+			deferred = moduleLoadStyle(module.url);
+			break;
+	}
+	return deferred;
+}
+
 
 /**
  * Manages system moduels
  */
-angular.module('mblowfish-core').provider('$mbModules', function() {
+mblowfish.provider('$mbModules', function() {
 
-	var LOCAL_MODULE_KEY = 'app.settings.modules';
-	var GLOBAL_MODULE_KEY = 'app.configs.modules';
+	//------------------------------------------------------------------------------
+	// Services
+	//------------------------------------------------------------------------------
 
 	var q;
 	var window;
 	var mbApplication;
 	var mbDispatcher;
-	var Module;
-
-	var modules = [];
-	var providerTypes = [];
-	var providers = {};
-	var moduleEnable = true;
+	var mbStorage;
 
 	var provider;
 	var service;
 
-	//
-	//	this.addGlobalModule = function(module1) {
-	//		this.loadModule(module1);
-	//		this.globalModules.push(module1);
-	//		$mbApplicaion.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
-	//		$mbDispatcher.dispatch('/app/global/modules', {
-	//			type: 'create',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.removeGlobalModule = function(module1) {
-	//		var targetModule;
-	//		_.forEach(this.globalModules, function(item) {
-	//			if (module1.url === item.url) {
-	//				targetModule = item;
-	//			}
-	//		});
-	//
-	//		if (_.isUndefined(targetModule)) {
-	//			return;
-	//		}
-	//
-	//		var index = this.globalModules.indexOf(targetModule);
-	//		this.globalModules.splice(index, 1);
-	//		$mbApplicaion.setProperty(GloGLOBAL_MODULE_KEY, this.globalModules);
-	//		$mbDispatcher.dispatch('/app/global/modules', {
-	//			type: 'delete',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.removeGlobalModules = function() {
-	//		var modules = this.globalModules;
-	//		this.globalModules = [];
-	//		$mbApplicaion.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
-	//		$mbDispatcher.dispatch('/app/global/modules', {
-	//			type: 'delete',
-	//			values: modules
-	//		});
-	//	};
-	//
-	//	this.getGlobalModules = function() {
-	//		return this.globalModules;
-	//	};
-	//
-	//
-	//	this.addLocalModule = function(module1) {
-	//		this.loadModule(module1);
-	//		this.localModules.push(module1);
-	//		$mbApplicaion.setProperty(LOCAL_MODULE_KEY, this.localModules);
-	//		$mbDispatcher.dispatch('/app/local/modules', {
-	//			type: 'create',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.removeLocalModules = function() {
-	//		var modules = this.localModules;
-	//		this.localModules = [];
-	//		$mbApplicaion.setProperty(LOCAL_MODULE_KEY, this.localModules);
-	//		$mbDispatcher.dispatch('/app/local/modules', {
-	//			type: 'delete',
-	//			values: modules
-	//		});
-	//	};
-	//
-	//	this.removeLocalModule = function(module1) {
-	//		var targetModule;
-	//		_.forEach(this.localModules, function(item) {
-	//			if (module1.url === item.url) {
-	//				targetModule = item;
-	//			}
-	//		});
-	//
-	//		if (_.isUndefined(targetModule)) {
-	//			return;
-	//		}
-	//
-	//		var index = this.localModules.indexOf(targetModule);
-	//		this.localModules.splice(index, 1);
-	//		$mbApplicaion.setProperty(LOCAL_MODULE_KEY, this.localModules);
-	//		$mbDispatcher.dispatch('/app/local/modules', {
-	//			type: 'delete',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.getLocalModules = function() {
-	//		return this.localModules;
-	//	};
-	//	this.loadModule = function(module) {
-	//		var job;
-	//		switch (module.type) {
-	//			case 'js':
-	//				job = $window.loadLibrary(module.url);
-	//				break;
-	//			case 'css':
-	//				job = $window.loadStyle(module.url);
-	//				break;
-	//		}
-	//		return job;
-	//	};
-	//
-	//	this.isLoaded = function() {
-	//		return this._loaded;
-	//	};
-	//
-	//	this.load = function() {
-	//		this._loaded = true;
-	//
-	//		this.localModules = $mbApplicaion.getProperty(LOCAL_MODULE_KEY) || [];
-	//		this.globalModules = $mbApplicaion.getProperty(GLOBAL_MODULE_KEY) || [];
-	//
-	//		var jobs = [];
-	//		var ctrl = this;
-	//		_.forEach(this.localModules, function(module) {
-	//			jobs.push(ctrl.loadModule(module));
-	//		});
-	//		_.forEach(this.globalModules, function(module) {
-	//			jobs.push(ctrl.loadModule(module));
-	//		});
-	//
-	//		return $q.all(jobs).finally(function() {
-	//			$mbDispatcher.dispatch('/app/local/modules', {
-	//				type: 'read',
-	//				values: this.localModules
-	//			});
-	//			$mbDispatcher.dispatch('/app/global/modules', {
-	//				type: 'read',
-	//				values: this.globalModules
-	//			});
-	//		});
-	//	};
-	//
-	//	// staso, 2019: fire the state is changed
-	//	this.localModules = [];
-	//	this.globalModules = [];
-	//	var ctrl = this;
-	//	$mbDispatcher.on('/app/state', function($event) {
-	//		if ($event.value === 'ready' && !ctrl.isLoaded()) {
-	//			ctrl.load();
-	//		}
-	//	});
-
-	function reloadModules() {
-		var jobs = [];
-		_.forEach(modules, function(module) {
-			jobs.push(module.unload());
-		});
-
-		q.all(jobs)
-			.then(function() {
-
-			});
-	}
+	//------------------------------------------------------------------------------
+	// variables
+	//------------------------------------------------------------------------------
+	var modules = {};
 
 	function addModule(module) {
-		if (!(module instanceof Module)) {
-			module = new Module(module);
-		}
-		modules[module.id] = module;
-		if (!module.isLoaded()) {
-			module.load();
-		}
-		moduleListChanged();
+		modules[module.url] = module;
+		saveModules();
+		//>> fire changes
+		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+			type: 'create',
+			items: [module]
+		});
 	}
 
 	function removeModule(module) {
-		if (!(module instanceof Module)) {
-			module = new Module(module);
-		}
-		var loaded = modules[module.id];
-		delete modules[module.id];
-		if (!loaded.isLoaded()) {
-			loaded.unload();
-		}
-		moduleListChanged();
+		delete modules[module.url];
+		saveModules();
+		//>> fire changes
+		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+			type: 'delete',
+			items: [module]
+		});
 	}
 
-	service = {
-		reload: reloadModules,
+	function getModules() {
+		return modules;
+	}
 
+	function saveModules() {
+		//>> Save changes
+		mbStorage.mbModules =_.cloneDeep(modules);
+	}
+
+	function load() {
+		modules = mbStorage.mbModules || {};
+	}
+
+	//------------------------------------------------------------------------------
+	// End
+	//------------------------------------------------------------------------------
+
+	service = {
 		removeModule: removeModule,
 		addModule: addModule,
+		getModules: getModules,
 	};
 	provider = {
 		/* @ngInject */
 		$get: function(
-			/* MBlowfish */ $mbApplicaion,
 			/* Angularjs */ $window, $q,
-			/* am-wb     */ $mbDispatcher, MbModule) {
+			/* am-wb     */ $mbApplication, $mbDispatcher, $mbStorage) {
 			q = $q;
 			window = $window;
-			mbApplication = $mbApplicaion;
+			mbApplication = $mbApplication;
 			mbDispatcher = $mbDispatcher;
-			Module = MbModule;
+			mbStorage = $mbStorage;
+
+			load();
 
 			return service;
 		},
-		enable: function(enable){
+		enable: function(enable) {
 			moduleEnable = enable;
 		}
 	};

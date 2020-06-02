@@ -30,42 +30,14 @@
  */
 angular.module('mblowfish-core').provider('$mbStorage', function() {
 
-	function isStorageSupported($window, storageType) {
 
-		// Some installations of IE, for an unknown reason, throw "SCRIPT5: Error: Access is denied"
-		// when accessing window.localStorage. This happens before you try to do anything with it. Catch
-		// that error and allow execution to continue.
-
-		// fix 'SecurityError: DOM Exception 18' exception in Desktop Safari, Mobile Safari
-		// when "Block cookies": "Always block" is turned on
-		var supported;
-		try {
-			supported = $window[storageType];
-		} catch (err) {
-			supported = false;
-		}
-		// When Safari (OS X or iOS) is in private browsing mode, it appears as though localStorage and sessionStorage
-		// is available, but trying to call .setItem throws an exception below:
-		// "QUOTA_EXCEEDED_ERR: DOM Exception 22: An attempt was made to add something to storage that exceeded the quota."
-		if (supported) {
-			var key = '__' + Math.round(Math.random() * 1e7);
-			try {
-				$window[storageType].setItem(key, key);
-				$window[storageType].removeItem(key, key);
-			}
-			catch (err) {
-				supported = false;
-			}
-		}
-		return supported;
-	}
 
 	var storageKeyPrefix = 'ngStorage-';
 	var serializer = angular.toJson;
 	var deserializer = angular.fromJson;
 	var storageType = 'localStorage';
 
-	var providerWebStorage = isStorageSupported(window, storageType);
+	var providerWebStorage = storageSupported(window, storageType);
 
 
 	return {
@@ -94,7 +66,7 @@ angular.module('mblowfish-core').provider('$mbStorage', function() {
 
 		supported: function(type) {
 			type = type || 'localStorage';
-			return !!isStorageSupported(window, storageType);
+			return !!storageSupported(window, storageType);
 		},
 
 		// Note: This is not very elegant at all.
@@ -119,26 +91,26 @@ angular.module('mblowfish-core').provider('$mbStorage', function() {
 			// The magic number 10 is used which only works for some keyPrefixes...
 			// See https://github.com/gsklee/ngStorage/issues/137
 			var prefixLength = storageKeyPrefix.length;
-			var isSupported = isStorageSupported($window, storageType);
+			var isSupported = storageSupported($window, storageType);
 
 			// #9: Assign a placeholder object if Web Storage is unavailable to prevent breaking the entire AngularJS app
 			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
 			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
 			var $storage = {
-//				get: function(name) {
-//					return $storage[name];
-//				},
-//				put: function(name, value) {
-//					$storage[name] = value;
-//					return $storage;
-//				},
-//				remove: function(name) {
-//					delete $storage[name];
-//					return $storage;
-//				},
-//				has: function(name) {
-//					return ($localStorage[name] ? true : false);
-//				},
+				//				get: function(name) {
+				//					return $storage[name];
+				//				},
+				//				put: function(name, value) {
+				//					$storage[name] = value;
+				//					return $storage;
+				//				},
+				//				remove: function(name) {
+				//					delete $storage[name];
+				//					return $storage;
+				//				},
+				//				has: function(name) {
+				//					return ($localStorage[name] ? true : false);
+				//				},
 				$default: function(items) {
 					for (var k in items) {
 						angular.isDefined($storage[k]) || ($storage[k] = angular.copy(items[k]));
@@ -212,3 +184,45 @@ angular.module('mblowfish-core').provider('$mbStorage', function() {
 		}
 	};
 });
+
+
+
+/*
+Checks if the storage type is supported
+
+types:
+
+- local
+- cockie
+
+
+@returns {map} Storage to use in application
+
+ */
+function storageSupported($window, storageType) {
+	// Some installations of IE, for an unknown reason, throw "SCRIPT5: Error: Access is denied"
+	// when accessing window.localStorage. This happens before you try to do anything with it. Catch
+	// that error and allow execution to continue.
+
+	// fix 'SecurityError: DOM Exception 18' exception in Desktop Safari, Mobile Safari
+	// when "Block cookies": "Always block" is turned on
+	var supported;
+	try {
+		supported = $window[storageType];
+	} catch (err) {
+		return;
+	}
+	// When Safari (OS X or iOS) is in private browsing mode, it appears as though localStorage and sessionStorage
+	// is available, but trying to call .setItem throws an exception below:
+	// "QUOTA_EXCEEDED_ERR: DOM Exception 22: An attempt was made to add something to storage that exceeded the quota."
+	if (supported) {
+		var key = '__' + Math.round(Math.random() * 1e7);
+		try {
+			supported.setItem(key, key);
+			supported.removeItem(key, key);
+		} catch (err) {
+			return;
+		}
+	}
+	return supported;
+}

@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('TestToolbarCtrl', function($scope, $rootScope) {
+mblowfish.controller('TestToolbarCtrl', function($scope, $rootScope) {
 
 	$scope.toggleToolbar = function(){
 		$rootScope.testToolbar = !$rootScope.testToolbar;

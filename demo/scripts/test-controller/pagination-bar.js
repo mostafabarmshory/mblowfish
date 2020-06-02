@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-angular.module('app').controller('TestPaginationBarCtrl', function($scope, QueryParameter) {
+mblowfish.controller('TestPaginationBarCtrl', function($scope, QueryParameter) {
 	// 
 	var QueryParameter = new QueryParameter();
 	QueryParameter.setOrder('id', 'a');

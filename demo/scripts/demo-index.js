@@ -25,9 +25,9 @@
 /*
  * Application configuration
  */
-angular.module('app', ['mblowfish-core']).config(function(
+mblowfish.config(function(
 	$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
-	$mbSidenavProvider, $mbSettingsProvider,
+	$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider, $mbEditorProvider,
 	// TODO: replace with $mbTranslateProvider
 	$translateProvider,
 	$mbStorageProvider, $locationProvider) {
@@ -272,24 +272,79 @@ angular.module('app', ['mblowfish-core']).config(function(
 	//
 	// $mbAction: manages all actions
 	//
-	$mbActionsProvider.addAction('demo.alert', {
-		icon: 'face',
-		title: 'Add local module',
-		description: 'Adds new module into the application.',
+	$mbActionsProvider
+		.addAction('demo.alert', {
+			icon: 'face',
+			title: 'Add local module',
+			description: 'Adds new module into the application.',
+			/* @ngInject */
+			action: function($window) {
+				$window.alert('Alert action is called!?');
+			}
+		});
+
+	$mbSidenavProvider
+		.addSidenav('/app/navigator', {
+			title: 'Navigator',
+			description: 'Navigate all path and routs of the pandel',
+			controller: 'MbNavigatorContainerCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/mb-navigator.html',
+			//		locked: '$mdMedia("min-width: 333px");',
+			position: 'start'
+		});
+	//
+	//  $mbView: manages all views of an application. you can add a new view 
+	// dynamically.
+	//
+	$mbViewProvider
+		.addView('/demo', {
+			title: 'Demo&Tutorials',
+			description: 'Demo explorer.',
+			icon: 'wb_sunny',
+			templateUrl: 'views/index.html',
+			groups: ['Tutorials&Demo']
+		})
+		.addView('/demo/core', {
+			title: 'Core Features',
+			anchor: 'editors',
+			templateUrl: 'views/core/index.html',
+			groups: ['Tutorials&Demo']
+		})
+		.addView('/demo/ui', {
+			title: 'UI',
+			icon: 'layers_clear',
+			anchor: 'editors',
+			templateUrl: 'views/ui/index.html',
+			groups: ['Tutorials&Demo']
+		})
+		.addView('/demo/components', {
+			title: 'Components',
+			icon: 'hotel',
+			anchor: 'editors',
+			templateUrl: 'views/components/index.html',
+			groups: ['Tutorials&Demo']
+		});
+})
+.run(function($mbToolbar, $window, MbAction){
+	// Create and add action automatically
+	var action = new MbAction({
+		title: 'Auto action',
+		icon: 'save',
 		/* @ngInject */
 		action: function($window) {
-			$window.alert('Alert action is called!?');
+			$window.alert('Autoloaded action is called');
 		}
 	});
-
-	$mbSidenavProvider.addSidenav('/app/navigator', {
-		title: 'Navigator',
-		description: 'Navigate all path and routs of the pandel',
-		controller: 'MbNavigatorContainerCtrl',
-		controllerAs: 'ctrl',
-		templateUrl: 'views/mb-navigator.html',
-		//		locked: '$mdMedia("min-width: 333px");',
-		position: 'start'
-	});
+	var toolbar = $mbToolbar.getToolbar('/app/demo');
+	toolbar.addAction(action);
 });
 
+
+$(window).on('load', function() {
+	mblowfish
+		.loadModules('demo')
+		.then(function() {
+			mblowfish.bootstrap(document.documentElement);
+		});
+});

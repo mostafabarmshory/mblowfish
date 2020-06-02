@@ -35,6 +35,8 @@ mblowfish.config(function($mbPreferencesProvider, $mbActionsProvider, $mbResourc
 			icon: 'language',
 			description: 'Manage global modules to enable for all users.',
 			templateUrl: 'views/modules/mb-preference.html',
+			controller: 'MbModulesCtrl',
+			controllerAs: 'ctrl',
 		});
 	//	$preferences.newPage({
 	//		id: 'update',
@@ -64,7 +66,9 @@ mblowfish.config(function($mbPreferencesProvider, $mbActionsProvider, $mbResourc
 						style: {},
 					})
 					.then(function(modules) {
-						$mbModules.addLocalModule(modules[0]);
+						_.forEach(modules, function(m) {
+							$mbModules.addModule(m);
+						});
 					});
 			}
 		})
@@ -76,8 +80,8 @@ mblowfish.config(function($mbPreferencesProvider, $mbActionsProvider, $mbResourc
 				return $window
 					.confirm('Delete modules?')
 					.then(function() {
-						_.forEach($event.modules, function(module1) {
-							$mbModules.removeLocalModule(module1);
+						_.forEach($event.modules, function(m) {
+							$mbModules.removeModule(m);
 						});
 					});
 			}

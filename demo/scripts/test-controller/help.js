@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('TestHelpCtrl', function($scope, $help) {
+mblowfish.controller('TestHelpCtrl', function($scope, $help) {
     
    $scope.openHelpItem = function(item) {
        return $help.openHelp(item);

@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('InlineEditCtrl', function($scope) {
+mblowfish.controller('InlineEditCtrl', function($scope) {
 
 	/**
 	 * Update the object in scope

@@ -107,19 +107,48 @@ window.mblowfish = {
 	extensions: [],
 	addExtension: function(loader) {
 		this.extensions.push(loader);
+		return window.mblowfish;
 	},
+
+
+
+	//-------------------------------------------------------------
+	// Module
+	//-------------------------------------------------------------
 	controller: function() {
-		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		return mbApplicationModule.controller.apply(mbApplicationModule, arguments);
 	},
 	directive: function() {
-		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		return mbApplicationModule.directive.apply(mbApplicationModule, arguments);
 	},
 	run: function() {
-		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		return mbApplicationModule.run.apply(mbApplicationModule, arguments);
 	},
 	config: function() {
-		mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		return mbApplicationModule.config.apply(mbApplicationModule, arguments);
+	},
+	provider: function() {
+		return mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+	},
+
+
+	//-------------------------------------------------------------
+	// Angular Map
+	//-------------------------------------------------------------
+	element: function() {
+		return angular.element.apply(mbApplicationModule, arguments);
+	},
+	bootstrap: function(dom) {
+		return angular.bootstrap(dom, ['mblowfish-core'], {});
+	},
+	loadModules: function(prefixKey) {
+		var storage = storageSupported(window, 'localStorage');
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' +MODULE_STORAGE_KEY));
+		var jobs = [];
+		_.forEach(moduleList, function(module) {
+			jobs.push(moduleLoad(module));
+		});
+		return jQuery.when.apply(jQuery, jobs);
 	}
 };
-
 

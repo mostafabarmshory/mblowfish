@@ -53,7 +53,7 @@ angular.module('mblowfish-core').factory('MbJob', function($mbJobs, $q, $injecto
 		var job = this;
 		$mbJobs.addJob(job);
 		job.state = STATE_WORKING;
-		return $q.when($injector.invoke(this.action))
+		return $q.when($injector.invoke(job.action, job))
 			.then(function() {
 				job.state = STATE_SUCCESS;
 			}, function() {

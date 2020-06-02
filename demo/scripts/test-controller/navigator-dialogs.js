@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('TestNavigatorDialogsCtrl', function($scope, $rootScope/*, $navigator*/) {
+mblowfish.controller('TestNavigatorDialogsCtrl', function($scope, $rootScope/*, $navigator*/) {
 	
 	$scope.showAlert = function(){
 		alert('An alert message?!');

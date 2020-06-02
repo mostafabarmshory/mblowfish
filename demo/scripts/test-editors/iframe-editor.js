@@ -34,6 +34,6 @@ parameters. You can pass more option to an editor with query parameter whiel the
 parameters are fixed. Note that, path parameters are most important from query parameters.
 
  */
-angular.module('app').controller('TestIframeEditorCtrl', function($scope/*, $mbRouteParam*/) {
+mblowfish.controller('TestIframeEditorCtrl', function($scope/*, $mbRouteParam*/) {
 //	$scope.url = $mbRouteParam.url;
 });

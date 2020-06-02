@@ -19,34 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('TablesClassTestCtrl', function($scope, $resource) {
+mblowfish.controller('TablesClassTestCtrl', function($scope, $resource) {
 	$scope.items = [
 		{
-			title : 'Title',
-			value : 'value'
+			title: 'Title',
+			value: 'value'
 		},
 		{
-			title : 'Title',
-			value : 'value'
+			title: 'Title',
+			value: 'value'
 		},
 		{
-			title : 'Title',
-			value : 'value'
+			title: 'Title',
+			value: 'value'
 		},
 		{
-			title : 'Title',
-			value : 'value'
+			title: 'Title',
+			value: 'value'
 		},
 		{
-			title : 'Title',
-			value : 'value'
+			title: 'Title',
+			value: 'value'
 		},
-		]
+	]
 
 });

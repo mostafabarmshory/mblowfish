@@ -19,21 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
+mblowfish.controller('TestThemeCtrl', function($scope, $rootScope) {
 
-angular.module('app')
-/**
- * 
- */
-.controller('TestThemeCtrl', function($scope, $rootScope) {
+	this.setTheme = function(theme) {
+		$rootScope.app.setting.theme = theme;
+	}
 
-    this.setTheme = function(theme) {
-        $rootScope.app.setting.theme = theme;
-    }
-    
-    this.clearTheme = function() {
-        $rootScope.app.setting.theme = null;
-    }
-    
+	this.clearTheme = function() {
+		$rootScope.app.setting.theme = null;
+	}
+
 });
 

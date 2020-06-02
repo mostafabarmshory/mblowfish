@@ -28,11 +28,10 @@
 Watches total system and update help data.
 
  */
-mblowfish.controller('MbLocalModulesCtrl', function(
+mblowfish.controller('MbModulesCtrl', function(
 	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules
+	/* Mblowfish */ $mbModules, $mbActions
 ) {
-
 	/*
 	 * Extends collection controller from MbAbstractCtrl 
 	 */
@@ -41,54 +40,23 @@ mblowfish.controller('MbLocalModulesCtrl', function(
 	}));
 
 	this.loadModules = function() {
-		this.modules = $modules.getLocalModules();
+		this.modules = $mbModules.getModules();
 	}
 
 	this.addModule = function($event) {
-		$actions.exec('mb.app.local.modules.create', $event);
+		$mbActions.exec('mb.modules.create', $event);
 	};
 
 	this.deleteModule = function(item, $event) {
 		$event.modules = [item];
-		$actions.exec('mb.app.local.modules.delete', $event);
+		$mbActions.exec('mb.modules.delete', $event);
 	};
 
 	var ctrl = this;
-	this.addEventHandler('/app/local/modules', function() {
+	this.addEventHandler(MODULE_STORE_PATH, function() {
 		ctrl.loadModules();
 	});
-	ctrl.loadModules();
-});
 
-mblowfish.controller('MGlobalModulesCtrl', function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules
-) {
-
-	/*
-	 * Extends collection controller from MbAbstractCtrl 
-	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
-		$scope: $scope
-	}));
-
-	this.loadModules = function() {
-		this.modules = $modules.getGlobalModules();
-	}
-
-	this.addModule = function($event) {
-		$actions.exec('mb.app.global.modules.create', $event);
-	};
-
-	this.deleteModule = function(item, $event) {
-		$event.modules = [item];
-		$actions.exec('mb.app.global.modules.delete', $event);
-	};
-
-	var ctrl = this;
-	this.addEventHandler('/app/global/modules', function() {
-		ctrl.loadModules();
-	});
 	ctrl.loadModules();
 });
 

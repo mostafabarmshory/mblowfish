@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('TestNavigatorHiddenPathCtrl', function($scope, $rootScope, $navigator) {
+mblowfish.controller('TestNavigatorHiddenPathCtrl', function($scope, $rootScope, $navigator) {
     
 
 	$scope.toggleNavigation = function(){

@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-angular.module('app')
-	.controller('DemoExplorerViewCtrl', function(
+mblowfish.controller('DemoExplorerViewCtrl', function(
 		MbAction,
 		/* Service injected into a view controller */
 		$toolbar, // The main toolbar of the view

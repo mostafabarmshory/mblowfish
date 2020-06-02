@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('InfinateItemsCtrl', function($scope, $navigator, $q, $timeout, QueryParameter) {
+mblowfish.controller('InfinateItemsCtrl', function($scope, $navigator, $q, $timeout, QueryParameter) {
 	var ctrl = {
 			state: 'relax',
 			items: []

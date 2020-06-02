@@ -19,13 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-'use strict';
-
-angular.module('app')
-/**
- * 
- */
-.controller('SelectResourcesCtrl', function($scope, $resource) {
+mblowfish.controller('SelectResourcesCtrl', function($scope, $resource) {
 
     this.selectResource = function(type){
         return $resource.get(type,{
