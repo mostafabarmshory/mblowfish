@@ -31,7 +31,7 @@ angular.module('mblowfish-core')
  * 
  * Each property will be managed by an indevisual property editor.
  */
-.directive('mbDynamicForm', function ($resource) {
+.directive('mbDynamicForm', function ($mbResource) {
 
     /**
      * Adding preloader.
@@ -56,11 +56,11 @@ angular.module('mblowfish-core')
         };
 
         scope.hasResource = function(prop){
-            return $resource.hasPeagFor(prop.name);
+            return $mbResource.hasPageFor(prop.name);
         };
         
         scope.setValueFor = function(prop){
-            return $resource.get(prop.name, {
+            return $mbResource.get(prop.name, {
                 data: prop.defaultValue
             })
             .then(function(value){

@@ -32,7 +32,7 @@
 angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
 	$rootScope, $language, $navigator, FileSaver,
 		/* AngularJS */ $window,
-		/* am-wb     */ $resource) {
+		/* am-wb     */ $mbResource) {
 
 	this.selectedLanguage = null;
 
@@ -56,7 +56,7 @@ angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
 	 * @return {promise} to add language
 	 */
 	this.addLanguage = function() {
-		$resource.get('/app/languages', {
+		$mbResource.get('/app/languages', {
 			// TODO:
 		}).then(function(language) {
 			language.map = language.map || {};

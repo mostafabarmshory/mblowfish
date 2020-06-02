@@ -23,8 +23,8 @@
 /**
  * Manages system moduels
  */
-mblowfish.config(function($mbPreferencesProvider) {
-	
+mblowfish.config(function($mbPreferencesProvider, $mbActionsProvider, $mbResourceProvider) {
+
 	//-------------------------------------------------------------
 	// Preferences:
 	// Pages: modules, application,
@@ -36,129 +36,70 @@ mblowfish.config(function($mbPreferencesProvider) {
 			description: 'Manage global modules to enable for all users.',
 			templateUrl: 'views/modules/mb-preference.html',
 		});
-		//	$preferences.newPage({
-//		id: 'update',
-//		templateUrl: 'views/preferences/mb-update.html',
-//		title: 'Update application',
-//		description: 'Settings of updating process and how to update the application.',
-//		icon: 'autorenew'
-//	});
-//	$options.newPage({
-//		title: 'modules',
-//		description: 'Manage user modules to enable for all current device.',
-//		templateUrl: 'views/modules/mb-option.html',
-//		tags: ['modules']
-//	});
-
-
+	//	$preferences.newPage({
+	//		id: 'update',
+	//		templateUrl: 'views/preferences/mb-update.html',
+	//		title: 'Update application',
+	//		description: 'Settings of updating process and how to update the application.',
+	//		icon: 'autorenew'
+	//	});
+	//	$options.newPage({
+	//		title: 'modules',
+	//		description: 'Manage user modules to enable for all current device.',
+	//		templateUrl: 'views/modules/mb-option.html',
+	//		tags: ['modules']
+	//	});
 
 
 	//-------------------------------------------------------------
 	// Actions:
 	//-------------------------------------------------------------
-
-//	$mbActionsProvider.addAction({
-//		id: 'mb.app.local.modules.create',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Add local module',
-//		description: 'Adds new module into the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function() {
-//			return $resource.get('/app/modules', {
-//				style: {},
-//			}).then(function(modules) {
-//				$modules.addLocalModule(modules[0]);
-//			});
-//		},
-//		groups: []
-//	})
-//	.addAction({
-//		id: 'mb.app.local.modules.delete',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Delete local module',
-//		description: 'Delete a module from the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function($event) {
-//			return $window.confirm('Delete modules?')
-//				.then(function() {
-//					_.forEach($event.modules, function(module1) {
-//						$modules.removeLocalModule(module1);
-//					});
-//				});
-//		},
-//		groups: []
-//	});
-
-//
-//
-//	$mbActions.addAction({
-//		id: 'mb.app.global.modules.create',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Add global module',
-//		description: 'Adds new module into the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function() {
-//			return $resource.get('/app/modules', {
-//				style: {},
-//			}).then(function(modules) {
-//				$modules.addGlobalModule(modules[0]);
-//				return $mbApplication.storeApplicationConfig();
-//			});
-//		},
-//		groups: []
-//	});
-//	$mbActions.addAction({
-//		id: 'mb.app.global.modules.delete',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Delete global module',
-//		description: 'Delete a module from the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function($event) {
-//			return $window.confirm('Delete modules?')
-//				.then(function() {
-//					_.forEach($event.modules, function(module1) {
-//						$modules.removeGlobalModule(module1);
-//					});
-//					return $mbApplication.storeApplicationConfig();
-//				});
-//		},
-//		groups: []
-//	});
-
+	$mbActionsProvider
+		.addAction('mb.modules.create', {
+			title: 'Add local module',
+			/* @ngInject*/
+			action: function($mbResource, $mbModules) {
+				return $mbResource
+					.get('/app/modules', {
+						style: {},
+					})
+					.then(function(modules) {
+						$mbModules.addLocalModule(modules[0]);
+					});
+			}
+		})
+		.addAction('mb.modules.delete', {
+			title: 'Delete local module',
+			icon: 'view_module',
+			/* @ngInject */
+			action: function($window, $mbModules, $event) {
+				return $window
+					.confirm('Delete modules?')
+					.then(function() {
+						_.forEach($event.modules, function(module1) {
+							$mbModules.removeLocalModule(module1);
+						});
+					});
+			}
+		});
 
 
 
 	//-------------------------------------------------------------
 	// Resources:
 	//-------------------------------------------------------------
-//	$mbResourcePreferences
-//		.addPage('mb-module-manual', {
-//		label: 'Manual',
-//		templateUrl: 'views/modules/mb-resources-manual.html',
-//		/*@ngInject*/
-//		controller: function($scope) {
-//			$scope.$watch('module', function(value) {
-//				$scope.$parent.setValue([value]);
-//			}, true);
-//			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-//		},
-//		controllerAs: 'resourceCtrl',
-//		tags: ['/app/modules']
-//	});
+	$mbResourceProvider
+		.addPage('mb-module-manual', {
+			label: 'Manual',
+			templateUrl: 'views/modules/mb-resources-manual.html',
+			/*@ngInject*/
+			controller: function($scope) {
+				$scope.$watch('module', function(value) {
+					$scope.$parent.setValue([value]);
+				}, true);
+				$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+			},
+			controllerAs: 'resourceCtrl',
+			tags: ['/app/modules']
+		});
 });

@@ -27,7 +27,7 @@
  * @name mb-inline
  * @description Inline editing field
  */
-angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $resource) {
+angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbResource) {
 
     /**
      * Link data and view
@@ -112,7 +112,7 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
              */
 			this.updateImage = function() {
 				var ctrl = this;
-				return $resource.get('image', {
+				return $mbResource.get('image', {
 					style: {
 						icon: 'image',
 						title: $scope.mbInlineLabel || 'Select image',
@@ -130,7 +130,7 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $res
              */
 			this.updateFile = function() {
 				var ctrl = this;
-				return $resource.get('local-file', {
+				return $mbResource.get('local-file', {
 					style: {
 						icon: 'file',
 						title: $scope.mbInlineLabel || 'Select file',
