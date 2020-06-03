@@ -26,9 +26,10 @@
 /**
 @ngdoc Directives
 @name mb-icon
-@description Icon for WB
+@description Icon for MBlowfish
+
  */
-angular.module('mblowfish-core').directive('mbIcon', function($mbIcon, $interpolate) {
+mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
 	// FORMAT
 	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
 	// REPLACE FORMAT

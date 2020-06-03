@@ -29,8 +29,7 @@
  * @description Defines icons to use every where.
  *
  */
-angular.module('mblowfish-core')
-.config(function($mbIconProvider) {
+mblowfish.config(function($mbIconProvider) {
 	$mbIconProvider
 
 
