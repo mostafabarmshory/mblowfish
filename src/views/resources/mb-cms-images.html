@@ -38,8 +38,8 @@
 					ng-if="pobject.mime_type.startsWith('image/')"
 					style="width: 128px; height: 128px;"
 					ng-src="/api/v2/cms/contents/{{pobject.id}}/thumbnail">
-				<wb-icon
-					ng-if="!pobject.mime_type.startsWith('image/')">insert_drive_file</wb-icon>
+				<mb-icon
+					ng-if="!pobject.mime_type.startsWith('image/')">insert_drive_file</mb-icon>
 				<div
 					class="md-list-item-text"
 					layout="column">

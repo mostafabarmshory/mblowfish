@@ -93,7 +93,7 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $locati
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<wb-icon size="16">' + (this.icon || 'close') + '</wb-icon>';
+				html = '<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':
 				// XXX

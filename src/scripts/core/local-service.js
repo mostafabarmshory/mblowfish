@@ -43,21 +43,19 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	// variables
 	//---------------------------------------
 	var defaultDateFormat = 'jYYYY-jMM-jDD';
+	var dateFormat;
+
 	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
+	var dateTimeFormat;
+
+	var language = 'en';
+	var currency = 'US';
+	var direction = 'rtl';
 
 
 	//---------------------------------------
 	// functions
 	//---------------------------------------
-	/**
-	 * Gets current data of the system.
-	 * 
-	 * @memberof $mbLocal
-	 */
-	function getDate() {
-		return new Date();
-	};
-
 
 	function formatDateInternal(inputDate, format) {
 		if (!inputDate) {
@@ -85,11 +83,12 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	 * @memberof $mbLocal
 	 */
 	function formatDate(inputDate, format) {
-		return formatDateInternal(inputDate, format ||
-			rootScope.app.setting.dateFormat ||
-			rootScope.app.config.dateFormat ||
-			defaultDateFormat);
-	};
+		return formatDateInternal(inputDate, dateFormat || defaultDateFormat);
+	}
+
+
+	function setDateFormat() { }
+	function getDateFormat() { }
 
 	/**
 	 * Formats the input date based on the format
@@ -101,11 +100,13 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	 * @memberof $mbLocal
 	 */
 	function formatDateTime(inputDate, format) {
-		return formatDateInternal(inputDate, format ||
-			$rootScope.app.setting.dateFormatTime ||
-			$rootScope.app.config.dateFormatTime ||
-			defaultDateTimeFormat);
+		return formatDateInternal(inputDate, dateTimeFormat || defaultDateTimeFormat);
 	};
+
+
+	function setDateTimeFormat() { }
+	function getDateTimeFormat() { }
+
 	/**
 	 * Get currency of the system
 	 * 
@@ -113,7 +114,7 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	 * @memberof $mbLocal
 	 */
 	function getCurrency() {
-		return this.currency || 'USD';
+		return currency;
 	};
 
 	/**
@@ -122,19 +123,17 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	 * @param currency {String} ISO code
 	 * @memberof $mbLocal
 	 */
-	function setCurrency(currency) {
-		this.currency = currency;
-	};
+	function setCurrency(currencyKey) {
+		currency = currencyKey;
+	}
 
-	/**
-	 * Get language of the system
-	 * 
-	 * @return language ISO code
-	 * @memberof $mbLocal
-	 */
-	function getLanguage() {
-		return $rootScope.app.language;
-	};
+	function setDirection(dir) {
+		direction = dir;
+	}
+
+	function getDirection() {
+		return direction;
+	}
 
 	/**
 	 * Sets language of the system
@@ -142,23 +141,9 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	 * @params language {String} ISO code
 	 * @memberof $mbLocal
 	 */
-	function setLanguage(language) {
-		this.language = language;
-	};
-
-
-	function setApplicationDirection(dir) {
-		$rootScope.__app.dir = dir;
-	}
-
-	function setApplicationLanguage(key) {
-		if ($rootScope.__app.state !== 'ready') {
-			return;
-		}
-		// 0- set app local
-		$rootScope.__app.language = key;
-		// 1- change language
-		$translate.use(key);
+	function setLanguage(lang) {
+		language = lang;
+		$translate.use(lang);
 		// 2- chnage date format
 		// Change moment's locale so the 'L'-format is adjusted.
 		// For example the 'L'-format is DD-MM-YYYY for Dutch
@@ -175,9 +160,22 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
 	}
 
-	function setApplicationCalendar(key) {
-		// 0- set app local
-		$rootScope.__app.calendar = key;
+	/**
+	 * Get language of the system
+	 * 
+	 * @return language ISO code
+	 * @memberof $mbLocal
+	 */
+	function getLanguage() {
+		return language;
+	}
+
+	function setCalendar(key) {
+		calendar = key;
+	}
+
+	function getCalendar() {
+		return calendar;
 	}
 
 	function reload() {
@@ -209,14 +207,54 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	//---------------------------------------
 	service = {
 		reload: reload,
+
+		setCalendar: setCalendar,
+		getCalendar: getCalendar,
+
 		formatDate: formatDate,
+		setDateFormat: setDateFormat,
+		getDateFormat: getDateFormat,
+
 		formatDateTime: formatDateTime,
+		setDateTimeFormat: setDateTimeFormat,
+		getDateTimeFormat: getDateTimeFormat,
+
+		setLanguage: setLanguage,
+		getLanguage: getLanguage,
+
+		setCurrency: setCurrency,
+		getCurrency: getCurrency,
+
+		setDirection: setDirection,
+		getDirection: getDirection,
 	};
 
 	provider = {
 		$get: function() {
+			reload();
 			return service;
-		}
+		},
+		setDefaultLanguage: function() {
+			return provider;
+		},
+		setDefaultCountry: function() {
+			return provider;
+		},
+		setDefaultCurrency: function() {
+			return provider;
+		},
+		setDefaultDateFormat: function() {
+			return provider;
+		},
+		setDefaultDateTimeFomrat: function() {
+			return provider;
+		},
+		setDefaultDirection: function() {
+			return provider;
+		},
+		setDefaultCalendar: function() {
+			return provider;
+		},
 	};
 	return provider;
 });

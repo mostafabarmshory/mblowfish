@@ -24,7 +24,7 @@
 			<md-list-item 
 				ng-repeat="(url, item) in group.items"
 				ng-href="{{::url}}">
-				<wb-icon>{{::(item.icon || 'layers')}}</wb-icon>
+				<mb-icon>{{::(item.icon || 'layers')}}</mb-icon>
 				<p translate>{{::item.title}}</p>
 			</md-list-item>
 			<md-divider ng-repeat-end></md-divider>

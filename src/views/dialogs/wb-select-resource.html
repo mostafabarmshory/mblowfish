@@ -14,7 +14,7 @@
 				ng-hide="pages.length === 1">
 				<div
 	    			style="text-align: center;">
-					<wb-icon size="64px" ng-if="style.icon">{{style.icon}}</wb-icon>
+					<mb-icon size="64px" ng-if="style.icon">{{style.icon}}</mb-icon>
 					<h2 
 						style="text-align: center;"
 						translate>{{style.title}}</h2>
@@ -30,7 +30,7 @@
 							ng-repeat="page in pages | orderBy:priority"
 							ng-click="loadPage(page, $event);"
 							md-colors="_selectedIndex===$index ? {background:'accent'} : {}">
-							<wb-icon>{{page.icon || 'attachment'}}</wb-icon>
+							<mb-icon>{{page.icon || 'attachment'}}</mb-icon>
 							<p>{{page.label | translate}}</p>
 						</md-list-item>
 					</md-list>

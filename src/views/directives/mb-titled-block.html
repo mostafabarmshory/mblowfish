@@ -10,7 +10,7 @@
       layout="row"
       layout-align="start center"
       class="md-toolbar-tools">
-      <wb-icon size="24px" style="margin: 0;padding: 0px" ng-if="mbIcon">{{::mbIcon}}</wb-icon>
+      <mb-icon size="24px" style="margin: 0;padding: 0px" ng-if="mbIcon">{{::mbIcon}}</mb-icon>
       <h3 translate="" style="margin-left: 8px; margin-right: 8px">{{::mbTitle}}</h3>
     </div>
     <md-menu
@@ -20,7 +20,7 @@
         class="md-icon-button"
         aria-label="Menu"
         ng-click="$mdOpenMenu($event)">
-        <wb-icon>more_vert</wb-icon>
+        <mb-icon>more_vert</mb-icon>
       </md-button>
       <md-menu-content width="4">
         <md-menu-item
@@ -28,7 +28,7 @@
           <md-button
             ng-click="item.action()"
             aria-label="{{::item.title}}">
-            <wb-icon ng-show="item.icon">{{::item.icon}}</wb-icon>
+            <mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
             <span translate="">{{::item.title}}</span>
           </md-button>
         </md-menu-item>

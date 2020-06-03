@@ -24,11 +24,11 @@
 
 
 /**
- * @ngdoc Directives
- * @name wb-icon
- * @description Icon for WB
+@ngdoc Directives
+@name mb-icon
+@description Icon for WB
  */
-angular.module('mblowfish-core').directive('wbIcon', function($mbIcon, $interpolate) {
+angular.module('mblowfish-core').directive('mbIcon', function($mbIcon, $interpolate) {
 	// FORMAT
 	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
 	// REPLACE FORMAT
@@ -119,8 +119,8 @@ angular.module('mblowfish-core').directive('wbIcon', function($mbIcon, $interpol
 		// watch for any changes
 		if (attr.icon !== undefined) {
 			attr.$observe('icon', setIcon);
-		} else if (attr.wbIconName !== undefined) {
-			attr.$observe('wbIconName', setIcon);
+		} else if (attr.mbIconName !== undefined) {
+			attr.$observe('mbIconName', setIcon);
 		} else {
 			transclude(scope, function(clone) {
 				var text = clone.text();
@@ -151,12 +151,12 @@ angular.module('mblowfish-core').directive('mdIconFloat', function($mdTheming) {
 
 	var LEFT_SELECTORS = INPUT_TAGS.reduce(
 		function(selectors, isel) {
-			return selectors.concat(['wb-icon ~ ' + isel, '.wb-icon ~ ' + isel]);
+			return selectors.concat(['mb-icon ~ ' + isel, '.mb-icon ~ ' + isel]);
 		}, []).join(',');
 
 	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
 		function(selectors, isel) {
-			return selectors.concat([isel + ' ~ wb-icon', isel + ' ~ .wb-icon']);
+			return selectors.concat([isel + ' ~ mb-icon', isel + ' ~ .mb-icon']);
 		}, []).join(',');
 
 	function compile(tElement) {

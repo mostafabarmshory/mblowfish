@@ -8,22 +8,22 @@
 	        <md-button
 	            class="wb-group-button left"
 	            ng-click="editable = !editable">
-	            <wb-icon wb-icon-name="{{action.icon || 'edit'}}"></wb-icon>
+	            <mb-icon mb-icon-name="{{action.icon || 'edit'}}"></mb-icon>
 	        </md-button>
 	        <md-button
 	            ng-repeat="action in actions"
 	            ng-click="runAction(action)">
-	            <wb-icon icon="{{action.icon}}"></wb-icon>
+	            <mb-icon icon="{{action.icon}}"></mb-icon>
 	        </md-button>
 	        <md-button
 	            ng-repeat="action in actions"
 	            ng-click="runAction(action)">
-	            <wb-icon size="48">{{action.icon}}</wb-icon>
+	            <mb-icon size="48">{{action.icon}}</mb-icon>
 	        </md-button>
 	        <md-button
 	            ng-repeat="action in actions"
 	            ng-click="runAction(action)">
-	            <wb-icon size="48" style="fill: red;">{{action.icon}}</wb-icon>
+	            <mb-icon size="48" style="fill: red;">{{action.icon}}</mb-icon>
 	        </md-button>
 	    </section>
 	 <md-content

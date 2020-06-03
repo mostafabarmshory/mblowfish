@@ -18,7 +18,7 @@
             <md-list-item 
                 ng-repeat="message in ctrl.items track by message.id"
                 class="md-3-line">
-                <wb-icon ng-class="">mail</wb-icon>
+                <mb-icon ng-class="">mail</mb-icon>
                 <div class="md-list-item-text">
                     <p>{{::message.message}}</p>
                 </div>
@@ -26,7 +26,7 @@
                     class="md-secondary md-icon-button" 
                     ng-click="ctrl.deleteItem(message)" 
                     aria-label="remove">
-                    <wb-icon>delete</wb-icon>
+                    <mb-icon>delete</mb-icon>
                 </md-button>
                 <md-divider md-inset></md-divider>
             </md-list-item>
