@@ -34,6 +34,23 @@ to show in the next sessions too.
 
  */
 angular.module('mblowfish-core').provider('$mbLayout', function() {
+
+
+	//-----------------------------------------------------------------------------------
+	// Services and factories
+	//-----------------------------------------------------------------------------------
+	var service;
+	var provider;
+	var rootScope; // = $rootScope
+	var compile; // = $compile
+	var injector;// = $injector;
+	var mbStorage; // = $mbStorage
+
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
+
 	/*
 	List of layouts which is loaded at run time by configurations. These are not
 	editable
@@ -55,12 +72,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 
 	// layout mode
 	var mode = 'docker';
-
-
-	var rootScope; // = $rootScope
-	var compile; // = $compile
-	var injector;// = $injector;
-	var mbStorage; // = $mbStorage
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -316,18 +327,30 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	/*
 	Profider
 	*/
-	return {
+	service = {
+		// global api
+		reload: reload,
+		open: open,
+		setFocus: setFocus,
+
+		setLayout: setLayout,
+		getLayout: getLayout,
+	}
+	provider = {
 		setDefault: function(name) {
 			defaultLayoutName = name;
+			return provider;
 		},
 		addLayout: function(name, layout) {
 			hardCodeLayout[name] = layout;
+			return provider
 		},
 		getLayout: function(name) {
 			return hardCodeLayout[name];
 		},
 		setMode: function(appMode) {
 			mode = appMode;
+			return;
 		},
 		/* @ngInject */
 		$get: function(
@@ -343,24 +366,13 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			mbStorage = $mbStorage;
 
 			//
-			// 2- Set layout API
-			//
-			// global api
-			this.reload = reload;
-			this.open = open;
-			this.setFocus = setFocus;
-
-			// Docker API
-			this.setLayout = setLayout;
-			this.getLayout = getLayout;
-
-			//
 			// 3- Initialize the laytout
 			//
 			init();
-			return this;
+			return service;
 		}
 	};
+	return provider;
 });
 
 (function() {

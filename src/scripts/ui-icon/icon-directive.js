@@ -28,7 +28,7 @@
  * @name wb-icon
  * @description Icon for WB
  */
-angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $interpolate) {
+angular.module('mblowfish-core').directive('wbIcon', function($mbIcon, $interpolate) {
 	// FORMAT
 	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
 	// REPLACE FORMAT
@@ -38,7 +38,7 @@ angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $in
 	Mustache.parse(template);
 	Mustache.parse(replaceTemplate);
 
-	var shapes = wbIconService.getShapes();
+	var shapes = $mbIcon.getShapes();
 
 	function postLink(scope, element, attr, ctrls, transclude) {
 		// icon information
@@ -75,7 +75,7 @@ angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $in
 		//            if (attr.viewBox !== undefined) {
 		//                viewBox = attr.viewBox;
 		//            } else {
-		//                viewBox = wbIconService.getViewBox(icon) ? wbIconService.getViewBox(icon) : '0 0 24 24';
+		//                viewBox = $mbIcon.getViewBox(icon) ? $mbIcon.getViewBox(icon) : '0 0 24 24';
 		//            }
 		//            render();
 		//            return viewBox;

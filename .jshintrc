@@ -18,6 +18,11 @@
 		"confirm": false,
 		"alert": false,
 		"machina": false,
-		"moment": false
+		"moment": false,
+		"jQuery": true,
+		"moduleLoad": false,
+		"_": false,
+		"MODULE_STORAGE_KEY": false,
+		"storageSupported": false
 	}
 }

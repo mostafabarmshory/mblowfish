@@ -34,6 +34,7 @@ let requiredModues = [ //
 	'seen-tenant',
 	'seen-cms',
 	'seen-monitor',
+	'seen-shop',
 	//	AM-WB
 	'am-wb-core',
 	//	Others

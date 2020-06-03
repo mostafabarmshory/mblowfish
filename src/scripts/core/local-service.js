@@ -64,7 +64,7 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 			return '';
 		}
 		try {
-			if ($rootScope.app.calendar !== 'Jalaali') {
+			if (rootScope.app.calendar !== 'Jalaali') {
 				format = format.replace('j', '');
 			}
 			var date = moment //
@@ -86,8 +86,8 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	 */
 	function formatDate(inputDate, format) {
 		return formatDateInternal(inputDate, format ||
-			$rootScope.app.setting.dateFormat ||
-			$rootScope.app.config.dateFormat ||
+			rootScope.app.setting.dateFormat ||
+			rootScope.app.config.dateFormat ||
 			defaultDateFormat);
 	};
 
@@ -180,35 +180,37 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 		$rootScope.__app.calendar = key;
 	}
 
-	function reload(){
-	//	/*
-	//	 * watch direction and update app.dir
-	//	 */
-	//	$rootScope.$watch(function() {
-	//		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
-	//	}, setApplicationDirection);
-	//
-	//	/*
-	//	 * watch local and update language
-	//	 */
-	//	$rootScope.$watch(function() {
-	//		// Check language
-	//		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
-	//	}, setApplicationLanguage);
-	//
-	//	/*
-	//	 * watch calendar
-	//	 */
-	//	$rootScope.$watch(function() {
-	//		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
-	//	}, setApplicationCalendar);
+	function reload() {
+		//	/*
+		//	 * watch direction and update app.dir
+		//	 */
+		//	$rootScope.$watch(function() {
+		//		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
+		//	}, setApplicationDirection);
+		//
+		//	/*
+		//	 * watch local and update language
+		//	 */
+		//	$rootScope.$watch(function() {
+		//		// Check language
+		//		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
+		//	}, setApplicationLanguage);
+		//
+		//	/*
+		//	 * watch calendar
+		//	 */
+		//	$rootScope.$watch(function() {
+		//		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
+		//	}, setApplicationCalendar);
 	}
 
 	//---------------------------------------
 	// End
 	//---------------------------------------
 	service = {
-		reload: reload
+		reload: reload,
+		formatDate: formatDate,
+		formatDateTime: formatDateTime,
 	};
 
 	provider = {

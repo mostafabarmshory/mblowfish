@@ -11,8 +11,8 @@
  * 
  *  All icons will be managed
  */
-angular.module('mblowfish-core').provider('wbIconService', function () {
-	
+mblowfish.provider('$mbIcon', function() {
+
 	var provider, service;
 
 	var shapes = {};
@@ -20,38 +20,38 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
 	var size = 24;
 
 	service = {
-			getShape : getShape,
-			getShapes: getShapes,
-			getViewBox : getViewBox,
-			getViewBoxes: getViewBoxes,
-			getSize: getSize,
-			setShape : addShape,
-			setShapes: addShapes,
-			setViewBox : addViewBox,
-			setViewBoxes: addViewBoxes,
-			setSize: setSize,
-			addShape : addShape,
-			addShapes: addShapes,
-			addViewBox : addViewBox,
-			addViewBoxes: addViewBoxes
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
 	};
 
 	provider = {
-			$get     : wbIconServiceFactory,
-			getShape : getShape,
-			getShapes: getShapes,
-			getViewBox : getViewBox,
-			getViewBoxes: getViewBoxes,
-			getSize: getSize,
-			setShape : addShape,
-			setShapes: addShapes,
-			setViewBox : addViewBox,
-			setViewBoxes: addViewBoxes,
-			setSize: setSize,
-			addShape : addShape,
-			addShapes: addShapes,
-			addViewBox : addViewBox,
-			addViewBoxes: addViewBoxes
+		$get: $mbIconFactory,
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
 	};
 
 	return provider;
@@ -95,7 +95,7 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
 	function getViewBoxes() {
 		return viewBoxes;
 	}
-	
+
 	function setSize(newSize) {
 		size = newSize || 24;
 	}
@@ -104,7 +104,7 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
 		return size;
 	}
 
-	function wbIconServiceFactory() {
+	function $mbIconFactory() {
 		return service;
 	}
 });

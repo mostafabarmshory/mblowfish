@@ -30,8 +30,8 @@
  *
  */
 angular.module('mblowfish-core')
-.config(function(wbIconServiceProvider) {
-	wbIconServiceProvider
+.config(function($mbIconProvider) {
+	$mbIconProvider
 
 
 	/*
@@ -1047,14 +1047,14 @@ angular.module('mblowfish-core')
 	.addShapes({
 		// Add single icon
 		'standby': '<path d="M13 3.5h-2v10h2v-10z"/><path d="M16.56 5.94l-1.45 1.45C16.84 8.44 18 10.33 18 12.5c0 3.31-2.69 6-6 6s-6-2.69-6-6c0-2.17 1.16-4.06 2.88-5.12L7.44 5.94C5.36 7.38 4 9.78 4 12.5c0 4.42 3.58 8 8 8s8-3.58 8-8c0-2.72-1.36-5.12-3.44-6.56z"/>',
-		'custom-delete': wbIconServiceProvider.getShape('delete'),
-		'vertical': wbIconServiceProvider.getShape('view_sequential'),
+		'custom-delete': $mbIconProvider.getShape('delete'),
+		'vertical': $mbIconProvider.getShape('view_sequential'),
 
 		'corner_bottom_left': '<path d="M 5,5 H 3 V 3 H 5 Z M 5,7 H 3 v 2 h 2 z m 16,4 h -2 v 2 h 2 z m 0,-4 h -2 v 2 h 2 z m 0,8 h -2 v 2 h 2 z m 0,4 h -2 v 2 h 2 z m -4,0 h -2 v 2 h 2 z M 9,3 H 7 v 2 h 2 z m 4,0 h -2 v 2 h 2 z M 9,3 H 7 v 2 h 2 z m 8,0 h -2 v 2 h 2 z m 4,0 h -2 v 2 h 2 z M 3,16 c 0,2.76 2.24,5 5,5 h 5 V 19 H 8 C 6.35,19 5,17.65 5,16 V 11 H 3 Z" />',
 		'corner_bottom_right': '<path d="m 5,19 v 2 H 3 v -2 z m 2,0 v 2 h 2 v -2 z m 4,-16 0,2 2,0 0,-2 z M 7,3 V 5 L 9,5 9,3 Z m 8,0 0,2 2,0 V 3 Z m 4,0 v 2 h 2 V 3 Z m 0,4 v 2 l 2,0 V 7 Z M 3,15 v 2 h 2 v -2 z m 0,-4 v 2 h 2 v -2 z m 0,4 v 2 H 5 V 15 Z M 3,7 V 9 H 5 V 7 Z M 3,3 V 5 H 5 V 3 Z m 13,18 c 2.76,0 5,-2.24 5,-5 v -5 l -2,0 0,5 c 0,1.65 -1.35,3 -3,3 l -5,0 v 2 z" />',
 		'corner_top_left': '<path d="M 19,5 V 3 h 2 V 5 Z M 17,5 V 3 h -2 v 2 z m -4,16 v -2 h -2 v 2 z m 4,0 v -2 h -2 v 2 z M 9,21 V 19 H 7 v 2 z M 5,21 V 19 H 3 l 0,2 z M 5,17 5,15 H 3 v 2 z M 21,9 V 7 h -2 v 2 z m 0,4 v -2 h -2 v 2 z M 21,9 V 7 h -2 v 2 z m 0,8 v -2 h -2 v 2 z m 0,4 v -2 h -2 v 2 z M 8,3 C 5.24,3 3,5.24 3,8 v 5 H 5 V 8 C 5,6.35 6.35,5 8,5 h 5 V 3 Z" />',
 		'corner_top_right': '<path d="m 19,19 h 2 v 2 h -2 z m 0,-2 h 2 V 15 H 19 Z M 3,13 H 5 V 11 H 3 Z m 0,4 H 5 V 15 H 3 Z M 3,9 H 5 V 7 H 3 Z M 3,5 H 5 V 3 H 3 Z M 7,5 H 9 V 3 H 7 Z m 8,16 h 2 v -2 h -2 z m -4,0 h 2 v -2 h -2 z m 4,0 h 2 V 19 H 15 Z M 7,21 H 9 V 19 H 7 Z M 3,21 H 5 V 19 H 3 Z M 21,8 C 21,5.24 18.76,3 16,3 h -5 v 2 h 5 c 1.65,0 3,1.35 3,3 v 5 h 2 z" />',
-		'full_rounded': wbIconServiceProvider.getShape('crop_free'),
+		'full_rounded': $mbIconProvider.getShape('crop_free'),
 
 		'align_justify_vertical': '<path d="M 21,21 V 3 h -2 v 18 z m -4,0 V 3 h -2 l 0,18 z m -4,0 0,-18 h -2 l 0,18 z M 9,21 9,3 H 7 L 7,21 Z M 3,21 H 5 L 5,3 H 3 Z" />',
 		'align_center_vertical': '<path d="m 15,17 h 2 V 7 h -2 z m 6,4 V 3 h -2 v 18 z m -8,0 0,-18 h -2 l 0,18 z M 7,17 H 9 L 9,7 H 7 Z M 3,21 H 5 L 5,3 H 3 Z" />',
@@ -1084,19 +1084,19 @@ angular.module('mblowfish-core')
 
 		'list_tree': '<path d="m 3.0063556,9.3749998 2.3368645,-1.125 -2.3432204,-1.25 z M 11,13 H 21 V 11 H 11 Z m 0,4 H 21 V 15 H 11 Z M 6.9999997,6.9999998 v 2 H 21 v -2 z" />',
 
-		'wb-object-video': wbIconServiceProvider.getShape('video_library'),
-		'wb-object-audio':  wbIconServiceProvider.getShape('audiotrack'),
-		'wb-object-data': wbIconServiceProvider.getShape('storage'),
+		'wb-object-video': $mbIconProvider.getShape('video_library'),
+		'wb-object-audio':  $mbIconProvider.getShape('audiotrack'),
+		'wb-object-data': $mbIconProvider.getShape('storage'),
 
-		'wb-widget-group': wbIconServiceProvider.getShape('pages'),
-		'wb-widget-html': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-widget-input': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-widget-textarea': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-widget-iframe': wbIconServiceProvider.getShape('settings_ethernet'),
+		'wb-widget-group': $mbIconProvider.getShape('pages'),
+		'wb-widget-html': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-widget-input': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-widget-textarea': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-widget-iframe': $mbIconProvider.getShape('settings_ethernet'),
 
-		'wb-setting-iframe': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-setting-input': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-setting-textarea': wbIconServiceProvider.getShape('settings_ethernet'),
+		'wb-setting-iframe': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-setting-input': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-setting-textarea': $mbIconProvider.getShape('settings_ethernet'),
 		/*
 		 * Wifi
 		 */

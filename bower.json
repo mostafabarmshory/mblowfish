@@ -21,6 +21,7 @@
     "seen-tenant": "https://gitlab.com/seen/angular/seen-tenant.git#3.0.x",
     "seen-cms": "https://gitlab.com/seen/angular/seen-cms.git#3.0.x",
     "seen-monitor": "https://gitlab.com/seen/angular/seen-monitor.git#3.0.x",
+    "seen-shop": "https://gitlab.com/seen/angular/seen-shop.git#3.0.x",
     "am-wb-core": "https://gitlab.com/am-wb/am-wb-core.git#4.1.x",
 
     "ng-appcache": "2.0.x",

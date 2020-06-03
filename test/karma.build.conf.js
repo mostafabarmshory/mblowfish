@@ -65,6 +65,7 @@ module.exports = function(config) {
 			'bower_components/seen-tenant/dist/seen-tenant.js',
 			'bower_components/seen-cms/dist/seen-cms.js',
 			'bower_components/seen-monitor/dist/seen-monitor.js',
+			'bower_components/seen-shop/dist/seen-shop.js',
 			'bower_components/flux/dist/Flux.js',
 			'bower_components/am-wb-core/dist/am-wb-core.min.js',
 			'bower_components/ng-appcache/dist/appcache.js',

@@ -11,7 +11,12 @@
 		"toast": true,
 		"prompt": true,
 		"machina": true,
-		"moment": true
+		"moment": true,
+		"jQuery": true,
+		"moduleLoad": true,
+		"_": true,
+		"MODULE_STORAGE_KEY": true,
+		"storageSupported": true
 	},
 	"extends": "eslint:recommended",
 	"parserOptions": {

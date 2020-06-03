@@ -73,6 +73,7 @@ angular.module('mblowfish-core').provider('$mbResource', function() {
 	function addPage(pageId, page) {
 		page.id = pageId;
 		resourcePages[pageId] = page;
+		return provider;
 	}
 
     /**

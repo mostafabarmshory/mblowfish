@@ -1,747 +1,3 @@
-/*!
- *  * machina - A library for creating powerful and flexible finite state machines. Loosely inspired by Erlang/OTP's gen_fsm behavior.
- *  * Author: Jim Cowart (http://ifandelse.com)
- *  * Version: v4.0.2
- *  * Url: http://machina-js.org/
- *  * License(s): 
- */
-(function webpackUniversalModuleDefinition(root, factory) {
-    if(typeof exports === 'object' && typeof module === 'object'){
-        module.exports = factory(require("lodash"));
-    } else if(typeof define === 'function' && define.amd){
-        define(["lodash"], factory);
-    }else if(typeof exports === 'object'){
-        exports.machina = factory(require("lodash"));
-    }else{
-        root.machina = factory(root._);
-    }
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
-    return /******/ (function(modules) { // webpackBootstrap
-        /******/ 	// The module cache
-        /******/ 	var installedModules = {};
-        /******/
-        /******/ 	// The require function
-        /******/ 	function __webpack_require__(moduleId) {
-            /******/
-            /******/ 		// Check if module is in cache
-            /******/ 		if(installedModules[moduleId])
-                /******/ 			return installedModules[moduleId].exports;
-            /******/
-            /******/ 		// Create a new module (and put it into the cache)
-            /******/ 		var module = installedModules[moduleId] = {
-                    /******/ 			exports: {},
-                    /******/ 			id: moduleId,
-                    /******/ 			loaded: false
-            /******/ 		};
-            /******/
-            /******/ 		// Execute the module function
-            /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-            /******/
-            /******/ 		// Flag the module as loaded
-            /******/ 		module.loaded = true;
-            /******/
-            /******/ 		// Return the exports of the module
-            /******/ 		return module.exports;
-        /******/ 	}
-        /******/
-        /******/
-        /******/ 	// expose the modules object (__webpack_modules__)
-        /******/ 	__webpack_require__.m = modules;
-        /******/
-        /******/ 	// expose the module cache
-        /******/ 	__webpack_require__.c = installedModules;
-        /******/
-        /******/ 	// __webpack_public_path__
-        /******/ 	__webpack_require__.p = "";
-        /******/
-        /******/ 	// Load entry module and return exports
-        /******/ 	return __webpack_require__(0);
-    /******/ })
-    /************************************************************************/
-    /******/ ([
-        /* 0 */
-        /***/ (function(module, exports, __webpack_require__) {
-
-            var _ = __webpack_require__( 1 );
-            var emitter = __webpack_require__( 2 );
-
-            module.exports = _.merge( emitter.instance, {
-                Fsm: __webpack_require__( 5 ),
-                BehavioralFsm: __webpack_require__( 6 ),
-                utils: __webpack_require__( 3 ),
-                eventListeners: {
-                    newFsm: []
-                }
-            } );
-
-
-        /***/ }),
-        /* 1 */
-        /***/ (function(module, exports) {
-
-            module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-        /***/ }),
-        /* 2 */
-        /***/ (function(module, exports, __webpack_require__) {
-
-            var utils = __webpack_require__( 3 );
-            var _ = __webpack_require__( 1 );
-
-            function getInstance() {
-                return {
-                    emit: function( eventName ) {
-                        var args = utils.getLeaklessArgs( arguments );
-                        if ( this.eventListeners[ "*" ] ) {
-                            _.each( this.eventListeners[ "*" ], function( callback ) {
-                                if ( !this.useSafeEmit ) {
-                                    callback.apply( this, args );
-                                } else {
-                                    try {
-                                        callback.apply( this, args );
-                                    } catch ( exception ) {
-                                        /* istanbul ignore else  */
-                                        if ( console && typeof console.log !== "undefined" ) {
-                                            console.log( exception.stack );
-                                        }
-                                    }
-                                }
-                            }.bind( this ) );
-                        }
-                        if ( this.eventListeners[ eventName ] ) {
-                            _.each( this.eventListeners[ eventName ], function( callback ) {
-                                if ( !this.useSafeEmit ) {
-                                    callback.apply( this, args.slice( 1 ) );
-                                } else {
-                                    try {
-                                        callback.apply( this, args.slice( 1 ) );
-                                    } catch ( exception ) {
-                                        /* istanbul ignore else  */
-                                        if ( console && typeof console.log !== "undefined" ) {
-                                            console.log( exception.stack );
-                                        }
-                                    }
-                                }
-                            }.bind( this ) );
-                        }
-                    },
-
-                    on: function( eventName, callback ) {
-                        var self = this;
-                        self.eventListeners = self.eventListeners || { "*": [] };
-                        if ( !self.eventListeners[ eventName ] ) {
-                            self.eventListeners[ eventName ] = [];
-                        }
-                        self.eventListeners[ eventName ].push( callback );
-                        return {
-                            eventName: eventName,
-                            callback: callback,
-                            off: function() {
-                                self.off( eventName, callback );
-                            }
-                        };
-                    },
-
-                    off: function( eventName, callback ) {
-                        this.eventListeners = this.eventListeners || { "*": [] };
-                        if ( !eventName ) {
-                            this.eventListeners = {};
-                        } else {
-                            if ( callback ) {
-                                this.eventListeners[ eventName ] = _.without( this.eventListeners[ eventName ], callback );
-                            } else {
-                                this.eventListeners[ eventName ] = [];
-                            }
-                        }
-                    }
-                };
-            }
-
-            module.exports = {
-                    getInstance: getInstance,
-                    instance: getInstance()
-            };
-
-
-        /***/ }),
-        /* 3 */
-        /***/ (function(module, exports, __webpack_require__) {
-
-            var slice = [].slice;
-            var events = __webpack_require__( 4 );
-            var _ = __webpack_require__( 1 );
-
-            var makeFsmNamespace = ( function() {
-                var machinaCount = 0;
-                return function() {
-                    return "fsm." + machinaCount++;
-                };
-            } )();
-
-            function getDefaultBehavioralOptions() {
-                return {
-                    initialState: "uninitialized",
-                    eventListeners: {
-                        "*": []
-                    },
-                    states: {},
-                    namespace: makeFsmNamespace(),
-                    useSafeEmit: false,
-                    hierarchy: {},
-                    pendingDelegations: {}
-                };
-            }
-
-            function getDefaultClientMeta() {
-                return {
-                    inputQueue: [],
-                    targetReplayState: "",
-                    state: undefined,
-                    priorState: undefined,
-                    priorAction: "",
-                    currentAction: "",
-                    currentActionArgs: undefined,
-                    inExitHandler: false
-                };
-            }
-
-            function getLeaklessArgs( args, startIdx ) {
-                var result = [];
-                for ( var i = ( startIdx || 0 ); i < args.length; i++ ) {
-                    result[ i ] = args[ i ];
-                }
-                return result;
-            }
-            /*
-		handle ->
-			child = stateObj._child && stateObj._child.instance;
-
-		transition ->
-			newStateObj._child = getChildFsmInstance( newStateObj._child );
-			child = newStateObj._child && newStateObj._child.instance;
-             */
-            function getChildFsmInstance( config ) {
-                if ( !config ) {
-                    return;
-                }
-                var childFsmDefinition = {};
-                if ( typeof config === "object" ) {
-                    // is this a config object with a factory?
-                    if ( config.factory ) {
-                        childFsmDefinition = config;
-                        childFsmDefinition.instance = childFsmDefinition.factory();
-                    } else {
-                        // assuming this is a machina instance
-                        childFsmDefinition.factory = function() {
-                            return config;
-                        };
-                    }
-                } else if ( typeof config === "function" ) {
-                    childFsmDefinition.factory = config;
-                }
-                childFsmDefinition.instance = childFsmDefinition.factory();
-                return childFsmDefinition;
-            }
-
-            function listenToChild( fsm, child ) {
-                // Need to investigate potential for discarded event
-                // listener memory leak in long-running, deeply-nested hierarchies.
-                return child.on( "*", function( eventName, data ) {
-                    switch ( eventName ) {
-                    case events.NO_HANDLER:
-                        if ( !data.ticket && !data.delegated && data.namespace !== fsm.namespace ) {
-                            // Ok - we're dealing w/ a child handling input that should bubble up
-                            data.args[ 1 ].bubbling = true;
-                        }
-                        // we do NOT bubble _reset inputs up to the parent
-                        if ( data.inputType !== "_reset" ) {
-                            fsm.handle.apply( fsm, data.args );
-                        }
-                        break;
-                    case events.HANDLING :
-                        var ticket = data.ticket;
-                        if ( ticket && fsm.pendingDelegations[ ticket ] ) {
-                            delete fsm.pendingDelegations[ ticket ];
-                        }
-                        fsm.emit( eventName, data ); // possibly transform payload?
-                        break;
-                    default:
-                        fsm.emit( eventName, data ); // possibly transform payload?
-                    break;
-                    }
-                } );
-            }
-
-            // _machKeys are members we want to track across the prototype chain of an extended FSM constructor
-            // Since we want to eventually merge the aggregate of those values onto the instance so that FSMs
-            // that share the same extended prototype won't share state *on* those prototypes.
-            var _machKeys = [ "states", "initialState" ];
-            var extend = function( protoProps, staticProps ) {
-                var parent = this;
-                var fsm; // placeholder for instance constructor
-                var machObj = {}; // object used to hold initialState & states from prototype for instance-level merging
-                var Ctor = function() {}; // placeholder ctor function used to insert level in prototype chain
-
-                // The constructor function for the new subclass is either defined by you
-                // (the "constructor" property in your `extend` definition), or defaulted
-                // by us to simply call the parent's constructor.
-                if ( protoProps && protoProps.hasOwnProperty( "constructor" ) ) {
-                    fsm = protoProps.constructor;
-                } else {
-                    // The default machina constructor (when using inheritance) creates a
-                    // deep copy of the states/initialState values from the prototype and
-                    // extends them over the instance so that they'll be instance-level.
-                    // If an options arg (args[0]) is passed in, a states or intialState
-                    // value will be preferred over any data pulled up from the prototype.
-                    fsm = function() {
-                        var args = slice.call( arguments, 0 );
-                        args[ 0 ] = args[ 0 ] || {};
-                        var blendedState;
-                        var instanceStates = args[ 0 ].states || {};
-                        blendedState = _.merge( _.cloneDeep( machObj ), { states: instanceStates } );
-                        blendedState.initialState = args[ 0 ].initialState || this.initialState;
-                        _.extend( args[ 0 ], blendedState );
-                        parent.apply( this, args );
-                    };
-                }
-
-                // Inherit class (static) properties from parent.
-                _.merge( fsm, parent );
-
-                // Set the prototype chain to inherit from `parent`, without calling
-                // `parent`'s constructor function.
-                Ctor.prototype = parent.prototype;
-                fsm.prototype = new Ctor();
-
-                // Add prototype properties (instance properties) to the subclass,
-                // if supplied.
-                if ( protoProps ) {
-                    _.extend( fsm.prototype, protoProps );
-                    _.merge( machObj, _.transform( protoProps, function( accum, val, key ) {
-                        if ( _machKeys.indexOf( key ) !== -1 ) {
-                            accum[ key ] = val;
-                        }
-                    } ) );
-                }
-
-                // Add static properties to the constructor function, if supplied.
-                if ( staticProps ) {
-                    _.merge( fsm, staticProps );
-                }
-
-                // Correctly set child's `prototype.constructor`.
-                fsm.prototype.constructor = fsm;
-
-                // Set a convenience property in case the parent's prototype is needed later.
-                fsm.__super__ = parent.prototype;
-                return fsm;
-            };
-
-            function createUUID() {
-                var s = [];
-                var hexDigits = "0123456789abcdef";
-                for ( var i = 0; i < 36; i++ ) {
-                    s[ i ] = hexDigits.substr( Math.floor( Math.random() * 0x10 ), 1 );
-                }
-                s[ 14 ] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
-                /* jshint ignore:start */
-                s[ 19 ] = hexDigits.substr( ( s[ 19 ] & 0x3 ) | 0x8, 1 ); // bits 6-7 of the clock_seq_hi_and_reserved to 01
-                /* jshint ignore:end */
-                s[ 8 ] = s[ 13 ] = s[ 18 ] = s[ 23 ] = "-";
-                return s.join( "" );
-            }
-
-            module.exports = {
-                    createUUID: createUUID,
-                    extend: extend,
-                    getDefaultBehavioralOptions: getDefaultBehavioralOptions,
-                    getDefaultOptions: getDefaultBehavioralOptions,
-                    getDefaultClientMeta: getDefaultClientMeta,
-                    getChildFsmInstance: getChildFsmInstance,
-                    getLeaklessArgs: getLeaklessArgs,
-                    listenToChild: listenToChild,
-                    makeFsmNamespace: makeFsmNamespace
-            };
-
-
-        /***/ }),
-        /* 4 */
-        /***/ (function(module, exports) {
-
-            module.exports = {
-                    NEXT_TRANSITION: "transition",
-                    HANDLING: "handling",
-                    HANDLED: "handled",
-                    NO_HANDLER: "nohandler",
-                    TRANSITION: "transition",
-                    TRANSITIONED: "transitioned",
-                    INVALID_STATE: "invalidstate",
-                    DEFERRED: "deferred",
-                    NEW_FSM: "newfsm"
-            };
-
-
-        /***/ }),
-        /* 5 */
-        /***/ (function(module, exports, __webpack_require__) {
-
-            var BehavioralFsm = __webpack_require__( 6 );
-            var utils = __webpack_require__( 3 );
-            var _ = __webpack_require__( 1 );
-
-            var Fsm = {
-                    constructor: function() {
-                        BehavioralFsm.apply( this, arguments );
-                        this.ensureClientMeta();
-                    },
-                    initClient: function initClient() {
-                        var initialState = this.initialState;
-                        if ( !initialState ) {
-                            throw new Error( "You must specify an initial state for this FSM" );
-                        }
-                        if ( !this.states[ initialState ] ) {
-                            throw new Error( "The initial state specified does not exist in the states object." );
-                        }
-                        this.transition( initialState );
-                    },
-                    ensureClientMeta: function ensureClientMeta() {
-                        if ( !this._stamped ) {
-                            this._stamped = true;
-                            _.defaults( this, _.cloneDeep( utils.getDefaultClientMeta() ) );
-                            this.initClient();
-                        }
-                        return this;
-                    },
-
-                    ensureClientArg: function( args ) {
-                        var _args = args;
-                        // we need to test the args and verify that if a client arg has
-                        // been passed, it must be this FSM instance (this isn't a behavioral FSM)
-                        if ( typeof _args[ 0 ] === "object" && !( "inputType" in _args[ 0 ] ) && _args[ 0 ] !== this ) {
-                            _args.splice( 0, 1, this );
-                        } else if ( typeof _args[ 0 ] !== "object" || ( typeof _args[ 0 ] === "object" && ( "inputType" in _args[ 0 ] ) ) ) {
-                            _args.unshift( this );
-                        }
-                        return _args;
-                    },
-
-                    getHandlerArgs: function( args, isCatchAll ) {
-                        // index 0 is the client, index 1 is inputType
-                        // if we're in a catch-all handler, input type needs to be included in the args
-                        // inputType might be an object, so we need to just get the inputType string if so
-                        var _args = args;
-                        var input = _args[ 1 ];
-                        if ( typeof inputType === "object" ) {
-                            _args.splice( 1, 1, input.inputType );
-                        }
-                        return isCatchAll ?
-                                _args.slice( 1 ) :
-                                    _args.slice( 2 );
-                    },
-
-                    getSystemHandlerArgs: function( args, client ) {
-                        return args;
-                    },
-
-                    // "classic" machina FSM do not emit the client property on events (which would be the FSM itself)
-                    buildEventPayload: function() {
-                        var args = this.ensureClientArg( utils.getLeaklessArgs( arguments ) );
-                        var data = args[ 1 ];
-                        if ( _.isPlainObject( data ) ) {
-                            return _.extend( data, { namespace: this.namespace } );
-                        } else {
-                            return { data: data || null, namespace: this.namespace };
-                        }
-                    }
-            };
-
-            _.each( [
-                "handle",
-                "transition",
-                "deferUntilTransition",
-                "processQueue",
-                "clearQueue"
-                ], function( methodWithClientInjected ) {
-                Fsm[ methodWithClientInjected ] = function() {
-                    var args = this.ensureClientArg( utils.getLeaklessArgs( arguments ) );
-                    return BehavioralFsm.prototype[ methodWithClientInjected ].apply( this, args );
-                };
-            } );
-
-            Fsm = BehavioralFsm.extend( Fsm );
-
-            module.exports = Fsm;
-
-
-        /***/ }),
-        /* 6 */
-        /***/ (function(module, exports, __webpack_require__) {
-
-            var _ = __webpack_require__( 1 );
-            var utils = __webpack_require__( 3 );
-            var emitter = __webpack_require__( 2 );
-            var topLevelEmitter = emitter.instance;
-            var events = __webpack_require__( 4 );
-
-            var MACHINA_PROP = "__machina__";
-
-            function BehavioralFsm( options ) {
-                _.extend( this, options );
-                _.defaults( this, utils.getDefaultBehavioralOptions() );
-                this.initialize.apply( this, arguments );
-                topLevelEmitter.emit( events.NEW_FSM, this );
-            }
-
-            _.extend( BehavioralFsm.prototype, {
-                initialize: function() {},
-
-                initClient: function initClient( client ) {
-                    var initialState = this.initialState;
-                    if ( !initialState ) {
-                        throw new Error( "You must specify an initial state for this FSM" );
-                    }
-                    if ( !this.states[ initialState ] ) {
-                        throw new Error( "The initial state specified does not exist in the states object." );
-                    }
-                    this.transition( client, initialState );
-                },
-
-                configForState: function configForState( newState ) {
-                    var newStateObj = this.states[ newState ];
-                    var child;
-                    _.each( this.hierarchy, function( childListener, key ) {
-                        if ( childListener && typeof childListener.off === "function" ) {
-                            childListener.off();
-                        }
-                    } );
-
-                    if ( newStateObj._child ) {
-                        newStateObj._child = utils.getChildFsmInstance( newStateObj._child );
-                        child = newStateObj._child && newStateObj._child.instance;
-                        this.hierarchy[ child.namespace ] = utils.listenToChild( this, child );
-                    }
-
-                    return child;
-                },
-
-                ensureClientMeta: function ensureClientMeta( client ) {
-                    if ( typeof client !== "object" ) {
-                        throw new Error( "An FSM client must be an object." );
-                    }
-                    client[ MACHINA_PROP ] = client[ MACHINA_PROP ] || {};
-                    if ( !client[ MACHINA_PROP ][ this.namespace ] ) {
-                        client[ MACHINA_PROP ][ this.namespace ] = _.cloneDeep( utils.getDefaultClientMeta() );
-                        this.initClient( client );
-                    }
-                    return client[ MACHINA_PROP ][ this.namespace ];
-                },
-
-                buildEventPayload: function( client, data ) {
-                    if ( _.isPlainObject( data ) ) {
-                        return _.extend( data, { client: client, namespace: this.namespace } );
-                    } else {
-                        return { client: client, data: data || null, namespace: this.namespace };
-                    }
-                },
-
-                getHandlerArgs: function( args, isCatchAll ) {
-                    // index 0 is the client, index 1 is inputType
-                    // if we're in a catch-all handler, input type needs to be included in the args
-                    // inputType might be an object, so we need to just get the inputType string if so
-                    var _args = args.slice( 0 );
-                    var input = _args[ 1 ];
-                    if ( typeof input === "object" ) {
-                        _args.splice( 1, 1, input.inputType );
-                    }
-                    return isCatchAll ?
-                            _args :
-                                [ _args[ 0 ] ].concat( _args.slice( 2 ) );
-                },
-
-                getSystemHandlerArgs: function( args, client ) {
-                    return [ client ].concat( args );
-                },
-
-                handle: function( client, input ) {
-                    var inputDef = input;
-                    if ( typeof input === "undefined" ) {
-                        throw new Error( "The input argument passed to the FSM's handle method is undefined. Did you forget to pass the input name?" );
-                    }
-                    if ( typeof input === "string" ) {
-                        inputDef = { inputType: input, delegated: false, ticket: undefined };
-                    }
-                    var clientMeta = this.ensureClientMeta( client );
-                    var args = utils.getLeaklessArgs( arguments );
-                    if ( typeof input !== "object" ) {
-                        args.splice( 1, 1, inputDef );
-                    }
-                    clientMeta.currentActionArgs = args.slice( 1 );
-                    var currentState = clientMeta.state;
-                    var stateObj = this.states[ currentState ];
-                    var handlerName;
-                    var handler;
-                    var isCatchAll = false;
-                    var child;
-                    var result;
-                    var action;
-                    if ( !clientMeta.inExitHandler ) {
-                        child = this.configForState( currentState );
-                        if ( child && !this.pendingDelegations[ inputDef.ticket ] && !inputDef.bubbling ) {
-                            inputDef.ticket = ( inputDef.ticket || utils.createUUID() );
-                            inputDef.delegated = true;
-                            this.pendingDelegations[ inputDef.ticket ] = { delegatedTo: child.namespace };
-                            // WARNING - returning a value from `handle` on child FSMs is not really supported.
-                            // If you need to return values from child FSM input handlers, use events instead.
-                            result = child.handle.apply( child, args );
-                        } else {
-                            if ( inputDef.ticket && this.pendingDelegations[ inputDef.ticket ] ) {
-                                delete this.pendingDelegations[ inputDef.ticket ];
-                            }
-                            handlerName = stateObj[ inputDef.inputType ] ? inputDef.inputType : "*";
-                            isCatchAll = ( handlerName === "*" );
-                            handler = ( stateObj[ handlerName ] || this[ handlerName ] ) || this[ "*" ];
-                            action = clientMeta.state + "." + handlerName;
-                            clientMeta.currentAction = action;
-                            var eventPayload = this.buildEventPayload(
-                                    client,
-                                    { inputType: inputDef.inputType, delegated: inputDef.delegated, ticket: inputDef.ticket }
-                            );
-                            if ( !handler ) {
-                                this.emit( events.NO_HANDLER, _.extend( { args: args }, eventPayload ) );
-                            } else {
-                                this.emit( events.HANDLING, eventPayload );
-                                if ( typeof handler === "function" ) {
-                                    result = handler.apply( this, this.getHandlerArgs( args, isCatchAll ) );
-                                } else {
-                                    result = handler;
-                                    this.transition( client, handler );
-                                }
-                                this.emit( events.HANDLED, eventPayload );
-                            }
-                            clientMeta.priorAction = clientMeta.currentAction;
-                            clientMeta.currentAction = "";
-                            clientMeta.currentActionArgs = undefined;
-                        }
-                    }
-                    return result;
-                },
-
-                transition: function( client, newState ) {
-                    var clientMeta = this.ensureClientMeta( client );
-                    var curState = clientMeta.state;
-                    var curStateObj = this.states[ curState ];
-                    var newStateObj = this.states[ newState ];
-                    var child;
-                    var args = utils.getLeaklessArgs( arguments ).slice( 2 );
-                    if ( !clientMeta.inExitHandler && newState !== curState ) {
-                        if ( newStateObj ) {
-                            child = this.configForState( newState );
-                            if ( curStateObj && curStateObj._onExit ) {
-                                clientMeta.inExitHandler = true;
-                                curStateObj._onExit.call( this, client );
-                                clientMeta.inExitHandler = false;
-                            }
-                            clientMeta.targetReplayState = newState;
-                            clientMeta.priorState = curState;
-                            clientMeta.state = newState;
-                            var eventPayload = this.buildEventPayload( client, {
-                                fromState: clientMeta.priorState,
-                                action: clientMeta.currentAction,
-                                toState: newState
-                            } );
-                            this.emit( events.TRANSITION, eventPayload );
-                            if ( newStateObj._onEnter ) {
-                                newStateObj._onEnter.apply( this, this.getSystemHandlerArgs( args, client ) );
-                            }
-                            this.emit( events.TRANSITIONED, eventPayload );
-                            if ( child ) {
-                                child.handle( client, "_reset" );
-                            }
-
-                            if ( clientMeta.targetReplayState === newState ) {
-                                this.processQueue( client, events.NEXT_TRANSITION );
-                            }
-                            return;
-                        }
-                        this.emit( events.INVALID_STATE, this.buildEventPayload( client, {
-                            state: clientMeta.state,
-                            attemptedState: newState
-                        } ) );
-                    }
-                },
-
-                deferUntilTransition: function( client, stateName ) {
-                    var clientMeta = this.ensureClientMeta( client );
-                    var stateList = _.isArray( stateName ) ? stateName : ( stateName ? [ stateName ] : undefined );
-                    if ( clientMeta.currentActionArgs ) {
-                        var queued = {
-                                type: events.NEXT_TRANSITION,
-                                untilState: stateList,
-                                args: clientMeta.currentActionArgs
-                        };
-                        clientMeta.inputQueue.push( queued );
-                        var eventPayload = this.buildEventPayload( client, {
-                            state: clientMeta.state,
-                            queuedArgs: queued
-                        } );
-                        this.emit( events.DEFERRED, eventPayload );
-                    }
-                },
-
-                deferAndTransition: function( client, stateName ) {
-                    this.deferUntilTransition( client, stateName );
-                    this.transition( client, stateName );
-                },
-
-                processQueue: function( client ) {
-                    var clientMeta = this.ensureClientMeta( client );
-                    var filterFn = function( item ) {
-                        return ( ( !item.untilState ) || ( _.includes( item.untilState, clientMeta.state ) ) );
-                    };
-                    var toProcess = _.filter( clientMeta.inputQueue, filterFn );
-                    clientMeta.inputQueue = _.difference( clientMeta.inputQueue, toProcess );
-                    _.each( toProcess, function( item ) {
-                        this.handle.apply( this, [ client ].concat( item.args ) );
-                    }.bind( this ) );
-                },
-
-                clearQueue: function( client, name ) {
-                    var clientMeta = this.ensureClientMeta( client );
-                    if ( !name ) {
-                        clientMeta.inputQueue = [];
-                    } else {
-                        // first pass we remove the target state from any `untilState` array
-                        _.each( clientMeta.inputQueue, function( item ) {
-                            item.untilState = _.without( item.untilState, name );
-                        } );
-                        // second pass we clear out deferred events with empty untilState arrays
-                        var filter = function( evnt ) {
-                            return evnt.untilState.length !== 0;
-                        };
-                        clientMeta.inputQueue = _.filter( clientMeta.inputQueue, filter );
-                    }
-                },
-
-                compositeState: function( client ) {
-                    var clientMeta = this.ensureClientMeta( client );
-                    var state = clientMeta.state;
-                    var child = this.states[state]._child && this.states[state]._child.instance;
-                    if ( child ) {
-                        state += "." + child.compositeState( client );
-                    }
-                    return state;
-                }
-            }, emitter.getInstance() );
-
-            BehavioralFsm.extend = utils.extend;
-
-            module.exports = BehavioralFsm;
-
-
-        /***/ })
-        /******/ ])
-});
-
 
 ;(function(){
 
@@ -1963,7 +1219,6 @@ if (typeof exports == "object") {
 }
 })();
 
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -1987,22 +1242,19 @@ if (typeof exports == "object") {
  */
 
 /**
- * @ngdoc action-group
- * @name User
- * @description Global user menu
- * 
- * There are several registred menu in the $actions service. Modules can contribute
- * to the dashbord by addin action into it.
- * 
- * - mb.user : All action related to the current user
- * - mb.toolbar.menu : All action related to the toolbar menu
- * 
- * - navigationPathMenu: All items related to navigation.
- * 
+@ngdoc action-group
+@name User
+@description Global user menu
+
+There are several registred menu in the $actions service. Modules can contribute
+to the dashbord by addin action into it.
+
+- mb.user : All action related to the current user
+- mb.toolbar.menu : All action related to the toolbar menu
+- navigationPathMenu: All items related to navigation.
+
  */
-
-
-var module = angular
+var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
 		'ngMaterial',
@@ -2076,15 +1328,48 @@ window.mblowfish = {
 	extensions: [],
 	addExtension: function(loader) {
 		this.extensions.push(loader);
+		return window.mblowfish;
 	},
+
+
+
+	//-------------------------------------------------------------
+	// Module
+	//-------------------------------------------------------------
 	controller: function() {
-		module.controller.apply(module, arguments);
+		return mbApplicationModule.controller.apply(mbApplicationModule, arguments);
 	},
 	directive: function() {
-		module.directive.apply(module, arguments);
+		return mbApplicationModule.directive.apply(mbApplicationModule, arguments);
 	},
 	run: function() {
-		module.run.apply(module, arguments);
+		return mbApplicationModule.run.apply(mbApplicationModule, arguments);
+	},
+	config: function() {
+		return mbApplicationModule.config.apply(mbApplicationModule, arguments);
+	},
+	provider: function() {
+		return mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+	},
+
+
+	//-------------------------------------------------------------
+	// Angular Map
+	//-------------------------------------------------------------
+	element: function() {
+		return angular.element.apply(mbApplicationModule, arguments);
+	},
+	bootstrap: function(dom) {
+		return angular.bootstrap(dom, ['mblowfish-core'], {});
+	},
+	loadModules: function(prefixKey) {
+		var storage = storageSupported(window, 'localStorage');
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' +MODULE_STORAGE_KEY));
+		var jobs = [];
+		_.forEach(moduleList, function(module) {
+			jobs.push(moduleLoad(module));
+		});
+		return jQuery.when.apply(jQuery, jobs);
 	}
 };
 
@@ -2112,147 +1397,459 @@ window.mblowfish = {
  */
 
 
-/*
- * Add to angular
- */
-
 /**
- * @ngdoc Controllers
- * @name MbAbstractCtrl
- * @description Generic controller which is used as base in the platform
- * 
+@ngdoc Services
+@name $mbAccount
+@description Mnages and follow the state fo current account.
+
+The application can serve a singele accoutn at a time. 
+
+This serivce is designe to follow the state of the current account.
+
+Here is some commone functions:
+
+- login
+- logout
+- getting account detaile
+- change profile, account, email, ...
+- check groups
+- check rolses
+
+# Expression-Based Access Control
+
+Mblowfish Security introduced the ability to use expressions as an 
+authorization mechanism in addition to the simple use of configuration attributes 
+and access-decision voters which have seen before. 
+
+Expression-based access control is built on the same architecture but allows complicated 
+boolean logic to be encapsulated in a single expression.
+
+MBlowfish Security uses AngularJS Expression for expression support and you should look at 
+how that works if you are interested in understanding the topic in more depth. 
+Expressions are evaluated with a “rootScope” as the evaluation context. 
+Mblowfish Security uses specific classes for web and method security as the rootScope, in order to 
+provide built-in expressions and access to values such as the current principal.
+
+## Common Built-In Expressions
+
+The base class for expression rootScope is $mbAccount. This provides some 
+common expressions which are available in security.
+
+- hasRole([role])
+- hasAnyRole([role1,role2])
+- principal: Allows direct access to the principal object representing the current user
+- authentication: Allows direct access to the current Authentication object obtained from the SecurityContext
+- permitAll: Always evaluates to true
+- denyAll: Always evaluates to false
+- isAnonymous()
+- isRememberMe()
+- isAuthenticated()
+- isFullyAuthenticated()
+
+For example, to add security into a view or editor:
+
+	{
+		url: '/view/url',
+		...
+		preAuthorize: 'isAuthenticated() && hasRole('account.manager')'
+	}
+
+
  */
-angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
+angular.module('mblowfish-core').provider('$mbAccount', function() {
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var rolesToPermissions;
+	var httpParamSerializerJQLike;
 
+	var provider;
+	var service;
 
-	this._hids = [];
+	var rootScope;
+	var http;
+	var usr;
+	var dispatcher;
 
+	var Account;
+	var Profile;
+	var Group;
+	var Role;
 
-	//--------------------------------------------------------
-	// --Events--
-	//--------------------------------------------------------
-	var EventHandlerId = function(type, id, callback) {
-		this.type = type;
-		this.id = id;
-		this.callback = callback;
-	};
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
 
-	/**
-	 * Add a callback for an specific type
-	 * 
-	 * @memberof MbAbstractCtrl
-	 */
-	this.addEventHandler = function(type, callback) {
-		var callbackId = $dispatcher.on(type, callback);
-		this._hids.push(new EventHandlerId(type, callbackId, callback));
-	};
+	var ACCOUNT_STORE_NAME = '/user/account/current';
+	var ACCOUNT_PROFILES_STORE_NAME = '/user/account/current';
 
-	/**
-	 * Remove a callback for an specific type
-	 * 
-	 * @memberof MbAbstractCtrl
-	 */
-	this.removeEventHandler = function(type, callback) {
-		// XXX: maso, 2019: remove handler
-	};
+	var STATE_INIT = 0;
+	var STATE_LOGIN = 1;
+	var STATE_ANONYMOUS = 2;
+	var state;
 
-	/**
-	 * Fire an action is performed on items
-	 * 
-	 * Here is common list of action to dils with objects:
-	 * 
-	 * - created
-	 * - read
-	 * - updated
-	 * - deleted
-	 * 
-	 * to fire an item is created:
-	 * 
-	 * this.fireEvent(type, 'created', item);
-	 * 
-	 * to fire items created:
-	 * 
-	 * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
-	 * 
-	 * to fire list of items created
-	 * 
-	 * var items = [];
-	 * ...
-	 * this.fireEvent(type, 'created', items);
-	 * 
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireEvent = function(type, action, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
-		var source = this;
-		return $dispatcher.dispatch(type, new MbEvent({
-			source: source,
-			type: type,
-			key: action,
-			values: values
-		}));
-	};
-
-	/**
-	 * Fires items created
-	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireCreated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'create', values);
-	};
-
-	/**
-	 * Fires items read
-	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireRead = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'read', values);
-	};
-
-	/**
-	 * Fires items updated
-	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireUpdated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'update', values);
-	};
-
-	/**
-	 * Fires items deleted
-	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireDeleted = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'delete', values);
-	};
-
-
-	//--------------------------------------------------------
-	// --View--
-	//--------------------------------------------------------
 	/*
-	 * Remove all resources
-	 */
-	var ctrl = this;
-	$scope.$on('$destroy', function() {
-		for (var i = 0; i < ctrl._hids.length; i++) {
-			var handlerId = ctrl._hids[i];
-			$dispatcher.off(handlerId.type, handlerId.id);
-		}
-		ctrl._hids = [];
-	});
+	Force to remember the login
+	*/
+	var rememberMe = true;
+	var exrpressionsEnabled = true;
 
+	/*
+	True if is authenticated at the current run
+	 */
+	var authenticated = false;
+
+	var account;
+	var roles;
+	var groups;
+	var permissions;
+	var profile;
+	var profiles;
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+
+	function setExrpressionsEnabled(flag) {
+		exrpressionsEnabled = flag;
+		return provider;
+	}
+
+	function parsAccount(accountData) {
+		var oldAccount = account;
+		var oldProfiles = profiles;
+		var oldProfile = profile;
+		var oldGroups = groups;
+
+		//>> Load profiles
+		profiles = [];
+		profile = undefined;
+		if (angular.isArray(accountData.profiles)) {
+			_.forEach(accountData.profiles, function(profileConfig) {
+				profiles.push(new Profile(profileConfig))
+			});
+		}
+		if (profiles[0]) {
+			profile = profiles[0];
+		}
+
+		//>> Load rolses
+		permissions = rolesToPermissions(accountData.roles || []);
+		roles = [];
+		_.forEach(accountData.roles, function(role) {
+			roles[role.application + '_' + role.code_name] = new Role(role);
+		});
+
+		//>> Load groups
+		var groups = {};
+		_.forEach(accountData.groups, function(group) {
+			groups[group.name] = new Group(group);
+			_.assign(permissions, rolesToPermissions(group.roles || []));
+		});
+
+
+		//>> set account
+		account = new Account(accountData);
+
+
+		//>> Fire events
+		if (exrpressionsEnabled) {
+			updateRootScope();
+		}
+		var $event = {
+			src: this,
+			type: 'update',
+		};
+		dispatcher.dispatch(ACCOUNT_STORE_NAME, _.assign({}, $event, {
+			value: account,
+			oldValue: oldAccount
+		}));
+	}
+
+
+	/**
+	 Loads current user informations
+	 
+	 If there is a role x.y (where x is application code and y is code name)
+	 in role list then the following var is added in user:
+	 
+	 @name reload
+	 @memberof $mbAccount
+	 */
+	function reload() {
+		return usr.getAccount('current', {
+			graphql: USER_DETAIL_GRAPHQL
+		}).then(parsAccount);
+	}
+
+	/**
+	 Logins into the backend
+	 
+	 @memberof $mbAccount
+	 @param {object} credential User and password of the user
+	 */
+	function login(credential) {
+		return http({
+			method: 'POST',
+			url: '/api/v2/user/login',
+			data: httpParamSerializerJQLike(credential),
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(reload);
+	}
+
+	/**
+	 Application logout
+	 
+	 Logout and clean user data, this will change state of the application.
+	 
+	 @memberof $mbAccount
+	 */
+	function logout() {
+		if (state = STATE_ANONYMOUS) {
+			return;
+		}
+		return http({
+			method: 'POST',
+			url: '/api/v2/user/logout',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		}).then(reload);
+	}
+
+	/**
+	 
+	 @memberof $mbAccount
+	 */
+	function getAccount() {
+		return account;
+	}
+
+	/**
+	 
+	 @memberof $mbAccount
+	 */
+	function getProfile() {
+		return profile;
+	}
+
+	/**
+	 
+	 @memberof $mbAccount
+	 */
+	function getProfiles() {
+		return profiles;
+	}
+
+	/**
+	 
+	 @memberof $mbAccount
+	 */
+	function getRoles() {
+		return roles;
+	}
+
+	/**
+	 
+	 @memberof $mbAccount
+	 */
+	function getGroups() {
+		return groups;
+	}
+
+	/**
+	Returns true if the current principal has the specified role.
+	 */
+	function hasRole(role) {
+		return hasAnyRole(role);
+	}
+
+	/**
+	Returns true if the current principal has any of the supplied roles (given as a comma-separated list of strings)
+	
+	 */
+	function hasAnyRole() {
+		for (var i = 0; i < arguments.length; i++) {
+			if (permissions[arguments[i]]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	Returns true if the current principal is an anonymous user
+	
+	@memberof $mbAccount
+	 */
+	function isAnonymous() {
+		return !account || account.isAnonymous();
+	}
+
+	/**
+	Returns true if the current principal is a remember-me user
+	
+	@memberof $mbAccount
+	 */
+	function isRememberMe() {
+		return rememberMe;
+	}
+
+	/**
+	Set remember me option enable
+	
+	@memberof $mbAccount
+	 */
+	function setRememberMe(flag) {
+		rememberMe = flag;
+		return provider;
+	}
+
+	/**
+	Returns true if the user is not anonymous
+	 */
+	function isAuthenticated() {
+		return account && !account.isAnonymous();
+	}
+
+	/**
+	Returns true if the user is not an anonymous or a remember-me user
+	 */
+	function isFullyAuthenticated() {
+		return authenticated && isAuthenticated();
+	}
+
+
+	function loadExpressions() {
+		_.assign(rootScope, {
+			isAnonymous: isAnonymous,
+			hasRole: hasRole,
+			hasAnyRole: hasAnyRole,
+			principal: roles,
+			authentication: account,
+			permissions: permissions,
+			permitAll: true,
+			denyAll: false,
+			isRememberMe: isRememberMe,
+			isAuthenticated: isAuthenticated,
+			isFullyAuthenticated: isFullyAuthenticated,
+		});
+	}
+
+	/*
+	Updates all global modules in root scope
+	*/
+	function updateRootScope() {
+		_.assign(rootScope, {
+			principal: roles,
+			authentication: account,
+			permissions: permissions,
+		}, account);
+	}
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		STATE_INIT: STATE_INIT,
+		STATE_LOGIN: STATE_LOGIN,
+		STATE_ANONYMOUS: STATE_ANONYMOUS,
+		login: login,
+		logout: logout,
+		isAnonymous: isAnonymous,
+		hasRole: hasRole,
+		hasAnyRole: hasAnyRole,
+		isRememberMe: isRememberMe,
+		isAuthenticated: isAuthenticated,
+		isFullyAuthenticated: isFullyAuthenticated,
+		getGroups: getGroups,
+		getRoles: getRoles,
+		getProfile: getProfile,
+		getProfiles: getProfiles,
+		getAccount: getAccount,
+		reload: reload,
+	};
+	provider = {
+		/* @ngInject */
+		$get: function(
+			$rootScope, $http, $usr, $dispatcher,
+			$mbUtil, $httpParamSerializerJQLike,
+			UserAccount, UserProfile, UserGroup, UserRole
+		) {
+			//>> Static methosd
+			rolesToPermissions = $mbUtil.rolesToPermissions;
+			httpParamSerializerJQLike = $httpParamSerializerJQLike;
+
+			//>> Services
+			rootScope = $rootScope;
+			http = $http;
+			usr = $usr;
+			dispatcher = $dispatcher;
+
+			Account = UserAccount;
+			Profile = UserProfile;
+			Group = UserGroup;
+			Role = UserRole;
+
+			//>> load the service
+			if (exrpressionsEnabled) {
+				loadExpressions();
+			}
+			return service;
+		},
+		setExrpressionsEnabled: setExrpressionsEnabled,
+		setRememberMe: setRememberMe,
+	};
+	return provider;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core').config(function($httpProvider) {
+	// An interceptor to handle errors of server response
+	// All that the interceptor does is in 'httpRequestInterceptor' factory.
+	$httpProvider.interceptors.push('MbHttpRequestInterceptor');
+
+	/*
+	 * Disabling AngularJS $http cache
+	 * @see https://stackoverflow.com/questions/38196452/disabling-angularjs-http-cache
+	 */
+	//initialize get if not there
+	if (!$httpProvider.defaults.headers.get) {
+		$httpProvider.defaults.headers.get = {};
+	}
+
+	// Answer edited to include suggestions from comments
+	// because previous version of code introduced browser-related errors
+
+	//disable IE ajax request caching
+	$httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+	// extra
+	$httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
+	$httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
 });
 
 /*
@@ -2278,288 +1875,1098 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
  */
 
 
-angular.module('mblowfish-core')
+/**
+@ngdoc Services
+@name $mbApplication
+@description Application manager
+	
+The application service is responsible to:
+	
+- Loading Modules
+- Loading Settings
+- Loading locals
+- Loading current user details
+- Monitoring network state
+- Monitoring current user state
+	
+These are required to load an applications.
+*/
+angular.module('mblowfish-core').provider('$mbApplication', function() {
+
+	//-------------------------------------------------
+	// Services
+	//-------------------------------------------------
+	var Job;
+	var provider;
+	var service;
+	var q;
+	var dispatcher;
+
+
+
+	//-------------------------------------------------
+	// Common jobs
+	//-------------------------------------------------
+	var loadSettingsJob = {
+		title: 'Loading Application Settings',
+		/* @ngInject */
+		action: function($mbSettings) {
+			return $mbSettings.load();
+		}
+	};
+
+	var loadTenantSettings = {
+		title: 'Loading Tenant Settings',
+		/* @ngInject */
+		action: function() {
+			// XXX: maso, 2020: 
+		}
+	};
+
+	var loadAccountDetail = {
+		title: 'Loading Account Details',
+		/* @ngInject */
+		action: function($mbAccount) {
+			return $mbAccount.reload();
+		}
+	};
+
+	var forceAccountLogin = {
+		title: 'Login',
+		/* @ngInject */
+		action: function(MbComponent, $rootElement, $mbAccount, $mbDispatcher) {
+			loginComponent = new MbComponent(loginComponentConfig);
+			function renderPanel() {
+				element = angular.element('<mb-login-panel></mb-login-panel>');
+				$rootElement.append(element);
+				return loginComponent.render({
+					$element: element,
+				});
+			}
+
+			function destroy() {
+				loginComponent.destroy();
+			}
+
+			$mbDispatcher.on('/account', function() {
+				if ($mbAccount.isAnonymous()) {
+					renderPanel();
+				} else {
+					destroy();
+				}
+			});
+
+			if ($mbAccount.isAnonymous()) {
+				return renderPanel();
+			}
+		}
+	};
+
+	var loadPreloadingContainer = {
+		title: 'Load Preloading View',
+		/* @ngInject */
+		action: function(MbComponent, $rootElement) {
+			element = angular.element('<mb-preloading-panel></mb-preloading-panel>');
+			$rootElement.append(element);
+
+			preloadingComponent = new MbComponent(preloadingComponentConfig);
+			return preloadingComponent.render({
+				$element: element
+			});
+		}
+	};
+
+	var removePreloadingContainer = {
+		title: 'Remove Preloading View',
+		/* @ngInject */
+		action: function() {
+			preloadingComponent.destroy();
+		}
+	};
+
+	//-------------------------------------------------
+	// Local Variables
+	//-------------------------------------------------
+	var key = 'mblowfish';
+	var tenantRequired = false;
+	var accountDetailRequired = false;
+	var settingsRequired = true;
+	var logingRequired = false;
+	var loginComponentConfig = {
+		templateUrl: 'views/mb-login-default.html',
+		controller: 'MbAccountContainerCtrl',
+		controllerAs: 'ctrl',
+	};
+	var loginComponent;
+	var settinsRequired = true;
+
+	var STATE_INIT = 'init';
+	var STATE_READY = 'ready';
+	var state;
+	/*
+	List of actions must be run on the specific state.
+	*/
+	var actions = {
+		init: [],
+		ready: []
+	}
+
+	var preloadingEnabled = false;
+	var preloadingComponent;
+	var preloadingComponentConfig = {
+		templateUrl: 'views/mb-preloading-default.html',
+		controller: 'MbApplicationPreloadingContainerCtrl',
+		controllerAs: 'ctrl',
+	};
+
+
+	//---------------------------------------
+	// Function
+	//---------------------------------------
+	function setKey(appkey) {
+		key = appkey;
+		return provider;
+	}
+
+	function getKey() {
+		return key;
+	}
+
+	function setPreloadingEnabled(flag) {
+		preloadingEnabled = flag;
+		return provider;
+	}
+
+	function isPreloadingEnabled() {
+		return preloadingEnabled;
+	}
+
+	function setPreloadingComponent(componentConfig) {
+		preloadingComponentConfig = componentConfig;
+		return provider;
+	}
+
+	function getPreloadingComponent() {
+		return preloadingComponent;
+	}
+
+	function setLogingRequired(flag) {
+		logingRequired = flag;
+		return provider;
+	}
+
+	function isLoginRequired() {
+		return logingRequired;
+	}
+
+	function setLoginComponent(componentConfig) {
+		loginComponentConfig = componentConfig;
+		return provider;
+	}
+
+	function setTenantRequired(flag) {
+		tenantRequired = flag;
+		return provider;
+	}
+
+	function isTenantRequired() {
+		return tenantRequired;
+	}
+
+	function setAccountDetailRequired(flag) {
+		accountDetailRequired = flag;
+		return provider;
+	}
+
+	function isAccountDetailRequired() {
+		return accountDetailRequired;
+	}
+
+	function setSettingsRequired(flag) {
+		settingsRequired = flag;
+		return provider;
+	}
+
+	function isSettingsRequired() {
+		return settingsRequired;
+	}
+
+	function addAction(state, action) {
+		actions[state].push(action);
+		return provider;
+	}
+
 
 	/**
-	 * @ngdoc Controllers
-	 * @name MbAccountCtrl
-	 * @description Manages account of users.
+	 * Gets the state of the application
 	 * 
-	 * Manages current user action:
-	 *  - login - logout - change password - recover password
+	 * @memberof $mbApplication
 	 */
-	.controller('MbAccountCtrl', function(
-	/* Angularjs */ $scope, $rootScope, $translate, $window, $usr,
-	/* MBlowfish */ $app, $mbLogger) {
+	function getState() {
+		return state;
+	}
 
-		this.loginProcess = false;
-		this.loginState = null;
-		this.logoutProcess = false;
-		this.logoutState = null;
-		this.changingPassword = false;
-		this.changePassState = null;
-		this.updatingAvatar = false;
-		this.loadingUser = false;
-		this.savingUser = false;
+	/**
+	 * Sets state of the service
+	 * 
+	 * NOTE: must be used locally
+	 */
+	function setState(newState) {
+		var oldState = state;
+		state = newState;
 
-		/**
-		 * Call login process for current user
-		 * 
-		 * @memberof AmhUserAccountCtrl
-		 * @name login
-		 * @param {object}
-		 *            cridet username and password
-		 * @param {string}
-		 *            cridet.login username
-		 * @param {stirng}
-		 *            cridig.password Password
-		 * @returns {promiss} to do the login
+		var stateActions = actions[state];
+		var jobs = [];
+
+		//>> Loading extra jobs
+		_.forEach(stateActions, function(actionConfig) {
+			var job = new Job(actionConfig);
+			jobs.push(job.schedule());
+		});
+
+		//>> fire state changed
+		var $event = {
+			type: 'update',
+			value: state,
+			oldValue: oldState
+		};
+		dispatcher.dispatch('/app/state', $event);
+
+		//>> Waiting for all job to done
+		return q.all(jobs);
+	}
+
+	function load() {
+		//>> Loading common jobs
+		if (preloadingEnabled) {
+			addAction(STATE_INIT, loadPreloadingContainer);
+			addAction(STATE_READY, removePreloadingContainer);
+		}
+		if (settinsRequired) {
+			addAction(STATE_INIT, loadSettingsJob);
+		}
+		if (tenantRequired) {
+			addAction(STATE_INIT, loadTenantSettings);
+		}
+		if (accountDetailRequired || logingRequired) {
+			addAction(STATE_INIT, loadAccountDetail);
+		}
+		if (logingRequired) {
+			addAction(STATE_READY, forceAccountLogin);
+		}
+		return setState(STATE_INIT)
+			.finally(function() {
+				return setState(STATE_READY);
+			});
+	}
+
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		getKey: getKey,
+		isPreloadingEnabled: isPreloadingEnabled,
+		getPreloadingComponent: getPreloadingComponent,
+		isLoginRequired: isLoginRequired,
+		isTenantRequired: isTenantRequired,
+		isAccountDetailRequired: isAccountDetailRequired,
+		isSettingsRequired: isSettingsRequired,
+		getState: getState,
+	};
+	provider = {
+		$get: function($q, $mbSettings, MbJob, $dispatcher) {
+			//>> Set services
+			mbSettings = $mbSettings;
+			q = $q;
+			Job = MbJob;
+			dispatcher = $dispatcher;
+
+			//>> Load application
+			load();
+
+			//>> ENd
+			return service;
+		},
+		setKey: setKey,
+		addAction: addAction,
+		setPreloadingEnabled: setPreloadingEnabled,
+		setPreloadingComponent: setPreloadingComponent,
+		setTenantRequired: setTenantRequired,
+		setAccountDetailRequired: setAccountDetailRequired,
+		setSettingsRequired: setSettingsRequired,
+		setLogingRequired: setLogingRequired,
+		setLoginComponent: setLoginComponent,
+	};
+	return provider;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+
+Manages clipboard
+ */
+angular.module('mblowfish-core').service('$clipboard', function() {
+
+	this.copyTo = function(model) {
+        /*
+         * TODO: Masood, 2019: There is also another solution but now it doesn't
+         * work because of browsers problem A detailed solution is presented in:
+         * https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+         */
+		var js = JSON.stringify(model);
+		var fakeElement = document.createElement('textarea');
+		fakeElement.value = js;
+		document.body.appendChild(fakeElement);
+		fakeElement.select();
+		document.execCommand('copy');
+		document.body.removeChild(fakeElement);
+		return;
+	};
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * @ngdoc Filters
+ * @name wbmd5
+ * @function
+ * @description Hash the input
+ * 
+ * @example 
+ ```html 
+ <span>{{ 'text to hash' | wbmd5 }}</span> 
+ ```
+ */
+angular.module('mblowfish-core').filter('wbmd5', function($mbCrypto) {
+	return function(val) {
+		return $mbCrypto.md5(val + '');
+	};
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Services
+@name $mbCrypto
+@description Crypto services
+
+
+ */
+angular.module('mblowfish-core').service('$mbCrypto', function() {
+
+	function md5cycle(x, k) {
+		var a = x[0], b = x[1], c = x[2], d = x[3];
+
+		a = ff(a, b, c, d, k[0], 7, -680876936);
+		d = ff(d, a, b, c, k[1], 12, -389564586);
+		c = ff(c, d, a, b, k[2], 17, 606105819);
+		b = ff(b, c, d, a, k[3], 22, -1044525330);
+		a = ff(a, b, c, d, k[4], 7, -176418897);
+		d = ff(d, a, b, c, k[5], 12, 1200080426);
+		c = ff(c, d, a, b, k[6], 17, -1473231341);
+		b = ff(b, c, d, a, k[7], 22, -45705983);
+		a = ff(a, b, c, d, k[8], 7, 1770035416);
+		d = ff(d, a, b, c, k[9], 12, -1958414417);
+		c = ff(c, d, a, b, k[10], 17, -42063);
+		b = ff(b, c, d, a, k[11], 22, -1990404162);
+		a = ff(a, b, c, d, k[12], 7, 1804603682);
+		d = ff(d, a, b, c, k[13], 12, -40341101);
+		c = ff(c, d, a, b, k[14], 17, -1502002290);
+		b = ff(b, c, d, a, k[15], 22, 1236535329);
+
+		a = gg(a, b, c, d, k[1], 5, -165796510);
+		d = gg(d, a, b, c, k[6], 9, -1069501632);
+		c = gg(c, d, a, b, k[11], 14, 643717713);
+		b = gg(b, c, d, a, k[0], 20, -373897302);
+		a = gg(a, b, c, d, k[5], 5, -701558691);
+		d = gg(d, a, b, c, k[10], 9, 38016083);
+		c = gg(c, d, a, b, k[15], 14, -660478335);
+		b = gg(b, c, d, a, k[4], 20, -405537848);
+		a = gg(a, b, c, d, k[9], 5, 568446438);
+		d = gg(d, a, b, c, k[14], 9, -1019803690);
+		c = gg(c, d, a, b, k[3], 14, -187363961);
+		b = gg(b, c, d, a, k[8], 20, 1163531501);
+		a = gg(a, b, c, d, k[13], 5, -1444681467);
+		d = gg(d, a, b, c, k[2], 9, -51403784);
+		c = gg(c, d, a, b, k[7], 14, 1735328473);
+		b = gg(b, c, d, a, k[12], 20, -1926607734);
+
+		a = hh(a, b, c, d, k[5], 4, -378558);
+		d = hh(d, a, b, c, k[8], 11, -2022574463);
+		c = hh(c, d, a, b, k[11], 16, 1839030562);
+		b = hh(b, c, d, a, k[14], 23, -35309556);
+		a = hh(a, b, c, d, k[1], 4, -1530992060);
+		d = hh(d, a, b, c, k[4], 11, 1272893353);
+		c = hh(c, d, a, b, k[7], 16, -155497632);
+		b = hh(b, c, d, a, k[10], 23, -1094730640);
+		a = hh(a, b, c, d, k[13], 4, 681279174);
+		d = hh(d, a, b, c, k[0], 11, -358537222);
+		c = hh(c, d, a, b, k[3], 16, -722521979);
+		b = hh(b, c, d, a, k[6], 23, 76029189);
+		a = hh(a, b, c, d, k[9], 4, -640364487);
+		d = hh(d, a, b, c, k[12], 11, -421815835);
+		c = hh(c, d, a, b, k[15], 16, 530742520);
+		b = hh(b, c, d, a, k[2], 23, -995338651);
+
+		a = ii(a, b, c, d, k[0], 6, -198630844);
+		d = ii(d, a, b, c, k[7], 10, 1126891415);
+		c = ii(c, d, a, b, k[14], 15, -1416354905);
+		b = ii(b, c, d, a, k[5], 21, -57434055);
+		a = ii(a, b, c, d, k[12], 6, 1700485571);
+		d = ii(d, a, b, c, k[3], 10, -1894986606);
+		c = ii(c, d, a, b, k[10], 15, -1051523);
+		b = ii(b, c, d, a, k[1], 21, -2054922799);
+		a = ii(a, b, c, d, k[8], 6, 1873313359);
+		d = ii(d, a, b, c, k[15], 10, -30611744);
+		c = ii(c, d, a, b, k[6], 15, -1560198380);
+		b = ii(b, c, d, a, k[13], 21, 1309151649);
+		a = ii(a, b, c, d, k[4], 6, -145523070);
+		d = ii(d, a, b, c, k[11], 10, -1120210379);
+		c = ii(c, d, a, b, k[2], 15, 718787259);
+		b = ii(b, c, d, a, k[9], 21, -343485551);
+
+		x[0] = add32(a, x[0]);
+		x[1] = add32(b, x[1]);
+		x[2] = add32(c, x[2]);
+		x[3] = add32(d, x[3]);
+
+	}
+
+	function cmn(q, a, b, x, s, t) {
+		a = add32(add32(a, q), add32(x, t));
+		return add32((a << s) | (a >>> (32 - s)), b);
+	}
+
+	function ff(a, b, c, d, x, s, t) {
+		return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+	}
+
+	function gg(a, b, c, d, x, s, t) {
+		return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+	}
+
+	function hh(a, b, c, d, x, s, t) {
+		return cmn(b ^ c ^ d, a, b, x, s, t);
+	}
+
+	function ii(a, b, c, d, x, s, t) {
+		return cmn(c ^ (b | (~d)), a, b, x, s, t);
+	}
+
+	function md51(s) {
+		//        var txt = '';
+		var n = s.length, state = [1732584193, -271733879,
+			-1732584194, 271733878], i;
+		for (i = 64; i <= s.length; i += 64) {
+			md5cycle(state, md5blk(s.substring(i - 64, i)));
+		}
+		s = s.substring(i - 64);
+		var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0];
+		for (i = 0; i < s.length; i++)
+			tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
+		tail[i >> 2] |= 0x80 << ((i % 4) << 3);
+		if (i > 55) {
+			md5cycle(state, tail);
+			for (i = 0; i < 16; i++)
+				tail[i] = 0;
+		}
+		tail[14] = n * 8;
+		md5cycle(state, tail);
+		return state;
+	}
+
+	/*
+	 * there needs to be support for Unicode here, unless we
+	 * pretend that we can redefine the MD-5 algorithm for
+	 * multi-byte characters (perhaps by adding every four
+	 * 16-bit characters and shortening the sum to 32 bits).
+	 * Otherwise I suggest performing MD-5 as if every
+	 * character was two bytes--e.g., 0040 0025 = @%--but
+	 * then how will an ordinary MD-5 sum be matched? There
+	 * is no way to standardize text to something like UTF-8
+	 * before transformation; speed cost is utterly
+	 * prohibitive. The JavaScript standard itself needs to
+	 * look at this: it should start providing access to
+	 * strings as preformed UTF-8 8-bit unsigned value
+	 * arrays.
+	 */
+	function md5blk(s) { /* I figured global was faster. */
+		var md5blks = [], i;
+		/*
+		 * Andy King said do it this
+		 * way.
 		 */
-		this.login = function(cridet, form) {
-			if (ctrl.loginProcess) {
-				return false;
-			}
-			ctrl.loginProcess = true;
-			return $app.login(cridet)//
-				.then(function() {
-					ctrl.loginState = 'success';
-					$scope.loginMessage = null;
-				}, function(error) {
-					ctrl.loginState = 'fail';
-					$scope.loginMessage = $mbLogger.errorMessage(error, form);
-				})
-				.finally(function() {
-					ctrl.loginProcess = false;
-				});
+		for (i = 0; i < 64; i += 4) {
+			md5blks[i >> 2] = s.charCodeAt(i)
+				+ (s.charCodeAt(i + 1) << 8)
+				+ (s.charCodeAt(i + 2) << 16)
+				+ (s.charCodeAt(i + 3) << 24);
 		}
+		return md5blks;
+	}
 
-		this.logout = function() {
-			if (ctrl.logoutProcess) {
-				return false;
-			}
-			ctrl.logoutProcess = true;
-			return $app.logout()//
-				.then(function() {
-					ctrl.logoutState = 'success';
-				}, function() {
-					ctrl.logoutState = 'fail';
-				})
-				.finally(function() {
-					ctrl.logoutProcess = false;
-				});
+	var hex_chr = '0123456789abcdef'.split('');
+
+	function rhex(n) {
+		var s = '', j = 0;
+		for (; j < 4; j++)
+			s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
+				+ hex_chr[(n >> (j * 8)) & 0x0F];
+		return s;
+	}
+
+	function hex(x) {
+		for (var i = 0; i < x.length; i++)
+			x[i] = rhex(x[i]);
+		return x.join('');
+	}
+
+	function md5(s) {
+		return hex(md51(s));
+	}
+
+	/*
+	 * this function is much faster, so if possible we use
+	 * it. Some IEs are the only ones I know of that need
+	 * the idiotic second function, generated by an if
+	 * clause.
+	 */
+
+	function add32(a, b) {
+		return (a + b) & 0xFFFFFFFF;
+	}
+
+	/**! http://stackoverflow.com/a/2117523/377392 */
+	var fmt = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	this.uuid = function() {
+		return fmt.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		});
+	};
+
+	this.md5 = md5;
+	return this;
+});
+
+
+
+
+/**
+
+@name DispatcherUtils
+
+Dispatcher Utils is a set of basic utility classes to help get you started with Flux. These base classes are a solid foundation for a simple Flux application, but they are not a feature-complete framework that will handle all use cases. There are many other great Flux frameworks out there if these utilities do not fulfill your needs.
+
+# Usage
+
+There are three main factory exposed in Dispatcher Utils:
+
+- Store
+- ReduceStore
+- Container
+
+These base factories can be imported from dispatcher utils like this:
+
+@example
+import { ReduceStore } from 'flux/utils';
+class CounterStore extends ReduceStore<number> {
+  getInitialState(): number {
+    return 0;
+  }
+  reduce(state: number, action: Object): number {
+    switch (action.type) {
+      case 'increment':
+        return state + 1;
+
+      case 'square':
+        return state * state;
+
+      default:
+        return state;
+    }
+  }
+}
+
+# Best practices
+
+There are some best practices we try to follow when using these factories:
+
+## Stores
+
+- Cache data
+- Expose public getters to access data (never have public setters)
+- Respond to specific actions from the dispatcher
+- Always emit a change when their data changes
+- Only emit changes during a dispatch
+
+## Actions
+
+Describe a user's action, are not setters. (e.g. select-page not set-page-id)
+
+## Containers
+
+- Are React components that control a view
+- Primary job is to gather information from stores and save it in their state
+- Have no props and no UI logic
+
+#Views
+
+- Are React components that are controlled by a container
+- Have all of the UI and rendering logic
+- Receive all information and callbacks as props
+
+ */
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Services
+@name $mbDispatcher
+@description a wrapper of FLUX
+
+Dispatcher is used to broadcast payloads to registered callbacks. This is
+different from generic pub-sub systems in two ways: 
+
+- Callbacks are not subscribed to particular events. Every payload is dispatched to every registered callback.
+- Callbacks can be deferred in whole or part until other callbacks have been executed.
+
+@tutorial core-flux-dispatcher-hypotheticalFligh
+ */
+angular.module('mblowfish-core').provider('$mbDispatcher', function() {
+
+	//---------------------------------------
+	// service
+	//---------------------------------------
+	var service;
+	var provider;
+
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+    /*
+	List of all dispatcher
+	*/
+	var dispatchers = {};
+
+	//---------------------------------------
+	// Function
+	//---------------------------------------
+    /*
+	Finds dispatcher for the type
+	*/
+	function getDispatcherFor(type) {
+		if (!dispatchers[type]) {
+			dispatchers[type] = new Flux.Dispatcher();
 		}
+		return dispatchers[type];
+	}
 
-		/**
-		 * Change password of the current user
-		 * 
-		 * @name load
-		 * @memberof MbAccountCtrl
-		 * @returns {promiss} to change password
-		 */
-		this.changePassword = function(data, form) {
-			if (ctrl.changingPassword) {
-				return;
-			}
-			ctrl.changingPassword = true;
-			var param = {
-				'old': data.oldPass,
-				'new': data.newPass,
-				'password': data.newPass
-			};
-			// return $usr.resetPassword(param)//
-			$usr.putCredential(param)
-				.then(function() {
-					$app.logout();
-					ctrl.changePassState = 'success';
-					$scope.changePassMessage = null;
-					toast($translate.instant('Password is changed successfully. Login with new password.'));
-				}, function(error) {
-					ctrl.changePassState = 'fail';
-					$scope.changePassMessage = $mbLogger.errorMessage(error, form);
-					alert($translate.instant('Failed to change the password.'));
-				})//
-				.finally(function() {
-					ctrl.changingPassword = false;
-				});
-		}
-
-
-		/**
-		 * Update avatar of the current user
-		 * 
-		 * @name load
-		 * @memberof MbAccountCtrl
-		 * @returns {promiss} to update avatar
-		 */
-		this.updateAvatar = function(avatarFiles) {
-			// XXX: maso, 1395: reset avatar
-			if (ctrl.updatingAvatar) {
-				return;
-			}
-			ctrl.updatingAvatar = true;
-			return ctrl.user.uploadAvatar(avatarFiles[0].lfFile)//
-				.then(function() {
-					// TODO: hadi 1397-03-02: only reload avatar image by clear and set
-					// (again) avatar address in view
-					// clear address before upload and set it again after upload.
-					$window.location.reload();
-					toast($translate.instant('Your avatar updated successfully.'));
-				}, function() {
-					alert($translate.instant('Failed to update avatar'));
-				})//
-				.finally(function() {
-					ctrl.updatingAvatar = false;
-				});
-		}
-
-		this.back = function() {
-			$window.history.back();
-		}
-
-
-		/**
-		 * Loads user data
-		 * 
-		 * @name load
-		 * @memberof MbAccountCtrl
-		 * @returns {promiss} to load user data
-		 */
-		this.loadUser = function() {
-			if (ctrl.loadingUser) {
-				return;
-			}
-			ctrl.loadingUser = true;
-			return $usr.getAccount('current')//
-				.then(function(user) {
-					ctrl.user = user;
-				}, function(error) {
-					ctrl.error = error;
-				})//
-				.finally(function() {
-					ctrl.loadingUser = false;
-				});
-		}
-
-
-		/**
-		 * Save current user
-		 * 
-		 * @name load
-		 * @memberof MbAccountCtrl
-		 * @returns {promiss} to save
-		 */
-		this.saveUser = function(form) {
-			if (ctrl.savingUser) {
-				return;
-			}
-			ctrl.savingUser = true;
-			return ctrl.user.update()//
-				.then(function(user) {
-					ctrl.user = user;
-					$scope.saveUserMessage = null;
-					toast($translate.instant('Your information updated successfully.'));
-				}, function(error) {
-					$scope.saveUserMessage = $mbLogger.errorMessage(error, form);
-					alert($translate.instant('Failed to update.'));
-				})//
-				.finally(function() {
-					ctrl.savingUser = false;
-				});
-		}
-
-		// TODO: maso, 2017: getting from server
-		// Account property descriptor
-		$scope.apds = [{
-			key: 'first_name',
-			title: 'First name',
-			type: 'string'
-		}, {
-			key: 'last_name',
-			title: 'Last name',
-			type: 'string'
-		}, {
-			key: 'language',
-			title: 'language',
-			type: 'string'
-		}, {
-			key: 'timezone',
-			title: 'timezone',
-			type: 'string'
-		}];
-
-		$scope.$watch(function() {
-			return $rootScope.app.user;
-		}, function(usrStruct) {
-			$scope.appUser = usrStruct;
-		}, true);
-
-		// support old systems
-		var ctrl = this;
-		$scope.login = function(cridet, form) {
-			ctrl.login(cridet, form);
-		};
-		$scope.logout = function() {
-			ctrl.logout();
-		};
-		$scope.changePassword = function() {
-			ctrl.changePassword();
-		};
-		$scope.updateAvatar = function() {
-			ctrl.updateAvatar();
-		};
-		$scope.load = function() {
-			ctrl.loadUser();
-		};
-		$scope.reload = function()  {
-			trl.loadUser();
-		};
-		$scope.saveUser = function() {
-			ctrl.saveUser();
-		};
-
-		this.cancel = function() {
-			ctrl.back();
-		};
-
-		this.loadUser();
+    /**
+	Registers a callback to be invoked with every dispatched payload. Returns
+	a token that can be used with `waitFor()`.
+	
+	This payload is digested by both stores:
+	
+	@example 
+	dispatchToken = $ispatcher.register('action.type', function(payload) { 
+	 if (payload.actionType === 'country-update') { 
+	     CountryStore.country = payload.selectedCountry; 
+	 } 
 	});
+	
+	@param callback function to add 
+	@memberof $mbDispatcher
+     */
+	function on(type, callback) {
+		return getDispatcherFor(type).register(callback);
+	}
+
+    /** 
+	Removes a callback based on its token. 
+
+	@memberof $mbDispatcher
+     */
+	function off(type, id) {
+		return getDispatcherFor(type).unregister(id);
+	}
+
+    /**
+	Waits for the callbacks specified to be invoked before continuing
+	execution of the current callback. This method should only be used by a
+	callback in response to a dispatched payload.
+
+	@memberof $mbDispatcher
+     */
+	function waitFor(type, ids) {
+		return getDispatcherFor(type).waitFor(ids);
+	}
+
+    /**
+	Dispatches a payload to all registered callbacks.
+	
+	 Payload contains key and values. You may add extra values to the 
+	payload.
+
+	@memberof $mbDispatcher
+     */
+	function dispatch(type, payload) {
+		return getDispatcherFor(type).dispatch(payload);
+	};
+
+    /**
+	Is this Dispatcher currently dispatching.
+
+	@memberof $mbDispatcher
+     */
+	function isDispatching(type) {
+		return getDispatcherFor(type).isDispatching();
+	};
+
+
+	//---------------------------------------
+	// end
+	//---------------------------------------
+	service = {
+		on: on,
+		off: off,
+		waitFor: waitFor,
+		dispatch: dispatch,
+		isDispatching: isDispatching,
+	};
+	provider = {
+		$get: function() {
+			return service;
+		}
+	};
+	return provider;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
 
 
-//
-//
-//angular.module('mblowfish-core')
-//
-///**
-// * @ngdoc Controllers
-// * @name AmdDashboardCtrl
-// * @description Dashboard
-// * 
-// */
-//.controller('AmdDashboardCtrl', function($scope, /*$navigator,*/ $app) {
-//    function toogleEditable(){
-//        $scope.editable = !$scope.editable;
-//    }
-//
-////    $navigator.scopePath($scope)//
-////    .add({
-////        title: 'Dashboard',
-////        link: 'dashboard'
-////    });
-//
-//    $app.scopeMenu($scope) //
-//    .add({ // edit menu
-//        priority : 15,
-//        icon : 'edit',
-//        label : 'Edit content',
-//        tooltip : 'Toggle edit mode of the current contetn',
-//        visible : function(){
-//            return $scope.app.user.owner;
-//        },
-//        action : toogleEditable
-//    });//
-//
-//});
+/**
+@ngdoc Factories
+@name MbEvent
+@description An event item
+
+Events are used to propagate signals to the application. It is based on $dispatcher. 
+
+NOTE: All platform events (from mb or children) are instance of this factory.
+
+ */
+angular.module('mblowfish-core').factory('MbEvent', function() {
+
+	/**
+	Creates new instance of event
+		
+	@generator
+	@memberof MbEvent
+	@params {Objct} data To bind as initial data
+	 */
+	function mbEvent(data) {
+		if (!angular.isDefined(data)) {
+			data = {};
+		}
+		angular.extend(this, data);
+	};
+
+	mbEvent.prototype.getType = function() {
+		return this.type || 'unknown';
+	};
+
+	mbEvent.prototype.getKey = function() {
+		return this.key || 'unknown';
+	};
+
+	mbEvent.prototype.getValues = function() {
+		return this.values || [];
+	};
+
+	mbEvent.prototype.isCreated = function() {
+		return this.key === 'create';
+	};
+
+	mbEvent.prototype.isRead = function() {
+		return this.key === 'read';
+	};
+
+	mbEvent.prototype.isUpdated = function() {
+		return this.key === 'update';
+	};
+
+	mbEvent.prototype.isDeleted = function() {
+		return this.key === 'delete';
+	};
+
+	return mbEvent;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ @ngdoc Factories
+ @name MbJob
+ @description A wrapper of Promise
+ 
+ */
+angular.module('mblowfish-core').factory('MbJob', function($mbJobs, $q, $injector, $mbCrypto) {
+
+	STATE_WORKING = 'working';
+	STATE_FAILED = 'failed';
+	STATE_SUCCESS = 'success';
+
+	function MbJob(configs) {
+		_.assign(this, configs);
+		this.id = $mbCrypto.uuid();
+	};
+
+	MbJob.prototype.then = function() {
+		this.promise.then.apply(this.promise, arguments);
+	};
+
+	MbJob.prototype.finally = function() {
+		this.promise.finally.apply(this.promise, arguments);
+	};
+
+	MbJob.prototype.catch = function() {
+		this.promise.catch.apply(this.promise, arguments);
+	};
+
+	MbJob.prototype.schedule = function() {
+		var job = this;
+		$mbJobs.addJob(job);
+		job.state = STATE_WORKING;
+		return $q.when($injector.invoke(job.action, job))
+			.then(function() {
+				job.state = STATE_SUCCESS;
+			}, function() {
+				job.state = STATE_FAILED;
+			})
+			.finally(function() {
+				$mbJobs.removeJob(job);
+			});
+	};
+
+	MbJob.STATE_WORKING = STATE_WORKING;
+	MbJob.STATE_FAILED = STATE_FAILED;
+	MbJob.STATE_SUCCESS = STATE_SUCCESS;
+	return MbJob;
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+@ngdoc Services
+@name $mbJobs
+@description manage jobs of widgets
+
+Deprecated : use $window
+ */
+angular.module('mblowfish-core').provider('$mbJobs', function() {
+
+	//---------------------------------------
+	// services
+	//---------------------------------------
+	var provider;
+	var service;
+	var injector;
+
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+	var jobs = {};
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+	function addJob(job) {
+		var Job = injector.get('MbJob');
+		if (!(job instanceof Job)) {
+			job = new Job(job);
+			job.schedule();
+		} else {
+			jobs[job.id] = job;
+		}
+		return this;
+	}
+
+	function removeJob(job) {
+		delete jobs[job.id];
+	}
+
+	function getJobs() {
+		return jobs;
+	}
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		addJob: addJob,
+		getJobs: getJobs,
+		removeJob: removeJob,
+	};
+	provider = {
+		$get: function($injector) {
+			//>> init services
+			injector = $injector;
+
+			//>> return service
+			return service;
+		}
+	};
+	return provider;
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2584,308 +2991,2156 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
+angular.module('mblowfish-core').config(function($mdDateLocaleProvider, $translateProvider) {
+	$translateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
+	$translateProvider.useLoader('MbLanguageLoader');
+	
+	// Change moment's locale so the 'L'-format is adjusted.
+	// For example the 'L'-format is DD.MM.YYYY for German
+	moment.locale('en');
+
+	// Set month and week names for the general $mdDateLocale service
+	var localeData = moment.localeData();
+	$mdDateLocaleProvider.months = localeData._months;
+	$mdDateLocaleProvider.shortMonths = moment.monthsShort();
+	$mdDateLocaleProvider.days = localeData._weekdays;
+	$mdDateLocaleProvider.shortDays = localeData._weekdaysMin;
+	// Optionaly let the week start on the day as defined by moment's locale data
+	$mdDateLocaleProvider.firstDayOfWeek = localeData._week.dow;
+
+	// Format and parse dates based on moment's 'L'-format
+	// 'L'-format may later be changed
+	$mdDateLocaleProvider.parseDate = function(dateString) {
+		var m = moment(dateString, 'L', true);
+		return m.isValid() ? m.toDate() : new Date(NaN);
+	};
+
+	$mdDateLocaleProvider.formatDate = function(date) {
+		var m = moment(date);
+		return m.isValid() ? m.format('L') : '';
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * TODO: maso, 2019: add filter document
+ */
+angular.module('mblowfish-core').filter('currencyFilter', function(numberFilter, translateFilter) {
+
+	return function(price, unit) {
+
+		if (!price) {
+			return translateFilter('free');
+		}
+		// TODO: maso, 2019: set unit with system default currency if is null
+		if (unit === 'iran-rial' || unit === 'iran-tooman') {
+			return numberFilter(price) + ' '
+				+ translateFilter(unit);
+		} else if (unit === 'bahrain-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('bahrain-dinar');
+		} else if (unit === 'euro') {
+			return numberFilter(price) + ' '
+				+ translateFilter('euro');
+		} else if (unit === 'dollar') {
+			return translateFilter('dollar') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'pound') {
+			return translateFilter('pound') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'iraq-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('iraq-dinar');
+		} else if (unit === 'kuwait-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('kuwait-dinar');
+		} else if (unit === 'oman-rial') {
+			return numberFilter(price) + ' '
+				+ translateFilter('oman-rial');
+		} else if (unit === 'turkish-lira') {
+			return numberFilter(price) + ' '
+				+ translateFilter('turkish-lira');
+		} else if (unit === 'uae-dirham') {
+			return numberFilter(price) + ' '
+				+ translateFilter('uae-dirham');
+		} else {
+			return numberFilter(price) + ' ?';
+		}
+	};
+});
+
+
+
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
 
 /**
- * @ngdoc Controllers
- * @name MbHelpCtrl
- * @description Help page controller
+ * @ngdoc Filters
+ * @name mbDate
+ * @description # Format date
+ */
+angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDate(inputDate, format);
+	};
+});
+
+/**
+ * @ngdoc Filters
+ * @name mbDateTime
+ * @description # Format date time
+ */
+angular.module('mblowfish-core').filter('mbDateTime', function($mbLocal) {
+	return function(inputDate, format) {
+		return $mbLocal.formatDateTime(inputDate, format);
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
- * Watches total system and update help data.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+/*
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $mbRoute, $http, $translate, $help, $wbUtil) {
-    $rootScope.showHelp = false;
-    var lastLoaded;
+angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootScope) {
+
+	// load language
+	function getLanguage(key) {
+		var languages = $rootScope.__app.configs.languages || [];
+		var lang = {
+			map: []
+		};
+		angular.forEach(languages, function(item) {
+			if (item.key === key) {
+				lang = item;
+			}
+		});
+		return lang.map;
+	}
+
+    /*
+     * State machine to manage language configurations
+     */
+	var stateMachine = new machina.Fsm({
+		namespace: 'mb-language-config-loader',
+		initialState: 'loading',
+		states: {
+			loading: {
+				appStateChange: function(state) {
+					if (state === 'ready') {
+						this.transition('ready');
+					}
+					// TODO: maso, 2018: not configured or fail
+					if (state === 'ready_app_not_configured') {
+						this.transition('fail');
+					}
+				}
+			},
+			ready: {
+				appStateChange: function(state) {
+					// TODO: maso, 2018: not configured or fail
+					if (state === 'ready_app_not_configured') {
+						this.transition('fail');
+					}
+				}
+			},
+			fail: {
+				appStateChange: function(state) {
+					if (state === 'ready') {
+						this.transition('ready');
+					}
+				}
+			}
+		},
+
+        /*
+         * Handle application state change
+         */
+		appStateChange: function(state) {
+			this.handle('appStateChange', state);
+		}
+
+	});
+
+	$rootScope.$watch('__app.state', function(state) {
+		stateMachine.appStateChange(state);
+	});
+
+	var jobs = [];
+	// I'd like to know when the transition event occurs
+	stateMachine.on('transition', function() {
+		if (stateMachine.state === 'ready' || stateMachine.state === 'fail') {
+			angular.forEach(jobs, function(job) {
+				job();
+			});
+			jobs = [];
+		}
+	});
+
+	return function(option) {
+		if (stateMachine.state === 'fail') {
+			return $q.reject(option.key);
+		}
+		if (stateMachine.state === 'ready') {
+			return $q.when(getLanguage(option.key));
+		}
+
+		var deferred = $q.defer();
+		jobs.push(function() {
+			if (stateMachine.state === 'fail') {
+				return deferred.reject(option.key);
+			}
+			deferred.resolve(getLanguage(option.key));
+		});
+		return deferred.promise;
+	};
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * @ngdoc Services
+ * @name $mbLocal
+ * @description manage localization of widgets
+ * 
+ * Deprecated : use $window
+ */
+angular.module('mblowfish-core').provider('$mbLocal', function() {
+
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var provider;
+	var service;
+	var rootScope;
+
+
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+	var defaultDateFormat = 'jYYYY-jMM-jDD';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
+
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+	/**
+	 * Gets current data of the system.
+	 * 
+	 * @memberof $mbLocal
+	 */
+	function getDate() {
+		return new Date();
+	};
+
+
+	function formatDateInternal(inputDate, format) {
+		if (!inputDate) {
+			return '';
+		}
+		try {
+			if (rootScope.app.calendar !== 'Jalaali') {
+				format = format.replace('j', '');
+			}
+			var date = moment //
+				.utc(inputDate) //
+				.local();
+			return date.format(format);
+		} catch (ex) {
+			return '-' + ex.message;
+		}
+	}
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	function formatDate(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			rootScope.app.setting.dateFormat ||
+			rootScope.app.config.dateFormat ||
+			defaultDateFormat);
+	};
+
+	/**
+	 * Formats the input date based on the format
+	 * 
+	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 * 
+	 * @params data {String | Date} to format
+	 * @params format {String} of the output
+	 * @memberof $mbLocal
+	 */
+	function formatDateTime(inputDate, format) {
+		return formatDateInternal(inputDate, format ||
+			$rootScope.app.setting.dateFormatTime ||
+			$rootScope.app.config.dateFormatTime ||
+			defaultDateTimeFormat);
+	};
+	/**
+	 * Get currency of the system
+	 * 
+	 * @return currency ISO code
+	 * @memberof $mbLocal
+	 */
+	function getCurrency() {
+		return this.currency || 'USD';
+	};
+
+	/**
+	 * Sets currency of the system
+	 * 
+	 * @param currency {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	function setCurrency(currency) {
+		this.currency = currency;
+	};
+
+	/**
+	 * Get language of the system
+	 * 
+	 * @return language ISO code
+	 * @memberof $mbLocal
+	 */
+	function getLanguage() {
+		return $rootScope.app.language;
+	};
+
+	/**
+	 * Sets language of the system
+	 * 
+	 * @params language {String} ISO code
+	 * @memberof $mbLocal
+	 */
+	function setLanguage(language) {
+		this.language = language;
+	};
+
+
+	function setApplicationDirection(dir) {
+		$rootScope.__app.dir = dir;
+	}
+
+	function setApplicationLanguage(key) {
+		if ($rootScope.__app.state !== 'ready') {
+			return;
+		}
+		// 0- set app local
+		$rootScope.__app.language = key;
+		// 1- change language
+		$translate.use(key);
+		// 2- chnage date format
+		// Change moment's locale so the 'L'-format is adjusted.
+		// For example the 'L'-format is DD-MM-YYYY for Dutch
+		moment.loadPersian();
+		moment.locale(key);
+		// Set month and week names for the general $mdDateLocale service
+		var localeDate = moment.localeData();
+		$mdDateLocale.months = localeDate._months;
+		$mdDateLocale.shortMonths = localeDate._monthsShort;
+		$mdDateLocale.days = localeDate._weekdays;
+		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		// Optionaly let the week start on the day as defined by moment's locale
+		// data
+		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+	}
+
+	function setApplicationCalendar(key) {
+		// 0- set app local
+		$rootScope.__app.calendar = key;
+	}
+
+	function reload() {
+		//	/*
+		//	 * watch direction and update app.dir
+		//	 */
+		//	$rootScope.$watch(function() {
+		//		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
+		//	}, setApplicationDirection);
+		//
+		//	/*
+		//	 * watch local and update language
+		//	 */
+		//	$rootScope.$watch(function() {
+		//		// Check language
+		//		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
+		//	}, setApplicationLanguage);
+		//
+		//	/*
+		//	 * watch calendar
+		//	 */
+		//	$rootScope.$watch(function() {
+		//		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
+		//	}, setApplicationCalendar);
+	}
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		reload: reload,
+		formatDate: formatDate,
+		formatDateTime: formatDateTime,
+	};
+
+	provider = {
+		$get: function() {
+			return service;
+		}
+	};
+	return provider;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Services
+@name $mbLogger
+@description Manage and translate all backend error and messages
+
+
+
+ */
+angular.module('mblowfish-core').service('$mbLogger', function() {
+
+	/**
+	 * Checks status, message and data of the error. If given form is not null,
+	 * it set related values in $error of fields in the form. It also returns a
+	 * general message to show to the user.
+	 */
+	this.errorMessage = function(error, form) {
+		var message = null;
+		if (error.status === 400 && form) { // Bad request
+			message = 'Form is not valid. Fix errors and retry.';
+			error.data.data.forEach(function(item) {
+				form[item.name].$error = {};
+				item.constraints.map(function(cons) {
+					if (form[item.name]) {
+						form[item.name].$error[cons.toLowerCase()] = true;
+					}
+				});
+			});
+		} else {
+			message = error.data.message;
+		}
+		return message;
+	}
+	
+	this.error = function(){};
+	this.warn = function(){};
+	this.debug = function(){};
+	this.info = function(){};
+	
+
+	return this;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+var MODULE_STORAGE_KEY = 'mbModules';
+var MODULE_STORE_PATH = '/modules';
+
+function moduleLoadLibrary(path) {
+	var defer = jQuery.Deferred();
+	var script = document.createElement('script');
+	script.src = path;
+	script.async = 1;
+	script.onload = function() {
+		defer.resolve();
+	};
+	script.onerror = function() {
+		defer.reject({
+			path: path,
+			message: 'fail'
+		});
+	};
+	document.getElementsByTagName('head')[0].appendChild(script);
+	return defer;
+}
+
+/**
+ * Loads a style
+ * 
+ * loads css 
+ * 
+ * @memberof NativeWindowWrapper
+ * @path path of library
+ * @return promise to load the library
+ */
+function moduleLoadStyle(path) {
+	var defer = jQuery.Deferred();
+	var style = document.createElement('link');
+	style.setAttribute('rel', 'stylesheet');
+	style.setAttribute('type', 'text/css');
+	style.setAttribute('href', path);
+	style.onload = function() {
+		defer.resolve(path);
+	};
+	style.onerror = function() {
+		defer.reject({
+			path: path,
+			message: 'fail'
+		});
+	};
+	document.getElementsByTagName('head')[0].appendChild(style);
+	return defer;
+}
+
+function moduleLoad(module) {
+	var deferred;
+	switch (module.type) {
+		case 'js':
+			deferred = moduleLoadLibrary(module.url);
+			break;
+		case 'css':
+			deferred = moduleLoadStyle(module.url);
+			break;
+	}
+	return deferred;
+}
+
+
+/**
+ * Manages system moduels
+ */
+mblowfish.provider('$mbModules', function() {
+
+	//------------------------------------------------------------------------------
+	// Services
+	//------------------------------------------------------------------------------
+
+	var q;
+	var window;
+	var mbApplication;
+	var mbDispatcher;
+	var mbStorage;
+
+	var provider;
+	var service;
+
+	//------------------------------------------------------------------------------
+	// variables
+	//------------------------------------------------------------------------------
+	var modules = {};
+
+	function addModule(module) {
+		modules[module.url] = module;
+		saveModules();
+		//>> fire changes
+		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+			type: 'create',
+			items: [module]
+		});
+	}
+
+	function removeModule(module) {
+		delete modules[module.url];
+		saveModules();
+		//>> fire changes
+		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+			type: 'delete',
+			items: [module]
+		});
+	}
+
+	function getModules() {
+		return modules;
+	}
+
+	function saveModules() {
+		//>> Save changes
+		mbStorage.mbModules =_.cloneDeep(modules);
+	}
+
+	function load() {
+		modules = mbStorage.mbModules || {};
+	}
+
+	//------------------------------------------------------------------------------
+	// End
+	//------------------------------------------------------------------------------
+
+	service = {
+		removeModule: removeModule,
+		addModule: addModule,
+		getModules: getModules,
+	};
+	provider = {
+		/* @ngInject */
+		$get: function(
+			/* Angularjs */ $window, $q,
+			/* am-wb     */ $mbApplication, $mbDispatcher, $mbStorage) {
+			q = $q;
+			window = $window;
+			mbApplication = $mbApplication;
+			mbDispatcher = $mbDispatcher;
+			mbStorage = $mbStorage;
+
+			load();
+
+			return service;
+		},
+		enable: function(enable) {
+			moduleEnable = enable;
+		}
+	};
+	return provider;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Factories
+ * @name httpRequestInterceptor
+ * @description An interceptor to handle the error 401 of http response
+ * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
+ */
+angular.module('mblowfish-core').factory('MbHttpRequestInterceptor', function($q, $injector) {
+	var httpRequestInterceptor = function() { };
+	httpRequestInterceptor.prototype.responseError = function(rejection) {
+		var app = $injector.get('$mbApplication');
+		// do something on error
+		if (rejection.status === 401) {
+			app.logout();
+		}
+		return $q.reject(rejection);
+	};
+	return httpRequestInterceptor;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+@ngdoc Services
+@name $mbPreferences
+@description System setting manager
+
+ */
+angular.module('mblowfish-core').provider('$mbPreferences', function() {
+
+	//-------------------------------------------------
+	// Services
+	//-------------------------------------------------
+	var provider;
+	var service;
+
+	var location;
+
+
+	//-------------------------------------------------
+	// Variables
+	//-------------------------------------------------
+	var preferences = {};
+
+	//-------------------------------------------------
+	// Functions
+	//-------------------------------------------------
+
+	/**
+	 * Lists all created pages.
+	 * 
+	 * @returns
+	 */
+	function getPages() {
+		return preferences;
+	}
+
+	/**
+	 * Gets a preference page
+	 * 
+	 * @memberof $mbPreferences
+	 * @param id {string} Pereference page id
+	 */
+	function getPage(id) {
+		return preferences[id];
+	}
+
+
+	/**
+	 * Opens a setting page
+	 * 
+	 * @param page
+	 * @returns
+	 */
+	function open(page) {
+		return location.url('preferences/' + page.id);
+	}
+
+	/**
+	 * Creates a new setting page.
+	 * 
+	 * @param page
+	 * @returns
+	 */
+	function addPage(pageId, page) {
+		page.id = pageId;
+		preferences[pageId] = page;
+		return service;
+	}
+
+
+	function init() {
+
+	}
+
+	//-------------------------------------------------
+	// End
+	//-------------------------------------------------
+	service = {
+		getPages: getPages,
+		getPage: getPage,
+		addPage: addPage,
+		open: open
+	};
+	provider = {
+		$get: function($location, $mbEditor) {
+			location = $location;
+
+			init();
+			return service;
+		},
+		addPage: function(pageId, page) {
+			page.id = pageId;
+			preferences[pageId] = page;
+			return provider;
+		}
+	};
+	return provider;
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+var RESOURCE_CHILDREN_AUNCHOR = 'wb-select-resource-children';
+
+/**
+@ngdoc Services
+@name $mbResource
+@description Resource management system
+
+This is a service to get resources. 
+
+ */
+angular.module('mblowfish-core').provider('$mbResource', function() {
+
+
+
+	//--------------------------------------------------------
+	// Services
+	//--------------------------------------------------------
+	var provider;
+	var service;
+
+	var rootScope;
+	var mbDialog;
+
+
+
+	//--------------------------------------------------------
+	// variables
+	//--------------------------------------------------------
+	var resourcePages = {};
+
+
 
 
     /**
-     * load help content for the item
-     * 
-     * @name loadHelpContent
-     * @memberof MbHelpCtrl
-     * @params item {object} an item to display help for
-     */
-    function _loadHelpContent(item) {
-        if($scope.helpLoading){
-            // maso, 2018: cancle old loading
-            return $scope.helpLoading;
-        }
-        var path = $help.getHelpPath(item);
-        // load content
-        if(path && path !== lastLoaded){
-            $scope.helpLoading = $http.get(path) //
-            .then(function(res) {
-                $scope.helpContent = $wbUtil.clean(res.data);
-                lastLoaded = path;
-            })//
-            .finally(function(){
-                $scope.helpLoading = false;
-            });
-        }
-        return $scope.helpLoading;
-    }
-
-    $scope.closeHelp = function(){
-        $rootScope.showHelp = false;
-    };
-
-    /*
-     * If user want to display help, content will be loaded.
-     */
-    $scope.$watch('showHelp', function(value){
-        if(value) {
-            return _loadHelpContent();
-        }
-    });
-
-    /*
-     * Watch for current item in help service
-     */
-    $scope.$watch(function(){
-        return $help.currentItem();
-    }, function() {
-        if ($rootScope.showHelp) {
-            _loadHelpContent();
-        }
-    });
-});
-// //TODO: should be moved to mblowfish-core
-
-// /*
-//  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-//  * 
-//  * Permission is hereby granted, free of charge, to any person obtaining a copy
-//  * of this software and associated documentation files (the 'Software'), to deal
-//  * in the Software without restriction, including without limitation the rights
-//  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//  * copies of the Software, and to permit persons to whom the Software is
-//  * furnished to do so, subject to the following conditions:
-//  * 
-//  * The above copyright notice and this permission notice shall be included in all
-//  * copies or substantial portions of the Software.
-//  * 
-//  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//  * SOFTWARE.
-//  */
-
-// angular.module('mblowfish-core')
-
-// /**
-//  * @ngdoc Controllers
-//  * @name MbInitialCtrl
-//  * @description Initializes the application
-//  * 
-//  * Manages and initializes the application.
-//  * 
-//  * This controller is used first time when the application is run.
-//  * 
-//  * The controller puts list of configuration pages in `settings` and current
-//  * setting in `currentSetting`.
-//  * 
-//  * Settings is ordered list and the index of the item is unique.
-//  * 
-//  * Here is list of all data managed with controller
-//  * 
-//  * <ul>
-//  * <li>steps: list of all settings</li>
-//  * <li>currentStep: object (with id) points to the current setting page</li>
-//  * </ul>
-//  * 
-//  * NOTE: the controller works with an stepper and $mdStepper (id:
-//  * setting-stepper)
-//  */
-// .controller('MbInitialCtrl', function($scope, $rootScope, $preferences, $mdStepper, $window, $wbUtil, $mbRouteParams) {
-
-//     /*
-//      * ID of the stepper
-//      */
-//     var _stepper_id = 'setting-stepper';
-
-//     /**
-//      * Loads settings with the index
-//      * 
-//      * @memberof MbInitialCtrl
-//      * @param {integer}
-//      *            index of the setting
-//      */
-//     function goToStep(index){
-//         $mdStepper(_stepper_id)//
-//         .goto(index);
-//     }
-
-//     /**
-//      * Loads the next setting page
-//      * 
-//      * @memberof MbInitialCtrl
-//      */
-//     function nextStep(){
-//         $mdStepper(_stepper_id)//
-//         .next();
-//     }
-
-//     /**
-//      * Loads the previous setting page
-//      * 
-//      * @memberof MbInitialCtrl
-//      */
-//     function prevStep(){			
-//         $mdStepper(_stepper_id)//
-//         .back();
-//     }
-
-//     /*
-//      * Set application is initialized
-//      */
-//     function _setInitialized(/*flag*/){
-//         $rootScope.app.config.is_initialized = true;
-//     }
-
-//     /*
-//      * Checks if it is initialized
-//      * 
-//      * NOTE: maso, 2018: check runs/initial.js for changes
-//      */
-//     function _isInitialized(){
-//         return !$mbRouteParams.force && $rootScope.app.config.is_initialized;
-//     }
-
-//     /*
-//      * Go to the main page
-//      */
-//     function _redirectToMain(){
-//         $window.location =  $window.location.href.replace(/initialization$/mg, '');
-//     }
-
-//     /*
-//      * Loads internal pages and settings
-//      */
-//     function _initialization(){
-//         // Configure language page. It will be added as first page of setting
-//         // stepper
-//         var langPage = {
-//                 id: 'initial-language',
-//                 title: 'Language',
-//                 templateUrl : 'views/preferences/mb-language.html',
-//                 controller : 'MbLanguageCtrl',
-//                 description: 'Select default language of web application.',
-//                 icon: 'language',
-//                 priority: 'first',
-//                 required: true
-//         };
-//         // Configure welcome page. It will be added as one of the first pages of
-//         // setting stepper
-//         var inlineTemplate = '<wb-group ng-model=\'model\' flex style=\'overflow: auto;\' layout-fill></wb-group>';
-//         var welcomePage = {
-//                 id: 'welcome',
-//                 title: 'Welcome',
-//                 template : inlineTemplate,
-//                 /*
-//                  * @ngInject
-//                  */
-//                 controller : function($scope, $http, $translate) {
-//                     // TODO: hadi: Use $language to get current Language
-//                     $http.get('resources/welcome/'+$translate.use()+'.json')//
-//                     .then(function(res){
-//                         //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
-//                         //$scope.model = $wbUtil.clean(res.data || {});
-//                         $scope.model = $wbUtil.clean(res.data) || {};
-//                     });
-//                 },
-//                 description: 'Welcome. Please login to continue.',
-//                 icon: 'accessibility',
-//                 priority: 'first',
-//                 required: true
-//         };
-//         var congratulatePage = {
-//                 id: 'congratulate',
-//                 title: ':)',
-//                 description: 'Congratulation. Your site is ready.',
-//                 template : inlineTemplate,
-//                 /*
-//                  * @ngInject
-//                  */
-//                 controller : function($scope, $http, $translate) {
-//                     // TODO: hadi: Use $language to get current Language
-//                     $http.get('resources/congratulate/'+$translate.use()+'.json')//
-//                     .then(function(res){
-//                         //TODO: Maso, 2018: $wbUtil must delete in next version. Here it comes for compatibility to previous versions.
-//                         $scope.model = $wbUtil.clean(res.data) || {};
-//                     });
-//                     _setInitialized(true);
-//                 },
-//                 icon: 'favorite',
-//                 priority: 'last',
-//                 required: true
-//         };
-//         $preferences.newPage(langPage);
-//         $preferences.newPage(welcomePage);
-//         $preferences.newPage(congratulatePage);
-//         // Load settings
-//         $preferences.pages()//
-//         .then(function(settingItems) {
-//             var steps = [];
-//             settingItems.items.forEach(function(settingItem){
-//                 if(settingItem.required){
-//                     steps.push(settingItem);
-//                 }
-//             });
-//             $scope.steps = steps;
-//         });
-
-//         // add watch on setting stepper current step.
-//         $scope.$watch(function(){
-//             var current = $mdStepper(_stepper_id);
-//             if(current){
-//                 return current.currentStep;
-//             }
-//             return -1;
-//         }, function(index){
-//             if(index >= 0 && $scope.steps && $scope.steps.length){
-//                 $scope.currentStep = $scope.steps[index];
-//             }
-//         });
-//     }
-
-//     /*
-//      * Watch application state
-//      */
-//     var removeApplicationStateWatch = $scope.$watch('__app.state', function(status){
-//         switch (status) {
-//         case 'loading':
-//         case 'fail':
-//         case 'error':
-//             // Wait it for ready
-//             break;
-//         case 'ready':
-//             // remove watch
-//             removeApplicationStateWatch();
-//             if(_isInitialized()){
-//                 _redirectToMain();
-//             } else {
-//                 _initialization();
-//             }
-//             break;
-//         default:
-//             break;
-//         }
-//     });
+    Fetches a page.
     
+    @param {string} pageId The id of the page
+    @returns Related page.
+     */
+	function getPage(pageId) {
+		return resourcePages[pageId];
+	}
+
+    /**
+     * Adds new page.
+     * 
+     * @returns
+     */
+	function addPage(pageId, page) {
+		page.id = pageId;
+		resourcePages[pageId] = page;
+		return provider;
+	}
+
+    /**
+     * Finds and lists all pages.
+     * 
+     * @returns
+     */
+	function getPages(tag) {
+		var pages = [];
+		_.forEach(resourcePages, function(page) {
+			if (angular.isArray(page.tags) && page.tags.includes(tag)) {
+				pages.push(page);
+			}
+		});
+		return pages;
+	}
+
+    /**
+     * Get a resource 
+     * 
+     * - option.data: current value of the date
+     * - option.style: style of the dialog (title, descritpion, image, ..)
+     * 
+     * @param tags
+     * @returns
+     */
+	function get(tag, option) {
+		if (!option) {
+			option = {};
+		}
+		var pages = getPages(tag);
+		var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
+		return mbDialog.show({
+			controller: 'ResourceDialogCtrl',
+			templateUrl: tmplUrl,
+			parent: angular.element(document.body),
+			clickOutsideToClose: false,
+			fullscreen: true,
+			multiple: true,
+			locals: {
+				'pages': pages,
+				'style': option.style || {
+					title: tag
+				},
+				'data': option.data || {}
+			}
+		});
+	}
+
+	function hasPageFor(tag) {
+		var pages = getPages(tag);
+		return pages.length > 0;
+	}
 
 
-//     this.goToStep = goToStep;
-//     this.nextStep = nextStep;
-//     this.nextStep = nextStep;
-//     this.prevStep = prevStep;
-// });
+	//--------------------------------------------------------
+	// End
+	//--------------------------------------------------------
+	service = {
+		get: get,
+		hasPageFor: hasPageFor,
+		getPage: getPage,
+		getPages: getPages,
+	};
+	provider = {
+		$get: function($mbDialog) {
+			mbDialog = $mbDialog;
+			return service;
+		},
+		addPage: addPage
+	};
+	return provider;
+});
+
+
+
+
+
+/*
+ * Manages resource dialog
+ * @ngInject
+ */
+mblowfish.controller('ResourceDialogCtrl', function($scope, $mdDialog, $wbUtil, $rootScope,
+	$q, $controller, $compile, pages, style, data, $element, $window) {
+
+	$scope.value = angular.copy(data);
+	$scope.style = style;
+	var currentScope = null;
+
+	function hide() {
+		$mdDialog.hide();
+	}
+
+	function cancel() {
+		return $mdDialog.cancel();
+	}
+
+	/**
+	 * Answer the dialog
+	 * 
+	 * If there is an answer function in the current page controller
+	 * then the result of the answer function will be returned as 
+	 * the main result.
+	 * 
+	 * @memberof WbResourceCtrl
+	 */
+	function answer() {
+		$scope.loadingAnswer = true;
+		var res = null;
+		if (currentScope && angular.isFunction(currentScope.answer)) {
+			res = $q.when(currentScope.answer())
+				.then($mdDialog.hide);
+		} else {
+			res = $mdDialog.hide($scope.value);
+		}
+		return res.finally(function() {
+			$scope.loadingAnswer = false;
+		});
+	}
+
+	/*
+	 * Sets value to the real var
+	 */
+	this.setValue = function(value) {
+		$scope.value = value;
+	};
+
+	/*
+	 * Gets current value
+	 */
+	this.getValue = function() {
+		return $scope.value;
+	};
+
+	/**
+	 * encapsulate template srce with panel widget template.
+	 * 
+	 * @param page
+	 *            setting page config
+	 * @param tempateSrc
+	 *            setting page html template
+	 * @returns encapsulate html template
+	 */
+	function _encapsulatePanel(page, template) {
+		// TODO: maso, 2017: pass all paramter to the setting
+		// panel.
+		return template;
+	}
+
+	/**
+	 * تنظیمات را به عنوان تنظیم‌های جاری سیستم لود می‌کند.
+	 * 
+	 * @returns
+	 */
+	function loadPage(page) {
+		var jobs = [];
+		var pages2 = [];
+
+		$scope._selectedIndex = pages.indexOf(page);
+
+		// 1- Find element
+		var target = $element.find('#' + RESOURCE_CHILDREN_AUNCHOR);
+
+		// 2- Clear childrens
+		target.empty();
+		currentScope = null;
+
+
+		// 3- load pages
+		//          var page = pages[index];
+		var template = $wbUtil.getTemplateFor(page);
+		if (angular.isDefined(template)) {
+			jobs.push($q.when(template).then(function(templateSrc) {
+				templateSrc = _encapsulatePanel(page, templateSrc);
+				var element = angular.element(templateSrc);
+				var scope = $rootScope.$new(false, $scope);
+				currentScope = scope;
+				scope.page = page;
+				scope.value = $scope.value;
+				if (angular.isDefined(page.controller)) {
+					var controller = $controller(page.controller, {
+						$scope: scope,
+						$element: element,
+						style: style,
+						data: data
+					});
+					if (page.controllerAs) {
+						scope[page.controllerAs] = controller;
+					}
+				}
+				$compile(element)(scope);
+				pages2.push(element);
+			}));
+		}
+
+		$q.all(jobs).then(function() {
+			angular.forEach(pages2, function(element) {
+				target.append(element);
+			});
+		});
+	}
+
+	if (angular.isFunction($window.openHelp)) {
+		$scope.openHelp = function($event) {
+			cancel().then(function() {
+				$window.openHelp(pages[$scope._selectedIndex], $event);
+			});
+		};
+	}
+
+	$scope.pages = pages;
+
+	$scope.loadPage = loadPage;
+
+	$scope.hide = hide;
+	$scope.cancel = cancel;
+	$scope.answer = answer;
+
+	if (pages.length) {
+		loadPage(pages[0]);
+	}
+
+	var ctrl = this;
+	$scope.setValue = function(value) {
+		return ctrl.setValue(value);
+	};
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc service
+@name $mbSelection
+@description Default selection system.
+ */
+angular.module('mblowfish-core').service('$mbSelection', function() {
+	var selection = [];
+
+	this.addItem = function($item, $event) { };
+	this.clearItems = function() { };
+	this.getItems = function() { };
+	this.isSelected = function() { };
+
+	return this;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+@ngdoc service
+@name $mbSettings
+@description Default selection system.
+ */
+angular.module('mblowfish-core').provider('$mbSettings', function() {
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var provider;
+	var service;
+	var rootScope;
+	var mbStorage;
+
+	//---------------------------------------
+	// Variables
+	//---------------------------------------
+	var templateUrl = 'resources/settings-template.json';
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+	/**
+	Loads settings and get ready
+	
+	@memberof $mbSettings
+	@returns {Promise} A promise to load settings
+	 */
+	function load() {
+
+	}
+
+	function setTemplateUrl(url) {
+		templateUrl = url;
+		return provider;
+	}
+
+	function getTemplateUrl() {
+		return templateUrl;
+	}
+
+
+	function loadLocalData() {
+		/*
+		 * TODO: masood, 2018: The lines below is an alternative for lines above
+		 * but not recommended.
+		 * 
+		 * TODO: 'key' of app should be used $mbStorage,.setPrefix(key);
+		 */
+		var settings = mbStorage.$default({
+			dashboardModel: {}
+		});
+		return q.resolve(settings)
+			.then(parsAppSettings);
+	}
+
+	function setAutosaveEnabled(flag) {
+		setAutosave = flag;
+		return provider;
+	}
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		load: load,
+		getTemplateUrl: getTemplateUrl,
+	};
+
+	provider = {
+		$get: function($rootScope, $mbStorage, $q) {
+			rootScope = $rootScope;
+			mbStorage = $mbStorage;
+			q = $q;
+
+			return service;
+		},
+		setTemplateUrl: setTemplateUrl,
+		setAutosaveEnabled: setAutosaveEnabled,
+	};
+	return provider;
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * @ngdoc Services
+ * @name $mbStorage
+ * @description A service to work with storage of browser
+ * 
+ */
+angular.module('mblowfish-core').provider('$mbStorage', function() {
+
+
+
+	var storageKeyPrefix = 'ngStorage-';
+	var serializer = angular.toJson;
+	var deserializer = angular.fromJson;
+	var storageType = 'localStorage';
+
+	var providerWebStorage = storageSupported(window, storageType);
+
+
+	return {
+
+		setKeyPrefix: function(prefix) {
+			if (typeof prefix !== 'string') {
+				throw new TypeError('[mblowfish] - $mbStorage Provider.setKeyPrefix() expects a String.');
+			}
+			storageKeyPrefix = prefix;
+		},
+
+
+		setSerializer: function(s) {
+			if (typeof s !== 'function') {
+				throw new TypeError('[mblowfish] -  $mbStorage Provider.setSerializer expects a function.');
+			}
+			serializer = s;
+		},
+
+		setDeserializer: function(d) {
+			if (typeof d !== 'function') {
+				throw new TypeError('[ngStorage] -  $mbStorage Provider.setDeserializer expects a function.');
+			}
+			deserializer = d;
+		},
+
+		supported: function(type) {
+			type = type || 'localStorage';
+			return !!storageSupported(window, storageType);
+		},
+
+		// Note: This is not very elegant at all.
+		get: function(key) {
+			return providerWebStorage && deserializer(providerWebStorage.getItem(storageKeyPrefix + key));
+		},
+
+		// Note: This is not very elegant at all.
+		set: function(key, value) {
+			return providerWebStorage && providerWebStorage.setItem(storageKeyPrefix + key, serializer(value));
+		},
+
+		remove: function(key) {
+			providerWebStorage && providerWebStorage.removeItem(storageKeyPrefix + key);
+		},
+
+		/* @ngInject */
+		$get: function(
+			$rootScope, $window, $log, $timeout, $document
+		) {
+
+			// The magic number 10 is used which only works for some keyPrefixes...
+			// See https://github.com/gsklee/ngStorage/issues/137
+			var prefixLength = storageKeyPrefix.length;
+			var isSupported = storageSupported($window, storageType);
+
+			// #9: Assign a placeholder object if Web Storage is unavailable to prevent breaking the entire AngularJS app
+			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
+			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
+			var $storage = {
+				//				get: function(name) {
+				//					return $storage[name];
+				//				},
+				//				put: function(name, value) {
+				//					$storage[name] = value;
+				//					return $storage;
+				//				},
+				//				remove: function(name) {
+				//					delete $storage[name];
+				//					return $storage;
+				//				},
+				//				has: function(name) {
+				//					return ($localStorage[name] ? true : false);
+				//				},
+				$default: function(items) {
+					for (var k in items) {
+						angular.isDefined($storage[k]) || ($storage[k] = angular.copy(items[k]));
+					}
+					$storage.$sync();
+					return $storage;
+				},
+				$reset: function(items) {
+					for (var k in $storage) {
+						'$' === k[0] || (delete $storage[k] && webStorage.removeItem(storageKeyPrefix + k));
+					}
+					return $storage.$default(items);
+				},
+				$sync: function() {
+					for (var i = 0, l = webStorage.length, k; i < l; i++) {
+						// #8, #10: `webStorage.key(i)` may be an empty string (or throw an exception in IE9 if `webStorage` is empty)
+						(k = webStorage.key(i)) && storageKeyPrefix === k.slice(0, prefixLength) && ($storage[k.slice(prefixLength)] = deserializer(webStorage.getItem(k)));
+					}
+				},
+				$apply: function() {
+					var temp$storage;
+					_debounce = null;
+					if (!_.isEqual($storage, _last$storage)) {
+						temp$storage = angular.copy(_last$storage);
+						angular.forEach($storage, function(v, k) {
+							if (angular.isDefined(v) && '$' !== k[0]) {
+								webStorage.setItem(storageKeyPrefix + k, serializer(v));
+								delete temp$storage[k];
+							}
+						});
+						for (var k in temp$storage) {
+							webStorage.removeItem(storageKeyPrefix + k);
+						}
+						_last$storage = angular.copy($storage);
+					}
+				},
+				$supported: function() {
+					return !!isSupported;
+				}
+			};
+			var _last$storage;
+			var _debounce;
+
+			$storage.$sync();
+
+			_last$storage = angular.copy($storage);
+
+			$rootScope.$watch(function() {
+				_debounce || (_debounce = $timeout($storage.$apply, 100, false));
+			});
+
+			// #6: Use `$window.addEventListener` instead of `angular.element` to avoid the jQuery-specific `event.originalEvent`
+			$window.addEventListener && $window.addEventListener('storage', function(event) {
+				if (!event.key) {
+					return;
+				}
+				// Reference doc.
+				var doc = $document[0];
+				if ((!doc.hasFocus || !doc.hasFocus()) && storageKeyPrefix === event.key.slice(0, prefixLength)) {
+					event.newValue ? $storage[event.key.slice(prefixLength)] = deserializer(event.newValue) : delete $storage[event.key.slice(prefixLength)];
+					_last$storage = angular.copy($storage);
+					$rootScope.$apply();
+				}
+			});
+
+			$window.addEventListener && $window.addEventListener('beforeunload', function() {
+				$storage.$apply();
+			});
+
+			return $storage;
+		}
+	};
+});
+
+
+
+/*
+Checks if the storage type is supported
+
+types:
+
+- local
+- cockie
+
+
+@returns {map} Storage to use in application
+
+ */
+function storageSupported($window, storageType) {
+	// Some installations of IE, for an unknown reason, throw "SCRIPT5: Error: Access is denied"
+	// when accessing window.localStorage. This happens before you try to do anything with it. Catch
+	// that error and allow execution to continue.
+
+	// fix 'SecurityError: DOM Exception 18' exception in Desktop Safari, Mobile Safari
+	// when "Block cookies": "Always block" is turned on
+	var supported;
+	try {
+		supported = $window[storageType];
+	} catch (err) {
+		return;
+	}
+	// When Safari (OS X or iOS) is in private browsing mode, it appears as though localStorage and sessionStorage
+	// is available, but trying to call .setItem throws an exception below:
+	// "QUOTA_EXCEEDED_ERR: DOM Exception 22: An attempt was made to add something to storage that exceeded the quota."
+	if (supported) {
+		var key = '__' + Math.round(Math.random() * 1e7);
+		try {
+			supported.setItem(key, key);
+			supported.removeItem(key, key);
+		} catch (err) {
+			return;
+		}
+	}
+	return supported;
+}
+
+
+angular.module('mblowfish-core').provider('$mbTenant', function() {
+
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var provider;
+	var service;
+	var rootScope;
+
+
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+//	var TENANT_GRAPHQL = '{id,title,description,' +
+//		'account' + USER_DETAIL_GRAPHQL +
+//		'configurations{key,value}' +
+//		'settings{key,value}' +
+//		'}';
+
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+	/*
+	 * Stores app configuration on the back end
+	 */
+	function storeApplicationConfig() {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return;
+		}
+		if (appConfigurationContent) { // content loaded
+			return appConfigurationContent.uploadValue($rootScope.__app.configs);
+		}
+		// create content
+		promise = $cms.putContent({
+			name: $rootScope.__app.configs_key,
+			mimetype: APP_CNF_MIMETYPE
+		})
+			.then(function(content) {
+				appConfigurationContent = content;
+				return appConfigurationContent.uploadValue($rootScope.__app.configs);
+			});
+	};
+
+	/*
+	 * Check a module to see if it is enable or not
+	 */
+	// TODO: Masood, 2019: Improve the function to check based on tenant setting
+	function isEnable(moduleName) {
+		return $rootScope.__tenant.domains[moduleName];
+	}
+
+
+	function parsTenantConfiguration(configs) {
+		$rootScope.__tenant.configs = keyValueToMap(configs);
+		var $event = {
+			src: this,
+			type: 'update',
+			value: $rootScope.__tenant.configs
+		};
+		$dispatcher.dispatch('/tenant/configs', $event);
+
+		// load domains
+		var domains = {};
+		var regex = new RegExp('^module\.(.*)\.enable$', 'i');
+		for (var i = 0; i < configs.length; i++) {
+			var config = configs[i];
+			var match = regex.exec(config.key);
+			if (match) {
+				var key = match[1].toLowerCase();
+				domains[key] = parseBooleanValue(config.value);
+			}
+		}
+		$rootScope.__tenant.domains = domains;
+		// Flux: fire account change
+		var $event = {
+			src: this,
+			type: 'update',
+			value: $rootScope.__tenant.domains
+		};
+		$dispatcher.dispatch('/tenant/domains', $event);
+	}
+
+	function parsTenantSettings(settings) {
+		$rootScope.__tenant.settings = keyValueToMap(settings);
+		$rootScope.__app.options = $rootScope.__tenant.settings;
+
+		// Flux: fire setting change
+		var $event = {
+			src: this,
+			type: 'update',
+			value: $rootScope.__account
+		};
+		$dispatcher.dispatch('/tenant/settings', $event);
+	}
+
+
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {};
+	provider = {
+		$get: function() {
+			return service;
+		}
+	};
+	return provider;
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+@ngdoc Services
+@name $mbTheming
+@description Manages theme of an element
+
+ */
+angular.module('mblowfish-core').provider('$mbTheming', function() {
+	var mdTheming;
+
+	function applyTheme(element) {
+		element.addClass('_mb');
+		element.addClass('_md');
+		mdTheming(element);
+	}
+
+	return {
+		/* @ngInject */
+		$get: function($mdTheming) {
+			mdTheming = $mdTheming;
+			return applyTheme;
+		}
+	};
+})
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Services
+ * @name $mbUtil
+ * @description utility in Mblowfish
+ * 
+ */
+angular.module('mblowfish-core').service('$mbUtil', function() {
+
+	/**
+	 * Creates a shallow copy of an object, an array or a primitive.
+	 *
+	 * Assumes that there are no proto properties for objects.
+	 */
+	function shallowCopy(src, dst) {
+		if (this.isArray(src)) {
+			dst = dst || [];
+			for (var i = 0, ii = src.length; i < ii; i++) {
+				dst[i] = src[i];
+			}
+		} else if (this.isObject(src)) {
+			dst = dst || {};
+			for (var key in src) {
+				if (!(key.charAt(0) === '$' && key.charAt(1) === '$')) {
+					dst[key] = src[key];
+				}
+			}
+		}
+		return dst || src;
+	};
+
+
+
+	function parseBooleanValue(value) {
+		value = value.toLowerCase();
+		switch (value) {
+			case true:
+			case 'true':
+			case '1':
+			case 'on':
+			case 'yes':
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/*
+	 * Bind list of roles to app data
+	 */
+	function rolesToPermissions(roles) {
+		var permissions = [];
+		for (var i = 0; i < roles.length; i++) {
+			var role = roles[i];
+			permissions[role.application + '_' + role.code_name] = true;
+		}
+		return permissions;
+	}
+
+	function keyValueToMap(keyvals) {
+		var map = [];
+		for (var i = 0; i < keyvals.length; i++) {
+			var keyval = keyvals[i];
+			map[keyval.key] = keyval.value;
+		}
+		return map;
+	}
+
+	this.rolesToPermissions = rolesToPermissions;
+	this.keyValueToMap = keyValueToMap;
+	this.shallowCopy = shallowCopy;
+	this.parseBooleanValue = parseBooleanValue;
+	this.noop = angular.noop;
+	this.isArray = angular.isArray;
+	this.isObject = angular.isObject;
+	this.isDefined = angular.isDefined;
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name compare-to
+ * @description Compare two attributes.
+ */
+.directive('compareTo', function(){
+	return {
+		require: 'ngModel',
+		scope: {
+			otherModelValue: '=compareTo'
+		},
+		link: function(scope, element, attributes, ngModel){
+			ngModel.$validators.compareTo = function(modelValue) {
+				return modelValue === scope.otherModelValue;
+			};
+
+			scope.$watch('otherModelValue', function() {
+				ngModel.$validate();
+			});
+		}
+	};
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name mb-badge
+ * @description Display a badge on items
+ * 
+ */
+.directive('mbBadge', function($mdTheming, $rootScope) {
+
+	function __badge_toRGB(color){
+		var split = (color || '').split('-');
+		if (split.length < 2) {
+			split.push('500');
+		}
+
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+
+		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
+		if(typeof theme === 'undefined'){
+			theme = $mdTheming.THEMES['default'];
+		}
+		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+
+		function style(where, color) {
+			if (color) {
+				element.css(where, __badge_toRGB(color));
+			}
+		}
+//		function getPosition(){
+//		return {
+//		top: element.prop('offsetTop'),
+//		left: element.prop('offsetLeft'),
+//		width: element.prop('offsetWidth'),
+//		height: element.prop('offsetHeight')
+//		};
+//		}
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value){
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value){
+			style('background-color', value);
+		});
+	}
+
+	return {
+		restrict: 'E',
+		replace: true,
+		transclude: true,
+		link: postLink,
+		template: function(/*element, attributes*/) {
+			return '<div class="mb-badge" ng-transclude></div>';
+		}
+	};
+});
+
+angular.module('mblowfish-core')
+.directive('mbBadge', function($mdTheming,/* $mdColors, $timeout, $window,*/ $compile, $rootScope) {
+
+
+	function __badge_toRGB(color){
+		var split = (color || '').split('-');
+		if (split.length < 2) {
+			split.push('500');
+		}
+
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+
+		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
+		if(typeof theme === 'undefined'){
+			theme = $mdTheming.THEMES['default'];
+		}
+		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		//
+		var parent = element.parent();
+		var bg = angular.element('<div></div>');
+		var link = $compile(bg);
+		var badge = link(scope);
+
+		var offset = parseInt(attributes.mdBadgeOffset);
+		if (isNaN(offset)) {
+			offset = 10;
+		}
+
+		function style(where, color) {
+			if (color) {
+				badge.css(where, __badge_toRGB(color));
+			}
+		}
+		function getPosition(){
+			return {
+				top: element.prop('offsetTop'),
+				left: element.prop('offsetLeft'),
+				width: element.prop('offsetWidth'),
+				height: element.prop('offsetHeight')
+			};
+		}
+
+		function position(value) {
+			var top = element.prop('offsetTop');
+			badge.css({
+				'display' : attributes.mbBadge && top ? 'initial' : 'none',
+						'left' : value.left + value.width - 20 + offset + 'px',
+						'top' : value.top + value.height - 20 + offset + 'px'
+			});
+		}
+
+//		function update () {
+//		position(getPosition());
+//		}
+
+		badge.addClass('mb-badge');
+		badge.css('position', 'absolute');
+		parent.append(badge);
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value){
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value){
+			style('background-color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadge;
+		}, function(value){
+			badge.text(value);
+			badge.css('display', value ? 'initial' : 'none');
+		});
+
+		scope.$watch(getPosition, function(value) {
+			position(value);
+		}, true);
+
+//		angular.element($window)
+//		.bind('resize', function(){
+//		update();
+//		});
+	}
+	return {
+		priority: 100,
+		restrict: 'A',
+		link: postLink
+	};
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name mb-captcha
+ * @description Adding captcha value
+ * 
+ * In some case, user must send captcha to the server fro auth. This a directive
+ * to enablie captcha
+ * 
+ */
+.directive('mbCaptcha', function() {
+
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @returns
+     */
+    function postLink(scope, element, attrs, ctrls) {
+        var form=ctrls[0];
+//        var ngModel=ctrls[1];
+
+        function validate(){
+            if(form){
+                form.$setValidity('captcha', scope.required === false ? null : Boolean(scope.response));
+            }
+        }
+
+//        function destroy() {
+//            if (form) {
+//                // reset the validity of the form if we were removed
+//                form.$setValidity('captcha', null);
+//            }
+//        }
+
+
+        if(form && angular.isDefined(attrs.required)){
+            scope.$watch('required', validate);
+        }
+        scope._response = null;
+        scope.$watch('_response', function(){
+            scope.response = scope._response;
+        });
+        scope.$watch('response', function(){
+            scope._response = scope.response;
+        });
+
+
+    }
+
+    return {
+        restrict : 'E',
+        require: ['?^^form'],
+        templateUrl: 'views/directives/mb-captcha.html',
+        scope: {
+            response: '=?ngModel'
+        },
+        link: postLink
+    };
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the 'Software'), to deal
@@ -2908,436 +5163,1779 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc controller
- * @name MbLanguagesCtrl
- * @description Mange list of languages
- * 
- * Manages list of languages
+ * @ngdoc Directives
+ * @name mb-context-menu
+ * @description Set internal md-menu as context menu
  * 
  */
-angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
-	$rootScope, $language, $navigator, FileSaver,
-		/* AngularJS */ $window,
-		/* am-wb     */ $resource) {
-
-	this.selectedLanguage = null;
-
-	/**
-	 * Set current language of app
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @param {object} lang - Key of the language
-	 * @return {promise} to change language
-	 */
-	this.setLanguage = function(lang) {
-		this.selectedLanguage = lang;
-		this.selectedLanguage.map = this.selectedLanguage.map || {};
-		this.addMissedWord();
-	};
-
-	/**
-	 * Adds new language to app configuration
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @return {promise} to add language
-	 */
-	this.addLanguage = function() {
-		$resource.get('/app/languages', {
-			// TODO:
-		}).then(function(language) {
-			language.map = language.map || {};
-			return $language.newLanguage(language);
-		});
-	};
-
-	/**
-	 * Remove language form application
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @param {object} lang - The Language
-	 * @return {promise} to delete language
-	 */
-	this.deleteLanguage = function(lang) {
-		var ctrl = this;
-		$window.confirm('Delete the language?').then(function() {
-			return $language.deleteLanguage(lang);
-		}).then(function() {
-			if (angular.equals(ctrl.selectedLanguage, lang)) {
-				ctrl.selectedLanguage = null;
-			}
-		});
-	};
-
-	/**
-	 * Adds a word to the current language map
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 */
-	this.addWord = function() {
-		var ctrl = this;
-		return $navigator.openDialog({
-			templateUrl: 'views/dialogs/mbl-add-word.html',
-
-		})//
-			.then(function(word) {
-				ctrl.selectedLanguage.map[word.key] = ctrl.selectedLanguage.map[word.key] || word.translate || word.key;
-			});
-	};
-
-	/**
-	 * Remove the key from current language map
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 */
-	this.deleteWord = function(key) {
-		delete this.selectedLanguage.map[key];
-	};
-
-
-	/**
-	 * Adds all missed keywords to the current language
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 */
-	this.addMissedWord = function() {
-		var mids = $rootScope.__app.settings.languageMissIds;
-		var ctrl = this;
-		_.forEach(mids, function(id) {
-			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
-		});
-	}
-
-	/**
-	 * Download the language
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @param {object} lang - The Language
-	 */
-	this.saveAs = function(lang) {
-		var MIME_WB = 'application/weburger+json;charset=utf-8';
-
-		// save  result
-		var dataString = JSON.stringify(lang);
-		var data = new Blob([dataString], {
-			type: MIME_WB
-		});
-		return FileSaver.saveAs(data, 'language.json');
-	};
-
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc Controllers
- * @name MbThemesCtrl
- * @description Dashboard
- * 
- */
-.controller('MbLanguageCtrl', function($scope, $app, $rootScope, $http, $language) {
-
-	function init(){	
-		$http.get('resources/languages.json')//
-		.then(function(res){
-			var data = res ? res.data : {};
-			$scope.languages = data.languages;
-//			$rootScope.app.config.languages = $scope.languages;
-		})
-//		$app.config('languages')//
-//		.then(function(langs){
-//			$scope.languages = langs;
-//			return langs;
-//		})//
-//		.then(function(){
-//			if(!$scope.languages){
-//				$http.get('resources/languages.json')//
-//				.then(function(res){
-//					var data = res ? res.data : {};
-//					$scope.languages = data.languages;
-//					$rootScope.app.config.languages = $scope.languages;
-//				});
-//			}
-//		})//
-		.finally(function(){	
-			var langKey =  $language.use();
-			if($scope.languages){				
-				for(var i=0 ; i<$scope.languages.length ; i++){				
-					if($scope.languages[i].key === langKey){
-						setLanguage($scope.languages[i]);
-						return;
-					}
-				}
-			}
-		});
-	}
-
-	function setLanguage(lang){
-		$scope.myLanguage = lang;
-		// Load langauge
-		$rootScope.app.config.languages = [];
-		$rootScope.app.config.languages.push($scope.myLanguage);
-		// Use langauge		
-		$language.use($scope.myLanguage.key);
-		// Set local
-		$rootScope.app.config.local = $rootScope.app.config.local || {};
-		if(!angular.isObject($rootScope.app.config.local)){
-			$rootScope.app.config.local = {};
-		}
-		$rootScope.app.config.local.language = $scope.myLanguage.key;
-		// if($scope.myLanguage.dir){
-		// 	$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-		// }
-	}
-
-	$scope.setLanguage = setLanguage;
-
-	init();
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-
-
-/**
- * @ngdoc Controllers
- * @name MbLocalCtrl
- * @description Controller to manage local settings
- * 
- */
-.controller('MbLocalCtrl', function($scope, $language, $navigator) {
-
-	function init(){		
-		$language.languages()//
-		.then(function(langs){
-			$scope.languages = langs.items;
-			return $scope.languages;
-		});
-	}
-
-	$scope.goToManage = function(){
-		// XXX: hadi, Following path exist in angular-material-home-language.
-		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
-		$navigator.openPage('preferences/languages/manager');
-	};
-	
-	$scope.languages = [];
-	
-	init();
-});
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name AmdNavigatorDialogCtrl
- * @description # AccountCtrl Controller of the mblowfish-core
- */
-.controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
-	$scope.config = config;
-	$scope.hide = function() {
-		$mdDialog.cancel();
-	};
-	$scope.cancel = function() {
-		$mdDialog.cancel();
-	};
-	$scope.answer = function(a) {
-		$mdDialog.hide(a);
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name MbSettingsCtrl
- * @description Manages settings page
- * 
- * Manages settings pages.
- * 
- */
-.controller('MbOptionsCtrl',function($scope, $options) {
-	// Load settings.
-	$options.pages()
-	.then(function(pages){
-		$scope.tabs = pages.items;
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name MbPreferenceCtrl
- * @description Show a preference page
- * 
- * Display preference view and load its controller.
- * 
- */
-.controller('MbPreferenceCtrl', function($scope, $mbRouteParams, $navigator, $preferences) {
-
-	$preferences.page($mbRouteParams.preferenceId)
-	.then(function(preference) {
-		$scope.preference = preference;
-	}, function() {
-		$navigator.openPage('preferences');
-	});
-	
-	$scope.preferenceId = $mbRouteParams.preferenceId;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name MbPreferencesCtrl
- * @description Manages preferences page
- * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
- * 
- */
-.controller('MbPreferencesCtrl',function($scope, $preferences) {
-
-	/**
-	 * Open a preference page
-	 * 
-	 * @memberof MbPreferencesCtrl
-	 */
-	function openPreference(page) {
-		$preferences.openPage(page);
-	}
-
-	// Load settings
-	$preferences.pages()//
-	.then(function(list) {
-		$scope.preferenceTiles = [];
-		$scope.pages = [];
-		for (var i = 0; i < list.items.length; i++) {
-			var page = list.items[i];
-			if(!page.hidden){ // Filter hidden items
-				$scope.preferenceTiles.push({
-					colspan : 1,
-					rowspan : 1,
-					page : page
+angular.module('mblowfish-core').directive('mbContextMenu', function() {
+	return {
+		restrict: 'A',
+		require: 'mdMenu',
+		scope: true,
+		link: function(scope, element, attrs, menu) {
+			element.bind('contextmenu', function(event) {
+				scope.$apply(function() {
+					menu.open(event);
 				});
-				$scope.pages.push(page);
+			});
+		}
+	};
+});
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+
+	/**
+	 * @ngdoc Directives
+	 * @name mb-datepicker
+	 * @descritpion Date picker
+	 * 
+	 * Select a date based on local.
+	 * 
+	 */
+	.directive('mbDatepicker', function($mdUtil, $rootScope) {
+
+		// **********************************************************
+		// Private Methods
+		// **********************************************************
+		function postLink(scope, element, attr, ctrls) {
+			scope.app = $rootScope.app || {};
+			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+
+			function render() {
+				if (!ngModelCtrl.$modelValue) {
+					return;
+				}
+				var date = moment //
+					.utc(ngModelCtrl.$modelValue) //
+					.local();
+				if (date.isValid()) {
+					scope.date = date;
+					return;
+				}
+				// TODO: maso, 2018: handle invalid date
+			}
+
+			function setValue() {
+				if (!scope.date) {
+					ngModelCtrl.$setViewValue(scope.date);
+					return;
+				}
+				var date = moment(scope.date) //
+					.utc() //
+					.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
+				ngModelCtrl.$setViewValue(date);
+			}
+
+			ngModelCtrl.$render = render;
+			scope.$watch('date', setValue);
+		}
+
+
+		return {
+			replace: false,
+			template: function() {
+				var app = $rootScope.app || {};
+				if (app.calendar === 'Gregorian') {
+					return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+				}
+				return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+			},
+			restrict: 'E',
+			scope: {
+				minDate: '=mbMinDate',
+				maxDate: '=mbMaxDate',
+				placeholder: '@mbPlaceholder',
+				hideIcons: '@?mbHideIcons',
+				dateFormat: '@?mbDateFormat'
+				//		        currentView: '@mdCurrentView',
+				//		        dateFilter: '=mdDateFilter',
+				//		        isOpen: '=?mdIsOpen',
+				//		        debounceInterval: '=mdDebounceInterval',
+				//		        dateLocale: '=mdDateLocale'
+			},
+			require: ['ngModel'],
+			priority: 210, // Run before ngAria
+			link: postLink
+		};
+	});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+/**
+ * @ngdoc Directives
+ * @name mbDynamicForm
+ * @description Get a list of properties and fill them
+ * 
+ * Each property will be managed by an indevisual property editor.
+ */
+.directive('mbDynamicForm', function ($mbResource) {
+
+    /**
+     * Adding preloader.
+     * 
+     * @param scope
+     * @param element
+     * @param attr
+     * @param ctrls
+     * @returns
+     */
+    function postLink(scope, element, attrs, ctrls) {
+        // Load ngModel
+        var ngModelCtrl = ctrls[0];
+        scope.values = {};
+        ngModelCtrl.$render = function () {
+            scope.values = ngModelCtrl.$viewValue || {};
+        };
+
+        scope.modelChanged = function (key, value) {
+            scope.values[key] = value;
+            ngModelCtrl.$setViewValue(scope.values);
+        };
+
+        scope.hasResource = function(prop){
+            return $mbResource.hasPageFor(prop.name);
+        };
+        
+        scope.setValueFor = function(prop){
+            return $mbResource.get(prop.name, {
+                data: prop.defaultValue
+            })
+            .then(function(value){
+                scope.modelChanged(prop.name, value);
+            });
+        };
+    }
+
+    return {
+        restrict: 'E',
+        require: ['ngModel'],
+        templateUrl: 'views/directives/mb-dynamic-form.html',
+        scope: {
+            mbParameters: '='
+        },
+        link: postLink
+    };
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-dynamic-tabs
+ * @description Display tabs dynamically
+ * 
+ * In some case, a dynamic tabs are required. This module add them dynamically.
+ * 
+ */
+.directive('mbDynamicTabs', function($wbUtil, $q, $rootScope, $compile, $controller) {
+	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
+
+
+	/**
+	 * encapsulate template srce with panel widget template.
+	 * 
+	 * @param page
+	 *            setting page config
+	 * @param tempateSrc
+	 *            setting page html template
+	 * @returns encapsulate html template
+	 */
+	function _encapsulatePanel(page, template) {
+		// TODO: maso, 2017: pass all paramter to the setting
+		// panel.
+		return template;
+	}
+
+
+	function link($scope, $element) {
+		// Load pages in scope
+		function loadPage(index){
+			var jobs = [];
+			var pages2 = [];
+			
+			var mbTabs = $scope.mbTabs || [];
+			if(index > mbTabs.length || index < 0 || mbTabs.length == 0){
+				return;
+			}
+			var page = mbTabs[index];
+
+			// 1- Find element
+			var target = $element.find('#' + CHILDREN_AUNCHOR);
+
+			// 2- Clear childrens
+			target.empty();
+
+			// 3- load pages
+			var template = $wbUtil.getTemplateFor(page);
+			if (angular.isDefined(template)) {
+				jobs.push(template.then(function(templateSrc) {
+					templateSrc = _encapsulatePanel(page, templateSrc);
+					var element = angular.element(templateSrc);
+					var scope = $rootScope.$new(false, $scope);
+					scope.page = page;
+					scope.value = $scope.value;
+					if (angular .isDefined(page.controller)) {
+						$controller(page.controller, {
+							$scope : scope,
+							$element : element
+						});
+					}
+					$compile(element)(scope);
+					pages2.push(element);
+				}));
+			}
+
+			$q.all(jobs).then(function() {
+				angular.forEach(pages2, function(element) {
+					target.append(element);
+				});
+			});
+		}
+		
+		// Index of selected page
+		$scope.$watch('pageIndex', function(value){
+			if(value >= 0){
+				loadPage(value);
+			}
+		});
+	}
+
+
+
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: {
+			mbTabs: '='
+		},
+		templateUrl: 'views/directives/mb-dynamic-tabs.html',
+		link: link
+	};
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-error-messages
+ * @description An error message display
+ */
+.directive('mbErrorMessages', function($compile) {
+
+    /*
+     * Link function
+     */
+    function postLink(scope, element){
+
+        /**
+         * Original element which replaced by this directive.
+         */
+        var origin = null;
+
+        scope.errorMessages = function(err){
+            if(!err) {
+                return;
+            }
+            var message = {};
+            message[err.status]= err.statusText;
+            message[err.data.code]= err.data.message;
+            return message;
+        };
+
+        scope.$watch(function(){
+            return scope.mbErrorMessages;
+        }, function(value){	
+            if(value){
+                var tmplStr = 
+                    '<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
+                    '	<div ng-messages-include="views/mb-error-messages.html"></div>' +
+                    '</div>';
+                var el = angular.element(tmplStr);
+                var cmplEl = $compile(el);
+                var myEl = cmplEl(scope);
+                origin = element.replaceWith(myEl);
+            } else if(origin){
+                element.replaceWith(origin);
+                origin = null;
+            }
+        });
+    }
+
+    /*
+     * Directive
+     */
+    return {
+        restrict: 'A',
+        scope:{
+            mbErrorMessages : '='
+        },
+        link: postLink
+    };
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-infinate-scroll
+ * @description Infinet scroll
+ * 
+ * 
+ * Manage scroll of list
+ */
+.directive('mbInfinateScroll', function ($parse, $q, $timeout) {
+    // FIXME: maso, 2017: tipo in diractive name (infinite)
+    function postLink(scope, elem, attrs) {
+        var raw = elem[0];
+
+        /*
+         * Load next page
+         */
+        function loadNextPage() {
+            // Call the callback for the first time:
+            var value = $parse(attrs.mbInfinateScroll)(scope);
+            return $q.when(value)//
+            .then(function (value) {
+                if (value) {
+                    return $timeout(function () {
+                        if (raw.scrollHeight <= raw.offsetHeight) {
+                            return loadNextPage();
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        /*
+         * Check scroll state and update list
+         */
+        function scrollChange() {
+            if (raw.scrollTop + raw.offsetHeight + 5 >= raw.scrollHeight) {
+                loadNextPage();
+            }
+        }
+
+        // adding infinite scroll class
+        elem.addClass('mb-infinate-scroll');
+        elem.on('scroll', scrollChange);
+        loadNextPage();
+    }
+
+    return {
+        restrict : 'A',
+        link : postLink
+    };
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-inline
+ * @description Inline editing field
+ */
+angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbResource) {
+
+    /**
+     * Link data and view
+     */
+	function postLink(scope, elem, attr, ctrls) {
+
+		var ngModel = ctrls[1];
+		var ctrl = ctrls[0];
+
+		scope.myDataModel = {};
+		scope.errorObject = {};
+
+		scope.mbInlineType = attr.mbInlineType;
+		scope.mbInlineLabel = attr.mbInlineLabel;
+		scope.mbInlineDescription = attr.mbInlineDescription;
+
+		scope.$watch(attr.mbInlineEnable, function(value) {
+			scope.mbInlineEnable = value;
+		});
+		scope.$watch(attr.mbInlineSaveButton, function(value) {
+			scope.mbInlineSaveButton = value;
+		});
+		scope.$watch(attr.mbInlineCancelButton, function(value) {
+			scope.mbInlineCancelButton = value;
+		});
+
+		ngModel.$render = function() {
+			ctrl.model = ngModel.$viewValue;
+		};
+
+		/*
+		 * @depricated use ngChange
+		 */
+		ctrl.saveModel = function(d) {
+			ngModel.$setViewValue(d);
+			if (attr.mbInlineOnSave) {
+				scope.$data = d;
+				var value = $parse(attr.mbInlineOnSave)(scope);
+				$q.when(value).then(function() {
+					delete scope.error;
+				}, function(error) {
+					scope.error = error;
+				});
+			}
+		};
+	}
+
+	return {
+		restrict: 'E',
+		transclude: true,
+		replace: true,
+		require: ['mbInline', '^ngModel'],
+		scope: true,
+        /*
+         * @ngInject
+         */
+		controller: function($scope) {
+			this.edit = function() {
+				this.editMode = true;
+			};
+
+			this.setEditMode = function(editMode) {
+				this.editMode = editMode;
+			};
+
+			this.getEditMode = function() {
+				return this.editMode;
+			};
+
+			this.save = function() {
+				this.saveModel(this.model);
+				this.setEditMode(false);
+			};
+
+			this.cancel = function() {
+				this.setEditMode(false);
+			};
+
+
+            /*
+             * Select image url
+             */
+			this.updateImage = function() {
+				var ctrl = this;
+				return $mbResource.get('image', {
+					style: {
+						icon: 'image',
+						title: $scope.mbInlineLabel || 'Select image',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
+					},
+					data: this.model
+				}).then(function(url) {
+					ctrl.model = url;
+					ctrl.save();
+				});
+			};
+
+			/*
+             * Select image url
+             */
+			this.updateFile = function() {
+				var ctrl = this;
+				return $mbResource.get('local-file', {
+					style: {
+						icon: 'file',
+						title: $scope.mbInlineLabel || 'Select file',
+						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
+					},
+					data: this.model
+				}).then(function(file) {
+					ctrl.model = file;
+					ctrl.save();
+				});
+			};
+		},
+		controllerAs: 'ctrlInline',
+		templateUrl: 'views/directives/mb-inline.html',
+		link: postLink
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-navigation-path
+ * @description Display current navigation path of system
+ * 
+ * Navigation path is a menu which is updated by the $navigation service. This menu
+ * show a chain of menu items to show the current path of the system. It is very
+ * usefull to show current path to the users.
+ * 
+ * 
+ */
+.directive('mbNavigationBar' , function($mbActions, $navigator) {
+
+
+	/**
+	 * Init the bar
+	 */
+	function postLink(scope) {
+		scope.isVisible = function(menu){
+			// default value for visible is true
+			if(angular.isUndefined(menu.visible)){
+				return true;
+			}
+			if(angular.isFunction(menu.visible)){
+				return menu.visible();
+			}
+			return menu.visible;
+		};
+		
+		scope.goToHome = function(){
+			$navigator.openPage('');
+		};
+		
+		/*
+		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
+		 */
+		scope.pathMenu = $mbActions.getGroup('navigationPathMenu');
+	}
+	
+    return {
+        restrict : 'E',
+        replace: false,
+        templateUrl: 'views/directives/mb-navigation-bar.html',
+        link: postLink
+    };
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-pagination-bar
+ * @property {Object}    mb-model           -Data model
+ * @property {function}  mb-reload          -Reload function
+ * @property {Array}     mb-sort-keys       -Array
+ * @property {Array}     mb-properties      -Array
+ * @property {Array}     mb-more-actions    -Array
+ * @property {string}    mb-title           -String
+ * @property {string}    mb-icon            -String
+ * @description Pagination bar
+ *
+ * Pagination parameters are a complex data structure and it is hard to manage
+ * it. This is a toolbar to manage the pagination options. mb-reload get a function 
+ * as reload. mb-sort-keys get an array of keys which is used in sort section of 
+ * pagination bar and the sort could be done based on this keys. mb-properties get
+ * an array of keys which is used in filter section of pagination bar. really mb-properties
+ * gets children array of schema of a collection. The controller of collection is 
+ * responsible to get the schema of a collection and pass it's children array to this 
+ * attribute of directive. The directive itself do the required work to set the values
+ * in filter section.
+ * 
+ */
+angular.module('mblowfish-core').directive('mbPaginationBar', function($window, $timeout, $parse) {
+
+	function postLink(scope, element, attrs) {
+
+		var query = {
+			sortDesc: true,
+			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
+			searchTerm: null
+		};
+        /*
+         * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
+         */
+		function __reload() {
+			if (!angular.isDefined(attrs.mbReload)) {
+				return;
+			}
+			$parse(attrs.mbReload)(scope.$parent);
+		}
+        /**
+         * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
+         */
+		function exportData() {
+			if (!angular.isFunction(scope.mbExport)) {
+				return;
+			}
+			scope.mbExport(scope.mbModel);
+		}
+
+		function searchQuery() {
+			scope.mbModel.setQuery(scope.query.searchTerm);
+			__reload();
+		}
+
+		function focusToElementById(id) {
+			$timeout(function() {
+				var searchControl;
+				searchControl = $window.document.getElementById(id);
+				searchControl.focus();
+			}, 50);
+		}
+
+		function setSortOrder() {
+			scope.mbModel.clearSorters();
+			var key = scope.query.sortBy;
+			var order = scope.query.sortDesc ? 'd' : 'a';
+			scope.mbModel.addSorter(key, order);
+			__reload();
+		}
+
+        /*
+         * Add filter to the current filters
+         */
+		function addFilter() {
+			if (!scope.filters) {
+				scope.filters = [];
+			}
+			scope.filters.push({
+				key: '',
+				value: ''
+			});
+		}
+
+		function putFilter(filter, index) {
+			scope.filters[index] = {
+				key: filter.key,
+				value: filter.value
+			};
+		}
+
+		function applyFilter() {
+			scope.reload = false;
+			scope.mbModel.clearFilters();
+			if (scope.filters && scope.filters.length > 0) {
+				scope.filters.forEach(function(filter) {
+					if (filter.key !== '' && filter.value && filter.value !== '') {
+						scope.mbModel.addFilter(filter.key, filter.value);
+						scope.reload = true;
+					}
+				});
+			}
+			if (scope.reload) {
+				__reload();
 			}
 		}
-	});
-	
-	$scope.openPreference = openPreference;
+
+        /*
+         * Remove filter to the current filters
+         */
+		function removeFilter(filter, index) {
+			Object.keys(scope.mbModel.filterMap).forEach(function(key) {
+				if (key === filter.key) {
+					scope.mbModel.removeFilter(scope.filters[index].key);
+				}
+			});
+			scope.filters.splice(index, 1);
+			if (scope.filters.length === 0) {
+				__reload();
+			}
+		}
+
+		function setFilterValue(value, index) {
+			scope.filterValue = value;
+			putFilter(index);
+		}
+
+
+		//Fetch filters from children array of collection schema
+		function fetchFilterKeys() {
+			scope.mbProperties.forEach(function(object) {
+				scope.filterKeys.push(object.name);
+			});
+		}
+
+		scope.runAction = function(action, $event) {
+			action.exec($event);
+		};
+
+		scope.showBoxOne = false;
+		scope.focusToElement = focusToElementById;
+		// configure scope:
+		scope.searchQuery = searchQuery;
+		scope.setSortOrder = setSortOrder;
+		scope.addFilter = addFilter;
+		scope.putFilter = putFilter;
+		scope.applyFilter = applyFilter;
+		scope.removeFilter = removeFilter;
+		//scope.setFilterKey = setFilterKey;
+		scope.setFilterValue = setFilterValue;
+		scope.__reload = __reload;
+		scope.query = query;
+		if (angular.isFunction(scope.mbExport)) {
+			scope.exportData = exportData;
+		}
+		if (typeof scope.mbEnableSearch === 'undefined') {
+			scope.mbEnableSearch = true;
+		}
+
+		scope.$watch('mbProperties', function(mbProperties) {
+			if (angular.isArray(mbProperties)) {
+				scope.filterKeys = [];
+				fetchFilterKeys();
+			}
+		});
+	}
+
+	return {
+		restrict: 'E',
+		templateUrl: 'views/directives/mb-pagination-bar.html',
+		scope: {
+            /*
+             * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
+             */
+			mbModel: '=',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
+             * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
+             */
+			mbReload: '@?',
+            /*
+             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
+             * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
+             */
+			mbExport: '=',
+            /*
+             * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
+             * بشن.
+             */
+			mbSortKeys: '=',
+            /*
+             * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
+             */
+			mbProperties: '=?',
+
+			/* titles corresponding to sort keys */
+			mbSortKeysTitles: '=?',
+
+            /*
+             * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+             */
+			mbMoreActions: '=',
+
+			mbTitle: '@?',
+			mbIcon: '@?',
+
+			mbEnableSearch: '=?'
+		},
+		link: postLink
+	};
 });
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+	/**
+	 *
+	 */
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, $translate, QueryParameter) {
+
+	    var qp = new QueryParameter();
+
+	    function postLink(scope, elem, attrs, ctrls) {
+		var ngModelCtrl = ctrls[0];
+		var ctrl = this;
+		ngModelCtrl.$render = function () {
+		    ctrl.currency = ngModelCtrl.$modelValue;
+		    if (ctrl.currency) {
+			ctrl.loadGates();
+		    }
+		};
+
+		this.loadGates = function () {
+		    if (this.loadingGates) {
+			return;
+		    }
+		    this.loadingGates = true;
+		    qp.setFilter('currency', this.currency);
+		    var ctrl = this;
+		    return $bank.getBackends(qp)//
+			    .then(function (gatesPag) {
+				ctrl.gates = gatesPag.items;
+				return gatesPag;
+			    })//
+			    .finally(function () {
+				ctrl.loadingGates = false;
+			    });
+		};
+
+		//function pay(backend, discountCode){
+		this.pay = function (backend, discountCode) {
+		    if (this.paying) {
+			return;
+		    }
+		    this.paying = true;
+		    // create receipt and send to bank receipt page.
+		    var data = {
+			backend: backend.id,
+			callback: attrs.mbCallbackUrl ? attrs.mbCallbackUrl : $location.absUrl()
+		    };
+		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
+			data.discount_code = discountCode;
+		    }
+		    var ctrl = this;
+		    $parse(attrs.mbPay)(scope.$parent, {
+			$backend: backend,
+			$discount: discountCode,
+			$callback: data.callback,
+			$data: data
+		    })//
+			    .then(function (receipt) {
+				ctrl.paying = false;
+				$navigator.openPage('bank/receipts/' + receipt.id);
+			    }, function (error) {
+				ctrl.paying = false;
+				alert($translate.instant(error.data.message));
+			    });
+		};
+
+//		function checkDiscount(code){
+//			$discount.discount(code)//
+//			.then(function(discount){
+//				if(typeof discount.validation_code === 'undefined' || discount.validation_code === 0){
+//					$scope.discount_message = 'discount is valid';
+//				}else{
+//					switch(discount.validation_code){
+//					case 1:
+//						$scope.discount_message = 'discount is used before';
+//						break;
+//					case 2: 
+//						$scope.discount_message = 'discount is expired';
+//						break;
+//					case 3: 
+//						// discount is not owned by user.
+//						$scope.discount_message = 'discount is not valid';
+//						break;
+//					}
+//				}
+//			}, function(error){
+//				$scope.error = error.data.message;
+//				if(error.status === 404){				
+//					$scope.discount_message = 'discount is not found';
+//				}else{
+//					$scope.discount_message = 'unknown error while get discount info';
+//				}
+//			});
+//		}
+
+		
+
+		scope.ctrl = this;
+	    }
+
+	    return {
+		replace: true,
+		restrict: 'E',
+		templateUrl: 'views/directives/mb-pay.html',
+		scope: {
+		    mbCallbackUrl: '@?',
+		    mbPay: '@',
+		    mbDiscountEnable: '='
+		},
+		link: postLink,
+		require: ['ngModel']
+	    };
+	});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-preloading
+ * @description Show a preloading of a module
+ * 
+ * The mb-preload-animate is added to element automatically to add user
+ * animation.
+ * 
+ * The class mb-preload is added if the value of the directive is true.
+ * 
+ * @example To add preload:
+ * 
+ * <pre><code>
+ *  	&lt;div mb-preload=&quot;preloadState&quot;&gt; DIV content &lt;/div&gt;
+ * </code></pre>
+ * 
+ * 
+ * User can define a custom class to add at preload time.
+ * 
+ * @example Custom preload class
+ * 
+ * <pre><code>
+ *  	&lt;div mb-preload=&quot;preloadState&quot; mb-preload-class=&quot;my-class&quot;&gt; DIV content &lt;/div&gt;
+ * </code></pre>
+ * 
+ */
+.directive('mbPreloading', function(/*$animate*/) {
+	var PRELOAD_CLASS = 'mb-preload';
+	var PRELOAD_ANIMATION_CLASS = 'mb-preload-animate';
+
+	/*
+	 * Init element for preloading
+	 */
+	function initPreloading(scope, element/*, attr*/) {
+		element.addClass(PRELOAD_ANIMATION_CLASS);
+	}
+
+	/*
+	 * Remove preloading
+	 */
+	function removePreloading(scope, element, attr) {
+		if (attr.mbPreloadingClass) {
+			element.addClass(attr.mbPreloadingClass);
+		}
+		element.removeClass(PRELOAD_CLASS);
+	}
+
+	/*
+	 * Adding preloading
+	 */
+	function addPreloading(scope, element, attr) {
+		if (attr.mbPreloadingClass) {
+			element.addClass(attr.mbPreloadingClass);
+		}
+		element.addClass(PRELOAD_CLASS);
+	}
+
+	/*
+	 * Post linking
+	 */
+	function postLink(scope, element, attr) {
+		initPreloading(scope, element, attr);
+		scope.$watch(function(){
+			return scope.$eval(attr.mbPreloading);
+		}, function(value) {
+			if (!value) {
+				removePreloading(scope, element, attr);
+			} else {
+				addPreloading(scope, element, attr);
+			}
+		});
+	}
+
+	return {
+		restrict : 'A',
+		link : postLink
+	};
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-titled-block
+ * @descritpion Title block
+ *
+ *
+ */
+angular.module('mblowfish-core').directive('mbTitledBlock', function() {
+	return {
+		replace: true,
+		restrict: 'E',
+		transclude: true,
+		scope: {
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?',
+			mbMoreActions: '='
+		},
+		/*
+		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
+		 */
+
+		templateUrl: 'views/directives/mb-titled-block.html'
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name mb-user-toolbar
+ * @description User toolbar
+ * 
+ * Display tree menu
+ * 
+ */
+.directive('mbUserToolbar', function($mbActions) {
+	return {
+		restrict: 'E',
+		replace: true,
+		templateUrl: 'views/directives/mb-user-toolbar.html',
+		link: function($scope) {
+			$scope.menu = $actions.group('mb.user');
+		},
+		controller : 'MbAccountCtrl'
+	};
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name ngSrcError
+ * @description Handle ngSrc error
+ * 
+ * 
+ * For example if you are about to set image of a user
+ * 
+ * @example
+ * TO check if the directive works:
+ ```html
+ <img 
+    alt="Test avatar" 
+    ng-src="/this/path/dose/not/exist"
+    ng-src-error="https://www.gravatar.com/avatar/{{ 'avatar id' | wbsha1}}?d=identicon&size=32">
+ ```
+ * @example
+ * In this example we show an account avatar or a random from avatar generator
+ ```html
+  <img 
+      ng-src="/api/v2/user/accounts/{{account.id}}/avatar"
+      ng-src-error="https://www.gravatar.com/avatar/{{account.id}}?">
+  ```
+ */
+angular.module('mblowfish-core').directive('ngSrcError', function() {
+	return {
+		link: function(scope, element, attrs) {
+			element.bind('error', function() {
+				if (attrs.src !== attrs.ngSrcError) {
+					attrs.$set('src', attrs.ngSrcError);
+				}
+			});
+		}
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name wb-on-dragstart
+ * @description Call an action on dragstart
+ * 
+ */
+.directive('wbOnDragstart', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+            element.bind('dragstart', function(event, data) {
+                // call the function that was passed
+                if (attrs.wbOnDragstart) {
+                    scope.$eval(attrs.wbOnDragstart, {
+                        $event: event,
+                        $element: element,
+                        $data: data
+                    });
+                }
+            });
+        }
+    };
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name wb-on-enter
+ * @description Call an action on ENTER
+ * 
+ * ```
+ * <input
+ *  wb-on-enter="toast('ESC')">
+ * ```
+ */
+.directive('wbOnEnter', function() {
+    return function(scope, elm, attr) {
+        elm.bind('keypress', function(e) {
+            if (e.keyCode === 13) {
+                scope.$apply(attr.wbOnEnter);
+            }
+        });
+    };
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name wb-on-error
+ * @description Call an action on error
+ * 
+ * This directive is used to run an action on error of an element
+ * 
+ * ```
+ * <img
+ * 	wb-on-error="toast('image is not loaded')"
+ * 	href="image/path">
+ * ```
+ */
+.directive('wbOnError', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+            element.bind('error', function() {
+                // call the function that was passed
+                if (attrs.wbOnError) {
+                    scope.$apply(attrs.wbOnError);
+                }
+            });
+        }
+    };
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name wb-on-esc
+ * @description Call an action on ESC
+ * 
+ * ```
+ * <input
+ *  wb-on-esc="toast('ESC')">
+ * ```
+ */
+.directive('wbOnEsc', function() {
+    return function(scope, elm, attr) {
+        elm.bind('keydown', function(e) {
+            if (e.keyCode === 27) {
+                scope.$apply(attr.wbOnEsc);
+            }
+        });
+    };
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Directives
+ * @name wb-on-load
+ * @description Call an action on load
+ * 
+ * This directive is used to run an action on load of an element. For exmaple
+ * use to show alert on load of image:
+ * 
+ * ```
+ * <img
+ * 	wb-on-load="toast('image is loaded')"
+ * 	href="image/path">
+ * ```
+ */
+.directive('wbOnLoad', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs) {
+            element.bind('load', function(event, data) {
+                // call the function that was passed
+                if (attrs.wbOnLoad) {
+                    scope.$eval(attrs.wbOnLoad, {
+                        $event: event,
+                        $element: element,
+                        $data: data
+                    });
+                }
+            });
+        }
+    };
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * @ngdoc Directives
+ * @name mb-user-menu
+ * @restrict E
+ * @description Display global user menu
+ * 
+ * Load current user action into the scope. It is used to show user menu
+ * in several parts of the system.
+ */
+angular.module('mblowfish-core').directive('mbUserMenu', function($mbAccount, $mdSidenav) {
+	/**
+	 * Post link 
+	 */
+	function postLink($scope) {
+		// maso, 2017: Get user menu
+		$scope.menu = $actions.group('mb.user');
+		$scope.logout = $mbAccount.logout;
+		$scope.settings = function() {
+			return $mdSidenav('settings').toggle();
+		};
+	}
+
+	return {
+		restrict: 'E',
+		replace: true,
+		scope: true,
+		templateUrl: 'views/directives/mb-user-menu.html',
+		link: postLink,
+		controller: 'MbAccountCtrl'
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Controllers
+@name MbAccountCtrl
+@description Manages account of users.
+
+Manages current user action:
+
+- login
+- logout
+- recover pass
+- login with CAS
+
+@param {string} isProcessingLogout True if the controller is wait for logout
+@param {string} isProcessingLogin True if the controller is wait for login
+
+ */
+mblowfish.controller('MbAccountContainerCtrl', function(
+	/* Angularjs */ $scope, $rootScope, $translate, $window, $usr,
+	/* MBlowfish */ $mbAccount, $mbLogger) {
+
+
+	// support old systems
+	var ctrl = this;
+
+
+	/**
+	 Call login process for current user
+	 
+	 @memberof MbAccountContainerCtrl
+	 @name login
+	 @param {object} cridet Username, password, token and others required in login
+	 @param {string} cridet.login Login name of the user
+	 @param {stirng} cridet.password Password ot the user
+	 @param {stirng} cridet.token Token to use in the login
+	 @param {stirng} cridet.captcha captcah to send
+	 @returns {promiss} TO do the login
+	 */
+	function login(cridet) {
+		if (ctrl.isProcessingLogin) {
+			return false;
+		}
+		return ctrl.isProcessingLogin = $mbAccount.login(cridet)
+			.catch(function(error) {
+				// TODO: maso, 2020: chanage state to error
+			})
+			.finally(function() {
+				delete ctrl.isProcessingLogin;
+			});
+	}
+
+	function logout() {
+		if (ctrl.isProcessingLogout) {
+			return false;
+		}
+		return ctrl.isProcessingLogout = $mbAccount.logout()//
+			.catch(function(error) {
+				// TODO: maso, 2020: chanage state to error
+			})
+			.finally(function() {
+				delete ctrl.isProcessingLogout;
+			});
+	}
+
+	/**
+	 Creates a new request to recover password
+	 
+	 @name load
+	 @memberof MbAccountCtrl
+	 @returns {promiss} to change password
+	 */
+	function recoverPasswrodRequest(data) {
+		if (ctrl.changingPassword) {
+			return;
+		}
+		ctrl.changingPassword = true;
+		var param = {
+			'old': data.oldPass,
+			'new': data.newPass,
+			'password': data.newPass
+		};
+		// return $usr.resetPassword(param)//
+		$usr.putCredential(param)
+			.then(function() {
+				$mbAccount.logout();
+				ctrl.changePassState = 'success';
+				$scope.changePassMessage = null;
+				toast($translate.instant('Password is changed successfully. Login with new password.'));
+			}, function(error) {
+				ctrl.changePassState = 'fail';
+				$scope.changePassMessage = $mbLogger.errorMessage(error, form);
+				alert($translate.instant('Failed to change the password.'));
+			})//
+			.finally(function() {
+				ctrl.changingPassword = false;
+			});
+	}
+
+
+	function isAnonymous() {
+		return $mbAccount.isAnonymous();
+	}
+
+	//-----------------------------------------------------------------
+	// END
+	//-----------------------------------------------------------------
+	ctrl.login = login;
+	ctrl.logout = logout;
+
+	ctrl.isAnonymous = isAnonymous;
+});
+
+
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3526,6 +7124,2405 @@ angular.module('mblowfish-core')
         }
 
     });
+
+});
+
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core')
+/*
+ * 
+ */
+.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
+
+    /*
+     * Extends collection controller
+     */
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
+        $scope : $scope
+    }));
+
+    // Override the schema function
+    this.getModelSchema = function () {
+        return $cms.contentSchema();
+    };
+
+    // get contents
+    this.getModels = function (parameterQuery) {
+        return $cms.getContents(parameterQuery);
+    };
+
+    // get a content
+    this.getModel = function (id) {
+        return $cms.getContent(id);
+    };
+
+    // delete account
+    this.deleteModel = function (content) {
+        return $cms.deleteContent(content.id);
+    };
+
+    /**
+     * Uploads a file on the server.
+     * 
+     * To upload the file there are two actions:
+     * 
+     * <ul>
+     * <li>create a new content</li>
+     * <li>upload content value</li>
+     * </ul>
+     * 
+     * This function change the state of the controller into the
+     * working.
+     */
+    this.uploadFile = function (content, file) {
+        /*
+         * upload file
+         */
+        function uploadContentValue(newContent) {
+            if (file) {
+                return newContent.uploadValue(file)//
+                .then(function () {
+                    return newContent;
+                });
+            }
+            return $q.resolve(newContent);
+        }
+
+        // XXX: maso, 2018: check content is not anonymous
+        return $cms.putContent(content)//
+        .then(uploadContentValue);
+    }
+
+    this.init({
+        eventType: '/cms/contents'
+    });
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core')
+/*
+ * 
+ */
+.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
+
+    /*
+     * Extends collection controller
+     */
+    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
+        $scope : $scope
+    }));
+
+    // Override the schema function
+    this.getModelSchema = function () {
+        return $cms.termTaxonomySchema();
+    };
+
+    // get contents
+    this.getModels = function (parameterQuery) {
+        return $cms.getTermTaxonomies(parameterQuery);
+    };
+
+    // get a content
+    this.getModel = function (id) {
+        return $cms.getTermTaxonomy(id);
+    };
+
+    // delete account
+    this.deleteModel = function (content) {
+        return $cms.deleteTermTaxonomy(content.id);
+    };
+
+    this.init({
+        eventType: '/cms/term-taxonomies'
+    });
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+angular.module('mblowfish-core')
+
+/**
+ * @ngdoc Controllers
+ * @name MbHelpCtrl
+ * @description Help page controller
+ * 
+ * Watches total system and update help data.
+ * 
+ */
+.controller('MbHelpCtrl', function($scope, $rootScope, $mbRoute, $http, $translate, $help, $wbUtil) {
+    $rootScope.showHelp = false;
+    var lastLoaded;
+
+
+    /**
+     * load help content for the item
+     * 
+     * @name loadHelpContent
+     * @memberof MbHelpCtrl
+     * @params item {object} an item to display help for
+     */
+    function _loadHelpContent(item) {
+        if($scope.helpLoading){
+            // maso, 2018: cancle old loading
+            return $scope.helpLoading;
+        }
+        var path = $help.getHelpPath(item);
+        // load content
+        if(path && path !== lastLoaded){
+            $scope.helpLoading = $http.get(path) //
+            .then(function(res) {
+                $scope.helpContent = $wbUtil.clean(res.data);
+                lastLoaded = path;
+            })//
+            .finally(function(){
+                $scope.helpLoading = false;
+            });
+        }
+        return $scope.helpLoading;
+    }
+
+    $scope.closeHelp = function(){
+        $rootScope.showHelp = false;
+    };
+
+    /*
+     * If user want to display help, content will be loaded.
+     */
+    $scope.$watch('showHelp', function(value){
+        if(value) {
+            return _loadHelpContent();
+        }
+    });
+
+    /*
+     * Watch for current item in help service
+     */
+    $scope.$watch(function(){
+        return $help.currentItem();
+    }, function() {
+        if ($rootScope.showHelp) {
+            _loadHelpContent();
+        }
+    });
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ @ngdoc Editor
+ @name MbIFrameContainerCtrl
+ @description A page preview editor
+ 
+ */
+angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($sce, $state) {
+
+	// Load secure path
+	this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
+
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+angular.module('mblowfish-core').run(function(
+	/* AngularJs */ $window,
+	/* Mblowfish */ $mbEditor, $mbActions, $mbToolbar) {
+
+	//
+	//  $mbEditor: manages all editor of an application. An editor has a dynamic
+	// address and there may be multiple instance of it at the same time but with
+	// different parameter.
+	//
+	// There are serveral editor registered here to cover some of our system 
+	// functionalities such as:
+	//
+	// - Open a new URL
+	//
+	$mbEditor.registerEditor('/mb/iframe/:url*', {
+		title: 'IFrame',
+		description: 'Open external page',
+		controller: 'MbIFrameContainerCtrl',
+		controllerAs: 'ctrl',
+		template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
+		groups: ['Utilities']
+	});
+
+	$mbActions.addAction('mb.iframe.open', {
+		title: 'Open URL',
+		description: 'Open a url',
+		icon: 'open_in_browser',
+		/* @ngInject */
+		action: function($location) {
+			$window.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
+				.then(function(input) {
+					$location.url('/mb/iframe/' + input);
+					// $mbEditor.open('/mb/iframe/' + input, {param1: 'value1'});
+				});
+		}
+	});
+
+	$mbToolbar.addToolbar('/mb/iframe', {
+		items: ['mb.iframe.open']
+	});
+
+//	//-----------------------------------------------------------------------
+//	//  Adds iframe toolbar into the main toolbar group. Note that, this 
+//	// must handle in the final application.
+//	//-----------------------------------------------------------------------
+//	$mbToolbar.getToolbarGroup()
+//		.addToolbar('/mb/iframe');
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.config(function($mbPreferencesProvider) {
+	// Pages
+	$mbPreferencesProvider
+		.addPage('local', {
+			title: 'local',
+			icon: 'language',
+			templateUrl: 'views/preferences/mb-local.html',
+			controller: 'MbLocalCtrl',
+			controllerAs: 'ctrl'
+		})
+		.addPage('brand', {
+			title: 'Branding',
+			icon: 'copyright',
+			templateUrl: 'views/preferences/mb-brand.html',
+			// controller : 'settingsBrandCtrl',
+			controllerAs: 'ctrl'
+		});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+
+/**
+ * @ngdoc Services
+ * @name $language
+ * @description 
+ * Manages languages of the application.
+ * This service provide functionality to switch between multiple languages.
+ * Also provides functionlity to manage languages (add, remove or edit translations).
+ * 
+ */
+angular.module('mblowfish-core').service('$language', function($rootScope, $q, $translate) {
+
+    /**
+     * Returns language determined by given key.
+     * 
+     * @memberof $language
+     * @param {string} language key - Key of the language
+     * @return {object}  Returns language with given key. 
+     * @Returns 'undefined' if language does not exist or is not loaded yet.
+     */
+	function language(key) {
+		var languages = $rootScope.app.config.languages;
+		if (!languages || !languages.length) {
+			return undefined;
+		}
+		for (var i = 0; i < languages.length; i++) {
+			if (languages[i].key === key) {
+				return languages[i];
+			}
+		}
+		return undefined;
+	}
+
+    /**
+     * Returns list of defined and loaded languages.
+     * 
+     * @memberof $language
+     * @return {promise<Array>} of languages
+     */
+	function languages() {
+		var langs = $rootScope.app.config.languages;
+		var res = { items: langs || [] };
+		return $q.when(res);
+
+
+		//      var deferred = $q.defer();
+		//deferred.resolve(res);
+		//      return deferred.promise;
+	}
+
+    /**
+     * Adds a new language
+     * 
+     * @param {object} lang - Object contain information of a language.
+     * 		A language object would contain following properties:
+     * 
+     * 		- key: a key to determin language (for example fa, en and so on)
+     * 		- title: title for language (for example Persian, English, ...)
+     * 		- dir: direction of language ('ltr' or 'rtl')
+     * 		- map: translation table of language contains some key-values. 
+     * 
+     * @memberof $language
+     */
+	function newLanguage(lang) {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return $q.reject('not allowed');
+		}
+		if (!$rootScope.app.config.languages) {
+			$rootScope.app.config.languages = [];
+		} else {
+			var languages = $rootScope.app.config.languages;
+			for (var i = 0; i < languages.length; i++) {
+				if (lang.key === languages[i].key) {
+					return $q.reject('Sorry! Languages with the same key are not allowed.');
+				}
+			}
+		}
+		$rootScope.app.config.languages.push(lang);
+		$translate.refresh(lang.key);
+		return $q.resolve(lang);
+	}
+
+    /**
+     * Delete a language
+     * 
+     * @memberof $language
+     * @param {object|string} lang - The Language to delete or key of language to delete
+     * @return {promise} promise of deleted language
+     */
+	function deleteLanguage(lang) {
+		if (!$rootScope.__account.permissions.tenant_owner) {
+			return $q.reject('not allowed');
+		}
+		var languages = $rootScope.app.config.languages;
+		if (!languages || !languages.length) {
+			return $q.reject('Not found');
+		}
+		var index = -1;
+		if (angular.isString(lang)) {
+			// lang is key of language
+			for (var i = 0; i < languages.length; i++) {
+				if (languages[i].key === lang) {
+					index = i;
+					break;
+				}
+			}
+		} else {
+			index = languages.indexOf(lang);
+		}
+
+		if (index !== -1) {
+			languages.splice(index, 1);
+			return $q.resolve(lang);
+		}
+		return $q.reject('Not found');
+	}
+
+    /**
+     * Returns the language key of language that is currently loaded asynchronously.
+     * 
+     * @memberof $language
+     * @return {string} language key
+     */
+	function proposedLanguage() {
+		return $translate.proposedLanguage();
+	}
+
+    /**
+     * Tells angular-translate which language to use by given language key. This 
+     * method is used to change language at runtime. It also takes care of 
+     * storing the language key in a configured store to let your app remember 
+     * the choosed language.
+     *
+     * When trying to 'use' a language which isn't available it tries to load it 
+     * asynchronously with registered loaders.
+     * 
+     * Returns promise object with loaded language file data or string of the 
+     * currently used language.
+     * 
+     * If no or a falsy key is given it returns the currently used language key. 
+     * The returned string will be undefined if setting up $translate hasn't 
+     * finished.
+     * 
+     * @memberof $language
+     * @param {string} key - Feature description.Language key
+     * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
+     * 
+     */
+	function use(key) {
+		return $translate.use(key);
+	}
+
+    /**
+     * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
+     * the module will drop all existent translation tables and load new version of those which
+     * are currently in use.
+     *
+     * Refresh means that the module will drop target translation table and try to load it again.
+     *
+     * In case there are no loaders registered the refresh() method will throw an Error.
+     *
+     * If the module is able to refresh translation tables refresh() method will broadcast
+     * $translateRefreshStart and $translateRefreshEnd events.
+     *
+     * @example
+     * // this will drop all currently existent translation tables and reload those which are
+     * // currently in use
+     * $translate.refresh();
+     * // this will refresh a translation table for the en_US language
+     * $translate.refresh('en_US');
+     *
+     * @param {string} langKey A language key of the table, which has to be refreshed
+     *
+     * @return {promise} Promise, which will be resolved in case a translation tables refreshing
+     * process is finished successfully, and reject if not.
+     */
+	function refresh(key) {
+		return $translate.refresh(key);
+	}
+
+    /*
+     * Service struct
+     */
+	return {
+		language: language,
+		languages: languages,
+		newLanguage: newLanguage,
+		deleteLanguage: deleteLanguage,
+		proposedLanguage: proposedLanguage,
+		refresh: refresh,
+		use: use
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc controller
+ * @name MbLanguagesCtrl
+ * @description Mange list of languages
+ * 
+ * Manages list of languages
+ * 
+ */
+angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
+	$rootScope, $language, $navigator, FileSaver,
+		/* AngularJS */ $window,
+		/* am-wb     */ $mbResource) {
+
+	this.selectedLanguage = null;
+
+	/**
+	 * Set current language of app
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - Key of the language
+	 * @return {promise} to change language
+	 */
+	this.setLanguage = function(lang) {
+		this.selectedLanguage = lang;
+		this.selectedLanguage.map = this.selectedLanguage.map || {};
+		this.addMissedWord();
+	};
+
+	/**
+	 * Adds new language to app configuration
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @return {promise} to add language
+	 */
+	this.addLanguage = function() {
+		$mbResource.get('/app/languages', {
+			// TODO:
+		}).then(function(language) {
+			language.map = language.map || {};
+			return $language.newLanguage(language);
+		});
+	};
+
+	/**
+	 * Remove language form application
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 * @return {promise} to delete language
+	 */
+	this.deleteLanguage = function(lang) {
+		var ctrl = this;
+		$window.confirm('Delete the language?').then(function() {
+			return $language.deleteLanguage(lang);
+		}).then(function() {
+			if (angular.equals(ctrl.selectedLanguage, lang)) {
+				ctrl.selectedLanguage = null;
+			}
+		});
+	};
+
+	/**
+	 * Adds a word to the current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addWord = function() {
+		var ctrl = this;
+		return $navigator.openDialog({
+			templateUrl: 'views/dialogs/mbl-add-word.html',
+
+		})//
+			.then(function(word) {
+				ctrl.selectedLanguage.map[word.key] = ctrl.selectedLanguage.map[word.key] || word.translate || word.key;
+			});
+	};
+
+	/**
+	 * Remove the key from current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.deleteWord = function(key) {
+		delete this.selectedLanguage.map[key];
+	};
+
+
+	/**
+	 * Adds all missed keywords to the current language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addMissedWord = function() {
+		var mids = $rootScope.__app.settings.languageMissIds;
+		var ctrl = this;
+		_.forEach(mids, function(id) {
+			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
+		});
+	}
+
+	/**
+	 * Download the language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 */
+	this.saveAs = function(lang) {
+		var MIME_WB = 'application/weburger+json;charset=utf-8';
+
+		// save  result
+		var dataString = JSON.stringify(lang);
+		var data = new Blob([dataString], {
+			type: MIME_WB
+		});
+		return FileSaver.saveAs(data, 'language.json');
+	};
+
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbThemesCtrl
+ * @description Dashboard
+ * 
+ */
+mblowfish.controller('MbLanguageCtrl', function($scope, $rootScope, $http, $language) {
+
+	function init() {
+		$http.get('resources/languages.json')//
+			.then(function(res) {
+				var data = res ? res.data : {};
+				$scope.languages = data.languages;
+				//			$rootScope.app.config.languages = $scope.languages;
+			})
+			//		$mbSettings.config('languages')//
+			//		.then(function(langs){
+			//			$scope.languages = langs;
+			//			return langs;
+			//		})//
+			//		.then(function(){
+			//			if(!$scope.languages){
+			//				$http.get('resources/languages.json')//
+			//				.then(function(res){
+			//					var data = res ? res.data : {};
+			//					$scope.languages = data.languages;
+			//					$rootScope.app.config.languages = $scope.languages;
+			//				});
+			//			}
+			//		})//
+			.finally(function() {
+				var langKey = $language.use();
+				if ($scope.languages) {
+					for (var i = 0; i < $scope.languages.length; i++) {
+						if ($scope.languages[i].key === langKey) {
+							setLanguage($scope.languages[i]);
+							return;
+						}
+					}
+				}
+			});
+	}
+
+	function setLanguage(lang) {
+		$scope.myLanguage = lang;
+		// Load langauge
+		$rootScope.app.config.languages = [];
+		$rootScope.app.config.languages.push($scope.myLanguage);
+		// Use langauge		
+		$language.use($scope.myLanguage.key);
+		// Set local
+		$rootScope.app.config.local = $rootScope.app.config.local || {};
+		if (!angular.isObject($rootScope.app.config.local)) {
+			$rootScope.app.config.local = {};
+		}
+		$rootScope.app.config.local.language = $scope.myLanguage.key;
+		// if($scope.myLanguage.dir){
+		// 	$rootScope.app.config.local.dir = $scope.myLanguage.dir;
+		// }
+	}
+
+	$scope.setLanguage = setLanguage;
+
+	init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core')
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbLocalCtrl
+ * @description Controller to manage local settings
+ * 
+ */
+.controller('MbLocalCtrl', function($scope, $language, $navigator) {
+
+	function init(){		
+		$language.languages()//
+		.then(function(langs){
+			$scope.languages = langs.items;
+			return $scope.languages;
+		});
+	}
+
+	$scope.goToManage = function(){
+		// XXX: hadi, Following path exist in angular-material-home-language.
+		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
+		$navigator.openPage('preferences/languages/manager');
+	};
+	
+	$scope.languages = [];
+	
+	init();
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($rootScope) {
+	// has to return a function which gets a tranlation ID
+	return function(translationID) {
+//		var app = $rootScope.__app;
+//		//        var key = $language.use()
+//		if (!app.settings.languageMissIds) {
+//			app.settings.languageMissIds = [];
+//		}
+//		var index = app.settings.languageMissIds.indexOf(translationID);
+//		if (index === -1) {
+//			app.settings.languageMissIds.push(translationID);
+//		}
+	};
+});
+///*
+// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+// * 
+// * Permission is hereby granted, free of charge, to any person obtaining a copy
+// * of this software and associated documentation files (the "Software"), to deal
+// * in the Software without restriction, including without limitation the rights
+// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// * copies of the Software, and to permit persons to whom the Software is
+// * furnished to do so, subject to the following conditions:
+// * 
+// * The above copyright notice and this permission notice shall be included in all
+// * copies or substantial portions of the Software.
+// * 
+// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// * SOFTWARE.
+// */
+//'use strict';
+//
+///*
+// * Adds language resources
+// * 
+// */
+//angular.module('mblowfish-core').run(function($language, 
+//		/* angularjs */ $rootScope, $timeout, $q, $http,
+//		/* am-wb-core */ $mbResource) {
+//
+//	var languages = [
+//		{
+//			key: 'ab',
+//			title: 'Abkhaz'
+//		},
+//		{
+//			key: 'aa',
+//			title: 'Afar'
+//		},
+//		{
+//			key: 'af',
+//			title: 'Afrikaans'
+//		},
+//		{
+//			key: 'ak',
+//			title: 'Akan'
+//		},
+//		{
+//			key: 'sq',
+//			title: 'Albanian'
+//		},
+//		{
+//			key: 'am',
+//			title: 'Amharic'
+//		},
+//		{
+//			key: 'ar',
+//			title: 'Arabic'
+//		},
+//		{
+//			key: 'an',
+//			title: 'Aragonese'
+//		},
+//		{
+//			key: 'hy',
+//			title: 'Armenian'
+//		},
+//		{
+//			key: 'as',
+//			title: 'Assamese'
+//		},
+//		{
+//			key: 'av',
+//			title: 'Avaric'
+//		},
+//		{
+//			key: 'ae',
+//			title: 'Avestan'
+//		},
+//		{
+//			key: 'ay',
+//			title: 'Aymara'
+//		},
+//		{
+//			key: 'az',
+//			title: 'Azerbaijani'
+//		},
+//		{
+//			key: 'bm',
+//			title: 'Bambara'
+//		},
+//		{
+//			key: 'ba',
+//			title: 'Bashkir'
+//		},
+//		{
+//			key: 'eu',
+//			title: 'Basque'
+//		},
+//		{
+//			key: 'be',
+//			title: 'Belarusian'
+//		},
+//		{
+//			key: 'bn',
+//			title: 'Bengali; Bangla'
+//		},
+//		{
+//			key: 'bh',
+//			title: 'Bihari'
+//		},
+//		{
+//			key: 'bi',
+//			title: 'Bislama'
+//		},
+//		{
+//			key: 'bs',
+//			title: 'Bosnian'
+//		},
+//		{
+//			key: 'br',
+//			title: 'Breton'
+//		},
+//		{
+//			key: 'bg',
+//			title: 'Bulgarian'
+//		},
+//		{
+//			key: 'my',
+//			title: 'Burmese'
+//		},
+//		{
+//			key: 'ca',
+//			title: 'Catalan; Valencian'
+//		},
+//		{
+//			key: 'ch',
+//			title: 'Chamorro'
+//		},
+//		{
+//			key: 'ce',
+//			title: 'Chechen'
+//		},
+//		{
+//			key: 'ny',
+//			title: 'Chichewa; Chewa; Nyanja'
+//		},
+//		{
+//			key: 'zh',
+//			title: 'Chinese'
+//		},
+//		{
+//			key: 'cv',
+//			title: 'Chuvash'
+//		},
+//		{
+//			key: 'kw',
+//			title: 'Cornish'
+//		},
+//		{
+//			key: 'co',
+//			title: 'Corsican'
+//		},
+//		{
+//			key: 'cr',
+//			title: 'Cree'
+//		},
+//		{
+//			key: 'hr',
+//			title: 'Croatian'
+//		},
+//		{
+//			key: 'cs',
+//			title: 'Czech'
+//		},
+//		{
+//			key: 'da',
+//			title: 'Danish'
+//		},
+//		{
+//			key: 'dv',
+//			title: 'Divehi; Dhivehi; Maldivian;'
+//		},
+//		{
+//			key: 'nl',
+//			title: 'Dutch'
+//		},
+//		{
+//			key: 'dz',
+//			title: 'Dzongkha'
+//		},
+//		{
+//			key: 'en',
+//			title: 'English'
+//		},
+//		{
+//			key: 'eo',
+//			title: 'Esperanto'
+//		},
+//		{
+//			key: 'et',
+//			title: 'Estonian'
+//		},
+//		{
+//			key: 'ee',
+//			title: 'Ewe'
+//		},
+//		{
+//			key: 'fo',
+//			title: 'Faroese'
+//		},
+//		{
+//			key: 'fj',
+//			title: 'Fijian'
+//		},
+//		{
+//			key: 'fi',
+//			title: 'Finnish'
+//		},
+//		{
+//			key: 'fr',
+//			title: 'French'
+//		},
+//		{
+//			key: 'ff',
+//			title: 'Fula; Fulah; Pulaar; Pular'
+//		},
+//		{
+//			key: 'gl',
+//			title: 'Galician'
+//		},
+//		{
+//			key: 'ka',
+//			title: 'Georgian'
+//		},
+//		{
+//			key: 'de',
+//			title: 'German'
+//		},
+//		{
+//			key: 'el',
+//			title: 'Greek, Modern'
+//		},
+//		{
+//			key: 'gn',
+//			title: 'GuaranÃ­'
+//		},
+//		{
+//			key: 'gu',
+//			title: 'Gujarati'
+//		},
+//		{
+//			key: 'ht',
+//			title: 'Haitian; Haitian Creole'
+//		},
+//		{
+//			key: 'ha',
+//			title: 'Hausa'
+//		},
+//		{
+//			key: 'he',
+//			title: 'Hebrew (modern)'
+//		},
+//		{
+//			key: 'hz',
+//			title: 'Herero'
+//		},
+//		{
+//			key: 'hi',
+//			title: 'Hindi'
+//		},
+//		{
+//			key: 'ho',
+//			title: 'Hiri Motu'
+//		},
+//		{
+//			key: 'hu',
+//			title: 'Hungarian'
+//		},
+//		{
+//			key: 'ia',
+//			title: 'Interlingua'
+//		},
+//		{
+//			key: 'id',
+//			title: 'Indonesian'
+//		},
+//		{
+//			key: 'ie',
+//			title: 'Interlingue'
+//		},
+//		{
+//			key: 'ga',
+//			title: 'Irish'
+//		},
+//		{
+//			key: 'ig',
+//			title: 'Igbo'
+//		},
+//		{
+//			key: 'ik',
+//			title: 'Inupiaq'
+//		},
+//		{
+//			key: 'io',
+//			title: 'Ido'
+//		},
+//		{
+//			key: 'is',
+//			title: 'Icelandic'
+//		},
+//		{
+//			key: 'it',
+//			title: 'Italian'
+//		},
+//		{
+//			key: 'iu',
+//			title: 'Inuktitut'
+//		},
+//		{
+//			key: 'ja',
+//			title: 'Japanese'
+//		},
+//		{
+//			key: 'jv',
+//			title: 'Javanese'
+//		},
+//		{
+//			key: 'kl',
+//			title: 'Kalaallisut, Greenlandic'
+//		},
+//		{
+//			key: 'kn',
+//			title: 'Kannada'
+//		},
+//		{
+//			key: 'kr',
+//			title: 'Kanuri'
+//		},
+//		{
+//			key: 'ks',
+//			title: 'Kashmiri'
+//		},
+//		{
+//			key: 'kk',
+//			title: 'Kazakh'
+//		},
+//		{
+//			key: 'km',
+//			title: 'Khmer'
+//		},
+//		{
+//			key: 'ki',
+//			title: 'Kikuyu, Gikuyu'
+//		},
+//		{
+//			key: 'rw',
+//			title: 'Kinyarwanda'
+//		},
+//		{
+//			key: 'ky',
+//			title: 'Kyrgyz'
+//		},
+//		{
+//			key: 'kv',
+//			title: 'Komi'
+//		},
+//		{
+//			key: 'kg',
+//			title: 'Kongo'
+//		},
+//		{
+//			key: 'ko',
+//			title: 'Korean'
+//		},
+//		{
+//			key: 'ku',
+//			title: 'Kurdish'
+//		},
+//		{
+//			key: 'kj',
+//			title: 'Kwanyama, Kuanyama'
+//		},
+//		{
+//			key: 'la',
+//			title: 'Latin'
+//		},
+//		{
+//			key: 'lb',
+//			title: 'Luxembourgish, Letzeburgesch'
+//		},
+//		{
+//			key: 'lg',
+//			title: 'Ganda'
+//		},
+//		{
+//			key: 'li',
+//			title: 'Limburgish, Limburgan, Limburger'
+//		},
+//		{
+//			key: 'ln',
+//			title: 'Lingala'
+//		},
+//		{
+//			key: 'lo',
+//			title: 'Lao'
+//		},
+//		{
+//			key: 'lt',
+//			title: 'Lithuanian'
+//		},
+//		{
+//			key: 'lu',
+//			title: 'Luba-Katanga'
+//		},
+//		{
+//			key: 'lv',
+//			title: 'Latvian'
+//		},
+//		{
+//			key: 'gv',
+//			title: 'Manx'
+//		},
+//		{
+//			key: 'mk',
+//			title: 'Macedonian'
+//		},
+//		{
+//			key: 'mg',
+//			title: 'Malagasy'
+//		},
+//		{
+//			key: 'ms',
+//			title: 'Malay'
+//		},
+//		{
+//			key: 'ml',
+//			title: 'Malayalam'
+//		},
+//		{
+//			key: 'mt',
+//			title: 'Maltese'
+//		},
+//		{
+//			key: 'mi',
+//			title: 'MÄori'
+//		},
+//		{
+//			key: 'mr',
+//			title: 'Marathi (MarÄá¹­hÄ«)'
+//		},
+//		{
+//			key: 'mh',
+//			title: 'Marshallese'
+//		},
+//		{
+//			key: 'mn',
+//			title: 'Mongolian'
+//		},
+//		{
+//			key: 'na',
+//			title: 'Nauru'
+//		},
+//		{
+//			key: 'nv',
+//			title: 'Navajo, Navaho'
+//		},
+//		{
+//			key: 'nb',
+//			title: 'Norwegian BokmÃ¥l'
+//		},
+//		{
+//			key: 'nd',
+//			title: 'North Ndebele'
+//		},
+//		{
+//			key: 'ne',
+//			title: 'Nepali'
+//		},
+//		{
+//			key: 'ng',
+//			title: 'Ndonga'
+//		},
+//		{
+//			key: 'nn',
+//			title: 'Norwegian Nynorsk'
+//		},
+//		{
+//			key: 'no',
+//			title: 'Norwegian'
+//		},
+//		{
+//			key: 'ii',
+//			title: 'Nuosu'
+//		},
+//		{
+//			key: 'nr',
+//			title: 'South Ndebele'
+//		},
+//		{
+//			key: 'oc',
+//			title: 'Occitan'
+//		},
+//		{
+//			key: 'oj',
+//			title: 'Ojibwe, Ojibwa'
+//		},
+//		{
+//			key: 'cu',
+//			title: 'Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic'
+//		},
+//		{
+//			key: 'om',
+//			title: 'Oromo'
+//		},
+//		{
+//			key: 'or',
+//			title: 'Oriya'
+//		},
+//		{
+//			key: 'os',
+//			title: 'Ossetian, Ossetic'
+//		},
+//		{
+//			key: 'pa',
+//			title: 'Panjabi, Punjabi'
+//		},
+//		{
+//			key: 'pi',
+//			title: 'PÄli'
+//		},
+//		{
+//			key: 'fa',
+//			title: 'Persian (Farsi)'
+//		},
+//		{
+//			key: 'pl',
+//			title: 'Polish'
+//		},
+//		{
+//			key: 'ps',
+//			title: 'Pashto, Pushto'
+//		},
+//		{
+//			key: 'pt',
+//			title: 'Portuguese'
+//		},
+//		{
+//			key: 'qu',
+//			title: 'Quechua'
+//		},
+//		{
+//			key: 'rm',
+//			title: 'Romansh'
+//		},
+//		{
+//			key: 'rn',
+//			title: 'Kirundi'
+//		},
+//		{
+//			key: 'ro',
+//			title: 'Romanian, [])'
+//		},
+//		{
+//			key: 'ru',
+//			title: 'Russian'
+//		},
+//		{
+//			key: 'sa',
+//			title: 'Sanskrit (Saá¹ská¹›ta)'
+//		},
+//		{
+//			key: 'sc',
+//			title: 'Sardinian'
+//		},
+//		{
+//			key: 'sd',
+//			title: 'Sindhi'
+//		},
+//		{
+//			key: 'se',
+//			title: 'Northern Sami'
+//		},
+//		{
+//			key: 'sm',
+//			title: 'Samoan'
+//		},
+//		{
+//			key: 'sg',
+//			title: 'Sango'
+//		},
+//		{
+//			key: 'sr',
+//			title: 'Serbian'
+//		},
+//		{
+//			key: 'gd',
+//			title: 'Scottish Gaelic; Gaelic'
+//		},
+//		{
+//			key: 'sn',
+//			title: 'Shona'
+//		},
+//		{
+//			key: 'si',
+//			title: 'Sinhala, Sinhalese'
+//		},
+//		{
+//			key: 'sk',
+//			title: 'Slovak'
+//		},
+//		{
+//			key: 'sl',
+//			title: 'Slovene'
+//		},
+//		{
+//			key: 'so',
+//			title: 'Somali'
+//		},
+//		{
+//			key: 'st',
+//			title: 'Southern Sotho'
+//		},
+//		{
+//			key: 'az',
+//			title: 'South Azerbaijani'
+//		},
+//		{
+//			key: 'es',
+//			title: 'Spanish; Castilian'
+//		},
+//		{
+//			key: 'su',
+//			title: 'Sundanese'
+//		},
+//		{
+//			key: 'sw',
+//			title: 'Swahili'
+//		},
+//		{
+//			key: 'ss',
+//			title: 'Swati'
+//		},
+//		{
+//			key: 'sv',
+//			title: 'Swedish'
+//		},
+//		{
+//			key: 'ta',
+//			title: 'Tamil'
+//		},
+//		{
+//			key: 'te',
+//			title: 'Telugu'
+//		},
+//		{
+//			key: 'tg',
+//			title: 'Tajik'
+//		},
+//		{
+//			key: 'th',
+//			title: 'Thai'
+//		},
+//		{
+//			key: 'ti',
+//			title: 'Tigrinya'
+//		},
+//		{
+//			key: 'bo',
+//			title: 'Tibetan Standard, Tibetan, Central'
+//		},
+//		{
+//			key: 'tk',
+//			title: 'Turkmen'
+//		},
+//		{
+//			key: 'tl',
+//			title: 'Tagalog'
+//		},
+//		{
+//			key: 'tn',
+//			title: 'Tswana'
+//		},
+//		{
+//			key: 'to',
+//			title: 'Tonga (Tonga Islands)'
+//		},
+//		{
+//			key: 'tr',
+//			title: 'Turkish'
+//		},
+//		{
+//			key: 'ts',
+//			title: 'Tsonga'
+//		},
+//		{
+//			key: 'tt',
+//			title: 'Tatar'
+//		},
+//		{
+//			key: 'tw',
+//			title: 'Twi'
+//		},
+//		{
+//			key: 'ty',
+//			title: 'Tahitian'
+//		},
+//		{
+//			key: 'ug',
+//			title: 'Uyghur, Uighur'
+//		},
+//		{
+//			key: 'uk',
+//			title: 'Ukrainian'
+//		},
+//		{
+//			key: 'ur',
+//			title: 'Urdu'
+//		},
+//		{
+//			key: 'uz',
+//			title: 'Uzbek'
+//		},
+//		{
+//			key: 've',
+//			title: 'Venda'
+//		},
+//		{
+//			key: 'vi',
+//			title: 'Vietnamese'
+//		},
+//		{
+//			key: 'vo',
+//			title: 'VolapÃ¼k'
+//		},
+//		{
+//			key: 'wa',
+//			title: 'Walloon'
+//		},
+//		{
+//			key: 'cy',
+//			title: 'Welsh'
+//		},
+//		{
+//			key: 'wo',
+//			title: 'Wolof'
+//		},
+//		{
+//			key: 'fy',
+//			title: 'Western Frisian'
+//		},
+//		{
+//			key: 'xh',
+//			title: 'Xhosa'
+//		},
+//		{
+//			key: 'yi',
+//			title: 'Yiddish'
+//		},
+//		{
+//			key: 'yo',
+//			title: 'Yoruba'
+//		},
+//		{
+//			key: 'za',
+//			title: 'Zhuang, Chuang'
+//		},
+//		{
+//			key: 'zu',
+//			title: 'Zulu'
+//		}
+//		];
+//
+//	/**
+//	 * Create filter function for a query string
+//	 */
+//	function createFilterFor(query) {
+//		var lowercaseQuery = query.toLowerCase();
+//
+//		return function filterFn(language) {
+//			return (language.title.indexOf(lowercaseQuery) >= 0) ||
+//			(language.key.indexOf(lowercaseQuery) >= 0);
+//		};
+//
+//	}
+//
+//	/**
+//	 * @ngdoc Resources
+//	 * @name Custom Language
+//	 * @description Create a custom language and return the result
+//	 *
+//	 * A custom language is a key, title, and map
+//	 */
+//	$mbResource.newPage({
+//		label: 'Custom',
+//		type: 'language',
+//		templateUrl: 'views/resources/mb-language-custome.html',
+//		/*
+//		 * @ngInject
+//		 */
+//		controller: function ($scope) {
+//			$scope.language = $scope.value;
+//
+//			this.querySearch = function(query){
+//				var results = query ? languages.filter(createFilterFor(query)) : languages;
+//				var deferred = $q.defer();
+//				$timeout(function () { 
+//					deferred.resolve(results); 
+//				}, Math.random() * 100, false);
+//				return deferred.promise;
+//			};
+//
+//			$scope.$watch('language', function(lang){
+//				$scope.$parent.setValue(lang);
+//			});
+//		},
+//		controllerAs: 'resourceCtrl',
+//		priority: 8,
+//		tags: ['/app/languages']
+//	});
+//
+//	/**
+//	 * @ngdoc Resources
+//	 * @name Remote Languages
+//	 * @description Create a custom language and return the result
+//	 *
+//	 * A custom language is a key, title, and map
+//	 */
+//	$mbResource.newPage({
+//		label: 'Remote',
+//		type: 'language-viraweb123',
+//		templateUrl: 'views/resources/mb-language-list.html',
+//		/*
+//		 * @ngInject
+//		 */
+//		controller: function ($scope) {
+//			$http.get('resources/common-languages.json')
+//			.then(function(res){
+//				$scope.languages = res.data;
+//			});
+//
+//			this.setLanguage = function(lang){
+//				$scope.$parent.setValue(lang);
+//			};
+//
+//		},
+//		controllerAs: 'resourceCtrl',
+//		priority: 8,
+//		tags: ['/app/languages']
+//	});
+//
+//
+//	/**
+//	 * @ngdoc Resources
+//	 * @name Remote Languages
+//	 * @description Create a custom language and return the result
+//	 *
+//	 * A custom language is a key, title, and map
+//	 */
+//	$mbResource.newPage({
+//		label: 'Upload',
+//		type: 'language-upload',
+//		templateUrl: 'views/resources/mb-language-upload.html',
+//		/*
+//		 * @ngInject
+//		 */
+//		controller: function ($scope) {
+//			$http.get('resources/common-languages.json')
+//			.then(function(res){
+//				$scope.languages = res.data;
+//			});
+//
+//			this.setLanguage = function(lang){
+//				$scope.$parent.setValue(lang);
+//			};
+//
+//			var ctrl = this;
+//			$scope.$watch('files.length',function(files){
+//				if(!$scope.files || $scope.files.length <= 0){
+//					return;
+//				}
+//				var reader = new FileReader();
+//				reader.onload = function (event) {
+//					var lang = JSON.parse(event.target.result);
+//					ctrl.setLanguage(lang);
+//				};
+//				reader.readAsText($scope.files[0].lfFile);
+//			});
+//
+//
+//		},
+//		controllerAs: 'resourceCtrl',
+//		priority: 8,
+//		tags: ['/app/languages']
+//	});
+//});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+@ngdoc Controllers
+@name MbHelpCtrl
+@description Help page controller
+
+Watches total system and update help data.
+
+ */
+mblowfish.controller('MbModulesCtrl', function(
+	/* angularjs */ $scope, $controller,
+	/* Mblowfish */ $mbModules, $mbActions
+) {
+	/*
+	 * Extends collection controller from MbAbstractCtrl 
+	 */
+	angular.extend(this, $controller('MbAbstractCtrl', {
+		$scope: $scope
+	}));
+
+	this.loadModules = function() {
+		this.modules = $mbModules.getModules();
+	}
+
+	this.addModule = function($event) {
+		$mbActions.exec('mb.modules.create', $event);
+	};
+
+	this.deleteModule = function(item, $event) {
+		$event.modules = [item];
+		$mbActions.exec('mb.modules.delete', $event);
+	};
+
+	var ctrl = this;
+	this.addEventHandler(MODULE_STORE_PATH, function() {
+		ctrl.loadModules();
+	});
+
+	ctrl.loadModules();
+});
+
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Manages system moduels
+ */
+mblowfish.config(function($mbPreferencesProvider, $mbActionsProvider, $mbResourceProvider) {
+
+	//-------------------------------------------------------------
+	// Preferences:
+	// Pages: modules, application,
+	//-------------------------------------------------------------
+	$mbPreferencesProvider
+		.addPage('modules', {
+			title: 'Modules',
+			icon: 'language',
+			description: 'Manage global modules to enable for all users.',
+			templateUrl: 'views/modules/mb-preference.html',
+			controller: 'MbModulesCtrl',
+			controllerAs: 'ctrl',
+		});
+	//	$preferences.newPage({
+	//		id: 'update',
+	//		templateUrl: 'views/preferences/mb-update.html',
+	//		title: 'Update application',
+	//		description: 'Settings of updating process and how to update the application.',
+	//		icon: 'autorenew'
+	//	});
+	//	$options.newPage({
+	//		title: 'modules',
+	//		description: 'Manage user modules to enable for all current device.',
+	//		templateUrl: 'views/modules/mb-option.html',
+	//		tags: ['modules']
+	//	});
+
+
+	//-------------------------------------------------------------
+	// Actions:
+	//-------------------------------------------------------------
+	$mbActionsProvider
+		.addAction('mb.modules.create', {
+			title: 'Add local module',
+			/* @ngInject*/
+			action: function($mbResource, $mbModules) {
+				return $mbResource
+					.get('/app/modules', {
+						style: {},
+					})
+					.then(function(modules) {
+						_.forEach(modules, function(m) {
+							$mbModules.addModule(m);
+						});
+					});
+			}
+		})
+		.addAction('mb.modules.delete', {
+			title: 'Delete local module',
+			icon: 'view_module',
+			/* @ngInject */
+			action: function($window, $mbModules, $event) {
+				return $window
+					.confirm('Delete modules?')
+					.then(function() {
+						_.forEach($event.modules, function(m) {
+							$mbModules.removeModule(m);
+						});
+					});
+			}
+		});
+
+
+
+	//-------------------------------------------------------------
+	// Resources:
+	//-------------------------------------------------------------
+	$mbResourceProvider
+		.addPage('mb-module-manual', {
+			label: 'Manual',
+			templateUrl: 'views/modules/mb-resources-manual.html',
+			/*@ngInject*/
+			controller: function($scope) {
+				$scope.$watch('module', function(value) {
+					$scope.$parent.setValue([value]);
+				}, true);
+				$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+			},
+			controllerAs: 'resourceCtrl',
+			tags: ['/app/modules']
+		});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+angular.module('mblowfish-core').run(function($mbView) {
+	$mbView.add('/mb/ui/views/navigator/', {
+		title: 'Navigator',
+		description: 'Navigate all path and routs of the pandel',
+		controller: 'MbNavigatorContainerCtrl',
+		controllerAs: 'ctrl',
+		templateUrl: 'views/mb-navigator.html',
+		groups: ['Utilities']
+	});//
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+
+/**
+ @ngdoc Controllers
+ @name MbNavigatorContainerCtrl
+ @description Navigator controller
+ 
+ */
+angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function($scope, $mbView) {
+	var groups = {
+		'others': {
+			title: 'Others',
+			items: {}
+		}
+	};
+
+	var items = $mbView.getViews();
+	_.forEach(items, function(item, url) {
+		var itmeGroups = item.groups || ['others'];
+		_.forEach(itmeGroups, function(groupId) {
+			if (_.isUndefined(groups[groupId])) {
+				groups[groupId] = {
+					title: groupId,
+					items: {}
+				};
+			}
+			groups[groupId].items[url] = item;
+		});
+	});
+
+	$scope.groups = groups
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
+	$mbActionsProvider
+		.addAction('mb.preferences', {
+			title: 'Preferences',
+			icon: 'settings',
+			/* @ngInject */
+			action: function($location) {
+				return $location.url('preferences');
+			}
+		});//
+
+	$mbViewProvider
+		.addView('/preferences', {
+			title: 'Preferences',
+			templateUrl: 'views/mb-preferences.html',
+			aunchor: 'editors',
+			controller: 'MbPreferencesCtrl',
+			controllerAs: 'ctrl'
+		});
+
+	$mbEditorProvider
+		.addEditor('/preferences/:preferenceId', {
+			title: 'Preference',
+			templateUrl: 'views/mb-preference.html',
+			controller: 'MbPreferenceEditorCtrl',
+			controllerAs: 'ctrl',
+		});
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.controller('MbPreferenceEditorCtrl', function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
+	//------------------------------------------------
+	// variables
+	//------------------------------------------------
+	var preferenceId = $state.params.preferenceId;
+	var pageConfig = $mbPreferences.getPage(preferenceId);
+	var pageComponent = new MbComponent(pageConfig);
+	var anchor = $element.find('#page-panel');
+	
+	
+	//------------------------------------------------
+	// functions
+	//------------------------------------------------
+	function renderPage(){
+		return pageComponent.render({
+			$element: anchor,
+			$scope: $scope,
+			$editor: $editor
+		});
+	}
+
+
+	//------------------------------------------------
+	// end
+	//------------------------------------------------
+	renderPage();
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbPreferencesCtrl
+ * @description Manages preferences page
+ * 
+ * In the preferences page, all configs of the system are displayed and
+ * users are able to change them. These preferences pages are related to
+ * the current SPA usually.
+ * 
+ */
+mblowfish.controller('MbPreferencesCtrl', function($scope, $mbPreferences) {
+	// Load settings
+	$scope.pages = $mbPreferences.getPages()//
+});
+
+
+
+mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
+
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * Add to angular
+ */
+
+/**
+ * @ngdoc Controllers
+ * @name MbAbstractCtrl
+ * @description Generic controller which is used as base in the platform
+ * 
+ */
+angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
+
+
+	this._hids = [];
+
+
+	//--------------------------------------------------------
+	// --Events--
+	//--------------------------------------------------------
+	var EventHandlerId = function(type, id, callback) {
+		this.type = type;
+		this.id = id;
+		this.callback = callback;
+	};
+
+	/**
+	 * Add a callback for an specific type
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	this.addEventHandler = function(type, callback) {
+		var callbackId = $dispatcher.on(type, callback);
+		this._hids.push(new EventHandlerId(type, callbackId, callback));
+	};
+
+	/**
+	 * Remove a callback for an specific type
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	this.removeEventHandler = function(type, callback) {
+		// XXX: maso, 2019: remove handler
+	};
+
+	/**
+	 * Fire an action is performed on items
+	 * 
+	 * Here is common list of action to dils with objects:
+	 * 
+	 * - created
+	 * - read
+	 * - updated
+	 * - deleted
+	 * 
+	 * to fire an item is created:
+	 * 
+	 * this.fireEvent(type, 'created', item);
+	 * 
+	 * to fire items created:
+	 * 
+	 * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
+	 * 
+	 * to fire list of items created
+	 * 
+	 * var items = [];
+	 * ...
+	 * this.fireEvent(type, 'created', items);
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireEvent = function(type, action, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
+		var source = this;
+		return $dispatcher.dispatch(type, new MbEvent({
+			source: source,
+			type: type,
+			key: action,
+			values: values
+		}));
+	};
+
+	/**
+	 * Fires items created
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireCreated = function(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'create', values);
+	};
+
+	/**
+	 * Fires items read
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireRead = function(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'read', values);
+	};
+
+	/**
+	 * Fires items updated
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireUpdated = function(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'update', values);
+	};
+
+	/**
+	 * Fires items deleted
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireDeleted = function(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'delete', values);
+	};
+
+
+	//--------------------------------------------------------
+	// --View--
+	//--------------------------------------------------------
+	/*
+	 * Remove all resources
+	 */
+	var ctrl = this;
+	$scope.$on('$destroy', function() {
+		for (var i = 0; i < ctrl._hids.length; i++) {
+			var handlerId = ctrl._hids[i];
+			$dispatcher.off(handlerId.type, handlerId.id);
+		}
+		ctrl._hids = [];
+	});
 
 });
 
@@ -4538,7 +10535,6 @@ angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 				$window.alert('Fail to load the item ' + ctrl.itemId);
 			});
 		// TODO: maso, 2020: add application job
-		// $app.addJob('Loading itm' + this.itemId, job);
 		return job;
 	}
 
@@ -4777,160 +10773,6 @@ angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
 
 });
 
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-/*
- * 
- */
-.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
-
-    /*
-     * Extends collection controller
-     */
-    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
-
-    // Override the schema function
-    this.getModelSchema = function () {
-        return $cms.contentSchema();
-    };
-
-    // get contents
-    this.getModels = function (parameterQuery) {
-        return $cms.getContents(parameterQuery);
-    };
-
-    // get a content
-    this.getModel = function (id) {
-        return $cms.getContent(id);
-    };
-
-    // delete account
-    this.deleteModel = function (content) {
-        return $cms.deleteContent(content.id);
-    };
-
-    /**
-     * Uploads a file on the server.
-     * 
-     * To upload the file there are two actions:
-     * 
-     * <ul>
-     * <li>create a new content</li>
-     * <li>upload content value</li>
-     * </ul>
-     * 
-     * This function change the state of the controller into the
-     * working.
-     */
-    this.uploadFile = function (content, file) {
-        /*
-         * upload file
-         */
-        function uploadContentValue(newContent) {
-            if (file) {
-                return newContent.uploadValue(file)//
-                .then(function () {
-                    return newContent;
-                });
-            }
-            return $q.resolve(newContent);
-        }
-
-        // XXX: maso, 2018: check content is not anonymous
-        return $cms.putContent(content)//
-        .then(uploadContentValue);
-    }
-
-    this.init({
-        eventType: '/cms/contents'
-    });
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
-/*
- * 
- */
-.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
-
-    /*
-     * Extends collection controller
-     */
-    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
-
-    // Override the schema function
-    this.getModelSchema = function () {
-        return $cms.termTaxonomySchema();
-    };
-
-    // get contents
-    this.getModels = function (parameterQuery) {
-        return $cms.getTermTaxonomies(parameterQuery);
-    };
-
-    // get a content
-    this.getModel = function (id) {
-        return $cms.getTermTaxonomy(id);
-    };
-
-    // delete account
-    this.deleteModel = function (content) {
-        return $cms.deleteTermTaxonomy(content.id);
-    };
-
-    this.init({
-        eventType: '/cms/term-taxonomies'
-    });
-});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5436,7133 +11278,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-
-
-/**
- * @ngdoc Controllers
- * @name MbThemesCtrl
- * @description Dashboard
- * 
- */
-angular.module('mblowfish-core').controller('MbThemesCtrl', function($scope, $mdTheming) {
-	$scope.themes = [];
-	angular.forEach($mdTheming.THEMES, function(value, key) {
-		$scope.themes.push({
-			'id': key,
-			'label': value.name
-		});
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Controllers
- * @name AmdToolbarCtrl
- * @description Toolbar
- * 
- */
-.controller('MbToolbarDashboardCtrl', function($scope, $mbActions, $mdSidenav, $monitor) {
-	$scope.toolbarMenu = $mbActions.group('mb.toolbar.menu');
-	
-	function toggleNavigationSidenav(){
-		$mdSidenav('navigator').toggle();
-	}
-	
-	function toggleMessageSidenav(){
-		$mdSidenav('messages').toggle();
-	}
-	
-	$scope.toggleNavigationSidenav = toggleNavigationSidenav;
-	$scope.toggleMessageSidenav = toggleMessageSidenav;
-	
-	
-	function getMessageCount() {
-	    $monitor.getMetric('message.count')
-		    .then(function (metric) {
-			$scope.messageCount = metric.value;
-		    });
-	}
-	
-	getMessageCount();
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').config(function($httpProvider) {
-	// An interceptor to handle errors of server response
-	// All that the interceptor does is in 'httpRequestInterceptor' factory.
-	$httpProvider.interceptors.push('MbHttpRequestInterceptor');
-
-	/*
-	 * Disabling AngularJS $http cache
-	 * @see https://stackoverflow.com/questions/38196452/disabling-angularjs-http-cache
-	 */
-	//initialize get if not there
-	if (!$httpProvider.defaults.headers.get) {
-		$httpProvider.defaults.headers.get = {};
-	}
-
-	// Answer edited to include suggestions from comments
-	// because previous version of code introduced browser-related errors
-
-	//disable IE ajax request caching
-	$httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
-	// extra
-	$httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
-	$httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Services
- * @name $app
- * @description Application manager
- * 
- * $app manage the application life-cycle. It gets all required information from
- * server and store those in rootScope. So, in the scope of application everyone
- * who wants something about this type of information it should get them from
- * rootScope. Also, $app watch the rootScope and do all required tasks(such as
- * updating config into the server and etc.) automatically.
- * 
- * That way, the $app service is separated from directly responding to others.
- * Important: In this version, 'start', 'login' and 'logout' are exceptions and
- * could access directly from outside.
- * 
- * The pseudo-code of all works that the service performs is as follows:
- * 
- * <ol>
- * <li>Getting required information from the server and store in rootScope.</li>
- * <li>Watching the rootScope and do all required works. (such as updating
- * config into the server and etc.) automatically.</li>
- * <li>Managing an internally Finite State Machine(FSM) to control the state of
- * the app.</li>
- * <li>Performing login and logout.</li>
- * </ol> ## user
- * 
- * User information will be loaded on the start up and tracked during the
- * application life time. ## settings
- * 
- * Settings are stored in the local storage and each user can edit it directly. ##
- * Options
- * 
- * There is list of Key-Value stored in the sever and control the server
- * behaviors. In the. $app are called options. Options are read only and allow
- * clients to adapt to the server.
- * 
- * All options can access from view as:
- * 
- * <code><pre>
- * 	&lt;span&gt;{{app.options['captcha.engine']}}&lt;/span&gt;
- * </pre></code>
- * 
- * In the code:
- * 
- * <code><pre>
- * var a = $rootScope.app.options['captcha.engine'];
- * </pre></code> ## configurations
- * 
- * Configuration is stored on server an owners are allowed to update. Do not
- * store secure properties on configuration.
- * 
- * Configuration is a CMS file.
- * 
- * NOTE: base application data is created in run/app.js
- * 
- * 
- * @property {object} app - Application repository.
- * @property {string} app.dir - Application direction which is updated
- *           automatically baed on configuaration and setting.
- * @property {object} app.setting - Application setting.
- * @property {object} app.config - Application setting.
- * @property {object} app.user - Current user information
- * @property {object} app.user.profile - The first profile of current user
- */
-angular.module('mblowfish-core').service('$app', function(
-		/* MB            */ $application, $mbStorage,
-		/* seen          */ $usr, $cms, $tenant, UserAccount, $translate,
-		/* am-wb-core    */ $dispatcher, $objectPath,
-		/* material      */ $mdDateLocale,
-		/* angularjs     */ $httpParamSerializerJQLike, $http, $q, $rootScope, $timeout
-) {
-
-
-	/***************************************************************************
-	 * applicaiton data
-	 **************************************************************************/
-	var appConfigurationContent;
-	var stateMachine;
-
-	// Constants
-	var APP_CNF_MIMETYPE = 'application/amd-cnf';
-	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-	var TENANT_GRAPHQL = '{id,title,description,' +
-		'account' + USER_DETAIL_GRAPHQL +
-		'configurations{key,value}' +
-		'settings{key,value}' +
-		'}';
-
-	//	/*
-	//	 * Extends application to be observable
-	//	 */
-	//	angular.extend(this, new WbObservableObject());
-
-	/***************************************************************************
-	 * utils
-	 **************************************************************************/
-	/*
-	 * Bind list of roles to app data
-	 */
-	function rolesToPermissions(roles) {
-		var permissions = [];
-		for (var i = 0; i < roles.length; i++) {
-			var role = roles[i];
-			permissions[role.application + '_' + role.code_name] = true;
-		}
-		return permissions;
-	}
-
-	function keyValueToMap(keyvals) {
-		var map = [];
-		for (var i = 0; i < keyvals.length; i++) {
-			var keyval = keyvals[i];
-			map[keyval.key] = keyval.value;
-		}
-		return map;
-	}
-
-	function parseBooleanValue(value) {
-		value = value.toLowerCase();
-		switch (value) {
-			case true:
-			case 'true':
-			case '1':
-			case 'on':
-			case 'yes':
-				return true;
-			default:
-				return false;
-		}
-	}
-
-	/***************************************************************************
-	 * functions
-	 **************************************************************************/
-
-	/**
-	 * Handles internal service events
-	 */
-	function handleEvent(key, data) {
-		// update internal state machine
-		stateMachine.handle(key, data);
-	}
-
-	/**
-	 * Sets state of the service
-	 * 
-	 * NOTE: must be used locally
-	 */
-	function setApplicationState(state) {
-		// create event
-		var $event = {
-			type: 'update',
-			value: state,
-			oldValue: $rootScope.__app.state
-		};
-		$rootScope.__app.state = state;
-
-		// staso, 2019: fire the state is changed
-		$dispatcher.dispatch('/app/state', $event);
-
-		// TODO: move to application extension
-		_loadingLog('$app event handling', '$app state is changed from ' + $event.oldValue + ' to ' + state);
-	}
-
-	/**
-	 * Gets the state of the application
-	 * 
-	 * @memberof $app
-	 */
-	this.getState = function() {
-		return $rootScope.__app.state;
-	};
-
-	function setApplicationDirection(dir) {
-		$rootScope.__app.dir = dir;
-	}
-
-	function setApplicationLanguage(key) {
-		if ($rootScope.__app.state !== 'ready') {
-			return;
-		}
-		// 0- set app local
-		$rootScope.__app.language = key;
-		// 1- change language
-		$translate.use(key);
-		// 2- chnage date format
-		// Change moment's locale so the 'L'-format is adjusted.
-		// For example the 'L'-format is DD-MM-YYYY for Dutch
-		moment.loadPersian();
-		moment.locale(key);
-		// Set month and week names for the general $mdDateLocale service
-		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	}
-
-	function setApplicationCalendar(key) {
-		// 0- set app local
-		$rootScope.__app.calendar = key;
-	}
-
-	function parsTenantConfiguration(configs) {
-		$rootScope.__tenant.configs = keyValueToMap(configs);
-		var $event = {
-			src: this,
-			type: 'update',
-			value: $rootScope.__tenant.configs
-		};
-		$dispatcher.dispatch('/tenant/configs', $event);
-
-		// load domains
-		var domains = {};
-		var regex = new RegExp('^module\.(.*)\.enable$', 'i');
-		for (var i = 0; i < configs.length; i++) {
-			var config = configs[i];
-			var match = regex.exec(config.key);
-			if (match) {
-				var key = match[1].toLowerCase();
-				domains[key] = parseBooleanValue(config.value);
-			}
-		}
-		$rootScope.__tenant.domains = domains;
-		// Flux: fire account change
-		var $event = {
-			src: this,
-			type: 'update',
-			value: $rootScope.__tenant.domains
-		};
-		$dispatcher.dispatch('/tenant/domains', $event);
-	}
-
-	function parsTenantSettings(settings) {
-		$rootScope.__tenant.settings = keyValueToMap(settings);
-		$rootScope.__app.options = $rootScope.__tenant.settings;
-
-		// Flux: fire setting change
-		var $event = {
-			src: this,
-			type: 'update',
-			value: $rootScope.__account
-		};
-		$dispatcher.dispatch('/tenant/settings', $event);
-	}
-
-	function parsAccount(account) {
-		var anonymous = !account.id || account.id == 0;
-
-		// app user data
-		$rootScope.__app.user = {
-			anonymous: anonymous,
-			current: new UserAccount(account)
-		};
-		// load basic information of account
-		$rootScope.__account.anonymous = anonymous;
-		$rootScope.__account.id = account.id;
-		$rootScope.__account.login = account.login;
-		$rootScope.__account.email = account.email;
-
-		if (anonymous) {
-			// legacy
-			$rootScope.__app.user.profile = {};
-			$rootScope.__app.user.roles = {};
-			$rootScope.__app.user.groups = {};
-			// update app
-			$rootScope.__account.profile = {};
-			$rootScope.__account.roles = {};
-			$rootScope.__account.groups = {};
-			return;
-		}
-		// load the first profile of user
-		if (angular.isArray(account.profiles)) {
-			var profile = account.profiles.length ? account.profiles[0] : {};
-			$rootScope.__app.user.profile = profile;
-			$rootScope.__account.profile = profile;
-		}
-		// load user roles, groups and permissions
-		var permissions = rolesToPermissions(account.roles || []);
-		var groupMap = {};
-		var groups = account.groups || [];
-		for (var i = 0; i < groups.length; i++) {
-			var group = groups[i];
-			groupMap[group.name] = true;
-			_.assign(permissions, rolesToPermissions(group.roles || []));
-		}
-		_.assign($rootScope.__app.user, permissions);
-		$rootScope.__account.permissions = permissions;
-		$rootScope.__account.roles = account.roles || [];
-		$rootScope.__account.groups = account.groups || [];
-
-		// Flux: fire account change
-		var $event = {
-			src: this,
-			type: 'update',
-			value: $rootScope.__account
-		};
-		$dispatcher.dispatch('/account', $event);
-	}
-
-	/***********************************************************
-	 * Application configuration
-	 ***********************************************************/
-	/*
-	 * deprecated: watch application configuration
-	 */
-	var __configs_clean = false;
-	$rootScope.$watch('__app.configs', function(newValue, oldValue) {
-		if (!__configs_clean) {
-			return;
-		}
-		$dispatcher.dispatch('/app/configs', {
-			type: 'update',
-			value: newValue,
-			oldValue: oldValue
-		});
-	}, true);
-
-	/**
-	 * Load application configuration
-	 */
-	function parsAppConfiguration(config) {
-		if (angular.isString(config)) {
-			try {
-				config = JSON.parse(config);
-			} catch (ex) {
-			}
-		}
-		config = angular.isObject(config) ? config : {};
-		$rootScope.__app.config = config;
-		$rootScope.__app.configs = config;
-
-		// Support old config
-		if ($rootScope.__app.configs.local) {
-			$rootScope.__app.configs.language = $rootScope.__app.configs.local.language;
-			$rootScope.__app.configs.calendar = $rootScope.__app.configs.local.calendar;
-			$rootScope.__app.configs.dir = $rootScope.__app.configs.local.dir;
-			$rootScope.__app.configs.dateFormat = $rootScope.__app.configs.local.dateFormat;
-			delete $rootScope.__app.configs.local;
-		}
-
-		// Flux: fire application config
-		$dispatcher.dispatch('/app/configs', {
-			src: this,
-			type: 'load',
-			value: $rootScope.__app.configs
-		});
-		// TODO: remove watch on configs
-		$timeout(function() {
-			__configs_clean = true;
-		}, 1000);
-	}
-
-	this.getConfig = function(key) {
-		return objectPath.get($rootScope.__app.configs, key);
-	};
-
-	this.setConfig = function(key, value) {
-		var oldValue = this.getConfig(key);
-		objectPath.set($rootScope.__app.configs, key, value);
-		// Flux: fire application config
-		$dispatcher.dispatch('/app/configs', {
-			src: this,
-			type: 'update',
-			key: key,
-			value: value,
-			oldValue: oldValue
-		});
-	};
-
-	function loadDefaultApplicationConfig() {
-		// TODO: load last valid configuration from settings
-	}
-
-	/************************************************************
-	 * Application stting
-	 ************************************************************/
-
-	function parsAppSettings(settings) {
-		$rootScope.__app.setting = settings;
-		$rootScope.__app.settings = settings;
-
-
-		// Flux: fire application settings
-		var $event = {
-			src: this,
-			type: 'update',
-			value: $rootScope.__app.settings
-		};
-		$dispatcher.dispatch('/app/settings', $event);
-	}
-
-	/*
-	 * Loads current user informations
-	 * 
-	 * If there is a role x.y (where x is application code and y is code name)
-	 * in role list then the following var is added in user:
-	 * 
-	 * $rootScope.__app.user.x_y
-	 * 
-	 */
-	function loadUserProperty() {
-		_loadingLog('loading user info', 'fetch user information');
-		return $usr.getAccount('current', {
-			graphql: USER_DETAIL_GRAPHQL
-		}) //
-			.then(parsAccount);
-	}
-
-	function loadRemoteData() {
-		_loadingLog('loading', 'fetch remote storage');
-
-		// application config
-		var pLoadAppConfig = $cms.getContent($rootScope.__app.configs_key) //
-			.then(function(content) {
-				appConfigurationContent = content;
-				return appConfigurationContent.downloadValue();
-			})
-			.then(parsAppConfiguration);
-
-		// load current tenant
-		var pCurrentTenant = $tenant.getTenant('current', {
-			graphql: TENANT_GRAPHQL
-		})
-			.then(function(data) {
-				parsTenantConfiguration(data.configurations || []);
-				parsTenantSettings(data.settings || []);
-				parsAccount(data.account || []);
-			});
-		return $q.all([pLoadAppConfig, pCurrentTenant]);
-	}
-
-	function loadLocalData() {
-		_loadingLog('loading setting from local storage', 'fetch settings');
-		/*
-		 * TODO: masood, 2018: The lines below is an alternative for lines above
-		 * but not recommended.
-		 * 
-		 * TODO: 'key' of app should be used $mbStorage,.setPrefix(key);
-		 */
-		var settings = $mbStorage.$default({
-			dashboardModel: {}
-		});
-		return $q.resolve(settings)
-			.then(parsAppSettings);
-	}
-
-	function loadApplication() {
-		var jobs = [];
-		if ($application.isAutoloadConfigs()) {
-			jobs.push(loadRemoteData());
-		}
-		jobs.push(loadLocalData());
-		return $q.all(jobs)
-			.finally(function() {
-				// TODO: maso, check if all things are ok
-				if ($rootScope.__app.isOffline) {
-					handleEvent(APP_EVENT_NET_ERROR);
-					return;
-				}
-				if ($rootScope.__app.isRemoteDataLoaded) {
-					handleEvent(APP_EVENT_SERVER_ERROR);
-					return;
-				}
-				if ($rootScope.__app.isApplicationConfigLoaded) {
-					handleEvent(APP_EVENT_APP_CONFIG_ERROR);
-					return;
-				}
-				handleEvent(APP_EVENT_LOADED);
-			});
-	}
-
-	/***************************************************************************
-	 * 
-	 **************************************************************************/
-
-	// states
-	var APP_STATE_WAITING = 'waiting';
-	var APP_STATE_LOADING = 'loading';
-
-	// final states
-	var APP_STATE_READY = 'ready';
-	var APP_STATE_OFFLINE = 'offline';
-	var APP_STATE_FAIL = 'fail';
-
-	var APP_EVENT_LOADED = 'loaded';
-	var APP_EVENT_START = 'start';
-	var APP_EVENT_SERVER_ERROR = 'server_error';
-	var APP_EVENT_NET_ERROR = 'network_error';
-	var APP_EVENT_APP_CONFIG_ERROR = 'config_error';
-
-	/*
-	 * Attaches loading logs
-	 */
-	function _loadingLog(stage, message) {
-		$rootScope.__app.logs.push(stage + ':' + message);
-	}
-
-	/*
-	 * Stores app configuration on the back end
-	 */
-	this.storeApplicationConfig = function() {
-		if (!$rootScope.__account.permissions.tenant_owner) {
-			return;
-		}
-		if (appConfigurationContent) { // content loaded
-			return appConfigurationContent.uploadValue($rootScope.__app.configs);
-		}
-		// create content
-		promise = $cms.putContent({
-			name: $rootScope.__app.configs_key,
-			mimetype: APP_CNF_MIMETYPE
-		})
-			.then(function(content) {
-				appConfigurationContent = content;
-				return appConfigurationContent.uploadValue($rootScope.__app.configs);
-			});
-	};
-
-	/*
-	 * Check a module to see if it is enable or not
-	 */
-	// TODO: Masood, 2019: Improve the function to check based on tenant setting
-	function isEnable(moduleName) {
-		return $rootScope.__tenant.domains[moduleName];
-	}
-
-	/**
-	 * Logins into the backend
-	 * 
-	 * @memberof $app
-	 * @param {object}
-	 *            credential of the user
-	 */
-	function login(credential) {
-		if (!$rootScope.__account.anonymous) {
-			return $q.resolve($rootScope.__account);
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: $httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		})
-			.then(loadUserProperty);
-	}
-
-	/**
-	 * Application logout
-	 * 
-	 * Logout and clean user data, this will change state of the application.
-	 * 
-	 * @memberof $app
-	 */
-	function logout() {
-		if ($rootScope.__account.anonymous) {
-			return $q.resolve($rootScope.__account);
-		}
-		return $http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
-		})
-			.then(loadUserProperty);
-	}
-
-
-	/*
-	 * State machine to handle life cycle of the system.
-	 */
-	stateMachine = new machina.Fsm({
-		namespace: 'webpich.$app',
-		initialState: APP_STATE_WAITING,
-		states: {
-			// Before the 'start' event occurs via $app.start().
-			waiting: {
-				start: APP_STATE_LOADING,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL
-			},
-			// tries to load all part of system
-			loading: {
-				_onEnter: function() {
-					loadApplication();
-				},
-				loaded: APP_STATE_READY,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY,
-			},
-			// app is ready
-			ready: {
-				loaded: APP_STATE_READY,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY,
-			},
-			// app is ready with no config
-			ready_not_configured: {
-				_onEnter: function() {
-					loadDefaultApplicationConfig();
-				},
-				loaded: APP_STATE_READY,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY,
-			},
-			// server error
-			fail: {
-				loaded: APP_STATE_READY,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY,
-			},
-			// net error
-			offline: {
-				_onEnter: function() {
-					offlineReloadDelay = 3000;
-					$timeout(loadApplication, offlineReloadDelay);
-				},
-				loaded: APP_STATE_READY,
-				network_error: APP_STATE_OFFLINE,
-				server_error: APP_STATE_FAIL,
-				config_error: APP_STATE_READY,
-			}
-		},
-	});
-
-	// I'd like to know when the transition event occurs
-	stateMachine.on('transition', function() {
-		setApplicationState(stateMachine.state);
-	});
-
-	/*
-	 * watch direction and update app.dir
-	 */
-	$rootScope.$watch(function() {
-		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
-	}, setApplicationDirection);
-
-	/*
-	 * watch local and update language
-	 */
-	$rootScope.$watch(function() {
-		// Check language
-		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
-	}, setApplicationLanguage);
-
-	/*
-	 * watch calendar
-	 */
-	$rootScope.$watch(function() {
-		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
-	}, setApplicationCalendar);
-
-	// Init
-	this.login = login;
-	this.logout = logout;
-	this.isEnable = isEnable;
-
-	// test
-	// TODO: remove in deploy
-	this.__parsTenantConfiguration = parsTenantConfiguration;
-
-
-
-	/**************************************************************************
-	 * application properties
-	 **************************************************************************/
-	this.getProperty = function(key, defaultValue) {
-		var tempObject = {
-			app: $rootScope.__app,
-			tenant: $rootScope.__tenant,
-			account: $rootScope.__account,
-		};
-		return $objectPath.get(tempObject, key) || defaultValue;
-	};
-
-	this.setProperty = function(key, value) {
-		var tempObject = {
-			app: $rootScope.__app,
-			tenant: $rootScope.__tenant,
-			account: $rootScope.__account,
-		};
-		$objectPath.set(tempObject, key, value)
-	};
-
-	this.setProperties = function(map) {
-		// TODO:
-	};
-
-
-	/*
-	 * Check if current account changed
-	 */
-	$dispatcher.on('/user/accounts/current', function() {
-		loadUserProperty();
-	});
-
-
-
-	function start(key) {
-		/***************************************************************************
-		 * New app state
-		 * 
-		 * Application state is saved in the root scope
-		 **************************************************************************/
-		/*
-		 * Store application state
-		 */
-		$rootScope.__app = {
-			/******************************************************************
-			 * New model
-			 ******************************************************************/
-			state: 'waiting',
-			key: '',
-			configs: {},
-			settings: {},
-			language: 'en',
-			/******************************************************************
-			 * Old model
-			 ******************************************************************/
-			logs: [],
-			user: {
-				current: {},
-				profile: {},
-				anonymous: true,
-				administrator: false,
-				owner: false,
-				member: false,
-				authorized: false
-			},
-			// application settings
-			config: {},
-			// user settings
-			setting: {},
-			/*
-			 * NOTE: this part is deprecated use tenant
-			 */
-			// tenant settings
-			options: {},
-			local: 'en', // Default local and language
-			dir: 'rtl'
-		};
-		$rootScope.app = $rootScope.__app;
-
-		/*
-		 * Store tenant sate
-		 */
-		$rootScope.__tenant = {
-			id: 0,
-			title: 'notitle',
-			description: 'nodescription',
-			configs: {},
-			settings: {},
-			domains: {}
-		};
-
-		/*
-		 * Store account state
-		 */
-		$rootScope.__account = {
-			anonymous: true,
-			id: 0,
-			login: '',
-			profile: {},
-			roles: {},
-			groups: {},
-			permissions: {},
-			messages: []
-		};
-
-		$rootScope.__app.key = key;
-		$rootScope.__app.configs_key = 'angular-material-blowfish-' + key;
-
-		// handle internal events
-		handleEvent(APP_EVENT_START);
-	}
-	start($application.getKey());
-	return this;
-})
-
-
-	/**
-	@ngdoc Services
-	@name $application
-	@description Application manager
-	*/
-	.provider('$application', function() {
-
-		var provider, service;
-		var key = 'demo';
-		var autoloadConfigs = false;
-		var autosaveConfigs = false;
-		var preloadingEnabled = false;
-		var preloadingFrame = {
-			templateUrl: 'views/mb-application-preloading.html',
-			controller: 'MbApplicationPreloadingContainerCtrl',
-			controllerAs: 'ctrl',
-		};
-		var logingRequired = false;
-
-
-		function setKey(appkey) {
-			key = appkey;
-			return provider;
-		}
-
-		function getKey() {
-			return key;
-		}
-
-		function serviceFactory() {
-			return service;
-		}
-
-		function setAutoloadConfigs(auto) {
-			autoloadConfigs = auto;
-			return provider;
-		}
-
-		function isAutoloadConfigs() {
-			return autoloadConfigs;
-		}
-
-		function setAutosaveConfigs(auto) {
-			autosaveConfigs = auto;
-			return provider;
-		}
-
-		function isAutosaveConfigs() {
-			return autosaveConfigs;
-		}
-
-		function setPreloadingEnabled(flag) {
-			preloadingEnabled = flag;
-			return provider;
-		}
-
-		function isPreloadingEnabled() {
-			return preloadingEnabled;
-		}
-
-		function setPreloadingFrame(frame) {
-			preloadingFrame = frame;
-			return provider;
-		}
-
-		function getPreloadingFrame() {
-			return preloadingFrame;
-		}
-
-		function setLogingRequired(flag) {
-			logingRequired = flag;
-			return provider;
-		}
-
-		function isLoginRequired() {
-			return logingRequired;
-		}
-
-		service = {
-			getKey: getKey,
-			isAutoloadConfigs: isAutoloadConfigs,
-			isAutosaveConfigs: isAutosaveConfigs,
-			isPreloadingEnabled: isPreloadingEnabled,
-			getPreloadingFrame: getPreloadingFrame,
-			isLoginRequired: isLoginRequired,
-		};
-		provider = {
-			$get: serviceFactory,
-			setKey: setKey,
-			setAutoloadConfigs: setAutoloadConfigs,
-			setAutosaveConfigs: setAutosaveConfigs,
-			setPreloadingEnabled: setPreloadingEnabled,
-			setPreloadingFrame: setPreloadingFrame,
-			setLogingRequired: setLogingRequired,
-		};
-		return provider;
-	});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
-
-Manages clipboard
- */
-angular.module('mblowfish-core').service('$clipboard', function() {
-
-	this.copyTo = function(model) {
-        /*
-         * TODO: Masood, 2019: There is also another solution but now it doesn't
-         * work because of browsers problem A detailed solution is presented in:
-         * https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
-         */
-		var js = JSON.stringify(model);
-		var fakeElement = document.createElement('textarea');
-		fakeElement.value = js;
-		document.body.appendChild(fakeElement);
-		fakeElement.select();
-		document.execCommand('copy');
-		document.body.removeChild(fakeElement);
-		return;
-	};
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Filters
- * @name wbmd5
- * @function
- * @description Hash the input
- * 
- * @example 
- ```html 
- <span>{{ 'text to hash' | wbmd5 }}</span> 
- ```
- */
-angular.module('mblowfish-core').filter('wbmd5', function($mbCrypto) {
-	return function(val) {
-		return $mbCrypto.md5(val + '');
-	};
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Services
-@name $mbCrypto
-@description Crypto services
-
-
- */
-angular.module('mblowfish-core').service('$mbCrypto', function() {
-
-	function md5cycle(x, k) {
-		var a = x[0], b = x[1], c = x[2], d = x[3];
-
-		a = ff(a, b, c, d, k[0], 7, -680876936);
-		d = ff(d, a, b, c, k[1], 12, -389564586);
-		c = ff(c, d, a, b, k[2], 17, 606105819);
-		b = ff(b, c, d, a, k[3], 22, -1044525330);
-		a = ff(a, b, c, d, k[4], 7, -176418897);
-		d = ff(d, a, b, c, k[5], 12, 1200080426);
-		c = ff(c, d, a, b, k[6], 17, -1473231341);
-		b = ff(b, c, d, a, k[7], 22, -45705983);
-		a = ff(a, b, c, d, k[8], 7, 1770035416);
-		d = ff(d, a, b, c, k[9], 12, -1958414417);
-		c = ff(c, d, a, b, k[10], 17, -42063);
-		b = ff(b, c, d, a, k[11], 22, -1990404162);
-		a = ff(a, b, c, d, k[12], 7, 1804603682);
-		d = ff(d, a, b, c, k[13], 12, -40341101);
-		c = ff(c, d, a, b, k[14], 17, -1502002290);
-		b = ff(b, c, d, a, k[15], 22, 1236535329);
-
-		a = gg(a, b, c, d, k[1], 5, -165796510);
-		d = gg(d, a, b, c, k[6], 9, -1069501632);
-		c = gg(c, d, a, b, k[11], 14, 643717713);
-		b = gg(b, c, d, a, k[0], 20, -373897302);
-		a = gg(a, b, c, d, k[5], 5, -701558691);
-		d = gg(d, a, b, c, k[10], 9, 38016083);
-		c = gg(c, d, a, b, k[15], 14, -660478335);
-		b = gg(b, c, d, a, k[4], 20, -405537848);
-		a = gg(a, b, c, d, k[9], 5, 568446438);
-		d = gg(d, a, b, c, k[14], 9, -1019803690);
-		c = gg(c, d, a, b, k[3], 14, -187363961);
-		b = gg(b, c, d, a, k[8], 20, 1163531501);
-		a = gg(a, b, c, d, k[13], 5, -1444681467);
-		d = gg(d, a, b, c, k[2], 9, -51403784);
-		c = gg(c, d, a, b, k[7], 14, 1735328473);
-		b = gg(b, c, d, a, k[12], 20, -1926607734);
-
-		a = hh(a, b, c, d, k[5], 4, -378558);
-		d = hh(d, a, b, c, k[8], 11, -2022574463);
-		c = hh(c, d, a, b, k[11], 16, 1839030562);
-		b = hh(b, c, d, a, k[14], 23, -35309556);
-		a = hh(a, b, c, d, k[1], 4, -1530992060);
-		d = hh(d, a, b, c, k[4], 11, 1272893353);
-		c = hh(c, d, a, b, k[7], 16, -155497632);
-		b = hh(b, c, d, a, k[10], 23, -1094730640);
-		a = hh(a, b, c, d, k[13], 4, 681279174);
-		d = hh(d, a, b, c, k[0], 11, -358537222);
-		c = hh(c, d, a, b, k[3], 16, -722521979);
-		b = hh(b, c, d, a, k[6], 23, 76029189);
-		a = hh(a, b, c, d, k[9], 4, -640364487);
-		d = hh(d, a, b, c, k[12], 11, -421815835);
-		c = hh(c, d, a, b, k[15], 16, 530742520);
-		b = hh(b, c, d, a, k[2], 23, -995338651);
-
-		a = ii(a, b, c, d, k[0], 6, -198630844);
-		d = ii(d, a, b, c, k[7], 10, 1126891415);
-		c = ii(c, d, a, b, k[14], 15, -1416354905);
-		b = ii(b, c, d, a, k[5], 21, -57434055);
-		a = ii(a, b, c, d, k[12], 6, 1700485571);
-		d = ii(d, a, b, c, k[3], 10, -1894986606);
-		c = ii(c, d, a, b, k[10], 15, -1051523);
-		b = ii(b, c, d, a, k[1], 21, -2054922799);
-		a = ii(a, b, c, d, k[8], 6, 1873313359);
-		d = ii(d, a, b, c, k[15], 10, -30611744);
-		c = ii(c, d, a, b, k[6], 15, -1560198380);
-		b = ii(b, c, d, a, k[13], 21, 1309151649);
-		a = ii(a, b, c, d, k[4], 6, -145523070);
-		d = ii(d, a, b, c, k[11], 10, -1120210379);
-		c = ii(c, d, a, b, k[2], 15, 718787259);
-		b = ii(b, c, d, a, k[9], 21, -343485551);
-
-		x[0] = add32(a, x[0]);
-		x[1] = add32(b, x[1]);
-		x[2] = add32(c, x[2]);
-		x[3] = add32(d, x[3]);
-
-	}
-
-	function cmn(q, a, b, x, s, t) {
-		a = add32(add32(a, q), add32(x, t));
-		return add32((a << s) | (a >>> (32 - s)), b);
-	}
-
-	function ff(a, b, c, d, x, s, t) {
-		return cmn((b & c) | ((~b) & d), a, b, x, s, t);
-	}
-
-	function gg(a, b, c, d, x, s, t) {
-		return cmn((b & d) | (c & (~d)), a, b, x, s, t);
-	}
-
-	function hh(a, b, c, d, x, s, t) {
-		return cmn(b ^ c ^ d, a, b, x, s, t);
-	}
-
-	function ii(a, b, c, d, x, s, t) {
-		return cmn(c ^ (b | (~d)), a, b, x, s, t);
-	}
-
-	function md51(s) {
-		//        var txt = '';
-		var n = s.length, state = [1732584193, -271733879,
-			-1732584194, 271733878], i;
-		for (i = 64; i <= s.length; i += 64) {
-			md5cycle(state, md5blk(s.substring(i - 64, i)));
-		}
-		s = s.substring(i - 64);
-		var tail = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0];
-		for (i = 0; i < s.length; i++)
-			tail[i >> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
-		tail[i >> 2] |= 0x80 << ((i % 4) << 3);
-		if (i > 55) {
-			md5cycle(state, tail);
-			for (i = 0; i < 16; i++)
-				tail[i] = 0;
-		}
-		tail[14] = n * 8;
-		md5cycle(state, tail);
-		return state;
-	}
-
-	/*
-	 * there needs to be support for Unicode here, unless we
-	 * pretend that we can redefine the MD-5 algorithm for
-	 * multi-byte characters (perhaps by adding every four
-	 * 16-bit characters and shortening the sum to 32 bits).
-	 * Otherwise I suggest performing MD-5 as if every
-	 * character was two bytes--e.g., 0040 0025 = @%--but
-	 * then how will an ordinary MD-5 sum be matched? There
-	 * is no way to standardize text to something like UTF-8
-	 * before transformation; speed cost is utterly
-	 * prohibitive. The JavaScript standard itself needs to
-	 * look at this: it should start providing access to
-	 * strings as preformed UTF-8 8-bit unsigned value
-	 * arrays.
-	 */
-	function md5blk(s) { /* I figured global was faster. */
-		var md5blks = [], i;
-		/*
-		 * Andy King said do it this
-		 * way.
-		 */
-		for (i = 0; i < 64; i += 4) {
-			md5blks[i >> 2] = s.charCodeAt(i)
-				+ (s.charCodeAt(i + 1) << 8)
-				+ (s.charCodeAt(i + 2) << 16)
-				+ (s.charCodeAt(i + 3) << 24);
-		}
-		return md5blks;
-	}
-
-	var hex_chr = '0123456789abcdef'.split('');
-
-	function rhex(n) {
-		var s = '', j = 0;
-		for (; j < 4; j++)
-			s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
-				+ hex_chr[(n >> (j * 8)) & 0x0F];
-		return s;
-	}
-
-	function hex(x) {
-		for (var i = 0; i < x.length; i++)
-			x[i] = rhex(x[i]);
-		return x.join('');
-	}
-
-	function md5(s) {
-		return hex(md51(s));
-	}
-
-	/*
-	 * this function is much faster, so if possible we use
-	 * it. Some IEs are the only ones I know of that need
-	 * the idiotic second function, generated by an if
-	 * clause.
-	 */
-
-	function add32(a, b) {
-		return (a + b) & 0xFFFFFFFF;
-	}
-
-	/**! http://stackoverflow.com/a/2117523/377392 */
-	var fmt = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-	this.uuid = function() {
-		return fmt.replace(/[xy]/g, function(c) {
-			var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-			return v.toString(16);
-		});
-	};
-
-	this.md5 = md5;
-	return this;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Services
-@name $mbDispatcher
-@description a wrapper of FLUX
-
-Dispatcher is used to broadcast payloads to registered callbacks. This is
-different from generic pub-sub systems in two ways: - Callbacks are not
-subscribed to particular events. Every payload is dispatched to every
-registered callback. - Callbacks can be deferred in whole or part until other
-callbacks have been executed.
-
- */
-angular.module('mblowfish-core').service('$mbDispatcher', function() {
-
-
-    /*
-	List of all dispatcher
-	*/
-	var dispatchers = {};
-
-    /*
-	Finds dispatcher for the type
-	*/
-	function getDispatcherFor(type) {
-		if (!dispatchers[type]) {
-			dispatchers[type] = new Flux.Dispatcher();
-		}
-		return dispatchers[type];
-	}
-
-    /**
-	Registers a callback to be invoked with every dispatched payload. Returns
-	a token that can be used with `waitFor()`.
-	
-	This payload is digested by both stores:
-	
-	@example 
-	dispatchToken = $ispatcher.register('action.type', function(payload) { 
-	 if (payload.actionType === 'country-update') { 
-	     CountryStore.country = payload.selectedCountry; 
-	 } 
-	});
-	
-	@param callback function to add 
-	@memberof $mbDispatcher
-     */
-	function on(type, callback) {
-		return getDispatcherFor(type).register(callback);
-	}
-
-    /** 
-	Removes a callback based on its token. 
-
-	@memberof $mbDispatcher
-     */
-	function off(type, id) {
-		return getDispatcherFor(type).unregister(id);
-	}
-
-    /**
-	Waits for the callbacks specified to be invoked before continuing
-	execution of the current callback. This method should only be used by a
-	callback in response to a dispatched payload.
-
-	@memberof $mbDispatcher
-     */
-	function waitFor(type, ids) {
-		return getDispatcherFor(type).waitFor(ids);
-	}
-
-    /**
-	Dispatches a payload to all registered callbacks.
-	
-	 Payload contains key and values. You may add extra values to the 
-	payload.
-
-	@memberof $mbDispatcher
-     */
-	function dispatch(type, payload) {
-		return getDispatcherFor(type).dispatch(payload);
-	};
-
-    /**
-	Is this Dispatcher currently dispatching.
-
-	@memberof $mbDispatcher
-     */
-	function isDispatching(type) {
-		return getDispatcherFor(type).isDispatching();
-	};
-
-	return {
-		on: on,
-		off: off,
-		waitFor: waitFor,
-		dispatch: dispatch,
-		isDispatching: isDispatching,
-	};
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Factories
- * @name MbEvent
- * @description An event item
- * 
- * Events are used to propagate signals to the application. It is based on $dispatcher. 
- * 
- * NOTE: All platform events (from mb or children) are instance of this factory.
- * 
- */
-.factory('MbEvent', function () {
-
-    function mbEvent(data) {
-        if (!angular.isDefined(data)) {
-            data = {};
-        }
-        angular.extend(this, data);
-    };
-
-    mbEvent.prototype.getType = function () {
-        return this.type || 'unknown';
-    };
-
-    mbEvent.prototype.getKey = function () {
-        return this.key || 'unknown';
-    };
-
-    mbEvent.prototype.getValues = function () {
-        return this.values || [];
-    };
-
-    mbEvent.prototype.isCreated = function () {
-        return this.key === 'create';
-    };
-
-    mbEvent.prototype.isRead = function () {
-        return this.key === 'read';
-    };
-
-    mbEvent.prototype.isUpdated = function () {
-        return this.key === 'update';
-    };
-
-    mbEvent.prototype.isDeleted = function () {
-        return this.key === 'delete';
-    };
-
-    return mbEvent;
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Factories
- * @name httpRequestInterceptor
- * @description An interceptor to handle the error 401 of http response
- * @see https://docs.angularjs.org/api/ng/service/$http#interceptors
- */
-.factory('MbHttpRequestInterceptor', function ($q, $injector) {
-	
-	var httpRequestInterceptor = function(){};
-	httpRequestInterceptor.prototype.responseError = function (rejection) {
-		var app = $injector.get('$app');
-		// do something on error
-		if (rejection.status === 401) {
-			app.logout();
-		}
-		return $q.reject(rejection);
-	};
-	return httpRequestInterceptor;
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').config(function($mdDateLocaleProvider, $translateProvider) {
-	$translateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
-	$translateProvider.useLoader('MbLanguageLoader');
-	
-	// Change moment's locale so the 'L'-format is adjusted.
-	// For example the 'L'-format is DD.MM.YYYY for German
-	moment.locale('en');
-
-	// Set month and week names for the general $mdDateLocale service
-	var localeData = moment.localeData();
-	$mdDateLocaleProvider.months = localeData._months;
-	$mdDateLocaleProvider.shortMonths = moment.monthsShort();
-	$mdDateLocaleProvider.days = localeData._weekdays;
-	$mdDateLocaleProvider.shortDays = localeData._weekdaysMin;
-	// Optionaly let the week start on the day as defined by moment's locale data
-	$mdDateLocaleProvider.firstDayOfWeek = localeData._week.dow;
-
-	// Format and parse dates based on moment's 'L'-format
-	// 'L'-format may later be changed
-	$mdDateLocaleProvider.parseDate = function(dateString) {
-		var m = moment(dateString, 'L', true);
-		return m.isValid() ? m.toDate() : new Date(NaN);
-	};
-
-	$mdDateLocaleProvider.formatDate = function(date) {
-		var m = moment(date);
-		return m.isValid() ? m.format('L') : '';
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/*
- * TODO: maso, 2019: add filter document
- */
-angular.module('mblowfish-core').filter('currencyFilter', function(numberFilter, translateFilter) {
-
-	return function(price, unit) {
-
-		if (!price) {
-			return translateFilter('free');
-		}
-		// TODO: maso, 2019: set unit with system default currency if is null
-		if (unit === 'iran-rial' || unit === 'iran-tooman') {
-			return numberFilter(price) + ' '
-				+ translateFilter(unit);
-		} else if (unit === 'bahrain-dinar') {
-			return numberFilter(price) + ' '
-				+ translateFilter('bahrain-dinar');
-		} else if (unit === 'euro') {
-			return numberFilter(price) + ' '
-				+ translateFilter('euro');
-		} else if (unit === 'dollar') {
-			return translateFilter('dollar') + ' '
-				+ numberFilter(price);
-		} else if (unit === 'pound') {
-			return translateFilter('pound') + ' '
-				+ numberFilter(price);
-		} else if (unit === 'iraq-dinar') {
-			return numberFilter(price) + ' '
-				+ translateFilter('iraq-dinar');
-		} else if (unit === 'kuwait-dinar') {
-			return numberFilter(price) + ' '
-				+ translateFilter('kuwait-dinar');
-		} else if (unit === 'oman-rial') {
-			return numberFilter(price) + ' '
-				+ translateFilter('oman-rial');
-		} else if (unit === 'turkish-lira') {
-			return numberFilter(price) + ' '
-				+ translateFilter('turkish-lira');
-		} else if (unit === 'uae-dirham') {
-			return numberFilter(price) + ' '
-				+ translateFilter('uae-dirham');
-		} else {
-			return numberFilter(price) + ' ?';
-		}
-	};
-});
-
-
-
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-
-/**
- * @ngdoc Filters
- * @name mbDate
- * @description # Format date
- */
-angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
-	return function(inputDate, format) {
-		return $mbLocal.formatDate(inputDate, format);
-	};
-});
-
-/**
- * @ngdoc Filters
- * @name mbDateTime
- * @description # Format date time
- */
-angular.module('mblowfish-core').filter('mbDateTime', function($mbLocal) {
-	return function(inputDate, format) {
-		return $mbLocal.formatDateTime(inputDate, format);
-	};
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-/*
- * 
- */
-angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootScope) {
-
-	// load language
-	function getLanguage(key) {
-		var languages = $rootScope.__app.configs.languages || [];
-		var lang = {
-			map: []
-		};
-		angular.forEach(languages, function(item) {
-			if (item.key === key) {
-				lang = item;
-			}
-		});
-		return lang.map;
-	}
-
-    /*
-     * State machine to manage language configurations
-     */
-	var stateMachine = new machina.Fsm({
-		namespace: 'mb-language-config-loader',
-		initialState: 'loading',
-		states: {
-			loading: {
-				appStateChange: function(state) {
-					if (state === 'ready') {
-						this.transition('ready');
-					}
-					// TODO: maso, 2018: not configured or fail
-					if (state === 'ready_app_not_configured') {
-						this.transition('fail');
-					}
-				}
-			},
-			ready: {
-				appStateChange: function(state) {
-					// TODO: maso, 2018: not configured or fail
-					if (state === 'ready_app_not_configured') {
-						this.transition('fail');
-					}
-				}
-			},
-			fail: {
-				appStateChange: function(state) {
-					if (state === 'ready') {
-						this.transition('ready');
-					}
-				}
-			}
-		},
-
-        /*
-         * Handle application state change
-         */
-		appStateChange: function(state) {
-			this.handle('appStateChange', state);
-		}
-
-	});
-
-	$rootScope.$watch('__app.state', function(state) {
-		stateMachine.appStateChange(state);
-	});
-
-	var jobs = [];
-	// I'd like to know when the transition event occurs
-	stateMachine.on('transition', function() {
-		if (stateMachine.state === 'ready' || stateMachine.state === 'fail') {
-			angular.forEach(jobs, function(job) {
-				job();
-			});
-			jobs = [];
-		}
-	});
-
-	return function(option) {
-		if (stateMachine.state === 'fail') {
-			return $q.reject(option.key);
-		}
-		if (stateMachine.state === 'ready') {
-			return $q.when(getLanguage(option.key));
-		}
-
-		var deferred = $q.defer();
-		jobs.push(function() {
-			if (stateMachine.state === 'fail') {
-				return deferred.reject(option.key);
-			}
-			deferred.resolve(getLanguage(option.key));
-		});
-		return deferred.promise;
-	};
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Services
- * @name $mbLocal
- * @description manage localization of widgets
- * 
- * Deprecated : use $window
- */
-angular.module('mblowfish-core').service('$mbLocal', function($rootScope) {
-	var defaultDateFormat = 'jYYYY-jMM-jDD';
-	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
-
-	/**
-	 * Gets current data of the system.
-	 * 
-	 * @memberof $mbLocal
-	 */
-	this.getDate = function() {
-		return new Date();
-	};
-
-
-	function formatDateInternal(inputDate, format) {
-		if (!inputDate) {
-			return '';
-		}
-		try {
-			if ($rootScope.app.calendar !== 'Jalaali') {
-				format = format.replace('j', '');
-			}
-			var date = moment //
-				.utc(inputDate) //
-				.local();
-			return date.format(format);
-		} catch (ex) {
-			return '-' + ex.message;
-		}
-	}
-	/**
-	 * Formats the input date based on the format
-	 * 
-	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-	 * 
-	 * @params data {String | Date} to format
-	 * @params format {String} of the output
-	 * @memberof $mbLocal
-	 */
-	this.formatDate = function(inputDate, format) {
-		return formatDateInternal(inputDate, format ||
-			$rootScope.app.setting.dateFormat ||
-			$rootScope.app.config.dateFormat ||
-			defaultDateFormat);
-	};
-
-	/**
-	 * Formats the input date based on the format
-	 * 
-	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-	 * 
-	 * @params data {String | Date} to format
-	 * @params format {String} of the output
-	 * @memberof $mbLocal
-	 */
-	this.formatDateTime = function(inputDate, format) {
-		return formatDateInternal(inputDate, format ||
-			$rootScope.app.setting.dateFormatTime ||
-			$rootScope.app.config.dateFormatTime ||
-			defaultDateTimeFormat);
-	};
-	/**
-	 * Get currency of the system
-	 * 
-	 * @return currency ISO code
-	 * @memberof $mbLocal
-	 */
-	this.getCurrency = function() {
-		return this.currency || 'USD';
-	};
-
-	/**
-	 * Sets currency of the system
-	 * 
-	 * @param currency {String} ISO code
-	 * @memberof $mbLocal
-	 */
-	this.setCurrency = function(currency) {
-		this.currency = currency;
-	};
-
-	/**
-	 * Get language of the system
-	 * 
-	 * @return language ISO code
-	 * @memberof $mbLocal
-	 */
-	this.getLanguage = function() {
-		return $rootScope.app.language;
-	};
-
-	/**
-	 * Sets language of the system
-	 * 
-	 * @params language {String} ISO code
-	 * @memberof $mbLocal
-	 */
-	this.setLanguage = function(language) {
-		this.language = language;
-	};
-
-
-	return this;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Services
-@name $mbLogger
-@description Manage and translate all backend error and messages
-
-
-
- */
-angular.module('mblowfish-core').service('$mbLogger', function() {
-
-	/**
-	 * Checks status, message and data of the error. If given form is not null,
-	 * it set related values in $error of fields in the form. It also returns a
-	 * general message to show to the user.
-	 */
-	this.errorMessage = function(error, form) {
-		var message = null;
-		if (error.status === 400 && form) { // Bad request
-			message = 'Form is not valid. Fix errors and retry.';
-			error.data.data.forEach(function(item) {
-				form[item.name].$error = {};
-				item.constraints.map(function(cons) {
-					if (form[item.name]) {
-						form[item.name].$error[cons.toLowerCase()] = true;
-					}
-				});
-			});
-		} else {
-			message = error.data.message;
-		}
-		return message;
-	}
-	
-	this.error = function(){};
-	this.warn = function(){};
-	this.debug = function(){};
-	this.info = function(){};
-	
-
-	return this;
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Factories
-@name MbModule
-@description A module item of the Mblowfish
-
- */
-angular.module('mblowfish-core').factory('MbModule', function() {
-
-	function MbModule(data) {
-		_.asign(this, data, {
-			isGlobal: false,
-			url: undefined,
-			type: undefined,
-		});
-	};
-
-	MbModule.prototype.load = function() {
-	};
-
-	MbModule.prototype.unload = function() {
-	};
-
-	return MbModule;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * Manages system moduels
- */
-angular.module('mblowfish-core').provider('$mbModules', function() {
-
-	var LOCAL_MODULE_KEY = 'app.settings.modules';
-	var GLOBAL_MODULE_KEY = 'app.configs.modules';
-
-	var q;
-	var window;
-	var mbApplication;
-	var mbDispatcher;
-	var Module;
-
-	var modules = [];
-	var providerTypes = [];
-	var providers = {};
-	var moduleEnable = true;
-
-	var provider;
-	var service;
-
-	//
-	//	this.addGlobalModule = function(module1) {
-	//		this.loadModule(module1);
-	//		this.globalModules.push(module1);
-	//		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
-	//		$mbDispatcher.dispatch('/app/global/modules', {
-	//			type: 'create',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.removeGlobalModule = function(module1) {
-	//		var targetModule;
-	//		_.forEach(this.globalModules, function(item) {
-	//			if (module1.url === item.url) {
-	//				targetModule = item;
-	//			}
-	//		});
-	//
-	//		if (_.isUndefined(targetModule)) {
-	//			return;
-	//		}
-	//
-	//		var index = this.globalModules.indexOf(targetModule);
-	//		this.globalModules.splice(index, 1);
-	//		$app.setProperty(GloGLOBAL_MODULE_KEY, this.globalModules);
-	//		$mbDispatcher.dispatch('/app/global/modules', {
-	//			type: 'delete',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.removeGlobalModules = function() {
-	//		var modules = this.globalModules;
-	//		this.globalModules = [];
-	//		$app.setProperty(GLOBAL_MODULE_KEY, this.globalModules);
-	//		$mbDispatcher.dispatch('/app/global/modules', {
-	//			type: 'delete',
-	//			values: modules
-	//		});
-	//	};
-	//
-	//	this.getGlobalModules = function() {
-	//		return this.globalModules;
-	//	};
-	//
-	//
-	//	this.addLocalModule = function(module1) {
-	//		this.loadModule(module1);
-	//		this.localModules.push(module1);
-	//		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
-	//		$mbDispatcher.dispatch('/app/local/modules', {
-	//			type: 'create',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.removeLocalModules = function() {
-	//		var modules = this.localModules;
-	//		this.localModules = [];
-	//		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
-	//		$mbDispatcher.dispatch('/app/local/modules', {
-	//			type: 'delete',
-	//			values: modules
-	//		});
-	//	};
-	//
-	//	this.removeLocalModule = function(module1) {
-	//		var targetModule;
-	//		_.forEach(this.localModules, function(item) {
-	//			if (module1.url === item.url) {
-	//				targetModule = item;
-	//			}
-	//		});
-	//
-	//		if (_.isUndefined(targetModule)) {
-	//			return;
-	//		}
-	//
-	//		var index = this.localModules.indexOf(targetModule);
-	//		this.localModules.splice(index, 1);
-	//		$app.setProperty(LOCAL_MODULE_KEY, this.localModules);
-	//		$mbDispatcher.dispatch('/app/local/modules', {
-	//			type: 'delete',
-	//			values: [module1]
-	//		});
-	//	};
-	//
-	//	this.getLocalModules = function() {
-	//		return this.localModules;
-	//	};
-	//	this.loadModule = function(module) {
-	//		var job;
-	//		switch (module.type) {
-	//			case 'js':
-	//				job = $window.loadLibrary(module.url);
-	//				break;
-	//			case 'css':
-	//				job = $window.loadStyle(module.url);
-	//				break;
-	//		}
-	//		return job;
-	//	};
-	//
-	//	this.isLoaded = function() {
-	//		return this._loaded;
-	//	};
-	//
-	//	this.load = function() {
-	//		this._loaded = true;
-	//
-	//		this.localModules = $app.getProperty(LOCAL_MODULE_KEY) || [];
-	//		this.globalModules = $app.getProperty(GLOBAL_MODULE_KEY) || [];
-	//
-	//		var jobs = [];
-	//		var ctrl = this;
-	//		_.forEach(this.localModules, function(module) {
-	//			jobs.push(ctrl.loadModule(module));
-	//		});
-	//		_.forEach(this.globalModules, function(module) {
-	//			jobs.push(ctrl.loadModule(module));
-	//		});
-	//
-	//		return $q.all(jobs).finally(function() {
-	//			$mbDispatcher.dispatch('/app/local/modules', {
-	//				type: 'read',
-	//				values: this.localModules
-	//			});
-	//			$mbDispatcher.dispatch('/app/global/modules', {
-	//				type: 'read',
-	//				values: this.globalModules
-	//			});
-	//		});
-	//	};
-	//
-	//	// staso, 2019: fire the state is changed
-	//	this.localModules = [];
-	//	this.globalModules = [];
-	//	var ctrl = this;
-	//	$mbDispatcher.on('/app/state', function($event) {
-	//		if ($event.value === 'ready' && !ctrl.isLoaded()) {
-	//			ctrl.load();
-	//		}
-	//	});
-
-	function reloadModules() {
-		var jobs = [];
-		_.forEach(modules, function(module) {
-			jobs.push(module.unload());
-		});
-
-		q.all(jobs)
-			.then(function() {
-
-			});
-	}
-
-	function addModule(module) {
-		if (!(module instanceof Module)) {
-			module = new Module(module);
-		}
-		modules[module.id] = module;
-		if (!module.isLoaded()) {
-			module.load();
-		}
-		moduleListChanged();
-	}
-
-	function removeModule(module) {
-		if (!(module instanceof Module)) {
-			module = new Module(module);
-		}
-		var loaded = modules[module.id];
-		delete modules[module.id];
-		if (!loaded.isLoaded()) {
-			loaded.unload();
-		}
-		moduleListChanged();
-	}
-
-	service = {
-		reload: reloadModules,
-
-		removeModule: removeModule,
-		addModule: addModule,
-	};
-	provider = {
-		/* @ngInject */
-		$get: function(
-			/* MBlowfish */ $app,
-			/* Angularjs */ $window, $q,
-			/* am-wb     */ $mbDispatcher, MbModule) {
-			q = $q;
-			window = $window;
-			mbApplication = $app;
-			mbDispatcher = $mbDispatcher;
-			Module = MbModule;
-
-			return service;
-		},
-		enable: function(enable){
-			moduleEnable = enable;
-		}
-	};
-	return provider;
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Services
- * @name $resource
- * @description Resource management system
- * 
- * This is a service to get resources. 
- * 
- */
-angular.module('mblowfish-core').service('$resource', function($mdDialog, $rootScope) {
-    var CHILDREN_AUNCHOR = 'wb-select-resource-children';
-    var resourcePages = {};
-    /*
-     * Manages resource dialog
-     * @ngInject
-     */
-    function ResourceCtrl($scope,  $mdDialog, $wbUtil,
-            $q, $controller, $compile, pages, style, data, $element, $window) {
-
-        $scope.value = angular.copy(data);
-        $scope.style = style;
-        var currentScope = null;
-
-        function hide() {
-            $mdDialog.hide();
-        }
-
-        function cancel() {
-            return $mdDialog.cancel();
-        }
-
-        /**
-         * Answer the dialog
-         * 
-         * If there is an answer function in the current page controller
-         * then the result of the answer function will be returned as 
-         * the main result.
-         * 
-         * @memberof WbResourceCtrl
-         */
-        function answer() {
-            $scope.loadingAnswer = true;
-            var res = null;
-            if(currentScope && angular.isFunction(currentScope.answer)){
-                res =  $q.when(currentScope.answer())
-                .then($mdDialog.hide);
-            } else {
-                res = $mdDialog.hide($scope.value);
-            }
-            return res.finally(function(){
-                $scope.loadingAnswer = false;
-            });
-        }
-
-        /*
-         * Sets value to the real var
-         */
-        this.setValue = function(value){
-            $scope.value = value;
-        };
-
-        /*
-         * Gets current value
-         */
-        this.getValue = function(){
-            return $scope.value;
-        };
-
-        /**
-         * encapsulate template srce with panel widget template.
-         * 
-         * @param page
-         *            setting page config
-         * @param tempateSrc
-         *            setting page html template
-         * @returns encapsulate html template
-         */
-        function _encapsulatePanel(page, template) {
-            // TODO: maso, 2017: pass all paramter to the setting
-            // panel.
-            return template;
-        }
-
-        /**
-         * تنظیمات را به عنوان تنظیم‌های جاری سیستم لود می‌کند.
-         * 
-         * @returns
-         */
-        function loadPage(page) {
-            var jobs = [];
-            var pages2 = [];
-
-            $scope._selectedIndex = pages.indexOf(page);
-
-            // 1- Find element
-            var target = $element.find('#' + CHILDREN_AUNCHOR);
-
-            // 2- Clear childrens
-            target.empty();
-            currentScope = null;
-
-
-            // 3- load pages
-//          var page = pages[index];
-            var template = $wbUtil.getTemplateFor(page);
-            if (angular.isDefined(template)) {
-                jobs.push($q.when(template).then(function(templateSrc) {
-                    templateSrc = _encapsulatePanel(page, templateSrc);
-                    var element = angular.element(templateSrc);
-                    var scope = $rootScope.$new(false, $scope);
-                    currentScope = scope;
-                    scope.page = page;
-                    scope.value = $scope.value;
-                    if (angular.isDefined(page.controller)) {
-                        var controller = $controller(page.controller, {
-                            $scope : scope,
-                            $element : element,
-                            style: style,
-                            data: data
-                        });
-                        if (page.controllerAs) {
-                            scope[page.controllerAs] = controller;
-                        }
-                    }
-                    $compile(element)(scope);
-                    pages2.push(element);
-                }));
-            }
-
-            $q.all(jobs).then(function() {
-                angular.forEach(pages2, function(element) {
-                    target.append(element);
-                });
-            });
-        }
-
-        if(angular.isFunction($window.openHelp)){
-            $scope.openHelp = function($event){
-                cancel().then(function(){
-                    $window.openHelp(pages[$scope._selectedIndex], $event);
-                });
-            };
-        }
-
-        $scope.pages = pages;
-
-        $scope.loadPage = loadPage;
-
-        $scope.hide = hide;
-        $scope.cancel = cancel;
-        $scope.answer = answer;
-
-        if(pages.length){
-            loadPage(pages[0]);
-        }
-
-        var ctrl = this;
-        $scope.setValue = function(value){
-            return ctrl.setValue(value);
-        };
-    }
-
-
-    /**
-     * Fetches a page.
-     * 
-     * @param model
-     * @returns
-     */
-    function page(type) {
-        // TODO: maso, 2018: replace with not found resource
-        var widget = null;
-        if (type in resourcePages) {
-            widget = resourcePages[type];
-        }
-        return widget;
-    }
-
-    /**
-     * Adds new page.
-     * 
-     * @returns
-     */
-    function newPage(page) {
-        resourcePages[page.type] = page;
-    }
-
-    /**
-     * Finds and lists all pages.
-     * 
-     * @returns
-     */
-    function pages() {
-        // TODO: maso, 1395:
-    }
-
-    function getPages(tag){
-        var pages = [];
-        angular.forEach(resourcePages, function(page) {
-            if(angular.isArray(page.tags) && page.tags.includes(tag)){
-                this.push(page);
-            }
-        }, pages);
-        return pages;
-    }
-
-    /**
-     * Get a resource 
-     * 
-     * - option.data: current value of the date
-     * - option.style: style of the dialog (title, descritpion, image, ..)
-     * 
-     * @param tags
-     * @returns
-     */
-    function get(tag, option){
-        if(!option){
-            option = {};
-        }
-        var pages = getPages(tag);
-        var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
-        return $mdDialog.show({
-            controller : ResourceCtrl,
-            templateUrl : tmplUrl,
-            parent : angular.element(document.body),
-            clickOutsideToClose : false,
-            fullscreen : true,
-            multiple:true,
-            locals : {
-                'pages' : pages,
-                'style' : option.style || {
-                    title: tag
-                },
-                'data' : option.data || {}
-            }
-        });
-    }
-
-    this.hasPeagFor = function(tag){
-        var pages = getPages(tag);
-        return pages.length > 0;
-    };
-
-
-    this.get = get;
-    this.newPage = newPage;
-    this.page = page;
-    this.pages = pages;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc service
- * @name $mbSelection
- * @description Default selection system.
- */
-angular.module('mblowfish-core').service('$mbSelection', function() {
-	var selection = [];
-	
-	this.addItem = function($item, $event){};
-	this.clearItems = function(){};
-	this.getItems = function(){};
-	this.isSelected = function(){};
-	
-	return this;
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Services
- * @name $mbStorage
- * @description A service to work with storage of browser
- * 
- */
-angular.module('mblowfish-core').provider('$mbStorage', function() {
-
-	function isStorageSupported($window, storageType) {
-
-		// Some installations of IE, for an unknown reason, throw "SCRIPT5: Error: Access is denied"
-		// when accessing window.localStorage. This happens before you try to do anything with it. Catch
-		// that error and allow execution to continue.
-
-		// fix 'SecurityError: DOM Exception 18' exception in Desktop Safari, Mobile Safari
-		// when "Block cookies": "Always block" is turned on
-		var supported;
-		try {
-			supported = $window[storageType];
-		} catch (err) {
-			supported = false;
-		}
-		// When Safari (OS X or iOS) is in private browsing mode, it appears as though localStorage and sessionStorage
-		// is available, but trying to call .setItem throws an exception below:
-		// "QUOTA_EXCEEDED_ERR: DOM Exception 22: An attempt was made to add something to storage that exceeded the quota."
-		if (supported) {
-			var key = '__' + Math.round(Math.random() * 1e7);
-			try {
-				$window[storageType].setItem(key, key);
-				$window[storageType].removeItem(key, key);
-			}
-			catch (err) {
-				supported = false;
-			}
-		}
-		return supported;
-	}
-
-	var storageKeyPrefix = 'ngStorage-';
-	var serializer = angular.toJson;
-	var deserializer = angular.fromJson;
-	var storageType = 'localStorage';
-
-	var providerWebStorage = isStorageSupported(window, storageType);
-
-
-	return {
-
-		setKeyPrefix: function(prefix) {
-			if (typeof prefix !== 'string') {
-				throw new TypeError('[mblowfish] - $mbStorage Provider.setKeyPrefix() expects a String.');
-			}
-			storageKeyPrefix = prefix;
-		},
-
-
-		setSerializer: function(s) {
-			if (typeof s !== 'function') {
-				throw new TypeError('[mblowfish] -  $mbStorage Provider.setSerializer expects a function.');
-			}
-			serializer = s;
-		},
-
-		setDeserializer: function(d) {
-			if (typeof d !== 'function') {
-				throw new TypeError('[ngStorage] -  $mbStorage Provider.setDeserializer expects a function.');
-			}
-			deserializer = d;
-		},
-
-		supported: function(type) {
-			type = type || 'localStorage';
-			return !!isStorageSupported(window, storageType);
-		},
-
-		// Note: This is not very elegant at all.
-		get: function(key) {
-			return providerWebStorage && deserializer(providerWebStorage.getItem(storageKeyPrefix + key));
-		},
-
-		// Note: This is not very elegant at all.
-		set: function(key, value) {
-			return providerWebStorage && providerWebStorage.setItem(storageKeyPrefix + key, serializer(value));
-		},
-
-		remove: function(key) {
-			providerWebStorage && providerWebStorage.removeItem(storageKeyPrefix + key);
-		},
-
-		/* @ngInject */
-		$get: function(
-			$rootScope, $window, $log, $timeout, $document
-		) {
-
-			// The magic number 10 is used which only works for some keyPrefixes...
-			// See https://github.com/gsklee/ngStorage/issues/137
-			var prefixLength = storageKeyPrefix.length;
-			var isSupported = isStorageSupported($window, storageType);
-
-			// #9: Assign a placeholder object if Web Storage is unavailable to prevent breaking the entire AngularJS app
-			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
-			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
-			var $storage = {
-//				get: function(name) {
-//					return $storage[name];
-//				},
-//				put: function(name, value) {
-//					$storage[name] = value;
-//					return $storage;
-//				},
-//				remove: function(name) {
-//					delete $storage[name];
-//					return $storage;
-//				},
-//				has: function(name) {
-//					return ($localStorage[name] ? true : false);
-//				},
-				$default: function(items) {
-					for (var k in items) {
-						angular.isDefined($storage[k]) || ($storage[k] = angular.copy(items[k]));
-					}
-					$storage.$sync();
-					return $storage;
-				},
-				$reset: function(items) {
-					for (var k in $storage) {
-						'$' === k[0] || (delete $storage[k] && webStorage.removeItem(storageKeyPrefix + k));
-					}
-					return $storage.$default(items);
-				},
-				$sync: function() {
-					for (var i = 0, l = webStorage.length, k; i < l; i++) {
-						// #8, #10: `webStorage.key(i)` may be an empty string (or throw an exception in IE9 if `webStorage` is empty)
-						(k = webStorage.key(i)) && storageKeyPrefix === k.slice(0, prefixLength) && ($storage[k.slice(prefixLength)] = deserializer(webStorage.getItem(k)));
-					}
-				},
-				$apply: function() {
-					var temp$storage;
-					_debounce = null;
-					if (!_.isEqual($storage, _last$storage)) {
-						temp$storage = angular.copy(_last$storage);
-						angular.forEach($storage, function(v, k) {
-							if (angular.isDefined(v) && '$' !== k[0]) {
-								webStorage.setItem(storageKeyPrefix + k, serializer(v));
-								delete temp$storage[k];
-							}
-						});
-						for (var k in temp$storage) {
-							webStorage.removeItem(storageKeyPrefix + k);
-						}
-						_last$storage = angular.copy($storage);
-					}
-				},
-				$supported: function() {
-					return !!isSupported;
-				}
-			};
-			var _last$storage;
-			var _debounce;
-
-			$storage.$sync();
-
-			_last$storage = angular.copy($storage);
-
-			$rootScope.$watch(function() {
-				_debounce || (_debounce = $timeout($storage.$apply, 100, false));
-			});
-
-			// #6: Use `$window.addEventListener` instead of `angular.element` to avoid the jQuery-specific `event.originalEvent`
-			$window.addEventListener && $window.addEventListener('storage', function(event) {
-				if (!event.key) {
-					return;
-				}
-				// Reference doc.
-				var doc = $document[0];
-				if ((!doc.hasFocus || !doc.hasFocus()) && storageKeyPrefix === event.key.slice(0, prefixLength)) {
-					event.newValue ? $storage[event.key.slice(prefixLength)] = deserializer(event.newValue) : delete $storage[event.key.slice(prefixLength)];
-					_last$storage = angular.copy($storage);
-					$rootScope.$apply();
-				}
-			});
-
-			$window.addEventListener && $window.addEventListener('beforeunload', function() {
-				$storage.$apply();
-			});
-
-			return $storage;
-		}
-	};
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
-@ngdoc Services
-@name $mbTheming
-@description Manages theme of an element
-
- */
-angular.module('mblowfish-core').provider('$mbTheming', function() {
-	var mdTheming;
-
-	function applyTheme(element) {
-		element.addClass('_mb');
-		element.addClass('_md');
-		mdTheming(element);
-	}
-
-	return {
-		/* @ngInject */
-		$get: function($mdTheming) {
-			mdTheming = $mdTheming;
-			return applyTheme;
-		}
-	};
-})
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Services
- * @name $mbUtil
- * @description utility in Mblowfish
- * 
- */
-angular.module('mblowfish-core').service('$mbUtil', function() {
-
-	/**
-	 * Creates a shallow copy of an object, an array or a primitive.
-	 *
-	 * Assumes that there are no proto properties for objects.
-	 */
-	this.shallowCopy = function(src, dst) {
-		if (this.isArray(src)) {
-			dst = dst || [];
-			for (var i = 0, ii = src.length; i < ii; i++) {
-				dst[i] = src[i];
-			}
-		} else if (this.isObject(src)) {
-			dst = dst || {};
-			for (var key in src) {
-				if (!(key.charAt(0) === '$' && key.charAt(1) === '$')) {
-					dst[key] = src[key];
-				}
-			}
-		}
-		return dst || src;
-	};
-
-
-
-	this.noop = angular.noop;
-	this.isArray = angular.isArray;
-	this.isObject = angular.isObject;
-	this.isDefined = angular.isDefined;
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Directives
- * @name compare-to
- * @description Compare two attributes.
- */
-.directive('compareTo', function(){
-	return {
-		require: 'ngModel',
-		scope: {
-			otherModelValue: '=compareTo'
-		},
-		link: function(scope, element, attributes, ngModel){
-			ngModel.$validators.compareTo = function(modelValue) {
-				return modelValue === scope.otherModelValue;
-			};
-
-			scope.$watch('otherModelValue', function() {
-				ngModel.$validate();
-			});
-		}
-	};
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Directives
- * @name mb-badge
- * @description Display a badge on items
- * 
- */
-.directive('mbBadge', function($mdTheming, $rootScope) {
-
-	function __badge_toRGB(color){
-		var split = (color || '').split('-');
-		if (split.length < 2) {
-			split.push('500');
-		}
-
-		var hueA = split[1] || '800'; // '800'
-		var colorR = split[0] || 'primary'; // 'warn'
-
-		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
-		if(typeof theme === 'undefined'){
-			theme = $mdTheming.THEMES['default'];
-		}
-		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
-		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-		return 'rgb(' + colorValue.join(',') + ')';
-	}
-
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-
-		function style(where, color) {
-			if (color) {
-				element.css(where, __badge_toRGB(color));
-			}
-		}
-//		function getPosition(){
-//		return {
-//		top: element.prop('offsetTop'),
-//		left: element.prop('offsetLeft'),
-//		width: element.prop('offsetWidth'),
-//		height: element.prop('offsetHeight')
-//		};
-//		}
-		scope.$watch(function() {
-			return attributes.mbBadgeColor;
-		}, function(value){
-			style('color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadgeFill;
-		}, function(value){
-			style('background-color', value);
-		});
-	}
-
-	return {
-		restrict: 'E',
-		replace: true,
-		transclude: true,
-		link: postLink,
-		template: function(/*element, attributes*/) {
-			return '<div class="mb-badge" ng-transclude></div>';
-		}
-	};
-});
-
-angular.module('mblowfish-core')
-.directive('mbBadge', function($mdTheming,/* $mdColors, $timeout, $window,*/ $compile, $rootScope) {
-
-
-	function __badge_toRGB(color){
-		var split = (color || '').split('-');
-		if (split.length < 2) {
-			split.push('500');
-		}
-
-		var hueA = split[1] || '800'; // '800'
-		var colorR = split[0] || 'primary'; // 'warn'
-
-		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
-		if(typeof theme === 'undefined'){
-			theme = $mdTheming.THEMES['default'];
-		}
-		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
-		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-		return 'rgb(' + colorValue.join(',') + ')';
-	}
-
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-		//
-		var parent = element.parent();
-		var bg = angular.element('<div></div>');
-		var link = $compile(bg);
-		var badge = link(scope);
-
-		var offset = parseInt(attributes.mdBadgeOffset);
-		if (isNaN(offset)) {
-			offset = 10;
-		}
-
-		function style(where, color) {
-			if (color) {
-				badge.css(where, __badge_toRGB(color));
-			}
-		}
-		function getPosition(){
-			return {
-				top: element.prop('offsetTop'),
-				left: element.prop('offsetLeft'),
-				width: element.prop('offsetWidth'),
-				height: element.prop('offsetHeight')
-			};
-		}
-
-		function position(value) {
-			var top = element.prop('offsetTop');
-			badge.css({
-				'display' : attributes.mbBadge && top ? 'initial' : 'none',
-						'left' : value.left + value.width - 20 + offset + 'px',
-						'top' : value.top + value.height - 20 + offset + 'px'
-			});
-		}
-
-//		function update () {
-//		position(getPosition());
-//		}
-
-		badge.addClass('mb-badge');
-		badge.css('position', 'absolute');
-		parent.append(badge);
-		scope.$watch(function() {
-			return attributes.mbBadgeColor;
-		}, function(value){
-			style('color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadgeFill;
-		}, function(value){
-			style('background-color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadge;
-		}, function(value){
-			badge.text(value);
-			badge.css('display', value ? 'initial' : 'none');
-		});
-
-		scope.$watch(getPosition, function(value) {
-			position(value);
-		}, true);
-
-//		angular.element($window)
-//		.bind('resize', function(){
-//		update();
-//		});
-	}
-	return {
-		priority: 100,
-		restrict: 'A',
-		link: postLink
-	};
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Directives
- * @name mb-captcha
- * @description Adding captcha value
- * 
- * In some case, user must send captcha to the server fro auth. This a directive
- * to enablie captcha
- * 
- */
-.directive('mbCaptcha', function() {
-
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @returns
-     */
-    function postLink(scope, element, attrs, ctrls) {
-        var form=ctrls[0];
-//        var ngModel=ctrls[1];
-
-        function validate(){
-            if(form){
-                form.$setValidity('captcha', scope.required === false ? null : Boolean(scope.response));
-            }
-        }
-
-//        function destroy() {
-//            if (form) {
-//                // reset the validity of the form if we were removed
-//                form.$setValidity('captcha', null);
-//            }
-//        }
-
-
-        if(form && angular.isDefined(attrs.required)){
-            scope.$watch('required', validate);
-        }
-        scope._response = null;
-        scope.$watch('_response', function(){
-            scope.response = scope._response;
-        });
-        scope.$watch('response', function(){
-            scope._response = scope.response;
-        });
-
-
-    }
-
-    return {
-        restrict : 'E',
-        require: ['?^^form'],
-        templateUrl: 'views/directives/mb-captcha.html',
-        scope: {
-            response: '=?ngModel'
-        },
-        link: postLink
-    };
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-context-menu
- * @description Set internal md-menu as context menu
- * 
- */
-.directive('mbContextMenu', function() {
-	return {
-		restrict : 'A',
-		require : 'mdMenu',
-		scope : true,
-		link : function(scope, element, attrs, menu) {
-			element.bind('contextmenu', function(event) {
-	            scope.$apply(function() {
-					menu.open(event);
-	            });
-	        });
-		}
-	};
-});
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-
-	/**
-	 * @ngdoc Directives
-	 * @name mb-datepicker
-	 * @descritpion Date picker
-	 * 
-	 * Select a date based on local.
-	 * 
-	 */
-	.directive('mbDatepicker', function($mdUtil, $rootScope) {
-
-		// **********************************************************
-		// Private Methods
-		// **********************************************************
-		function postLink(scope, element, attr, ctrls) {
-			scope.app = $rootScope.app || {};
-			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
-
-			function render() {
-				if (!ngModelCtrl.$modelValue) {
-					return;
-				}
-				var date = moment //
-					.utc(ngModelCtrl.$modelValue) //
-					.local();
-				if (date.isValid()) {
-					scope.date = date;
-					return;
-				}
-				// TODO: maso, 2018: handle invalid date
-			}
-
-			function setValue() {
-				if (!scope.date) {
-					ngModelCtrl.$setViewValue(scope.date);
-					return;
-				}
-				var date = moment(scope.date) //
-					.utc() //
-					.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
-				ngModelCtrl.$setViewValue(date);
-			}
-
-			ngModelCtrl.$render = render;
-			scope.$watch('date', setValue);
-		}
-
-
-		return {
-			replace: false,
-			template: function() {
-				var app = $rootScope.app || {};
-				if (app.calendar === 'Gregorian') {
-					return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-				}
-				return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-			},
-			restrict: 'E',
-			scope: {
-				minDate: '=mbMinDate',
-				maxDate: '=mbMaxDate',
-				placeholder: '@mbPlaceholder',
-				hideIcons: '@?mbHideIcons',
-				dateFormat: '@?mbDateFormat'
-				//		        currentView: '@mdCurrentView',
-				//		        dateFilter: '=mdDateFilter',
-				//		        isOpen: '=?mdIsOpen',
-				//		        debounceInterval: '=mdDebounceInterval',
-				//		        dateLocale: '=mdDateLocale'
-			},
-			require: ['ngModel'],
-			priority: 210, // Run before ngAria
-			link: postLink
-		};
-	});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc Directives
- * @name mbDynamicForm
- * @description Get a list of properties and fill them
- * 
- * Each property will be managed by an indevisual property editor.
- */
-.directive('mbDynamicForm', function ($resource) {
-
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @param ctrls
-     * @returns
-     */
-    function postLink(scope, element, attrs, ctrls) {
-        // Load ngModel
-        var ngModelCtrl = ctrls[0];
-        scope.values = {};
-        ngModelCtrl.$render = function () {
-            scope.values = ngModelCtrl.$viewValue || {};
-        };
-
-        scope.modelChanged = function (key, value) {
-            scope.values[key] = value;
-            ngModelCtrl.$setViewValue(scope.values);
-        };
-
-        scope.hasResource = function(prop){
-            return $resource.hasPeagFor(prop.name);
-        };
-        
-        scope.setValueFor = function(prop){
-            return $resource.get(prop.name, {
-                data: prop.defaultValue
-            })
-            .then(function(value){
-                scope.modelChanged(prop.name, value);
-            });
-        };
-    }
-
-    return {
-        restrict: 'E',
-        require: ['ngModel'],
-        templateUrl: 'views/directives/mb-dynamic-form.html',
-        scope: {
-            mbParameters: '='
-        },
-        link: postLink
-    };
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-dynamic-tabs
- * @description Display tabs dynamically
- * 
- * In some case, a dynamic tabs are required. This module add them dynamically.
- * 
- */
-.directive('mbDynamicTabs', function($wbUtil, $q, $rootScope, $compile, $controller) {
-	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
-
-
-	/**
-	 * encapsulate template srce with panel widget template.
-	 * 
-	 * @param page
-	 *            setting page config
-	 * @param tempateSrc
-	 *            setting page html template
-	 * @returns encapsulate html template
-	 */
-	function _encapsulatePanel(page, template) {
-		// TODO: maso, 2017: pass all paramter to the setting
-		// panel.
-		return template;
-	}
-
-
-	function link($scope, $element) {
-		// Load pages in scope
-		function loadPage(index){
-			var jobs = [];
-			var pages2 = [];
-			
-			var mbTabs = $scope.mbTabs || [];
-			if(index > mbTabs.length || index < 0 || mbTabs.length == 0){
-				return;
-			}
-			var page = mbTabs[index];
-
-			// 1- Find element
-			var target = $element.find('#' + CHILDREN_AUNCHOR);
-
-			// 2- Clear childrens
-			target.empty();
-
-			// 3- load pages
-			var template = $wbUtil.getTemplateFor(page);
-			if (angular.isDefined(template)) {
-				jobs.push(template.then(function(templateSrc) {
-					templateSrc = _encapsulatePanel(page, templateSrc);
-					var element = angular.element(templateSrc);
-					var scope = $rootScope.$new(false, $scope);
-					scope.page = page;
-					scope.value = $scope.value;
-					if (angular .isDefined(page.controller)) {
-						$controller(page.controller, {
-							$scope : scope,
-							$element : element
-						});
-					}
-					$compile(element)(scope);
-					pages2.push(element);
-				}));
-			}
-
-			$q.all(jobs).then(function() {
-				angular.forEach(pages2, function(element) {
-					target.append(element);
-				});
-			});
-		}
-		
-		// Index of selected page
-		$scope.$watch('pageIndex', function(value){
-			if(value >= 0){
-				loadPage(value);
-			}
-		});
-	}
-
-
-
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: {
-			mbTabs: '='
-		},
-		templateUrl: 'views/directives/mb-dynamic-tabs.html',
-		link: link
-	};
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-error-messages
- * @description An error message display
- */
-.directive('mbErrorMessages', function($compile) {
-
-    /*
-     * Link function
-     */
-    function postLink(scope, element){
-
-        /**
-         * Original element which replaced by this directive.
-         */
-        var origin = null;
-
-        scope.errorMessages = function(err){
-            if(!err) {
-                return;
-            }
-            var message = {};
-            message[err.status]= err.statusText;
-            message[err.data.code]= err.data.message;
-            return message;
-        };
-
-        scope.$watch(function(){
-            return scope.mbErrorMessages;
-        }, function(value){	
-            if(value){
-                var tmplStr = 
-                    '<div ng-messages="errorMessages(mbErrorMessages)" role="alert" multiple>'+
-                    '	<div ng-messages-include="views/mb-error-messages.html"></div>' +
-                    '</div>';
-                var el = angular.element(tmplStr);
-                var cmplEl = $compile(el);
-                var myEl = cmplEl(scope);
-                origin = element.replaceWith(myEl);
-            } else if(origin){
-                element.replaceWith(origin);
-                origin = null;
-            }
-        });
-    }
-
-    /*
-     * Directive
-     */
-    return {
-        restrict: 'A',
-        scope:{
-            mbErrorMessages : '='
-        },
-        link: postLink
-    };
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-infinate-scroll
- * @description Infinet scroll
- * 
- * 
- * Manage scroll of list
- */
-.directive('mbInfinateScroll', function ($parse, $q, $timeout) {
-    // FIXME: maso, 2017: tipo in diractive name (infinite)
-    function postLink(scope, elem, attrs) {
-        var raw = elem[0];
-
-        /*
-         * Load next page
-         */
-        function loadNextPage() {
-            // Call the callback for the first time:
-            var value = $parse(attrs.mbInfinateScroll)(scope);
-            return $q.when(value)//
-            .then(function (value) {
-                if (value) {
-                    return $timeout(function () {
-                        if (raw.scrollHeight <= raw.offsetHeight) {
-                            return loadNextPage();
-                        }
-                    }, 100);
-                }
-            });
-        }
-
-        /*
-         * Check scroll state and update list
-         */
-        function scrollChange() {
-            if (raw.scrollTop + raw.offsetHeight + 5 >= raw.scrollHeight) {
-                loadNextPage();
-            }
-        }
-
-        // adding infinite scroll class
-        elem.addClass('mb-infinate-scroll');
-        elem.on('scroll', scrollChange);
-        loadNextPage();
-    }
-
-    return {
-        restrict : 'A',
-        link : postLink
-    };
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name mb-inline
- * @description Inline editing field
- */
-angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $resource) {
-
-    /**
-     * Link data and view
-     */
-	function postLink(scope, elem, attr, ctrls) {
-
-		var ngModel = ctrls[1];
-		var ctrl = ctrls[0];
-
-		scope.myDataModel = {};
-		scope.errorObject = {};
-
-		scope.mbInlineType = attr.mbInlineType;
-		scope.mbInlineLabel = attr.mbInlineLabel;
-		scope.mbInlineDescription = attr.mbInlineDescription;
-
-		scope.$watch(attr.mbInlineEnable, function(value) {
-			scope.mbInlineEnable = value;
-		});
-		scope.$watch(attr.mbInlineSaveButton, function(value) {
-			scope.mbInlineSaveButton = value;
-		});
-		scope.$watch(attr.mbInlineCancelButton, function(value) {
-			scope.mbInlineCancelButton = value;
-		});
-
-		ngModel.$render = function() {
-			ctrl.model = ngModel.$viewValue;
-		};
-
-		/*
-		 * @depricated use ngChange
-		 */
-		ctrl.saveModel = function(d) {
-			ngModel.$setViewValue(d);
-			if (attr.mbInlineOnSave) {
-				scope.$data = d;
-				var value = $parse(attr.mbInlineOnSave)(scope);
-				$q.when(value).then(function() {
-					delete scope.error;
-				}, function(error) {
-					scope.error = error;
-				});
-			}
-		};
-	}
-
-	return {
-		restrict: 'E',
-		transclude: true,
-		replace: true,
-		require: ['mbInline', '^ngModel'],
-		scope: true,
-        /*
-         * @ngInject
-         */
-		controller: function($scope) {
-			this.edit = function() {
-				this.editMode = true;
-			};
-
-			this.setEditMode = function(editMode) {
-				this.editMode = editMode;
-			};
-
-			this.getEditMode = function() {
-				return this.editMode;
-			};
-
-			this.save = function() {
-				this.saveModel(this.model);
-				this.setEditMode(false);
-			};
-
-			this.cancel = function() {
-				this.setEditMode(false);
-			};
-
-
-            /*
-             * Select image url
-             */
-			this.updateImage = function() {
-				var ctrl = this;
-				return $resource.get('image', {
-					style: {
-						icon: 'image',
-						title: $scope.mbInlineLabel || 'Select image',
-						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
-					},
-					data: this.model
-				}).then(function(url) {
-					ctrl.model = url;
-					ctrl.save();
-				});
-			};
-
-			/*
-             * Select image url
-             */
-			this.updateFile = function() {
-				var ctrl = this;
-				return $resource.get('local-file', {
-					style: {
-						icon: 'file',
-						title: $scope.mbInlineLabel || 'Select file',
-						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
-					},
-					data: this.model
-				}).then(function(file) {
-					ctrl.model = file;
-					ctrl.save();
-				});
-			};
-		},
-		controllerAs: 'ctrlInline',
-		templateUrl: 'views/directives/mb-inline.html',
-		link: postLink
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-navigation-path
- * @description Display current navigation path of system
- * 
- * Navigation path is a menu which is updated by the $navigation service. This menu
- * show a chain of menu items to show the current path of the system. It is very
- * usefull to show current path to the users.
- * 
- * 
- */
-.directive('mbNavigationBar' , function($mbActions, $navigator) {
-
-
-	/**
-	 * Init the bar
-	 */
-	function postLink(scope) {
-		scope.isVisible = function(menu){
-			// default value for visible is true
-			if(angular.isUndefined(menu.visible)){
-				return true;
-			}
-			if(angular.isFunction(menu.visible)){
-				return menu.visible();
-			}
-			return menu.visible;
-		};
-		
-		scope.goToHome = function(){
-			$navigator.openPage('');
-		};
-		
-		/*
-		 * maso, 2017: Get navigation path menu. See $navigator.scpoePath for more info
-		 */
-		scope.pathMenu = $mbActions.getGroup('navigationPathMenu');
-	}
-	
-    return {
-        restrict : 'E',
-        replace: false,
-        templateUrl: 'views/directives/mb-navigation-bar.html',
-        link: postLink
-    };
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Directives
- * @name mb-pagination-bar
- * @property {Object}    mb-model           -Data model
- * @property {function}  mb-reload          -Reload function
- * @property {Array}     mb-sort-keys       -Array
- * @property {Array}     mb-properties      -Array
- * @property {Array}     mb-more-actions    -Array
- * @property {string}    mb-title           -String
- * @property {string}    mb-icon            -String
- * @description Pagination bar
- *
- * Pagination parameters are a complex data structure and it is hard to manage
- * it. This is a toolbar to manage the pagination options. mb-reload get a function 
- * as reload. mb-sort-keys get an array of keys which is used in sort section of 
- * pagination bar and the sort could be done based on this keys. mb-properties get
- * an array of keys which is used in filter section of pagination bar. really mb-properties
- * gets children array of schema of a collection. The controller of collection is 
- * responsible to get the schema of a collection and pass it's children array to this 
- * attribute of directive. The directive itself do the required work to set the values
- * in filter section.
- * 
- */
-angular.module('mblowfish-core').directive('mbPaginationBar', function($window, $timeout, $parse) {
-
-	function postLink(scope, element, attrs) {
-
-		var query = {
-			sortDesc: true,
-			sortBy: typeof scope.mbSortKeys === 'undefined' ? 'id' : scope.mbSortKeys[0],
-			searchTerm: null
-		};
-        /*
-         * مرتب سازی مجدد داده‌ها بر اساس حالت فعلی
-         */
-		function __reload() {
-			if (!angular.isDefined(attrs.mbReload)) {
-				return;
-			}
-			$parse(attrs.mbReload)(scope.$parent);
-		}
-        /**
-         * ذخیره اطلاعات آیتم‌ها بر اساس مدل صفحه بندی
-         */
-		function exportData() {
-			if (!angular.isFunction(scope.mbExport)) {
-				return;
-			}
-			scope.mbExport(scope.mbModel);
-		}
-
-		function searchQuery() {
-			scope.mbModel.setQuery(scope.query.searchTerm);
-			__reload();
-		}
-
-		function focusToElementById(id) {
-			$timeout(function() {
-				var searchControl;
-				searchControl = $window.document.getElementById(id);
-				searchControl.focus();
-			}, 50);
-		}
-
-		function setSortOrder() {
-			scope.mbModel.clearSorters();
-			var key = scope.query.sortBy;
-			var order = scope.query.sortDesc ? 'd' : 'a';
-			scope.mbModel.addSorter(key, order);
-			__reload();
-		}
-
-        /*
-         * Add filter to the current filters
-         */
-		function addFilter() {
-			if (!scope.filters) {
-				scope.filters = [];
-			}
-			scope.filters.push({
-				key: '',
-				value: ''
-			});
-		}
-
-		function putFilter(filter, index) {
-			scope.filters[index] = {
-				key: filter.key,
-				value: filter.value
-			};
-		}
-
-		function applyFilter() {
-			scope.reload = false;
-			scope.mbModel.clearFilters();
-			if (scope.filters && scope.filters.length > 0) {
-				scope.filters.forEach(function(filter) {
-					if (filter.key !== '' && filter.value && filter.value !== '') {
-						scope.mbModel.addFilter(filter.key, filter.value);
-						scope.reload = true;
-					}
-				});
-			}
-			if (scope.reload) {
-				__reload();
-			}
-		}
-
-        /*
-         * Remove filter to the current filters
-         */
-		function removeFilter(filter, index) {
-			Object.keys(scope.mbModel.filterMap).forEach(function(key) {
-				if (key === filter.key) {
-					scope.mbModel.removeFilter(scope.filters[index].key);
-				}
-			});
-			scope.filters.splice(index, 1);
-			if (scope.filters.length === 0) {
-				__reload();
-			}
-		}
-
-		function setFilterValue(value, index) {
-			scope.filterValue = value;
-			putFilter(index);
-		}
-
-
-		//Fetch filters from children array of collection schema
-		function fetchFilterKeys() {
-			scope.mbProperties.forEach(function(object) {
-				scope.filterKeys.push(object.name);
-			});
-		}
-
-		scope.runAction = function(action, $event) {
-			action.exec($event);
-		};
-
-		scope.showBoxOne = false;
-		scope.focusToElement = focusToElementById;
-		// configure scope:
-		scope.searchQuery = searchQuery;
-		scope.setSortOrder = setSortOrder;
-		scope.addFilter = addFilter;
-		scope.putFilter = putFilter;
-		scope.applyFilter = applyFilter;
-		scope.removeFilter = removeFilter;
-		//scope.setFilterKey = setFilterKey;
-		scope.setFilterValue = setFilterValue;
-		scope.__reload = __reload;
-		scope.query = query;
-		if (angular.isFunction(scope.mbExport)) {
-			scope.exportData = exportData;
-		}
-		if (typeof scope.mbEnableSearch === 'undefined') {
-			scope.mbEnableSearch = true;
-		}
-
-		scope.$watch('mbProperties', function(mbProperties) {
-			if (angular.isArray(mbProperties)) {
-				scope.filterKeys = [];
-				fetchFilterKeys();
-			}
-		});
-	}
-
-	return {
-		restrict: 'E',
-		templateUrl: 'views/directives/mb-pagination-bar.html',
-		scope: {
-            /*
-             * مدل صفحه بندی را تعیین می‌کند که ما اینجا دستکاری می‌کنیم.
-             */
-			mbModel: '=',
-            /*
-             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای مرتب سازی
-             * فراخوانی شود. معمولا بعد تغییر مدل داده‌ای این تابع فراخوانی می‌شود.
-             */
-			mbReload: '@?',
-            /*
-             * تابعی را تعیین می‌کند که بعد از تغییرات باید برای ذخیره آیتم‌های موجود در لیست
-             * فراخوانی شود. این تابع معمولا باید بر اساس تنظیمات تعیین شده در مدل داده‌ای کلیه آیتم‌های فهرست را ذخیره کند.
-             */
-			mbExport: '=',
-            /*
-             * یک آرایه هست که تعیین می‌که چه کلید‌هایی برای مرتب سازی باید استفاده
-             * بشن.
-             */
-			mbSortKeys: '=',
-            /*
-             * آرایه ای از آبجکتها که بر اساس فیلدهای هر آبجکت کلیدهایی برای فیلتر کردن استخراج می شوند
-             */
-			mbProperties: '=?',
-
-			/* titles corresponding to sort keys */
-			mbSortKeysTitles: '=?',
-
-            /*
-             * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-             */
-			mbMoreActions: '=',
-
-			mbTitle: '@?',
-			mbIcon: '@?',
-
-			mbEnableSearch: '=?'
-		},
-		link: postLink
-	};
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-	/**
-	 *
-	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, $translate, QueryParameter) {
-
-	    var qp = new QueryParameter();
-
-	    function postLink(scope, elem, attrs, ctrls) {
-		var ngModelCtrl = ctrls[0];
-		var ctrl = this;
-		ngModelCtrl.$render = function () {
-		    ctrl.currency = ngModelCtrl.$modelValue;
-		    if (ctrl.currency) {
-			ctrl.loadGates();
-		    }
-		};
-
-		this.loadGates = function () {
-		    if (this.loadingGates) {
-			return;
-		    }
-		    this.loadingGates = true;
-		    qp.setFilter('currency', this.currency);
-		    var ctrl = this;
-		    return $bank.getBackends(qp)//
-			    .then(function (gatesPag) {
-				ctrl.gates = gatesPag.items;
-				return gatesPag;
-			    })//
-			    .finally(function () {
-				ctrl.loadingGates = false;
-			    });
-		};
-
-		//function pay(backend, discountCode){
-		this.pay = function (backend, discountCode) {
-		    if (this.paying) {
-			return;
-		    }
-		    this.paying = true;
-		    // create receipt and send to bank receipt page.
-		    var data = {
-			backend: backend.id,
-			callback: attrs.mbCallbackUrl ? attrs.mbCallbackUrl : $location.absUrl()
-		    };
-		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
-			data.discount_code = discountCode;
-		    }
-		    var ctrl = this;
-		    $parse(attrs.mbPay)(scope.$parent, {
-			$backend: backend,
-			$discount: discountCode,
-			$callback: data.callback,
-			$data: data
-		    })//
-			    .then(function (receipt) {
-				ctrl.paying = false;
-				$navigator.openPage('bank/receipts/' + receipt.id);
-			    }, function (error) {
-				ctrl.paying = false;
-				alert($translate.instant(error.data.message));
-			    });
-		};
-
-//		function checkDiscount(code){
-//			$discount.discount(code)//
-//			.then(function(discount){
-//				if(typeof discount.validation_code === 'undefined' || discount.validation_code === 0){
-//					$scope.discount_message = 'discount is valid';
-//				}else{
-//					switch(discount.validation_code){
-//					case 1:
-//						$scope.discount_message = 'discount is used before';
-//						break;
-//					case 2: 
-//						$scope.discount_message = 'discount is expired';
-//						break;
-//					case 3: 
-//						// discount is not owned by user.
-//						$scope.discount_message = 'discount is not valid';
-//						break;
-//					}
-//				}
-//			}, function(error){
-//				$scope.error = error.data.message;
-//				if(error.status === 404){				
-//					$scope.discount_message = 'discount is not found';
-//				}else{
-//					$scope.discount_message = 'unknown error while get discount info';
-//				}
-//			});
-//		}
-
-		
-
-		scope.ctrl = this;
-	    }
-
-	    return {
-		replace: true,
-		restrict: 'E',
-		templateUrl: 'views/directives/mb-pay.html',
-		scope: {
-		    mbCallbackUrl: '@?',
-		    mbPay: '@',
-		    mbDiscountEnable: '='
-		},
-		link: postLink,
-		require: ['ngModel']
-	    };
-	});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular
-.module('mblowfish-core')
-/**
- * @ngdoc Directives
- * @name mb-preference-page
- * @description Preference page
- * 
- * Preference page
- * 
- */
-.directive('mbPreferencePage', function ($compile, $controller, $preferences, $wbUtil,
-        $rootScope, $mdTheming) {
-
-    var bodyElementSelector = 'div#mb-preference-body';
-    var placeholderElementSelector = 'div#mb-preference-placeholder';
-    /**
-     * 
-     */
-    function loadPreference($scope, page, anchor) {
-        // 1- create scope
-        var childScope = $scope.$new(false, $scope);
-        // legacy
-        childScope.app = $rootScope.__app;
-        // New
-        childScope.__app = $rootScope.__app;
-        childScope.__tenant = $rootScope.__tenant;
-        childScope.__account = $rootScope.__account;
-        // childScope.wbModel = model;
-
-        // 2- create element
-        $wbUtil.getTemplateFor(page)
-        .then(function (template) {
-            var element = angular.element(template);
-
-            // 3- bind controller
-            var link = $compile(element);
-            if (angular.isDefined(page.controller)) {
-                var locals = {
-                        $scope: childScope,
-                        $element: element
-                        // TODO: maso, 2018:
-                };
-                var controller = $controller(
-                        page.controller, locals);
-                if (page.controllerAs) {
-                    childScope[page.controllerAs] = controller;
-                }
-                element.data('$ngControllerController', controller);
-            }
-
-            // Load preferences
-            anchor.empty();
-            anchor.append(link(childScope));
-            
-            $mdTheming(element);
-        });
-    }
-
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @returns
-     */
-    function postLink(scope, element) {
-        // Get Anchor
-        var _anchor = element; //
-//      .children(bodyElementSelector) //
-//      .children(placeholderElementSelector);
-        // TODO: maso, 2018: check auncher exist
-        scope.$watch('mbPreferenceId', function (id) {
-            if (id) {
-                $preferences.page(id)
-                .then(function (page) {
-                    loadPreference(scope, page, _anchor);
-                }, function () {
-                    // TODO: maso, 2017: handle errors
-                });
-            }
-        });
-    }
-
-    return {
-        restrict: 'E',
-        templateUrl: 'views/directives/mb-preference-page.html',
-        replace: true,
-        scope: {
-            mbPreferenceId: '='
-        },
-        link: postLink
-    };
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-preloading
- * @description Show a preloading of a module
- * 
- * The mb-preload-animate is added to element automatically to add user
- * animation.
- * 
- * The class mb-preload is added if the value of the directive is true.
- * 
- * @example To add preload:
- * 
- * <pre><code>
- *  	&lt;div mb-preload=&quot;preloadState&quot;&gt; DIV content &lt;/div&gt;
- * </code></pre>
- * 
- * 
- * User can define a custom class to add at preload time.
- * 
- * @example Custom preload class
- * 
- * <pre><code>
- *  	&lt;div mb-preload=&quot;preloadState&quot; mb-preload-class=&quot;my-class&quot;&gt; DIV content &lt;/div&gt;
- * </code></pre>
- * 
- */
-.directive('mbPreloading', function(/*$animate*/) {
-	var PRELOAD_CLASS = 'mb-preload';
-	var PRELOAD_ANIMATION_CLASS = 'mb-preload-animate';
-
-	/*
-	 * Init element for preloading
-	 */
-	function initPreloading(scope, element/*, attr*/) {
-		element.addClass(PRELOAD_ANIMATION_CLASS);
-	}
-
-	/*
-	 * Remove preloading
-	 */
-	function removePreloading(scope, element, attr) {
-		if (attr.mbPreloadingClass) {
-			element.addClass(attr.mbPreloadingClass);
-		}
-		element.removeClass(PRELOAD_CLASS);
-	}
-
-	/*
-	 * Adding preloading
-	 */
-	function addPreloading(scope, element, attr) {
-		if (attr.mbPreloadingClass) {
-			element.addClass(attr.mbPreloadingClass);
-		}
-		element.addClass(PRELOAD_CLASS);
-	}
-
-	/*
-	 * Post linking
-	 */
-	function postLink(scope, element, attr) {
-		initPreloading(scope, element, attr);
-		scope.$watch(function(){
-			return scope.$eval(attr.mbPreloading);
-		}, function(value) {
-			if (!value) {
-				removePreloading(scope, element, attr);
-			} else {
-				addPreloading(scope, element, attr);
-			}
-		});
-	}
-
-	return {
-		restrict : 'A',
-		link : postLink
-	};
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- *
- *
- */
-angular.module('mblowfish-core').directive('mbTitledBlock', function() {
-	return {
-		replace: true,
-		restrict: 'E',
-		transclude: true,
-		scope: {
-			mbTitle: '@?',
-			mbIcon: '@?',
-			mbProgress: '<?',
-			mbMoreActions: '='
-		},
-		/*
-		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-		 */
-
-		templateUrl: 'views/directives/mb-titled-block.html'
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-user-menu
- * @restrict E
- * @description Display global user menu
- * 
- * Load current user action into the scope. It is used to show user menu
- * in several parts of the system.
- */
-.directive('mbUserMenu', function($mbActions, $app, $mdSidenav) {
-	/**
-	 * Post link 
-	 */
-	function postLink($scope) {
-		// maso, 2017: Get user menu
-		$scope.menu = $actions.group('mb.user');
-		$scope.logout = $app.logout;
-		$scope.settings = function(){
-			return $mdSidenav('settings').toggle();
-		};
-	}
-	
-	return {
-		restrict: 'E',
-		replace: true,
-		scope: true,
-		templateUrl: 'views/directives/mb-user-menu.html',
-		link: postLink,
-		controller : 'MbAccountCtrl'
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name mb-user-toolbar
- * @description User toolbar
- * 
- * Display tree menu
- * 
- */
-.directive('mbUserToolbar', function($mbActions) {
-	return {
-		restrict: 'E',
-		replace: true,
-		templateUrl: 'views/directives/mb-user-toolbar.html',
-		link: function($scope) {
-			$scope.menu = $actions.group('mb.user');
-		},
-		controller : 'MbAccountCtrl'
-	};
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name ngSrcError
- * @description Handle ngSrc error
- * 
- * 
- * For example if you are about to set image of a user
- * 
- * @example
- * TO check if the directive works:
- ```html
- <img 
-    alt="Test avatar" 
-    ng-src="/this/path/dose/not/exist"
-    ng-src-error="https://www.gravatar.com/avatar/{{ 'avatar id' | wbsha1}}?d=identicon&size=32">
- ```
- * @example
- * In this example we show an account avatar or a random from avatar generator
- ```html
-  <img 
-      ng-src="/api/v2/user/accounts/{{account.id}}/avatar"
-      ng-src-error="https://www.gravatar.com/avatar/{{account.id}}?">
-  ```
- */
-angular.module('mblowfish-core').directive('ngSrcError', function() {
-	return {
-		link: function(scope, element, attrs) {
-			element.bind('error', function() {
-				if (attrs.src !== attrs.ngSrcError) {
-					attrs.$set('src', attrs.ngSrcError);
-				}
-			});
-		}
-	};
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name wb-on-dragstart
- * @description Call an action on dragstart
- * 
- */
-.directive('wbOnDragstart', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('dragstart', function(event, data) {
-                // call the function that was passed
-                if (attrs.wbOnDragstart) {
-                    scope.$eval(attrs.wbOnDragstart, {
-                        $event: event,
-                        $element: element,
-                        $data: data
-                    });
-                }
-            });
-        }
-    };
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name wb-on-enter
- * @description Call an action on ENTER
- * 
- * ```
- * <input
- *  wb-on-enter="toast('ESC')">
- * ```
- */
-.directive('wbOnEnter', function() {
-    return function(scope, elm, attr) {
-        elm.bind('keypress', function(e) {
-            if (e.keyCode === 13) {
-                scope.$apply(attr.wbOnEnter);
-            }
-        });
-    };
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name wb-on-error
- * @description Call an action on error
- * 
- * This directive is used to run an action on error of an element
- * 
- * ```
- * <img
- * 	wb-on-error="toast('image is not loaded')"
- * 	href="image/path">
- * ```
- */
-.directive('wbOnError', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('error', function() {
-                // call the function that was passed
-                if (attrs.wbOnError) {
-                    scope.$apply(attrs.wbOnError);
-                }
-            });
-        }
-    };
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name wb-on-esc
- * @description Call an action on ESC
- * 
- * ```
- * <input
- *  wb-on-esc="toast('ESC')">
- * ```
- */
-.directive('wbOnEsc', function() {
-    return function(scope, elm, attr) {
-        elm.bind('keydown', function(e) {
-            if (e.keyCode === 27) {
-                scope.$apply(attr.wbOnEsc);
-            }
-        });
-    };
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name wb-on-load
- * @description Call an action on load
- * 
- * This directive is used to run an action on load of an element. For exmaple
- * use to show alert on load of image:
- * 
- * ```
- * <img
- * 	wb-on-load="toast('image is loaded')"
- * 	href="image/path">
- * ```
- */
-.directive('wbOnLoad', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('load', function(event, data) {
-                // call the function that was passed
-                if (attrs.wbOnLoad) {
-                    scope.$eval(attrs.wbOnLoad, {
-                        $event: event,
-                        $element: element,
-                        $data: data
-                    });
-                }
-            });
-        }
-    };
-});
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directive
- * @name mdExpansionPanelCollapsed
- * @module material.components.expansionPanels
- *
- * @restrict E
- *
- * @description
- * `mdExpansionPanelCollapsed` is used to contain content when the panel is collapsed
- **/
-.directive('mdExpansionPanelCollapsed', function($animateCss, $timeout) {
-
-	function link(scope, element, attrs, expansionPanelCtrl) {
-		expansionPanelCtrl.registerCollapsed({
-			show: show,
-			hide: hide
-		});
-
-
-		element.on('click', function () {
-			expansionPanelCtrl.expand();
-		});
-
-
-		function hide(options) {
-			// set width to maintian demensions when element is set to postion: absolute
-			element.css('width', element[0].offsetWidth + 'px');
-			// set min height so the expansion panel does not shrink when collapsed element is set to position: absolute
-			expansionPanelCtrl.$element.css('min-height', element[0].offsetHeight + 'px');
-
-			var animationParams = {
-					addClass: 'md-absolute md-hide',
-					from: {opacity: 1},
-					to: {opacity: 0}
-			};
-			if (options.animation === false) { animationParams.duration = 0; }
-			$animateCss(element, animationParams)
-			.start()
-			.then(function () {
-				element.removeClass('md-hide');
-				element.css('display', 'none');
-			});
-		}
-
-
-		function show(options) {
-			element.css('display', '');
-			// set width to maintian demensions when element is set to postion: absolute
-			element.css('width', element[0].parentNode.offsetWidth + 'px');
-
-			var animationParams = {
-					addClass: 'md-show',
-					from: {opacity: 0},
-					to: {opacity: 1}
-			};
-			if (options.animation === false) { 
-				animationParams.duration = 0; 
-			
-			}
-			$animateCss(element, animationParams)
-			.start()
-			.then(function () {
-				// safari will animate the min-height if transition is not set to 0
-				expansionPanelCtrl.$element.css('transition', 'none');
-				element.removeClass('md-absolute md-show');
-
-				// remove width when element is no longer position: absolute
-				element.css('width', '');
-
-
-				// remove min height when element is no longer position: absolute
-				expansionPanelCtrl.$element.css('min-height', '');
-				// remove transition block on next digest
-				$timeout(function () {
-					expansionPanelCtrl.$element.css('transition', '');
-				}, 0);
-			});
-		}
-	}
-	
-	var directive = {
-			restrict: 'E',
-			require: '^^mdExpansionPanel',
-			link: link
-	};
-	return directive;
-});
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directive
- * @name mdExpansionPanel
- * @module material.components.expansionPanels
- *
- * @restrict E
- *
- * @description
- * `mdExpansionPanel` is the main container for panels
- *
- * @param {string=} md-component-id - add an id if you want to acces the panel via the `$mdExpansionPanel` service
- **/
-.directive('mdExpansionPanel', function() {
-
-    
-    var ANIMATION_TIME = 180; //ms
-
-    function compile(tElement, tAttrs) {
-        var INVALID_PREFIX = 'Invalid HTML for md-expansion-panel: ';
-
-        tElement.attr('tabindex', tAttrs.tabindex || '0');
-
-        if (tElement[0].querySelector('md-expansion-panel-collapsed') === null) {
-            throw Error(INVALID_PREFIX + 'Expected a child element of `md-epxansion-panel-collapsed`');
-        }
-        if (tElement[0].querySelector('md-expansion-panel-expanded') === null) {
-            throw Error(INVALID_PREFIX + 'Expected a child element of `md-epxansion-panel-expanded`');
-        }
-
-        return function postLink(scope, element, attrs, ctrls) {
-            var epxansionPanelCtrl = ctrls[0];
-            var epxansionPanelGroupCtrl = ctrls[1];
-
-            epxansionPanelCtrl.epxansionPanelGroupCtrl = epxansionPanelGroupCtrl || undefined;
-            epxansionPanelCtrl.init();
-        };
-    }
-
-
-    function controller($scope, $element, $attrs, $window, $$rAF, $mdConstant, $mdUtil, $mdComponentRegistry, $timeout, $q, $animate) {
-        /* jshint validthis: true */
-        var vm = this;
-
-        var collapsedCtrl;
-        var expandedCtrl;
-        var headerCtrl;
-        var footerCtrl;
-        var deregister;
-        var scrollContainer;
-        var topKiller;
-        var resizeKiller;
-        var onRemoveCallback;
-        var transformParent;
-        var backdrop;
-        var inited = false;
-        var registerOnInit = false;
-        var _isOpen = false;
-        var isDisabled = false;
-        var debouncedUpdateScroll = $$rAF.throttle(updateScroll);
-        var debouncedUpdateResize = $$rAF.throttle(updateResize);
-
-        vm.registerCollapsed = function (ctrl) {
-            collapsedCtrl = ctrl;
-        };
-        vm.registerExpanded = function (ctrl) {
-            expandedCtrl = ctrl;
-        };
-        vm.registerHeader = function (ctrl) {
-            headerCtrl = ctrl;
-        };
-        vm.registerFooter = function (ctrl) {
-            footerCtrl = ctrl;
-        };
-
-
-
-        if ($attrs.mdComponentId === undefined) {
-            $attrs.$set('mdComponentId', '_expansion_panel_id_' + $mdUtil.nextUid());
-            registerPanel();
-        } else {
-            $attrs.$observe('mdComponentId', function () {
-                registerPanel();
-            });
-        }
-
-        vm.$element = $element;
-        vm.expand = expand;
-        vm.collapse = collapse;
-        vm.remove = remove;
-        vm.destroy = destroy;
-        vm.onRemove = onRemove;
-        vm.init = init;
-
-        if ($attrs.ngDisabled !== undefined) {
-            $scope.$watch($attrs.ngDisabled, function (value) {
-                isDisabled = value;
-                $element.attr('tabindex', isDisabled ? -1 : 0);
-            });
-        } else if ($attrs.disabled !== undefined) {
-            isDisabled = ($attrs.disabled !== undefined && $attrs.disabled !== 'false' && $attrs.disabled !== false);
-            $element.attr('tabindex', isDisabled ? -1 : 0);
-        }
-
-        $element
-        .on('focus', function (/*ev*/) {
-            $element.on('keydown', handleKeypress);
-        })
-        .on('blur', function (/*ev*/) {
-            $element.off('keydown', handleKeypress);
-        });
-
-        $element.addClass('md-whiteframe-1dp');
-
-        function handleKeypress(ev) {
-            var keyCodes = $mdConstant.KEY_CODE;
-            switch (ev.keyCode) {
-            case keyCodes.ENTER:
-                expand();
-                break;
-            case keyCodes.ESCAPE:
-                collapse();
-                break;
-            }
-        }
-
-
-        $scope.$panel = {
-                collapse: collapse,
-                expand: expand,
-                remove: remove,
-                isOpen: isOpen
-        };
-
-        $scope.$on('$destroy', function () {
-            removeClickCatcher();
-
-            // remove component from registry
-            if (typeof deregister === 'function') {
-                deregister();
-                deregister = undefined;
-            }
-            killEvents();
-        });
-
-
-
-
-
-        function init() {
-            inited = true;
-            if (registerOnInit === true) {
-                registerPanel();
-            }
-        }
-
-
-        function registerPanel() {
-            if (inited === false) {
-                registerOnInit = true;
-                return;
-            }
-
-            // deregister if component was already registered
-            if (typeof deregister === 'function') {
-                deregister();
-                deregister = undefined;
-            }
-            // remove component from group ctrl if component was already added
-            if (vm.componentId && vm.epxansionPanelGroupCtrl) {
-                vm.epxansionPanelGroupCtrl.removePanel(vm.componentId);
-            }
-
-            // if componentId was removed then set one
-            if ($attrs.mdComponentId === undefined) {
-                $attrs.$set('mdComponentId', '_expansion_panel_id_' + $mdUtil.nextUid());
-            }
-
-            vm.componentId = $attrs.mdComponentId;
-            deregister = $mdComponentRegistry.register({
-                expand: expand,
-                collapse: collapse,
-                remove: remove,
-                onRemove: onRemove,
-                isOpen: isOpen,
-                addClickCatcher: addClickCatcher,
-                removeClickCatcher: removeClickCatcher,
-                componentId: $attrs.mdComponentId
-            }, $attrs.mdComponentId);
-
-            if (vm.epxansionPanelGroupCtrl) {
-                vm.epxansionPanelGroupCtrl.addPanel(vm.componentId, {
-                    expand: expand,
-                    collapse: collapse,
-                    remove: remove,
-                    onRemove: onRemove,
-                    destroy: destroy,
-                    isOpen: isOpen
-                });
-            }
-        }
-
-
-        function isOpen() {
-            return _isOpen;
-        }
-
-        function expand(options) {
-            if (_isOpen === true || isDisabled === true) {
-                return;
-            }
-            _isOpen = true;
-            options = options || {};
-
-            var deferred = $q.defer();
-
-            if (vm.epxansionPanelGroupCtrl) {
-                vm.epxansionPanelGroupCtrl.expandPanel(vm.componentId);
-            }
-
-            $element.removeClass('md-close');
-            $element.addClass('md-open');
-            if (options.animation === false) {
-                $element.addClass('md-no-animation');
-            } else {
-                $element.removeClass('md-no-animation');
-            }
-
-            initEvents();
-            collapsedCtrl.hide(options);
-            expandedCtrl.show(options);
-
-            if (headerCtrl) {
-                headerCtrl.show(options);
-            }
-            if (footerCtrl) {
-                footerCtrl.show(options);
-            }
-
-            $timeout(function () {
-                deferred.resolve();
-            }, options.animation === false ? 0 : ANIMATION_TIME);
-            return deferred.promise;
-        }
-
-
-        function collapse(options) {
-            if (_isOpen === false) {
-                return;
-            }
-            _isOpen = false;
-            options = options || {};
-
-            var deferred = $q.defer();
-
-            $element.addClass('md-close');
-            $element.removeClass('md-open');
-            if (options.animation === false) {
-                $element.addClass('md-no-animation');
-            } else {
-                $element.removeClass('md-no-animation');
-            }
-
-            killEvents();
-            collapsedCtrl.show(options);
-            expandedCtrl.hide(options);
-
-            if (headerCtrl) {
-                headerCtrl.hide(options);
-            }
-            if (footerCtrl) {
-                footerCtrl.hide(options);
-            }
-
-            $timeout(function () {
-                deferred.resolve();
-            }, options.animation === false ? 0 : ANIMATION_TIME);
-            return deferred.promise;
-        }
-
-
-        function remove(options) {
-            options = options || {};
-            var deferred = $q.defer();
-
-            if (vm.epxansionPanelGroupCtrl) {
-                vm.epxansionPanelGroupCtrl.removePanel(vm.componentId);
-            }
-
-            if (typeof deregister === 'function') {
-                deregister();
-                deregister = undefined;
-            }
-
-            if (options.animation === false || _isOpen === false) {
-                $scope.$destroy();
-                $element.remove();
-                deferred.resolve();
-                callbackRemove();
-            } else {
-                collapse();
-                $timeout(function () {
-                    $scope.$destroy();
-                    $element.remove();
-                    deferred.resolve();
-                    callbackRemove();
-                }, ANIMATION_TIME);
-            }
-
-            return deferred.promise;
-        }
-
-        function onRemove(callback) {
-            onRemoveCallback = callback;
-        }
-
-        function callbackRemove() {
-            if (typeof onRemoveCallback === 'function') {
-                onRemoveCallback();
-                onRemoveCallback = undefined;
-            }
-        }
-
-        function destroy() {
-            $scope.$destroy();
-        }
-
-
-
-        function initEvents() {
-            if ((!footerCtrl || footerCtrl.noSticky === true) && (!headerCtrl || headerCtrl.noSticky === true)) {
-                return;
-            }
-
-            // watch for panel position changes
-            topKiller = $scope.$watch(function () {
-                return $element[0].offsetTop;
-            }, debouncedUpdateScroll, true);
-
-            // watch for panel position changes
-            resizeKiller = $scope.$watch(function () {
-                return $element[0].offsetWidth;
-            }, debouncedUpdateResize, true);
-
-            // listen to md-content scroll events id we are nested in one
-            scrollContainer = $mdUtil.getNearestContentElement($element);
-            if (scrollContainer.nodeName === 'MD-CONTENT') {
-                transformParent = getTransformParent(scrollContainer);
-                angular.element(scrollContainer).on('scroll', debouncedUpdateScroll);
-            } else {
-                transformParent = undefined;
-            }
-
-            // listen to expanded content scroll if height is set
-            if (expandedCtrl.setHeight === true) {
-                expandedCtrl.$element.on('scroll', debouncedUpdateScroll);
-            }
-
-            // listen to window scroll events
-            angular.element($window)
-            .on('scroll', debouncedUpdateScroll)
-            .on('resize', debouncedUpdateScroll)
-            .on('resize', debouncedUpdateResize);
-        }
-
-
-        function killEvents() {
-            if (typeof topKiller === 'function') {
-                topKiller();
-                topKiller = undefined;
-            }
-
-            if (typeof resizeKiller === 'function') {
-                resizeKiller();
-                resizeKiller = undefined;
-            }
-
-            if (scrollContainer && scrollContainer.nodeName === 'MD-CONTENT') {
-                angular.element(scrollContainer).off('scroll', debouncedUpdateScroll);
-            }
-
-            if (expandedCtrl.setHeight === true) {
-                expandedCtrl.$element.off('scroll', debouncedUpdateScroll);
-            }
-
-            angular.element($window)
-            .off('scroll', debouncedUpdateScroll)
-            .off('resize', debouncedUpdateScroll)
-            .off('resize', debouncedUpdateResize);
-        }
-
-
-
-        function getTransformParent(el) {
-            var parent = el.parentNode;
-
-            while (parent && parent !== document) {
-                if (hasComputedStyle(parent, 'transform')) {
-                    return parent;
-                }
-                parent = parent.parentNode;
-            }
-
-            return undefined;
-        }
-
-        function hasComputedStyle(target, key) {
-            var hasValue = false;
-
-            if (target) {
-                var computedStyles = $window.getComputedStyle(target);
-                hasValue = computedStyles[key] !== undefined && computedStyles[key] !== 'none';
-            }
-
-            return hasValue;
-        }
-
-
-        function updateScroll(/*e*/) {
-            var top;
-            var bottom;
-            var bounds;
-            if (expandedCtrl.setHeight === true) {
-                bounds = expandedCtrl.$element[0].getBoundingClientRect();
-            } else {
-                bounds = scrollContainer.getBoundingClientRect();
-            }
-            var transformTop = transformParent ? transformParent.getBoundingClientRect().top : 0;
-
-            // we never want the header going post the top of the page. to prevent this don't allow top to go below 0
-            top = Math.max(bounds.top, 0);
-            bottom = top + bounds.height;
-
-            if (footerCtrl && footerCtrl.noSticky === false) {
-                footerCtrl.onScroll(top, bottom, transformTop);
-            }
-            if (headerCtrl && headerCtrl.noSticky === false) {
-                headerCtrl.onScroll(top, bottom, transformTop);
-            }
-        }
-
-        function updateResize() {
-            var value = $element[0].offsetWidth;
-            if (footerCtrl && footerCtrl.noSticky === false) {
-                footerCtrl.onResize(value);
-            }
-            if (headerCtrl && headerCtrl.noSticky === false) {
-                headerCtrl.onResize(value);
-            }
-        }
-
-        function addClickCatcher(clickCallback) {
-            backdrop = $mdUtil.createBackdrop($scope);
-            backdrop[0].tabIndex = -1;
-
-            if (typeof clickCallback === 'function') {
-                backdrop.on('click', clickCallback);
-            }
-
-            $animate.enter(backdrop, $element.parent(), null, {duration: 0});
-            $element.css('z-index', 60);
-        }
-
-        function removeClickCatcher() {
-            if (backdrop) {
-                backdrop.remove();
-                backdrop.off('click');
-                backdrop = undefined;
-                $element.css('z-index', '');
-            }
-        }
-    }
-
-
-
-    return {
-        restrict: 'E',
-        require: ['mdExpansionPanel', '?^^mdExpansionPanelGroup'],
-        scope: true,
-        compile: compile,
-        controller: ['$scope', '$element', '$attrs', '$window', '$$rAF', '$mdConstant', '$mdUtil', '$mdComponentRegistry', '$timeout', '$q', '$animate', '$parse', controller]
-    };
-});
-
-
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directive
- * @name mdExpansionPanelExpanded
- * @module material.components.expansionPanels
- *
- * @restrict E
- *
- * @description
- * `mdExpansionPanelExpanded` is used to contain content when the panel is expanded
- *
- * @param {number=} height - add this aatribute set the max height of the expanded content. The container will be set to scroll
- **/
-.directive('mdExpansionPanelExpanded', function ($animateCss, $timeout) {
-	var directive = {
-			restrict: 'E',
-			require: '^^mdExpansionPanel',
-			link: link
-	};
-	return directive;
-
-
-	function link(scope, element, attrs, expansionPanelCtrl) {
-		var setHeight = attrs.height || undefined;
-		if (setHeight !== undefined) { setHeight = setHeight.replace('px', '') + 'px'; }
-
-		expansionPanelCtrl.registerExpanded({
-			show: show,
-			hide: hide,
-			setHeight: setHeight !== undefined,
-			$element: element
-		});
-
-
-
-
-		function hide(options) {
-			var height = setHeight ? setHeight : element[0].scrollHeight + 'px';
-			element.addClass('md-hide md-overflow');
-			element.removeClass('md-show md-scroll-y');
-
-			var animationParams = {
-					from: {'max-height': height, opacity: 1},
-					to: {'max-height': '48px', opacity: 0}
-			};
-			if (options.animation === false) { animationParams.duration = 0; }
-			$animateCss(element, animationParams)
-			.start()
-			.then(function () {
-				element.css('display', 'none');
-				element.removeClass('md-hide');
-			});
-		}
-
-
-		function show(options) {
-			element.css('display', '');
-			element.addClass('md-show md-overflow');
-			// use passed in height or the contents height
-			var height = setHeight ? setHeight : element[0].scrollHeight + 'px';
-
-			var animationParams = {
-					from: {'max-height': '48px', opacity: 0},
-					to: {'max-height': height, opacity: 1}
-			};
-			if (options.animation === false) { animationParams.duration = 0; }
-			$animateCss(element, animationParams)
-			.start()
-			.then(function () {
-
-				// if height was passed in then set div to scroll
-				if (setHeight !== undefined) {
-					element.addClass('md-scroll-y');
-				} else {
-					// safari will animate the max-height if transition is not set to 0
-					element.css('transition', 'none');
-					element.css('max-height', 'none');
-					// remove transition block on next digest
-					$timeout(function () {
-						element.css('transition', '');
-					}, 0);
-				}
-
-				element.removeClass('md-overflow');
-			});
-		}
-	}
-});
-
-
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directive
- * @name mdExpansionPanelFooter
- * @module material.components.expansionPanels
- *
- * @restrict E
- *
- * @description
- * `mdExpansionPanelFooter` is nested inside of `mdExpansionPanelExpanded` and contains content you want at the bottom.
- * By default the Footer will stick to the bottom of the page if the panel expands past
- * this is optional
- *
- * @param {boolean=} md-no-sticky - add this aatribute to disable sticky
- **/
-.directive('mdExpansionPanelFooter', function() {
-	var directive = {
-			restrict: 'E',
-			transclude: true,
-			template: '<div class="md-expansion-panel-footer-container" ng-transclude></div>',
-			require: '^^mdExpansionPanel',
-			link: link
-	};
-	return directive;
-
-
-
-	function link(scope, element, attrs, expansionPanelCtrl) {
-		var isStuck = false;
-		var noSticky = attrs.mdNoSticky !== undefined;
-		var container = angular.element(element[0].querySelector('.md-expansion-panel-footer-container'));
-
-		expansionPanelCtrl.registerFooter({
-			show: show,
-			hide: hide,
-			onScroll: onScroll,
-			onResize: onResize,
-			noSticky: noSticky
-		});
-
-
-
-		function show() {
-
-		}
-		function hide() {
-			unstick();
-		}
-
-		function onScroll(top, bottom, transformTop) {
-			var height;
-			var footerBounds = element[0].getBoundingClientRect();
-			var offset;
-
-			if (footerBounds.bottom > bottom) {
-				height = container[0].offsetHeight;
-				offset = bottom - height - transformTop;
-				if (offset < element[0].parentNode.getBoundingClientRect().top) {
-					offset = element[0].parentNode.getBoundingClientRect().top;
-				}
-
-				// set container width because element becomes postion fixed
-				container.css('width', expansionPanelCtrl.$element[0].offsetWidth + 'px');
-
-				// set element height so it does not loose its height when container is position fixed
-				element.css('height', height + 'px');
-				container.css('top', offset + 'px');
-
-				element.addClass('md-stick');
-				isStuck = true;
-			} else if (isStuck === true) {
-				unstick();
-			}
-		}
-
-		function onResize(width) {
-			if (isStuck === false) { return; }
-			container.css('width', width + 'px');
-		}
-
-
-		function unstick() {
-			isStuck = false;
-			container.css('width', '');
-			container.css('top', '');
-			element.css('height', '');
-			element.removeClass('md-stick');
-		}
-	}
-});
-
-
-
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directive
- * @name mdExpansionPanelGroup
- * @module material.components.expansionPanels
- *
- * @restrict E
- *
- * @description
- * `mdExpansionPanelGroup` is a container used to manage multiple expansion panels
- *
- * @param {string=} md-component-id - add an id if you want to acces the panel via the `$mdExpansionPanelGroup` service
- * @param {string=} auto-expand - panels expand when added to `<md-expansion-panel-group>`
- * @param {string=} multiple - allows for more than one panel to be expanded at a time
- **/
-.directive('mdExpansionPanelGroup', function() {
-
-
-	function controller($scope, $attrs, $element, $mdComponentRegistry) {
-		/* jshint validthis: true */
-		var vm = this;
-
-		var deregister;
-		var registered = {};
-		var panels = {};
-		var onChangeFuncs = [];
-		var multipleExpand = $attrs.mdMultiple !== undefined || $attrs.multiple !== undefined;
-		var autoExpand = $attrs.mdAutoExpand !== undefined || $attrs.autoExpand !== undefined;
-
-
-		deregister = $mdComponentRegistry.register({
-			$element: $element,
-			register: register,
-			getRegistered: getRegistered,
-			getAll: getAll,
-			getOpen: getOpen,
-			remove: remove,
-			removeAll: removeAll,
-			collapseAll: collapseAll,
-			onChange: onChange,
-			count: panelCount
-		}, $attrs.mdComponentId);
-
-		vm.addPanel = addPanel;
-		vm.expandPanel = expandPanel;
-		vm.removePanel = removePanel;
-
-
-		$scope.$on('$destroy', function () {
-			if (typeof deregister === 'function') {
-				deregister();
-				deregister = undefined;
-			}
-
-			// destroy all panels
-			// for some reason the child panels scopes are not getting destroyed
-			Object.keys(panels).forEach(function (key) {
-				panels[key].destroy();
-			});
-		});
-
-
-
-		function onChange(callback) {
-			onChangeFuncs.push(callback);
-
-			return function () {
-				onChangeFuncs.splice(onChangeFuncs.indexOf(callback), 1);
-			};
-		}
-
-		function callOnChange() {
-			var count = panelCount();
-			onChangeFuncs.forEach(function (func) {
-				func(count);
-			});
-		}
-
-
-		function addPanel(componentId, panelCtrl) {
-			panels[componentId] = panelCtrl;
-			if (autoExpand === true) {
-				panelCtrl.expand();
-				closeOthers(componentId);
-			}
-			callOnChange();
-		}
-
-		function expandPanel(componentId) {
-			closeOthers(componentId);
-		}
-
-		function remove(componentId, options) {
-			return panels[componentId].remove(options);
-		}
-
-		function removeAll(options) {
-			Object.keys(panels).forEach(function (panelId) {
-				panels[panelId].remove(options);
-			});
-		}
-
-		function removePanel(componentId) {
-			delete panels[componentId];
-			callOnChange();
-		}
-
-		function panelCount() {
-			return Object.keys(panels).length;
-		}
-
-		function closeOthers(id) {
-			if (multipleExpand === false) {
-				Object.keys(panels).forEach(function (panelId) {
-					if (panelId !== id) { panels[panelId].collapse(); }
-				});
-			}
-		}
-
-
-		function register(name, options) {
-			if (registered[name] !== undefined) {
-				throw Error('$mdExpansionPanelGroup.register() The name "' + name + '" has already been registered');
-			}
-			registered[name] = options;
-		}
-
-
-		function getRegistered(name) {
-			if (registered[name] === undefined) {
-				throw Error('$mdExpansionPanelGroup.addPanel() Cannot find Panel with name of "' + name + '"');
-			}
-			return registered[name];
-		}
-
-
-		function getAll() {
-			return Object.keys(panels).map(function (panelId) {
-				return panels[panelId];
-			});
-		}
-
-		function getOpen() {
-			return Object.keys(panels).map(function (panelId) {
-				return panels[panelId];
-			}).filter(function (instance) {
-				return instance.isOpen();
-			});
-		}
-
-		function collapseAll(noAnimation) {
-			var animation = noAnimation === true ? false : true;
-			Object.keys(panels).forEach(function (panelId) {
-				panels[panelId].collapse({animation: animation});
-			});
-		}
-	}
-	
-
-	return {
-			restrict: 'E',
-			controller: ['$scope', '$attrs', '$element', '$mdComponentRegistry', controller]
-	};
-});
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc service
- * @name $mdExpansionPanelGroup
- * @module material.components.expansionPanels
- *
- * @description
- * Expand and collapse Expansion Panel using its `md-component-id`
- *
- * @example
- * $mdExpansionPanelGroup('comonentId').then(function (instance) {
- *  instance.register({
- *    componentId: 'cardComponentId',
- *    templateUrl: 'template.html',
- *    controller: 'Controller'
- *  });
- *  instance.add('cardComponentId', {local: localData});
- *  instance.remove('cardComponentId', {animation: false});
- *  instance.removeAll({animation: false});
- * });
- */
-.factory('$mdExpansionPanelGroup', function ($mdComponentRegistry, $mdUtil, $mdExpansionPanel, $templateRequest, $rootScope, $compile, $controller, $q, $log) {
-    var errorMsg = 'ExpansionPanelGroup "{0}" is not available! Did you use md-component-id="{0}"?';
-    var service = {
-            find: findInstance,
-            waitFor: waitForInstance
-    };
-
-    return function (handle) {
-        if (handle === undefined) { return service; }
-        return findInstance(handle);
-    };
-
-
-
-    function findInstance(handle) {
-        var instance = $mdComponentRegistry.get(handle);
-
-        if (!instance) {
-            // Report missing instance
-            $log.error( $mdUtil.supplant(errorMsg, [handle || '']) );
-            return undefined;
-        }
-
-        return createGroupInstance(instance);
-    }
-
-    function waitForInstance(handle) {
-        var deffered = $q.defer();
-
-        $mdComponentRegistry.when(handle).then(function (instance) {
-            deffered.resolve(createGroupInstance(instance));
-        }).catch(function (error) {
-            deffered.reject();
-            $log.error(error);
-        });
-
-        return deffered.promise;
-    }
-
-
-
-
-
-    // --- returned service for group instance ---
-
-    function createGroupInstance(instance) {
-        var service = {
-                add: add,
-                register: register,
-                getAll: getAll,
-                getOpen: getOpen,
-                remove: remove,
-                removeAll: removeAll,
-                collapseAll: collapseAll,
-                onChange: onChange,
-                count: count
-        };
-
-        return service;
-
-
-        function register(name, options) {
-            if (typeof name !== 'string') {
-                throw Error('$mdExpansionPanelGroup.register() Expects name to be a string');
-            }
-
-            validateOptions(options);
-            instance.register(name, options);
-        }
-
-        function remove(componentId, options) {
-            return instance.remove(componentId, options);
-        }
-
-        function removeAll(options) {
-            instance.removeAll(options);
-        }
-
-        function onChange(callback) {
-            return instance.onChange(callback);
-        }
-
-        function count() {
-            return instance.count();
-        }
-
-        function getAll() {
-            return instance.getAll();
-        }
-
-        function getOpen() {
-            return instance.getOpen();
-        }
-
-        function collapseAll(noAnimation) {
-            instance.collapseAll(noAnimation);
-        }
-
-
-        function add(options, locals) {
-            locals = locals || {};
-            // assume if options is a string then they are calling a registered card by its component id
-            if (typeof options === 'string') {
-                // call add panel with the stored options
-                return add(instance.getRegistered(options), locals);
-            }
-
-            validateOptions(options);
-            if (options.componentId && instance.isPanelActive(options.componentId)) {
-                return $q.reject('panel with componentId "' + options.componentId + '" is currently active');
-            }
-
-
-            var deffered = $q.defer();
-            var scope = $rootScope.$new();
-            angular.extend(scope, options.scope);
-
-            getTemplate(options, function (template) {
-                var element = angular.element(template);
-                var componentId = options.componentId || element.attr('md-component-id') || '_panelComponentId_' + $mdUtil.nextUid();
-                var panelPromise = $mdExpansionPanel().waitFor(componentId);
-                element.attr('md-component-id', componentId);
-
-                var linkFunc = $compile(element);
-                if (options.controller) {
-                    angular.extend(locals, options.locals || {});
-                    locals.$scope = scope;
-                    locals.$panel = panelPromise;
-                    var invokeCtrl = $controller(options.controller, locals, true);
-                    var ctrl = invokeCtrl();
-                    element.data('$ngControllerController', ctrl);
-                    element.children().data('$ngControllerController', ctrl);
-                    if (options.controllerAs) {
-                        scope[options.controllerAs] = ctrl;
-                    }
-                }
-
-                // link after the element is added so we can find card manager directive
-                instance.$element.append(element);
-                linkFunc(scope);
-
-                panelPromise.then(function (instance) {
-                    deffered.resolve(instance);
-                });
-            });
-
-            return deffered.promise;
-        }
-
-        function validateOptions(options) {
-            if (typeof options !== 'object' || options === null) {
-                throw Error('$mdExapnsionPanelGroup.add()/.register() : Requires an options object to be passed in');
-            }
-
-            // if none of these exist then a dialog box cannot be created
-            if (!options.template && !options.templateUrl) {
-                throw Error('$mdExapnsionPanelGroup.add()/.register() : Is missing required paramters to create. Required One of the following: template, templateUrl');
-            }
-        }
-
-        function getTemplate(options, callback) {
-            if (options.templateUrl !== undefined) {
-                $templateRequest(options.templateUrl)
-                .then(function(response) {
-                    callback(response);
-                });
-            } else {
-                callback(options.template);
-            }
-        }
-    }
-});
-
-
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc directive
- * @name mdExpansionPanelHeader
- * @module material.components.expansionPanels
- *
- * @restrict E
- *
- * @description
- * `mdExpansionPanelHeader` is nested inside of `mdExpansionPanelExpanded` and contains content you want in place of the collapsed content
- * this is optional
- *
- * @param {boolean=} md-no-sticky - add this aatribute to disable sticky
- **/
-.directive('mdExpansionPanelHeader', function () {
-	var directive = {
-			restrict: 'E',
-			transclude: true,
-			template: '<div class="md-expansion-panel-header-container" ng-transclude></div>',
-			require: '^^mdExpansionPanel',
-			link: link
-	};
-	return directive;
-
-
-
-	function link(scope, element, attrs, expansionPanelCtrl) {
-		var isStuck = false;
-		var noSticky = attrs.mdNoSticky !== undefined;
-		var container = angular.element(element[0].querySelector('.md-expansion-panel-header-container'));
-
-		expansionPanelCtrl.registerHeader({
-			show: show,
-			hide: hide,
-			noSticky: noSticky,
-			onScroll: onScroll,
-			onResize: onResize
-		});
-
-
-		function show() {
-
-		}
-		function hide() {
-			unstick();
-		}
-
-
-		function onScroll(top, bottom, transformTop) {
-			var offset;
-			var panelbottom;
-			var bounds = element[0].getBoundingClientRect();
-
-
-			if (bounds.top < top) {
-				offset = top - transformTop;
-				panelbottom = element[0].parentNode.getBoundingClientRect().bottom - top - bounds.height;
-				if (panelbottom < 0) {
-					offset += panelbottom;
-				}
-
-				// set container width because element becomes postion fixed
-				container.css('width', element[0].offsetWidth + 'px');
-				container.css('top', offset + 'px');
-
-				// set element height so it does not shink when container is position fixed
-				element.css('height', container[0].offsetHeight + 'px');
-
-				element.removeClass('md-no-stick');
-				element.addClass('md-stick');
-				isStuck = true;
-			} else if (isStuck === true) {
-				unstick();
-			}
-		}
-
-		function onResize(width) {
-			if (isStuck === false) { return; }
-			container.css('width', width + 'px');
-		}
-
-
-		function unstick() {
-			isStuck = false;
-			container.css('width', '');
-			element.css('height', '');
-			element.css('top', '');
-			element.removeClass('md-stick');
-			element.addClass('md-no-stick');
-		}
-	}
-});
-
-
-
-
-
-
-angular.module('mblowfish-core')
-/**
- * @ngdoc service
- * @name $mdExpansionPanel
- * @module material.components.expansionPanels
- *
- * @description
- * Expand and collapse Expansion Panel using its `md-component-id`
- *
- * @example
- * $mdExpansionPanel('comonentId').then(function (instance) {
- *  instance.exapand();
- *  instance.collapse({animation: false});
- *  instance.remove({animation: false});
- *  instance.onRemove(function () {});
- * });
- */
-.factory('$mdExpansionPanel', function ($mdComponentRegistry, $mdUtil, $log) {
-	var errorMsg = 'ExpansionPanel "{0}" is not available! Did you use md-component-id="{0}"?';
-	var service = {
-			find: findInstance,
-			waitFor: waitForInstance
-	};
-
-	return function (handle) {
-		if (handle === undefined) { return service; }
-		return findInstance(handle);
-	};
-
-
-
-	function findInstance(handle) {
-		var instance = $mdComponentRegistry.get(handle);
-
-		if (!instance) {
-			// Report missing instance
-			$log.error( $mdUtil.supplant(errorMsg, [handle || '']) );
-			return undefined;
-		}
-
-		return instance;
-	}
-
-	function waitForInstance(handle) {
-		return $mdComponentRegistry.when(handle).catch($log.error);
-	}
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- @ngdoc Editor
- @name MbIFrameContainerCtrl
- @description A page preview editor
- 
- */
-angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($sce, $state) {
-
-	// Load secure path
-	this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
-
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core').run(function(
-	/* AngularJs */ $window,
-	/* Mblowfish */ $mbEditor, $mbActions, $mbToolbar) {
-
-	//
-	//  $mbEditor: manages all editor of an application. An editor has a dynamic
-	// address and there may be multiple instance of it at the same time but with
-	// different parameter.
-	//
-	// There are serveral editor registered here to cover some of our system 
-	// functionalities such as:
-	//
-	// - Open a new URL
-	//
-	$mbEditor.registerEditor('/mb/iframe/:url*', {
-		title: 'IFrame',
-		description: 'Open external page',
-		controller: 'MbIFrameContainerCtrl',
-		controllerAs: 'ctrl',
-		template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
-		groups: ['Utilities']
-	});
-
-	$mbActions.addAction('mb.iframe.open', {
-		title: 'Open URL',
-		description: 'Open a url',
-		icon: 'open_in_browser',
-		/* @ngInject */
-		action: function($location) {
-			$window.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
-				.then(function(input) {
-					$location.url('/mb/iframe/' + input);
-					// $mbEditor.open('/mb/iframe/' + input, {param1: 'value1'});
-				});
-		}
-	});
-
-	$mbToolbar.addToolbar('/mb/iframe', {
-		items: ['mb.iframe.open']
-	});
-
-//	//-----------------------------------------------------------------------
-//	//  Adds iframe toolbar into the main toolbar group. Note that, this 
-//	// must handle in the final application.
-//	//-----------------------------------------------------------------------
-//	$mbToolbar.getToolbarGroup()
-//		.addToolbar('/mb/iframe');
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Controllers
- * @name MbHelpCtrl
- * @description Help page controller
- * 
- * Watches total system and update help data.
- * 
- */
-angular.module('mblowfish-core').controller('MbLocalModulesCtrl', function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules, $mbActions
-) {
-
-	/*
-	 * Extends collection controller from MbAbstractCtrl 
-	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
-		$scope: $scope
-	}));
-
-	this.loadModules = function() {
-		this.modules = $modules.getLocalModules();
-	}
-
-	this.addModule = function($event) {
-		$actions.exec('mb.app.local.modules.create', $event);
-	};
-
-	this.deleteModule = function(item, $event) {
-		$event.modules = [item];
-		$actions.exec('mb.app.local.modules.delete', $event);
-	};
-
-	var ctrl = this;
-	this.addEventHandler('/app/local/modules', function() {
-		ctrl.loadModules();
-	});
-	ctrl.loadModules();
-});
-
-angular.module('mblowfish-core').controller('MGlobalModulesCtrl', function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $modules, $mbActions
-) {
-
-	/*
-	 * Extends collection controller from MbAbstractCtrl 
-	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
-		$scope: $scope
-	}));
-
-	this.loadModules = function() {
-		this.modules = $modules.getGlobalModules();
-	}
-
-	this.addModule = function($event) {
-		$actions.exec('mb.app.global.modules.create', $event);
-	};
-
-	this.deleteModule = function(item, $event) {
-		$event.modules = [item];
-		$actions.exec('mb.app.global.modules.delete', $event);
-	};
-
-	var ctrl = this;
-	this.addEventHandler('/app/global/modules', function() {
-		ctrl.loadModules();
-	});
-	ctrl.loadModules();
-});
-
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-//
-///**
-// * Manages system moduels
-// */
-//angular.module('mblowfish-core').run(function($mbActions, $modules, $resource, $window, $app) {
-//	$mbActions.addAction({
-//		id: 'mb.app.local.modules.create',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Add local module',
-//		description: 'Adds new module into the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function() {
-//			return $resource.get('/app/modules', {
-//				style: {},
-//			}).then(function(modules) {
-//				$modules.addLocalModule(modules[0]);
-//			});
-//		},
-//		groups: []
-//	});
-//	$mbActions.addAction({
-//		id: 'mb.app.local.modules.delete',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Delete local module',
-//		description: 'Delete a module from the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function($event) {
-//			return $window.confirm('Delete modules?')
-//				.then(function() {
-//					_.forEach($event.modules, function(module1) {
-//						$modules.removeLocalModule(module1);
-//					});
-//				});
-//		},
-//		groups: []
-//	});
-//
-//
-//
-//	//--------------------------------------------------------------------------------
-//	// Global
-//	//--------------------------------------------------------------------------------
-//	$mbActions.addAction({
-//		id: 'mb.app.global.modules.create',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Add global module',
-//		description: 'Adds new module into the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function() {
-//			return $resource.get('/app/modules', {
-//				style: {},
-//			}).then(function(modules) {
-//				$modules.addGlobalModule(modules[0]);
-//				return $app.storeApplicationConfig();
-//			});
-//		},
-//		groups: []
-//	});
-//	$mbActions.addAction({
-//		id: 'mb.app.global.modules.delete',
-//		type: 'action',
-//		priority: 1,
-//		icon: 'view_module',
-//		title: 'Delete global module',
-//		description: 'Delete a module from the application.',
-//		/*
-//		 * @ngInject
-//		 */
-//		action: function($event) {
-//			return $window.confirm('Delete modules?')
-//				.then(function() {
-//					_.forEach($event.modules, function(module1) {
-//						$modules.removeGlobalModule(module1);
-//					});
-//					return $app.storeApplicationConfig();
-//				});
-//		},
-//		groups: []
-//	});
-//});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * Manages system moduels
- */
-angular.module('mblowfish-core').run(function($options) {
-	$options.newPage({
-		title: 'modules',
-		description: 'Manage user modules to enable for all current device.',
-		templateUrl: 'views/modules/mb-option.html',
-		tags: ['modules']
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * Manages system moduels
- */
-angular.module('mblowfish-core').run(function($preferences) {
-	// Pages
-	$preferences.newPage({
-		id: 'modules',
-		title: 'Modules',
-		description: 'Manage global modules to enable for all users.',
-		templateUrl: 'views/modules/mb-preference.html',
-		icon: 'language',
-		tags: ['modules']
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').run(function($resource, $location, $controller) {
-	//-------------------------------------------------------------//
-	// Modules:
-	//
-	// - CMS module
-	// - Manual module
-	//-------------------------------------------------------------//
-	$resource.newPage({
-		label: 'Manual',
-		type: 'mb-module-manual',
-		templateUrl: 'views/modules/mb-resources-manual.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function($scope) {
-			$scope.$watch('module', function(value) {
-				$scope.$parent.setValue([value]);
-			}, true);
-			$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/modules']
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core').run(function($mbView) {
-	$mbView.add('/mb/ui/views/navigator/', {
-		title: 'Navigator',
-		description: 'Navigate all path and routs of the pandel',
-		controller: 'MbNavigatorContainerCtrl',
-		controllerAs: 'ctrl',
-		templateUrl: 'views/mb-navigator.html',
-		groups: ['Utilities']
-	});//
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-
-/**
- @ngdoc Controllers
- @name MbNavigatorContainerCtrl
- @description Navigator controller
- 
- */
-angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function($scope, $mbView) {
-	var groups = {
-		'others': {
-			title: 'Others',
-			items: {}
-		}
-	};
-
-	var items = $mbView.getViews();
-	_.forEach(items, function(item, url) {
-		var itmeGroups = item.groups || ['others'];
-		_.forEach(itmeGroups, function(groupId) {
-			if (_.isUndefined(groups[groupId])) {
-				groups[groupId] = {
-					title: groupId,
-					items: {}
-				};
-			}
-			groups[groupId].items[url] = item;
-		});
-	});
-
-	$scope.groups = groups
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/*
- * Application extensions
- * 
- *  An extension is responsible to extends the state of the
- * application and add more functionality. For example auto save
- * configuration is one of the application extension
- */
-angular.module('mblowfish-core').run(function($app, $dispatcher) {
-
-    /*
-     * Store application config if there is change
-     */
-	function storeApplicationConfig(event) {
-		if (event.type === 'update' && $app.getState() === 'ready') {
-			$app.storeApplicationConfig();
-		}
-	}
-
-	// watch the configurations of the application
-	$dispatcher.on('/app/configs', storeApplicationConfig);
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core').run(function(
-	$mbSidenav, $mbToolbar, 
-	$rootScope, $navigator, $mbRoute, $mbActions, $help) {
-//
-//	/***************************************************************************
-//	 * Application actions
-//	 **************************************************************************/
-//	$actions.newAction({
-//		id: 'mb.preferences',
-//		priority: 15,
-//		icon: 'settings',
-//		title: 'Preferences',
-//		description: 'Open preferences panel',
-//		visible: function() {
-//			return $rootScope.__account.permissions.tenant_owner;
-//		},
-//		action: function() {
-//			return $navigator.openPage('preferences');
-//		},
-//		groups: ['mb.toolbar.menu']
-//	});
-//	$actions.newAction({// help
-//		id: 'mb.help',
-//		priority: 15,
-//		icon: 'help',
-//		title: 'Help',
-//		description: 'Display help in sidenav',
-//		visible: function() {
-//			return $help.hasHelp($mbRoute.current);
-//		},
-//		action: function() {
-//			$help.openHelp($mbRoute.current);
-//		},
-//		groups: ['mb.toolbar.menu']
-//	});
-//	$actions.newAction({
-//		icon: 'account_circle',
-//		title: 'Profile',
-//		description: 'User profile',
-//		groups: ['mb.user'],
-//		action: function() {
-//			return $navigator.openPage('users/profile');
-//		}
-//	});
-//	$actions.newAction({
-//		icon: 'account_box',
-//		title: 'Account',
-//		description: 'User account',
-//		groups: ['mb.user'],
-//		action: function() {
-//			return $navigator.openPage('users/account');
-//		}
-//	});
-//	$actions.newAction({
-//		icon: 'fingerprint',
-//		title: 'Password',
-//		description: 'Manage password',
-//		groups: ['mb.user'],
-//		action: function() {
-//			return $navigator.openPage('users/password');
-//		}
-//	});
-//
-//	$toolbar.newToolbar({
-//		id: 'dashboard',
-//		title: 'Dashboard toolbar',
-//		description: 'Main dashboard toolbar',
-//		controller: 'MbToolbarDashboardCtrl',
-//		templateUrl: 'views/toolbars/mb-dashboard.html'
-//	});
-//
-//	$sidenav.newSidenav({
-//		id: 'help',
-//		title: 'Help',
-//		description: 'System online help',
-//		controller: 'MbHelpCtrl',
-//		templateUrl: 'views/sidenavs/mb-help.html',
-//		locked: true,
-//		visible: function() {
-//			return $rootScope.showHelp;
-//		},
-//		position: 'end'
-//	});
-//	$sidenav.newSidenav({
-//		id: 'settings',
-//		title: 'Options',
-//		description: 'User options',
-//		controller: 'MbOptionsCtrl',
-//		templateUrl: 'views/sidenavs/mb-options.html',
-//		locked: false,
-//		position: 'end'
-//	});
-//	$sidenav.newSidenav({
-//		id: 'messages',
-//		title: 'Messages',
-//		description: 'User message queue',
-//		controller: 'MbSeenUserMessagesCtrl',
-//		controllerAs: 'ctrl',
-//		templateUrl: 'views/sidenavs/mb-messages.html',
-//		locked: false,
-//		position: 'start'
-//	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
 
 	var oldWatch;
@@ -12651,1702 +11366,535 @@ angular.module('mblowfish-core').run(function($notification, $help) {
 	window.toast = $notification.toast;
 
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-angular.module('mblowfish-core').run(function($rootScope, $language) {
-	
-	/*
-	 * Lesson on page
-	 */
-	$rootScope.$watch(function(){
-		var localLanguage = $rootScope.app.setting.language;
-		var confLanguage = $rootScope.app.config.local ? $rootScope.app.config.local.language : 'en';
-		return localLanguage || confLanguage;
-	}, function(key){
-		return $language.use(key);
-	});
-	
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').run(function($options, $preferences) {
-	// Pages
-	$preferences.newPage({
-		id: 'local',
-		title: 'local',
-		description: 'manage dashboard locality and language.',
-		templateUrl: 'views/preferences/mb-local.html',
-		controller: 'MbLocalCtrl',
-		icon: 'language',
-		tags: ['local', 'language']
-	});
-	$preferences.newPage({
-		id: 'brand',
-		title: 'Branding',
-		description: 'Manage application branding such as title, logo and descritpions.',
-		templateUrl: 'views/preferences/mb-brand.html',
-		//		controller : 'settingsBrandCtrl',
-		icon: 'copyright',
-		priority: 2,
-		required: true,
-		tags: ['brand']
-	});
-	$preferences.newPage({
-		id: 'update',
-		templateUrl: 'views/preferences/mb-update.html',
-		title: 'Update application',
-		description: 'Settings of updating process and how to update the application.',
-		icon: 'autorenew'
-	});
-
-	// Settings
-	$options.newPage({
-		title: 'Local',
-		templateUrl: 'views/options/mb-local.html',
-		controller: 'MbLocalCtrl',
-		tags: ['local']
-	});
-	$options.newPage({
-		title: 'Theme',
-		controller: 'MbThemesCtrl',
-		templateUrl: 'views/options/mb-theme.html',
-		tags: ['theme']
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-'use strict';
-
-/*
- * Adds language resources
- * 
- */
-angular.module('mblowfish-core').run(function($language, 
-		/* angularjs */ $rootScope, $timeout, $q, $http,
-		/* am-wb-core */ $resource) {
-
-	var languages = [
-		{
-			key: 'ab',
-			title: 'Abkhaz'
-		},
-		{
-			key: 'aa',
-			title: 'Afar'
-		},
-		{
-			key: 'af',
-			title: 'Afrikaans'
-		},
-		{
-			key: 'ak',
-			title: 'Akan'
-		},
-		{
-			key: 'sq',
-			title: 'Albanian'
-		},
-		{
-			key: 'am',
-			title: 'Amharic'
-		},
-		{
-			key: 'ar',
-			title: 'Arabic'
-		},
-		{
-			key: 'an',
-			title: 'Aragonese'
-		},
-		{
-			key: 'hy',
-			title: 'Armenian'
-		},
-		{
-			key: 'as',
-			title: 'Assamese'
-		},
-		{
-			key: 'av',
-			title: 'Avaric'
-		},
-		{
-			key: 'ae',
-			title: 'Avestan'
-		},
-		{
-			key: 'ay',
-			title: 'Aymara'
-		},
-		{
-			key: 'az',
-			title: 'Azerbaijani'
-		},
-		{
-			key: 'bm',
-			title: 'Bambara'
-		},
-		{
-			key: 'ba',
-			title: 'Bashkir'
-		},
-		{
-			key: 'eu',
-			title: 'Basque'
-		},
-		{
-			key: 'be',
-			title: 'Belarusian'
-		},
-		{
-			key: 'bn',
-			title: 'Bengali; Bangla'
-		},
-		{
-			key: 'bh',
-			title: 'Bihari'
-		},
-		{
-			key: 'bi',
-			title: 'Bislama'
-		},
-		{
-			key: 'bs',
-			title: 'Bosnian'
-		},
-		{
-			key: 'br',
-			title: 'Breton'
-		},
-		{
-			key: 'bg',
-			title: 'Bulgarian'
-		},
-		{
-			key: 'my',
-			title: 'Burmese'
-		},
-		{
-			key: 'ca',
-			title: 'Catalan; Valencian'
-		},
-		{
-			key: 'ch',
-			title: 'Chamorro'
-		},
-		{
-			key: 'ce',
-			title: 'Chechen'
-		},
-		{
-			key: 'ny',
-			title: 'Chichewa; Chewa; Nyanja'
-		},
-		{
-			key: 'zh',
-			title: 'Chinese'
-		},
-		{
-			key: 'cv',
-			title: 'Chuvash'
-		},
-		{
-			key: 'kw',
-			title: 'Cornish'
-		},
-		{
-			key: 'co',
-			title: 'Corsican'
-		},
-		{
-			key: 'cr',
-			title: 'Cree'
-		},
-		{
-			key: 'hr',
-			title: 'Croatian'
-		},
-		{
-			key: 'cs',
-			title: 'Czech'
-		},
-		{
-			key: 'da',
-			title: 'Danish'
-		},
-		{
-			key: 'dv',
-			title: 'Divehi; Dhivehi; Maldivian;'
-		},
-		{
-			key: 'nl',
-			title: 'Dutch'
-		},
-		{
-			key: 'dz',
-			title: 'Dzongkha'
-		},
-		{
-			key: 'en',
-			title: 'English'
-		},
-		{
-			key: 'eo',
-			title: 'Esperanto'
-		},
-		{
-			key: 'et',
-			title: 'Estonian'
-		},
-		{
-			key: 'ee',
-			title: 'Ewe'
-		},
-		{
-			key: 'fo',
-			title: 'Faroese'
-		},
-		{
-			key: 'fj',
-			title: 'Fijian'
-		},
-		{
-			key: 'fi',
-			title: 'Finnish'
-		},
-		{
-			key: 'fr',
-			title: 'French'
-		},
-		{
-			key: 'ff',
-			title: 'Fula; Fulah; Pulaar; Pular'
-		},
-		{
-			key: 'gl',
-			title: 'Galician'
-		},
-		{
-			key: 'ka',
-			title: 'Georgian'
-		},
-		{
-			key: 'de',
-			title: 'German'
-		},
-		{
-			key: 'el',
-			title: 'Greek, Modern'
-		},
-		{
-			key: 'gn',
-			title: 'GuaranÃ­'
-		},
-		{
-			key: 'gu',
-			title: 'Gujarati'
-		},
-		{
-			key: 'ht',
-			title: 'Haitian; Haitian Creole'
-		},
-		{
-			key: 'ha',
-			title: 'Hausa'
-		},
-		{
-			key: 'he',
-			title: 'Hebrew (modern)'
-		},
-		{
-			key: 'hz',
-			title: 'Herero'
-		},
-		{
-			key: 'hi',
-			title: 'Hindi'
-		},
-		{
-			key: 'ho',
-			title: 'Hiri Motu'
-		},
-		{
-			key: 'hu',
-			title: 'Hungarian'
-		},
-		{
-			key: 'ia',
-			title: 'Interlingua'
-		},
-		{
-			key: 'id',
-			title: 'Indonesian'
-		},
-		{
-			key: 'ie',
-			title: 'Interlingue'
-		},
-		{
-			key: 'ga',
-			title: 'Irish'
-		},
-		{
-			key: 'ig',
-			title: 'Igbo'
-		},
-		{
-			key: 'ik',
-			title: 'Inupiaq'
-		},
-		{
-			key: 'io',
-			title: 'Ido'
-		},
-		{
-			key: 'is',
-			title: 'Icelandic'
-		},
-		{
-			key: 'it',
-			title: 'Italian'
-		},
-		{
-			key: 'iu',
-			title: 'Inuktitut'
-		},
-		{
-			key: 'ja',
-			title: 'Japanese'
-		},
-		{
-			key: 'jv',
-			title: 'Javanese'
-		},
-		{
-			key: 'kl',
-			title: 'Kalaallisut, Greenlandic'
-		},
-		{
-			key: 'kn',
-			title: 'Kannada'
-		},
-		{
-			key: 'kr',
-			title: 'Kanuri'
-		},
-		{
-			key: 'ks',
-			title: 'Kashmiri'
-		},
-		{
-			key: 'kk',
-			title: 'Kazakh'
-		},
-		{
-			key: 'km',
-			title: 'Khmer'
-		},
-		{
-			key: 'ki',
-			title: 'Kikuyu, Gikuyu'
-		},
-		{
-			key: 'rw',
-			title: 'Kinyarwanda'
-		},
-		{
-			key: 'ky',
-			title: 'Kyrgyz'
-		},
-		{
-			key: 'kv',
-			title: 'Komi'
-		},
-		{
-			key: 'kg',
-			title: 'Kongo'
-		},
-		{
-			key: 'ko',
-			title: 'Korean'
-		},
-		{
-			key: 'ku',
-			title: 'Kurdish'
-		},
-		{
-			key: 'kj',
-			title: 'Kwanyama, Kuanyama'
-		},
-		{
-			key: 'la',
-			title: 'Latin'
-		},
-		{
-			key: 'lb',
-			title: 'Luxembourgish, Letzeburgesch'
-		},
-		{
-			key: 'lg',
-			title: 'Ganda'
-		},
-		{
-			key: 'li',
-			title: 'Limburgish, Limburgan, Limburger'
-		},
-		{
-			key: 'ln',
-			title: 'Lingala'
-		},
-		{
-			key: 'lo',
-			title: 'Lao'
-		},
-		{
-			key: 'lt',
-			title: 'Lithuanian'
-		},
-		{
-			key: 'lu',
-			title: 'Luba-Katanga'
-		},
-		{
-			key: 'lv',
-			title: 'Latvian'
-		},
-		{
-			key: 'gv',
-			title: 'Manx'
-		},
-		{
-			key: 'mk',
-			title: 'Macedonian'
-		},
-		{
-			key: 'mg',
-			title: 'Malagasy'
-		},
-		{
-			key: 'ms',
-			title: 'Malay'
-		},
-		{
-			key: 'ml',
-			title: 'Malayalam'
-		},
-		{
-			key: 'mt',
-			title: 'Maltese'
-		},
-		{
-			key: 'mi',
-			title: 'MÄori'
-		},
-		{
-			key: 'mr',
-			title: 'Marathi (MarÄá¹­hÄ«)'
-		},
-		{
-			key: 'mh',
-			title: 'Marshallese'
-		},
-		{
-			key: 'mn',
-			title: 'Mongolian'
-		},
-		{
-			key: 'na',
-			title: 'Nauru'
-		},
-		{
-			key: 'nv',
-			title: 'Navajo, Navaho'
-		},
-		{
-			key: 'nb',
-			title: 'Norwegian BokmÃ¥l'
-		},
-		{
-			key: 'nd',
-			title: 'North Ndebele'
-		},
-		{
-			key: 'ne',
-			title: 'Nepali'
-		},
-		{
-			key: 'ng',
-			title: 'Ndonga'
-		},
-		{
-			key: 'nn',
-			title: 'Norwegian Nynorsk'
-		},
-		{
-			key: 'no',
-			title: 'Norwegian'
-		},
-		{
-			key: 'ii',
-			title: 'Nuosu'
-		},
-		{
-			key: 'nr',
-			title: 'South Ndebele'
-		},
-		{
-			key: 'oc',
-			title: 'Occitan'
-		},
-		{
-			key: 'oj',
-			title: 'Ojibwe, Ojibwa'
-		},
-		{
-			key: 'cu',
-			title: 'Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic'
-		},
-		{
-			key: 'om',
-			title: 'Oromo'
-		},
-		{
-			key: 'or',
-			title: 'Oriya'
-		},
-		{
-			key: 'os',
-			title: 'Ossetian, Ossetic'
-		},
-		{
-			key: 'pa',
-			title: 'Panjabi, Punjabi'
-		},
-		{
-			key: 'pi',
-			title: 'PÄli'
-		},
-		{
-			key: 'fa',
-			title: 'Persian (Farsi)'
-		},
-		{
-			key: 'pl',
-			title: 'Polish'
-		},
-		{
-			key: 'ps',
-			title: 'Pashto, Pushto'
-		},
-		{
-			key: 'pt',
-			title: 'Portuguese'
-		},
-		{
-			key: 'qu',
-			title: 'Quechua'
-		},
-		{
-			key: 'rm',
-			title: 'Romansh'
-		},
-		{
-			key: 'rn',
-			title: 'Kirundi'
-		},
-		{
-			key: 'ro',
-			title: 'Romanian, [])'
-		},
-		{
-			key: 'ru',
-			title: 'Russian'
-		},
-		{
-			key: 'sa',
-			title: 'Sanskrit (Saá¹ská¹›ta)'
-		},
-		{
-			key: 'sc',
-			title: 'Sardinian'
-		},
-		{
-			key: 'sd',
-			title: 'Sindhi'
-		},
-		{
-			key: 'se',
-			title: 'Northern Sami'
-		},
-		{
-			key: 'sm',
-			title: 'Samoan'
-		},
-		{
-			key: 'sg',
-			title: 'Sango'
-		},
-		{
-			key: 'sr',
-			title: 'Serbian'
-		},
-		{
-			key: 'gd',
-			title: 'Scottish Gaelic; Gaelic'
-		},
-		{
-			key: 'sn',
-			title: 'Shona'
-		},
-		{
-			key: 'si',
-			title: 'Sinhala, Sinhalese'
-		},
-		{
-			key: 'sk',
-			title: 'Slovak'
-		},
-		{
-			key: 'sl',
-			title: 'Slovene'
-		},
-		{
-			key: 'so',
-			title: 'Somali'
-		},
-		{
-			key: 'st',
-			title: 'Southern Sotho'
-		},
-		{
-			key: 'az',
-			title: 'South Azerbaijani'
-		},
-		{
-			key: 'es',
-			title: 'Spanish; Castilian'
-		},
-		{
-			key: 'su',
-			title: 'Sundanese'
-		},
-		{
-			key: 'sw',
-			title: 'Swahili'
-		},
-		{
-			key: 'ss',
-			title: 'Swati'
-		},
-		{
-			key: 'sv',
-			title: 'Swedish'
-		},
-		{
-			key: 'ta',
-			title: 'Tamil'
-		},
-		{
-			key: 'te',
-			title: 'Telugu'
-		},
-		{
-			key: 'tg',
-			title: 'Tajik'
-		},
-		{
-			key: 'th',
-			title: 'Thai'
-		},
-		{
-			key: 'ti',
-			title: 'Tigrinya'
-		},
-		{
-			key: 'bo',
-			title: 'Tibetan Standard, Tibetan, Central'
-		},
-		{
-			key: 'tk',
-			title: 'Turkmen'
-		},
-		{
-			key: 'tl',
-			title: 'Tagalog'
-		},
-		{
-			key: 'tn',
-			title: 'Tswana'
-		},
-		{
-			key: 'to',
-			title: 'Tonga (Tonga Islands)'
-		},
-		{
-			key: 'tr',
-			title: 'Turkish'
-		},
-		{
-			key: 'ts',
-			title: 'Tsonga'
-		},
-		{
-			key: 'tt',
-			title: 'Tatar'
-		},
-		{
-			key: 'tw',
-			title: 'Twi'
-		},
-		{
-			key: 'ty',
-			title: 'Tahitian'
-		},
-		{
-			key: 'ug',
-			title: 'Uyghur, Uighur'
-		},
-		{
-			key: 'uk',
-			title: 'Ukrainian'
-		},
-		{
-			key: 'ur',
-			title: 'Urdu'
-		},
-		{
-			key: 'uz',
-			title: 'Uzbek'
-		},
-		{
-			key: 've',
-			title: 'Venda'
-		},
-		{
-			key: 'vi',
-			title: 'Vietnamese'
-		},
-		{
-			key: 'vo',
-			title: 'VolapÃ¼k'
-		},
-		{
-			key: 'wa',
-			title: 'Walloon'
-		},
-		{
-			key: 'cy',
-			title: 'Welsh'
-		},
-		{
-			key: 'wo',
-			title: 'Wolof'
-		},
-		{
-			key: 'fy',
-			title: 'Western Frisian'
-		},
-		{
-			key: 'xh',
-			title: 'Xhosa'
-		},
-		{
-			key: 'yi',
-			title: 'Yiddish'
-		},
-		{
-			key: 'yo',
-			title: 'Yoruba'
-		},
-		{
-			key: 'za',
-			title: 'Zhuang, Chuang'
-		},
-		{
-			key: 'zu',
-			title: 'Zulu'
-		}
-		];
-
-	/**
-	 * Create filter function for a query string
-	 */
-	function createFilterFor(query) {
-		var lowercaseQuery = query.toLowerCase();
-
-		return function filterFn(language) {
-			return (language.title.indexOf(lowercaseQuery) >= 0) ||
-			(language.key.indexOf(lowercaseQuery) >= 0);
-		};
-
-	}
-
-	/**
-	 * @ngdoc Resources
-	 * @name Custom Language
-	 * @description Create a custom language and return the result
-	 *
-	 * A custom language is a key, title, and map
-	 */
-	$resource.newPage({
-		label: 'Custom',
-		type: 'language',
-		templateUrl: 'views/resources/mb-language-custome.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope) {
-			$scope.language = $scope.value;
-
-			this.querySearch = function(query){
-				var results = query ? languages.filter(createFilterFor(query)) : languages;
-				var deferred = $q.defer();
-				$timeout(function () { 
-					deferred.resolve(results); 
-				}, Math.random() * 100, false);
-				return deferred.promise;
-			};
-
-			$scope.$watch('language', function(lang){
-				$scope.$parent.setValue(lang);
-			});
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/languages']
-	});
-
-	/**
-	 * @ngdoc Resources
-	 * @name Remote Languages
-	 * @description Create a custom language and return the result
-	 *
-	 * A custom language is a key, title, and map
-	 */
-	$resource.newPage({
-		label: 'Remote',
-		type: 'language-viraweb123',
-		templateUrl: 'views/resources/mb-language-list.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope) {
-			$http.get('resources/common-languages.json')
-			.then(function(res){
-				$scope.languages = res.data;
-			});
-
-			this.setLanguage = function(lang){
-				$scope.$parent.setValue(lang);
-			};
-
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/languages']
-	});
-
-
-	/**
-	 * @ngdoc Resources
-	 * @name Remote Languages
-	 * @description Create a custom language and return the result
-	 *
-	 * A custom language is a key, title, and map
-	 */
-	$resource.newPage({
-		label: 'Upload',
-		type: 'language-upload',
-		templateUrl: 'views/resources/mb-language-upload.html',
-		/*
-		 * @ngInject
-		 */
-		controller: function ($scope) {
-			$http.get('resources/common-languages.json')
-			.then(function(res){
-				$scope.languages = res.data;
-			});
-
-			this.setLanguage = function(lang){
-				$scope.$parent.setValue(lang);
-			};
-
-			var ctrl = this;
-			$scope.$watch('files.length',function(files){
-				if(!$scope.files || $scope.files.length <= 0){
-					return;
-				}
-				var reader = new FileReader();
-				reader.onload = function (event) {
-					var lang = JSON.parse(event.target.result);
-					ctrl.setLanguage(lang);
-				};
-				reader.readAsText($scope.files[0].lfFile);
-			});
-
-
-		},
-		controllerAs: 'resourceCtrl',
-		priority: 8,
-		tags: ['/app/languages']
-	});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-	/*
-	 * Init application resources
-	 */
-	.run(function($resource, $location, $controller) {
-
-		$resource.newPage({
-			type: 'wb-url',
-			icon: 'link',
-			label: 'URL',
-			templateUrl: 'views/resources/wb-url.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				$scope.$watch('value', function(value) {
-					$scope.$parent.setValue(value);
-				});
-			},
-			controllerAs: 'ctrl',
-			tags: ['file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
-				'avatar', 'thumbnail',
-				// new models
-				'image-url', 'vedio-url', 'audio-url', 'page-url']
-		});
-
-		$resource.newPage({
-			type: 'script',
-			icon: 'script',
-			label: 'Script',
-			templateUrl: 'views/resources/wb-event-code-editor.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope, $window, $element) {
-				var ctrl = this;
-				this.value = $scope.value || {
-					code: '',
-					language: 'javascript',
-					languages: [{
-						text: 'HTML/XML',
-						value: 'markup'
-					},
-					{
-						text: 'JavaScript',
-						value: 'javascript'
-					},
-					{
-						text: 'CSS',
-						value: 'css'
-					}]
-				};
-				this.setCode = function(code) {
-					this.value.code = code;
-					$scope.$parent.setValue(this.value);
-				};
-
-				this.setLanguage = function(language) {
-					this.value.code = language;
-					$scope.$parent.setValue(this.value);
-				};
-
-				this.setEditor = function(editor) {
-					this.editor = editor;
-					editor.setOptions({
-						enableBasicAutocompletion: true,
-						enableLiveAutocompletion: true,
-						showPrintMargin: false,
-						maxLines: Infinity,
-						fontSize: '100%'
-					});
-					$scope.editor = editor;
-					//              editor.setTheme('resources/libs/ace/theme/chrome');
-					//              editor.session.setMode('resources/libs/ace/mode/javascript');
-					editor.setValue(ctrl.value.code || '');
-					editor.on('change', function() {
-						ctrl.setCode(editor.getValue());
-					});
-				};
-
-				//          var ctrl = this;
-				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-					.then(function() {
-						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-					});
-			},
-			controllerAs: 'ctrl',
-			tags: ['code', 'script']
-		});
-
-		function getDomain() {
-			return $location.protocol() + //
-				'://' + //
-				$location.host() + //
-				(($location.port() ? ':' + $location.port() : ''));
-		}
-
-		//  TODO: maso, 2018: replace with class
-		function getSelection() {
-			if (!this.__selections) {
-				this.__selections = angular.isArray(this.value) ? this.value : [];
-			}
-			return this.__selections;
-		}
-
-		function getIndexOf(list, item) {
-			if (!angular.isDefined(item.id)) {
-				return list.indexOf(item);
-			}
-			for (var i = 0; i < list.length; i++) {
-				if (list[i].id === item.id) {
-					return i;
-				}
-			}
-		}
-
-		function setSelected(item, selected) {
-			var selectionList = this.getSelection();
-			var index = getIndexOf(selectionList, item);
-			if (selected) {
-				// add to selection
-				if (index >= 0) {
-					return;
-				}
-				selectionList.push(item);
-			} else {
-				// remove from selection
-				if (index > -1) {
-					selectionList.splice(index, 1);
-				}
-			}
-		}
-
-		function isSelected(item) {
-			var selectionList = this.getSelection();
-			return getIndexOf(selectionList, item) >= 0;
-		}
-
-
-		/**
-		 * @ngdoc Resources
-		 * @name Account
-		 * @description Get an account from resource
-		 *
-		 * Enable user to select an account
-		 */
-		$resource.newPage({
-			label: 'Account',
-			type: 'account',
-			templateUrl: 'views/resources/mb-accounts.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				// TODO: maso, 2018: load selected item
-				$scope.multi = false;
-				this.value = $scope.value;
-				this.setSelected = function(item) {
-					$scope.$parent.setValue(item);
-					$scope.$parent.answer();
-				};
-				this.isSelected = function(item) {
-					return item === this.value || item.id === this.value.id;
-				};
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 8,
-			tags: ['account']
-		});
-
-		$resource.newPage({
-			label: 'Account',
-			type: 'account id',
-			templateUrl: 'views/resources/mb-accounts.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				// TODO: maso, 2018: load selected item
-				$scope.multi = false;
-				this.value = $scope.value;
-				this.setSelected = function(item) {
-					$scope.$parent.setValue(item.id);
-					$scope.$parent.answer();
-				};
-				this.isSelected = function(item) {
-					return item.id === this.value;
-				};
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 8,
-			tags: ['account_id', 'owner_id']
-		});
-
-		/**
-		 * @ngdoc Resources
-		 * @name Accounts
-		 * @description Gets list of accounts
-		 *
-		 * Display a list of accounts and allow user to select them.
-		 */
-		$resource.newPage({
-			label: 'Accounts',
-			type: 'account-list',
-			templateUrl: 'views/resources/mb-accounts.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				// TODO: maso, 2018: load selected item
-				$scope.multi = true;
-				this.value = $scope.value;
-				this.setSelected = function(item, selected) {
-					this._setSelected(item, selected);
-					$scope.$parent.setValue(this.getSelection());
-				};
-				this._setSelected = setSelected;
-				this.isSelected = isSelected;
-				this.getSelection = getSelection;
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 8,
-			tags: ['accounts', '/user/accounts']
-		});
-
-		// Resource for role-list
-		$resource.newPage({
-			label: 'Role List',
-			type: 'role-list',
-			templateUrl: 'views/resources/mb-roles.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				// TODO: maso, 2018: load selected item
-				$scope.multi = true;
-				this.value = $scope.value;
-				this.setSelected = function(item, selected) {
-					this._setSelected(item, selected);
-					$scope.$parent.setValue(this.getSelection());
-				};
-				this._setSelected = setSelected;
-				this.isSelected = isSelected;
-				this.getSelection = getSelection;
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 8,
-			tags: ['roles', '/user/roles']
-		});
-
-
-		// Resource for group-list
-		$resource.newPage({
-			label: 'Group List',
-			type: 'group-list',
-			templateUrl: 'views/resources/mb-groups.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				// TODO: maso, 2018: load selected item
-				$scope.multi = true;
-				this.value = $scope.value;
-				this.setSelected = function(item, selected) {
-					this._setSelected(item, selected);
-					$scope.$parent.setValue(this.getSelection());
-				};
-				this._setSelected = setSelected;
-				this.isSelected = isSelected;
-				this.getSelection = getSelection;
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 8,
-			tags: ['groups']
-		});
-
-
-		/**
-		 * @ngdoc WB Resources
-		 * @name cms-content-image
-		 * @description Load an Image URL from contents
-		 */
-		$resource.newPage({
-			type: 'cms-content-image',
-			icon: 'image',
-			label: 'Images',
-			templateUrl: 'views/resources/mb-cms-images.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-
-				/*
-				 * Extends collection controller
-				 */
-				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-					$scope: $scope
-				}));
-
-				/**
-				 * Sets the absolute mode
-				 *
-				 * @param {boolean}
-				 *            absolute mode of the controler
-				 */
-				this.setAbsolute = function(absolute) {
-					this.absolute = absolute;
-				}
-
-				/**
-				 * Checks if the mode is absolute
-				 *
-				 * @return absolute mode of the controller
-				 */
-				this.isAbsolute = function() {
-					return this.absolute;
-				}
-
-				/*
-				 * Sets value
-				 */
-				this.setSelected = function(content) {
-					var path = '/api/v2/cms/contents/' + content.id + '/content';
-					if (this.isAbsolute()) {
-						path = getDomain() + path;
-					}
-					this.value = path;
-					$scope.$parent.setValue(path);
-				}
-
-				// init the controller
-				this.init()
-			},
-			controllerAs: 'ctrl',
-			priority: 10,
-			tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
-		});
-		// TODO: maso, 2018: Add video resource
-		// TODO: maso, 2018: Add audio resource
-
-		/**
-		 * @ngdoc WB Resources
-		 * @name content-upload
-		 * @description Upload a content and returns its URL
-		 */
-		$resource.newPage({
-			type: 'content-upload',
-			icon: 'file_upload',
-			label: 'Upload',
-			templateUrl: 'views/resources/mb-cms-content-upload.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope, $cms, $translate, $mbCrypto) {
-
-				/*
-				 * Extends collection controller
-				 */
-				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-					$scope: $scope
-				}));
-
-				this.absolute = false;
-				this.files = [];
-
-				/**
-				 * Sets the absolute mode
-				 *
-				 * @param {boolean}
-				 *            absolute mode of the controler
-				 */
-				this.setAbsolute = function(absolute) {
-					this.absolute = absolute;
-				}
-
-				/**
-				 * Checks if the mode is absolute
-				 *
-				 * @return absolute mode of the controller
-				 */
-				this.isAbsolute = function() {
-					return this.absolute;
-				}
-
-				/*
-				 * Add answer to controller
-				 */
-				var ctrl = this;
-				$scope.answer = function() {
-					// create data
-					var data = {};
-					data.name = this.name || $mbCrypto.uuid();
-					data.description = this.description || 'Auto loaded content';
-					var file = null;
-					if (angular.isArray(ctrl.files) && ctrl.files.length) {
-						file = ctrl.files[0].lfFile;
-						data.title = file.name;
-					}
-					// upload data to server
-					return ctrl.uploadFile(data, file)//
-						.then(function(content) {
-							var value = '/api/v2/cms/contents/' + content.id + '/content';
-							if (ctrl.isAbsolute()) {
-								value = getDomain() + value;
-							}
-							return value;
-						})//
-						.catch(function() {
-							alert('Failed to create or upload content');
-						});
-				};
-				// init the controller
-				this.init();
-
-				// re-labeling lf-ng-md-file component for multi languages support
-				angular.element(function() {
-					var elm = angular.element('.lf-ng-md-file-input-drag-text');
-					if (elm[0]) {
-						elm.text($translate.instant('Drag & Drop File Here'));
-					}
-
-					elm = angular.element('.lf-ng-md-file-input-button-brower');
-					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-						elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
-					}
-
-					elm = angular.element('.lf-ng-md-file-input-button-remove');
-					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-						elm[0].childNodes[1].data = $translate.instant('Remove');
-					}
-
-					elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-					if (elm[0]) {
-						elm.text($translate.instant('Select File'));
-					}
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
-		});
-
-
-
-
-		/**
-		 * @ngdoc WB Resources
-		 * @name file-local
-		 * @description Select a local file and return the object
-		 * 
-		 * This is used to select local file. It may be used in any part of the system. For example,
-		 * to upload as content.
-		 */
-		$resource.newPage({
-			type: 'local-file',
-			icon: 'file_upload',
-			label: 'Local file',
-			templateUrl: 'views/resources/mb-local-file.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope, $q, style) {
-				var ctrl = this;
-				$scope.style = style;
-				$scope.answer = function() {
-					if (angular.isArray(ctrl.files) && ctrl.files.length) {
-						return $q.resolve(ctrl.files[0].lfFile);
-					}
-					return $q.reject('No file selected');
-				};
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 1,
-			tags: ['local-file']
-		});
-
-
-
-		//-------------------------------------------------------------//
-		// CMS:
-		//
-		// - Term Taxonomies
-		//-------------------------------------------------------------//
-		$resource.newPage({
-			label: 'Term Taxonomies',
-			type: '/cms/term-taxonomies',
-			templateUrl: 'views/resources/mb-term-taxonomies.html',
-			/*
-			 * @ngInject
-			 */
-			controller: function($scope) {
-				$scope.multi = true;
-				this.value = $scope.value;
-				this.setSelected = function(item, selected) {
-					this._setSelected(item, selected);
-					$scope.$parent.setValue(this.getSelection());
-				};
-				this._setSelected = setSelected;
-				this.isSelected = isSelected;
-				this.getSelection = getSelection;
-			},
-			controllerAs: 'resourceCtrl',
-			priority: 8,
-			tags: ['/cms/term-taxonomies']
-		});
-	});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').run(function($mbView) {
-//		$mbRoute//
+///*
+// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+// *
+// * Permission is hereby granted, free of charge, to any person obtaining a copy
+// * of this software and associated documentation files (the "Software"), to deal
+// * in the Software without restriction, including without limitation the rights
+// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// * copies of the Software, and to permit persons to whom the Software is
+// * furnished to do so, subject to the following conditions:
+// *
+// * The above copyright notice and this permission notice shall be included in all
+// * copies or substantial portions of the Software.
+// *
+// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// * SOFTWARE.
+// */
 //
-//			/**
-//			 * @ngdoc ngRoute
-//			 * @name /preferences/languages/manager
-//			 * @description Load language manager
-//			 * 
-//			 * Manages languages and allow user to add a new one.
+//
+//angular.module('mblowfish-core')
+//	/*
+//	 * Init application resources
+//	 */
+//	.run(function($mbResource, $location, $controller) {
+//
+//		$mbResource.addPage({
+//			type: 'wb-url',
+//			icon: 'link',
+//			label: 'URL',
+//			templateUrl: 'views/resources/wb-url.html',
+//			/*
+//			 * @ngInject
 //			 */
-//			.when('/preferences/languages/manager', {
-//				templateUrl: 'views/mb-languages.html',
-//				/*
-//				 * Check if user is owner
-//				 * @ngInject
-//				 */
-//				protect: function($rootScope) {
-//					var permissions = $rootScope.__account.permissions;
-//					return !(permissions.tenant_owner || permissions.core_owner || permissions.Pluf_owner);
+//			controller: function($scope) {
+//				$scope.$watch('value', function(value) {
+//					$scope.$parent.setValue(value);
+//				});
+//			},
+//			controllerAs: 'ctrl',
+//			tags: ['file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
+//				'avatar', 'thumbnail',
+//				// new models
+//				'image-url', 'vedio-url', 'audio-url', 'page-url']
+//		});
+//
+//		$mbResource.addPage({
+//			type: 'script',
+//			icon: 'script',
+//			label: 'Script',
+//			templateUrl: 'views/resources/wb-event-code-editor.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope, $window, $element) {
+//				var ctrl = this;
+//				this.value = $scope.value || {
+//					code: '',
+//					language: 'javascript',
+//					languages: [{
+//						text: 'HTML/XML',
+//						value: 'markup'
+//					},
+//					{
+//						text: 'JavaScript',
+//						value: 'javascript'
+//					},
+//					{
+//						text: 'CSS',
+//						value: 'css'
+//					}]
+//				};
+//				this.setCode = function(code) {
+//					this.value.code = code;
+//					$scope.$parent.setValue(this.value);
+//				};
+//
+//				this.setLanguage = function(language) {
+//					this.value.code = language;
+//					$scope.$parent.setValue(this.value);
+//				};
+//
+//				this.setEditor = function(editor) {
+//					this.editor = editor;
+//					editor.setOptions({
+//						enableBasicAutocompletion: true,
+//						enableLiveAutocompletion: true,
+//						showPrintMargin: false,
+//						maxLines: Infinity,
+//						fontSize: '100%'
+//					});
+//					$scope.editor = editor;
+//					//              editor.setTheme('resources/libs/ace/theme/chrome');
+//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
+//					editor.setValue(ctrl.value.code || '');
+//					editor.on('change', function() {
+//						ctrl.setCode(editor.getValue());
+//					});
+//				};
+//
+//				//          var ctrl = this;
+//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
+//					.then(function() {
+//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
+//					});
+//			},
+//			controllerAs: 'ctrl',
+//			tags: ['code', 'script']
+//		});
+//
+//		function getDomain() {
+//			return $location.protocol() + //
+//				'://' + //
+//				$location.host() + //
+//				(($location.port() ? ':' + $location.port() : ''));
+//		}
+//
+//		//  TODO: maso, 2018: replace with class
+//		function getSelection() {
+//			if (!this.__selections) {
+//				this.__selections = angular.isArray(this.value) ? this.value : [];
+//			}
+//			return this.__selections;
+//		}
+//
+//		function getIndexOf(list, item) {
+//			if (!angular.isDefined(item.id)) {
+//				return list.indexOf(item);
+//			}
+//			for (var i = 0; i < list.length; i++) {
+//				if (list[i].id === item.id) {
+//					return i;
 //				}
-//			})
+//			}
+//		}
 //
-//			/**
-//			 * @ngdoc ngRoute
-//			 * @name /preferences
-//			 * @description preferences pages
-//			 */
-//			.when('/preferences', {
-//				templateUrl: 'views/mb-preferences.html',
-//				controller: 'MbPreferencesCtrl',
-//				controllerAs: 'ctrl',
-//				helpId: 'preferences',
-//				/*
-//				 * @ngInject
-//				 */
-//				protect: function($rootScope) {
-//					return !$rootScope.__account.permissions.tenant_owner;
+//		function setSelected(item, selected) {
+//			var selectionList = this.getSelection();
+//			var index = getIndexOf(selectionList, item);
+//			if (selected) {
+//				// add to selection
+//				if (index >= 0) {
+//					return;
 //				}
-//			}) //
-//			/**
-//			 * @ngdoc ngRoute
-//			 * @name /preferences/:page
-//			 * @description Preferences page
-//			 * 
-//			 * Display a preferences page to manage a part of settings. Here is list of
-//			 * default pages: - google-analytic - brand - update - pageNotFound
-//			 */
-//			.when('/preferences/:preferenceId', {
-//				templateUrl: 'views/mb-preference.html',
-//				controller: 'MbPreferenceCtrl',
-//				/*
-//				 * @ngInject
-//				 */
-//				helpId: function($mbRouteParams) {
-//					return 'preferences-' + $mbRouteParams.preferenceId;
-//				},
-//				/*
-//				 * @ngInject
-//				 */
-//				protect: function($rootScope) {
-//					return !$rootScope.__account.permissions.tenant_owner;
+//				selectionList.push(item);
+//			} else {
+//				// remove from selection
+//				if (index > -1) {
+//					selectionList.splice(index, 1);
 //				}
-//			})
+//			}
+//		}
 //
-//			// Users
-//			// Login
-//			.when('/users/login', {
-//				templateUrl: 'views/users/mb-login.html',
-//				controller: 'MbAccountCtrl',
-//				controllerAs: 'ctrl',
-//				sidenavs: [],
-//				toolbars: []
-//			})
+//		function isSelected(item) {
+//			var selectionList = this.getSelection();
+//			return getIndexOf(selectionList, item) >= 0;
+//		}
 //
-//			//-----------------------------------------------------------------------------
-//			// Move to account (vw-dashboard)
-//			//-----------------------------------------------------------------------------
-//			/**
-//			 * @ngdoc ngRoute
-//			 * @name /users/account
-//			 * @description Details of the current account
-//			 */
-//			.when('/users/account', {
-//				templateUrl: 'views/users/mb-account.html',
-//				controller: 'MbAccountCtrl',
-//				controllerAs: 'ctrl',
-//				protect: true,
-//				helpId: 'mb-account'
-//			})
-//			/**
-//			 * @ngdoc ngRoute
-//			 * @name /users/profile
-//			 * @description Profile of the current account
-//			 */
-//			.when('/users/profile', {
-//				templateUrl: 'views/users/mb-profile.html',
-//				controller: 'MbProfileCtrl',
-//				controllerAs: 'ctrl',
-//				protect: true,
-//				helpId: 'mb-profile'
-//			})
-//			/**
-//			 * @ngdoc ngRoute
-//			 * @name /users/password
-//			 * @description Manage current password of the account
-//			 * 
-//			 * Change the password of the current account.
-//			 */
-//			.when('/users/password', {
-//				templateUrl: 'views/users/mb-password.html',
-//				controller: 'MbAccountCtrl',
-//				controllerAs: 'ctrl',
-//				protect: true,
-//				helpId: 'mb-profile'
-//			})
 //
-//			// Reset forgotten password
-//			.when('/users/reset-password', {
-//				templateUrl: 'views/users/mb-forgot-password.html',
-//				controller: 'MbAccountCtrl',
-//				controllerAs: 'ctrl',
-//				sidenavs: [],
-//				toolbars: []
-//			})//
-//			.when('/users/reset-password/token', {
-//				templateUrl: 'views/users/mb-recover-password.html',
-//				controller: 'MbAccountCtrl',
-//				controllerAs: 'ctrl',
-//				sidenavs: [],
-//				toolbars: []
-//			})//
-//			.when('/users/reset-password/token/:token', {
-//				templateUrl: 'views/users/mb-recover-password.html',
-//				controller: 'MbAccountCtrl',
-//				controllerAs: 'ctrl',
-//				sidenavs: [],
-//				toolbars: []
-//			})//
-
-	});
+//		/**
+//		 * @ngdoc Resources
+//		 * @name Account
+//		 * @description Get an account from resource
+//		 *
+//		 * Enable user to select an account
+//		 */
+//		$mbResource.addPage({
+//			label: 'Account',
+//			type: 'account',
+//			templateUrl: 'views/resources/mb-accounts.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//				// TODO: maso, 2018: load selected item
+//				$scope.multi = false;
+//				this.value = $scope.value;
+//				this.setSelected = function(item) {
+//					$scope.$parent.setValue(item);
+//					$scope.$parent.answer();
+//				};
+//				this.isSelected = function(item) {
+//					return item === this.value || item.id === this.value.id;
+//				};
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 8,
+//			tags: ['account']
+//		});
+//
+//		$mbResource.addPage({
+//			label: 'Account',
+//			type: 'account id',
+//			templateUrl: 'views/resources/mb-accounts.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//				// TODO: maso, 2018: load selected item
+//				$scope.multi = false;
+//				this.value = $scope.value;
+//				this.setSelected = function(item) {
+//					$scope.$parent.setValue(item.id);
+//					$scope.$parent.answer();
+//				};
+//				this.isSelected = function(item) {
+//					return item.id === this.value;
+//				};
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 8,
+//			tags: ['account_id', 'owner_id']
+//		});
+//
+//		/**
+//		 * @ngdoc Resources
+//		 * @name Accounts
+//		 * @description Gets list of accounts
+//		 *
+//		 * Display a list of accounts and allow user to select them.
+//		 */
+//		$mbResource.addPage({
+//			label: 'Accounts',
+//			type: 'account-list',
+//			templateUrl: 'views/resources/mb-accounts.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//				// TODO: maso, 2018: load selected item
+//				$scope.multi = true;
+//				this.value = $scope.value;
+//				this.setSelected = function(item, selected) {
+//					this._setSelected(item, selected);
+//					$scope.$parent.setValue(this.getSelection());
+//				};
+//				this._setSelected = setSelected;
+//				this.isSelected = isSelected;
+//				this.getSelection = getSelection;
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 8,
+//			tags: ['accounts', '/user/accounts']
+//		});
+//
+//		// Resource for role-list
+//		$mbResource.addPage({
+//			label: 'Role List',
+//			type: 'role-list',
+//			templateUrl: 'views/resources/mb-roles.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//				// TODO: maso, 2018: load selected item
+//				$scope.multi = true;
+//				this.value = $scope.value;
+//				this.setSelected = function(item, selected) {
+//					this._setSelected(item, selected);
+//					$scope.$parent.setValue(this.getSelection());
+//				};
+//				this._setSelected = setSelected;
+//				this.isSelected = isSelected;
+//				this.getSelection = getSelection;
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 8,
+//			tags: ['roles', '/user/roles']
+//		});
+//
+//
+//		// Resource for group-list
+//		$mbResource.addPage({
+//			label: 'Group List',
+//			type: 'group-list',
+//			templateUrl: 'views/resources/mb-groups.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//				// TODO: maso, 2018: load selected item
+//				$scope.multi = true;
+//				this.value = $scope.value;
+//				this.setSelected = function(item, selected) {
+//					this._setSelected(item, selected);
+//					$scope.$parent.setValue(this.getSelection());
+//				};
+//				this._setSelected = setSelected;
+//				this.isSelected = isSelected;
+//				this.getSelection = getSelection;
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 8,
+//			tags: ['groups']
+//		});
+//
+//
+//		/**
+//		 * @ngdoc WB Resources
+//		 * @name cms-content-image
+//		 * @description Load an Image URL from contents
+//		 */
+//		$mbResource.addPage({
+//			type: 'cms-content-image',
+//			icon: 'image',
+//			label: 'Images',
+//			templateUrl: 'views/resources/mb-cms-images.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//
+//				/*
+//				 * Extends collection controller
+//				 */
+//				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+//					$scope: $scope
+//				}));
+//
+//				/**
+//				 * Sets the absolute mode
+//				 *
+//				 * @param {boolean}
+//				 *            absolute mode of the controler
+//				 */
+//				this.setAbsolute = function(absolute) {
+//					this.absolute = absolute;
+//				}
+//
+//				/**
+//				 * Checks if the mode is absolute
+//				 *
+//				 * @return absolute mode of the controller
+//				 */
+//				this.isAbsolute = function() {
+//					return this.absolute;
+//				}
+//
+//				/*
+//				 * Sets value
+//				 */
+//				this.setSelected = function(content) {
+//					var path = '/api/v2/cms/contents/' + content.id + '/content';
+//					if (this.isAbsolute()) {
+//						path = getDomain() + path;
+//					}
+//					this.value = path;
+//					$scope.$parent.setValue(path);
+//				}
+//
+//				// init the controller
+//				this.init()
+//			},
+//			controllerAs: 'ctrl',
+//			priority: 10,
+//			tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
+//		});
+//		// TODO: maso, 2018: Add video resource
+//		// TODO: maso, 2018: Add audio resource
+//
+//		/**
+//		 * @ngdoc WB Resources
+//		 * @name content-upload
+//		 * @description Upload a content and returns its URL
+//		 */
+//		$mbResource.addPage({
+//			type: 'content-upload',
+//			icon: 'file_upload',
+//			label: 'Upload',
+//			templateUrl: 'views/resources/mb-cms-content-upload.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope, $cms, $translate, $mbCrypto) {
+//
+//				/*
+//				 * Extends collection controller
+//				 */
+//				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+//					$scope: $scope
+//				}));
+//
+//				this.absolute = false;
+//				this.files = [];
+//
+//				/**
+//				 * Sets the absolute mode
+//				 *
+//				 * @param {boolean}
+//				 *            absolute mode of the controler
+//				 */
+//				this.setAbsolute = function(absolute) {
+//					this.absolute = absolute;
+//				}
+//
+//				/**
+//				 * Checks if the mode is absolute
+//				 *
+//				 * @return absolute mode of the controller
+//				 */
+//				this.isAbsolute = function() {
+//					return this.absolute;
+//				}
+//
+//				/*
+//				 * Add answer to controller
+//				 */
+//				var ctrl = this;
+//				$scope.answer = function() {
+//					// create data
+//					var data = {};
+//					data.name = this.name || $mbCrypto.uuid();
+//					data.description = this.description || 'Auto loaded content';
+//					var file = null;
+//					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+//						file = ctrl.files[0].lfFile;
+//						data.title = file.name;
+//					}
+//					// upload data to server
+//					return ctrl.uploadFile(data, file)//
+//						.then(function(content) {
+//							var value = '/api/v2/cms/contents/' + content.id + '/content';
+//							if (ctrl.isAbsolute()) {
+//								value = getDomain() + value;
+//							}
+//							return value;
+//						})//
+//						.catch(function() {
+//							alert('Failed to create or upload content');
+//						});
+//				};
+//				// init the controller
+//				this.init();
+//
+//				// re-labeling lf-ng-md-file component for multi languages support
+//				angular.element(function() {
+//					var elm = angular.element('.lf-ng-md-file-input-drag-text');
+//					if (elm[0]) {
+//						elm.text($translate.instant('Drag & Drop File Here'));
+//					}
+//
+//					elm = angular.element('.lf-ng-md-file-input-button-brower');
+//					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+//						elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+//					}
+//
+//					elm = angular.element('.lf-ng-md-file-input-button-remove');
+//					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+//						elm[0].childNodes[1].data = $translate.instant('Remove');
+//					}
+//
+//					elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+//					if (elm[0]) {
+//						elm.text($translate.instant('Select File'));
+//					}
+//				});
+//			},
+//			controllerAs: 'ctrl',
+//			priority: 1,
+//			tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
+//		});
+//
+//
+//
+//
+//		/**
+//		 * @ngdoc WB Resources
+//		 * @name file-local
+//		 * @description Select a local file and return the object
+//		 * 
+//		 * This is used to select local file. It may be used in any part of the system. For example,
+//		 * to upload as content.
+//		 */
+//		$mbResource.addPage({
+//			type: 'local-file',
+//			icon: 'file_upload',
+//			label: 'Local file',
+//			templateUrl: 'views/resources/mb-local-file.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope, $q, style) {
+//				var ctrl = this;
+//				$scope.style = style;
+//				$scope.answer = function() {
+//					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+//						return $q.resolve(ctrl.files[0].lfFile);
+//					}
+//					return $q.reject('No file selected');
+//				};
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 1,
+//			tags: ['local-file']
+//		});
+//
+//
+//
+//		//-------------------------------------------------------------//
+//		// CMS:
+//		//
+//		// - Term Taxonomies
+//		//-------------------------------------------------------------//
+//		$mbResource.addPage({
+//			label: 'Term Taxonomies',
+//			type: '/cms/term-taxonomies',
+//			templateUrl: 'views/resources/mb-term-taxonomies.html',
+//			/*
+//			 * @ngInject
+//			 */
+//			controller: function($scope) {
+//				$scope.multi = true;
+//				this.value = $scope.value;
+//				this.setSelected = function(item, selected) {
+//					this._setSelected(item, selected);
+//					$scope.$parent.setValue(this.getSelection());
+//				};
+//				this._setSelected = setSelected;
+//				this.isSelected = isSelected;
+//				this.getSelection = getSelection;
+//			},
+//			controllerAs: 'resourceCtrl',
+//			priority: 8,
+//			tags: ['/cms/term-taxonomies']
+//		});
+//	});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -14995,449 +12543,6 @@ angular.module('mblowfish-core').service('$notification', function($navigator, $
 	};
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Services
- * @name $options
- * @description User option manager
- * 
- * Option is user configurations
- */
-angular.module('mblowfish-core').service('$options', function($q) {
-	var _pages = [ ];
-
-	/**
-	 * List all pages
-	 */
-	function pages() {
-		return $q.when({
-			'items' : _pages
-		});
-	}
-	
-	/**
-	 * Gets a config page
-	 * 
-	 * @name config
-	 * @param {string} pageId - Id of the config
-	 * @return {promiss<config>} return config
-	 */
-	function getPage(pageId){
-		for(var i = 0; i < _pages.length; i++){
-			if(_pages[i].id === pageId){
-				return $q.when(_pages[i]);
-			}
-		}
-		return $q.reject({
-			// TODO: maso, 2018: add reason
-		});
-	}
-
-
-	/**
-	 * Creates configuration/setting page.
-	 */
-	function newPage(page){
-		_pages.push(page);
-		return app;
-	}
-	
-	var app = {
-			pages : pages,
-			page: getPage,
-			newPage : newPage
-	};
-	return app;
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-/**
- * @ngdoc Services
- * @name $preferences
- * @description System setting manager
- * 
- */
-angular.module('mblowfish-core').service('$preferences', function($q, $navigator) {
-	var preferences = [ ];
-
-	/**
-	 * Lists all created pages.
-	 * 
-	 * @returns
-	 */
-	function pages() {
-		// SORT:
-		preferences.sort(_pageComparator);
-		// Return list
-		return $q.when({
-			'items' : preferences
-		});
-	}
-
-	function _pageComparator(page1, page2){
-		if(page1.priority === page2.priority){
-			return 0;
-		}
-		if(page1.priority === 'first' || page2.priority === 'last'){
-			return -1;
-		}
-		if(page1.priority === 'last' || page2.priority === 'first'){
-			return +1;
-		}
-		if(typeof page1.priority === 'undefined'){
-			return +1;
-		}
-		if(typeof page2.priority === 'undefined'){
-			return -1;
-		}
-		return page1.priority - page2.priority;
-	}
-	
-	/**
-	 * Gets a preference page
-	 * 
-	 * @memberof $preferences
-	 * @param id {string} Pereference page id
-	 */
-	function page(id){
-		// get preferences
-		for (var i = 0, len = preferences.length; i < len; i++) {
-			if(preferences[i].id === id){
-				return $q.when(preferences[i]);
-			}
-		}
-		// not found
-		return $q.reject({
-			message: 'Not found'
-		});
-	}
-
-
-	/**
-	 * Opens a setting page
-	 * 
-	 * @param page
-	 * @returns
-	 */
-	function open(page){
-		return $navigator.openPage('/preferences/'+page.id);
-	}
-
-	/**
-	 * Creates a new setting page.
-	 * 
-	 * @param page
-	 * @returns
-	 */
-	function newPage(page){
-		preferences.push(page);
-		return this;
-	}
-
-	return  {
-		'pages' : pages,
-		'page': page,
-		'newPage': newPage,
-		'openPage' : open
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Services
- * @name $language
- * @description 
- * Manages languages of the application.
- * This service provide functionality to switch between multiple languages.
- * Also provides functionlity to manage languages (add, remove or edit translations).
- * 
- */
-.service('$language', function ($rootScope, $q, $translate) {
-
-    /**
-     * Returns language determined by given key.
-     * 
-     * @memberof $language
-     * @param {string} language key - Key of the language
-     * @return {object}  Returns language with given key. 
-     * @Returns 'undefined' if language does not exist or is not loaded yet.
-     */
-    function language(key) {
-        var languages = $rootScope.app.config.languages;
-        if (!languages || !languages.length) {
-            return undefined;
-        }
-        for (var i = 0; i < languages.length; i++) {
-            if (languages[i].key === key) {
-                return languages[i];
-            }
-        }
-        return undefined;
-    }
-
-    /**
-     * Returns list of defined and loaded languages.
-     * 
-     * @memberof $language
-     * @return {promise<Array>} of languages
-     */
-    function languages() {
-        var langs = $rootScope.app.config.languages;
-        var res = {items: langs || []};
-        return $q.when(res);
-
-
-//      var deferred = $q.defer();
-//deferred.resolve(res);
-//      return deferred.promise;
-    }
-
-    /**
-     * Adds a new language
-     * 
-     * @param {object} lang - Object contain information of a language.
-     * 		A language object would contain following properties:
-     * 
-     * 		- key: a key to determin language (for example fa, en and so on)
-     * 		- title: title for language (for example Persian, English, ...)
-     * 		- dir: direction of language ('ltr' or 'rtl')
-     * 		- map: translation table of language contains some key-values. 
-     * 
-     * @memberof $language
-     */
-    function newLanguage(lang) {
-        if (!$rootScope.__account.permissions.tenant_owner) {
-            return $q.reject('not allowed');
-        }
-        if (!$rootScope.app.config.languages) {
-            $rootScope.app.config.languages = [];
-        } else {
-            var languages = $rootScope.app.config.languages;
-            for (var i = 0; i < languages.length; i++) {
-                if (lang.key === languages[i].key) {
-                    return $q.reject('Sorry! Languages with the same key are not allowed.');
-                }
-            }
-        }
-        $rootScope.app.config.languages.push(lang);
-        $translate.refresh(lang.key);
-        return $q.resolve(lang);
-    }
-
-    /**
-     * Delete a language
-     * 
-     * @memberof $language
-     * @param {object|string} lang - The Language to delete or key of language to delete
-     * @return {promise} promise of deleted language
-     */
-    function deleteLanguage(lang) {
-        if (!$rootScope.__account.permissions.tenant_owner) {
-            return $q.reject('not allowed');
-        }
-        var languages = $rootScope.app.config.languages;
-        if (!languages || !languages.length) {
-            return $q.reject('Not found');
-        }
-        var index = -1;
-        if (angular.isString(lang)) {
-            // lang is key of language
-            for (var i = 0; i < languages.length; i++) {
-                if (languages[i].key === lang) {
-                    index = i;
-                    break;
-                }
-            }
-        } else {
-            index = languages.indexOf(lang);
-        }
-
-        if (index !== -1) {
-            languages.splice(index, 1);
-            return $q.resolve(lang);
-        }
-        return $q.reject('Not found');
-    }
-
-    /**
-     * Returns the language key of language that is currently loaded asynchronously.
-     * 
-     * @memberof $language
-     * @return {string} language key
-     */
-    function proposedLanguage() {
-        return $translate.proposedLanguage();
-    }
-
-    /**
-     * Tells angular-translate which language to use by given language key. This 
-     * method is used to change language at runtime. It also takes care of 
-     * storing the language key in a configured store to let your app remember 
-     * the choosed language.
-     *
-     * When trying to 'use' a language which isn't available it tries to load it 
-     * asynchronously with registered loaders.
-     * 
-     * Returns promise object with loaded language file data or string of the 
-     * currently used language.
-     * 
-     * If no or a falsy key is given it returns the currently used language key. 
-     * The returned string will be undefined if setting up $translate hasn't 
-     * finished.
-     * 
-     * @memberof $language
-     * @param {string} key - Feature description.Language key
-     * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
-     * 
-     */
-    function use(key) {
-        return $translate.use(key);
-    }
-
-    /**
-     * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
-     * the module will drop all existent translation tables and load new version of those which
-     * are currently in use.
-     *
-     * Refresh means that the module will drop target translation table and try to load it again.
-     *
-     * In case there are no loaders registered the refresh() method will throw an Error.
-     *
-     * If the module is able to refresh translation tables refresh() method will broadcast
-     * $translateRefreshStart and $translateRefreshEnd events.
-     *
-     * @example
-     * // this will drop all currently existent translation tables and reload those which are
-     * // currently in use
-     * $translate.refresh();
-     * // this will refresh a translation table for the en_US language
-     * $translate.refresh('en_US');
-     *
-     * @param {string} langKey A language key of the table, which has to be refreshed
-     *
-     * @return {promise} Promise, which will be resolved in case a translation tables refreshing
-     * process is finished successfully, and reject if not.
-     */
-    function refresh(key) {
-        return $translate.refresh(key);
-    }
-
-    /*
-     * Service struct
-     */
-    return {
-        language: language,
-        languages: languages,
-        newLanguage: newLanguage,
-        deleteLanguage: deleteLanguage,
-        proposedLanguage: proposedLanguage,
-        refresh: refresh,
-        use: use
-    };
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($language, $rootScope) {
-	// has to return a function which gets a tranlation ID
-	return function(translationID) {
-		var app = $rootScope.__app;
-		//        var key = $language.use()
-		if (!app.settings.languageMissIds) {
-			app.settings.languageMissIds = [];
-		}
-		var index = app.settings.languageMissIds.indexOf(translationID);
-		if (index === -1) {
-			app.settings.languageMissIds.push(translationID);
-		}
-	};
-});
 /* 
  * The MIT License (MIT)
  * 
@@ -15476,6 +12581,28 @@ angular.module('mblowfish-core')
 	};
 });
 
+
+
+/**
+ * @ngdoc Controllers
+ * @name AmdNavigatorDialogCtrl
+ * @description # AccountCtrl Controller of the mblowfish-core
+ */
+angular.module('mblowfish-core').controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
+	$scope.config = config;
+	$scope.hide = function() {
+		$mdDialog.cancel();
+	};
+	$scope.cancel = function() {
+		$mdDialog.cancel();
+	};
+	$scope.answer = function(a) {
+		$mdDialog.hide(a);
+	};
+});
+
+
+
 /* 
  * The MIT License (MIT)
  * 
@@ -15506,7 +12633,7 @@ angular.module('mblowfish-core')
  * @name wb-icon
  * @description Icon for WB
  */
-angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $interpolate) {
+angular.module('mblowfish-core').directive('wbIcon', function($mbIcon, $interpolate) {
 	// FORMAT
 	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
 	// REPLACE FORMAT
@@ -15516,7 +12643,7 @@ angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $in
 	Mustache.parse(template);
 	Mustache.parse(replaceTemplate);
 
-	var shapes = wbIconService.getShapes();
+	var shapes = $mbIcon.getShapes();
 
 	function postLink(scope, element, attr, ctrls, transclude) {
 		// icon information
@@ -15553,7 +12680,7 @@ angular.module('mblowfish-core').directive('wbIcon', function(wbIconService, $in
 		//            if (attr.viewBox !== undefined) {
 		//                viewBox = attr.viewBox;
 		//            } else {
-		//                viewBox = wbIconService.getViewBox(icon) ? wbIconService.getViewBox(icon) : '0 0 24 24';
+		//                viewBox = $mbIcon.getViewBox(icon) ? $mbIcon.getViewBox(icon) : '0 0 24 24';
 		//            }
 		//            render();
 		//            return viewBox;
@@ -15675,8 +12802,8 @@ angular.module('mblowfish-core').directive('mdIconFloat', function($mdTheming) {
  * 
  *  All icons will be managed
  */
-angular.module('mblowfish-core').provider('wbIconService', function () {
-	
+mblowfish.provider('$mbIcon', function() {
+
 	var provider, service;
 
 	var shapes = {};
@@ -15684,38 +12811,38 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
 	var size = 24;
 
 	service = {
-			getShape : getShape,
-			getShapes: getShapes,
-			getViewBox : getViewBox,
-			getViewBoxes: getViewBoxes,
-			getSize: getSize,
-			setShape : addShape,
-			setShapes: addShapes,
-			setViewBox : addViewBox,
-			setViewBoxes: addViewBoxes,
-			setSize: setSize,
-			addShape : addShape,
-			addShapes: addShapes,
-			addViewBox : addViewBox,
-			addViewBoxes: addViewBoxes
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
 	};
 
 	provider = {
-			$get     : wbIconServiceFactory,
-			getShape : getShape,
-			getShapes: getShapes,
-			getViewBox : getViewBox,
-			getViewBoxes: getViewBoxes,
-			getSize: getSize,
-			setShape : addShape,
-			setShapes: addShapes,
-			setViewBox : addViewBox,
-			setViewBoxes: addViewBoxes,
-			setSize: setSize,
-			addShape : addShape,
-			addShapes: addShapes,
-			addViewBox : addViewBox,
-			addViewBoxes: addViewBoxes
+		$get: $mbIconFactory,
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
 	};
 
 	return provider;
@@ -15759,7 +12886,7 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
 	function getViewBoxes() {
 		return viewBoxes;
 	}
-	
+
 	function setSize(newSize) {
 		size = newSize || 24;
 	}
@@ -15768,7 +12895,7 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
 		return size;
 	}
 
-	function wbIconServiceFactory() {
+	function $mbIconFactory() {
 		return service;
 	}
 });
@@ -15805,8 +12932,8 @@ angular.module('mblowfish-core').provider('wbIconService', function () {
  *
  */
 angular.module('mblowfish-core')
-.config(function(wbIconServiceProvider) {
-	wbIconServiceProvider
+.config(function($mbIconProvider) {
+	$mbIconProvider
 
 
 	/*
@@ -16822,14 +13949,14 @@ angular.module('mblowfish-core')
 	.addShapes({
 		// Add single icon
 		'standby': '<path d="M13 3.5h-2v10h2v-10z"/><path d="M16.56 5.94l-1.45 1.45C16.84 8.44 18 10.33 18 12.5c0 3.31-2.69 6-6 6s-6-2.69-6-6c0-2.17 1.16-4.06 2.88-5.12L7.44 5.94C5.36 7.38 4 9.78 4 12.5c0 4.42 3.58 8 8 8s8-3.58 8-8c0-2.72-1.36-5.12-3.44-6.56z"/>',
-		'custom-delete': wbIconServiceProvider.getShape('delete'),
-		'vertical': wbIconServiceProvider.getShape('view_sequential'),
+		'custom-delete': $mbIconProvider.getShape('delete'),
+		'vertical': $mbIconProvider.getShape('view_sequential'),
 
 		'corner_bottom_left': '<path d="M 5,5 H 3 V 3 H 5 Z M 5,7 H 3 v 2 h 2 z m 16,4 h -2 v 2 h 2 z m 0,-4 h -2 v 2 h 2 z m 0,8 h -2 v 2 h 2 z m 0,4 h -2 v 2 h 2 z m -4,0 h -2 v 2 h 2 z M 9,3 H 7 v 2 h 2 z m 4,0 h -2 v 2 h 2 z M 9,3 H 7 v 2 h 2 z m 8,0 h -2 v 2 h 2 z m 4,0 h -2 v 2 h 2 z M 3,16 c 0,2.76 2.24,5 5,5 h 5 V 19 H 8 C 6.35,19 5,17.65 5,16 V 11 H 3 Z" />',
 		'corner_bottom_right': '<path d="m 5,19 v 2 H 3 v -2 z m 2,0 v 2 h 2 v -2 z m 4,-16 0,2 2,0 0,-2 z M 7,3 V 5 L 9,5 9,3 Z m 8,0 0,2 2,0 V 3 Z m 4,0 v 2 h 2 V 3 Z m 0,4 v 2 l 2,0 V 7 Z M 3,15 v 2 h 2 v -2 z m 0,-4 v 2 h 2 v -2 z m 0,4 v 2 H 5 V 15 Z M 3,7 V 9 H 5 V 7 Z M 3,3 V 5 H 5 V 3 Z m 13,18 c 2.76,0 5,-2.24 5,-5 v -5 l -2,0 0,5 c 0,1.65 -1.35,3 -3,3 l -5,0 v 2 z" />',
 		'corner_top_left': '<path d="M 19,5 V 3 h 2 V 5 Z M 17,5 V 3 h -2 v 2 z m -4,16 v -2 h -2 v 2 z m 4,0 v -2 h -2 v 2 z M 9,21 V 19 H 7 v 2 z M 5,21 V 19 H 3 l 0,2 z M 5,17 5,15 H 3 v 2 z M 21,9 V 7 h -2 v 2 z m 0,4 v -2 h -2 v 2 z M 21,9 V 7 h -2 v 2 z m 0,8 v -2 h -2 v 2 z m 0,4 v -2 h -2 v 2 z M 8,3 C 5.24,3 3,5.24 3,8 v 5 H 5 V 8 C 5,6.35 6.35,5 8,5 h 5 V 3 Z" />',
 		'corner_top_right': '<path d="m 19,19 h 2 v 2 h -2 z m 0,-2 h 2 V 15 H 19 Z M 3,13 H 5 V 11 H 3 Z m 0,4 H 5 V 15 H 3 Z M 3,9 H 5 V 7 H 3 Z M 3,5 H 5 V 3 H 3 Z M 7,5 H 9 V 3 H 7 Z m 8,16 h 2 v -2 h -2 z m -4,0 h 2 v -2 h -2 z m 4,0 h 2 V 19 H 15 Z M 7,21 H 9 V 19 H 7 Z M 3,21 H 5 V 19 H 3 Z M 21,8 C 21,5.24 18.76,3 16,3 h -5 v 2 h 5 c 1.65,0 3,1.35 3,3 v 5 h 2 z" />',
-		'full_rounded': wbIconServiceProvider.getShape('crop_free'),
+		'full_rounded': $mbIconProvider.getShape('crop_free'),
 
 		'align_justify_vertical': '<path d="M 21,21 V 3 h -2 v 18 z m -4,0 V 3 h -2 l 0,18 z m -4,0 0,-18 h -2 l 0,18 z M 9,21 9,3 H 7 L 7,21 Z M 3,21 H 5 L 5,3 H 3 Z" />',
 		'align_center_vertical': '<path d="m 15,17 h 2 V 7 h -2 z m 6,4 V 3 h -2 v 18 z m -8,0 0,-18 h -2 l 0,18 z M 7,17 H 9 L 9,7 H 7 Z M 3,21 H 5 L 5,3 H 3 Z" />',
@@ -16859,19 +13986,19 @@ angular.module('mblowfish-core')
 
 		'list_tree': '<path d="m 3.0063556,9.3749998 2.3368645,-1.125 -2.3432204,-1.25 z M 11,13 H 21 V 11 H 11 Z m 0,4 H 21 V 15 H 11 Z M 6.9999997,6.9999998 v 2 H 21 v -2 z" />',
 
-		'wb-object-video': wbIconServiceProvider.getShape('video_library'),
-		'wb-object-audio':  wbIconServiceProvider.getShape('audiotrack'),
-		'wb-object-data': wbIconServiceProvider.getShape('storage'),
+		'wb-object-video': $mbIconProvider.getShape('video_library'),
+		'wb-object-audio':  $mbIconProvider.getShape('audiotrack'),
+		'wb-object-data': $mbIconProvider.getShape('storage'),
 
-		'wb-widget-group': wbIconServiceProvider.getShape('pages'),
-		'wb-widget-html': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-widget-input': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-widget-textarea': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-widget-iframe': wbIconServiceProvider.getShape('settings_ethernet'),
+		'wb-widget-group': $mbIconProvider.getShape('pages'),
+		'wb-widget-html': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-widget-input': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-widget-textarea': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-widget-iframe': $mbIconProvider.getShape('settings_ethernet'),
 
-		'wb-setting-iframe': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-setting-input': wbIconServiceProvider.getShape('settings_ethernet'),
-		'wb-setting-textarea': wbIconServiceProvider.getShape('settings_ethernet'),
+		'wb-setting-iframe': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-setting-input': $mbIconProvider.getShape('settings_ethernet'),
+		'wb-setting-textarea': $mbIconProvider.getShape('settings_ethernet'),
 		/*
 		 * Wifi
 		 */
@@ -16932,6 +14059,203 @@ angular.module('mblowfish-core')
 
 
 /**
+@ngdoc Directive
+@name mb-sidenav
+@description Defines a place to add sidenaves
+
+
+
+ */
+angular.module('mblowfish-core').directive('mbSidenavs', function($mbSidenav) {
+	return {
+		restrict: 'AE',
+		replace: false,
+		link: function($scope, $element) {
+			$mbSidenav.setRootElement($element);
+		}
+	};
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Factories
+@name MbSidenav
+@description An action item
+
+ */
+angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer, $mdSidenav) {
+
+	function MbSidenav(config) {
+		MbContainer.call(this, config);
+		return this;
+	};
+	// Circle derives from Shape
+	MbSidenav.prototype = Object.create(MbContainer.prototype);
+
+	MbSidenav.prototype.render = function(locals) {
+		locals.$sidnav = this;
+		return MbContainer.prototype.render.call(this, locals);
+	};
+
+	MbSidenav.prototype.toggle = function() {
+		$mdSidenav(this.url)
+			.toggle();
+		return this;
+	};
+
+	return MbSidenav;
+});
+
+/*
+ * angular-material-icons v0.7.1
+ * (c) 2014 Klar Systems
+ * License: MIT
+ */
+
+/**
+ * @ngdoc Services
+ * @name $mbSidenav
+ * @description Manage sidenaves and drowver
+ * 
+ */
+angular.module('mblowfish-core').provider('$mbSidenav', function() {
+	var Sidenav;
+
+	var provider;
+	var service;
+
+	var configs = {};
+	var sidenavConfigs = {};
+	var sidenavs = {};
+	var rootElement = undefined;
+
+	function addSidenavConfig(sidenavId, config) {
+		sidenavConfigs[sidenavId] = config;
+		return provider;
+	}
+
+	function renderAllSidenavs() {
+		if (_.isUndefined(rootElement)) {
+			return;
+		}
+		_.forEach(sidenavs, function(sidenav, id) {
+			if (!sidenav.isVisible()) {
+				// XXX: maso, 2020: 
+				// support left, right
+				var element = angular.element('<md-sidenav class="md-sidenav-left" ' +
+					' md-component-id="' + id + '"' +
+					'md-is-locked-open="' + sidenav.locked + '"' +
+					'md-whiteframe="4"></md-sidenav>');
+				// rootElement.append(element);
+				rootElement.prepend(element);
+				sidenav.render({
+					$element: element,
+				});
+			}
+		});
+	}
+
+	function loadSidenavs() {
+		_.forEach(sidenavConfigs, function(config, id) {
+			config.url = id;
+			var sidenav = new Sidenav(config);
+			addSidenav(id, sidenav);
+		});
+	}
+
+	function addSidenav(sidenavId, sidenav) {
+		sidenavs[sidenavId] = sidenav;
+		renderAllSidenavs();
+		return service;
+	}
+
+	function getSidenav(sidenavId) {
+		return sidenavs[sidenavId];
+	}
+
+	function removeSidenav(sidenavId) {
+		var sidenav = sidenavs[sidenavId];
+		if (sidenav) {
+			sidenav.destroy();
+		}
+		delete sidenavs[sidenavId];
+		return service;
+	}
+
+	provider = {
+		$get: function($mdSidenav, MbSidenav) {
+			mdSidenav = $mdSidenav;
+			Sidenav = MbSidenav;
+
+			loadSidenavs();
+
+			this.addSidenav = addSidenav;
+			this.getSidenav = getSidenav;
+			this.removeSidenav = removeSidenav;
+			this.setRootElement = function(element) {
+				rootElement = element;
+				renderAllSidenavs();
+			};
+
+			return this;
+		},
+		init: function(sidenavProvider) {
+			configs = sidenavProvider;
+			_.forEach(configs.items || {}, function(config, url) {
+				addSidenavConfig(url, config);
+			});
+		},
+		addSidenav: addSidenavConfig
+	};
+	return provider;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
 @ngdoc Factories
 @name MbAction
 @description An action item
@@ -16945,16 +14269,16 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $navigator, $window, MbComponent) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent) {
 
 	/* @ngInject */
-	var defaultActionController = function($element, $action){
-		$element.on('click', function($event){
+	var defaultActionController = function($element, $action) {
+		$element.on('click', function($event) {
 			$action.exec($event);
 		});
 	};
-	
-	
+
+
 	function Action(data) {
 		data = data || {};
 		data.isAction = true;
@@ -16970,10 +14294,6 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 	Action.prototype = Object.create(MbComponent.prototype);
 
 	Action.prototype.exec = function($event) {
-		//		if ($event) {
-		//			$event.stopPropagation();
-		//			$event.preventDefault();
-		//		}
 		if (this.alias) {
 			var actionId = this.actionId || this.id;
 			var $actions = $injector.get('$actions');
@@ -16983,10 +14303,12 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 			return $injector.invoke(this.action, this, {
 				$event: $event
 			});
-		} else if (this.url) {
-			return $navigator.openPage(this.url);
 		}
-		$window.alert('Action \'' + this.id + '\' is not executable!?')
+		if (this.url) {
+			return $location.url(this.url);
+		}
+		// TODO: maso, 2020: log to show the error
+		// $window.alert('Action \'' + this.id + '\' is not executable!?')
 	};
 
 	Action.prototype.render = function(locals) {
@@ -17017,7 +14339,7 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $naviga
 		var element = locals.$element;
 		element.html(html);
 		element.addClass('mbAction')
-		
+
 		locals.$action = this;
 		return MbComponent.prototype.render.call(this, locals);
 	};
@@ -17120,119 +14442,6 @@ Note: if an action added at the configuration then there is no event.
  */
 angular.module('mblowfish-core').provider('$mbActions', function() {
 
-	//	this.actionsList = [];
-	//	this.actionsMap = {};
-	//
-	//	this.groupsList = [];
-	//	this.groupsMap = [];
-	//
-	//	this.actions = function() {
-	//		return {
-	//			'items': this.actionsList
-	//		};
-	//	}
-	//
-	//	// TODO: maso, 2018: add document
-	//	this.newAction = function(data) {
-	//		// Add new action
-	//		var action = new Action(data);
-	//		// remove old one
-	//		var oldaction = this.action(action.id);
-	//		if (oldaction) {
-	//			this.removeAction(oldaction);
-	//		}
-	//		// add new one
-	//		this.actionsMap[action.id] = action;
-	//		this.actionsList.push(action);
-	//		if (action.scope) {
-	//			var service = this;
-	//			action.scope.$on('$destroy', function() {
-	//				service.removeAction(action);
-	//			});
-	//		}
-	//		this.updateAddByItem(action);
-	//		this.fire('actionsChanged', {
-	//			value: action,
-	//			oldValue: oldaction
-	//		});
-	//		return action;
-	//	};
-	//
-	//    /**
-	//     * gets action with id
-	//     */
-	//	this.getAction = function(actionId) {
-	//		var action = this.actionsMap[actionId];
-	//		if (action) {
-	//			return action;
-	//		}
-	//	};
-	//
-	//	// TODO: maso, 2018: add document
-	//	this.action = this.getAction;
-	//
-	//	// TODO: maso, 2018: add document
-	//	this.removeAction = function(action) {
-	//		this.actionsMap[action.id] = null;
-	//		var index = this.actionsList.indexOf(action);
-	//		if (index > -1) {
-	//			this.actionsList.splice(index, 1);
-	//			this.updateRemoveByItem(action);
-	//			this.fire('actionsChanged', {
-	//				value: undefined,
-	//				oldValue: action
-	//			});
-	//			return action;
-	//		}
-	//	};
-	//
-	//	// TODO: maso, 2018: add document
-	//	this.groups = function() {
-	//		return {
-	//			'items': this.groupsList
-	//		};
-	//	};
-	//
-	//	// TODO: maso, 2018: add document
-	//	this.newGroup = function(groupData) {
-	//		// TODO: maso, 2018: assert id
-	//		return this.group(groupData.id, groupData);
-	//	};
-	//
-	//	// TODO: maso, 2018: add document
-	//	this.group = function(groupId, groupData) {
-	//		var group = this.groupsMap[groupId];
-	//		if (!group) {
-	//			group = new ActionGroup(groupData);
-	//			group.id = groupId;
-	//			// TODO: maso, 2019: just use group map and remove groupList
-	//			this.groupsMap[group.id] = group;
-	//			this.groupsList.push(group);
-	//			this.updateAddByItem(group);
-	//		} else if (groupData) {
-	//			angular.extend(group, groupData);
-	//		}
-	//		this.fire('groupsChanged', {
-	//			value: group
-	//		});
-	//		return group;
-	//	};
-	//
-	//	this.updateAddByItem = function(item) {
-	//		var groups = item.groups || [];
-	//		for (var i = 0; i < groups.length; i++) {
-	//			var group = this.group(groups[i]);
-	//			group.addItem(item);
-	//		}
-	//	};
-	//
-	//	this.updateRemoveByItem = function(item) {
-	//		var groups = item.groups || [];
-	//		for (var i = 0; i < groups.length; i++) {
-	//			var group = this.group(groups[i]);
-	//			group.removeItem(item);
-	//		}
-	//	};
 
 	/*
 	All required services to do actions
@@ -17243,7 +14452,9 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	/*
 	All storage and variables
 	*/
-	var configs = {};
+	var configs = {
+		items: {}
+	};
 	var actions = {};
 	var groups = {};
 
@@ -17273,7 +14484,6 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	function removeGroup(groupId) { }
 	function getGroup(groupId) { }
 	function getGroups() { }
-
 
 
 	function exec(actionId, $event) {
@@ -17332,7 +14542,14 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	var provider = {
 		$get: service,
 		init: function(actionsConfig) {
+			if (configs) {
+				// TODO: 2020: merge actions
+			}
 			configs = actionsConfig;
+			return provider;
+		},
+		addAction: function(actionId, actionConfig) {
+			configs.items[actionId] = actionConfig;
 			return provider;
 		}
 	};
@@ -17393,7 +14610,7 @@ view, or an editor.
 @tutorial ui-component-action
  */
 angular.module('mblowfish-core').factory('MbComponent', function(
-	/* Angularjs */ $rootScope, $compile, $controller, $q,
+	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming,
 	/* Mblowfish */ $mbUiUtil) {
 
 	/*
@@ -17405,7 +14622,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	@param {object} configs - A configuration set to crate a new instance
 	*/
 	function MbComponent(configs) {
-		_.assignIn(this, configs, {
+		_.assign(this, {
 			// global attributes
 			id: undefined,
 			isEditor: false,
@@ -17420,7 +14637,7 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 			controller: undefined,
 			controllerAs: undefined,
 			priority: 0,
-		});
+		}, configs);
 
 		// $element, $controller, $scope pairs
 		this.$binds = [];
@@ -17460,12 +14677,6 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 	 */
 	MbComponent.prototype.render = function(locals) {
 		var cmp = this;
-		var paires = {
-			$controller: undefined,
-			$element: undefined,
-			$scope: undefined
-		};
-		this.$binds.push(paires);
 		this.visible = true;
 		return $q.when(this.getTemplate(), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
@@ -17475,19 +14686,22 @@ angular.module('mblowfish-core').factory('MbComponent', function(
 			var controllerDef;
 
 			$element.html(template);
+			$mbTheming($element);
 			var link = $compile($element);
 			locals.$scope = $scope;
 			if ((controllerDef = cmp.controller)) {
 				$ctrl = $controller(controllerDef, locals);
 				if ((cmp.controllerAs)) {
-					$scope[cpm.controllerAs] = $ctrl;
+					$scope[cmp.controllerAs] = $ctrl;
 				}
 				$element.data('$ngControllerController', $ctrl);
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
 			link($scope);
-			_.assign(paires, locals, {
-				$controller: $ctrl
+			cmp.$binds.push({
+				$controller: $ctrl,
+				$element: $element,
+				$scope: $scope
 			});
 		});
 	}
@@ -17770,6 +14984,66 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 });
 
 /*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+@ngdoc Services
+@name $mbDialog
+@description Manage dialogs
+
+ */
+angular.module('mblowfish-core').provider('$mbDialog', function() {
+
+	//--------------------------------------------------------
+	// Services
+	//--------------------------------------------------------
+	var provider;
+	//	var service;
+
+
+	//--------------------------------------------------------
+	// varialbes
+	//--------------------------------------------------------
+
+
+	//--------------------------------------------------------
+	// Functions
+	//--------------------------------------------------------
+
+
+	//--------------------------------------------------------
+	// End
+	//--------------------------------------------------------
+	provider = {
+		$get: function($mdDialog) {
+			return $mdDialog;
+		}
+	}
+	return provider;
+});
+
+/*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -17874,16 +15148,9 @@ These are injectable to an editor contrller.
 
  */
 angular.module('mblowfish-core').provider('$mbEditor', function() {
-	/***********************************************************************************
-	 * Utility
-	 ***********************************************************************************/
-	var inherit;// = $mbUiUtil.inherit;
-	var switchRouteMatcher; // = $mbUiUtil.switchRouteMatcher;
-
-	var editorConfigs = {};
-	var editors = {};
-
-	//	var editorsRootScope;
+	//------------------------------------------------
+	// Services
+	//------------------------------------------------
 	var rootScope;
 	var mbRoute;
 	var Editor;
@@ -17891,6 +15158,20 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	var service;
 	var provider;
 
+	//------------------------------------------------
+	// variables
+	//------------------------------------------------
+	var inherit;// = $mbUiUtil.inherit;
+	var switchRouteMatcher; // = $mbUiUtil.switchRouteMatcher;
+
+	var editorConfigProvider = {};
+	var editorConfigs = {};
+	var editors = {};
+
+
+	//------------------------------------------------
+	// functions
+	//------------------------------------------------
 
 	/**
 	Adds new editor descritpion
@@ -17971,7 +15252,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 		var editor = getEditor(name);
 		return !_.isUndefined(editor);
 	}
-	
+
 	/**
 	Opens a new editor
 	
@@ -18015,9 +15296,25 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 			.setVisible(true);
 	}
 
-	//	function getScope() {
-	//		return editorsRootScope;
-	//	}
+	function init() {
+		_.forEach(editorConfigProvider, function(config, id) {
+			registerEditor(id, config);
+		});
+	}
+
+
+	//------------------------------------------------
+	// End
+	//------------------------------------------------
+	service = {
+		registerEditor: registerEditor,
+		unregisterEditor: unregisterEditor,
+
+		open: open,
+		fetch: fetch,
+		has: hasEditor,
+		getEditor: getEditor,
+	};
 
 	provider = {
 		$get: function(
@@ -18031,18 +15328,12 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 			mbRoute = $mbRoute;
 			Editor = MbEditor;
 
-			// Editor description
-			this.registerEditor = registerEditor;
-			this.unregisterEditor = unregisterEditor;
-
-			// MbEditor
-			this.open = open;
-			this.fetch = fetch;
-			this.has = hasEditor;
-			this.getEditor = getEditor;
-
-			service = this;
-			return this;
+			init();
+			return service;
+		},
+		addEditor: function(editorId, editorConfig) {
+			editorConfigProvider[editorId] = editorConfig;
+			return provider;
 		}
 	};
 	return provider;
@@ -18341,6 +15632,23 @@ to show in the next sessions too.
 
  */
 angular.module('mblowfish-core').provider('$mbLayout', function() {
+
+
+	//-----------------------------------------------------------------------------------
+	// Services and factories
+	//-----------------------------------------------------------------------------------
+	var service;
+	var provider;
+	var rootScope; // = $rootScope
+	var compile; // = $compile
+	var injector;// = $injector;
+	var mbStorage; // = $mbStorage
+
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
+
 	/*
 	List of layouts which is loaded at run time by configurations. These are not
 	editable
@@ -18362,12 +15670,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 
 	// layout mode
 	var mode = 'docker';
-
-
-	var rootScope; // = $rootScope
-	var compile; // = $compile
-	var injector;// = $injector;
-	var mbStorage; // = $mbStorage
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -18623,18 +15925,30 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	/*
 	Profider
 	*/
-	return {
+	service = {
+		// global api
+		reload: reload,
+		open: open,
+		setFocus: setFocus,
+
+		setLayout: setLayout,
+		getLayout: getLayout,
+	}
+	provider = {
 		setDefault: function(name) {
 			defaultLayoutName = name;
+			return provider;
 		},
 		addLayout: function(name, layout) {
 			hardCodeLayout[name] = layout;
+			return provider
 		},
 		getLayout: function(name) {
 			return hardCodeLayout[name];
 		},
 		setMode: function(appMode) {
 			mode = appMode;
+			return;
 		},
 		/* @ngInject */
 		$get: function(
@@ -18650,24 +15964,13 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			mbStorage = $mbStorage;
 
 			//
-			// 2- Set layout API
-			//
-			// global api
-			this.reload = reload;
-			this.open = open;
-			this.setFocus = setFocus;
-
-			// Docker API
-			this.setLayout = setLayout;
-			this.getLayout = getLayout;
-
-			//
 			// 3- Initialize the laytout
 			//
 			init();
-			return this;
+			return service;
 		}
 	};
+	return provider;
 });
 
 (function() {
@@ -19750,7 +17053,7 @@ angular.module('mblowfish-core').service('$mbRoute', function(
 
 angular.module('mblowfish-core').directive('mbView', function(
 	/* MB        */ $mbLayout, $mbRoute,
-	/* AngularJS */ $location, $dispatcher, $app, $q) {
+	/* AngularJS */ $location, $dispatcher, $mbApplication, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -19767,7 +17070,7 @@ angular.module('mblowfish-core').directive('mbView', function(
 
 		function checkApp() {
 			scope.$on('$mbRouteChangeSuccess', update);
-			if ($app.getState() === 'ready') {
+			if ($mbApplication.getState() === 'ready') {
 				$q.when(loadMainView())
 					.then(update());
 			}
@@ -19863,203 +17166,6 @@ angular.module('mblowfish-core').directive('mbView', function(
  * ```
  */
 angular.module('mblowfish-core').service('$mbRouteParams', function() { });
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Directive
-@name mb-sidenav
-@description Defines a place to add sidenaves
-
-
-
- */
-angular.module('mblowfish-core').directive('mbSidenavs', function($mbSidenav) {
-	return {
-		restrict: 'AE',
-		replace: false,
-		link: function($scope, $element) {
-			$mbSidenav.setRootElement($element);
-		}
-	};
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Factories
-@name MbSidenav
-@description An action item
-
- */
-angular.module('mblowfish-core').factory('MbSidenav', function(MbContainer, $mdSidenav) {
-
-	function MbSidenav(config) {
-		MbContainer.call(this, config);
-		return this;
-	};
-	// Circle derives from Shape
-	MbSidenav.prototype = Object.create(MbContainer.prototype);
-
-	MbSidenav.prototype.render = function(locals) {
-		locals.$sidnav = this;
-		return MbContainer.prototype.render.call(this, locals);
-	};
-
-	MbSidenav.prototype.toggle = function() {
-		$mdSidenav(this.url)
-			.toggle();
-		return this;
-	};
-
-	return MbSidenav;
-});
-
-/*
- * angular-material-icons v0.7.1
- * (c) 2014 Klar Systems
- * License: MIT
- */
-
-/**
- * @ngdoc Services
- * @name $mbSidenav
- * @description Manage sidenaves and drowver
- * 
- */
-angular.module('mblowfish-core').provider('$mbSidenav', function() {
-	var Sidenav;
-
-	var provider;
-	var service;
-
-	var configs = {};
-	var sidenavConfigs = {};
-	var sidenavs = {};
-	var rootElement = undefined;
-
-	function addSidenavConfig(sidenavId, config) {
-		sidenavConfigs[sidenavId] = config;
-		return provider;
-	}
-
-	function renderAllSidenavs() {
-		if (_.isUndefined(rootElement)) {
-			return;
-		}
-		_.forEach(sidenavs, function(sidenav, id) {
-			if (!sidenav.isVisible()) {
-				// XXX: maso, 2020: 
-				// support left, right
-				var element = angular.element('<md-sidenav class="md-sidenav-left" ' +
-					' md-component-id="' + id + '"' +
-					'md-is-locked-open="' + sidenav.locked + '"' +
-					'md-whiteframe="4"></md-sidenav>');
-				// rootElement.append(element);
-				rootElement.prepend(element);
-				sidenav.render({
-					$element: element,
-				});
-			}
-		});
-	}
-
-	function loadSidenavs() {
-		_.forEach(sidenavConfigs, function(config, id) {
-			config.url = id;
-			var sidenav = new Sidenav(config);
-			addSidenav(id, sidenav);
-		});
-	}
-
-	function addSidenav(sidenavId, sidenav) {
-		sidenavs[sidenavId] = sidenav;
-		renderAllSidenavs();
-		return service;
-	}
-
-	function getSidenav(sidenavId) {
-		return sidenavs[sidenavId];
-	}
-
-	function removeSidenav(sidenavId) {
-		var sidenav = sidenavs[sidenavId];
-		if (sidenav) {
-			sidenav.destroy();
-		}
-		delete sidenavs[sidenavId];
-		return service;
-	}
-
-	provider = {
-		$get: function($mdSidenav, MbSidenav) {
-			mdSidenav = $mdSidenav;
-			Sidenav = MbSidenav;
-
-			loadSidenavs();
-
-			this.addSidenav = addSidenav;
-			this.getSidenav = getSidenav;
-			this.removeSidenav = removeSidenav;
-			this.setRootElement = function(element) {
-				rootElement = element;
-				renderAllSidenavs();
-			};
-
-			return this;
-		},
-		init: function(sidenavProvider) {
-			configs = sidenavProvider;
-			_.forEach(configs.items || {}, function(config, url) {
-				addSidenavConfig(url, config);
-			});
-		},
-		addSidenav: addSidenavConfig
-	};
-	return provider;
-});
-
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -20478,18 +17584,25 @@ You can register a toolbar with an url. For example
 All icons will be managed
  */
 angular.module('mblowfish-core').provider('$mbToolbar', function() {
-	// TODO: load toolbar config from local storage
-
-	/* Type and srvices */
+	
+	//-----------------------------------------------------------------------------------
+	// Type and service
+	//-----------------------------------------------------------------------------------
 	var Toolbar;
 
-	/* variables */
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
 	var mainToolbarConfig = [];
 	var toolbars = {};
 	var toolbarGroups = {};
 	var toolbarGroupsConfig = {};
 
 
+	//-----------------------------------------------------------------------------------
+	// Functions
+	// TODO: load toolbar config from local storage
+	//-----------------------------------------------------------------------------------
 	function addToolbar(toolbarId, toolbar) {
 		if (!(toolbar instanceof Toolbar)) {
 			toolbar = new Toolbar(_.assign(toolbar, {
@@ -20596,6 +17709,9 @@ angular.module('mblowfish-core').provider('$mbToolbar', function() {
 		mainToolbarConfig = config || [];
 	}
 
+	//-----------------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------------
 	return {
 		/* @ngInject */
 		$get: function(MbToolbar) {
@@ -20943,14 +18059,32 @@ Note: A Menu with the same path will be registerd fro a view.
 
 
  */
-angular.module('mblowfish-core').service('$mbView', function(
-	/* AngularJS */ $rootScope,
-	/* Mblowfish */ $mbRoute, MbView) {
+angular.module('mblowfish-core').provider('$mbView', function() {
 
+
+	//-----------------------------------------------------------------------------------
+	// Service and Factory
+	//-----------------------------------------------------------------------------------
+	var provider;
+	var service;
+
+	var mbRoute;
+	var rootScope;
+	var View;
+
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
 	var views = {};
-	var viewsRootScope = $rootScope.$new(false);
+	var viewsConfig = {};
+	var viewsRootScope;
 
-	this.add = function(name, viewConfig) {
+
+	//-----------------------------------------------------------------------------------
+	// functions
+	//-----------------------------------------------------------------------------------
+	function addView(name, viewConfig) {
 		var config = _.assign({
 			id: name,
 			url: name,
@@ -20960,22 +18094,22 @@ angular.module('mblowfish-core').service('$mbView', function(
 			reloadOnUrl: true,
 		}, viewConfig)
 		// create view
-		var view = new MbView(config);
+		var view = new View(config);
 		views[name] = view;
 		// Add to routes
-		$mbRoute.when(name, config);
+		mbRoute.when(name, config);
 		// TODO: Add toolbar
 		// TODO: Add menu
 
-		return this;
+		return service;
 	};
 
-	this.get = function(name) {
+	function getView(name) {
 		return views[name];
 	};
 
-	this.has = function(name) {
-		var view = this.get(name);
+	function hasView(name) {
+		var view = get(name);
 		return !_.isUndefined(view);
 	};
 
@@ -20999,8 +18133,9 @@ angular.module('mblowfish-core').service('$mbView', function(
 	@param {Object} state List of key-value to use in view (it is accessable with $state from view controller)
 	@param {string} anchor Where the view placed.
 	 */
-	this.fetch = function(name, state, anchor) {
+	function fetchView(name, state, anchor) {
 		var view = this.get(name);
+		anchor = anchor || view.anchor;
 		if (_.isUndefined(view)) {
 			// TODO: maso, 2020: View not found throw error
 			return;
@@ -21013,20 +18148,55 @@ angular.module('mblowfish-core').service('$mbView', function(
 			.setState(state);
 	};
 
-	this.open = function(name, state, anchor) {
-		return this.fetch(name, state, anchor)
+	function open(name, state, anchor) {
+		return fetch(name, state, anchor)
 			.setVisible(true);
 	}
 
-	this.getViews = function() {
+	function getViews() {
 		return views;
 	};
 
-	this.getScope = function() {
+	function getScope() {
 		return viewsRootScope;
 	}
 
-	return this;
+	function init() {
+		// Load all views
+		_.forEach(viewsConfig, function(viewConfig, viewId) {
+			addView(viewId, viewConfig);
+		})
+	}
+
+	//-----------------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------------
+	service = {
+		add: addView,
+		get: getView,
+		has: hasView,
+		fetch: fetchView,
+		open: open,
+		getViews: getViews
+	};
+	provider = {
+		$get: function(
+		/* AngularJS */ $rootScope,
+		/* Mblowfish */ $mbRoute, MbView) {
+			// Service
+			rootScope = $rootScope;
+			mbRoute = $mbRoute;
+			View = MbView;
+
+			init();
+			return service;
+		},
+		addView: function(viewId, viewConfig) {
+			viewsConfig[viewId] = viewConfig;
+			return provider;
+		}
+	}
+	return provider;
 });
 
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
@@ -21142,6 +18312,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/mb-login-default.html',
+    "<div class=default-login-panel layout=row layout-align=\"center center\" ng-init=\"state= isAnonymous()? 'login' : 'info';\"> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column>  <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <form id=login ng-show=\"state == 'login'\" name=loginForm ng-submit=ctrl.login(credit) layout=column layout-margin> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <md-input-container> <label translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button href=\"?state=forget\" flex-order=1 flex-order-gt-xs=-1 ng-click=\"state='forget'\"> <span translate>Forgot your password?</span> </md-button> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, loginForm)\"> <span translate>Login</span> </md-button> </div> </form> <div ng-show=\"state=='info'\" id=info> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> <span translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> <span translate>Account</span> </md-button> </div> </div> <div id=forget ng-show=\"state=='forget'\"> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <span>cancel</span> </md-button> </div> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=\"state='login'\" flex-order=0 flex-order-gt-xs=0> <span translate>Login</span> </md-button> </div> </div> </div> </div>"
+  );
+
+
   $templateCache.put('views/mb-navigator.html',
     "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href={{::url}}> <wb-icon>{{::(item.icon || 'layers')}}</wb-icon> <p translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
   );
@@ -21153,22 +18328,22 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preference.html',
-    "<md-content ng-cloak flex> <div layout=row layout-align=\"start center\"> <wb-icon wb-icon-name={{::preference.icon}} size=128> </wb-icon> <div flex> <h1 translate>{{::preference.title}}</h1> <p translate>{{::preference.description}}</p> </div> </div> <mb-preference-page mb-preference-id=preference.id flex> </mb-preference-page> </md-content>"
+    "<md-content style=\"width: 100%; height: 100%; overflow: auto\"> <div id=page-panel></div> </md-content>"
   );
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content ng-cloak layout-padding flex> <md-grid-list md-cols-gt-md=3 md-cols=3 md-cols-md=1 md-row-height=4:3 md-gutter-gt-md=16px md-gutter-md=8px md-gutter=4px> <md-grid-tile ng-repeat=\"tile in preferenceTiles\" md-colors=\"{backgroundColor: 'primary-300'}\" md-colspan-gt-sm={{tile.colspan}} md-rowspan-gt-sm={{tile.rowspan}} ng-click=openPreference(tile.page) style=\"cursor: pointer\"> <md-grid-tile-header> <h3 style=\"text-align: center;font-weight: bold\"> <wb-icon>{{tile.page.icon}}</wb-icon> <span translate=\"\">{{tile.page.title}}</span> </h3> </md-grid-tile-header> <p style=\"text-align: justify\" layout-padding translate=\"\">{{tile.page.description}}</p> </md-grid-tile> </md-grid-list> </md-content>"
+    "<md-content style=\"width: 100%; height: 100%; overflow: auto\"> <md-list ng-cloak> <md-list-item ng-repeat=\"page in pages\" ng-href=preferences/{{::page.id}}> <wb-icon>{{::page.icon}}</wb-icon> <p translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content>"
   );
 
 
-  $templateCache.put('views/modules/mb-option.html',
-    "<form ng-cloak ng-controller=\"MbLocalModulesCtrl as ctrl\" flex layout=column> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <wb-icon ng-if=\"item.type == 'css'\">style</wb-icon> <wb-icon ng-if=\"item.type == 'js'\">tune</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <wb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</wb-icon> </md-list-item> </md-list> </md-content> <div layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <wb-icon>add</wb-icon> </md-button> </div> </form>"
+  $templateCache.put('views/mb-preloading-default.html',
+    "<div class=mb-preloading-default> <div class=stage> <img src=resources/images/mb-preloading-blow.svg class=\"box bounce-7\"> </div> </div>"
   );
 
 
   $templateCache.put('views/modules/mb-preference.html',
-    "<form ng-cloak ng-controller=\"MGlobalModulesCtrl as ctrl\" flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <wb-icon>add</wb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <wb-icon ng-if=\"item.type == 'css'\">style</wb-icon> <wb-icon ng-if=\"item.type == 'js'\">tune</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <wb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</wb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
+    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <wb-icon>add</wb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <wb-icon ng-if=\"item.type == 'css'\">style</wb-icon> <wb-icon ng-if=\"item.type == 'js'\">tune</wb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <wb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</wb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
   );
 
 
@@ -21324,16 +18499,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/users/mb-account.html',
     "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt=row>  <mb-titled-block mb-title=Account mb-progress=ctrl.avatarLoading flex-gt-sm=50> <div layout=column> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </div> </mb-titled-block> </div> </md-content>"
-  );
-
-
-  $templateCache.put('views/users/mb-forgot-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.sendingToken style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>recover password</h3> <p translate>recover password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.sendingToken> <span ng-show=\"ctrl.sendTokenState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to send token.</span> <span ng-show=\"ctrl.sendTokenState === 'success'\" md-colors=\"{color:'primary'}\" translate>Token is sent.</span> </div> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
-  );
-
-
-  $templateCache.put('views/users/mb-login.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form ng-show=app.user.anonymous name=ctrl.myForm ng-submit=ctrl.login(credit) layout=column layout-margin> <md-input-container> <label translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1> <span translate>Forgot your password?</span> </a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, ctrl.myForm)\"> <span translate>Login</span> </md-button></div> </form> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <wb-icon>settings_backup_restore</wb-icon> <span translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <wb-icon>account_circle</wb-icon> <span translate>Account</span> </md-button> </div> </div> </md-content>"
   );
 
 
