@@ -376,7 +376,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 });
 
 (function() {
-	var mlModeule = angular.module('mblowfish-core');
 	var mlDirectiveItems = [
 		'lmGoldenlayout',
 		'lmContent',
@@ -387,7 +386,8 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		'lmTransitionIndicator'
 	];
 	_.forEach(mlDirectiveItems, function(directiveName) {
-		mlModeule.directive(directiveName, function($mbTheming) {
+		mblowfish.directive(directiveName, function($mbTheming) {
+			'ngInject';
 			return {
 				restrict: 'C',
 				link: function($scope, $element) {

@@ -1344,6 +1344,10 @@ window.mblowfish = {
 		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
+	service: function() {
+		mbApplicationModule.service.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
 	directive: function() {
 		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
@@ -16032,7 +16036,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 });
 
 (function() {
-	var mlModeule = angular.module('mblowfish-core');
 	var mlDirectiveItems = [
 		'lmGoldenlayout',
 		'lmContent',
@@ -16043,7 +16046,8 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		'lmTransitionIndicator'
 	];
 	_.forEach(mlDirectiveItems, function(directiveName) {
-		mlModeule.directive(directiveName, function($mbTheming) {
+		mblowfish.directive(directiveName, function($mbTheming) {
+			'ngInject';
 			return {
 				restrict: 'C',
 				link: function($scope, $element) {

@@ -123,6 +123,10 @@ window.mblowfish = {
 		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
+	service: function() {
+		mbApplicationModule.service.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
 	directive: function() {
 		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
