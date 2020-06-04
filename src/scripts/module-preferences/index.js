@@ -36,7 +36,8 @@ mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider
 			templateUrl: 'views/mb-preferences.html',
 			aunchor: 'editors',
 			controller: 'MbPreferencesCtrl',
-			controllerAs: 'ctrl'
+			controllerAs: 'ctrl',
+			groups: ['Utilities']
 		});
 
 	$mbEditorProvider

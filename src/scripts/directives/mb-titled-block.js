@@ -22,13 +22,13 @@
 
 
 /**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- *
- *
+@ngdoc Directives
+@name mb-titled-block
+@descritpion Title block
+
+
  */
-angular.module('mblowfish-core').directive('mbTitledBlock', function() {
+mblowfish.directive('mbTitledBlock', function() {
 	return {
 		replace: true,
 		restrict: 'E',

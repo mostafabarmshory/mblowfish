@@ -138,14 +138,14 @@ mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
 	}
 
 	return {
-		restrict: 'AE',
+		restrict: 'E',
 		transclude: true,
 		link: postLink,
 		replace: false
 	};
 });
 
-angular.module('mblowfish-core').directive('mdIconFloat', function($mdTheming) {
+mblowfish.directive('mdIconFloat', function($mdTheming) {
 
 	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
 		'MD-SELECT'];

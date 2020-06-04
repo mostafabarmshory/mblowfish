@@ -44,8 +44,12 @@ var mbApplicationModule = angular
 		'seen-core',
 		'seen-user',
 		'seen-tenant',
+		'seen-supertenant',
 		'seen-cms',
 		'seen-monitor',
+		'seen-shop',
+		'seen-sdp',
+		'seen-seo',
 		//	AM-WB
 		'am-wb-core',
 		//	Others
@@ -116,19 +120,32 @@ window.mblowfish = {
 	// Module
 	//-------------------------------------------------------------
 	controller: function() {
-		return mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	directive: function() {
-		return mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	filter: function() {
+		mbApplicationModule.filter.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	run: function() {
-		return mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	config: function() {
-		return mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	provider: function() {
-		return mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+		mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	factory: function() {
+		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 
 
@@ -136,14 +153,16 @@ window.mblowfish = {
 	// Angular Map
 	//-------------------------------------------------------------
 	element: function() {
-		return angular.element.apply(mbApplicationModule, arguments);
+		angular.element.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	bootstrap: function(dom) {
-		return angular.bootstrap(dom, ['mblowfish-core'], {});
+		angular.bootstrap(dom, ['mblowfish-core'], {});
+		return window.mblowfish;
 	},
 	loadModules: function(prefixKey) {
 		var storage = storageSupported(window, 'localStorage');
-		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' +MODULE_STORAGE_KEY));
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MODULE_STORAGE_KEY));
 		var jobs = [];
 		_.forEach(moduleList, function(module) {
 			jobs.push(moduleLoad(module));
