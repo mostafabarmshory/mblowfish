@@ -1265,8 +1265,12 @@ var mbApplicationModule = angular
 		'seen-core',
 		'seen-user',
 		'seen-tenant',
+		'seen-supertenant',
 		'seen-cms',
 		'seen-monitor',
+		'seen-shop',
+		'seen-sdp',
+		'seen-seo',
 		//	AM-WB
 		'am-wb-core',
 		//	Others
@@ -1337,19 +1341,32 @@ window.mblowfish = {
 	// Module
 	//-------------------------------------------------------------
 	controller: function() {
-		return mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	directive: function() {
-		return mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	filter: function() {
+		mbApplicationModule.filter.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	run: function() {
-		return mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	config: function() {
-		return mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	provider: function() {
-		return mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+		mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	factory: function() {
+		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 
 
@@ -1357,14 +1374,16 @@ window.mblowfish = {
 	// Angular Map
 	//-------------------------------------------------------------
 	element: function() {
-		return angular.element.apply(mbApplicationModule, arguments);
+		angular.element.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	bootstrap: function(dom) {
-		return angular.bootstrap(dom, ['mblowfish-core'], {});
+		angular.bootstrap(dom, ['mblowfish-core'], {});
+		return window.mblowfish;
 	},
 	loadModules: function(prefixKey) {
 		var storage = storageSupported(window, 'localStorage');
-		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' +MODULE_STORAGE_KEY));
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MODULE_STORAGE_KEY));
 		var jobs = [];
 		_.forEach(moduleList, function(module) {
 			jobs.push(moduleLoad(module));
@@ -6405,13 +6424,13 @@ angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- *
- *
+@ngdoc Directives
+@name mb-titled-block
+@descritpion Title block
+
+
  */
-angular.module('mblowfish-core').directive('mbTitledBlock', function() {
+mblowfish.directive('mbTitledBlock', function() {
 	return {
 		replace: true,
 		restrict: 'E',
@@ -9292,7 +9311,8 @@ mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider
 			templateUrl: 'views/mb-preferences.html',
 			aunchor: 'editors',
 			controller: 'MbPreferencesCtrl',
-			controllerAs: 'ctrl'
+			controllerAs: 'ctrl',
+			groups: ['Utilities']
 		});
 
 	$mbEditorProvider
@@ -12669,9 +12689,10 @@ angular.module('mblowfish-core').controller('AmdNavigatorDialogCtrl', function($
 /**
 @ngdoc Directives
 @name mb-icon
-@description Icon for WB
+@description Icon for MBlowfish
+
  */
-angular.module('mblowfish-core').directive('mbIcon', function($mbIcon, $interpolate) {
+mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
 	// FORMAT
 	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
 	// REPLACE FORMAT
@@ -12780,14 +12801,14 @@ angular.module('mblowfish-core').directive('mbIcon', function($mbIcon, $interpol
 	}
 
 	return {
-		restrict: 'AE',
+		restrict: 'E',
 		transclude: true,
 		link: postLink,
 		replace: false
 	};
 });
 
-angular.module('mblowfish-core').directive('mdIconFloat', function($mdTheming) {
+mblowfish.directive('mdIconFloat', function($mdTheming) {
 
 	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
 		'MD-SELECT'];
@@ -12969,8 +12990,7 @@ mblowfish.provider('$mbIcon', function() {
  * @description Defines icons to use every where.
  *
  */
-angular.module('mblowfish-core')
-.config(function($mbIconProvider) {
+mblowfish.config(function($mbIconProvider) {
 	$mbIconProvider
 
 
