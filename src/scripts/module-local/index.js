@@ -21,11 +21,7 @@
  */
 
 mblowfish
-	.config(function($mbPreferencesProvider, $mbTranslateProvider, $mdDateLocaleProvider, $mbResourceProvider) {
-		$mbTranslateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
-		$mbTranslateProvider.useLoader('MbLanguageLoader');
-
-
+	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
 		// Format and parse dates based on moment's 'L'-format
 		// 'L'-format may later be changed
 		$mdDateLocaleProvider.parseDate = function(dateString) {

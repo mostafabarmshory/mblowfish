@@ -6,7 +6,8 @@
 		ng-model="app.setting.local">
 		<md-option 
 			ng-repeat="lang in languages"
-			ng-value="lang.key">{{lang.title | mb-translate}}</md-option>
+			ng-value="lang.key"
+			mb-translate>{{lang.title}}</md-option>
 	</md-select>
 </md-input-container>
 <md-input-container class="md-block">

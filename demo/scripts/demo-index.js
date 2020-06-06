@@ -27,8 +27,9 @@
  */
 mblowfish.config(function(
 	$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
-	$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider, $mbEditorProvider,
-	// TODO: replace with $mbTranslateProvider
+	$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider,
+	$mbEditorProvider,
+	$mbTranslateProvider,
 	$mbStorageProvider, $locationProvider) {
 	//
 	// Application manager
@@ -152,19 +153,21 @@ mblowfish.config(function(
 	});
 
 
-	//
-	//  $mbTranslateProvider: 
-	//
-	//	$mbTranslateProvider
-	//		.translations('fa', {
-	//			'Dashboard': 'داشبور',
-	//			'Applications': 'نرم‌افزارها',
-	//			'Account': 'حساب کاربری',
-	//			'Profile': 'پروفایل‌ها',
-	//			'User management': 'مدیریت کاربران',
-	//			'User': 'کاربر',
-	//		})
-	//		.preferredLanguage('fa');
+	// Translation 
+	$mbTranslateProvider
+		.translations('fa', {
+			'Dashboard': 'داشبور',
+			'Applications': 'نرم‌افزارها',
+			'Account': 'حساب کاربری',
+			'Profile': 'پروفایل‌ها',
+			'User management': 'مدیریت کاربران',
+			'User': 'کاربر',
+		})
+		.preferredLanguage('fa')
+		.useMissingTranslationHandler('MbMissingTranslationHandler')
+		.useLoader('MbLanguageLoader');
+	$mbTranslateSanitization
+		.useStrategy(['sanitize']);
 
 
 	//

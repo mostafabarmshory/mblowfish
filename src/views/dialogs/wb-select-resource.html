@@ -14,13 +14,13 @@
 				ng-hide="pages.length === 1">
 				<div
 	    			style="text-align: center;">
-					<mb-icon size="64px" ng-if="style.icon">{{style.icon}}</mb-icon>
+					<mb-icon size="64px" ng-if="style.icon">{{::style.icon}}</mb-icon>
 					<h2 
 						style="text-align: center;"
-						mb-translate>{{style.title}}</h2>
+						mb-translate>{{::style.title}}</h2>
 					<p 
 						style="text-align: center;"
-						mb-translate>{{style.description}}</p>
+						mb-translate>{{::style.description}}</p>
 				</div>
 				<md-devider></md-devider>
 				<md-content>
@@ -31,7 +31,7 @@
 							ng-click="loadPage(page, $event);"
 							md-colors="_selectedIndex===$index ? {background:'accent'} : {}">
 							<mb-icon>{{page.icon || 'attachment'}}</mb-icon>
-							<p>{{page.label | mb-translate}}</p>
+							<p mb-translate>{{::page.title}}</p>
 						</md-list-item>
 					</md-list>
 				</md-content>

@@ -46,7 +46,7 @@
 		ng-href="{{menu.url}}"
 		ng-click="menu.exec($event);"
 		class="md-icon-button">
-		<md-tooltip ng-if="menu.tooltip || menu.description" md-delay="1500">{{menu.description | mb-translate}}</md-tooltip>
+		<md-tooltip ng-if="menu.tooltip || menu.description" md-delay="1500">{{menu.description  | translate}}</md-tooltip>
 		<mb-icon ng-if="menu.icon">{{menu.icon}}</mb-icon>
 	</md-button>
 	

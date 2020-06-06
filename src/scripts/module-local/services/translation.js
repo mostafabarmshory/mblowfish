@@ -45,7 +45,7 @@ mblowfish.provider('$mbTranslate', function() {
 
 	var indexOf = _.indexOf;
 	var trim = _.trim;
-	var lowercase = _.lowercase;
+	var toLowerCase = _.lowerCase;
 
 
 	//----------------------------------------------------------------
@@ -191,12 +191,12 @@ mblowfish.provider('$mbTranslate', function() {
 		}
 
 		var avail = [],
-			locale = lowercase(preferred),
+			locale = toLowerCase(preferred),
 			i = 0,
 			n = $availableLanguageKeys.length;
 
 		for (; i < n; i++) {
-			avail.push(lowercase($availableLanguageKeys[i]));
+			avail.push(toLowerCase($availableLanguageKeys[i]));
 		}
 
 		// Check for an exact match in our list of available keys
@@ -211,14 +211,14 @@ mblowfish.provider('$mbTranslate', function() {
 				if ($languageKeyAliases.hasOwnProperty(langKeyAlias)) {
 					var hasWildcardKey = false;
 					var hasExactKey = Object.prototype.hasOwnProperty.call($languageKeyAliases, langKeyAlias) &&
-						lowercase(langKeyAlias) === lowercase(preferred);
+						toLowerCase(langKeyAlias) === toLowerCase(preferred);
 
 					if (langKeyAlias.slice(-1) === '*') {
-						hasWildcardKey = lowercase(langKeyAlias.slice(0, -1)) === lowercase(preferred.slice(0, langKeyAlias.length - 1));
+						hasWildcardKey = toLowerCase(langKeyAlias.slice(0, -1)) === toLowerCase(preferred.slice(0, langKeyAlias.length - 1));
 					}
 					if (hasExactKey || hasWildcardKey) {
 						alias = $languageKeyAliases[langKeyAlias];
-						if (indexOf(avail, lowercase(alias)) > -1) {
+						if (indexOf(avail, toLowerCase(alias)) > -1) {
 							return alias;
 						}
 					}
@@ -229,7 +229,7 @@ mblowfish.provider('$mbTranslate', function() {
 		// Check for a language code without region
 		var parts = preferred.split('_');
 
-		if (parts.length > 1 && indexOf(avail, lowercase(parts[0])) > -1) {
+		if (parts.length > 1 && indexOf(avail, toLowerCase(parts[0])) > -1) {
 			return parts[0];
 		}
 
@@ -963,7 +963,7 @@ mblowfish.provider('$mbTranslate', function() {
 
 	/**
 	 * @ngdoc function
-	 * @name $mbTranslateProvider#statefulFilter
+	 * @name statefulFilter
 	 * @methodOf $mbTranslateProvider
 	 *
 	 * @description
@@ -975,7 +975,7 @@ mblowfish.provider('$mbTranslate', function() {
 	 *
 	 * @param {boolean} state - defines the state of the filter
 	 */
-	function statefulFilter(state) {
+	function setStatefulFilter(state) {
 		if (state === undefined) {
 			// getter
 			return statefulFilter;
@@ -1138,14 +1138,12 @@ mblowfish.provider('$mbTranslate', function() {
 			});
 			$rootScope.$emit('$mbTranslateLoadingEnd', { language: key });
 		};
-		onLoaderSuccess.displayName = 'onLoaderSuccess';
 
 		var onLoaderError = function(key) {
 			$rootScope.$emit('$mbTranslateLoadingError', { language: key });
 			deferred.reject(key);
 			$rootScope.$emit('$mbTranslateLoadingEnd', { language: key });
 		};
-		onLoaderError.displayName = 'onLoaderError';
 
 		injector.get($loaderFactory)(loaderOptions)
 			.then(onLoaderSuccess, onLoaderError);
@@ -2038,7 +2036,7 @@ mblowfish.provider('$mbTranslate', function() {
 
 		// trim off any whitespace
 		if (translationId) {
-			translationId = trim.apply(translationId);
+			translationId = trim(translationId);
 		}
 
 		var result, possibleLangKeys = [];
@@ -2104,11 +2102,6 @@ mblowfish.provider('$mbTranslate', function() {
 	// internal purpose only
 	function getDirectivePriority() {
 		return directivePriority;
-	}
-
-	// internal purpose only
-	function statefulFilter() {
-		return statefulFilter;
 	}
 
 	/**
@@ -2206,7 +2199,7 @@ mblowfish.provider('$mbTranslate', function() {
 
 		// trim off any whitespace
 		if (translationId) {
-			translationId = trim.apply(translationId);
+			translationId = trim(translationId);
 		}
 
 		var promiseToWaitFor = (function() {
@@ -2282,7 +2275,7 @@ mblowfish.provider('$mbTranslate', function() {
 		refresh: refresh,
 		instant: instant,
 		loaderCache: loaderCache,
-		statefulFilter: statefulFilter,
+		statefulFilter: setStatefulFilter,
 		getDirectivePriority: getDirectivePriority,
 		isReady: isReady,
 		onReady: onReady,

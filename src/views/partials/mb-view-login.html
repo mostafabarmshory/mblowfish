@@ -1,6 +1,5 @@
-
- <div 
- 	ng-if="status === 'login'"
+<div 
+	ng-if="status === 'login'"
 	layout="row"
 	layout-aligne="none"
 	layout-align-gt-sm="center center"
@@ -65,18 +64,18 @@
                      style="text-decoration: none;"  
                      ui-sref="forget" 
                      flex-order="1" 
-                     flex-order-gt-xs="-1">{{'forgot your password?'| mb-translate}}</a>
+                     flex-order-gt-xs="-1">{{'forgot your password?'|translate}}</a>
                  <md-button 
                      ng-disabled="ctrl.myForm.$invalid"
                      flex-order="-1" 
                      flex-order-gt-xs="1" 
                      class="md-primary md-raised" 
-                     ng-click="login(credit)">{{'login'| mb-translate}}</md-button>
+                     ng-click="login(credit)">{{'login'|translate}}</md-button>
                  <!-- 	        	<md-button  -->
                  <!-- 	        		ng-href="users/signup" -->
                  <!-- 	        		flex-order="0"  -->
                  <!-- 	        		flex-order-gt-xs="0"  -->
-                 <!-- 	        		class="md-raised"> {{ 'sign up' | mb-translate }} </md-button> -->
+                 <!-- 	        		class="md-raised"> {{'sign up' |translate}} </md-button> -->
              </div>
          </form>
      </div>

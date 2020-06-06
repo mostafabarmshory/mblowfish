@@ -3075,11 +3075,11 @@ mblowfish.provider('$mbLocal', function() {
 	var provider;
 	var service;
 
-
 	var rootScope;
 	var mbStorage;
 	var mbDispatcher;
-
+	var mdDateLocale;
+	var mbTranslate;
 
 	//---------------------------------------
 	// variables
@@ -3175,7 +3175,7 @@ mblowfish.provider('$mbLocal', function() {
 		return formatDateInternal(inputDate, format || dateTimeFormat || defaultDateTimeFormat);
 	}
 
-	function setDateTimeFormat() {
+	function setDateTimeFormat(newDateTimeFormat) {
 		//>> change
 		dateTimeFormat = newDateTimeFormat;
 
@@ -3185,7 +3185,7 @@ mblowfish.provider('$mbLocal', function() {
 		}
 
 		//>> fire changes
-		mbDispatcher.dispatch(store_local_path, {
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
 			type: 'update',
 			key: 'dateTimeFormat',
 			values: [newDateTimeFormat]
@@ -3224,7 +3224,7 @@ mblowfish.provider('$mbLocal', function() {
 		}
 
 		//>> fire changes
-		mbDispatcher.dispatch(store_local_path, {
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
 			type: 'update',
 			key: 'currency',
 			values: [currency]
@@ -3270,7 +3270,7 @@ mblowfish.provider('$mbLocal', function() {
 	 */
 	function setLanguage(lang) {
 		language = lang;
-		$mbTranslate.use(lang);
+		mbTranslate.use(lang);
 
 		//>> save
 		if (autoSave) {
@@ -3306,12 +3306,12 @@ mblowfish.provider('$mbLocal', function() {
 		moment.locale(key);
 		// Set month and week names for the general $mdDateLocale service
 		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		mdDateLocale.months = localeDate._months;
+		mdDateLocale.shortMonths = localeDate._monthsShort;
+		mdDateLocale.days = localeDate._weekdays;
+		mdDateLocale.shortDays = localeDate._weekdaysMin;
 		// Optionaly let the week start on the day as defined by moment's locale data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+		mdDateLocale.firstDayOfWeek = localeDate._week.dow;
 
 		//>> save
 		if (autoSave) {
@@ -3421,8 +3421,12 @@ mblowfish.provider('$mbLocal', function() {
 	};
 
 	provider = {
-		$get: function($mbStorage) {
+		$get: function($mbStorage, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
 			mbStorage = $mbStorage;
+			mdDateLocale = $mdDateLocale;
+			mbDispatcher = $mbDispatcher;
+			rootScope = $rootScope;
+			mbTranslate = $mbTranslate;
 
 			if (autoSave) {
 				load();
@@ -7552,6 +7556,1090 @@ angular.module('mblowfish-core').run(function(
 //		.addToolbar('/mb/iframe');
 });
 
+
+/**
+@ngdoc directive
+@name mb-translate-attr
+@restrict A
+
+@description
+Translates attributes like mb-translate-attr-ATTR, but with an object like ng-class.
+Internally it uses `translate` service to translate translation id. It possible to
+pass an optional `mb-translate-values` object literal as string into translation id.
+
+@param {string=} mb-translate-attr Object literal mapping attributes to translation ids.
+@param {string=} mb-translate-values Values to pass into the translation ids. Can be passed as object literal string.
+@param {string=} translate-sanitize-strategy defines locally sanitize strategy
+
+@example
+<example module="ngView">
+ <file name="index.html">
+   <div ng-controller="TranslateCtrl">
+
+     <input mb-translate-attr="{ placeholder: translationId, title: 'WITH_VALUES' }" mb-translate-values="{value: 5}" />
+
+   </div>
+ </file>
+ <file name="script.js">
+   angular.module('ngView', ['pascalprecht.translate'])
+
+   .config(function ($mbTranslateProvider) {
+
+     $mbTranslateProvider.translations('en',{
+       'TRANSLATION_ID': 'Hello there!',
+       'WITH_VALUES': 'The following value is dynamic: {{value}}',
+     }).preferredLanguage('en');
+
+   });
+
+   angular.module('ngView').controller('TranslateCtrl', function ($scope) {
+     $scope.translationId = 'TRANSLATION_ID';
+
+     $scope.values = {
+       value: 78
+     };
+   });
+ </file>
+ <file name="scenario.js">
+   it('should translate', function () {
+     inject(function ($rootScope, $compile) {
+       $rootScope.translationId = 'TRANSLATION_ID';
+
+       element = $compile('<input mb-translate-attr="{ placeholder: translationId, title: 'WITH_VALUES' }" mb-translate-values="{ value: 5 }" />')($rootScope);
+       $rootScope.$digest();
+       expect(element.attr('placeholder)).toBe('Hello there!');
+       expect(element.attr('title)).toBe('The following value is dynamic: 5');
+     });
+   });
+ </file>
+</example>
+ */
+mblowfish.directive('translateAttr', function($mbTranslate, $rootScope) {
+	function linkFn(scope, element, attr) {
+
+		var translateAttr,
+			translateValues,
+			translateSanitizeStrategy,
+			previousAttributes = {};
+
+		// Main update translations function
+		var updateTranslations = function() {
+			angular.forEach(translateAttr, function(translationId, attributeName) {
+				if (!translationId) {
+					return;
+				}
+				previousAttributes[attributeName] = true;
+
+				// if translation id starts with '.' and translateNamespace given, prepend namespace
+				if (scope.translateNamespace && translationId.charAt(0) === '.') {
+					translationId = scope.translateNamespace + translationId;
+				}
+				$mbTranslate(translationId, translateValues, attr.translateInterpolation, undefined, scope.translateLanguage, translateSanitizeStrategy)
+					.then(function(translation) {
+						element.attr(attributeName, translation);
+					}, function(translationId) {
+						element.attr(attributeName, translationId);
+					});
+			});
+
+			// Removing unused attributes that were previously used
+			angular.forEach(previousAttributes, function(flag, attributeName) {
+				if (!translateAttr[attributeName]) {
+					element.removeAttr(attributeName);
+					delete previousAttributes[attributeName];
+				}
+			});
+		};
+
+		// Watch for attribute changes
+		watchAttribute(
+			scope,
+			attr.translateAttr,
+			function(newValue) { translateAttr = newValue; },
+			updateTranslations
+		);
+		// Watch for value changes
+		watchAttribute(
+			scope,
+			attr.translateValues,
+			function(newValue) { translateValues = newValue; },
+			updateTranslations
+		);
+		// Watch for sanitize strategy changes
+		watchAttribute(
+			scope,
+			attr.translateSanitizeStrategy,
+			function(newValue) { translateSanitizeStrategy = newValue; },
+			updateTranslations
+		);
+
+		if (attr.translateValues) {
+			scope.$watch(attr.translateValues, updateTranslations, true);
+		}
+
+		// Replaced watcher on translateLanguage with event listener
+		scope.$on('translateLanguageChanged', updateTranslations);
+
+		// Ensures the text will be refreshed after the current language was changed
+		// w/ $mbTranslate.use(...)
+		var unbind = $rootScope.$on('$mbTranslateChangeSuccess', updateTranslations);
+
+		updateTranslations();
+		scope.$on('$destroy', unbind);
+	}
+
+	return {
+		restrict: 'A',
+		priority: $mbTranslate.directivePriority(),
+		link: linkFn
+	};
+})
+
+
+
+/**
+@ngdoc directive
+@name mb-translate-cloak
+@requires $mbTranslate
+@restrict A
+
+$description
+Adds a `mb-translate-cloak` class name to the given element where this directive
+is applied initially and removes it, once a loader has finished loading.
+
+This directive can be used to prevent initial flickering when loading translation
+data asynchronously.
+
+The class name is defined in
+{@link pascalprecht.translate.$mbTranslateProvider#cloakClassName $mbTranslate.cloakClassName()}.
+
+@param {string=} mb-translate-cloak If a translationId is provided, it will be used for showing
+                                 or hiding the cloak. Basically it relies on the translation
+                                 resolve.
+ */
+mblowfish.directive('mbTranslateCloak', function($mbTranslate, $rootScope) {
+
+	function compileFn(tElement) {
+		function applyCloak(element) {
+			element.addClass($mbTranslate.cloakClassName());
+		}
+		function removeCloak(element) {
+			element.removeClass($mbTranslate.cloakClassName());
+		}
+		applyCloak(tElement);
+
+		return function linkFn(scope, iElement, iAttr) {
+			//Create bound functions that incorporate the active DOM element.
+			var iRemoveCloak = removeCloak.bind(this, iElement), iApplyCloak = applyCloak.bind(this, iElement);
+			if (iAttr.translateCloak && iAttr.translateCloak.length) {
+				// Register a watcher for the defined translation allowing a fine tuned cloak
+				iAttr.$observe('mbTranslateCloak', function(translationId) {
+					$mbTranslate(translationId).then(iRemoveCloak, iApplyCloak);
+				});
+				$rootScope.$on('$mbTranslateChangeSuccess', function() {
+					$mbTranslate(iAttr.translateCloak).then(iRemoveCloak, iApplyCloak);
+				});
+			} else {
+				$mbTranslate.onReady(iRemoveCloak);
+			}
+		};
+	}
+
+	return {
+		compile: compileFn
+	};
+});
+
+
+
+/**
+@ngdoc directive
+@name mb-translate-namespace
+@restrict A
+
+@description
+Translates given translation id either through attribute or DOM content.
+Internally it uses `translate` filter to translate translation id. It is possible to
+pass an optional `mb-translate-values` object literal as string into translation id.
+
+@param {string=} translate namespace name which could be either string or interpolated string.
+
+@example
+   <example module="ngView">
+    <file name="index.html">
+      <div mb-translate-namespace="CONTENT">
+
+        <div>
+            <h1 translate>.HEADERS.TITLE</h1>
+            <h1 translate>.HEADERS.WELCOME</h1>
+        </div>
+
+        <div mb-translate-namespace=".HEADERS">
+            <h1 translate>.TITLE</h1>
+            <h1 translate>.WELCOME</h1>
+        </div>
+
+      </div>
+    </file>
+    <file name="script.js">
+      angular.module('ngView', ['pascalprecht.translate'])
+
+      .config(function ($mbTranslateProvider) {
+
+        $mbTranslateProvider.translations('en',{
+          'TRANSLATION_ID': 'Hello there!',
+          'CONTENT': {
+            'HEADERS': {
+                TITLE: 'Title'
+            }
+          },
+          'CONTENT.HEADERS.WELCOME': 'Welcome'
+        }).preferredLanguage('en');
+
+      });
+
+    </file>
+   </example>
+ */
+mblowfish.directive('mbTranslateNamespace', function translateNamespaceDirective() {
+
+
+	/**
+	 Returns the scope's namespace.
+	 @private
+	 @param scope
+	 @returns {string}
+	 */
+	function _getTranslateNamespace(scope) {
+		if (scope.translateNamespace) {
+			return scope.translateNamespace;
+		}
+		if (scope.$parent) {
+			return _getTranslateNamespace(scope.$parent);
+		}
+	}
+
+	function compileFn() {
+		return {
+			pre: function(scope, iElement, iAttrs) {
+				scope.translateNamespace = _getTranslateNamespace(scope);
+
+				if (scope.translateNamespace && iAttrs.translateNamespace.charAt(0) === '.') {
+					scope.translateNamespace += iAttrs.translateNamespace;
+				} else {
+					scope.translateNamespace = iAttrs.translateNamespace;
+				}
+			}
+		};
+	}
+
+	return {
+		restrict: 'A',
+		scope: true,
+		compile: compileFn
+	};
+});
+
+
+/**
+@ngdoc directive
+@name mb-translate-language
+@restrict A
+
+@description
+Forces the language to the directives in the underlying scope.
+
+@param {string=} translate language that will be negotiated.
+
+@example
+   <example module="ngView">
+    <file name="index.html">
+      <div>
+
+        <div>
+            <h1 translate>HELLO</h1>
+        </div>
+
+        <div mb-translate-language="de">
+            <h1 translate>HELLO</h1>
+        </div>
+
+      </div>
+    </file>
+    <file name="script.js">
+      angular.module('ngView', ['pascalprecht.translate'])
+
+      .config(function ($mbTranslateProvider) {
+
+        $mbTranslateProvider
+          .translations('en',{
+            'HELLO': 'Hello world!'
+          })
+          .translations('de',{
+            'HELLO': 'Hallo Welt!'
+          })
+          .preferredLanguage('en');
+
+      });
+
+    </file>
+   </example>
+ */
+mblowfish.directive('mbTranslateLanguage', function() {
+
+	function compileFn() {
+		return function linkFn(scope, iElement, iAttrs) {
+
+			iAttrs.$observe('mbTranslateLanguage', function(newTranslateLanguage) {
+				scope.translateLanguage = newTranslateLanguage;
+			});
+
+			scope.$watch('mbTranslateLanguage', function() {
+				scope.$broadcast('mbTranslateLanguageChanged');
+			});
+		};
+	}
+
+	return {
+		restrict: 'A',
+		scope: true,
+		compile: compileFn
+	};
+});
+
+
+
+
+/**
+@ngdoc directive
+@name pascalprecht.translate.directive:translate
+@requires $interpolate,
+@requires $compile,
+@requires $parse,
+@requires $rootScope
+@restrict AE
+
+@description
+Translates given translation id either through attribute or DOM content.
+Internally it uses $mbTranslate service to translate the translation id. It possible to
+pass an optional `mb-translate-values` object literal as string into translation id.
+
+@param {string=} mb-translate Translation id which could be either string or interpolated string.
+@param {string=} mb-translate-values Values to pass into translation id. Can be passed as object literal string or interpolated object.
+@param {string=} mb-mb-translate-attr-ATTR translate Translation id and put it into ATTR attribute.
+@param {string=} mb-translate-default will be used unless translation was successful
+@param {string=} mb-translate-sanitize-strategy defines locally sanitize strategy
+@param {boolean=} mb-translate-compile (default true if present) defines locally activation of {@link pascalprecht.translate.$mbTranslateProvider#methods_usePostCompiling}
+@param {boolean=} mb-translate-keep-content (default true if present) defines that in case a KEY could not be translated, that the existing content is left in the innerHTML}
+
+@example
+   <example module="ngView">
+    <file name="index.html">
+      <div ng-controller="TranslateCtrl">
+
+        <pre mb-translate="TRANSLATION_ID"></pre>
+        <pre mb-translate>TRANSLATION_ID</pre>
+        <pre mb-translate mb-mb-translate-attr-title="TRANSLATION_ID"></pre>
+        <pre mb-translate="{{translationId}}"></pre>
+        <pre mb-translate>{{translationId}}</pre>
+        <pre mb-translate="WITH_VALUES" mb-translate-values="{value: 5}"></pre>
+        <pre mb-translate mb-translate-values="{value: 5}">WITH_VALUES</pre>
+        <pre mb-translate="WITH_VALUES" mb-translate-values="{{values}}"></pre>
+        <pre mb-translate mb-translate-values="{{values}}">WITH_VALUES</pre>
+        <pre mb-translate mb-mb-translate-attr-title="WITH_VALUES" mb-translate-values="{{values}}"></pre>
+        <pre mb-translate="WITH_CAMEL_CASE_KEY" mb-translate-value-camel-case-key="Hi"></pre>
+
+      </div>
+    </file>
+    <file name="script.js">
+      angular.module('ngView', ['pascalprecht.translate'])
+
+      .config(function ($mbTranslateProvider) {
+
+        $mbTranslateProvider.translations('en',{
+          'TRANSLATION_ID': 'Hello there!',
+          'WITH_VALUES': 'The following value is dynamic: {{value}}',
+          'WITH_CAMEL_CASE_KEY': 'The interpolation key is camel cased: {{camelCaseKey}}'
+        }).preferredLanguage('en');
+
+      });
+
+      angular.module('ngView').controller('TranslateCtrl', function ($scope) {
+        $scope.translationId = 'TRANSLATION_ID';
+
+        $scope.values = {
+          value: 78
+        };
+      });
+    </file>
+    <file name="scenario.js">
+      it('should translate', function () {
+        inject(function ($rootScope, $compile) {
+          $rootScope.translationId = 'TRANSLATION_ID';
+
+          element = $compile('<p mb-translate="TRANSLATION_ID"></p>')($rootScope);
+          $rootScope.$digest();
+          expect(element.text()).toBe('Hello there!');
+
+          element = $compile('<p mb-translate="{{translationId}}"></p>')($rootScope);
+          $rootScope.$digest();
+          expect(element.text()).toBe('Hello there!');
+
+          element = $compile('<p mb-translate>TRANSLATION_ID</p>')($rootScope);
+          $rootScope.$digest();
+          expect(element.text()).toBe('Hello there!');
+
+          element = $compile('<p mb-translate>{{translationId}}</p>')($rootScope);
+          $rootScope.$digest();
+          expect(element.text()).toBe('Hello there!');
+
+          element = $compile('<p mb-translate mb-mb-translate-attr-title="TRANSLATION_ID"></p>')($rootScope);
+          $rootScope.$digest();
+          expect(element.attr('title')).toBe('Hello there!');
+
+          element = $compile('<p mb-translate="WITH_CAMEL_CASE_KEY" mb-translate-value-camel-case-key="Hello"></p>')($rootScope);
+          $rootScope.$digest();
+          expect(element.text()).toBe('The interpolation key is camel cased: Hello');
+        });
+      });
+    </file>
+   </example>
+ */
+mblowfish.directive('mbTranslate', function($mbTranslate, $interpolate, $compile, $parse, $rootScope) {
+
+	/**
+	@name trim
+	@private
+	
+	@description
+	trim polyfill
+	
+	@returns {string} The string stripped of whitespace from both ends
+	 */
+	function trim() {
+		return this.toString().replace(/^\s+|\s+$/g, '');
+	};
+
+	/**
+	@name lowercase
+	@private
+	
+	@description
+	Return the lowercase string only if the type is string
+	
+	@returns {string} The string all in lowercase
+	 */
+	var lowercase = function(string) {
+		return angular.isString(string) ? string.toLowerCase() : string;
+	};
+
+	function compileFn(tElement, tAttr) {
+
+		var translateValuesExist = (tAttr.translateValues) ?
+			tAttr.translateValues : undefined;
+
+		var translateInterpolation = (tAttr.translateInterpolation) ?
+			tAttr.translateInterpolation : undefined;
+
+		var translateSanitizeStrategyExist = (tAttr.translateSanitizeStrategy) ?
+			tAttr.translateSanitizeStrategy : undefined;
+
+		var translateValueExist = tElement[0].outerHTML.match(/mb-translate-value-+/i);
+
+		var interpolateRegExp = '^(.*)(' + $interpolate.startSymbol() + '.*' + $interpolate.endSymbol() + ')(.*)',
+			watcherRegExp = '^(.*)' + $interpolate.startSymbol() + '(.*)' + $interpolate.endSymbol() + '(.*)';
+
+		return function linkFn(scope, iElement, iAttr) {
+
+			scope.interpolateParams = {};
+			scope.preText = '';
+			scope.postText = '';
+			scope.translateNamespace = getTranslateNamespace(scope);
+			var translationIds = {};
+
+			function initInterpolationParams(interpolateParams, iAttr, tAttr) {
+				// initial setup
+				if (iAttr.translateValues) {
+					angular.extend(interpolateParams, $parse(iAttr.translateValues)(scope.$parent));
+				}
+				// initially fetch all attributes if existing and fill the params
+				if (translateValueExist) {
+					for (var attr in tAttr) {
+						if (Object.prototype.hasOwnProperty.call(iAttr, attr) && attr.substr(0, 14) === 'translateValue' && attr !== 'translateValues') {
+							var attributeName = lowercase(attr.substr(14, 1)) + attr.substr(15);
+							interpolateParams[attributeName] = tAttr[attr];
+						}
+					}
+				}
+			}
+
+			// Ensures any change of the attribute "translate" containing the id will
+			// be re-stored to the scope's "translationId".
+			// If the attribute has no content, the element's text value (white spaces trimmed off) will be used.
+			var observeElementTranslation = function(translationId) {
+
+				// Remove any old watcher
+				if (angular.isFunction(observeElementTranslation._unwatchOld)) {
+					observeElementTranslation._unwatchOld();
+					observeElementTranslation._unwatchOld = undefined;
+				}
+
+				if (angular.equals(translationId, '') || !angular.isDefined(translationId)) {
+					var iElementText = trim.apply(iElement.text());
+
+					// Resolve translation id by inner html if required
+					var interpolateMatches = iElementText.match(interpolateRegExp);
+					// Interpolate translation id if required
+					if (angular.isArray(interpolateMatches)) {
+						scope.preText = interpolateMatches[1];
+						scope.postText = interpolateMatches[3];
+						translationIds.translate = $interpolate(interpolateMatches[2])(scope.$parent);
+						var watcherMatches = iElementText.match(watcherRegExp);
+						if (angular.isArray(watcherMatches) && watcherMatches[2] && watcherMatches[2].length) {
+							observeElementTranslation._unwatchOld = scope.$watch(watcherMatches[2], function(newValue) {
+								translationIds.translate = newValue;
+								updateTranslations();
+							});
+						}
+					} else {
+						// do not assigne the translation id if it is empty.
+						translationIds.translate = !iElementText ? undefined : iElementText;
+					}
+				} else {
+					translationIds.translate = translationId;
+				}
+				updateTranslations();
+			};
+
+			function observeAttributeTranslation(translateAttr) {
+				iAttr.$observe(translateAttr, function(translationId) {
+					translationIds[translateAttr] = translationId;
+					updateTranslations();
+				});
+			};
+
+			// initial setup with values
+			initInterpolationParams(scope.interpolateParams, iAttr, tAttr);
+
+			var firstAttributeChangedEvent = true;
+			iAttr.$observe('translate', function(translationId) {
+				if (typeof translationId === 'undefined') {
+					// case of element "<translate>xyz</translate>"
+					observeElementTranslation('');
+				} else {
+					// case of regular attribute
+					if (translationId !== '' || !firstAttributeChangedEvent) {
+						translationIds.translate = translationId;
+						updateTranslations();
+					}
+				}
+				firstAttributeChangedEvent = false;
+			});
+
+			for (var translateAttr in iAttr) {
+				if (iAttr.hasOwnProperty(translateAttr) && translateAttr.substr(0, 13) === 'translateAttr' && translateAttr.length > 13) {
+					observeAttributeTranslation(translateAttr);
+				}
+			}
+
+			iAttr.$observe('translateDefault', function(value) {
+				scope.defaultText = value;
+				updateTranslations();
+			});
+
+			if (translateSanitizeStrategyExist) {
+				iAttr.$observe('translateSanitizeStrategy', function(value) {
+					scope.sanitizeStrategy = $parse(value)(scope.$parent);
+					updateTranslations();
+				});
+			}
+
+			if (translateValuesExist) {
+				iAttr.$observe('translateValues', function(interpolateParams) {
+					if (interpolateParams) {
+						scope.$parent.$watch(function() {
+							angular.extend(scope.interpolateParams, $parse(interpolateParams)(scope.$parent));
+						});
+					}
+				});
+			}
+
+			if (translateValueExist) {
+				var observeValueAttribute = function(attrName) {
+					iAttr.$observe(attrName, function(value) {
+						var attributeName = lowercase(attrName.substr(14, 1)) + attrName.substr(15);
+						scope.interpolateParams[attributeName] = value;
+					});
+				};
+				for (var attr in iAttr) {
+					if (Object.prototype.hasOwnProperty.call(iAttr, attr) && attr.substr(0, 14) === 'translateValue' && attr !== 'translateValues') {
+						observeValueAttribute(attr);
+					}
+				}
+			}
+
+			// Master update function
+			var updateTranslations = function() {
+				for (var key in translationIds) {
+					if (translationIds.hasOwnProperty(key) && translationIds[key] !== undefined) {
+						updateTranslation(key, translationIds[key], scope, scope.interpolateParams, scope.defaultText, scope.translateNamespace);
+					}
+				}
+			};
+
+			// Put translation processing function outside loop
+			var updateTranslation = function(translateAttr, translationId, scope, interpolateParams, defaultTranslationText, translateNamespace) {
+				if (translationId) {
+					// if translation id starts with '.' and translateNamespace given, prepend namespace
+					if (translateNamespace && translationId.charAt(0) === '.') {
+						translationId = translateNamespace + translationId;
+					}
+
+					$mbTranslate(translationId, interpolateParams, translateInterpolation, defaultTranslationText, scope.translateLanguage, scope.sanitizeStrategy)
+						.then(function(translation) {
+							applyTranslation(translation, scope, true, translateAttr);
+						}, function(translationId) {
+							applyTranslation(translationId, scope, false, translateAttr);
+						});
+				} else {
+					// as an empty string cannot be translated, we can solve this using successful=false
+					applyTranslation(translationId, scope, false, translateAttr);
+				}
+			};
+
+			var applyTranslation = function(value, scope, successful, translateAttr) {
+				if (!successful) {
+					if (typeof scope.defaultText !== 'undefined') {
+						value = scope.defaultText;
+					}
+				}
+				if (translateAttr === 'translate') {
+					// default translate into innerHTML
+					if (successful || (!successful && !$mbTranslate.isKeepContent() && typeof iAttr.translateKeepContent === 'undefined')) {
+						iElement.empty().append(scope.preText + value + scope.postText);
+					}
+					var globallyEnabled = $mbTranslate.isPostCompilingEnabled();
+					var locallyDefined = typeof tAttr.translateCompile !== 'undefined';
+					var locallyEnabled = locallyDefined && tAttr.translateCompile !== 'false';
+					if ((globallyEnabled && !locallyDefined) || locallyEnabled) {
+						$compile(iElement.contents())(scope);
+					}
+				} else {
+					// translate attribute
+					var attributeName = iAttr.$attr[translateAttr];
+					if (attributeName.substr(0, 5) === 'data-') {
+						// ensure html5 data prefix is stripped
+						attributeName = attributeName.substr(5);
+					}
+					attributeName = attributeName.substr(15);
+					iElement.attr(attributeName, value);
+				}
+			};
+
+			if (translateValuesExist || translateValueExist || iAttr.translateDefault) {
+				scope.$watch('interpolateParams', updateTranslations, true);
+			}
+
+			// Replaced watcher on translateLanguage with event listener
+			scope.$on('translateLanguageChanged', updateTranslations);
+
+			// Ensures the text will be refreshed after the current language was changed
+			// w/ $mbTranslate.use(...)
+			var unbind = $rootScope.$on('$mbTranslateChangeSuccess', updateTranslations);
+
+			// ensure translation will be looked up at least one
+			if (iElement.text().length) {
+				if (iAttr.translate) {
+					observeElementTranslation(iAttr.translate);
+				} else {
+					observeElementTranslation('');
+				}
+			} else if (iAttr.translate) {
+				// ensure attribute will be not skipped
+				observeElementTranslation(iAttr.translate);
+			}
+			updateTranslations();
+			scope.$on('$destroy', unbind);
+		};
+	}
+
+	return {
+		restrict: 'AE',
+		scope: true,
+		priority: $mbTranslate.getDirectivePriority(),
+		compile: compileFn
+	};
+});
+
+
+// TODO: maso, 2020: create a language editor
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.factory('MbLanguageLoader', function($q) {
+	return function(option) {
+		var deferred = $q.defer();
+		deferred.resolve({});
+		return deferred.promise;
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.factory('MbMissingTranslationHandler', function() {
+	return function(translationID) {
+		//		$mbTranslationDb.addTranslationId(translationID);
+	};
+});
+
+/**
+@ngdoc object
+@name $mbTranslateDefaultInterpolation
+@requires $interpolate
+
+@description
+Uses angular's `$interpolate` services to interpolate strings against some values.
+
+Be aware to configure a proper sanitization strategy.
+
+See also:
+* {@link $mbTranslateSanitization}
+
+@return {object} $mbTranslateDefaultInterpolation Interpolator service
+ */
+mblowfish.factory('$mbTranslateDefaultInterpolation', function($interpolate, $mbTranslateSanitization) {
+
+	var $mbTranslateInterpolator = {};
+	var $locale;
+	var $identifier = 'default';
+
+	/**
+	 @ngdoc function
+	 @name pascalprecht.translate.$mbTranslateDefaultInterpolation#setLocale
+	 @methodOf pascalprecht.translate.$mbTranslateDefaultInterpolation
+	 
+	 @description
+	 Sets current locale (this is currently not use in this interpolation).
+	 
+	 @param {string} locale Language key or locale.
+	 */
+	$mbTranslateInterpolator.setLocale = function(locale) {
+		$locale = locale;
+	};
+
+	/**
+	 @ngdoc function
+	 @name pascalprecht.translate.$mbTranslateDefaultInterpolation#getInterpolationIdentifier
+	 @methodOf pascalprecht.translate.$mbTranslateDefaultInterpolation
+	 
+	 @description
+	 Returns an identifier for this interpolation service.
+	 
+	 @returns {string} $identifier
+	 */
+	$mbTranslateInterpolator.getInterpolationIdentifier = function() {
+		return $identifier;
+	};
+
+	/**
+	 * @deprecated will be removed in 3.0
+	 * @see {@link pascalprecht.translate.$mbTranslateSanitization}
+	 */
+	$mbTranslateInterpolator.useSanitizeValueStrategy = function(value) {
+		$mbTranslateSanitization.useStrategy(value);
+		return this;
+	};
+
+	/**
+	 @ngdoc function
+	 @name pascalprecht.translate.$mbTranslateDefaultInterpolation#interpolate
+	 @methodOf pascalprecht.translate.$mbTranslateDefaultInterpolation
+	
+	 @description
+	 Interpolates given value agains given interpolate params using angulars
+	 `$interpolate` service.
+	
+	 Since AngularJS 1.5, `value` must not be a string but can be anything input.
+	
+	 @param {string} value translation
+	 @param {object} [interpolationParams={}] interpolation params
+	 @param {string} [context=undefined] current context (filter, directive, service)
+	 @param {string} [sanitizeStrategy=undefined] sanitize strategy (use default unless set)
+	 @param {string} translationId current translationId
+	
+	 @returns {string} interpolated string
+	 */
+	$mbTranslateInterpolator.interpolate = function(value, interpolationParams, context, sanitizeStrategy, translationId) { // jshint ignore:line
+		interpolationParams = interpolationParams || {};
+		interpolationParams = $mbTranslateSanitization.sanitize(interpolationParams, 'params', sanitizeStrategy, context);
+
+		var interpolatedText;
+		if (angular.isNumber(value)) {
+			// numbers are safe
+			interpolatedText = '' + value;
+		} else if (angular.isString(value)) {
+			// strings must be interpolated (that's the job here)
+			interpolatedText = $interpolate(value)(interpolationParams);
+			interpolatedText = $mbTranslateSanitization.sanitize(interpolatedText, 'text', sanitizeStrategy, context);
+		} else {
+			// neither a number or a string, cant interpolate => empty string
+			interpolatedText = '';
+		}
+
+		return interpolatedText;
+	};
+
+	return $mbTranslateInterpolator;
+});
+
+
+/**
+@ngdoc object
+@name pascalprecht.translate.$translationCache
+@requires $cacheFactory
+
+@description
+The first time a translation table is used, it is loaded in the translation cache for quick retrieval. You
+can load translation tables directly into the cache by consuming the
+`$translationCache` service directly.
+
+@return {object} $cacheFactory object.
+ */
+mblowfish.factory('$translationCache', function $translationCache($cacheFactory) {
+	return $cacheFactory('translations');
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * TODO: maso, 2019: add filter document
+ */
+mblowfish.filter('currencyFilter', function(numberFilter, translateFilter) {
+
+	return function(price, unit) {
+
+		if (!price) {
+			return translateFilter('free');
+		}
+		// TODO: maso, 2019: set unit with system default currency if is null
+		if (unit === 'iran-rial' || unit === 'iran-tooman') {
+			return numberFilter(price) + ' '
+				+ translateFilter(unit);
+		} else if (unit === 'bahrain-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('bahrain-dinar');
+		} else if (unit === 'euro') {
+			return numberFilter(price) + ' '
+				+ translateFilter('euro');
+		} else if (unit === 'dollar') {
+			return translateFilter('dollar') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'pound') {
+			return translateFilter('pound') + ' '
+				+ numberFilter(price);
+		} else if (unit === 'iraq-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('iraq-dinar');
+		} else if (unit === 'kuwait-dinar') {
+			return numberFilter(price) + ' '
+				+ translateFilter('kuwait-dinar');
+		} else if (unit === 'oman-rial') {
+			return numberFilter(price) + ' '
+				+ translateFilter('oman-rial');
+		} else if (unit === 'turkish-lira') {
+			return numberFilter(price) + ' '
+				+ translateFilter('turkish-lira');
+		} else if (unit === 'uae-dirham') {
+			return numberFilter(price) + ' '
+				+ translateFilter('uae-dirham');
+		} else {
+			return numberFilter(price) + ' ?';
+		}
+	};
+});
+
+
+
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+mblowfish
+
+	/**
+	 * @ngdoc Filters
+	 * @name mbDate
+	 * @description # Format date
+	 */
+	.filter('mbDate', function($mbLocal) {
+		return function(inputDate, format) {
+			return $mbLocal.formatDate(inputDate, format);
+		};
+	})
+
+	/**
+	 * @ngdoc Filters
+	 * @name mbDateTime
+	 * @description # Format date time
+	 */
+	.filter('mbDateTime', function($mbLocal) {
+		return function(inputDate, format) {
+			return $mbLocal.formatDateTime(inputDate, format);
+		};
+	});
+
+/**
+@ngdoc filter
+@name pascalprecht.translate.filter:translate
+@requires $parse
+@requires pascalprecht.translate.$mbTranslate
+@function
+
+@description
+Uses `$mbTranslate` service to translate contents. Accepts interpolate parameters
+to pass dynamized values though translation.
+
+@param {string} translationId A translation id to be translated.
+@param {*=} interpolateParams Optional object literal (as hash or string) to pass values into translation.
+
+@returns {string} Translated text.
+
+@example
+<example module="ngView">
+ <file name="index.html">
+   <div ng-controller="TranslateCtrl">
+
+     <pre>{{ 'TRANSLATION_ID' | translate }}</pre>
+     <pre>{{ translationId | translate }}</pre>
+     <pre>{{ 'WITH_VALUES' | translate:'{value: 5}' }}</pre>
+     <pre>{{ 'WITH_VALUES' | translate:values }}</pre>
+
+   </div>
+ </file>
+ <file name="script.js">
+   angular.module('ngView', ['pascalprecht.translate'])
+
+   .config(function ($mbTranslateProvider) {
+
+     $mbTranslateProvider.translations('en', {
+       'TRANSLATION_ID': 'Hello there!',
+       'WITH_VALUES': 'The following value is dynamic: {{value}}'
+     });
+     $mbTranslateProvider.preferredLanguage('en');
+
+   });
+
+   angular.module('ngView').controller('TranslateCtrl', function ($scope) {
+     $scope.translationId = 'TRANSLATION_ID';
+
+     $scope.values = {
+       value: 78
+     };
+   });
+ </file>
+</example>
+ */
+mblowfish.filter('translate', function($parse, $mbTranslate) {
+
+	var translateFilter = function(translationId, interpolateParams, interpolation, forceLanguage) {
+		if (!angular.isObject(interpolateParams)) {
+			var ctx = this || {
+				'__SCOPE_IS_NOT_AVAILABLE': 'More info at https://github.com/angular/angular.js/commit/8863b9d04c722b278fa93c5d66ad1e578ad6eb1f'
+			};
+			interpolateParams = $parse(interpolateParams)(ctx);
+		}
+
+		return $mbTranslate.instant(translationId, interpolateParams, interpolation, forceLanguage);
+	};
+
+	if ($mbTranslate.statefulFilter()) {
+		translateFilter.$stateful = true;
+	}
+
+	return translateFilter;
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7575,11 +8663,7 @@ angular.module('mblowfish-core').run(function(
  */
 
 mblowfish
-	.config(function($mbPreferencesProvider, $mbTranslateProvider, $mdDateLocaleProvider, $mbResourceProvider) {
-		$mbTranslateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
-		$mbTranslateProvider.useLoader('MbLanguageLoader');
-
-
+	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
 		// Format and parse dates based on moment's 'L'-format
 		// 'L'-format may later be changed
 		$mdDateLocaleProvider.parseDate = function(dateString) {
@@ -7695,6 +8779,3067 @@ function watchAttribute(scope, attribute, valueCallback, changeCallback) {
 	}
 	valueCallback(scope.$eval(attribute));
 }
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.controller('MbLocalResourceCountryCtrl', function($scope, $http) {
+	var countires;
+
+	function loadResources() {
+		$http
+			.get('resources/countries-iso3166.json')
+			.then(function(res) {
+				$scope.languages = res.data;
+			}, function() {
+				// XXX: maso, 2020: handlef file not found
+			});
+	}
+
+	//
+	//	/**
+	//	 * Create filter function for a query string
+	//	 */
+	//	function createFilterFor(query) {
+	//		var lowercaseQuery = query.toLowerCase();
+	//
+	//		return function filterFn(language) {
+	//			return (language.title.indexOf(lowercaseQuery) >= 0) ||
+	//			(language.key.indexOf(lowercaseQuery) >= 0);
+	//		};
+	//
+	//	}
+	
+	this.countires = countires;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.controller('MbLocalResourceLanguageCommonCtrl', function($scope, $http) {
+	$http.get('resources/languages.json')
+		.then(function(res) {
+			$scope.languages = res.data;
+		});
+
+	this.setLanguage = function(lang) {
+		$scope.$parent.setValue(lang);
+	};
+
+
+	//
+	//	/**
+	//	 * Create filter function for a query string
+	//	 */
+	//	function createFilterFor(query) {
+	//		var lowercaseQuery = query.toLowerCase();
+	//
+	//		return function filterFn(language) {
+	//			return (language.title.indexOf(lowercaseQuery) >= 0) ||
+	//			(language.key.indexOf(lowercaseQuery) >= 0);
+	//		};
+	//
+	//	}
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.controller('MbLocalResourceLanguageCustomCtrl', function($scope) {
+	$scope.language = $scope.value;
+
+	this.querySearch = function(query) {
+		var results = query ? languages.filter(createFilterFor(query)) : languages;
+		var deferred = $q.defer();
+		$timeout(function() {
+			deferred.resolve(results);
+		}, Math.random() * 100, false);
+		return deferred.promise;
+	};
+
+	$scope.$watch('language', function(lang) {
+		$scope.$parent.setValue(lang);
+	});
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.controller('MbLocalResourceLanguageUploadCtrl', function($scope, $http) {
+	$http.get('resources/common-languages.json')
+		.then(function(res) {
+			$scope.languages = res.data;
+		});
+
+	this.setLanguage = function(lang) {
+		$scope.$parent.setValue(lang);
+	};
+
+	var ctrl = this;
+	$scope.$watch('files.length', function(files) {
+		if (!$scope.files || $scope.files.length <= 0) {
+			return;
+		}
+		var reader = new FileReader();
+		reader.onload = function(event) {
+			var lang = JSON.parse(event.target.result);
+			ctrl.setLanguage(lang);
+		};
+		reader.readAsText($scope.files[0].lfFile);
+	});
+
+});
+
+
+
+
+/**
+ @ngdoc object
+ @name $mbTranslateSanitization
+ @requires $injector
+ @requires $log
+	
+ @description
+ Sanitizes interpolation parameters and translated texts.
+	
+	
+	
+ There are many sanitization method and you are free to add a new one. 
+Following strategies are built-in:
+
+ <dl>
+   <dt>sanitize</dt><dd>Sanitizes HTML in the translation text using $sanitize</dd>
+   <dt>escape</dt><dd>Escapes HTML in the translation</dd>
+   <dt>sanitizeParameters</dt><dd>Sanitizes HTML in the values of the interpolation parameters using $sanitize</dd>
+   <dt>escapeParameters</dt><dd>Escapes HTML in the values of the interpolation parameters</dd>
+   <dt>escaped</dt><dd>Support legacy strategy name 'escaped' for backwards compatibility (will be removed in 3.0)</dd>
+ </dl>
+ */
+
+/**
+ Definition of a sanitization strategy function
+ @callback StrategyFunction
+ @param {string|object} value - value to be sanitized (either a string or an interpolated value map)
+ @param {string} mode - either 'text' for a string (translation) or 'params' for the interpolated params
+ @return {string|object}
+ */
+
+mblowfish.provider('$mbTranslateSanitization', function() {
+
+	//-------------------------------------------------------------------------
+	// Services and factories
+	//-------------------------------------------------------------------------
+	var provider;
+	var service;
+
+	var $sanitize;
+	var $sce;
+	var $log;
+
+
+	//-------------------------------------------------------------------------
+	// Services and factories
+	//-------------------------------------------------------------------------
+	// TODO: change to either 'sanitize', 'escape' or ['sanitize', 'escapeParameters'] in 3.0.
+	var currentStrategy = null;
+	var strategies;
+	var cachedStrategyMap = {};
+
+
+
+	//-------------------------------------------------------------------------
+	// Functions
+	//-------------------------------------------------------------------------
+	strategies = {
+		sanitize: function(value, mode/*, context*/) {
+			if (mode === 'text') {
+				value = htmlSanitizeValue(value);
+			}
+			return value;
+		},
+		escape: function(value, mode/*, context*/) {
+			if (mode === 'text') {
+				value = htmlEscapeValue(value);
+			}
+			return value;
+		},
+		sanitizeParameters: function(value, mode/*, context*/) {
+			if (mode === 'params') {
+				value = mapInterpolationParameters(value, htmlSanitizeValue);
+			}
+			return value;
+		},
+		escapeParameters: function(value, mode/*, context*/) {
+			if (mode === 'params') {
+				value = mapInterpolationParameters(value, htmlEscapeValue);
+			}
+			return value;
+		},
+		sce: function(value, mode, context) {
+			if (mode === 'text') {
+				value = htmlTrustValue(value);
+			} else if (mode === 'params') {
+				if (context !== 'filter') {
+					// do html escape in filter context #1101
+					value = mapInterpolationParameters(value, htmlEscapeValue);
+				}
+			}
+			return value;
+		},
+		sceParameters: function(value, mode/*, context*/) {
+			if (mode === 'params') {
+				value = mapInterpolationParameters(value, htmlTrustValue);
+			}
+			return value;
+		}
+	};
+
+	/*
+	Converts a value to map of values
+	*/
+	function mapInterpolationParameters(value, iteratee, stack) {
+		if (angular.isDate(value)) {
+			return value;
+		} else if (angular.isObject(value)) {
+			var result = angular.isArray(value) ? [] : {};
+
+			if (!stack) {
+				stack = [];
+			} else {
+				if (stack.indexOf(value) > -1) {
+					throw new Error('$mbTranslateSanitization: Error cannot interpolate parameter due recursive object');
+				}
+			}
+
+			stack.push(value);
+			angular.forEach(value, function(propertyValue, propertyKey) {
+
+				/* Skipping function properties. */
+				if (angular.isFunction(propertyValue)) {
+					return;
+				}
+
+				result[propertyKey] = mapInterpolationParameters(propertyValue, iteratee, stack);
+			});
+			stack.splice(-1, 1); // remove last
+
+			return result;
+		} else if (angular.isNumber(value)) {
+			return value;
+		} else if (value === true || value === false) {
+			return value;
+		} else if (!angular.isUndefined(value) && value !== null) {
+			return iteratee(value);
+		} else {
+			return value;
+		}
+	};
+
+	function htmlEscapeValue(value) {
+		var element = angular.element('<div></div>');
+		element.text(value); // not chainable, see #1044
+		return element.html();
+	}
+
+	function htmlSanitizeValue(value) {
+		if (!$sanitize) {
+			throw new Error('Cannot find $sanitize service.');
+		}
+		return $sanitize(value);
+	}
+
+	function htmlTrustValue(value) {
+		if (!$sce) {
+			throw new Error('Cannot find $sce service.');
+		}
+		return $sce.trustAsHtml(value);
+	}
+
+	/**
+	 @ngdoc function
+	 @name addStrategy
+	 @methodOf $mbTranslateSanitizationProvider
+	
+	 @description
+	 Adds a sanitization strategy to the list of known strategies.
+	
+	 @param {string} strategyName - unique key for a strategy
+	 @param {StrategyFunction} strategyFunction - strategy function
+	 @returns {object} this
+	 */
+	function addStrategy(strategyName, strategyFunction) {
+		strategies[strategyName] = strategyFunction;
+		return provider;
+	}
+
+	/**
+	 @ngdoc function
+	 @name $mbTranslateSanitizationProvider#removeStrategy
+	 @methodOf $mbTranslateSanitizationProvider
+	
+	 @description
+	 Removes a sanitization strategy from the list of known strategies.
+	
+	 @param {string} strategyName - unique key for a strategy
+	 @returns {object} this
+	 */
+	function removeStrategy(strategyName) {
+		delete strategies[strategyName];
+		return provider;
+	}
+
+	function useStrategy(strategy) {
+		hasConfiguredStrategy = true;
+		currentStrategy = strategy;
+	}
+
+
+	/**
+	 @ngdoc function
+	 @name sanitize
+	 @methodOf $mbTranslateSanitization
+	
+	 @description
+	 Sanitizes a value.
+	
+	 @param {string|object} value The value which should be sanitized.
+	 @param {string} mode The current sanitization mode, either 'params' or 'text'.
+	 @param {string|StrategyFunction|array} [strategy] Optional custom strategy which should be used instead of the currently selected strategy.
+	 @param {string} [context] The context of this call: filter, service. Default is service
+	 @returns {string|object} sanitized value
+	 */
+	function sanitize(value, mode, strategy, context) {
+		if (!currentStrategy) {
+			$log.warn('No sanitization strategy has been configured.');
+			hasShownNoStrategyConfiguredWarning = true;
+		}
+
+		if (!strategy && strategy !== null) {
+			strategy = currentStrategy;
+		}
+
+		if (!strategy) {
+			return value;
+		}
+
+		if (!context) {
+			context = 'service';
+		}
+
+		var selectedStrategies = angular.isArray(strategy) ? strategy : [strategy];
+		return applyStrategies(value, mode, context, selectedStrategies);
+	}
+
+
+	function applyStrategies(value, mode, context, selectedStrategies) {
+		angular.forEach(selectedStrategies, function(selectedStrategy) {
+			if (angular.isFunction(selectedStrategy)) {
+				value = selectedStrategy(value, mode, context);
+			} else if (angular.isFunction(strategies[selectedStrategy])) {
+				value = strategies[selectedStrategy](value, mode, context);
+			} else if (angular.isString(strategies[selectedStrategy])) {
+				if (!cachedStrategyMap[strategies[selectedStrategy]]) {
+					try {
+						cachedStrategyMap[strategies[selectedStrategy]] = $injector.get(strategies[selectedStrategy]);
+					} catch (e) {
+						cachedStrategyMap[strategies[selectedStrategy]] = function() { };
+						throw new Error('$mbTranslateSanitization: Unknown sanitization strategy: \'' + selectedStrategy + '\'');
+					}
+				}
+				value = cachedStrategyMap[strategies[selectedStrategy]](value, mode, context);
+			} else {
+				throw new Error('Unknown sanitization strategy: \'' + selectedStrategy + '\'');
+			}
+		});
+		return value;
+	}
+
+	//-------------------------------------------------------------------------------------------
+	// End
+	//-------------------------------------------------------------------------------------------
+	service = {
+		/**
+		@ngdoc function
+		@name useStrategy
+		@methodOf $mbTranslateSanitization
+		
+		@description
+		Selects a sanitization strategy. When an array is provided the strategies will be executed in order.
+		
+		@param {string|StrategyFunction|array} strategy The sanitization strategy / strategies which should be used. Either a name of an existing strategy, a custom strategy function, or an array consisting of multiple names and / or custom functions.
+		 */
+		useStrategy: function() {
+			useStrategy(strategy);
+			return service;
+		},
+		sanitize: sanitize,
+	};
+	provider = {
+		$get: function($injector) {
+			if ($injector.has('$sanitize')) {
+				$sanitize = $injector.get('$sanitize');
+			}
+			if ($injector.has('$sce')) {
+				$sce = $injector.get('$sce');
+			}
+			if ($injector.has('$log')) {
+				$log = $injector.get('$log');
+			}
+			return service;
+		},
+		addStrategy: addStrategy,
+		removeStrategy: removeStrategy,
+
+		/**
+		 @ngdoc function
+		 @name useStrategy
+		 @methodOf $mbTranslateSanitizationProvider
+		
+		 @description
+		 Selects a sanitization strategy. When an array is provided the strategies will be executed in order.
+		
+		 @param {string|StrategyFunction|array} strategy The sanitization strategy / strategies which should be used. Either a name of an existing strategy, a custom strategy function, or an array consisting of multiple names and / or custom functions.
+		 @returns {object} this
+		 */
+		useStrategy: function(strategy) {
+			useStrategy(strategy);
+			return provider;
+		}
+	};
+	return provider;
+});
+
+
+
+/**
+ * @ngdoc object
+ * @name $mbTranslate
+ * @requires $interpolate
+ * @requires $log
+ * @requires $rootScope
+ * @requires $q
+ *
+ * @description
+ * The `$mbTranslate` service is the actual core of angular-translate. It expects a translation id
+ * and optional interpolate parameters to translate contents.
+ *
+ * <pre>
+ *  $mbTranslate('HEADLINE_TEXT').then(function (translation) {
+ *    $scope.translatedText = translation;
+ *  });
+ * </pre>
+ *
+ * @param {string|array} translationId A token which represents a translation id
+ *                                     This can be optionally an array of translation ids which
+ *                                     results that the function returns an object where each key
+ *                                     is the translation id and the value the translation.
+ * @param {object=} [interpolateParams={}] An object hash for dynamic values
+ * @param {string=} [interpolationId=undefined] The id of the interpolation to use (use default unless set via useInterpolation())
+ * @param {string=} [defaultTranslationText=undefined] the optional default translation text that is written as
+ *                                        as default text in case it is not found in any configured language
+ * @param {string=} [forceLanguage=false] A language to be used instead of the current language
+ * @param {string=} [sanitizeStrategy=undefined] force sanitize strategy for this call instead of using the configured one (use default unless set)
+ * @returns {object} promise
+ */
+
+mblowfish.provider('$mbTranslate', function() {
+	//----------------------------------------------------------------
+	// Services
+	//----------------------------------------------------------------
+
+	var provider;
+	var service;
+
+	var $rootScope;
+	var $q;
+	var injector;
+
+	var indexOf = _.indexOf;
+	var trim = _.trim;
+	var toLowerCase = _.lowerCase;
+
+
+	//----------------------------------------------------------------
+	// Variables
+	//----------------------------------------------------------------
+
+	var $translationTable = {},
+		$preferredLanguage,
+		$availableLanguageKeys = [],
+		$languageKeyAliases,
+		$fallbackLanguage,
+		$fallbackWasString,
+		$uses,
+		$nextLang,
+		$storageFactory,
+		$storageKey = 'NG_TRANSLATE_LANG_KEY',
+		$storagePrefix,
+		$missingTranslationHandlerFactory,
+		$interpolationFactory,
+		$interpolatorFactories = [],
+		$loaderFactory,
+		$cloakClassName = 'mb-translate-cloak',
+		$loaderOptions,
+		$notFoundIndicatorLeft,
+		$notFoundIndicatorRight,
+		$postCompilingEnabled = false,
+		$forceAsyncReloadEnabled = false,
+		$nestedObjectDelimeter = '.',
+		$isReady = false,
+		$keepContent = false,
+		loaderCache,
+		directivePriority = 0,
+		statefulFilter = true,
+		postProcessFn,
+		uniformLanguageTagResolver = 'default';
+
+
+
+	var Storage,
+		defaultInterpolator,
+		pendingLoader = false,
+		interpolatorHashMap = {},
+		langPromises = {},
+		fallbackIndex,
+		startFallbackIteration;
+
+	var $onReadyDeferred;
+
+
+	var languageTagResolver = {
+		'default': function(tag) {
+			return (tag || '').split('-').join('_');
+		},
+		java: function(tag) {
+			var temp = (tag || '').split('-').join('_');
+			var parts = temp.split('_');
+			return parts.length > 1 ? (parts[0].toLowerCase() + '_' + parts[1].toUpperCase()) : temp;
+		},
+		bcp47: function(tag) {
+			var temp = (tag || '').split('_').join('-');
+			var parts = temp.split('-');
+			switch (parts.length) {
+				case 1: // language only
+					parts[0] = parts[0].toLowerCase();
+					break;
+				case 2: // language-script or language-region
+					parts[0] = parts[0].toLowerCase();
+					if (parts[1].length === 4) { // parts[1] is script
+						parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1).toLowerCase();
+					} else { // parts[1] is region
+						parts[1] = parts[1].toUpperCase();
+					}
+					break;
+				case 3: // language-script-region
+					parts[0] = parts[0].toLowerCase();
+					parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1).toLowerCase();
+					parts[2] = parts[2].toUpperCase();
+					break;
+				default:
+					return temp;
+			}
+
+			return parts.join('-');
+		},
+		'iso639-1': function(tag) {
+			var temp = (tag || '').split('_').join('-');
+			var parts = temp.split('-');
+			return parts[0].toLowerCase();
+		}
+	};
+
+	//----------------------------------------------------------------
+	// functions
+	//----------------------------------------------------------------
+
+	// tries to determine the browsers language
+	function getFirstBrowserLanguage() {
+
+		// internal purpose only
+		if (angular.isFunction(pascalprechtTranslateOverrider.getLocale)) {
+			return pascalprechtTranslateOverrider.getLocale();
+		}
+
+		var nav = $windowProvider.$get().navigator,
+			browserLanguagePropertyKeys = ['language', 'browserLanguage', 'systemLanguage', 'userLanguage'],
+			i,
+			language;
+
+		// support for HTML 5.1 "navigator.languages"
+		if (angular.isArray(nav.languages)) {
+			for (i = 0; i < nav.languages.length; i++) {
+				language = nav.languages[i];
+				if (language && language.length) {
+					return language;
+				}
+			}
+		}
+
+		// support for other well known properties in browsers
+		for (i = 0; i < browserLanguagePropertyKeys.length; i++) {
+			language = nav[browserLanguagePropertyKeys[i]];
+			if (language && language.length) {
+				return language;
+			}
+		}
+
+		return null;
+	}
+
+
+	// tries to determine the browsers locale
+	function getLocale() {
+		var locale = getFirstBrowserLanguage() || '';
+		if (languageTagResolver[uniformLanguageTagResolver]) {
+			locale = languageTagResolver[uniformLanguageTagResolver](locale);
+		}
+		return locale;
+	}
+
+	function negotiateLocale(preferred) {
+		if (!preferred) {
+			return;
+		}
+
+		var avail = [],
+			locale = toLowerCase(preferred),
+			i = 0,
+			n = $availableLanguageKeys.length;
+
+		for (; i < n; i++) {
+			avail.push(toLowerCase($availableLanguageKeys[i]));
+		}
+
+		// Check for an exact match in our list of available keys
+		i = indexOf(avail, locale);
+		if (i > -1) {
+			return $availableLanguageKeys[i];
+		}
+
+		if ($languageKeyAliases) {
+			var alias;
+			for (var langKeyAlias in $languageKeyAliases) {
+				if ($languageKeyAliases.hasOwnProperty(langKeyAlias)) {
+					var hasWildcardKey = false;
+					var hasExactKey = Object.prototype.hasOwnProperty.call($languageKeyAliases, langKeyAlias) &&
+						toLowerCase(langKeyAlias) === toLowerCase(preferred);
+
+					if (langKeyAlias.slice(-1) === '*') {
+						hasWildcardKey = toLowerCase(langKeyAlias.slice(0, -1)) === toLowerCase(preferred.slice(0, langKeyAlias.length - 1));
+					}
+					if (hasExactKey || hasWildcardKey) {
+						alias = $languageKeyAliases[langKeyAlias];
+						if (indexOf(avail, toLowerCase(alias)) > -1) {
+							return alias;
+						}
+					}
+				}
+			}
+		}
+
+		// Check for a language code without region
+		var parts = preferred.split('_');
+
+		if (parts.length > 1 && indexOf(avail, toLowerCase(parts[0])) > -1) {
+			return parts[0];
+		}
+
+		// If everything fails, return undefined.
+		//		return;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name translations
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Registers a new translation table for specific language key.
+	 *
+	 * To register a translation table for specific language, pass a defined language
+	 * key as first parameter.
+	 *
+	 * <pre>
+	 *  // register translation table for language: 'de_DE'
+	 *  $mbTranslateProvider.translations('de_DE', {
+	 *    'GREETING': 'Hallo Welt!'
+	 *  });
+	 *
+	 *  // register another one
+	 *  $mbTranslateProvider.translations('en_US', {
+	 *    'GREETING': 'Hello world!'
+	 *  });
+	 * </pre>
+	 *
+	 * When registering multiple translation tables for for the same language key,
+	 * the actual translation table gets extended. This allows you to define module
+	 * specific translation which only get added, once a specific module is loaded in
+	 * your app.
+	 *
+	 * Invoking this method with no arguments returns the translation table which was
+	 * registered with no language key. Invoking it with a language key returns the
+	 * related translation table.
+	 *
+	 * @param {string} langKey A language key.
+	 * @param {object} translationTable A plain old JavaScript object that represents a translation table.
+	 *
+	 */
+	function translations(langKey, translationTable) {
+		if (!langKey && !translationTable) {
+			return $translationTable;
+		}
+
+		if (langKey && !translationTable) {
+			if (angular.isString(langKey)) {
+				return $translationTable[langKey];
+			}
+		} else {
+			if (!angular.isObject($translationTable[langKey])) {
+				$translationTable[langKey] = {};
+			}
+			angular.extend($translationTable[langKey], flatObject(translationTable));
+		}
+		return provider;
+	};
+
+
+	/**
+	 @ngdoc function
+	 @name cloakClassName
+	 @methodOf $mbTranslateProvider
+	 
+	 @description
+	 
+	 Let's you change the class name for `mb-translate-cloak` directive.
+	 Default class name is `mb-translate-cloak`.
+	 
+	 @param {string} name mb-translate-cloak class name
+	 */
+
+	/**
+	@ngdoc function
+	@name nestedObjectDelimeter
+	@methodOf $mbTranslateProvider
+	
+	@description
+	
+	Let's you change the delimiter for namespaced translations.
+	Default delimiter is `.`.
+	
+	@param {string} delimiter namespace separator
+	 */
+
+	/**
+	 * @name flatObject
+	 * @private
+	 *
+	 * @description
+	 * Flats an object. This function is used to flatten given translation data with
+	 * namespaces, so they are later accessible via dot notation.
+	 */
+	function flatObject(data, path, result, prevKey) {
+		var key, keyWithPath, keyWithShortPath, val;
+
+		if (!path) {
+			path = [];
+		}
+		if (!result) {
+			result = {};
+		}
+		for (key in data) {
+			if (!Object.prototype.hasOwnProperty.call(data, key)) {
+				continue;
+			}
+			val = data[key];
+			if (angular.isObject(val)) {
+				flatObject(val, path.concat(key), result, key);
+			} else {
+				keyWithPath = path.length ? ('' + path.join($nestedObjectDelimeter) + $nestedObjectDelimeter + key) : key;
+				if (path.length && key === prevKey) {
+					// Create shortcut path (foo.bar == foo.bar.bar)
+					keyWithShortPath = '' + path.join($nestedObjectDelimeter);
+					// Link it to original path
+					result[keyWithShortPath] = '@:' + keyWithPath;
+				}
+				result[keyWithPath] = val;
+			}
+		}
+		return result;
+	}
+
+	/**
+	@ngdoc function
+	@name addInterpolation
+	@methodOf $mbTranslateProvider
+	
+	@description
+	Adds interpolation services to angular-translate, so it can manage them.
+	
+	@param {object} factory Interpolation service factory
+	 */
+	function addInterpolation(factory) {
+		$interpolatorFactories.push(factory);
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useMessageFormatInterpolation
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use interpolation functionality of messageformat.js.
+	 * This is useful when having high level pluralization and gender selection.
+	 */
+	function useMessageFormatInterpolation() {
+		return this.useInterpolation('$mbTranslateMessageFormatInterpolation');
+	};
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useInterpolation
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate which interpolation style to use as default, application-wide.
+	 * Simply pass a factory/service name. The interpolation service has to implement
+	 * the correct interface.
+	 *
+	 * @param {string} factory Interpolation service name.
+	 */
+	function useInterpolation(factory) {
+		$interpolationFactory = factory;
+		return provider;
+	};
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useSanitizeStrategy
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Simply sets a sanitation strategy type.
+	 *
+	 * @param {string} value Strategy type.
+	 */
+	function useSanitizeValueStrategy(value) {
+		$mbTranslateSanitizationProvider.useStrategy(value);
+		return provider;
+	};
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#preferredLanguage
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells the module which of the registered translation tables to use for translation
+	 * at initial startup by passing a language key. Similar to `$mbTranslateProvider#use`
+	 * only that it says which language to **prefer**.
+	 * It is recommended to call this after {@link $mbTranslate#fallbackLanguage fallbackLanguage()}.
+	 *
+	 * @param {string} langKey A language key.
+	 */
+	function preferredLanguage(langKey) {
+		if (langKey) {
+			setupPreferredLanguage(langKey);
+			return provider;
+		}
+		return $preferredLanguage;
+	}
+
+	function setupPreferredLanguage(langKey) {
+		if (langKey) {
+			$preferredLanguage = langKey;
+		}
+		return $preferredLanguage;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#translationNotFoundIndicator
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Sets an indicator which is used when a translation isn't found. E.g. when
+	 * setting the indicator as 'X' and one tries to translate a translation id
+	 * called `NOT_FOUND`, this will result in `X NOT_FOUND X`.
+	 *
+	 * Internally this methods sets a left indicator and a right indicator using
+	 * `$mbTranslateProvider.translationNotFoundIndicatorLeft()` and
+	 * `$mbTranslateProvider.translationNotFoundIndicatorRight()`.
+	 *
+	 * **Note**: These methods automatically add a whitespace between the indicators
+	 * and the translation id.
+	 *
+	 * @param {string} indicator An indicator, could be any string.
+	 */
+	function translationNotFoundIndicator(indicator) {
+		this.translationNotFoundIndicatorLeft(indicator);
+		this.translationNotFoundIndicatorRight(indicator);
+		return this;
+	}
+
+	/**
+	 * ngdoc function
+	 * @name $mbTranslateProvider#translationNotFoundIndicatorLeft
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Sets an indicator which is used when a translation isn't found left to the
+	 * translation id.
+	 *
+	 * @param {string} indicator An indicator.
+	 */
+	function translationNotFoundIndicatorLeft(indicator) {
+		if (!indicator) {
+			return $notFoundIndicatorLeft;
+		}
+		$notFoundIndicatorLeft = indicator;
+		return provider;
+	}
+
+	/**
+	 * ngdoc function
+	 * @name $mbTranslateProvider#translationNotFoundIndicatorLeft
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Sets an indicator which is used when a translation isn't found right to the
+	 * translation id.
+	 *
+	 * @param {string} indicator An indicator.
+	 */
+	function translationNotFoundIndicatorRight(indicator) {
+		if (!indicator) {
+			return $notFoundIndicatorRight;
+		}
+		$notFoundIndicatorRight = indicator;
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name fallbackLanguage
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells the module which of the registered translation tables to use when missing translations
+	 * at initial startup by passing a language key. Similar to `$mbTranslateProvider#use`
+	 * only that it says which language to **fallback**.
+	 *
+	 * @param {string||array} langKey A language key.
+	 *
+	 */
+
+
+	function fallbackStack(langKey) {
+		if (langKey) {
+			if (angular.isString(langKey)) {
+				$fallbackWasString = true;
+				$fallbackLanguage = [langKey];
+			} else if (angular.isArray(langKey)) {
+				$fallbackWasString = false;
+				$fallbackLanguage = langKey;
+			}
+			if (angular.isString($preferredLanguage) && indexOf($fallbackLanguage, $preferredLanguage) < 0) {
+				$fallbackLanguage.push($preferredLanguage);
+			}
+
+			return provider;
+		} else {
+			if ($fallbackWasString) {
+				return $fallbackLanguage[0];
+			} else {
+				return $fallbackLanguage;
+			}
+		}
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#use
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Set which translation table to use for translation by given language key. When
+	 * trying to 'use' a language which isn't provided, it'll throw an error.
+	 *
+	 * You actually don't have to use this method since `$mbTranslateProvider#preferredLanguage`
+	 * does the job too.
+	 *
+	 * @param {string} langKey A language key.
+	 */
+
+	/**
+	 * @ngdoc function
+	 * @name resolveClientLocale
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * This returns the current browser/client's language key. The result is processed with the configured uniform tag resolver.
+	 *
+	 * @returns {string} the current client/browser language key
+	 */
+	/**
+	 * @ngdoc function
+	 * @name resolveClientLocale
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * This returns the current browser/client's language key. The result is processed with the configured uniform tag resolver.
+	 *
+	 * @returns {string} the current client/browser language key
+	 */
+	function resolveClientLocale() {
+		return getLocale();
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#storageKey
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells the module which key must represent the choosed language by a user in the storage.
+	 *
+	 * @param {string} key A key for the storage.
+	 */
+
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useUrlLoader
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use `$mbTranslateUrlLoader` extension service as loader.
+	 *
+	 * @param {string} url Url
+	 * @param {Object=} options Optional configuration object
+	 */
+	function useUrlLoader(urlPath, options) {
+		this.useLoader('$mbTranslateUrlLoader', angular.extend({
+			url: urlPath
+		}, options));
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useStaticFilesLoader
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use `$mbTranslateStaticFilesLoader` extension service as loader.
+	 *
+	 * @param {Object=} options Optional configuration object
+	 */
+	function useStaticFilesLoader(options) {
+		useLoader('$mbTranslateStaticFilesLoader', options);
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useLoader
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use any other service as loader.
+	 *
+	 * @param {string} loaderFactory Factory name to use
+	 * @param {Object=} options Optional configuration object
+	 */
+	function useLoader(loaderFactory, options) {
+		$loaderFactory = loaderFactory;
+		$loaderOptions = options || {};
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useLocalStorage
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use `$mbTranslateLocalStorage` service as storage layer.
+	 *
+	 */
+	function useLocalStorage() {
+		useStorage('$mbTranslateLocalStorage');
+		return provider
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useCookieStorage
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use `$mbTranslateCookieStorage` service as storage layer.
+	 */
+	function useCookieStorage() {
+		useStorage('$mbTranslateCookieStorage');
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useStorage
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use custom service as storage layer.
+	 */
+	function useStorage(storageFactory) {
+		$storageFactory = storageFactory;
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#storagePrefix
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Sets prefix for storage key.
+	 *
+	 * @param {string} prefix Storage key prefix
+	 */
+	function storagePrefix(prefix) {
+		if (!prefix) {
+			return prefix;
+		}
+		$storagePrefix = prefix;
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useMissingTranslationHandlerLog
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to use built-in log handler when trying to translate
+	 * a translation Id which doesn't exist.
+	 *
+	 * This is actually a shortcut method for `useMissingTranslationHandler()`.
+	 *
+	 */
+	function useMissingTranslationHandlerLog() {
+		return this.useMissingTranslationHandler('$mbTranslateMissingTranslationHandlerLog');
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useMissingTranslationHandler
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Expects a factory name which later gets instantiated with `injector`.
+	 * This method can be used to tell angular-translate to use a custom
+	 * missingTranslationHandler. Just build a factory which returns a function
+	 * and expects a translation id as argument.
+	 *
+	 * Example:
+	 * <pre>
+	 *  app.config(function ($mbTranslateProvider) {
+	 *    $mbTranslateProvider.useMissingTranslationHandler('customHandler');
+	 *  });
+	 *
+	 *  app.factory('customHandler', function (dep1, dep2) {
+	 *    return function (translationId) {
+	 *      // something with translationId and dep1 and dep2
+	 *    };
+	 *  });
+	 * </pre>
+	 *
+	 * @param {string} factory Factory name
+	 */
+	function useMissingTranslationHandler(factory) {
+		$missingTranslationHandlerFactory = factory;
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#usePostCompiling
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * If post compiling is enabled, all translated values will be processed
+	 * again with AngularJS' $compile.
+	 *
+	 * Example:
+	 * <pre>
+	 *  app.config(function ($mbTranslateProvider) {
+	 *    $mbTranslateProvider.usePostCompiling(true);
+	 *  });
+	 * </pre>
+	 *
+	 * @param {string} factory Factory name
+	 */
+	function usePostCompiling(value) {
+		$postCompilingEnabled = !(!value);
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#forceAsyncReload
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * If force async reload is enabled, async loader will always be called
+	 * even if $translationTable already contains the language key, adding
+	 * possible new entries to the $translationTable.
+	 *
+	 * Example:
+	 * <pre>
+	 *  app.config(function ($mbTranslateProvider) {
+	 *    $mbTranslateProvider.forceAsyncReload(true);
+	 *  });
+	 * </pre>
+	 *
+	 * @param {boolean} value - valid values are true or false
+	 */
+	function forceAsyncReload(value) {
+		$forceAsyncReloadEnabled = !(!value);
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#uniformLanguageTag
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate which language tag should be used as a result when determining
+	 * the current browser language.
+	 *
+	 * This setting must be set before invoking {@link $mbTranslateProvider#methods_determinePreferredLanguage determinePreferredLanguage()}.
+	 *
+	 * <pre>
+	 * $mbTranslateProvider
+	 *   .uniformLanguageTag('bcp47')
+	 *   .determinePreferredLanguage()
+	 * </pre>
+	 *
+	 * The resolver currently supports:
+	 * * default
+	 *     (traditionally: hyphens will be converted into underscores, i.e. en-US => en_US)
+	 *     en-US => en_US
+	 *     en_US => en_US
+	 *     en-us => en_us
+	 * * java
+	 *     like default, but the second part will be always in uppercase
+	 *     en-US => en_US
+	 *     en_US => en_US
+	 *     en-us => en_US
+	 * * BCP 47 (RFC 4646 & 4647)
+	 *     EN => en
+	 *     en-US => en-US
+	 *     en_US => en-US
+	 *     en-us => en-US
+	 *     sr-latn => sr-Latn
+	 *     sr-latn-rs => sr-Latn-RS
+	 *
+	 * See also:
+	 * * http://en.wikipedia.org/wiki/IETF_language_tag
+	 * * http://www.w3.org/International/core/langtags/
+	 * * http://tools.ietf.org/html/bcp47
+	 *
+	 * @param {string|object} options - options (or standard)
+	 * @param {string} options.standard - valid values are 'default', 'bcp47', 'java'
+	 */
+	function uniformLanguageTag(options) {
+
+		if (!options) {
+			options = {};
+		} else if (angular.isString(options)) {
+			options = {
+				standard: options
+			};
+		}
+
+		uniformLanguageTagResolver = options.standard;
+
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#determinePreferredLanguage
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Tells angular-translate to try to determine on its own which language key
+	 * to set as preferred language. When `fn` is given, angular-translate uses it
+	 * to determine a language key, otherwise it uses the built-in `getLocale()`
+	 * method.
+	 *
+	 * The `getLocale()` returns a language key in the format `[lang]_[country]` or
+	 * `[lang]` depending on what the browser provides.
+	 *
+	 * Use this method at your own risk, since not all browsers return a valid
+	 * locale (see {@link $mbTranslateProvider#methods_uniformLanguageTag uniformLanguageTag()}).
+	 *
+	 * @param {Function=} fn Function to determine a browser's locale
+	 */
+	function determinePreferredLanguage(fn) {
+
+		var locale = (fn && angular.isFunction(fn)) ? fn() : getLocale();
+
+		if (!$availableLanguageKeys.length) {
+			$preferredLanguage = locale;
+		} else {
+			$preferredLanguage = negotiateLocale(locale) || locale;
+		}
+
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#registerAvailableLanguageKeys
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Registers a set of language keys the app will work with. Use this method in
+	 * combination with
+	 * {@link $mbTranslateProvider#determinePreferredLanguage determinePreferredLanguage}.
+	 * When available languages keys are registered, angular-translate
+	 * tries to find the best fitting language key depending on the browsers locale,
+	 * considering your language key convention.
+	 *
+	 * @param {object} languageKeys Array of language keys the your app will use
+	 * @param {object=} aliases Alias map.
+	 */
+	function registerAvailableLanguageKeys(languageKeys, aliases) {
+		$availableLanguageKeys = languageKeys;
+		if (aliases) {
+			$languageKeyAliases = aliases;
+		}
+		provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#useLoaderCache
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Registers a cache for internal $http based loaders.
+	 * {@link $translationCache $translationCache}.
+	 * When false the cache will be disabled (default). When true or undefined
+	 * the cache will be a default (see $cacheFactory). When an object it will
+	 * be treat as a cache object itself: the usage is $http({cache: cache})
+	 *
+	 * @param {object} cache boolean, string or cache-object
+	 */
+	function useLoaderCache(flag) {
+		if (flag === false) {
+			// disable cache
+			loaderCache = undefined;
+		} else if (flag === true) {
+			// enable cache using AJS defaults
+			loaderCache = true;
+		} else if (typeof (flag) === 'undefined') {
+			// enable cache using default
+			loaderCache = '$translationCache';
+		} else if (flag) {
+			// enable cache using given one (see $cacheFactory)
+			loaderCache = flag;
+		}
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name directivePriority
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Sets the default priority of the translate directive. The standard value is `0`.
+	 * Calling this function without an argument will return the current value.
+	 *
+	 * @param {number} priority for the translate-directive
+	 */
+	function setDirectivePriority(priority) {
+		// setter with chaining
+		directivePriority = priority;
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name statefulFilter
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * Since AngularJS 1.3, filters which are not stateless (depending at the scope)
+	 * have to explicit define this behavior.
+	 * Sets whether the translate filter should be stateful or stateless. The standard value is `true`
+	 * meaning being stateful.
+	 * Calling this function without an argument will return the current value.
+	 *
+	 * @param {boolean} state - defines the state of the filter
+	 */
+	function setStatefulFilter(state) {
+		if (state === undefined) {
+			// getter
+			return statefulFilter;
+		} else {
+			// setter with chaining
+			statefulFilter = state;
+			return service;
+		}
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#postProcess
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * The post processor will be intercept right after the translation result. It can modify the result.
+	 *
+	 * @param {object} fn Function or service name (string) to be called after the translation value has been set / resolved. The function itself will enrich every value being processed and then continue the normal resolver process
+	 */
+	function postProcess(fn) {
+		if (fn) {
+			postProcessFn = fn;
+		} else {
+			postProcessFn = undefined;
+		}
+		return provider;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslateProvider#keepContent
+	 * @methodOf $mbTranslateProvider
+	 *
+	 * @description
+	 * If keepContent is set to true than translate directive will always use innerHTML
+	 * as a default translation
+	 *
+	 * Example:
+	 * <pre>
+	 *  app.config(function ($mbTranslateProvider) {
+	 *    $mbTranslateProvider.keepContent(true);
+	 *  });
+	 * </pre>
+	 *
+	 * @param {boolean} value - valid values are true or false
+	 */
+	function keepContent(value) {
+		$keepContent = !(!value);
+		return provider;
+	}
+
+
+
+	/**
+	 * @name applyNotFoundIndicators
+	 * @private
+	 *
+	 * @description
+	 * Applies not fount indicators to given translation id, if needed.
+	 * This function gets only executed, if a translation id doesn't exist,
+	 * which is why a translation id is expected as argument.
+	 *
+	 * @param {string} translationId Translation id.
+	 * @returns {string} Same as given translation id but applied with not found
+	 * indicators.
+	 */
+	function applyNotFoundIndicators(translationId) {
+		// applying notFoundIndicators
+		if ($notFoundIndicatorLeft) {
+			translationId = [$notFoundIndicatorLeft, translationId].join(' ');
+		}
+		if ($notFoundIndicatorRight) {
+			translationId = [translationId, $notFoundIndicatorRight].join(' ');
+		}
+		return translationId;
+	}
+
+	/**
+	 * @name useLanguage
+	 * @private
+	 *
+	 * @description
+	 * Makes actual use of a language by setting a given language key as used
+	 * language and informs registered interpolators to also use the given
+	 * key as locale.
+	 *
+	 * @param {string} key Locale key.
+	 */
+	function useLanguage(key) {
+		$uses = key;
+
+		// make sure to store new language key before triggering success event
+		if ($storageFactory) {
+			Storage.put($mbTranslate.storageKey(), $uses);
+		}
+
+		$rootScope.$emit('$mbTranslateChangeSuccess', { language: key });
+
+		// inform default interpolator
+		defaultInterpolator.setLocale($uses);
+
+		// inform all others too!
+		angular.forEach(interpolatorHashMap, function(interpolator, id) {
+			interpolatorHashMap[id].setLocale($uses);
+		});
+		$rootScope.$emit('$mbTranslateChangeEnd', { language: key });
+	}
+
+	/**
+	 * @name loadAsync
+	 * @private
+	 *
+	 * @description
+	 * Kicks off registered async loader using `injector` and applies existing
+	 * loader options. When resolved, it updates translation tables accordingly
+	 * or rejects with given language key.
+	 *
+	 * @param {string} key Language key.
+	 * @return {Promise} A promise.
+	 */
+	function loadAsync(key) {
+		if (!key) {
+			throw 'No language key specified for loading.';
+		}
+
+		var deferred = $q.defer();
+
+		$rootScope.$emit('$mbTranslateLoadingStart', { language: key });
+		pendingLoader = true;
+
+		var cache = loaderCache;
+		if (typeof (cache) === 'string') {
+			// getting on-demand instance of loader
+			cache = injector.get(cache);
+		}
+
+		var loaderOptions = angular.extend({}, $loaderOptions, {
+			key: key,
+			$http: angular.extend({}, {
+				cache: cache
+			}, $loaderOptions.$http)
+		});
+
+		var onLoaderSuccess = function(data) {
+			var translationTable = {};
+			$rootScope.$emit('$mbTranslateLoadingSuccess', { language: key });
+
+			if (angular.isArray(data)) {
+				angular.forEach(data, function(table) {
+					angular.extend(translationTable, flatObject(table));
+				});
+			} else {
+				angular.extend(translationTable, flatObject(data));
+			}
+			pendingLoader = false;
+			deferred.resolve({
+				key: key,
+				table: translationTable
+			});
+			$rootScope.$emit('$mbTranslateLoadingEnd', { language: key });
+		};
+
+		var onLoaderError = function(key) {
+			$rootScope.$emit('$mbTranslateLoadingError', { language: key });
+			deferred.reject(key);
+			$rootScope.$emit('$mbTranslateLoadingEnd', { language: key });
+		};
+
+		injector.get($loaderFactory)(loaderOptions)
+			.then(onLoaderSuccess, onLoaderError);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @name getTranslationTable
+	 * @private
+	 *
+	 * @description
+	 * Returns a promise that resolves to the translation table
+	 * or is rejected if an error occurred.
+	 *
+	 * @param langKey
+	 * @returns {Q.promise}
+	 */
+	function getTranslationTable(langKey) {
+		var deferred = $q.defer();
+		if (Object.prototype.hasOwnProperty.call($translationTable, langKey)) {
+			deferred.resolve($translationTable[langKey]);
+		} else if (langPromises[langKey]) {
+			langPromises[langKey].then(function(data) {
+				translations(data.key, data.table);
+				deferred.resolve(data.table);
+			}, deferred.reject);
+		} else {
+			deferred.reject();
+		}
+		return deferred.promise;
+	}
+
+	/**
+	 * @name getFallbackTranslation
+	 * @private
+	 *
+	 * @description
+	 * Returns a promise that will resolve to the translation
+	 * or be rejected if no translation was found for the language.
+	 * This function is currently only used for fallback language translation.
+	 *
+	 * @param langKey The language to translate to.
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param Interpolator
+	 * @param sanitizeStrategy
+	 * @returns {Q.promise}
+	 */
+	function getFallbackTranslation(langKey, translationId, interpolateParams, Interpolator, sanitizeStrategy) {
+		var deferred = $q.defer();
+		getTranslationTable(langKey).then(function(translationTable) {
+			if (Object.prototype.hasOwnProperty.call(translationTable, translationId) && translationTable[translationId] !== null) {
+				Interpolator.setLocale(langKey);
+				var translation = translationTable[translationId];
+				if (translation.substr(0, 2) === '@:') {
+					getFallbackTranslation(langKey, translation.substr(2), interpolateParams, Interpolator, sanitizeStrategy)
+						.then(deferred.resolve, deferred.reject);
+				} else {
+					var interpolatedValue = Interpolator.interpolate(translationTable[translationId], interpolateParams, 'service', sanitizeStrategy, translationId);
+					interpolatedValue = applyPostProcessing(translationId, translationTable[translationId], interpolatedValue, interpolateParams, langKey);
+
+					deferred.resolve(interpolatedValue);
+
+				}
+				Interpolator.setLocale($uses);
+			} else {
+				deferred.reject();
+			}
+		}, deferred.reject);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @name getFallbackTranslationInstant
+	 * @private
+	 *
+	 * @description
+	 * Returns a translation
+	 * This function is currently only used for fallback language translation.
+	 *
+	 * @param langKey The language to translate to.
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param Interpolator
+	 * @param sanitizeStrategy sanitize strategy override
+	 *
+	 * @returns {string} translation
+	 */
+	function getFallbackTranslationInstant(langKey, translationId, interpolateParams, Interpolator, sanitizeStrategy) {
+		var result, translationTable = $translationTable[langKey];
+
+		if (translationTable && Object.prototype.hasOwnProperty.call(translationTable, translationId) && translationTable[translationId] !== null) {
+			Interpolator.setLocale(langKey);
+			result = Interpolator.interpolate(translationTable[translationId], interpolateParams, 'filter', sanitizeStrategy, translationId);
+			result = applyPostProcessing(translationId, translationTable[translationId], result, interpolateParams, langKey, sanitizeStrategy);
+			// workaround for TrustedValueHolderType
+			if (!angular.isString(result) && angular.isFunction(result.$$unwrapTrustedValue)) {
+				var result2 = result.$$unwrapTrustedValue();
+				if (result2.substr(0, 2) === '@:') {
+					return getFallbackTranslationInstant(langKey, result2.substr(2), interpolateParams, Interpolator, sanitizeStrategy);
+				}
+			} else if (result.substr(0, 2) === '@:') {
+				return getFallbackTranslationInstant(langKey, result.substr(2), interpolateParams, Interpolator, sanitizeStrategy);
+			}
+			Interpolator.setLocale($uses);
+		}
+
+		return result;
+	}
+
+
+	/**
+	 * @name translateByHandler
+	 * @private
+	 *
+	 * Translate by missing translation handler.
+	 *
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param defaultTranslationText
+	 * @param sanitizeStrategy sanitize strategy override
+	 *
+	 * @returns translation created by $missingTranslationHandler or translationId is $missingTranslationHandler is
+	 * absent
+	 */
+	function translateByHandler(translationId, interpolateParams, defaultTranslationText, sanitizeStrategy) {
+		// If we have a handler factory - we might also call it here to determine if it provides
+		// a default text for a translationid that can't be found anywhere in our tables
+		if ($missingTranslationHandlerFactory) {
+			return injector.get($missingTranslationHandlerFactory)(translationId, $uses, interpolateParams, defaultTranslationText, sanitizeStrategy);
+		} else {
+			return translationId;
+		}
+	}
+
+	/**
+	 * @name resolveForFallbackLanguage
+	 * @private
+	 *
+	 * Recursive helper function for fallbackTranslation that will sequentially look
+	 * for a translation in the fallbackLanguages starting with fallbackLanguageIndex.
+	 *
+	 * @param fallbackLanguageIndex
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param Interpolator
+	 * @param defaultTranslationText
+	 * @param sanitizeStrategy
+	 * @returns {Q.promise} Promise that will resolve to the translation.
+	 */
+	function resolveForFallbackLanguage(fallbackLanguageIndex, translationId, interpolateParams, Interpolator, defaultTranslationText, sanitizeStrategy) {
+		var deferred = $q.defer();
+
+		if (fallbackLanguageIndex < $fallbackLanguage.length) {
+			var langKey = $fallbackLanguage[fallbackLanguageIndex];
+			getFallbackTranslation(langKey, translationId, interpolateParams, Interpolator, sanitizeStrategy).then(
+				function(data) {
+					deferred.resolve(data);
+				},
+				function() {
+					// Look in the next fallback language for a translation.
+					// It delays the resolving by passing another promise to resolve.
+					return resolveForFallbackLanguage(fallbackLanguageIndex + 1, translationId, interpolateParams, Interpolator, defaultTranslationText, sanitizeStrategy).then(deferred.resolve, deferred.reject);
+				}
+			);
+		} else {
+			// No translation found in any fallback language
+			// if a default translation text is set in the directive, then return this as a result
+			if (defaultTranslationText) {
+				deferred.resolve(defaultTranslationText);
+			} else {
+				var missingTranslationHandlerTranslation = translateByHandler(translationId, interpolateParams, defaultTranslationText);
+
+				// if no default translation is set and an error handler is defined, send it to the handler
+				// and then return the result if it isn't undefined
+				if ($missingTranslationHandlerFactory && missingTranslationHandlerTranslation) {
+					deferred.resolve(missingTranslationHandlerTranslation);
+				} else {
+					deferred.reject(applyNotFoundIndicators(translationId));
+				}
+			}
+		}
+		return deferred.promise;
+	}
+
+	/**
+	 * @name resolveForFallbackLanguageInstant
+	 * @private
+	 *
+	 * Recursive helper function for fallbackTranslation that will sequentially look
+	 * for a translation in the fallbackLanguages starting with fallbackLanguageIndex.
+	 *
+	 * @param fallbackLanguageIndex
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param Interpolator
+	 * @param sanitizeStrategy
+	 * @returns {string} translation
+	 */
+	function resolveForFallbackLanguageInstant(fallbackLanguageIndex, translationId, interpolateParams, Interpolator, sanitizeStrategy) {
+		var result;
+
+		if (fallbackLanguageIndex < $fallbackLanguage.length) {
+			var langKey = $fallbackLanguage[fallbackLanguageIndex];
+			result = getFallbackTranslationInstant(langKey, translationId, interpolateParams, Interpolator, sanitizeStrategy);
+			if (!result && result !== '') {
+				result = resolveForFallbackLanguageInstant(fallbackLanguageIndex + 1, translationId, interpolateParams, Interpolator);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Translates with the usage of the fallback languages.
+	 *
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param Interpolator
+	 * @param defaultTranslationText
+	 * @param sanitizeStrategy
+	 * @returns {Q.promise} Promise, that resolves to the translation.
+	 */
+	function fallbackTranslation(translationId, interpolateParams, Interpolator, defaultTranslationText, sanitizeStrategy) {
+		// Start with the fallbackLanguage with index 0
+		return resolveForFallbackLanguage((startFallbackIteration > 0 ? startFallbackIteration : fallbackIndex), translationId, interpolateParams, Interpolator, defaultTranslationText, sanitizeStrategy);
+	}
+
+	/**
+	 * Translates with the usage of the fallback languages.
+	 *
+	 * @param translationId
+	 * @param interpolateParams
+	 * @param Interpolator
+	 * @param sanitizeStrategy
+	 * @returns {String} translation
+	 */
+	function fallbackTranslationInstant(translationId, interpolateParams, Interpolator, sanitizeStrategy) {
+		// Start with the fallbackLanguage with index 0
+		return resolveForFallbackLanguageInstant((startFallbackIteration > 0 ? startFallbackIteration : fallbackIndex), translationId, interpolateParams, Interpolator, sanitizeStrategy);
+	};
+
+	function determineTranslation(translationId, interpolateParams, interpolationId, defaultTranslationText, uses, sanitizeStrategy) {
+
+		var deferred = $q.defer();
+
+		var table = uses ? $translationTable[uses] : $translationTable,
+			Interpolator = (interpolationId) ? interpolatorHashMap[interpolationId] : defaultInterpolator;
+
+		// if the translation id exists, we can just interpolate it
+		if (table && Object.prototype.hasOwnProperty.call(table, translationId) && table[translationId] !== null) {
+			var translation = table[translationId];
+
+			// If using link, rerun $mbTranslate with linked translationId and return it
+			if (translation.substr(0, 2) === '@:') {
+
+				$mbTranslate(translation.substr(2), interpolateParams, interpolationId, defaultTranslationText, uses, sanitizeStrategy)
+					.then(deferred.resolve, deferred.reject);
+			} else {
+				//
+				var resolvedTranslation = Interpolator.interpolate(translation, interpolateParams, 'service', sanitizeStrategy, translationId);
+				resolvedTranslation = applyPostProcessing(translationId, translation, resolvedTranslation, interpolateParams, uses);
+				deferred.resolve(resolvedTranslation);
+			}
+		} else {
+			var missingTranslationHandlerTranslation;
+			// for logging purposes only (as in $mbTranslateMissingTranslationHandlerLog), value is not returned to promise
+			if ($missingTranslationHandlerFactory && !pendingLoader) {
+				missingTranslationHandlerTranslation = translateByHandler(translationId, interpolateParams, defaultTranslationText);
+			}
+
+			// since we couldn't translate the inital requested translation id,
+			// we try it now with one or more fallback languages, if fallback language(s) is
+			// configured.
+			if (uses && $fallbackLanguage && $fallbackLanguage.length) {
+				fallbackTranslation(translationId, interpolateParams, Interpolator, defaultTranslationText, sanitizeStrategy)
+					.then(function(translation) {
+						deferred.resolve(translation);
+					}, function(_translationId) {
+						deferred.reject(applyNotFoundIndicators(_translationId));
+					});
+			} else if ($missingTranslationHandlerFactory && !pendingLoader && missingTranslationHandlerTranslation) {
+				// looks like the requested translation id doesn't exists.
+				// Now, if there is a registered handler for missing translations and no
+				// asyncLoader is pending, we execute the handler
+				if (defaultTranslationText) {
+					deferred.resolve(defaultTranslationText);
+				} else {
+					deferred.resolve(missingTranslationHandlerTranslation);
+				}
+			} else {
+				if (defaultTranslationText) {
+					deferred.resolve(defaultTranslationText);
+				} else {
+					deferred.reject(applyNotFoundIndicators(translationId));
+				}
+			}
+		}
+		return deferred.promise;
+	}
+
+	function determineTranslationInstant(translationId, interpolateParams, interpolationId, uses, sanitizeStrategy) {
+
+		var result, table = uses ? $translationTable[uses] : $translationTable,
+			Interpolator = defaultInterpolator;
+
+		// if the interpolation id exists use custom interpolator
+		if (interpolatorHashMap && Object.prototype.hasOwnProperty.call(interpolatorHashMap, interpolationId)) {
+			Interpolator = interpolatorHashMap[interpolationId];
+		}
+
+		// if the translation id exists, we can just interpolate it
+		if (table && Object.prototype.hasOwnProperty.call(table, translationId) && table[translationId] !== null) {
+			var translation = table[translationId];
+
+			// If using link, rerun $mbTranslate with linked translationId and return it
+			if (translation.substr(0, 2) === '@:') {
+				result = determineTranslationInstant(translation.substr(2), interpolateParams, interpolationId, uses, sanitizeStrategy);
+			} else {
+				result = Interpolator.interpolate(translation, interpolateParams, 'filter', sanitizeStrategy, translationId);
+				result = applyPostProcessing(translationId, translation, result, interpolateParams, uses, sanitizeStrategy);
+			}
+		} else {
+			var missingTranslationHandlerTranslation;
+			// for logging purposes only (as in $mbTranslateMissingTranslationHandlerLog), value is not returned to promise
+			if ($missingTranslationHandlerFactory && !pendingLoader) {
+				missingTranslationHandlerTranslation = translateByHandler(translationId, interpolateParams, sanitizeStrategy);
+			}
+
+			// since we couldn't translate the inital requested translation id,
+			// we try it now with one or more fallback languages, if fallback language(s) is
+			// configured.
+			if (uses && $fallbackLanguage && $fallbackLanguage.length) {
+				fallbackIndex = 0;
+				result = fallbackTranslationInstant(translationId, interpolateParams, Interpolator, sanitizeStrategy);
+			} else if ($missingTranslationHandlerFactory && !pendingLoader && missingTranslationHandlerTranslation) {
+				// looks like the requested translation id doesn't exists.
+				// Now, if there is a registered handler for missing translations and no
+				// asyncLoader is pending, we execute the handler
+				result = missingTranslationHandlerTranslation;
+			} else {
+				result = applyNotFoundIndicators(translationId);
+			}
+		}
+
+		return result;
+	}
+
+	function clearNextLangAndPromise(key) {
+		if ($nextLang === key) {
+			$nextLang = undefined;
+		}
+		langPromises[key] = undefined;
+	}
+
+	function applyPostProcessing(translationId, translation, resolvedTranslation, interpolateParams, uses, sanitizeStrategy) {
+		var fn = postProcessFn;
+
+		if (fn) {
+
+			if (typeof (fn) === 'string') {
+				// getting on-demand instance
+				fn = injector.get(fn);
+			}
+			if (fn) {
+				return fn(translationId, translation, resolvedTranslation, interpolateParams, uses, sanitizeStrategy);
+			}
+		}
+
+		return resolvedTranslation;
+	}
+
+	function loadTranslationsIfMissing(key) {
+		if (!$translationTable[key] && $loaderFactory && !langPromises[key]) {
+			langPromises[key] = loadAsync(key).then(function(translation) {
+				translations(translation.key, translation.table);
+				return translation;
+			});
+		}
+	}
+
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#getAvailableLanguageKeys
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * This function simply returns the registered language keys being defined before in the config phase
+	 * With this, an application can use the array to provide a language selection dropdown or similar
+	 * without any additional effort
+	 *
+	 * @returns {object} returns the list of possibly registered language keys and mapping or null if not defined
+	 */
+	function getAvailableLanguageKeys() {
+		if ($availableLanguageKeys.length > 0) {
+			return $availableLanguageKeys;
+		}
+		return null;
+	}
+
+
+
+	/**
+	 * @ngdoc function
+	 * @name getTranslationTable
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns translation table by the given language key.
+	 *
+	 * Unless a language is provided it returns a translation table of the current one.
+	 * Note: If translation dictionary is currently downloading or in progress
+	 * it will return null.
+	 *
+	 * @param {string} langKey A token which represents a translation id
+	 *
+	 * @return {object} a copy of angular-translate $translationTable
+	 */
+	function getTranslationTable(langKey) {
+		langKey = langKey || use();
+		if (langKey && $translationTable[langKey]) {
+			return angular.copy($translationTable[langKey]);
+		}
+		//			return null;
+	}
+
+
+
+	/**
+	 * @ngdoc function
+	 * @name preferredLanguage
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns the language key for the preferred language.
+	 *
+	 * @param {string} langKey language String or Array to be used as preferredLanguage (changing at runtime)
+	 *
+	 * @return {string} preferred language key
+	 */
+
+	/**
+	 * @ngdoc function
+	 * @name loakClassName
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns the configured class name for `mb-translate-cloak` directive.
+	 *
+	 * @return {string} cloakClassName
+	 */
+	function cloakClassName() {
+		return $cloakClassName;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name nestedObjectDelimeter
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns the configured delimiter for nested namespaces.
+	 *
+	 * @return {string} nestedObjectDelimeter
+	 */
+	function nestedObjectDelimeter() {
+		return $nestedObjectDelimeter;
+	}
+
+	/**
+	 @ngdoc function
+	 @name fallbackLanguage
+	 @methodOf $mbTranslate
+	 
+	 @description
+	 Returns the language key for the fallback languages or sets a new fallback stack.
+	 It is recommended to call this before {@link $mbTranslateProvider#preferredLanguage preferredLanguage()}.
+	 
+	 @param {string=} langKey language String or Array of fallback languages to be used (to change stack at runtime)
+	 
+	 @return {string||array} fallback language key
+	 */
+	function fallbackLanguage(langKey) {
+		if (langKey !== undefined && langKey !== null) {
+			fallbackStack(langKey);
+
+			// as we might have an async loader initiated and a new translation language might have been defined
+			// we need to add the promise to the stack also. So - iterate.
+			if ($loaderFactory) {
+				if ($fallbackLanguage && $fallbackLanguage.length) {
+					for (var i = 0, len = $fallbackLanguage.length; i < len; i++) {
+						if (!langPromises[$fallbackLanguage[i]]) {
+							langPromises[$fallbackLanguage[i]] = loadAsync($fallbackLanguage[i]);
+						}
+					}
+				}
+			}
+			$mbTranslate.use($mbTranslate.use());
+		}
+		if ($fallbackWasString) {
+			return $fallbackLanguage[0];
+		} else {
+			return $fallbackLanguage;
+		}
+	}
+
+	/**
+	 @ngdoc function
+	 @name useFallbackLanguage
+	 @methodOf $mbTranslate
+	 
+	 @description
+	 Sets the first key of the fallback language stack to be used for translation.
+	 Therefore all languages in the fallback array BEFORE this key will be skipped!
+	 
+	 @param {string=} langKey Contains the langKey the iteration shall start with. Set to false if you want to
+	 get back to the whole stack
+	 */
+	function useFallbackLanguage(langKey) {
+		if (langKey !== undefined && langKey !== null) {
+			if (!langKey) {
+				startFallbackIteration = 0;
+			} else {
+				var langKeyPosition = indexOf($fallbackLanguage, langKey);
+				if (langKeyPosition > -1) {
+					startFallbackIteration = langKeyPosition;
+				}
+			}
+		}
+	}
+
+	/**
+	@ngdoc function
+	@name $mbTranslate#proposedLanguage
+	@methodOf $mbTranslate
+	
+	@description
+	Returns the language key of language that is currently loaded asynchronously.
+	
+	@return {string} language key
+	 */
+	function proposedLanguage() {
+		return $nextLang;
+	}
+
+	/**
+	@ngdoc function
+	@name $mbTranslate#storage
+	@methodOf $mbTranslate
+	
+	@description
+	Returns registered storage.
+	
+	@return {object} Storage
+	 */
+	function storage() {
+		return Storage;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#negotiateLocale
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns a language key based on available languages and language aliases. If a
+	 * language key cannot be resolved, returns undefined.
+	 *
+	 * If no or a falsy key is given, returns undefined.
+	 *
+	 * @param {string} [key] Language key
+	 * @return {string|undefined} Language key or undefined if no language key is found.
+	 */
+
+	/**
+	@ngdoc function
+	@name use
+	@methodOf $mbTranslate
+	
+	@description
+	Tells angular-translate which language to use by given language key. This method is
+	used to change language at runtime. It also takes care of storing the language
+	key in a configured store to let your app remember the choosed language.
+	
+	When trying to 'use' a language which isn't available it tries to load it
+	asynchronously with registered loaders.
+	
+	Returns promise object with loaded language file data or string of the currently used language.
+	
+	If no or a falsy key is given it returns the currently used language key.
+	The returned string will be ```undefined``` if setting up $mbTranslate hasn't finished.
+	
+	@example
+	$mbTranslate.use("en_US").then(function(data){
+	  $scope.text = $mbTranslate("HELLO");
+	});
+	
+	@param {string=} key Language key
+	@return {object|string} Promise with loaded language data or the language key if a falsy param was given.
+	 */
+	function use(key) {
+		if (!key) {
+			return $uses;
+		}
+
+		var deferred = $q.defer();
+		deferred.promise.then(null, angular.noop); // AJS "Possibly unhandled rejection"
+
+		$rootScope.$emit('$mbTranslateChangeStart', { language: key });
+
+		// Try to get the aliased language key
+		var aliasedKey = negotiateLocale(key);
+		// Ensure only registered language keys will be loaded
+		if ($availableLanguageKeys.length > 0 && !aliasedKey) {
+			return $q.reject(key);
+		}
+
+		if (aliasedKey) {
+			key = aliasedKey;
+		}
+
+		// if there isn't a translation table for the language we've requested,
+		// we load it asynchronously
+		$nextLang = key;
+		if (($forceAsyncReloadEnabled || !$translationTable[key]) && $loaderFactory && !langPromises[key]) {
+			langPromises[key] = loadAsync(key).then(function(translation) {
+				translations(translation.key, translation.table);
+				deferred.resolve(translation.key);
+				if ($nextLang === key) {
+					useLanguage(translation.key);
+				}
+				return translation;
+			}, function(key) {
+				$rootScope.$emit('$mbTranslateChangeError', { language: key });
+				deferred.reject(key);
+				$rootScope.$emit('$mbTranslateChangeEnd', { language: key });
+				return $q.reject(key);
+			});
+			langPromises[key]['finally'](function() {
+				clearNextLangAndPromise(key);
+			})['catch'](angular.noop); // we don't care about errors (clearing)
+		} else if (langPromises[key]) {
+			// we are already loading this asynchronously
+			// resolve our new deferred when the old langPromise is resolved
+			langPromises[key].then(function(translation) {
+				if ($nextLang === translation.key) {
+					useLanguage(translation.key);
+				}
+				deferred.resolve(translation.key);
+				return translation;
+			}, function(key) {
+				// find first available fallback language if that request has failed
+				if (!$uses && $fallbackLanguage && $fallbackLanguage.length > 0 && $fallbackLanguage[0] !== key) {
+					return $mbTranslate.use($fallbackLanguage[0]).then(deferred.resolve, deferred.reject);
+				} else {
+					return deferred.reject(key);
+				}
+			});
+		} else {
+			deferred.resolve(key);
+			useLanguage(key);
+		}
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#resolveClientLocale
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * This returns the current browser/client's language key. The result is processed with the configured uniform tag resolver.
+	 *
+	 * @returns {string} the current client/browser language key
+	 */
+	//	function resolveClientLocale() {
+	//		return getLocale();
+	//	}
+
+	/**
+	 * @ngdoc function
+	 * @name storageKey
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns the key for the storage.
+	 *
+	 * @return {string} storage key
+	 */
+	//		function storageKey() {
+	//			return storageKey();
+	//		}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#isPostCompilingEnabled
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns whether post compiling is enabled or not
+	 *
+	 * @return {bool} storage key
+	 */
+	function isPostCompilingEnabled() {
+		return $postCompilingEnabled;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#isForceAsyncReloadEnabled
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns whether force async reload is enabled or not
+	 *
+	 * @return {boolean} forceAsyncReload value
+	 */
+	function isForceAsyncReloadEnabled() {
+		return $forceAsyncReloadEnabled;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#isKeepContent
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns whether keepContent or not
+	 *
+	 * @return {boolean} keepContent value
+	 */
+	function isKeepContent() {
+		return $keepContent;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#refresh
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
+	 * the module will drop all existent translation tables and load new version of those which
+	 * are currently in use.
+	 *
+	 * Refresh means that the module will drop target translation table and try to load it again.
+	 *
+	 * In case there are no loaders registered the refresh() method will throw an Error.
+	 *
+	 * If the module is able to refresh translation tables refresh() method will broadcast
+	 * $mbTranslateRefreshStart and $mbTranslateRefreshEnd events.
+	 *
+	 * @example
+	 * // this will drop all currently existent translation tables and reload those which are
+	 * // currently in use
+	 * $mbTranslate.refresh();
+	 * // this will refresh a translation table for the en_US language
+	 * $mbTranslate.refresh('en_US');
+	 *
+	 * @param {string} langKey A language key of the table, which has to be refreshed
+	 *
+	 * @return {promise} Promise, which will be resolved in case a translation tables refreshing
+	 * process is finished successfully, and reject if not.
+	 */
+	function refresh(langKey) {
+		if (!$loaderFactory) {
+			throw new Error('Couldn\'t refresh translation table, no loader registered!');
+		}
+
+		$rootScope.$emit('$mbTranslateRefreshStart', { language: langKey });
+
+		var deferred = $q.defer(), updatedLanguages = {};
+
+		//private helper
+		function loadNewData(languageKey) {
+			var promise = loadAsync(languageKey);
+			//update the load promise cache for this language
+			langPromises[languageKey] = promise;
+			//register a data handler for the promise
+			promise.then(function(data) {
+				//clear the cache for this language
+				$translationTable[languageKey] = {};
+				//add the new data for this language
+				translations(languageKey, data.table);
+				//track that we updated this language
+				updatedLanguages[languageKey] = true;
+			},
+				//handle rejection to appease the $q validation
+				angular.noop);
+			return promise;
+		}
+
+		//set up post-processing
+		deferred.promise.then(
+			function() {
+				for (var key in $translationTable) {
+					if ($translationTable.hasOwnProperty(key)) {
+						//delete cache entries that were not updated
+						if (!(key in updatedLanguages)) {
+							delete $translationTable[key];
+						}
+					}
+				}
+				if ($uses) {
+					useLanguage($uses);
+				}
+			},
+			//handle rejection to appease the $q validation
+			angular.noop
+		)['finally'](
+			function() {
+				$rootScope.$emit('$mbTranslateRefreshEnd', { language: langKey });
+			}
+		);
+
+		if (!langKey) {
+			// if there's no language key specified we refresh ALL THE THINGS!
+			var languagesToReload = $fallbackLanguage && $fallbackLanguage.slice() || [];
+			if ($uses && languagesToReload.indexOf($uses) === -1) {
+				languagesToReload.push($uses);
+			}
+			$q.all(languagesToReload.map(loadNewData)).then(deferred.resolve, deferred.reject);
+
+		} else if ($translationTable[langKey]) {
+			//just refresh the specified language cache
+			loadNewData(langKey).then(deferred.resolve, deferred.reject);
+
+		} else {
+			deferred.reject();
+		}
+
+		return deferred.promise;
+	};
+
+	/**
+	 * @ngdoc function
+	 * @name instant
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns a translation instantly from the internal state of loaded translation. All rules
+	 * regarding the current language, the preferred language of even fallback languages will be
+	 * used except any promise handling. If a language was not found, an asynchronous loading
+	 * will be invoked in the background.
+	 *
+	 * @param {string|array} translationId A token which represents a translation id
+	 *                                     This can be optionally an array of translation ids which
+	 *                                     results that the function's promise returns an object where
+	 *                                     each key is the translation id and the value the translation.
+	 * @param {object=} [interpolateParams={}] Params
+	 * @param {string=} [interpolationId=undefined] The id of the interpolation to use (use default unless set via useInterpolation())
+	 * @param {string=} [forceLanguage=false] A language to be used instead of the current language
+	 * @param {string=} [sanitizeStrategy=undefined] force sanitize strategy for this call instead of using the configured one (use default unless set)
+	 *
+	 * @return {string|object} translation
+	 */
+	function instant(translationId, interpolateParams, interpolationId, forceLanguage, sanitizeStrategy) {
+
+		// we don't want to re-negotiate $uses
+		var uses = (forceLanguage && forceLanguage !== $uses) ? // we don't want to re-negotiate $uses
+			(negotiateLocale(forceLanguage) || forceLanguage) : $uses;
+
+		// Detect undefined and null values to shorten the execution and prevent exceptions
+		if (translationId === null || angular.isUndefined(translationId)) {
+			return translationId;
+		}
+
+		// Check forceLanguage is present
+		if (forceLanguage) {
+			loadTranslationsIfMissing(forceLanguage);
+		}
+
+		// Duck detection: If the first argument is an array, a bunch of translations was requested.
+		// The result is an object.
+		if (angular.isArray(translationId)) {
+			var results = {};
+			for (var i = 0, c = translationId.length; i < c; i++) {
+				results[translationId[i]] = $mbTranslate.instant(translationId[i], interpolateParams, interpolationId, forceLanguage, sanitizeStrategy);
+			}
+			return results;
+		}
+
+		// We discarded unacceptable values. So we just need to verify if translationId is empty String
+		if (angular.isString(translationId) && translationId.length < 1) {
+			return translationId;
+		}
+
+		// trim off any whitespace
+		if (translationId) {
+			translationId = trim(translationId);
+		}
+
+		var result, possibleLangKeys = [];
+		if ($preferredLanguage) {
+			possibleLangKeys.push($preferredLanguage);
+		}
+		if (uses) {
+			possibleLangKeys.push(uses);
+		}
+		if ($fallbackLanguage && $fallbackLanguage.length) {
+			possibleLangKeys = possibleLangKeys.concat($fallbackLanguage);
+		}
+		for (var j = 0, d = possibleLangKeys.length; j < d; j++) {
+			var possibleLangKey = possibleLangKeys[j];
+			if ($translationTable[possibleLangKey]) {
+				if (typeof $translationTable[possibleLangKey][translationId] !== 'undefined') {
+					result = determineTranslationInstant(translationId, interpolateParams, interpolationId, uses, sanitizeStrategy);
+				}
+			}
+			if (typeof result !== 'undefined') {
+				break;
+			}
+		}
+
+		if (!result && result !== '') {
+			if ($notFoundIndicatorLeft || $notFoundIndicatorRight) {
+				result = applyNotFoundIndicators(translationId);
+			} else {
+				// Return translation of default interpolator if not found anything.
+				result = defaultInterpolator.interpolate(translationId, interpolateParams, 'filter', sanitizeStrategy);
+
+				// looks like the requested translation id doesn't exists.
+				// Now, if there is a registered handler for missing translations and no
+				// asyncLoader is pending, we execute the handler
+				var missingTranslationHandlerTranslation;
+				if ($missingTranslationHandlerFactory && !pendingLoader) {
+					missingTranslationHandlerTranslation = translateByHandler(translationId, interpolateParams, sanitizeStrategy);
+				}
+
+				if ($missingTranslationHandlerFactory && !pendingLoader && missingTranslationHandlerTranslation) {
+					result = missingTranslationHandlerTranslation;
+				}
+			}
+		}
+
+		return result;
+	};
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#loaderCache
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns the defined loaderCache.
+	 *
+	 * @return {boolean|string|object} current value of loaderCache
+	 */
+	function loaderCache() {
+		return loaderCache;
+	}
+
+	// internal purpose only
+	function getDirectivePriority() {
+		return directivePriority;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#isReady
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Returns whether the service is "ready" to translate (i.e. loading 1st language).
+	 *
+	 * See also {@link $mbTranslate#methods_onReady onReady()}.
+	 *
+	 * @return {boolean} current value of ready
+	 */
+	function isReady() {
+		return $isReady;
+	}
+
+	/**
+	 * @ngdoc function
+	 * @name $mbTranslate#onReady
+	 * @methodOf $mbTranslate
+	 *
+	 * @description
+	 * Calls the function provided or resolved the returned promise after the service is "ready" to translate (i.e. loading 1st language).
+	 *
+	 * See also {@link $mbTranslate#methods_isReady isReady()}.
+	 *
+	 * @param {Function=} fn Function to invoke when service is ready
+	 * @return {object} Promise resolved when service is ready
+	 */
+	function onReady(fn) {
+		var deferred = $q.defer();
+		if (angular.isFunction(fn)) {
+			deferred.promise.then(fn);
+		}
+		if ($isReady) {
+			deferred.resolve();
+		} else {
+			$onReadyDeferred.promise.then(deferred.resolve);
+		}
+		return deferred.promise;
+	}
+
+
+	//-----------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------
+
+	service = function(translationId, interpolateParams, interpolationId, defaultTranslationText, forceLanguage, sanitizeStrategy) {
+		if (!$uses && $preferredLanguage) {
+			$uses = $preferredLanguage;
+		}
+		var uses = (forceLanguage && forceLanguage !== $uses) ? // we don't want to re-negotiate $uses
+			(negotiateLocale(forceLanguage) || forceLanguage) : $uses;
+
+		// Check forceLanguage is present
+		if (forceLanguage) {
+			loadTranslationsIfMissing(forceLanguage);
+		}
+
+		// Duck detection: If the first argument is an array, a bunch of translations was requested.
+		// The result is an object.
+		if (angular.isArray(translationId)) {
+			// Inspired by Q.allSettled by Kris Kowal
+			// https://github.com/kriskowal/q/blob/b0fa72980717dc202ffc3cbf03b936e10ebbb9d7/q.js#L1553-1563
+			// This transforms all promises regardless resolved or rejected
+			var translateAll = function(translationIds) {
+				var results = {}; // storing the actual results
+				var promises = []; // promises to wait for
+				// Wraps the promise a) being always resolved and b) storing the link id->value
+				var translate = function(translationId) {
+					var deferred = $q.defer();
+					var regardless = function(value) {
+						results[translationId] = value;
+						deferred.resolve([translationId, value]);
+					};
+					// we don't care whether the promise was resolved or rejected; just store the values
+					$mbTranslate(translationId, interpolateParams, interpolationId, defaultTranslationText, forceLanguage, sanitizeStrategy).then(regardless, regardless);
+					return deferred.promise;
+				};
+				for (var i = 0, c = translationIds.length; i < c; i++) {
+					promises.push(translate(translationIds[i]));
+				}
+				// wait for all (including storing to results)
+				return $q.all(promises).then(function() {
+					// return the results
+					return results;
+				});
+			};
+			return translateAll(translationId);
+		}
+
+		var deferred = $q.defer();
+
+		// trim off any whitespace
+		if (translationId) {
+			translationId = trim(translationId);
+		}
+
+		var promiseToWaitFor = (function() {
+			var promise = langPromises[uses] || langPromises[$preferredLanguage];
+
+			fallbackIndex = 0;
+
+			if ($storageFactory && !promise) {
+				// looks like there's no pending promise for $preferredLanguage or
+				// $uses. Maybe there's one pending for a language that comes from
+				// storage.
+				var langKey = Storage.get($storageKey);
+				promise = langPromises[langKey];
+
+				if ($fallbackLanguage && $fallbackLanguage.length) {
+					var index = indexOf($fallbackLanguage, langKey);
+					// maybe the language from storage is also defined as fallback language
+					// we increase the fallback language index to not search in that language
+					// as fallback, since it's probably the first used language
+					// in that case the index starts after the first element
+					fallbackIndex = (index === 0) ? 1 : 0;
+
+					// but we can make sure to ALWAYS fallback to preferred language at least
+					if (indexOf($fallbackLanguage, $preferredLanguage) < 0) {
+						$fallbackLanguage.push($preferredLanguage);
+					}
+				}
+			}
+			return promise;
+		}());
+
+		if (!promiseToWaitFor) {
+			// no promise to wait for? okay. Then there's no loader registered
+			// nor is a one pending for language that comes from storage.
+			// We can just translate.
+			determineTranslation(translationId, interpolateParams, interpolationId, defaultTranslationText, uses, sanitizeStrategy).then(deferred.resolve, deferred.reject);
+		} else {
+			var promiseResolved = function() {
+				// $uses may have changed while waiting
+				if (!forceLanguage) {
+					uses = $uses;
+				}
+				determineTranslation(translationId, interpolateParams, interpolationId, defaultTranslationText, uses, sanitizeStrategy).then(deferred.resolve, deferred.reject);
+			};
+			promiseToWaitFor['finally'](promiseResolved)['catch'](angular.noop); // we don't care about errors here, already handled
+		}
+		return deferred.promise;
+	};
+
+	service = _.assign(service, {
+		setupPreferredLanguage: setupPreferredLanguage,
+		preferredLanguage: function() {
+			return $preferredLanguage;
+		},
+		cloakClassName: cloakClassName,
+		nestedObjectDelimeter: nestedObjectDelimeter,
+		fallbackLanguage: fallbackLanguage,
+		useFallbackLanguage: useFallbackLanguage,
+		proposedLanguage: proposedLanguage,
+		storage: storage,
+		negotiateLocale: negotiateLocale,
+		use: use,
+		storageKey: function() {
+			if ($storagePrefix) {
+				return $storagePrefix + $storageKey;
+			}
+			return $storageKey;
+		},
+		resolveClientLocale: resolveClientLocale,
+		isPostCompilingEnabled: isPostCompilingEnabled,
+		isForceAsyncReloadEnabled: isForceAsyncReloadEnabled,
+		isKeepContent: isKeepContent,
+		refresh: refresh,
+		instant: instant,
+		loaderCache: loaderCache,
+		statefulFilter: setStatefulFilter,
+		getDirectivePriority: getDirectivePriority,
+		isReady: isReady,
+		onReady: onReady,
+		getAvailableLanguageKeys: getAvailableLanguageKeys,
+		getTranslationTable: getTranslationTable,
+	});
+	provider = {
+		$get: function($injector) {
+			injector = $injector;
+			defaultInterpolator = injector.get($interpolationFactory || '$mbTranslateDefaultInterpolation');
+			$q = injector.get('$q');
+			$rootScope = injector.get('$rootScope');
+
+
+			$onReadyDeferred = $q.defer();
+			$onReadyDeferred.promise.then(function() {
+				$isReady = true;
+			});
+			if ($storageFactory) {
+				Storage = injector.get($storageFactory);
+
+				if (!Storage.get || !Storage.put) {
+					throw new Error('Couldn\'t use storage \'' + $storageFactory + '\', missing get() or put() method!');
+				}
+			}
+
+			// if we have additional interpolations that were added via
+			// $mbTranslateProvider.addInterpolation(), we have to map'em
+			if ($interpolatorFactories.length) {
+				angular.forEach($interpolatorFactories, function(interpolatorFactory) {
+					var interpolator = injector.get(interpolatorFactory);
+					// setting initial locale for each interpolation service
+					interpolator.setLocale($preferredLanguage || $uses);
+					// make'em recognizable through id
+					interpolatorHashMap[interpolator.getInterpolationIdentifier()] = interpolator;
+				});
+			}
+
+			// Whenever $mbTranslateReady is being fired, this will ensure the state of $isReady
+			var globalOnReadyListener = $rootScope.$on('$mbTranslateReady', function() {
+				$onReadyDeferred.resolve();
+				globalOnReadyListener(); // one time only
+				globalOnReadyListener = null;
+			});
+			var globalOnChangeListener = $rootScope.$on('$mbTranslateChangeEnd', function() {
+				$onReadyDeferred.resolve();
+				globalOnChangeListener(); // one time only
+				globalOnChangeListener = null;
+			});
+
+			if ($loaderFactory) {
+				// If at least one async loader is defined and there are no
+				// (default) translations available we should try to load them.
+				if (angular.equals($translationTable, {})) {
+					if (service.use()) {
+						service.use(service.use());
+					}
+				}
+				// Also, if there are any fallback language registered, we start
+				// loading them asynchronously as soon as we can.
+				if ($fallbackLanguage && $fallbackLanguage.length) {
+					var processAsyncResult = function(translation) {
+						translations(translation.key, translation.table);
+						$rootScope.$emit('$mbTranslateChangeEnd', { language: translation.key });
+						return translation;
+					};
+					for (var i = 0, len = $fallbackLanguage.length; i < len; i++) {
+						var fallbackLanguageId = $fallbackLanguage[i];
+						if ($forceAsyncReloadEnabled || !$translationTable[fallbackLanguageId]) {
+							langPromises[fallbackLanguageId] = loadAsync(fallbackLanguageId).then(processAsyncResult);
+						}
+					}
+				}
+			} else {
+				$rootScope.$emit('$mbTranslateReady', { language: service.use() });
+			}
+			return service;
+		},
+		translations: translations,
+		cloakClassName: function(name) {
+			$cloakClassName = name;
+			return provider;
+		},
+		nestedObjectDelimeter: function(delimiter) {
+			$nestedObjectDelimeter = delimiter;
+			return provider;
+		},
+		addInterpolation: addInterpolation,
+		useMessageFormatInterpolation: useMessageFormatInterpolation,
+		useInterpolation: useInterpolation,
+		useSanitizeValueStrategy: useSanitizeValueStrategy,
+		preferredLanguage: preferredLanguage,
+		translationNotFoundIndicator: translationNotFoundIndicator,
+		translationNotFoundIndicatorLeft: translationNotFoundIndicatorLeft,
+		translationNotFoundIndicatorRight: translationNotFoundIndicatorRight,
+		resolveClientLocale: resolveClientLocale,
+		fallbackLanguage: function(langKey) {
+			fallbackStack(langKey);
+			return provider;
+		},
+		fallbackStack: fallbackStack,
+		use: function(langKey) {
+			if (!$translationTable[langKey] && (!$loaderFactory)) {
+				// only throw an error, when not loading translation data asynchronously
+				throw new Error('$mbTranslateProvider couldn\'t find translationTable for langKey: \'' + langKey + '\'');
+			}
+			$uses = langKey;
+			return provider;
+		},
+		storageKey: function(key) {
+			$storageKey = key;
+			return provider;
+		},
+		useLoader: useLoader,
+		useUrlLoader: useUrlLoader,
+		useStaticFilesLoader: useStaticFilesLoader,
+		useLocalStorage: useLocalStorage,
+		useCookieStorage: useCookieStorage,
+		useStorage: useStorage,
+		storagePrefix: storagePrefix,
+		useMissingTranslationHandlerLog: useMissingTranslationHandlerLog,
+		useMissingTranslationHandler: useMissingTranslationHandler,
+		usePostCompiling: usePostCompiling,
+		forceAsyncReload: forceAsyncReload,
+		uniformLanguageTag: uniformLanguageTag,
+		determinePreferredLanguage: determinePreferredLanguage,
+		registerAvailableLanguageKeys: registerAvailableLanguageKeys,
+		useLoaderCache: useLoaderCache,
+		setDirectivePriority: setDirectivePriority,
+		statefulFilter: function(state) {
+			// setter with chaining
+			statefulFilter = state;
+			return provider;
+		},
+		postProcess: postProcess,
+		keepContent: keepContent
+	};
+	return provider;
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the 'Software'), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc controller
+ * @name MbLanguagesCtrl
+ * @description Mange list of languages
+ * 
+ * Manages list of languages
+ * 
+ */
+mblowfish.controller('MbLanguagesCtrl', function(
+	$rootScope, $language, $navigator, FileSaver,
+		/* AngularJS */ $window,
+		/* am-wb     */ $mbResource) {
+
+	this.selectedLanguage = null;
+
+	/**
+	 * Set current language of app
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - Key of the language
+	 * @return {promise} to change language
+	 */
+	this.setLanguage = function(lang) {
+		this.selectedLanguage = lang;
+		this.selectedLanguage.map = this.selectedLanguage.map || {};
+		this.addMissedWord();
+	};
+
+	/**
+	 * Adds new language to app configuration
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @return {promise} to add language
+	 */
+	this.addLanguage = function() {
+		$mbResource.get('/app/languages', {
+			// TODO:
+		}).then(function(language) {
+			language.map = language.map || {};
+			return $language.newLanguage(language);
+		});
+	};
+
+	/**
+	 * Remove language form application
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 * @return {promise} to delete language
+	 */
+	this.deleteLanguage = function(lang) {
+		var ctrl = this;
+		$window.confirm('Delete the language?').then(function() {
+			return $language.deleteLanguage(lang);
+		}).then(function() {
+			if (angular.equals(ctrl.selectedLanguage, lang)) {
+				ctrl.selectedLanguage = null;
+			}
+		});
+	};
+
+	/**
+	 * Adds a word to the current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addWord = function() {
+		var ctrl = this;
+		return $navigator.openDialog({
+			templateUrl: 'views/dialogs/mbl-add-word.html',
+
+		})//
+			.then(function(word) {
+				ctrl.selectedLanguage.map[word.key] = ctrl.selectedLanguage.map[word.key] || word.translate || word.key;
+			});
+	};
+
+	/**
+	 * Remove the key from current language map
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.deleteWord = function(key) {
+		delete this.selectedLanguage.map[key];
+	};
+
+
+	/**
+	 * Adds all missed keywords to the current language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 */
+	this.addMissedWord = function() {
+		var mids = $rootScope.__app.settings.languageMissIds;
+		var ctrl = this;
+		_.forEach(mids, function(id) {
+			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
+		});
+	}
+
+	/**
+	 * Download the language
+	 * 
+	 * @memberof MbLanguagesCtrl
+	 * @param {object} lang - The Language
+	 */
+	this.saveAs = function(lang) {
+		var MIME_WB = 'application/weburger+json;charset=utf-8';
+
+		// save  result
+		var dataString = JSON.stringify(lang);
+		var data = new Blob([dataString], {
+			type: MIME_WB
+		});
+		return FileSaver.saveAs(data, 'language.json');
+	};
+
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -16794,7 +20939,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column ng-hide=\"pages.length === 1\"> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=style.icon>{{style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in pages | orderBy:priority\" ng-click=\"loadPage(page, $event);\" md-colors=\"_selectedIndex===$index ? {background:'accent'} : {}\"> <mb-icon>{{page.icon || 'attachment'}}</mb-icon> <p>{{page.label | mb-translate}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column ng-hide=\"pages.length === 1\"> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=style.icon>{{::style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in pages | orderBy:priority\" ng-click=\"loadPage(page, $event);\" md-colors=\"_selectedIndex===$index ? {background:'accent'} : {}\"> <mb-icon>{{page.icon || 'attachment'}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
@@ -16819,12 +20964,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{'home' | mb-translate}}</md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> {{menu.title | mb-translate}} </md-button>  </div> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500> <span mb-translate>home</span> </md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> <span mb-translate>{{::menu.title}} </span></md-button> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <mb-icon>{{::mbIcon}}</mb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <mb-icon>repeat</mb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <mb-icon>sort</mb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <mb-icon>filter_list</mb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <mb-icon>search</mb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <mb-icon>save</mb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|mb-translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | mb-translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <mb-icon ng-if=\"query.sortBy === key\">check_circle</mb-icon> <mb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</mb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|mb-translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <mb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</mb-icon> <mb-icon ng-if=query.sortDesc>filter_list</mb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|mb-translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <mb-icon ng-if=!query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=query.sortDesc>radio_button_unchecked</mb-icon> {{::'Ascending'|mb-translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <mb-icon ng-if=query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=!query.sortDesc>radio_button_unchecked</mb-icon> {{::'Descending'|mb-translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <mb-icon>done</mb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <mb-icon>add</mb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label mb-translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span mb-translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label mb-translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <mb-icon>delete</mb-icon> </md-button> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <mb-icon>{{::mbIcon}}</mb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <mb-icon>repeat</mb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <mb-icon>sort</mb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <mb-icon>filter_list</mb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <mb-icon>search</mb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <mb-icon>save</mb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <mb-icon ng-if=\"query.sortBy === key\">check_circle</mb-icon> <mb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</mb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key| translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <mb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</mb-icon> <mb-icon ng-if=query.sortDesc>filter_list</mb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <mb-icon ng-if=!query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=query.sortDesc>radio_button_unchecked</mb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <mb-icon ng-if=query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=!query.sortDesc>radio_button_unchecked</mb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <mb-icon>done</mb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <mb-icon>add</mb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label mb-translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span mb-translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label mb-translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <mb-icon>delete</mb-icon> </md-button> </div> </div> </div>"
   );
 
 
@@ -16844,12 +20989,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-user-menu.html',
-    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%; vertical-align: middle\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) mb-translate=\"\"> <mb-icon ng-if=item.icon>{{item.icon}}</mb-icon> <span ng-if=item.title>{{item.title| mb-translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span mb-translate=\"\">Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span mb-translate=\"\">Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span mb-translate=\"\">Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
+    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%; vertical-align: middle\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) mb-translate=\"\"> <mb-icon ng-if=item.icon>{{::item.icon}}</mb-icon> <span ng-if=item.title mb-translate>{{::item.title}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span mb-translate>Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span mb-translate>Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span mb-translate=\"\">Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
-    "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) mb-translate> <mb-icon ng-if=item.icon>{{item.icon}}</mb-icon> <span ng-if=item.title>{{item.title | mb-translate}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout();>{{'Logout' | mb-translate}}</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+    "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{::app.user.profile.first_name}} {{::app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) mb-translate> <mb-icon ng-if=item.icon>{{::item.icon}}</mb-icon> <span ng-if=item.title mb-translate>{{::item.title}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout(); mb-translate>Logout</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
   );
 
 
@@ -16864,7 +21009,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-initial.html',
-    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=currentStep.id> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=steps.length md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step ng-repeat=\"step in steps\" md-label=\"{{step.title | mb-translate}}\"> </md-step> </md-stepper> </div>"
+    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=currentStep.id> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=steps.length md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step ng-repeat=\"step in steps\" md-label=\"{{step.title | translate}}\"> </md-step> </md-stepper> </div>"
   );
 
 
@@ -16874,7 +21019,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-login-default.html',
-    "<div class=default-login-panel layout=row layout-align=\"center center\" ng-init=\"state= isAnonymous()? 'login' : 'info';\"> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column>  <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <form id=login ng-show=\"state == 'login'\" name=loginForm ng-submit=ctrl.login(credit) layout=column layout-margin> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <md-input-container> <label mb-translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button href=\"?state=forget\" flex-order=1 flex-order-gt-xs=-1 ng-click=\"state='forget'\"> <span mb-translate>Forgot your password?</span> </md-button> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, loginForm)\"> <span mb-translate>Login</span> </md-button> </div> </form> <div ng-show=\"state=='info'\" id=info> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p mb-translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <mb-icon>settings_backup_restore</mb-icon> <span mb-translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <mb-icon>account_circle</mb-icon> <span mb-translate>Account</span> </md-button> </div> </div> <div id=forget ng-show=\"state=='forget'\"> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label mb-translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email mb-translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | mb-translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <span>cancel</span> </md-button> </div> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=\"state='login'\" flex-order=0 flex-order-gt-xs=0> <span mb-translate>Login</span> </md-button> </div> </div> </div> </div>"
+    "<div class=default-login-panel layout=row layout-align=\"center center\" ng-init=\"state= isAnonymous()? 'login' : 'info';\"> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column>  <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <form id=login ng-show=\"state == 'login'\" name=loginForm ng-submit=ctrl.login(credit) layout=column layout-margin> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <md-input-container> <label mb-translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button href=\"?state=forget\" flex-order=1 flex-order-gt-xs=-1 ng-click=\"state='forget'\"> <span mb-translate>Forgot your password?</span> </md-button> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, loginForm)\"> <span mb-translate>Login</span> </md-button> </div> </form> <div ng-show=\"state=='info'\" id=info> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p mb-translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <mb-icon>settings_backup_restore</mb-icon> <span mb-translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <mb-icon>account_circle</mb-icon> <span mb-translate>Account</span> </md-button> </div> </div> <div id=forget ng-show=\"state=='forget'\"> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label mb-translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email mb-translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <span>cancel</span> </md-button> </div> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=\"state='login'\" flex-order=0 flex-order-gt-xs=0> <span mb-translate>Login</span> </md-button> </div> </div> </div> </div>"
   );
 
 
@@ -16914,7 +21059,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/options/mb-local.html',
-    "<md-divider></md-divider> <md-input-container class=md-block> <label mb-translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | mb-translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
+    "<md-divider></md-divider> <md-input-container class=md-block> <label mb-translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key mb-translate>{{lang.title}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
 
 
@@ -16939,22 +21084,22 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-view-login.html',
-    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| mb-translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| mb-translate}}</md-button>      </div> </form> </div> </div>"
+    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'|translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'|translate}}</md-button>      </div> </form> </div> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-brand.html',
-    "<div layout=column layout-margin ng-cloak flex> <mb-titled-block mb-title=\"{{'Configurations' | mb-translate}}\"> <md-input-container class=md-block> <label mb-translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label mb-translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> </mb-titled-block> <div layout=row layout-wrap layout-margin> <mb-titled-block mb-title=\"{{'Brand' | mb-translate}}\"> <mb-inline ng-model=app.config.logo mb-inline-type=image mb-inline-label=\"Application Logo\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.logo}}> </mb-inline> </mb-titled-block> <mb-titled-block mb-title=\"{{'Favicon' | mb-translate }}\"> <mb-inline ng-model=app.config.favicon mb-inline-type=image mb-inline-label=\"Application Favicon\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.favicon}}> </mb-inline> </mb-titled-block> </div> </div>"
+    "<div layout=column layout-margin ng-cloak flex> <mb-titled-block mb-title=\"{{'Configurations' | translate}}\"> <md-input-container class=md-block> <label mb-translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label mb-translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> </mb-titled-block> <div layout=row layout-wrap layout-margin> <mb-titled-block mb-title=\"{{'Brand' | translate}}\"> <mb-inline ng-model=app.config.logo mb-inline-type=image mb-inline-label=\"Application Logo\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.logo}}> </mb-inline> </mb-titled-block> <mb-titled-block mb-title=\"{{'Favicon' | translate }}\"> <mb-inline ng-model=app.config.favicon mb-inline-type=image mb-inline-label=\"Application Favicon\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.favicon}}> </mb-inline> </mb-titled-block> </div> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-language.html',
-    " <div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site:' | mb-translate}}</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | mb-translate}} </md-checkbox> </div> </div>"
+    " <div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site:' | translate}}</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=__app.configs.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | mb-translate}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=__app.configs.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=__app.configs.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=__app.configs.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> <span mb-translate>Month Day Year, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=__app.configs.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=__app.configs.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=__app.configs.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=__app.configs.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> <span mb-translate>Month Day Year, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
@@ -17049,7 +21194,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <mb-icon>menu</mb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | mb-translate}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span mb-translate=\"\">Display list of messages</span> </md-tooltip> <mb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</mb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <mb-icon>menu</mb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span mb-translate=\"\">Display list of messages</span> </md-tooltip> <mb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</mb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> </div>"
   );
 
 
@@ -17074,7 +21219,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-recover-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 mb-translate>reset password</h3> <p mb-translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" mb-translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" mb-translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" mb-translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label mb-translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required mb-translate>This field is required.</div> <div ng-message=compareTo mb-translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | mb-translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | mb-translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 mb-translate>reset password</h3> <p mb-translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" mb-translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" mb-translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" mb-translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label mb-translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required mb-translate>This field is required.</div> <div ng-message=compareTo mb-translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
   );
 
 }]);

@@ -79,11 +79,11 @@ mblowfish.provider('$mbLocal', function() {
 	var provider;
 	var service;
 
-
 	var rootScope;
 	var mbStorage;
 	var mbDispatcher;
-
+	var mdDateLocale;
+	var mbTranslate;
 
 	//---------------------------------------
 	// variables
@@ -179,7 +179,7 @@ mblowfish.provider('$mbLocal', function() {
 		return formatDateInternal(inputDate, format || dateTimeFormat || defaultDateTimeFormat);
 	}
 
-	function setDateTimeFormat() {
+	function setDateTimeFormat(newDateTimeFormat) {
 		//>> change
 		dateTimeFormat = newDateTimeFormat;
 
@@ -189,7 +189,7 @@ mblowfish.provider('$mbLocal', function() {
 		}
 
 		//>> fire changes
-		mbDispatcher.dispatch(store_local_path, {
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
 			type: 'update',
 			key: 'dateTimeFormat',
 			values: [newDateTimeFormat]
@@ -228,7 +228,7 @@ mblowfish.provider('$mbLocal', function() {
 		}
 
 		//>> fire changes
-		mbDispatcher.dispatch(store_local_path, {
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
 			type: 'update',
 			key: 'currency',
 			values: [currency]
@@ -274,7 +274,7 @@ mblowfish.provider('$mbLocal', function() {
 	 */
 	function setLanguage(lang) {
 		language = lang;
-		$mbTranslate.use(lang);
+		mbTranslate.use(lang);
 
 		//>> save
 		if (autoSave) {
@@ -310,12 +310,12 @@ mblowfish.provider('$mbLocal', function() {
 		moment.locale(key);
 		// Set month and week names for the general $mdDateLocale service
 		var localeDate = moment.localeData();
-		$mdDateLocale.months = localeDate._months;
-		$mdDateLocale.shortMonths = localeDate._monthsShort;
-		$mdDateLocale.days = localeDate._weekdays;
-		$mdDateLocale.shortDays = localeDate._weekdaysMin;
+		mdDateLocale.months = localeDate._months;
+		mdDateLocale.shortMonths = localeDate._monthsShort;
+		mdDateLocale.days = localeDate._weekdays;
+		mdDateLocale.shortDays = localeDate._weekdaysMin;
 		// Optionaly let the week start on the day as defined by moment's locale data
-		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
+		mdDateLocale.firstDayOfWeek = localeDate._week.dow;
 
 		//>> save
 		if (autoSave) {
@@ -425,8 +425,12 @@ mblowfish.provider('$mbLocal', function() {
 	};
 
 	provider = {
-		$get: function($mbStorage) {
+		$get: function($mbStorage, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
 			mbStorage = $mbStorage;
+			mdDateLocale = $mdDateLocale;
+			mbDispatcher = $mbDispatcher;
+			rootScope = $rootScope;
+			mbTranslate = $mbTranslate;
 
 			if (autoSave) {
 				load();

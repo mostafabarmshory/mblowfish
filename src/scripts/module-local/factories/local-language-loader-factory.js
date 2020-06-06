@@ -20,8 +20,10 @@
  * SOFTWARE.
  */
 
-mblowfish.factory('MbLanguageLoader', function() {
-		return function(option) {
-	//		return $mbTranslationDb.getMap(option.key);
-		};
+mblowfish.factory('MbLanguageLoader', function($q) {
+	return function(option) {
+		var deferred = $q.defer();
+		deferred.resolve({});
+		return deferred.promise;
+	};
 });

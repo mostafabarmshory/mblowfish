@@ -10,7 +10,7 @@
         	class="capitalize" 
         	ng-click="$mdOpenMenu()" 
         	aria-label="Open menu">
-            <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span>
+            <span>{{::app.user.profile.first_name}} {{::app.user.profile.last_name}}</span>
             <mb-icon class="material-icons">keyboard_arrow_down</mb-icon>
         </md-button>
         <md-menu-content width="3">
@@ -21,14 +21,15 @@
             	<md-button 
             		ng-click="item.exec($event)"
             		mb-translate>
-           			<mb-icon ng-if="item.icon">{{item.icon}}</mb-icon>
-					<span ng-if="item.title">{{item.title | mb-translate}}</span>
+           			<mb-icon ng-if="item.icon">{{::item.icon}}</mb-icon>
+					<span ng-if="item.title" mb-translate>{{::item.title}}</span>
             	</md-button>
             </md-menu-item>
 			<md-menu-divider></md-menu-divider>
             <md-menu-item>
             	<md-button 
-            		ng-click="toggleRightSidebar();logout();">{{'Logout' | mb-translate}}</md-button>
+            		ng-click="toggleRightSidebar();logout();"
+					mb-translate>Logout</md-button>
             </md-menu-item>
         </md-menu-content>
     </md-menu>
