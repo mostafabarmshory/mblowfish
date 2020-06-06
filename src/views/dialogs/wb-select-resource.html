@@ -17,10 +17,10 @@
 					<mb-icon size="64px" ng-if="style.icon">{{style.icon}}</mb-icon>
 					<h2 
 						style="text-align: center;"
-						translate>{{style.title}}</h2>
+						mb-translate>{{style.title}}</h2>
 					<p 
 						style="text-align: center;"
-						translate>{{style.description}}</p>
+						mb-translate>{{style.description}}</p>
 				</div>
 				<md-devider></md-devider>
 				<md-content>
@@ -31,7 +31,7 @@
 							ng-click="loadPage(page, $event);"
 							md-colors="_selectedIndex===$index ? {background:'accent'} : {}">
 							<mb-icon>{{page.icon || 'attachment'}}</mb-icon>
-							<p>{{page.label | translate}}</p>
+							<p>{{page.label | mb-translate}}</p>
 						</md-list-item>
 					</md-list>
 				</md-content>
@@ -52,13 +52,13 @@
 			<md-button
                 aria-label="Cancel"
 				ng-click="cancel()"> 
-				<span translate="">Close</span> 
+				<span mb-translate="">Close</span> 
 			</md-button>
 			<md-button
 				class="md-primary"
                 aria-label="Done"
 				ng-click="answer()"> 
-				<span translate="">Ok</span> 
+				<span mb-translate="">Ok</span> 
 			</md-button>
 	    </md-dialog-actions>
 	</form>

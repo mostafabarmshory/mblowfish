@@ -20,22 +20,13 @@
  * SOFTWARE.
  */
 
-
-/*
- * Add to angular
- */
-
 /**
- * @ngdoc Controllers
- * @name MbAbstractCtrl
- * @description Generic controller which is used as base in the platform
- * 
+@ngdoc Controllers
+@name MbAbstractCtrl
+@description Generic controller which is used as base in the platform
+
  */
-angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
-
-
-	this._hids = [];
-
+mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) {
 
 	//--------------------------------------------------------
 	// --Events--
@@ -52,7 +43,7 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 	 * @memberof MbAbstractCtrl
 	 */
 	this.addEventHandler = function(type, callback) {
-		var callbackId = $dispatcher.on(type, callback);
+		var callbackId = $mbDispatcher.on(type, callback);
 		this._hids.push(new EventHandlerId(type, callbackId, callback));
 	};
 
@@ -94,7 +85,7 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 	this.fireEvent = function(type, action, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
 		var source = this;
-		return $dispatcher.dispatch(type, new MbEvent({
+		return $mbDispatcher.dispatch(type, new MbEvent({
 			source: source,
 			type: type,
 			key: action,
@@ -145,7 +136,26 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'delete', values);
 	};
+	
+	/**
+	 * Fires items created
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireCreated = function(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'create', values);
+	};
 
+
+	this.destroy = function(){
+		for (var i = 0; i < ctrl._hids.length; i++) {
+			var handlerId = ctrl._hids[i];
+			$mbDispatcher.off(handlerId.type, handlerId.id);
+		}
+		ctrl._hids = [];
+	};
 
 	//--------------------------------------------------------
 	// --View--
@@ -154,12 +164,9 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 	 * Remove all resources
 	 */
 	var ctrl = this;
+	ctrl._hids = [];
 	$scope.$on('$destroy', function() {
-		for (var i = 0; i < ctrl._hids.length; i++) {
-			var handlerId = ctrl._hids[i];
-			$dispatcher.off(handlerId.type, handlerId.id);
-		}
-		ctrl._hids = [];
+		ctrl.destroy();
 	});
 
 });

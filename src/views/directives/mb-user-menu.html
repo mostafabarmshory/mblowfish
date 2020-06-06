@@ -23,30 +23,30 @@
                 ng-repeat="item in menu.items| orderBy:['-priority']">
                 <md-button
                     ng-click="item.exec($event)"
-                    translate="">
+                    mb-translate="">
                     <mb-icon ng-if="item.icon">{{item.icon}}</mb-icon>
-                    <span ng-if="item.title">{{item.title| translate}}</span>
+                    <span ng-if="item.title">{{item.title| mb-translate}}</span>
                 </md-button>
             </md-menu-item>
             <md-menu-divider ng-if="menu.items.length"></md-menu-divider>
             <md-menu-item>
                 <md-button
                     ng-click="settings()">
-                    <span translate="">Settings</span>
+                    <span mb-translate="">Settings</span>
                 </md-button>
             </md-menu-item>
             <md-menu-item 
                 ng-if="!app.user.anonymous">
                 <md-button
                     ng-click="logout()">
-                    <span translate="">Logout</span>
+                    <span mb-translate="">Logout</span>
                 </md-button>
             </md-menu-item>
             <md-menu-item
                 ng-if="app.user.anonymous">
                 <md-button
                     ng-href="users/login">
-                    <span translate="">Login</span>
+                    <span mb-translate="">Login</span>
                 </md-button>
             </md-menu-item>
         </md-menu-content>

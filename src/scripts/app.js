@@ -59,7 +59,6 @@ var mbApplicationModule = angular
 		'ngFileSaver',//
 		'mdSteppers',//
 		'angular-material-persian-datepicker',
-		'pascalprecht.translate',
 		'mdColorPicker',
 	])
 	.config(function($mdThemingProvider) {
@@ -149,6 +148,10 @@ window.mblowfish = {
 	},
 	factory: function() {
 		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	constant: function() {
+		mbApplicationModule.constant.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
 

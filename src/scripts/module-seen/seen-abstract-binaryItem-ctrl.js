@@ -23,18 +23,18 @@
 
 
 /**
- * @ngdoc Controllers
- * @name MbSeenAbstractBinaryItemCtrl
- * @description Generic controller of model binary of seen
- * 
- * There are three categories of actions;
- * 
- * - view
- * - model
- * - controller
- * 
+@ngdoc Controllers
+@name MbSeenAbstractBinaryItemCtrl
+@description Generic controller of model binary of seen
+
+There are three categories of actions;
+
+- view
+- model
+- controller
+
  */
-angular.module('mblowfish-core').controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $window) {
+mblowfish.controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $window) {
 
 
 	/*

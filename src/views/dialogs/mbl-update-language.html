@@ -1,7 +1,7 @@
 <md-dialog ng-cloak>
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <h2 translate>{{::config.title}}</h2>
+            <h2 mb-translate>{{::config.title}}</h2>
             <span flex></span>
             <md-button class="md-icon-button" ng-click="cancel()">
                 <mb-icon aria-label="Close dialog">close</mb-icon>
@@ -19,13 +19,13 @@
         <div 
             layout="column">
             <md-input-container>
-                <label translate>Key</label>
+                <label mb-translate>Key</label>
                 <input 
                     ng-model="config.language.key"
                     ng-readonly="true">
             </md-input-container>
             <md-input-container>
-                <label translate>Title</label>
+                <label mb-translate>Title</label>
                 <input 
                     ng-model="config.language.title"
                     ng-readonly="true">

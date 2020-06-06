@@ -4,10 +4,10 @@
 	ng-cloak
 	flex>
 	<mb-titled-block
-		mb-title="{{'Configurations' | translate}}">
+		mb-title="{{'Configurations' | mb-translate}}">
 		<md-input-container 
 			class="md-block">
-			<label translate>Title</label>
+			<label mb-translate>Title</label>
 			<input 
 				required 
 				md-no-asterisk 
@@ -15,7 +15,7 @@
 				ng-model="app.config.title" />
 		</md-input-container>
 		<md-input-container class="md-block">
-			<label translate>Description</label>
+			<label mb-translate>Description</label>
 			<input 
 				md-no-asterisk 
 				name="description" 
@@ -24,7 +24,7 @@
 	</mb-titled-block>
 	<div layout="row" layout-wrap layout-margin>
 		<mb-titled-block
-			mb-title="{{'Brand' | translate}}">
+			mb-title="{{'Brand' | mb-translate}}">
 			<mb-inline
 				ng-model="app.config.logo"
 				mb-inline-type="image"
@@ -37,7 +37,7 @@
 			</mb-inline>
 		</mb-titled-block>
 		<mb-titled-block
-			mb-title="{{'Favicon' | translate }}">
+			mb-title="{{'Favicon' | mb-translate }}">
 			<mb-inline
 				ng-model="app.config.favicon"
 				mb-inline-type="image"

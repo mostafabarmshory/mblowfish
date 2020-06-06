@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
+mblowfish.run(function(appcache, $window, $rootScope) {
 
 	var oldWatch;
 

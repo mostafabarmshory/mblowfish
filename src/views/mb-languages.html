@@ -10,7 +10,7 @@
 		<md-content>
 			<md-toolbar>
 				<div class="md-toolbar-tools">
-					<label flex translate="">Languages</label>
+					<label flex mb-translate="">Languages</label>
 					<md-button
 						ng-click="ctrl.addLanguage()"
 						class="md-icon-button" 
@@ -29,7 +29,7 @@
 					<md-list-item 
 						ng-repeat="lang in app.config.languages" 
 						ng-click="ctrl.setLanguage(lang)">
-						<p translate="">{{lang.title}}</p>
+						<p mb-translate="">{{lang.title}}</p>
 	
 						<md-button
 							class="md-icon-button"
@@ -39,7 +39,7 @@
 							<md-tooltip 
 								md-direction="left" 
 								md-delay="1500">
-								<span translate>Save language as a file</span>
+								<span mb-translate>Save language as a file</span>
 							</md-tooltip>
 						</md-button>
 	
@@ -51,7 +51,7 @@
 							<md-tooltip 
 								md-direction="left" 
 								md-delay="1500">
-								<span translate>Delete language</span>
+								<span mb-translate>Delete language</span>
 							</md-tooltip>
 						</md-button>
 					</md-list-item>
@@ -67,12 +67,12 @@
 		<div
 			ng-if="!ctrl.selectedLanguage"
 			layout-padding>
-			<h3 translate>Select a language to view/edit translations.</h3>
+			<h3 mb-translate>Select a language to view/edit translations.</h3>
 		</div>
 	
 		<fieldset
 			ng-if="ctrl.selectedLanguage">
-			<legend><span translate="">Selected Language</span></legend>
+			<legend><span mb-translate="">Selected Language</span></legend>
 			<div 
 				layout="row"
 				layout-align="space-between center">
@@ -85,7 +85,7 @@
 	<!--				 <md-tooltip  -->
 	<!--					 md-direction="left"  -->
 	<!--					 md-delay="1500"> -->
-	<!--					 <span translate>Edit language</span> -->
+	<!--					 <span mb-translate>Edit language</span> -->
 	<!--				 </md-tooltip> -->
 	<!--			 </md-button> -->
 			</div>
@@ -94,7 +94,7 @@
 		<fieldset
 			ng-if="ctrl.selectedLanguage"
 			class="standard">
-			<legend><span translate="">Language map</span></legend>
+			<legend><span mb-translate="">Language map</span></legend>
 			<div 
 				layout="column" 
 				layout-margin>

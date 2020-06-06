@@ -26,7 +26,7 @@ angular.module('mblowfish-core')
 	/**
 	 *
 	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, $translate, QueryParameter) {
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, $mbTranslate, QueryParameter) {
 
 	    var qp = new QueryParameter();
 
@@ -83,7 +83,7 @@ angular.module('mblowfish-core')
 				$navigator.openPage('bank/receipts/' + receipt.id);
 			    }, function (error) {
 				ctrl.paying = false;
-				alert($translate.instant(error.data.message));
+				alert($mbTranslate.instant(error.data.message));
 			    });
 		};
 

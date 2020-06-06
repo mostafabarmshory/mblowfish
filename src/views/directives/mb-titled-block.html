@@ -12,7 +12,7 @@
 			layout-align="start center"
 			class="md-toolbar-tools">
 			<mb-icon size="24px" style="margin: 0;padding: 0px" ng-if="mbIcon">{{::mbIcon}}</mb-icon>
-			<h3 translate="" style="margin-left: 8px; margin-right: 8px">{{::mbTitle}}</h3>
+			<h3 mb-translate="" style="margin-left: 8px; margin-right: 8px">{{::mbTitle}}</h3>
 		</div>
 		<md-menu
 			layout-align="end center"
@@ -30,7 +30,7 @@
 						ng-click="item.action()"
 						aria-label="{{::item.title}}">
 						<mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
-						<span translate="">{{::item.title}}</span>
+						<span mb-translate="">{{::item.title}}</span>
 					</md-button>
 				</md-menu-item>
 			</md-menu-content>

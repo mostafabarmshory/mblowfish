@@ -29,7 +29,7 @@ angular.module('mblowfish-core')
  *
  */
 //TODO: maso, 2019: replace with MbSeenAccountCtrl
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile, $usr) {
+.controller('MbProfileCtrl', function ($scope, $rootScope, $mbTranslate, $window, UserProfile, $usr) {
 
     // set initial data
     this.user = null;
@@ -67,7 +67,7 @@ angular.module('mblowfish-core')
             ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
             return ctrl.profile;
         }, function () {
-            alert($translate.instant('Fail to load profile.'));
+            alert($mbTranslate.instant('Fail to load profile.'));
         })//
         .finally(function () {
             ctrl.loadingProfile = false;
@@ -88,9 +88,9 @@ angular.module('mblowfish-core')
         var ctrl = this;
         return $promise//
         .then(function () {
-            toast($translate.instant('Save is successfull.'));
+            toast($mbTranslate.instant('Save is successfull.'));
         }, function () {
-            alert($translate.instant('Fail to save item.'));
+            alert($mbTranslate.instant('Fail to save item.'));
         })//
         .finally(function () {
             ctrl.savingProfile = false;
@@ -103,7 +103,7 @@ angular.module('mblowfish-core')
 
     this.deleteAvatar = function () {
         var ctrl = this;
-        confirm($translate.instant('Delete the avatar?'))
+        confirm($mbTranslate.instant('Delete the avatar?'))
         .then(function () {
             ctrl.avatarState = 'working';
             return ctrl.user.deleteAvatar();
@@ -166,22 +166,22 @@ angular.module('mblowfish-core')
 
         var elm = angular.element('.lf-ng-md-file-input-drag-text');
         if (elm[0]) {
-            elm.text($translate.instant('Drag & Drop File Here'));
+            elm.text($mbTranslate.instant('Drag & Drop File Here'));
         }
 
         elm = angular.element('.lf-ng-md-file-input-button-brower');
         if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-            elm[0].childNodes[1].data=' '+$translate.instant('Browse');
+            elm[0].childNodes[1].data=' '+$mbTranslate.instant('Browse');
         }
 
         elm = angular.element('.lf-ng-md-file-input-button-remove');
         if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-            elm[0].childNodes[1].data=$translate.instant('Remove');
+            elm[0].childNodes[1].data=$mbTranslate.instant('Remove');
         }
 
         elm = angular.element('.lf-ng-md-file-input-caption-text-default');
         if (elm[0]) {
-            elm.text($translate.instant('Select File'));
+            elm.text($mbTranslate.instant('Select File'));
         }
 
     });

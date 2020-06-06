@@ -20,45 +20,39 @@
  * SOFTWARE.
  */
 
-
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
-
 /**
- * @ngdoc Controllers
- * @name MbSeenAbstractCollectionCtrl
- * @description Generic controller of model collection of seen
- * 
- * This controller is used manages a collection of a virtual items. it is the
- * base of all other collection controllers such as accounts, groups, etc.
- * 
- * There are two types of function in the controller: view and data related. All
- * data functions are considered to be override by extensions.
- * 
- * There are three categories of actions;
- * 
- * - view
- * - model
- * - controller
- * 
- * view actions are about to update view. For example adding an item into the view
- * or remove deleted item.
- * 
- * Model actions deal with model in the repository. These are equivalent to the view
- * actions but removes items from the storage.
- * 
- * However, controller function provide an interactive action to the user to performs
- * an action.
- * 
- * ## Add
- * 
- * - addItem: controller
- * - addModel: model
- * - addViewItem: view
+@ngdoc Controllers
+@name MbSeenAbstractCollectionCtrl
+@description Generic controller of model collection of seen
+
+This controller is used manages a collection of a virtual items. it is the
+base of all other collection controllers such as accounts, groups, etc.
+
+There are two types of function in the controller: view and data related. All
+data functions are considered to be override by extensions.
+
+There are three categories of actions;
+
+- view
+- model
+- controller
+
+view actions are about to update view. For example adding an item into the view
+or remove deleted item.
+
+Model actions deal with model in the repository. These are equivalent to the view
+actions but removes items from the storage.
+
+However, controller function provide an interactive action to the user to performs
+an action.
+
+## Add
+
+- addItem: controller
+- addModel: model
+- addViewItem: view
  */
-.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
+mblowfish.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
 	
 
 	/*

@@ -43,20 +43,20 @@
 			<div style="text-align: center;"
 				layout-margin
 				ng-show="!ctrl.loginProcess && ctrl.loginState === 'fail'"> 
-				<p><span md-colors="{color:'warn'}" translate>{{loginMessage}}</span></p>
+				<p><span md-colors="{color:'warn'}" mb-translate>{{loginMessage}}</span></p>
 			</div>
 			<md-input-container>
-				<label translate="">Username</label>
+				<label mb-translate="">Username</label>
 				<input ng-model="credit.login" name="username" required>
 				<div ng-messages="ctrl.myForm.username.$error">
-					<div ng-message="required" translate="">This field is required.</div>
+					<div ng-message="required" mb-translate="">This field is required.</div>
 				</div>
 			</md-input-container>
 			<md-input-container>
-				<label translate="">Password</label>
+				<label mb-translate="">Password</label>
 				<input ng-model="credit.password" type="password" name="password" required>
 				<div ng-messages="ctrl.myForm.password.$error">
-					<div ng-message="required" translate>This field is required.</div>
+					<div ng-message="required" mb-translate>This field is required.</div>
 				</div>
 			</md-input-container>
 			<!-- adding captcha -->
@@ -78,7 +78,7 @@
 					flex-order="1" 
 					flex-order-gt-xs="-1"
 					ng-click="state='forget'">
-					<span translate>Forgot your password?</span>
+					<span mb-translate>Forgot your password?</span>
 				</md-button>
 				<md-button 
 					ng-disabled="ctrl.myForm.$invalid"
@@ -86,7 +86,7 @@
 					flex-order-gt-xs="1" 
 					class="md-primary md-raised" 
 					ng-click="ctrl.login(credit, loginForm)">
-					<span translate>Login</span>
+					<span mb-translate>Login</span>
 				</md-button>
 			</div>
 		</form>
@@ -102,7 +102,7 @@
 					width="150px" height="150px" ng-show="!uploadAvatar"
 					ng-src="{{app.user.current.avatar}}" />
 				<h3>{{app.user.current.login}}</h3>
-				<p translate>you are logged in. go to one of the following options.</p>
+				<p mb-translate>you are logged in. go to one of the following options.</p>
 			</div>
 			<div ng-show="!app.user.anonymous" 
 				layout="column" layout-align="none"
@@ -114,7 +114,7 @@
 					flex-order-gt-xs="0" 
 					class="md-raised">
 					<mb-icon>settings_backup_restore</mb-icon> 
-					<span translate>Back</span>
+					<span mb-translate>Back</span>
 				</md-button>
 				<md-button 
 					ng-href="users/account"
@@ -122,7 +122,7 @@
 					flex-order-gt-xs="-1" 
 					class="md-raised">
 					<mb-icon>account_circle</mb-icon> 
-					<span translate>Account</span>
+					<span mb-translate>Account</span>
 				</md-button>
 			</div>
 		</div>
@@ -136,14 +136,14 @@
 				layout="column" 
 				layout-margin>
 				<md-input-container>
-					<label translate>Username</label>
+					<label mb-translate>Username</label>
 					<input ng-model="credit.login" name="username">
 				</md-input-container>
 				<md-input-container>
-					<label translate>Email</label>
+					<label mb-translate>Email</label>
 					<input ng-model="credit.email" name="email" type="email">
 					<div ng-messages="ctrl.myForm.email.$error">
-						<div ng-message="email" translate>Email is not valid.</div>
+						<div ng-message="email" mb-translate>Email is not valid.</div>
 					</div>
 				</md-input-container>
 	<!-- 			<amh-captcha -->
@@ -169,11 +169,11 @@
 					flex-order="0" 
 					flex-order-gt-xs="1" 
 					class="md-primary md-raised" 
-					ng-click="sendToken(credit)">{{'send recover message' | translate}}</md-button>
+					ng-click="sendToken(credit)">{{'send recover message' | mb-translate}}</md-button>
 	<!--		 	<md-button  -->
 	<!--		 		ng-href="users/login" -->
 	<!--		 		flex-order="0"  -->
-	<!--		 		class="md-raised">{{'login' | translate}}</md-button> -->
+	<!--		 		class="md-raised">{{'login' | mb-translate}}</md-button> -->
 				<md-button 
 					ng-click="cancel()"
 					flex-order="0" 
@@ -193,7 +193,7 @@
 					ng-click="state='login'"
 					flex-order="0" 
 					flex-order-gt-xs="0">
-					<span translate>Login</span>
+					<span mb-translate>Login</span>
 				</md-button>
 			</div>
 		</div>

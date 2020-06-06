@@ -1,17 +1,17 @@
 <div 
     layout="column">
     <!--    <div ng-if="mbDiscountEnable">	
-            <p translate>Enter discount code if you have</p>
+            <p mb-translate>Enter discount code if you have</p>
             <div>
                 <md-input-container>
-                    <label translate>Discount code</label>
+                    <label mb-translate>Discount code</label>
                     <input style="text-align:center" ng-model="discountCode">
-                    <div class="hint" ng-if="discount_message" translate>{{discount_message}}</div>
+                    <div class="hint" ng-if="discount_message" mb-translate>{{discount_message}}</div>
                 </md-input-container>
                 <md-button 
                     class="md-raised md-primary"  
                     ng-click="checkDiscount(discountCode)">
-                    <span translate>Check discount</span>
+                    <span mb-translate>Check discount</span>
                 </md-button>
             </div>
         </div>-->
@@ -28,7 +28,7 @@
         <div 
             layout="column"
             ng-if="!ctrl.loadingGates && ctrl.gates.length">
-            <p translate>Select gate to pay</p>
+            <p mb-translate>Select gate to pay</p>
             <div 
                 layout="row" 
                 layout-align="center center">
@@ -48,7 +48,7 @@
             layout-align="center center">
             <p  
                 style="color: red">
-                <span translate>No gate is defined for the currency of the wallet.</span>
+                <span mb-translate>No gate is defined for the currency of the wallet.</span>
             </p>
         </div>
     </div>

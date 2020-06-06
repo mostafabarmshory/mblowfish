@@ -6,7 +6,7 @@
 		<md-button ng-click="goToHome()"
                         aria-label="Home"
 			class="mb-navigation-path-bar-item mb-navigation-path-bar-item-home">
-			<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{'home' | translate}}</md-tooltip>
+			<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{'home' | mb-translate}}</md-tooltip>
 			<mb-icon>home</mb-icon>
 		</md-button>
 	</div>
@@ -20,7 +20,7 @@
 			class="mb-navigation-path-bar-item">
 			<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{menu.description}}</md-tooltip>
 			<mb-icon ng-if="menu.icon">{{menu.icon}}</mb-icon>
-			{{menu.title | translate}} 
+			{{menu.title | mb-translate}} 
 		</md-button>
 <!-- 		<mb-icon ng-show="$index &lt; pathMenu.items.length - 1">chevron_left</mb-icon> -->
 	</div>

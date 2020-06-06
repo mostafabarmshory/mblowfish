@@ -20,15 +20,15 @@
             	ng-repeat="item in menu.items | orderBy:['-priority']">
             	<md-button 
             		ng-click="item.exec($event)"
-            		translate>
+            		mb-translate>
            			<mb-icon ng-if="item.icon">{{item.icon}}</mb-icon>
-					<span ng-if="item.title">{{item.title | translate}}</span>
+					<span ng-if="item.title">{{item.title | mb-translate}}</span>
             	</md-button>
             </md-menu-item>
 			<md-menu-divider></md-menu-divider>
             <md-menu-item>
             	<md-button 
-            		ng-click="toggleRightSidebar();logout();">{{'Logout' | translate}}</md-button>
+            		ng-click="toggleRightSidebar();logout();">{{'Logout' | mb-translate}}</md-button>
             </md-menu-item>
         </md-menu-content>
     </md-menu>

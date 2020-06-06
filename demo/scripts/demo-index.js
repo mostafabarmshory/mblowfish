@@ -29,7 +29,6 @@ mblowfish.config(function(
 	$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
 	$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider, $mbEditorProvider,
 	// TODO: replace with $mbTranslateProvider
-	$translateProvider,
 	$mbStorageProvider, $locationProvider) {
 	//
 	// Application manager
@@ -156,102 +155,16 @@ mblowfish.config(function(
 	//
 	//  $mbTranslateProvider: 
 	//
-	$translateProvider.translations('fa', {
-		'Dashboard': 'داشبور',
-		'Applications': 'نرم‌افزارها',
-		'Account': 'حساب کاربری',
-		'Profile': 'پروفایل‌ها',
-		'User management': 'مدیریت کاربران',
-		'User': 'کاربر',
-		'Users': 'کاربران',
-		'Groups': 'گروه‌ها',
-		'Roles': 'نقش‌ها',
-		'Problems': 'مشکلات',
-		'Zones': 'منطقه‌ها',
-		'Networks': 'شبکه‌ها',
-		'Devices': 'دستگاه‌ها',
-		'Model': 'مدل',
-		'Color': 'رنگ',
-		'Workshops': 'کارگاه‌ها',
-		'Requests': 'تقاضاها',
-		'Actions': 'اکشن‌ها',
-		'Tenant': 'ملک',
-		'Input value': 'مقدار ورودی',
-
-		'ID': 'شناسه',
-		'Login': 'لاگین',
-		'EMail': 'پست الکترونیکی',
-		'Edit': 'ویرایش',
-		'Save': 'ذخیره',
-		'Cancel': 'انصراف',
-		'Restore': 'بازیابی',
-		'Password': 'گذرواژه',
-		'Confirm': 'تایید',
-
-		'Summary': 'خلاصه',
-		'Phone': 'شماره تماس',
-		'Mobile': 'شماره همراه',
-		'LinkedId': 'لینکدین',
-		'Telegram': 'تلگرام',
-		'Whatsapp': 'واتساپ',
-		'Contacts': 'تماس‌ها',
-		'User avatar': 'اواتار کاربری',
-		'User id': 'شناسه کاربری',
-		'Socials': 'شبکه‌های اجتمائی',
-
-		'spas': 'نرم‌افزارها',
-
-		'CMS': 'سیستم مدیریت محتوی',
-		'Contents': 'محتوی‌ها',
-
-		'Bank gates': 'درگاه‌های بانکی',
-
-		'Settings': 'تنظیمات',
-		'Setting': 'تنظیم',
-
-		'Theme': 'نمایه',
-		'Themes': 'نمایه‌ها',
-		'default': 'پیش فرض',
-		'gray': 'خاکستری',
-		'red': 'قرمز',
-		'dark': 'تیره',
-
-		'Local': 'منطقه',
-		'Language': 'زبان',
-		'Direction': 'جهت',
-		'Right to left': 'راست به چپ',
-		'Left to right': 'چپ به راست',
-
-		'Search': 'جستجو',
-
-		'Persian': 'فارسی',
-		'English': 'انگلیسی',
-		'Enable navbar': 'فعال کردن نوار ابزار',
-
-		'Messages': 'پیام‌ها',
-		'message': 'پیام',
-		'set zone': 'تعیین منطقه',
-		'set fixer': 'تعیین تعمیرکار',
-		'remote consultant': 'مشاوره تلفنی',
-		'incomplete info': 'اطلاعات ناقص',
-		'schadule': 'تعیین زمان و مکان',
-		'fixed': 'تعمیر شد',
-		'impossilbe to fix': 'تعمییر ممکن نیست',
-		'set workshop': 'تعیین کارگاه',
-		'accept': 'دریافت گوشی',
-		'start to fix': 'آغاز تعمیر',
-		'need more time': 'نیاز به زمان بیشتر',
-		'give back': 'ارسال به مشتری',
-		'close': 'بستن',
-		'reopen': 'باز کردن',
-		'archive': 'بایگانی',
-		'report': 'گزارش',
-
-		'app.update.message': 'نسخه جدید نصب شده است، دوباره لود کنید.',
-
-		'next': 'بعدی'
-	});
-	$translateProvider.preferredLanguage('fa');
+	//	$mbTranslateProvider
+	//		.translations('fa', {
+	//			'Dashboard': 'داشبور',
+	//			'Applications': 'نرم‌افزارها',
+	//			'Account': 'حساب کاربری',
+	//			'Profile': 'پروفایل‌ها',
+	//			'User management': 'مدیریت کاربران',
+	//			'User': 'کاربر',
+	//		})
+	//		.preferredLanguage('fa');
 
 
 	//
@@ -326,25 +239,29 @@ mblowfish.config(function(
 			groups: ['Tutorials&Demo']
 		});
 })
-.run(function($mbToolbar, $window, MbAction){
-	// Create and add action automatically
-	var action = new MbAction({
-		title: 'Auto action',
-		icon: 'save',
-		/* @ngInject */
-		action: function($window) {
-			$window.alert('Autoloaded action is called');
-		}
+	.run(function($mbToolbar, $window, MbAction) {
+		// Create and add action automatically
+		var action = new MbAction({
+			title: 'Auto action',
+			icon: 'save',
+			/* @ngInject */
+			action: function($window) {
+				$window.alert('Autoloaded action is called');
+			}
+		});
+		var toolbar = $mbToolbar.getToolbar('/app/demo');
+		toolbar.addAction(action);
 	});
-	var toolbar = $mbToolbar.getToolbar('/app/demo');
-	toolbar.addAction(action);
-});
 
 
 $(window).on('load', function() {
 	mblowfish
 		.loadModules('demo')
 		.then(function() {
-			mblowfish.bootstrap(document.documentElement);
+			try {
+				mblowfish.bootstrap(document.documentElement);
+			} catch (e) {
+				console.error(e);
+			}
 		});
 });

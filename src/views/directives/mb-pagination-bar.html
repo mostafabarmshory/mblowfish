@@ -64,7 +64,7 @@
                                 ng-click="runAction(item, $event)"
                                 aria-label="{{::item.title}}">
                                 <mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
-                                <span translate="">{{::item.title}}</span>
+                                <span mb-translate="">{{::item.title}}</span>
                             </md-button>
                         </md-menu-item>
                     </md-menu-content>
@@ -91,7 +91,7 @@
                     class="md-block fit-input">
                     <input
                         id="searchInput"
-                        placeholder="{{::'Search'|translate}}"
+                        placeholder="{{::'Search'|mb-translate}}"
                         ng-model="query.searchTerm"
                         ng-change="searchQuery()"
                         ng-model-options="{debounce: 1000}">
@@ -112,7 +112,7 @@
                     <mb-icon class="icon-rotate-180-for-rtl">arrow_back</mb-icon>
                 </md-button>
 
-                <h3 translate="">Sort</h3>
+                <h3 mb-translate="">Sort</h3>
 
                 <span style="width: 10px"></span>
 
@@ -122,14 +122,14 @@
                         layout="row"
                         style="text-transform: none;"
                         ng-click="$mdMenu.open()">
-                        <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3>
+                        <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | mb-translate}}</h3>
                     </md-button>
                     <md-menu-content width="4">
                         <md-menu-item ng-repeat="key in mbSortKeys">
                             <md-button ng-click="query.sortBy = key; setSortOrder()">
                                 <mb-icon ng-if="query.sortBy === key">check_circle</mb-icon>
                                 <mb-icon ng-if="query.sortBy !== key">radio_button_unchecked</mb-icon>
-                                {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}}
+                                {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|mb-translate}}
                             </md-button>
                         </md-menu-item>
                     </md-menu-content>
@@ -143,21 +143,21 @@
                         ng-click="$mdMenu.open()">
                         <mb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</mb-icon>
                         <mb-icon ng-if="query.sortDesc">filter_list</mb-icon>
-                        {{query.sortDesc ? 'Descending' : 'Ascending'|translate}}
+                        {{query.sortDesc ? 'Descending' : 'Ascending'|mb-translate}}
                     </md-button>
                     <md-menu-content width="4">
                         <md-menu-item>
                             <md-button ng-click="query.sortDesc = false;setSortOrder()">
                                 <mb-icon ng-if="!query.sortDesc">check_circle</mb-icon>
                                 <mb-icon ng-if="query.sortDesc">radio_button_unchecked</mb-icon>
-                                {{::'Ascending'|translate}}
+                                {{::'Ascending'|mb-translate}}
                             </md-button>
                         </md-menu-item>
                         <md-menu-item>
                             <md-button ng-click="query.sortDesc = true;setSortOrder()">
                                 <mb-icon ng-if="query.sortDesc">check_circle</mb-icon>
                                 <mb-icon ng-if="!query.sortDesc">radio_button_unchecked</mb-icon>
-                                {{::'Descending'|translate}}
+                                {{::'Descending'|mb-translate}}
                             </md-button>
                         </md-menu-item>
                     </md-menu-content>
@@ -181,7 +181,7 @@
                         aria-label="Back">
                         <mb-icon class="icon-rotate-180-for-rtl">arrow_back</mb-icon>
                     </md-button>
-                    <h3 translate="">Filters</h3>
+                    <h3 mb-translate="">Filters</h3>
                 </div>
                 <div
                     layout="row">
@@ -217,7 +217,7 @@
                 style="width: 50%">
                 <md-input-container
                     style="padding: 0px;margin: 0px;width: 20%">
-                    <label translate="">Key</label>
+                    <label mb-translate="">Key</label>
                     <md-select
                         name="filter"
                         ng-model="filter.key"
@@ -226,7 +226,7 @@
                         <md-option
                             ng-repeat="key in filterKeys"
                             ng-value="key">
-                            <span translate="">{{key}}</span>
+                            <span mb-translate="">{{key}}</span>
                         </md-option>
                     </md-select>
                 </md-input-container>
@@ -234,7 +234,7 @@
                 <md-input-container
                     style="padding: 0px;margin: 0px;"
                     ng-if="showFilterValue">
-                    <label translate="">Value</label>
+                    <label mb-translate="">Value</label>
                     <input
                         ng-model="filter.value"
                         required>

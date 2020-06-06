@@ -374,7 +374,7 @@
 //			/*
 //			 * @ngInject
 //			 */
-//			controller: function($scope, $cms, $translate, $mbCrypto) {
+//			controller: function($scope, $cms, $mbTranslate, $mbCrypto) {
 //
 //				/*
 //				 * Extends collection controller
@@ -439,22 +439,22 @@
 //				angular.element(function() {
 //					var elm = angular.element('.lf-ng-md-file-input-drag-text');
 //					if (elm[0]) {
-//						elm.text($translate.instant('Drag & Drop File Here'));
+//						elm.text($mbTranslate.instant('Drag & Drop File Here'));
 //					}
 //
 //					elm = angular.element('.lf-ng-md-file-input-button-brower');
 //					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-//						elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+//						elm[0].childNodes[1].data = ' ' + $mbTranslate.instant('Browse');
 //					}
 //
 //					elm = angular.element('.lf-ng-md-file-input-button-remove');
 //					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-//						elm[0].childNodes[1].data = $translate.instant('Remove');
+//						elm[0].childNodes[1].data = $mbTranslate.instant('Remove');
 //					}
 //
 //					elm = angular.element('.lf-ng-md-file-input-caption-text-default');
 //					if (elm[0]) {
-//						elm.text($translate.instant('Select File'));
+//						elm.text($mbTranslate.instant('Select File'));
 //					}
 //				});
 //			},

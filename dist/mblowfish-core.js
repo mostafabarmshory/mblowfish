@@ -1280,7 +1280,6 @@ var mbApplicationModule = angular
 		'ngFileSaver',//
 		'mdSteppers',//
 		'angular-material-persian-datepicker',
-		'pascalprecht.translate',
 		'mdColorPicker',
 	])
 	.config(function($mdThemingProvider) {
@@ -1370,6 +1369,10 @@ window.mblowfish = {
 	},
 	factory: function() {
 		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	constant: function() {
+		mbApplicationModule.constant.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
 
@@ -2991,295 +2994,6 @@ angular.module('mblowfish-core').provider('$mbJobs', function() {
 	return provider;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').config(function($mdDateLocaleProvider, $translateProvider) {
-	$translateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
-	$translateProvider.useLoader('MbLanguageLoader');
-	
-	// Change moment's locale so the 'L'-format is adjusted.
-	// For example the 'L'-format is DD.MM.YYYY for German
-	moment.locale('en');
-
-	// Set month and week names for the general $mdDateLocale service
-	var localeData = moment.localeData();
-	$mdDateLocaleProvider.months = localeData._months;
-	$mdDateLocaleProvider.shortMonths = moment.monthsShort();
-	$mdDateLocaleProvider.days = localeData._weekdays;
-	$mdDateLocaleProvider.shortDays = localeData._weekdaysMin;
-	// Optionaly let the week start on the day as defined by moment's locale data
-	$mdDateLocaleProvider.firstDayOfWeek = localeData._week.dow;
-
-	// Format and parse dates based on moment's 'L'-format
-	// 'L'-format may later be changed
-	$mdDateLocaleProvider.parseDate = function(dateString) {
-		var m = moment(dateString, 'L', true);
-		return m.isValid() ? m.toDate() : new Date(NaN);
-	};
-
-	$mdDateLocaleProvider.formatDate = function(date) {
-		var m = moment(date);
-		return m.isValid() ? m.format('L') : '';
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/*
- * TODO: maso, 2019: add filter document
- */
-angular.module('mblowfish-core').filter('currencyFilter', function(numberFilter, translateFilter) {
-
-	return function(price, unit) {
-
-		if (!price) {
-			return translateFilter('free');
-		}
-		// TODO: maso, 2019: set unit with system default currency if is null
-		if (unit === 'iran-rial' || unit === 'iran-tooman') {
-			return numberFilter(price) + ' '
-				+ translateFilter(unit);
-		} else if (unit === 'bahrain-dinar') {
-			return numberFilter(price) + ' '
-				+ translateFilter('bahrain-dinar');
-		} else if (unit === 'euro') {
-			return numberFilter(price) + ' '
-				+ translateFilter('euro');
-		} else if (unit === 'dollar') {
-			return translateFilter('dollar') + ' '
-				+ numberFilter(price);
-		} else if (unit === 'pound') {
-			return translateFilter('pound') + ' '
-				+ numberFilter(price);
-		} else if (unit === 'iraq-dinar') {
-			return numberFilter(price) + ' '
-				+ translateFilter('iraq-dinar');
-		} else if (unit === 'kuwait-dinar') {
-			return numberFilter(price) + ' '
-				+ translateFilter('kuwait-dinar');
-		} else if (unit === 'oman-rial') {
-			return numberFilter(price) + ' '
-				+ translateFilter('oman-rial');
-		} else if (unit === 'turkish-lira') {
-			return numberFilter(price) + ' '
-				+ translateFilter('turkish-lira');
-		} else if (unit === 'uae-dirham') {
-			return numberFilter(price) + ' '
-				+ translateFilter('uae-dirham');
-		} else {
-			return numberFilter(price) + ' ?';
-		}
-	};
-});
-
-
-
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-
-/**
- * @ngdoc Filters
- * @name mbDate
- * @description # Format date
- */
-angular.module('mblowfish-core').filter('mbDate', function($mbLocal) {
-	return function(inputDate, format) {
-		return $mbLocal.formatDate(inputDate, format);
-	};
-});
-
-/**
- * @ngdoc Filters
- * @name mbDateTime
- * @description # Format date time
- */
-angular.module('mblowfish-core').filter('mbDateTime', function($mbLocal) {
-	return function(inputDate, format) {
-		return $mbLocal.formatDateTime(inputDate, format);
-	};
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-/*
- * 
- */
-angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootScope) {
-
-	// load language
-	function getLanguage(key) {
-		var languages = $rootScope.__app.configs.languages || [];
-		var lang = {
-			map: []
-		};
-		angular.forEach(languages, function(item) {
-			if (item.key === key) {
-				lang = item;
-			}
-		});
-		return lang.map;
-	}
-
-    /*
-     * State machine to manage language configurations
-     */
-	var stateMachine = new machina.Fsm({
-		namespace: 'mb-language-config-loader',
-		initialState: 'loading',
-		states: {
-			loading: {
-				appStateChange: function(state) {
-					if (state === 'ready') {
-						this.transition('ready');
-					}
-					// TODO: maso, 2018: not configured or fail
-					if (state === 'ready_app_not_configured') {
-						this.transition('fail');
-					}
-				}
-			},
-			ready: {
-				appStateChange: function(state) {
-					// TODO: maso, 2018: not configured or fail
-					if (state === 'ready_app_not_configured') {
-						this.transition('fail');
-					}
-				}
-			},
-			fail: {
-				appStateChange: function(state) {
-					if (state === 'ready') {
-						this.transition('ready');
-					}
-				}
-			}
-		},
-
-        /*
-         * Handle application state change
-         */
-		appStateChange: function(state) {
-			this.handle('appStateChange', state);
-		}
-
-	});
-
-	$rootScope.$watch('__app.state', function(state) {
-		stateMachine.appStateChange(state);
-	});
-
-	var jobs = [];
-	// I'd like to know when the transition event occurs
-	stateMachine.on('transition', function() {
-		if (stateMachine.state === 'ready' || stateMachine.state === 'fail') {
-			angular.forEach(jobs, function(job) {
-				job();
-			});
-			jobs = [];
-		}
-	});
-
-	return function(option) {
-		if (stateMachine.state === 'fail') {
-			return $q.reject(option.key);
-		}
-		if (stateMachine.state === 'ready') {
-			return $q.when(getLanguage(option.key));
-		}
-
-		var deferred = $q.defer();
-		jobs.push(function() {
-			if (stateMachine.state === 'fail') {
-				return deferred.reject(option.key);
-			}
-			deferred.resolve(getLanguage(option.key));
-		});
-		return deferred.promise;
-	};
-});
 /* 
  * The MIT License (MIT)
  * 
@@ -3304,35 +3018,90 @@ angular.module('mblowfish-core').factory('MbLanguageLoader', function($q, $rootS
  * SOFTWARE.
  */
 
+var STORE_LOCAL_PATH = '/app/local';
+
+var SETTING_LOCAL_LANGUAGE = 'local.language';
+var SETTING_LOCAL_DATEFORMAT = 'local.dateformat';
+var SETTING_LOCAL_DATETIMEFORMAT = 'local.datetimeformat';
+var SETTING_LOCAL_CURRENCY = 'local.currency';
+var SETTING_LOCAL_DIRECTION = 'local.direction';
+var SETTING_LOCAL_CALENDAR = 'local.calendar';
+var SETTING_LOCAL_TIMEZONE = 'local.timezone';
+
+
 /**
- * @ngdoc Services
- * @name $mbLocal
- * @description manage localization of widgets
- * 
- * Deprecated : use $window
+@ngdoc Services
+@name $mbLocal
+@description manage localization of widgets
+
+Many variables create system local:
+
+- language
+- currency
+- direction
+- calendar
+- date formate
+- date time format
+- timezone
+
+
+## Common Built-In Expressions
+
+The base class for expressions is $mbLocal. This provides some 
+common expressions which are available in templates.
+
+By default, built in expressions are enabled automatically. However you can
+disable it in configuration:
+
+	$mbLocalProvider
+		.setExpressionsEnabled(false);
+
+- isLanguage(lang): check if language is set
+- isCurrency(currency): check if currency is set
+- isCalendar(calendar): checks if the callender is set
+- isRtl : true if the direction is set right to left
+- isLtr : true if the direction is set left to right
+
+For example, to add security into a view or editor:
+
+@example
+	<div ng-show="!isRtl && isLanguage('fa')">Direction must be RTL for current language</div>
  */
-angular.module('mblowfish-core').provider('$mbLocal', function() {
+mblowfish.provider('$mbLocal', function() {
 
 	//---------------------------------------
 	// Services
 	//---------------------------------------
 	var provider;
 	var service;
+
+
 	var rootScope;
+	var mbStorage;
+	var mbDispatcher;
 
 
 	//---------------------------------------
 	// variables
 	//---------------------------------------
+	var defaultCalendar = 'en';
+	var defaultCurrency = 'USD';
 	var defaultDateFormat = 'jYYYY-jMM-jDD';
-	var dateFormat;
-
 	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
-	var dateTimeFormat;
+	var defaultDirection = 'ltr';
+	var defaultLanguage = 'en';
+	var defaultTimezone = 'UTC';
 
-	var language = 'en';
-	var currency = 'US';
-	var direction = 'rtl';
+	var dateFormat;
+	var dateTimeFormat;
+	var language;
+	var currency;
+	var direction;
+	var calendar;
+	var timezone;
+
+	var autoSave = true;
+	var exrpressionsEnabled = true;
 
 
 	//---------------------------------------
@@ -3344,73 +3113,149 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 			return '';
 		}
 		try {
-			if (rootScope.app.calendar !== 'Jalaali') {
+			if (calendar !== 'Jalaali') {
 				format = format.replace('j', '');
 			}
-			var date = moment //
-				.utc(inputDate) //
-				.local();
-			return date.format(format);
+			return moment
+				.utc(inputDate)
+				.local()
+				.format(format);
 		} catch (ex) {
-			return '-' + ex.message;
+			return 'Bad date format:' + ex.message;
 		}
 	}
 	/**
-	 * Formats the input date based on the format
-	 * 
-	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-	 * 
-	 * @params data {String | Date} to format
-	 * @params format {String} of the output
-	 * @memberof $mbLocal
+	 Formats the input date based on the format
+	 
+	 NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 
+	 @params data {String | Date} to format
+	 @params format {String} of the output
+	 @memberof $mbLocal
 	 */
 	function formatDate(inputDate, format) {
-		return formatDateInternal(inputDate, dateFormat || defaultDateFormat);
+		return formatDateInternal(inputDate, format || dateFormat || defaultDateFormat);
 	}
 
 
-	function setDateFormat() { }
-	function getDateFormat() { }
+	function setDateFormat(newDateFormat) {
+		//>> change
+		dateFormat = newDateFormat;
+
+		//>> save
+		if (autoSave) {
+			save();
+		}
+
+		//>> fire changes
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
+			type: 'update',
+			key: 'dateFormat',
+			values: [newDateFormat]
+		});
+
+		return service;
+	}
+
+
+	function getDateFormat() {
+		return dateFormat;
+	}
 
 	/**
-	 * Formats the input date based on the format
-	 * 
-	 * NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
-	 * 
-	 * @params data {String | Date} to format
-	 * @params format {String} of the output
-	 * @memberof $mbLocal
+	 Formats the input date based on the format
+	 
+	 NOTE: default format is 'YYYY-MM-DD hh:mm:ss'
+	 
+	 @params data {String | Date} to format
+	 @params format {String} of the output
+	 @memberof $mbLocal
 	 */
 	function formatDateTime(inputDate, format) {
-		return formatDateInternal(inputDate, dateTimeFormat || defaultDateTimeFormat);
-	};
+		return formatDateInternal(inputDate, format || dateTimeFormat || defaultDateTimeFormat);
+	}
 
+	function setDateTimeFormat() {
+		//>> change
+		dateTimeFormat = newDateTimeFormat;
 
-	function setDateTimeFormat() { }
-	function getDateTimeFormat() { }
+		//>> save
+		if (autoSave) {
+			save();
+		}
+
+		//>> fire changes
+		mbDispatcher.dispatch(store_local_path, {
+			type: 'update',
+			key: 'dateTimeFormat',
+			values: [newDateTimeFormat]
+		});
+
+		return service;
+	}
+
+	function getDateTimeFormat() {
+		return dateTimeFormat;
+	}
 
 	/**
-	 * Get currency of the system
-	 * 
-	 * @return currency ISO code
-	 * @memberof $mbLocal
+	 Get currency of the system
+	 
+	 @return currency ISO code
+	 @memberof $mbLocal
 	 */
 	function getCurrency() {
 		return currency;
-	};
-
-	/**
-	 * Sets currency of the system
-	 * 
-	 * @param currency {String} ISO code
-	 * @memberof $mbLocal
-	 */
-	function setCurrency(currencyKey) {
-		currency = currencyKey;
 	}
 
-	function setDirection(dir) {
-		direction = dir;
+	/**
+	 Sets currency of the system
+	 
+	 @param currency {String} ISO code
+	 @memberof $mbLocal
+	 */
+	function setCurrency(newCurrency) {
+		//>> change
+		currency = newCurrency;
+
+		//>> save
+		if (autoSave) {
+			save();
+		}
+
+		//>> fire changes
+		mbDispatcher.dispatch(store_local_path, {
+			type: 'update',
+			key: 'currency',
+			values: [currency]
+		});
+
+		return service;
+	}
+
+	function setDirection(newDirection) {
+		//>> change
+		// update variables
+		direction = newDirection;
+		// update expressions
+		if (exrpressionsEnabled) {
+			rootScope.isRtl = direction === 'rtl';
+			rootScope.isLtr = direction === 'ltr';
+		}
+
+		//>> save
+		if (autoSave) {
+			save();
+		}
+
+		//>> fire changes
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
+			type: 'update',
+			key: 'direction',
+			values: [direction]
+		});
+
+		return service;
 	}
 
 	function getDirection() {
@@ -3418,15 +3263,43 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 	}
 
 	/**
-	 * Sets language of the system
-	 * 
-	 * @params language {String} ISO code
-	 * @memberof $mbLocal
+	 Sets language of the system
+	 
+	 @params language {String} ISO code
+	 @memberof $mbLocal
 	 */
 	function setLanguage(lang) {
 		language = lang;
-		$translate.use(lang);
-		// 2- chnage date format
+		$mbTranslate.use(lang);
+
+		//>> save
+		if (autoSave) {
+			save();
+		}
+
+		//>> fire changes
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
+			type: 'update',
+			key: 'language',
+			values: [language]
+		});
+
+		return service;
+	}
+
+	/**
+	 Get language of the system
+	 
+	 @return language ISO code
+	 @memberof $mbLocal
+	 */
+	function getLanguage() {
+		return language;
+	}
+
+	function setCalendar(key) {
+		calendar = key;
+		//>> Chnage date format
 		// Change moment's locale so the 'L'-format is adjusted.
 		// For example the 'L'-format is DD-MM-YYYY for Dutch
 		moment.loadPersian();
@@ -3437,58 +3310,91 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 		$mdDateLocale.shortMonths = localeDate._monthsShort;
 		$mdDateLocale.days = localeDate._weekdays;
 		$mdDateLocale.shortDays = localeDate._weekdaysMin;
-		// Optionaly let the week start on the day as defined by moment's locale
-		// data
+		// Optionaly let the week start on the day as defined by moment's locale data
 		$mdDateLocale.firstDayOfWeek = localeDate._week.dow;
-	}
 
-	/**
-	 * Get language of the system
-	 * 
-	 * @return language ISO code
-	 * @memberof $mbLocal
-	 */
-	function getLanguage() {
-		return language;
-	}
+		//>> save
+		if (autoSave) {
+			save();
+		}
 
-	function setCalendar(key) {
-		calendar = key;
+		//>> fire changes
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
+			type: 'update',
+			key: 'calendar',
+			values: [calendar]
+		});
+
+		return service;
 	}
 
 	function getCalendar() {
 		return calendar;
 	}
 
-	function reload() {
-		//	/*
-		//	 * watch direction and update app.dir
-		//	 */
-		//	$rootScope.$watch(function() {
-		//		return $rootScope.__app.settings.dir || $rootScope.__app.configs.dir || 'ltr';
-		//	}, setApplicationDirection);
-		//
-		//	/*
-		//	 * watch local and update language
-		//	 */
-		//	$rootScope.$watch(function() {
-		//		// Check language
-		//		return $rootScope.__app.settings.language || $rootScope.__app.configs.language || 'en';
-		//	}, setApplicationLanguage);
-		//
-		//	/*
-		//	 * watch calendar
-		//	 */
-		//	$rootScope.$watch(function() {
-		//		return $rootScope.__app.settings.calendar || $rootScope.__app.configs.calendar || 'Gregorian';
-		//	}, setApplicationCalendar);
+
+	function setTimezone(newTimezone) {
+		timezone = newTimezone;
+
+		//>> save
+		if (autoSave) {
+			save();
+		}
+
+		//>> fire changes
+		mbDispatcher.dispatch(STORE_LOCAL_PATH, {
+			type: 'update',
+			key: 'timezone',
+			values: [timezone]
+		});
+
+		return service;
+	}
+
+	function getTimezone() {
+		return timezone;
+	}
+
+	function save() {
+		mbStorage[SETTING_LOCAL_CALENDAR] = calendar;
+		mbStorage[SETTING_LOCAL_CURRENCY] = currency;
+		mbStorage[SETTING_LOCAL_DATEFORMAT] = dateFormat;
+		mbStorage[SETTING_LOCAL_DATETIMEFORMAT] = dateTimeFormat;
+		mbStorage[SETTING_LOCAL_DIRECTION] = direction;
+		mbStorage[SETTING_LOCAL_LANGUAGE] = language;
+		mbStorage[SETTING_LOCAL_TIMEZONE] = timezone;
+	}
+
+	function load() {
+		setCalendar(mbStorage[SETTING_LOCAL_CALENDAR] || defaultCalendar);
+		setCurrency(mbStorage[SETTING_LOCAL_CURRENCY] || defaultCurrency);
+		setDateFormat(mbStorage[SETTING_LOCAL_DATEFORMAT] || defaultDateFormat);
+		setDateTimeFormat(mbStorage[SETTING_LOCAL_DATETIMEFORMAT] || defaultDateTimeFormat);
+		setDirection(mbStorage[SETTING_LOCAL_DIRECTION] || defaultDirection);
+		setLanguage(mbStorage[SETTING_LOCAL_LANGUAGE] || defaultLanguage);
+		setTimezone(mbStorage[SETTING_LOCAL_TIMEZONE] || defaultLanguage);
+
+		if (exrpressionsEnabled) {
+			rootScope.isLanguage = function(lang) {
+				return lang === language;
+			};
+			rootScope.isCurrency = function(cur) {
+				return currency == cur;
+			};
+			rootScope.isCalendar = function(cal) {
+				return calendar = cal;
+			};
+			rootScope.isRtl = direction === 'rtl';
+			rootScope.isLtr = direction === 'ltr';
+		}
 	}
 
 	//---------------------------------------
 	// End
 	//---------------------------------------
 	service = {
-		reload: reload,
+		load: load,
+		save: save,
 
 		setCalendar: setCalendar,
 		getCalendar: getCalendar,
@@ -3509,34 +3415,50 @@ angular.module('mblowfish-core').provider('$mbLocal', function() {
 
 		setDirection: setDirection,
 		getDirection: getDirection,
+
+		setTimezone: setTimezone,
+		getTimezone: getTimezone,
 	};
 
 	provider = {
-		$get: function() {
-			reload();
+		$get: function($mbStorage) {
+			mbStorage = $mbStorage;
+
+			if (autoSave) {
+				load();
+			} else {
+				setLanguage(defaultLanguage);
+			}
 			return service;
 		},
-		setDefaultLanguage: function() {
+		setDefaultLanguage: function(language) {
+			defaultLanguage = language;
 			return provider;
 		},
-		setDefaultCountry: function() {
+		setDefaultCurrency: function(currency) {
+			defaultCurrency = currency;
 			return provider;
 		},
-		setDefaultCurrency: function() {
+		setDefaultDateFormat: function(dateFormat) {
+			defaultDateFormat = dateFormat;
 			return provider;
 		},
-		setDefaultDateFormat: function() {
+		setDefaultDateTimeFomrat: function(dateTimeFormat) {
+			defaultDateTimeFormat = dateTimeFormat;
 			return provider;
 		},
-		setDefaultDateTimeFomrat: function() {
+		setDefaultDirection: function(direction) {
+			defaultDirection = direction;
 			return provider;
 		},
-		setDefaultDirection: function() {
+		setDefaultCalendar: function(calendar) {
+			defaultCalendar = calendar;
 			return provider;
 		},
-		setDefaultCalendar: function() {
+		setDefaultTimezone: function(timezone) {
+			defaultTimezone = timezone;
 			return provider;
-		},
+		}
 	};
 	return provider;
 });
@@ -6191,7 +6113,7 @@ angular.module('mblowfish-core')
 	/**
 	 *
 	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, $translate, QueryParameter) {
+	.directive('mbPay', function ($bank, $parse, $location, $navigator, $mbTranslate, QueryParameter) {
 
 	    var qp = new QueryParameter();
 
@@ -6248,7 +6170,7 @@ angular.module('mblowfish-core')
 				$navigator.openPage('bank/receipts/' + receipt.id);
 			    }, function (error) {
 				ctrl.paying = false;
-				alert($translate.instant(error.data.message));
+				alert($mbTranslate.instant(error.data.message));
 			    });
 		};
 
@@ -6902,7 +6824,7 @@ Manages current user action:
 
  */
 mblowfish.controller('MbAccountContainerCtrl', function(
-	/* Angularjs */ $scope, $rootScope, $translate, $window, $usr,
+	/* Angularjs */ $scope, $rootScope, $mbTranslate, $window, $usr,
 	/* MBlowfish */ $mbAccount, $mbLogger) {
 
 
@@ -6971,11 +6893,11 @@ mblowfish.controller('MbAccountContainerCtrl', function(
 				$mbAccount.logout();
 				ctrl.changePassState = 'success';
 				$scope.changePassMessage = null;
-				toast($translate.instant('Password is changed successfully. Login with new password.'));
+				toast($mbTranslate.instant('Password is changed successfully. Login with new password.'));
 			}, function(error) {
 				ctrl.changePassState = 'fail';
 				$scope.changePassMessage = $mbLogger.errorMessage(error, form);
-				alert($translate.instant('Failed to change the password.'));
+				alert($mbTranslate.instant('Failed to change the password.'));
 			})//
 			.finally(function() {
 				ctrl.changingPassword = false;
@@ -7029,7 +6951,7 @@ angular.module('mblowfish-core')
  *
  */
 //TODO: maso, 2019: replace with MbSeenAccountCtrl
-.controller('MbProfileCtrl', function ($scope, $rootScope, $translate, $window, UserProfile, $usr) {
+.controller('MbProfileCtrl', function ($scope, $rootScope, $mbTranslate, $window, UserProfile, $usr) {
 
     // set initial data
     this.user = null;
@@ -7067,7 +6989,7 @@ angular.module('mblowfish-core')
             ctrl.profile = angular.isDefined(profiles.items[0]) ? profiles.items[0] : new UserProfile();
             return ctrl.profile;
         }, function () {
-            alert($translate.instant('Fail to load profile.'));
+            alert($mbTranslate.instant('Fail to load profile.'));
         })//
         .finally(function () {
             ctrl.loadingProfile = false;
@@ -7088,9 +7010,9 @@ angular.module('mblowfish-core')
         var ctrl = this;
         return $promise//
         .then(function () {
-            toast($translate.instant('Save is successfull.'));
+            toast($mbTranslate.instant('Save is successfull.'));
         }, function () {
-            alert($translate.instant('Fail to save item.'));
+            alert($mbTranslate.instant('Fail to save item.'));
         })//
         .finally(function () {
             ctrl.savingProfile = false;
@@ -7103,7 +7025,7 @@ angular.module('mblowfish-core')
 
     this.deleteAvatar = function () {
         var ctrl = this;
-        confirm($translate.instant('Delete the avatar?'))
+        confirm($mbTranslate.instant('Delete the avatar?'))
         .then(function () {
             ctrl.avatarState = 'working';
             return ctrl.user.deleteAvatar();
@@ -7166,22 +7088,22 @@ angular.module('mblowfish-core')
 
         var elm = angular.element('.lf-ng-md-file-input-drag-text');
         if (elm[0]) {
-            elm.text($translate.instant('Drag & Drop File Here'));
+            elm.text($mbTranslate.instant('Drag & Drop File Here'));
         }
 
         elm = angular.element('.lf-ng-md-file-input-button-brower');
         if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-            elm[0].childNodes[1].data=' '+$translate.instant('Browse');
+            elm[0].childNodes[1].data=' '+$mbTranslate.instant('Browse');
         }
 
         elm = angular.element('.lf-ng-md-file-input-button-remove');
         if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-            elm[0].childNodes[1].data=$translate.instant('Remove');
+            elm[0].childNodes[1].data=$mbTranslate.instant('Remove');
         }
 
         elm = angular.element('.lf-ng-md-file-input-caption-text-default');
         if (elm[0]) {
-            elm.text($translate.instant('Select File'));
+            elm.text($mbTranslate.instant('Select File'));
         }
 
     });
@@ -7366,72 +7288,163 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 
 /**
- * @ngdoc Controllers
- * @name MbHelpCtrl
- * @description Help page controller
+ * @ngdoc Services
+ * @name $help
+ * @description A help management service
  * 
- * Watches total system and update help data.
+ * Manage application help.
+ * 
+ * Set help id for an item:
+ * 
+ * <pre><code>
+ * 	var item = {
+ * 		...
+ * 		helpId: 'help-id'
+ * 	};
+ * 	$help.openHelp(item);
+ * </code></pre>
+ * 
+ * 
+ * 
+ * Open help for an item:
+ * 
+ * <pre><code>
+ * $help.openHelp(item);
+ * </code></pre>
  * 
  */
-.controller('MbHelpCtrl', function($scope, $rootScope, $mbRoute, $http, $translate, $help, $wbUtil) {
-    $rootScope.showHelp = false;
-    var lastLoaded;
+mblowfish.service('$help', function ($q, $rootScope, /*$mbTranslate,*/ $injector) {
 
-
-    /**
-     * load help content for the item
-     * 
-     * @name loadHelpContent
-     * @memberof MbHelpCtrl
-     * @params item {object} an item to display help for
-     */
-    function _loadHelpContent(item) {
-        if($scope.helpLoading){
-            // maso, 2018: cancle old loading
-            return $scope.helpLoading;
-        }
-        var path = $help.getHelpPath(item);
-        // load content
-        if(path && path !== lastLoaded){
-            $scope.helpLoading = $http.get(path) //
-            .then(function(res) {
-                $scope.helpContent = $wbUtil.clean(res.data);
-                lastLoaded = path;
-            })//
-            .finally(function(){
-                $scope.helpLoading = false;
-            });
-        }
-        return $scope.helpLoading;
-    }
-
-    $scope.closeHelp = function(){
-        $rootScope.showHelp = false;
-    };
-
-    /*
-     * If user want to display help, content will be loaded.
-     */
-    $scope.$watch('showHelp', function(value){
-        if(value) {
-            return _loadHelpContent();
-        }
-    });
-
-    /*
-     * Watch for current item in help service
-     */
-    $scope.$watch(function(){
-        return $help.currentItem();
-    }, function() {
-        if ($rootScope.showHelp) {
-            _loadHelpContent();
-        }
-    });
+//    var _tips = [];
+//    var _currentItem = null;
+//
+//    /*
+//     * Get help id
+//     */
+//    function _getHelpId(item) {
+//        if (!item) {
+//            return null;
+//        }
+//        var id = item.helpId;
+//        if (angular.isFunction(item.helpId)) {
+//            return $injector.invoke(item.helpId, item);
+//        }
+//        return id;
+//    }
+//
+//    /**
+//     * Adds new tip
+//     * 
+//     * New tip is added into the tips list.
+//     * 
+//     * @memberof $help
+//     * @param {object}
+//     *            tipData - Data of a tipe
+//     */
+//    function tip(tipData) {
+//        _tips.push(tipData);
+//        return this;
+//    }
+//
+//    /**
+//     * List of tips
+//     * 
+//     * @memberof $help
+//     * @return {promise<Array>} of tips
+//     */
+//    function tips() {
+//        return $q.resolve({
+//            items: _tips
+//        });
+//    }
+//
+//    /**
+//     * Gets current item in help system
+//     * 
+//     * @memberof $help
+//     * @return {Object} current item
+//     */
+//    function currentItem() {
+//        return _currentItem;
+//    }
+//
+//    /**
+//     * Sets current item in help system
+//     * 
+//     * @memberof $help
+//     * @params item {Object} target of the help system
+//     */
+//    function setCurrentItem(item) {
+//        _currentItem = item;
+//    }
+//
+//    /**
+//     * Gets help path
+//     * 
+//     * @memberof $help
+//     * @params item {Object} an item to show help for
+//     * @return path of the help
+//     */
+//    function getHelpPath(item) {
+//        // Get from help id
+//        var myId = _getHelpId(item || _currentItem);
+//        if (myId) {
+//            var lang = $mbTranslate.use();
+//            // load content
+//            return 'resources/helps/' + myId + '-' + lang + '.json';
+//        }
+//
+//        return null;
+//    }
+//
+//    /**
+//     * Check if there exist a help on item
+//     * 
+//     * @memberof $help
+//     * @params item {Object} an item to show help for
+//     * @return path if the item if exist help or false
+//     */
+//    function hasHelp(item) {
+//        return !!_getHelpId(item);
+//    }
+//
+//    /**
+//     * Display help for an item
+//     * 
+//     * This function change current item automatically and display help for it.
+//     * 
+//     * @memberof $help
+//     * @params item {Object} an item to show help for
+//     */
+//    function openHelp(item) {
+//        if (!hasHelp(item)) {
+//            return;
+//        }
+//        if (_currentItem === item) {
+//            $rootScope.showHelp = !$rootScope.showHelp;
+//            return;
+//        }
+//        setCurrentItem(item);
+//        $rootScope.showHelp = true;
+//    }
+//
+//    /*
+//     * Service structure
+//     */
+//    return {
+//        tip: tip,
+//        tips: tips,
+//
+//        currentItem: currentItem,
+//        setCurrentItem: setCurrentItem,
+//        openHelp: openHelp,
+//        hasHelp: hasHelp,
+//        getHelpPath: getHelpPath
+//    };
 });
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7561,1461 +7574,127 @@ angular.module('mblowfish-core').run(function(
  * SOFTWARE.
  */
 
-mblowfish.config(function($mbPreferencesProvider) {
-	// Pages
-	$mbPreferencesProvider
-		.addPage('local', {
-			title: 'local',
-			icon: 'language',
-			templateUrl: 'views/preferences/mb-local.html',
-			controller: 'MbLocalCtrl',
-			controllerAs: 'ctrl'
-		})
-		.addPage('brand', {
-			title: 'Branding',
-			icon: 'copyright',
-			templateUrl: 'views/preferences/mb-brand.html',
-			// controller : 'settingsBrandCtrl',
-			controllerAs: 'ctrl'
-		});
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+mblowfish
+	.config(function($mbPreferencesProvider, $mbTranslateProvider, $mdDateLocaleProvider, $mbResourceProvider) {
+		$mbTranslateProvider.useMissingTranslationHandler('MbMissingTranslationHandler');
+		$mbTranslateProvider.useLoader('MbLanguageLoader');
 
 
+		// Format and parse dates based on moment's 'L'-format
+		// 'L'-format may later be changed
+		$mdDateLocaleProvider.parseDate = function(dateString) {
+			var m = moment(dateString, 'L', true);
+			return m.isValid() ? m.toDate() : new Date(NaN);
+		};
 
+		$mdDateLocaleProvider.formatDate = function(date) {
+			var m = moment(date);
+			return m.isValid() ? m.format('L') : '';
+		};
 
-/**
- * @ngdoc Services
- * @name $language
- * @description 
- * Manages languages of the application.
- * This service provide functionality to switch between multiple languages.
- * Also provides functionlity to manage languages (add, remove or edit translations).
- * 
- */
-angular.module('mblowfish-core').service('$language', function($rootScope, $q, $translate) {
-
-    /**
-     * Returns language determined by given key.
-     * 
-     * @memberof $language
-     * @param {string} language key - Key of the language
-     * @return {object}  Returns language with given key. 
-     * @Returns 'undefined' if language does not exist or is not loaded yet.
-     */
-	function language(key) {
-		var languages = $rootScope.app.config.languages;
-		if (!languages || !languages.length) {
-			return undefined;
-		}
-		for (var i = 0; i < languages.length; i++) {
-			if (languages[i].key === key) {
-				return languages[i];
-			}
-		}
-		return undefined;
-	}
-
-    /**
-     * Returns list of defined and loaded languages.
-     * 
-     * @memberof $language
-     * @return {promise<Array>} of languages
-     */
-	function languages() {
-		var langs = $rootScope.app.config.languages;
-		var res = { items: langs || [] };
-		return $q.when(res);
-
-
-		//      var deferred = $q.defer();
-		//deferred.resolve(res);
-		//      return deferred.promise;
-	}
-
-    /**
-     * Adds a new language
-     * 
-     * @param {object} lang - Object contain information of a language.
-     * 		A language object would contain following properties:
-     * 
-     * 		- key: a key to determin language (for example fa, en and so on)
-     * 		- title: title for language (for example Persian, English, ...)
-     * 		- dir: direction of language ('ltr' or 'rtl')
-     * 		- map: translation table of language contains some key-values. 
-     * 
-     * @memberof $language
-     */
-	function newLanguage(lang) {
-		if (!$rootScope.__account.permissions.tenant_owner) {
-			return $q.reject('not allowed');
-		}
-		if (!$rootScope.app.config.languages) {
-			$rootScope.app.config.languages = [];
-		} else {
-			var languages = $rootScope.app.config.languages;
-			for (var i = 0; i < languages.length; i++) {
-				if (lang.key === languages[i].key) {
-					return $q.reject('Sorry! Languages with the same key are not allowed.');
-				}
-			}
-		}
-		$rootScope.app.config.languages.push(lang);
-		$translate.refresh(lang.key);
-		return $q.resolve(lang);
-	}
-
-    /**
-     * Delete a language
-     * 
-     * @memberof $language
-     * @param {object|string} lang - The Language to delete or key of language to delete
-     * @return {promise} promise of deleted language
-     */
-	function deleteLanguage(lang) {
-		if (!$rootScope.__account.permissions.tenant_owner) {
-			return $q.reject('not allowed');
-		}
-		var languages = $rootScope.app.config.languages;
-		if (!languages || !languages.length) {
-			return $q.reject('Not found');
-		}
-		var index = -1;
-		if (angular.isString(lang)) {
-			// lang is key of language
-			for (var i = 0; i < languages.length; i++) {
-				if (languages[i].key === lang) {
-					index = i;
-					break;
-				}
-			}
-		} else {
-			index = languages.indexOf(lang);
-		}
-
-		if (index !== -1) {
-			languages.splice(index, 1);
-			return $q.resolve(lang);
-		}
-		return $q.reject('Not found');
-	}
-
-    /**
-     * Returns the language key of language that is currently loaded asynchronously.
-     * 
-     * @memberof $language
-     * @return {string} language key
-     */
-	function proposedLanguage() {
-		return $translate.proposedLanguage();
-	}
-
-    /**
-     * Tells angular-translate which language to use by given language key. This 
-     * method is used to change language at runtime. It also takes care of 
-     * storing the language key in a configured store to let your app remember 
-     * the choosed language.
-     *
-     * When trying to 'use' a language which isn't available it tries to load it 
-     * asynchronously with registered loaders.
-     * 
-     * Returns promise object with loaded language file data or string of the 
-     * currently used language.
-     * 
-     * If no or a falsy key is given it returns the currently used language key. 
-     * The returned string will be undefined if setting up $translate hasn't 
-     * finished.
-     * 
-     * @memberof $language
-     * @param {string} key - Feature description.Language key
-     * @return {Promise} Promise with loaded language data or the language key if a falsy param was given.
-     * 
-     */
-	function use(key) {
-		return $translate.use(key);
-	}
-
-    /**
-     * Refreshes a translation table pointed by the given langKey. If langKey is not specified,
-     * the module will drop all existent translation tables and load new version of those which
-     * are currently in use.
-     *
-     * Refresh means that the module will drop target translation table and try to load it again.
-     *
-     * In case there are no loaders registered the refresh() method will throw an Error.
-     *
-     * If the module is able to refresh translation tables refresh() method will broadcast
-     * $translateRefreshStart and $translateRefreshEnd events.
-     *
-     * @example
-     * // this will drop all currently existent translation tables and reload those which are
-     * // currently in use
-     * $translate.refresh();
-     * // this will refresh a translation table for the en_US language
-     * $translate.refresh('en_US');
-     *
-     * @param {string} langKey A language key of the table, which has to be refreshed
-     *
-     * @return {promise} Promise, which will be resolved in case a translation tables refreshing
-     * process is finished successfully, and reject if not.
-     */
-	function refresh(key) {
-		return $translate.refresh(key);
-	}
-
-    /*
-     * Service struct
-     */
-	return {
-		language: language,
-		languages: languages,
-		newLanguage: newLanguage,
-		deleteLanguage: deleteLanguage,
-		proposedLanguage: proposedLanguage,
-		refresh: refresh,
-		use: use
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc controller
- * @name MbLanguagesCtrl
- * @description Mange list of languages
- * 
- * Manages list of languages
- * 
- */
-angular.module('mblowfish-core').controller('MbLanguagesCtrl', function(
-	$rootScope, $language, $navigator, FileSaver,
-		/* AngularJS */ $window,
-		/* am-wb     */ $mbResource) {
-
-	this.selectedLanguage = null;
-
-	/**
-	 * Set current language of app
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @param {object} lang - Key of the language
-	 * @return {promise} to change language
-	 */
-	this.setLanguage = function(lang) {
-		this.selectedLanguage = lang;
-		this.selectedLanguage.map = this.selectedLanguage.map || {};
-		this.addMissedWord();
-	};
-
-	/**
-	 * Adds new language to app configuration
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @return {promise} to add language
-	 */
-	this.addLanguage = function() {
-		$mbResource.get('/app/languages', {
-			// TODO:
-		}).then(function(language) {
-			language.map = language.map || {};
-			return $language.newLanguage(language);
-		});
-	};
-
-	/**
-	 * Remove language form application
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @param {object} lang - The Language
-	 * @return {promise} to delete language
-	 */
-	this.deleteLanguage = function(lang) {
-		var ctrl = this;
-		$window.confirm('Delete the language?').then(function() {
-			return $language.deleteLanguage(lang);
-		}).then(function() {
-			if (angular.equals(ctrl.selectedLanguage, lang)) {
-				ctrl.selectedLanguage = null;
-			}
-		});
-	};
-
-	/**
-	 * Adds a word to the current language map
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 */
-	this.addWord = function() {
-		var ctrl = this;
-		return $navigator.openDialog({
-			templateUrl: 'views/dialogs/mbl-add-word.html',
-
-		})//
-			.then(function(word) {
-				ctrl.selectedLanguage.map[word.key] = ctrl.selectedLanguage.map[word.key] || word.translate || word.key;
-			});
-	};
-
-	/**
-	 * Remove the key from current language map
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 */
-	this.deleteWord = function(key) {
-		delete this.selectedLanguage.map[key];
-	};
-
-
-	/**
-	 * Adds all missed keywords to the current language
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 */
-	this.addMissedWord = function() {
-		var mids = $rootScope.__app.settings.languageMissIds;
-		var ctrl = this;
-		_.forEach(mids, function(id) {
-			ctrl.selectedLanguage.map[id] = ctrl.selectedLanguage.map[id] || id;
-		});
-	}
-
-	/**
-	 * Download the language
-	 * 
-	 * @memberof MbLanguagesCtrl
-	 * @param {object} lang - The Language
-	 */
-	this.saveAs = function(lang) {
-		var MIME_WB = 'application/weburger+json;charset=utf-8';
-
-		// save  result
-		var dataString = JSON.stringify(lang);
-		var data = new Blob([dataString], {
-			type: MIME_WB
-		});
-		return FileSaver.saveAs(data, 'language.json');
-	};
-
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-
-/**
- * @ngdoc Controllers
- * @name MbThemesCtrl
- * @description Dashboard
- * 
- */
-mblowfish.controller('MbLanguageCtrl', function($scope, $rootScope, $http, $language) {
-
-	function init() {
-		$http.get('resources/languages.json')//
-			.then(function(res) {
-				var data = res ? res.data : {};
-				$scope.languages = data.languages;
-				//			$rootScope.app.config.languages = $scope.languages;
+		// Pages
+		$mbPreferencesProvider
+			.addPage('local', {
+				title: 'local',
+				icon: 'language',
+				templateUrl: 'views/preferences/mb-local.html',
+				controller: 'MbLocalCtrl',
+				controllerAs: 'ctrl'
 			})
-			//		$mbSettings.config('languages')//
-			//		.then(function(langs){
-			//			$scope.languages = langs;
-			//			return langs;
-			//		})//
-			//		.then(function(){
-			//			if(!$scope.languages){
-			//				$http.get('resources/languages.json')//
-			//				.then(function(res){
-			//					var data = res ? res.data : {};
-			//					$scope.languages = data.languages;
-			//					$rootScope.app.config.languages = $scope.languages;
-			//				});
-			//			}
-			//		})//
-			.finally(function() {
-				var langKey = $language.use();
-				if ($scope.languages) {
-					for (var i = 0; i < $scope.languages.length; i++) {
-						if ($scope.languages[i].key === langKey) {
-							setLanguage($scope.languages[i]);
-							return;
-						}
-					}
-				}
+			.addPage('brand', {
+				title: 'Branding',
+				icon: 'copyright',
+				templateUrl: 'views/preferences/mb-brand.html',
+				// controller : 'settingsBrandCtrl',
+				controllerAs: 'ctrl'
 			});
-	}
 
-	function setLanguage(lang) {
-		$scope.myLanguage = lang;
-		// Load langauge
-		$rootScope.app.config.languages = [];
-		$rootScope.app.config.languages.push($scope.myLanguage);
-		// Use langauge		
-		$language.use($scope.myLanguage.key);
-		// Set local
-		$rootScope.app.config.local = $rootScope.app.config.local || {};
-		if (!angular.isObject($rootScope.app.config.local)) {
-			$rootScope.app.config.local = {};
+
+		$mbResourceProvider
+			.addPage('language', {
+				label: 'Custom',
+				templateUrl: 'views/resources/mb-language-custome.html',
+				controller: 'MbLocalResourceLanguageCustomCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.viraweb123', {
+				label: 'Common',
+				templateUrl: 'views/resources/mb-language-list.html',
+				controller: 'MbLocalResourceLanguageCommonCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.upload', {
+				label: 'Upload',
+				templateUrl: 'views/resources/mb-language-upload.html',
+				controller: 'MbLocalResourceLanguageUploadCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			});
+	})
+	.run(function runTranslate($mbTranslate) {
+
+		var key = $mbTranslate.storageKey(),
+			storage = $mbTranslate.storage();
+
+		var fallbackFromIncorrectStorageValue = function() {
+			var preferred = $mbTranslate.preferredLanguage();
+			if (angular.isString(preferred)) {
+				$mbTranslate.use(preferred);
+				// $mbTranslate.use() will also remember the language.
+				// So, we don't need to call storage.put() here.
+			} else {
+				storage.put(key, $mbTranslate.use());
+			}
+		};
+
+		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
+
+		if (storage) {
+			if (!storage.get(key)) {
+				fallbackFromIncorrectStorageValue();
+			} else {
+				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
+			}
+		} else if (angular.isString($mbTranslate.preferredLanguage())) {
+			$mbTranslate.use($mbTranslate.preferredLanguage());
 		}
-		$rootScope.app.config.local.language = $scope.myLanguage.key;
-		// if($scope.myLanguage.dir){
-		// 	$rootScope.app.config.local.dir = $scope.myLanguage.dir;
-		// }
-	}
+	});
 
-	$scope.setLanguage = setLanguage;
-
-	init();
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
 
 
 /**
- * @ngdoc Controllers
- * @name MbLocalCtrl
- * @description Controller to manage local settings
- * 
+ * Returns the scope's namespace.
+ * @private
+ * @param scope
+ * @returns {string}
  */
-.controller('MbLocalCtrl', function($scope, $language, $navigator) {
-
-	function init(){		
-		$language.languages()//
-		.then(function(langs){
-			$scope.languages = langs.items;
-			return $scope.languages;
-		});
+function getTranslateNamespace(scope) {
+	'use strict';
+	if (scope.translateNamespace) {
+		return scope.translateNamespace;
 	}
+	if (scope.$parent) {
+		return getTranslateNamespace(scope.$parent);
+	}
+}
 
-	$scope.goToManage = function(){
-		// XXX: hadi, Following path exist in angular-material-home-language.
-		// I think it should be moved to mblowfish or move multilanguage functionality to that module.
-		$navigator.openPage('preferences/languages/manager');
-	};
-	
-	$scope.languages = [];
-	
-	init();
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core').factory('MbMissingTranslationHandler', function($rootScope) {
-	// has to return a function which gets a tranlation ID
-	return function(translationID) {
-//		var app = $rootScope.__app;
-//		//        var key = $language.use()
-//		if (!app.settings.languageMissIds) {
-//			app.settings.languageMissIds = [];
-//		}
-//		var index = app.settings.languageMissIds.indexOf(translationID);
-//		if (index === -1) {
-//			app.settings.languageMissIds.push(translationID);
-//		}
-	};
-});
-///*
-// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-// * 
-// * Permission is hereby granted, free of charge, to any person obtaining a copy
-// * of this software and associated documentation files (the "Software"), to deal
-// * in the Software without restriction, including without limitation the rights
-// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// * copies of the Software, and to permit persons to whom the Software is
-// * furnished to do so, subject to the following conditions:
-// * 
-// * The above copyright notice and this permission notice shall be included in all
-// * copies or substantial portions of the Software.
-// * 
-// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// * SOFTWARE.
-// */
-//'use strict';
-//
-///*
-// * Adds language resources
-// * 
-// */
-//angular.module('mblowfish-core').run(function($language, 
-//		/* angularjs */ $rootScope, $timeout, $q, $http,
-//		/* am-wb-core */ $mbResource) {
-//
-//	var languages = [
-//		{
-//			key: 'ab',
-//			title: 'Abkhaz'
-//		},
-//		{
-//			key: 'aa',
-//			title: 'Afar'
-//		},
-//		{
-//			key: 'af',
-//			title: 'Afrikaans'
-//		},
-//		{
-//			key: 'ak',
-//			title: 'Akan'
-//		},
-//		{
-//			key: 'sq',
-//			title: 'Albanian'
-//		},
-//		{
-//			key: 'am',
-//			title: 'Amharic'
-//		},
-//		{
-//			key: 'ar',
-//			title: 'Arabic'
-//		},
-//		{
-//			key: 'an',
-//			title: 'Aragonese'
-//		},
-//		{
-//			key: 'hy',
-//			title: 'Armenian'
-//		},
-//		{
-//			key: 'as',
-//			title: 'Assamese'
-//		},
-//		{
-//			key: 'av',
-//			title: 'Avaric'
-//		},
-//		{
-//			key: 'ae',
-//			title: 'Avestan'
-//		},
-//		{
-//			key: 'ay',
-//			title: 'Aymara'
-//		},
-//		{
-//			key: 'az',
-//			title: 'Azerbaijani'
-//		},
-//		{
-//			key: 'bm',
-//			title: 'Bambara'
-//		},
-//		{
-//			key: 'ba',
-//			title: 'Bashkir'
-//		},
-//		{
-//			key: 'eu',
-//			title: 'Basque'
-//		},
-//		{
-//			key: 'be',
-//			title: 'Belarusian'
-//		},
-//		{
-//			key: 'bn',
-//			title: 'Bengali; Bangla'
-//		},
-//		{
-//			key: 'bh',
-//			title: 'Bihari'
-//		},
-//		{
-//			key: 'bi',
-//			title: 'Bislama'
-//		},
-//		{
-//			key: 'bs',
-//			title: 'Bosnian'
-//		},
-//		{
-//			key: 'br',
-//			title: 'Breton'
-//		},
-//		{
-//			key: 'bg',
-//			title: 'Bulgarian'
-//		},
-//		{
-//			key: 'my',
-//			title: 'Burmese'
-//		},
-//		{
-//			key: 'ca',
-//			title: 'Catalan; Valencian'
-//		},
-//		{
-//			key: 'ch',
-//			title: 'Chamorro'
-//		},
-//		{
-//			key: 'ce',
-//			title: 'Chechen'
-//		},
-//		{
-//			key: 'ny',
-//			title: 'Chichewa; Chewa; Nyanja'
-//		},
-//		{
-//			key: 'zh',
-//			title: 'Chinese'
-//		},
-//		{
-//			key: 'cv',
-//			title: 'Chuvash'
-//		},
-//		{
-//			key: 'kw',
-//			title: 'Cornish'
-//		},
-//		{
-//			key: 'co',
-//			title: 'Corsican'
-//		},
-//		{
-//			key: 'cr',
-//			title: 'Cree'
-//		},
-//		{
-//			key: 'hr',
-//			title: 'Croatian'
-//		},
-//		{
-//			key: 'cs',
-//			title: 'Czech'
-//		},
-//		{
-//			key: 'da',
-//			title: 'Danish'
-//		},
-//		{
-//			key: 'dv',
-//			title: 'Divehi; Dhivehi; Maldivian;'
-//		},
-//		{
-//			key: 'nl',
-//			title: 'Dutch'
-//		},
-//		{
-//			key: 'dz',
-//			title: 'Dzongkha'
-//		},
-//		{
-//			key: 'en',
-//			title: 'English'
-//		},
-//		{
-//			key: 'eo',
-//			title: 'Esperanto'
-//		},
-//		{
-//			key: 'et',
-//			title: 'Estonian'
-//		},
-//		{
-//			key: 'ee',
-//			title: 'Ewe'
-//		},
-//		{
-//			key: 'fo',
-//			title: 'Faroese'
-//		},
-//		{
-//			key: 'fj',
-//			title: 'Fijian'
-//		},
-//		{
-//			key: 'fi',
-//			title: 'Finnish'
-//		},
-//		{
-//			key: 'fr',
-//			title: 'French'
-//		},
-//		{
-//			key: 'ff',
-//			title: 'Fula; Fulah; Pulaar; Pular'
-//		},
-//		{
-//			key: 'gl',
-//			title: 'Galician'
-//		},
-//		{
-//			key: 'ka',
-//			title: 'Georgian'
-//		},
-//		{
-//			key: 'de',
-//			title: 'German'
-//		},
-//		{
-//			key: 'el',
-//			title: 'Greek, Modern'
-//		},
-//		{
-//			key: 'gn',
-//			title: 'GuaranÃ­'
-//		},
-//		{
-//			key: 'gu',
-//			title: 'Gujarati'
-//		},
-//		{
-//			key: 'ht',
-//			title: 'Haitian; Haitian Creole'
-//		},
-//		{
-//			key: 'ha',
-//			title: 'Hausa'
-//		},
-//		{
-//			key: 'he',
-//			title: 'Hebrew (modern)'
-//		},
-//		{
-//			key: 'hz',
-//			title: 'Herero'
-//		},
-//		{
-//			key: 'hi',
-//			title: 'Hindi'
-//		},
-//		{
-//			key: 'ho',
-//			title: 'Hiri Motu'
-//		},
-//		{
-//			key: 'hu',
-//			title: 'Hungarian'
-//		},
-//		{
-//			key: 'ia',
-//			title: 'Interlingua'
-//		},
-//		{
-//			key: 'id',
-//			title: 'Indonesian'
-//		},
-//		{
-//			key: 'ie',
-//			title: 'Interlingue'
-//		},
-//		{
-//			key: 'ga',
-//			title: 'Irish'
-//		},
-//		{
-//			key: 'ig',
-//			title: 'Igbo'
-//		},
-//		{
-//			key: 'ik',
-//			title: 'Inupiaq'
-//		},
-//		{
-//			key: 'io',
-//			title: 'Ido'
-//		},
-//		{
-//			key: 'is',
-//			title: 'Icelandic'
-//		},
-//		{
-//			key: 'it',
-//			title: 'Italian'
-//		},
-//		{
-//			key: 'iu',
-//			title: 'Inuktitut'
-//		},
-//		{
-//			key: 'ja',
-//			title: 'Japanese'
-//		},
-//		{
-//			key: 'jv',
-//			title: 'Javanese'
-//		},
-//		{
-//			key: 'kl',
-//			title: 'Kalaallisut, Greenlandic'
-//		},
-//		{
-//			key: 'kn',
-//			title: 'Kannada'
-//		},
-//		{
-//			key: 'kr',
-//			title: 'Kanuri'
-//		},
-//		{
-//			key: 'ks',
-//			title: 'Kashmiri'
-//		},
-//		{
-//			key: 'kk',
-//			title: 'Kazakh'
-//		},
-//		{
-//			key: 'km',
-//			title: 'Khmer'
-//		},
-//		{
-//			key: 'ki',
-//			title: 'Kikuyu, Gikuyu'
-//		},
-//		{
-//			key: 'rw',
-//			title: 'Kinyarwanda'
-//		},
-//		{
-//			key: 'ky',
-//			title: 'Kyrgyz'
-//		},
-//		{
-//			key: 'kv',
-//			title: 'Komi'
-//		},
-//		{
-//			key: 'kg',
-//			title: 'Kongo'
-//		},
-//		{
-//			key: 'ko',
-//			title: 'Korean'
-//		},
-//		{
-//			key: 'ku',
-//			title: 'Kurdish'
-//		},
-//		{
-//			key: 'kj',
-//			title: 'Kwanyama, Kuanyama'
-//		},
-//		{
-//			key: 'la',
-//			title: 'Latin'
-//		},
-//		{
-//			key: 'lb',
-//			title: 'Luxembourgish, Letzeburgesch'
-//		},
-//		{
-//			key: 'lg',
-//			title: 'Ganda'
-//		},
-//		{
-//			key: 'li',
-//			title: 'Limburgish, Limburgan, Limburger'
-//		},
-//		{
-//			key: 'ln',
-//			title: 'Lingala'
-//		},
-//		{
-//			key: 'lo',
-//			title: 'Lao'
-//		},
-//		{
-//			key: 'lt',
-//			title: 'Lithuanian'
-//		},
-//		{
-//			key: 'lu',
-//			title: 'Luba-Katanga'
-//		},
-//		{
-//			key: 'lv',
-//			title: 'Latvian'
-//		},
-//		{
-//			key: 'gv',
-//			title: 'Manx'
-//		},
-//		{
-//			key: 'mk',
-//			title: 'Macedonian'
-//		},
-//		{
-//			key: 'mg',
-//			title: 'Malagasy'
-//		},
-//		{
-//			key: 'ms',
-//			title: 'Malay'
-//		},
-//		{
-//			key: 'ml',
-//			title: 'Malayalam'
-//		},
-//		{
-//			key: 'mt',
-//			title: 'Maltese'
-//		},
-//		{
-//			key: 'mi',
-//			title: 'MÄori'
-//		},
-//		{
-//			key: 'mr',
-//			title: 'Marathi (MarÄá¹­hÄ«)'
-//		},
-//		{
-//			key: 'mh',
-//			title: 'Marshallese'
-//		},
-//		{
-//			key: 'mn',
-//			title: 'Mongolian'
-//		},
-//		{
-//			key: 'na',
-//			title: 'Nauru'
-//		},
-//		{
-//			key: 'nv',
-//			title: 'Navajo, Navaho'
-//		},
-//		{
-//			key: 'nb',
-//			title: 'Norwegian BokmÃ¥l'
-//		},
-//		{
-//			key: 'nd',
-//			title: 'North Ndebele'
-//		},
-//		{
-//			key: 'ne',
-//			title: 'Nepali'
-//		},
-//		{
-//			key: 'ng',
-//			title: 'Ndonga'
-//		},
-//		{
-//			key: 'nn',
-//			title: 'Norwegian Nynorsk'
-//		},
-//		{
-//			key: 'no',
-//			title: 'Norwegian'
-//		},
-//		{
-//			key: 'ii',
-//			title: 'Nuosu'
-//		},
-//		{
-//			key: 'nr',
-//			title: 'South Ndebele'
-//		},
-//		{
-//			key: 'oc',
-//			title: 'Occitan'
-//		},
-//		{
-//			key: 'oj',
-//			title: 'Ojibwe, Ojibwa'
-//		},
-//		{
-//			key: 'cu',
-//			title: 'Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic'
-//		},
-//		{
-//			key: 'om',
-//			title: 'Oromo'
-//		},
-//		{
-//			key: 'or',
-//			title: 'Oriya'
-//		},
-//		{
-//			key: 'os',
-//			title: 'Ossetian, Ossetic'
-//		},
-//		{
-//			key: 'pa',
-//			title: 'Panjabi, Punjabi'
-//		},
-//		{
-//			key: 'pi',
-//			title: 'PÄli'
-//		},
-//		{
-//			key: 'fa',
-//			title: 'Persian (Farsi)'
-//		},
-//		{
-//			key: 'pl',
-//			title: 'Polish'
-//		},
-//		{
-//			key: 'ps',
-//			title: 'Pashto, Pushto'
-//		},
-//		{
-//			key: 'pt',
-//			title: 'Portuguese'
-//		},
-//		{
-//			key: 'qu',
-//			title: 'Quechua'
-//		},
-//		{
-//			key: 'rm',
-//			title: 'Romansh'
-//		},
-//		{
-//			key: 'rn',
-//			title: 'Kirundi'
-//		},
-//		{
-//			key: 'ro',
-//			title: 'Romanian, [])'
-//		},
-//		{
-//			key: 'ru',
-//			title: 'Russian'
-//		},
-//		{
-//			key: 'sa',
-//			title: 'Sanskrit (Saá¹ská¹›ta)'
-//		},
-//		{
-//			key: 'sc',
-//			title: 'Sardinian'
-//		},
-//		{
-//			key: 'sd',
-//			title: 'Sindhi'
-//		},
-//		{
-//			key: 'se',
-//			title: 'Northern Sami'
-//		},
-//		{
-//			key: 'sm',
-//			title: 'Samoan'
-//		},
-//		{
-//			key: 'sg',
-//			title: 'Sango'
-//		},
-//		{
-//			key: 'sr',
-//			title: 'Serbian'
-//		},
-//		{
-//			key: 'gd',
-//			title: 'Scottish Gaelic; Gaelic'
-//		},
-//		{
-//			key: 'sn',
-//			title: 'Shona'
-//		},
-//		{
-//			key: 'si',
-//			title: 'Sinhala, Sinhalese'
-//		},
-//		{
-//			key: 'sk',
-//			title: 'Slovak'
-//		},
-//		{
-//			key: 'sl',
-//			title: 'Slovene'
-//		},
-//		{
-//			key: 'so',
-//			title: 'Somali'
-//		},
-//		{
-//			key: 'st',
-//			title: 'Southern Sotho'
-//		},
-//		{
-//			key: 'az',
-//			title: 'South Azerbaijani'
-//		},
-//		{
-//			key: 'es',
-//			title: 'Spanish; Castilian'
-//		},
-//		{
-//			key: 'su',
-//			title: 'Sundanese'
-//		},
-//		{
-//			key: 'sw',
-//			title: 'Swahili'
-//		},
-//		{
-//			key: 'ss',
-//			title: 'Swati'
-//		},
-//		{
-//			key: 'sv',
-//			title: 'Swedish'
-//		},
-//		{
-//			key: 'ta',
-//			title: 'Tamil'
-//		},
-//		{
-//			key: 'te',
-//			title: 'Telugu'
-//		},
-//		{
-//			key: 'tg',
-//			title: 'Tajik'
-//		},
-//		{
-//			key: 'th',
-//			title: 'Thai'
-//		},
-//		{
-//			key: 'ti',
-//			title: 'Tigrinya'
-//		},
-//		{
-//			key: 'bo',
-//			title: 'Tibetan Standard, Tibetan, Central'
-//		},
-//		{
-//			key: 'tk',
-//			title: 'Turkmen'
-//		},
-//		{
-//			key: 'tl',
-//			title: 'Tagalog'
-//		},
-//		{
-//			key: 'tn',
-//			title: 'Tswana'
-//		},
-//		{
-//			key: 'to',
-//			title: 'Tonga (Tonga Islands)'
-//		},
-//		{
-//			key: 'tr',
-//			title: 'Turkish'
-//		},
-//		{
-//			key: 'ts',
-//			title: 'Tsonga'
-//		},
-//		{
-//			key: 'tt',
-//			title: 'Tatar'
-//		},
-//		{
-//			key: 'tw',
-//			title: 'Twi'
-//		},
-//		{
-//			key: 'ty',
-//			title: 'Tahitian'
-//		},
-//		{
-//			key: 'ug',
-//			title: 'Uyghur, Uighur'
-//		},
-//		{
-//			key: 'uk',
-//			title: 'Ukrainian'
-//		},
-//		{
-//			key: 'ur',
-//			title: 'Urdu'
-//		},
-//		{
-//			key: 'uz',
-//			title: 'Uzbek'
-//		},
-//		{
-//			key: 've',
-//			title: 'Venda'
-//		},
-//		{
-//			key: 'vi',
-//			title: 'Vietnamese'
-//		},
-//		{
-//			key: 'vo',
-//			title: 'VolapÃ¼k'
-//		},
-//		{
-//			key: 'wa',
-//			title: 'Walloon'
-//		},
-//		{
-//			key: 'cy',
-//			title: 'Welsh'
-//		},
-//		{
-//			key: 'wo',
-//			title: 'Wolof'
-//		},
-//		{
-//			key: 'fy',
-//			title: 'Western Frisian'
-//		},
-//		{
-//			key: 'xh',
-//			title: 'Xhosa'
-//		},
-//		{
-//			key: 'yi',
-//			title: 'Yiddish'
-//		},
-//		{
-//			key: 'yo',
-//			title: 'Yoruba'
-//		},
-//		{
-//			key: 'za',
-//			title: 'Zhuang, Chuang'
-//		},
-//		{
-//			key: 'zu',
-//			title: 'Zulu'
-//		}
-//		];
-//
-//	/**
-//	 * Create filter function for a query string
-//	 */
-//	function createFilterFor(query) {
-//		var lowercaseQuery = query.toLowerCase();
-//
-//		return function filterFn(language) {
-//			return (language.title.indexOf(lowercaseQuery) >= 0) ||
-//			(language.key.indexOf(lowercaseQuery) >= 0);
-//		};
-//
-//	}
-//
-//	/**
-//	 * @ngdoc Resources
-//	 * @name Custom Language
-//	 * @description Create a custom language and return the result
-//	 *
-//	 * A custom language is a key, title, and map
-//	 */
-//	$mbResource.newPage({
-//		label: 'Custom',
-//		type: 'language',
-//		templateUrl: 'views/resources/mb-language-custome.html',
-//		/*
-//		 * @ngInject
-//		 */
-//		controller: function ($scope) {
-//			$scope.language = $scope.value;
-//
-//			this.querySearch = function(query){
-//				var results = query ? languages.filter(createFilterFor(query)) : languages;
-//				var deferred = $q.defer();
-//				$timeout(function () { 
-//					deferred.resolve(results); 
-//				}, Math.random() * 100, false);
-//				return deferred.promise;
-//			};
-//
-//			$scope.$watch('language', function(lang){
-//				$scope.$parent.setValue(lang);
-//			});
-//		},
-//		controllerAs: 'resourceCtrl',
-//		priority: 8,
-//		tags: ['/app/languages']
-//	});
-//
-//	/**
-//	 * @ngdoc Resources
-//	 * @name Remote Languages
-//	 * @description Create a custom language and return the result
-//	 *
-//	 * A custom language is a key, title, and map
-//	 */
-//	$mbResource.newPage({
-//		label: 'Remote',
-//		type: 'language-viraweb123',
-//		templateUrl: 'views/resources/mb-language-list.html',
-//		/*
-//		 * @ngInject
-//		 */
-//		controller: function ($scope) {
-//			$http.get('resources/common-languages.json')
-//			.then(function(res){
-//				$scope.languages = res.data;
-//			});
-//
-//			this.setLanguage = function(lang){
-//				$scope.$parent.setValue(lang);
-//			};
-//
-//		},
-//		controllerAs: 'resourceCtrl',
-//		priority: 8,
-//		tags: ['/app/languages']
-//	});
-//
-//
-//	/**
-//	 * @ngdoc Resources
-//	 * @name Remote Languages
-//	 * @description Create a custom language and return the result
-//	 *
-//	 * A custom language is a key, title, and map
-//	 */
-//	$mbResource.newPage({
-//		label: 'Upload',
-//		type: 'language-upload',
-//		templateUrl: 'views/resources/mb-language-upload.html',
-//		/*
-//		 * @ngInject
-//		 */
-//		controller: function ($scope) {
-//			$http.get('resources/common-languages.json')
-//			.then(function(res){
-//				$scope.languages = res.data;
-//			});
-//
-//			this.setLanguage = function(lang){
-//				$scope.$parent.setValue(lang);
-//			};
-//
-//			var ctrl = this;
-//			$scope.$watch('files.length',function(files){
-//				if(!$scope.files || $scope.files.length <= 0){
-//					return;
-//				}
-//				var reader = new FileReader();
-//				reader.onload = function (event) {
-//					var lang = JSON.parse(event.target.result);
-//					ctrl.setLanguage(lang);
-//				};
-//				reader.readAsText($scope.files[0].lfFile);
-//			});
-//
-//
-//		},
-//		controllerAs: 'resourceCtrl',
-//		priority: 8,
-//		tags: ['/app/languages']
-//	});
-//});
-
+function watchAttribute(scope, attribute, valueCallback, changeCallback) {
+	'use strict';
+	if (!attribute) {
+		return;
+	}
+	if (attribute.substr(0, 2) === '::') {
+		attribute = attribute.substr(2);
+	} else {
+		scope.$watch(attribute, function(newValue) {
+			valueCallback(newValue);
+			changeCallback();
+		}, true);
+	}
+	valueCallback(scope.$eval(attribute));
+}
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -9444,22 +8123,13 @@ mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
  * SOFTWARE.
  */
 
-
-/*
- * Add to angular
- */
-
 /**
- * @ngdoc Controllers
- * @name MbAbstractCtrl
- * @description Generic controller which is used as base in the platform
- * 
+@ngdoc Controllers
+@name MbAbstractCtrl
+@description Generic controller which is used as base in the platform
+
  */
-angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $dispatcher, MbEvent) {
-
-
-	this._hids = [];
-
+mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) {
 
 	//--------------------------------------------------------
 	// --Events--
@@ -9476,7 +8146,7 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 	 * @memberof MbAbstractCtrl
 	 */
 	this.addEventHandler = function(type, callback) {
-		var callbackId = $dispatcher.on(type, callback);
+		var callbackId = $mbDispatcher.on(type, callback);
 		this._hids.push(new EventHandlerId(type, callbackId, callback));
 	};
 
@@ -9518,7 +8188,7 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 	this.fireEvent = function(type, action, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
 		var source = this;
-		return $dispatcher.dispatch(type, new MbEvent({
+		return $mbDispatcher.dispatch(type, new MbEvent({
 			source: source,
 			type: type,
 			key: action,
@@ -9569,7 +8239,26 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
 		return this.fireEvent(type, 'delete', values);
 	};
+	
+	/**
+	 * Fires items created
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	this.fireCreated = function(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return this.fireEvent(type, 'create', values);
+	};
 
+
+	this.destroy = function(){
+		for (var i = 0; i < ctrl._hids.length; i++) {
+			var handlerId = ctrl._hids[i];
+			$mbDispatcher.off(handlerId.type, handlerId.id);
+		}
+		ctrl._hids = [];
+	};
 
 	//--------------------------------------------------------
 	// --View--
@@ -9578,12 +8267,9 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 	 * Remove all resources
 	 */
 	var ctrl = this;
+	ctrl._hids = [];
 	$scope.$on('$destroy', function() {
-		for (var i = 0; i < ctrl._hids.length; i++) {
-			var handlerId = ctrl._hids[i];
-			$dispatcher.off(handlerId.type, handlerId.id);
-		}
-		ctrl._hids = [];
+		ctrl.destroy();
 	});
 
 });
@@ -9613,18 +8299,18 @@ angular.module('mblowfish-core').controller('MbAbstractCtrl', function($scope, $
 
 
 /**
- * @ngdoc Controllers
- * @name MbSeenAbstractBinaryItemCtrl
- * @description Generic controller of model binary of seen
- * 
- * There are three categories of actions;
- * 
- * - view
- * - model
- * - controller
- * 
+@ngdoc Controllers
+@name MbSeenAbstractBinaryItemCtrl
+@description Generic controller of model binary of seen
+
+There are three categories of actions;
+
+- view
+- model
+- controller
+
  */
-angular.module('mblowfish-core').controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $window) {
+mblowfish.controller('MbSeenAbstractBinaryItemCtrl', function($scope, $controller, $q, $window) {
 
 
 	/*
@@ -9790,38 +8476,38 @@ angular.module('mblowfish-core').controller('MbSeenAbstractBinaryItemCtrl', func
 
 
 /**
- * @ngdoc Controllers
- * @name MbSeenAbstractCollectionCtrl
- * @description Generic controller of model collection of seen
- * 
- * This controller is used manages a collection of a virtual items. it is the
- * base of all other collection controllers such as accounts, groups, etc.
- * 
- * There are two types of function in the controller: view and data related. All
- * data functions are considered to be override by extensions.
- * 
- * There are three categories of actions;
- * 
- * - view
- * - model
- * - controller
- * 
- * view actions are about to update view. For example adding an item into the view
- * or remove deleted item.
- * 
- * Model actions deal with model in the repository. These are equivalent to the view
- * actions but removes items from the storage.
- * 
- * However, controller function provide an interactive action to the user to performs
- * an action.
- * 
- * ## Add
- * 
- * - addItem: controller
- * - addModel: model
- * - addViewItem: view
+@ngdoc Controllers
+@name MbSeenAbstractCollectionCtrl
+@description Generic controller of model collection of seen
+
+This controller is used manages a collection of a virtual items. it is the
+base of all other collection controllers such as accounts, groups, etc.
+
+There are two types of function in the controller: view and data related. All
+data functions are considered to be override by extensions.
+
+There are three categories of actions;
+
+- view
+- model
+- controller
+
+view actions are about to update view. For example adding an item into the view
+or remove deleted item.
+
+Model actions deal with model in the repository. These are equivalent to the view
+actions but removes items from the storage.
+
+However, controller function provide an interactive action to the user to performs
+an action.
+
+## Add
+
+- addItem: controller
+- addModel: model
+- addViewItem: view
  */
-angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator,
+mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controller, $q, $navigator,
 	$log,
 	$window, QueryParameter, MbAction) {
 
@@ -10425,18 +9111,18 @@ angular.module('mblowfish-core').controller('MbSeenAbstractCollectionCtrl', func
 
 
 /**
- * @ngdoc Controllers
- * @name MbSeenAbstractItemCtrl
- * @description Generic controller of item of seen
- * 
- * There are three categories of actions;
- * 
- * - view
- * - model
- * - controller
- * 
+@ngdoc Controllers
+@name MbSeenAbstractItemCtrl
+@description Generic controller of item of seen
+
+There are three categories of actions;
+
+- view
+- model
+- controller
+
  */
-angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
+mblowfish.controller('MbSeenAbstractItemCtrl', function(
 	/* AngularJS  */ $scope, $controller, $q, $window,
 	/* MBlowfish  */ 
 	/* ngRoute    */ $mbRouteParams) {
@@ -10857,45 +9543,39 @@ angular.module('mblowfish-core').controller('MbSeenAbstractItemCtrl', function(
  * SOFTWARE.
  */
 
-
-/*
- * Add to angular
- */
-angular.module('mblowfish-core')//
-
 /**
- * @ngdoc Controllers
- * @name MbSeenAbstractCollectionCtrl
- * @description Generic controller of model collection of seen
- * 
- * This controller is used manages a collection of a virtual items. it is the
- * base of all other collection controllers such as accounts, groups, etc.
- * 
- * There are two types of function in the controller: view and data related. All
- * data functions are considered to be override by extensions.
- * 
- * There are three categories of actions;
- * 
- * - view
- * - model
- * - controller
- * 
- * view actions are about to update view. For example adding an item into the view
- * or remove deleted item.
- * 
- * Model actions deal with model in the repository. These are equivalent to the view
- * actions but removes items from the storage.
- * 
- * However, controller function provide an interactive action to the user to performs
- * an action.
- * 
- * ## Add
- * 
- * - addItem: controller
- * - addModel: model
- * - addViewItem: view
+@ngdoc Controllers
+@name MbSeenAbstractCollectionCtrl
+@description Generic controller of model collection of seen
+
+This controller is used manages a collection of a virtual items. it is the
+base of all other collection controllers such as accounts, groups, etc.
+
+There are two types of function in the controller: view and data related. All
+data functions are considered to be override by extensions.
+
+There are three categories of actions;
+
+- view
+- model
+- controller
+
+view actions are about to update view. For example adding an item into the view
+or remove deleted item.
+
+Model actions deal with model in the repository. These are equivalent to the view
+actions but removes items from the storage.
+
+However, controller function provide an interactive action to the user to performs
+an action.
+
+## Add
+
+- addItem: controller
+- addModel: model
+- addViewItem: view
  */
-.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
+mblowfish.controller('MbSeenGeneralAbstractCollectionCtrl', function ($scope, $controller, $q) {
 	
 
 	/*
@@ -11340,7 +10020,7 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core').run(function(appcache, $window, $rootScope) {
+mblowfish.run(function(appcache, $window, $rootScope) {
 
 	var oldWatch;
 
@@ -11804,7 +10484,7 @@ angular.module('mblowfish-core').run(function($notification, $help) {
 //			/*
 //			 * @ngInject
 //			 */
-//			controller: function($scope, $cms, $translate, $mbCrypto) {
+//			controller: function($scope, $cms, $mbTranslate, $mbCrypto) {
 //
 //				/*
 //				 * Extends collection controller
@@ -11869,22 +10549,22 @@ angular.module('mblowfish-core').run(function($notification, $help) {
 //				angular.element(function() {
 //					var elm = angular.element('.lf-ng-md-file-input-drag-text');
 //					if (elm[0]) {
-//						elm.text($translate.instant('Drag & Drop File Here'));
+//						elm.text($mbTranslate.instant('Drag & Drop File Here'));
 //					}
 //
 //					elm = angular.element('.lf-ng-md-file-input-button-brower');
 //					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-//						elm[0].childNodes[1].data = ' ' + $translate.instant('Browse');
+//						elm[0].childNodes[1].data = ' ' + $mbTranslate.instant('Browse');
 //					}
 //
 //					elm = angular.element('.lf-ng-md-file-input-button-remove');
 //					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-//						elm[0].childNodes[1].data = $translate.instant('Remove');
+//						elm[0].childNodes[1].data = $mbTranslate.instant('Remove');
 //					}
 //
 //					elm = angular.element('.lf-ng-md-file-input-caption-text-default');
 //					if (elm[0]) {
-//						elm.text($translate.instant('Select File'));
+//						elm.text($mbTranslate.instant('Select File'));
 //					}
 //				});
 //			},
@@ -11957,187 +10637,6 @@ angular.module('mblowfish-core').run(function($notification, $help) {
 //			tags: ['/cms/term-taxonomies']
 //		});
 //	});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Services
- * @name $help
- * @description A help management service
- * 
- * Manage application help.
- * 
- * Set help id for an item:
- * 
- * <pre><code>
- * 	var item = {
- * 		...
- * 		helpId: 'help-id'
- * 	};
- * 	$help.openHelp(item);
- * </code></pre>
- * 
- * 
- * 
- * Open help for an item:
- * 
- * <pre><code>
- * $help.openHelp(item);
- * </code></pre>
- * 
- */
-.service('$help', function ($q, $rootScope, $translate, $injector) {
-
-    var _tips = [];
-    var _currentItem = null;
-
-    /*
-     * Get help id
-     */
-    function _getHelpId(item) {
-        if (!item) {
-            return null;
-        }
-        var id = item.helpId;
-        if (angular.isFunction(item.helpId)) {
-            return $injector.invoke(item.helpId, item);
-        }
-        return id;
-    }
-
-    /**
-     * Adds new tip
-     * 
-     * New tip is added into the tips list.
-     * 
-     * @memberof $help
-     * @param {object}
-     *            tipData - Data of a tipe
-     */
-    function tip(tipData) {
-        _tips.push(tipData);
-        return this;
-    }
-
-    /**
-     * List of tips
-     * 
-     * @memberof $help
-     * @return {promise<Array>} of tips
-     */
-    function tips() {
-        return $q.resolve({
-            items: _tips
-        });
-    }
-
-    /**
-     * Gets current item in help system
-     * 
-     * @memberof $help
-     * @return {Object} current item
-     */
-    function currentItem() {
-        return _currentItem;
-    }
-
-    /**
-     * Sets current item in help system
-     * 
-     * @memberof $help
-     * @params item {Object} target of the help system
-     */
-    function setCurrentItem(item) {
-        _currentItem = item;
-    }
-
-    /**
-     * Gets help path
-     * 
-     * @memberof $help
-     * @params item {Object} an item to show help for
-     * @return path of the help
-     */
-    function getHelpPath(item) {
-        // Get from help id
-        var myId = _getHelpId(item || _currentItem);
-        if (myId) {
-            var lang = $translate.use();
-            // load content
-            return 'resources/helps/' + myId + '-' + lang + '.json';
-        }
-
-        return null;
-    }
-
-    /**
-     * Check if there exist a help on item
-     * 
-     * @memberof $help
-     * @params item {Object} an item to show help for
-     * @return path if the item if exist help or false
-     */
-    function hasHelp(item) {
-        return !!_getHelpId(item);
-    }
-
-    /**
-     * Display help for an item
-     * 
-     * This function change current item automatically and display help for it.
-     * 
-     * @memberof $help
-     * @params item {Object} an item to show help for
-     */
-    function openHelp(item) {
-        if (!hasHelp(item)) {
-            return;
-        }
-        if (_currentItem === item) {
-            $rootScope.showHelp = !$rootScope.showHelp;
-            return;
-        }
-        setCurrentItem(item);
-        $rootScope.showHelp = true;
-    }
-
-    /*
-     * Service structure
-     */
-    return {
-        tip: tip,
-        tips: tips,
-
-        currentItem: currentItem,
-        setCurrentItem: setCurrentItem,
-        openHelp: openHelp,
-        hasHelp: hasHelp,
-        getHelpPath: getHelpPath
-    };
-});
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
@@ -18265,37 +16764,37 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   'use strict';
 
   $templateCache.put('views/dialogs/mb-alert.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>error</mb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>error</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p mb-translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-confirm.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>warning</mb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>warning</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p mb-translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-prompt.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>input</mb-icon> <h2 translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p translate>{{config.message}}</p> <md-input-container class=md-block> <label translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>input</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p mb-translate>{{config.message}}</p> <md-input-container class=md-block> <label mb-translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mbl-add-word.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 translate>Add new word</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(word)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <span flex=10></span> <md-input-container class=md-block flex-gt-sm> <label translate=\"\">Key</label> <input ng-model=word.key> </md-input-container> <md-input-container class=md-block flex-gt-sm> <label translate=\"\">Translate</label> <input ng-model=word.translate> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate>Add new word</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(word)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <span flex=10></span> <md-input-container class=md-block flex-gt-sm> <label mb-translate=\"\">Key</label> <input ng-model=word.key> </md-input-container> <md-input-container class=md-block flex-gt-sm> <label mb-translate=\"\">mb-translate</label> <input ng-model=word.mb-translate> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mbl-update-language.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 translate>{{::config.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(config.language)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <div layout=column> <md-input-container> <label translate>Key</label> <input ng-model=config.language.key ng-readonly=true> </md-input-container> <md-input-container> <label translate>Title</label> <input ng-model=config.language.title ng-readonly=true> </md-input-container> </div> </md-dialog-content> </md-dialog>"
+    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate>{{::config.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(config.language)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <div layout=column> <md-input-container> <label mb-translate>Key</label> <input ng-model=config.language.key ng-readonly=true> </md-input-container> <md-input-container> <label mb-translate>Title</label> <input ng-model=config.language.title ng-readonly=true> </md-input-container> </div> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/wb-select-resource-single-page.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row>       <span flex></span> <md-button ng-click=cancel() aria-label=Cancel> <span translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row>       <span flex></span> <md-button ng-click=cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column ng-hide=\"pages.length === 1\"> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=style.icon>{{style.icon}}</mb-icon> <h2 style=\"text-align: center\" translate>{{style.title}}</h2> <p style=\"text-align: center\" translate>{{style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in pages | orderBy:priority\" ng-click=\"loadPage(page, $event);\" md-colors=\"_selectedIndex===$index ? {background:'accent'} : {}\"> <mb-icon>{{page.icon || 'attachment'}}</mb-icon> <p>{{page.label | translate}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=cancel()> <span translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column ng-hide=\"pages.length === 1\"> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=style.icon>{{style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in pages | orderBy:priority\" ng-click=\"loadPage(page, $event);\" md-colors=\"_selectedIndex===$index ? {background:'accent'} : {}\"> <mb-icon>{{page.icon || 'attachment'}}</mb-icon> <p>{{page.label | mb-translate}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
@@ -18310,7 +16809,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
-    "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
+    "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span mb-translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
 
 
@@ -18320,17 +16819,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{'home' | translate}}</md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> {{menu.title | translate}} </md-button>  </div> </div>"
+    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{'home' | mb-translate}}</md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> {{menu.title | mb-translate}} </md-button>  </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <mb-icon>{{::mbIcon}}</mb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <mb-icon>repeat</mb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <mb-icon>sort</mb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <mb-icon>filter_list</mb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <mb-icon>search</mb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <mb-icon>save</mb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <mb-icon ng-if=\"query.sortBy === key\">check_circle</mb-icon> <mb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</mb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <mb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</mb-icon> <mb-icon ng-if=query.sortDesc>filter_list</mb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <mb-icon ng-if=!query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=query.sortDesc>radio_button_unchecked</mb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <mb-icon ng-if=query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=!query.sortDesc>radio_button_unchecked</mb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <mb-icon>done</mb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <mb-icon>add</mb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <mb-icon>delete</mb-icon> </md-button> </div> </div> </div>"
+    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <mb-icon>{{::mbIcon}}</mb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <mb-icon>repeat</mb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <mb-icon>sort</mb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <mb-icon>filter_list</mb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <mb-icon>search</mb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <mb-icon>save</mb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|mb-translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | mb-translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <mb-icon ng-if=\"query.sortBy === key\">check_circle</mb-icon> <mb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</mb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|mb-translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <mb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</mb-icon> <mb-icon ng-if=query.sortDesc>filter_list</mb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|mb-translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <mb-icon ng-if=!query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=query.sortDesc>radio_button_unchecked</mb-icon> {{::'Ascending'|mb-translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <mb-icon ng-if=query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=!query.sortDesc>radio_button_unchecked</mb-icon> {{::'Descending'|mb-translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <mb-icon>done</mb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <mb-icon>add</mb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label mb-translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span mb-translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label mb-translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <mb-icon>delete</mb-icon> </md-button> </div> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-pay.html',
-    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=\"ctrl.loadingGates || ctrl.paying\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
+    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=\"ctrl.loadingGates || ctrl.paying\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p mb-translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span mb-translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
   );
 
 
@@ -18340,17 +16839,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div layout=column style=\"border-radius: 5px; padding: 0px\" class=md-whiteframe-2dp> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+    "<div layout=column style=\"border-radius: 5px; padding: 0px\" class=md-whiteframe-2dp> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-user-menu.html',
-    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%; vertical-align: middle\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate=\"\"> <mb-icon ng-if=item.icon>{{item.icon}}</mb-icon> <span ng-if=item.title>{{item.title| translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span translate=\"\">Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span translate=\"\">Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span translate=\"\">Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
+    "<div md-colors=\"{'background-color': 'primary-hue-1'}\" class=amd-user-menu> <md-menu md-offset=\"0 20\"> <md-button class=amd-user-menu-button ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <img height=32px class=img-circle style=\"border-radius: 50%; vertical-align: middle\" ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items| orderBy:['-priority']\"> <md-button ng-click=item.exec($event) mb-translate=\"\"> <mb-icon ng-if=item.icon>{{item.icon}}</mb-icon> <span ng-if=item.title>{{item.title| mb-translate}}</span> </md-button> </md-menu-item> <md-menu-divider ng-if=menu.items.length></md-menu-divider> <md-menu-item> <md-button ng-click=settings()> <span mb-translate=\"\">Settings</span> </md-button> </md-menu-item> <md-menu-item ng-if=!app.user.anonymous> <md-button ng-click=logout()> <span mb-translate=\"\">Logout</span> </md-button> </md-menu-item> <md-menu-item ng-if=app.user.anonymous> <md-button ng-href=users/login> <span mb-translate=\"\">Login</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-user-toolbar.html',
-    "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) translate> <mb-icon ng-if=item.icon>{{item.icon}}</mb-icon> <span ng-if=item.title>{{item.title | translate}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout();>{{'Logout' | translate}}</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
+    "<md-toolbar layout=row layout-align=\"center center\"> <img width=80px class=img-circle ng-src=/api/v2/user/accounts/{{app.user.current.id}}/avatar> <md-menu md-offset=\"0 20\"> <md-button class=capitalize ng-click=$mdOpenMenu() aria-label=\"Open menu\"> <span>{{app.user.profile.first_name}} {{app.user.profile.last_name}}</span> <mb-icon class=material-icons>keyboard_arrow_down</mb-icon> </md-button> <md-menu-content width=3>  <md-menu-item ng-if=menu.items.length ng-repeat=\"item in menu.items | orderBy:['-priority']\"> <md-button ng-click=item.exec($event) mb-translate> <mb-icon ng-if=item.icon>{{item.icon}}</mb-icon> <span ng-if=item.title>{{item.title | mb-translate}}</span> </md-button> </md-menu-item> <md-menu-divider></md-menu-divider> <md-menu-item> <md-button ng-click=toggleRightSidebar();logout();>{{'Logout' | mb-translate}}</md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar>"
   );
 
 
@@ -18360,27 +16859,27 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-error-messages.html',
-    "<div ng-message=403 layout=column layout-align=\"center center\"> <mb-icon size=64px>do_not_disturb</mb-icon> <strong translate>Access denied</strong> <p translate>You are not allowed to access this item.</p> </div> <div ng-message=404 layout=column layout-align=\"center center\"> <mb-icon size=64px>visibility_off</mb-icon> <strong translate>Not found</strong> <p translate>Requested item not found.</p> </div> <div ng-message=500 layout=column layout-align=\"center center\"> <mb-icon size=64px>bug_report</mb-icon> <strong translate>Server error</strong> <p translate>An internal server error is occurred.</p> </div>"
+    "<div ng-message=403 layout=column layout-align=\"center center\"> <mb-icon size=64px>do_not_disturb</mb-icon> <strong mb-translate>Access denied</strong> <p mb-translate>You are not allowed to access this item.</p> </div> <div ng-message=404 layout=column layout-align=\"center center\"> <mb-icon size=64px>visibility_off</mb-icon> <strong mb-translate>Not found</strong> <p mb-translate>Requested item not found.</p> </div> <div ng-message=500 layout=column layout-align=\"center center\"> <mb-icon size=64px>bug_report</mb-icon> <strong mb-translate>Server error</strong> <p mb-translate>An internal server error is occurred.</p> </div>"
   );
 
 
   $templateCache.put('views/mb-initial.html',
-    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=currentStep.id> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=steps.length md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step ng-repeat=\"step in steps\" md-label=\"{{step.title | translate}}\"> </md-step> </md-stepper> </div>"
+    "<div layout=column flex> <md-content layout=column flex> {{basePath}} <mb-preference-page mb-preference-id=currentStep.id> </mb-preference-page> </md-content> <md-stepper id=setting-stepper ng-show=steps.length md-mobile-step-text=false md-vertical=false md-linear=false md-alternative=true> <md-step ng-repeat=\"step in steps\" md-label=\"{{step.title | mb-translate}}\"> </md-step> </md-stepper> </div>"
   );
 
 
   $templateCache.put('views/mb-languages.html',
-    "<div ng-controller=\"MbLanguagesCtrl as ctrl\" layout=row flex> <md-sidenav class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <mb-icon>add</mb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <mb-icon>more_vert</mb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <mb-icon>download</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <mb-icon>delete</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key] ng-model-options=\"{ updateOn: 'blur', debounce: 3000 }\"> <mb-icon ng-click=ctrl.deleteWord(key)>delete</mb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <mb-icon>add</mb-icon> </md-button> </fieldset> </md-content> </div>"
+    "<div ng-controller=\"MbLanguagesCtrl as ctrl\" layout=row flex> <md-sidenav class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex mb-translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <mb-icon>add</mb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <mb-icon>more_vert</mb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p mb-translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <mb-icon>download</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span mb-translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <mb-icon>delete</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span mb-translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 mb-translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span mb-translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span mb-translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key] ng-model-options=\"{ updateOn: 'blur', debounce: 3000 }\"> <mb-icon ng-click=ctrl.deleteWord(key)>delete</mb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <mb-icon>add</mb-icon> </md-button> </fieldset> </md-content> </div>"
   );
 
 
   $templateCache.put('views/mb-login-default.html',
-    "<div class=default-login-panel layout=row layout-align=\"center center\" ng-init=\"state= isAnonymous()? 'login' : 'info';\"> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column>  <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <form id=login ng-show=\"state == 'login'\" name=loginForm ng-submit=ctrl.login(credit) layout=column layout-margin> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <md-input-container> <label translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button href=\"?state=forget\" flex-order=1 flex-order-gt-xs=-1 ng-click=\"state='forget'\"> <span translate>Forgot your password?</span> </md-button> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, loginForm)\"> <span translate>Login</span> </md-button> </div> </form> <div ng-show=\"state=='info'\" id=info> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <mb-icon>settings_backup_restore</mb-icon> <span translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <mb-icon>account_circle</mb-icon> <span translate>Account</span> </md-button> </div> </div> <div id=forget ng-show=\"state=='forget'\"> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <span>cancel</span> </md-button> </div> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=\"state='login'\" flex-order=0 flex-order-gt-xs=0> <span translate>Login</span> </md-button> </div> </div> </div> </div>"
+    "<div class=default-login-panel layout=row layout-align=\"center center\" ng-init=\"state= isAnonymous()? 'login' : 'info';\"> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column>  <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <form id=login ng-show=\"state == 'login'\" name=loginForm ng-submit=ctrl.login(credit) layout=column layout-margin> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <md-input-container> <label mb-translate=\"\">Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate=\"\">This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate=\"\">Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button href=\"?state=forget\" flex-order=1 flex-order-gt-xs=-1 ng-click=\"state='forget'\"> <span mb-translate>Forgot your password?</span> </md-button> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=\"ctrl.login(credit, loginForm)\"> <span mb-translate>Login</span> </md-button> </div> </form> <div ng-show=\"state=='info'\" id=info> <div layout-margin ng-show=!app.user.anonymous layout=column layout-align=\"none center\"> <img width=150px height=150px ng-show=!uploadAvatar ng-src=\"{{app.user.current.avatar}}\"> <h3>{{app.user.current.login}}</h3> <p mb-translate>you are logged in. go to one of the following options.</p> </div> <div ng-show=!app.user.anonymous layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=ctrl.cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <mb-icon>settings_backup_restore</mb-icon> <span mb-translate>Back</span> </md-button> <md-button ng-href=users/account flex-order=1 flex-order-gt-xs=-1 class=md-raised> <mb-icon>account_circle</mb-icon> <span mb-translate>Account</span> </md-button> </div> </div> <div id=forget ng-show=\"state=='forget'\"> <form name=ctrl.myForm ng-submit=sendToken(credit) layout=column layout-margin> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username> </md-input-container> <md-input-container> <label mb-translate>Email</label> <input ng-model=credit.email name=email type=email> <div ng-messages=ctrl.myForm.email.$error> <div ng-message=email mb-translate>Email is not valid.</div> </div> </md-input-container>     <div ng-if=\"app.captcha.engine==='recaptcha'\" vc-recaptcha ng-model=credit.g_recaptcha_response theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.recaptcha.key lang=\"app.captcha.language || 'fa'\"> </div> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <md-button ng-disabled=\"(credit.email === undefined && credit.login === undefined) || ctrl.myForm.$invalid\" flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=sendToken(credit)>{{'send recover message' | mb-translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> <span>cancel</span> </md-button> </div> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"center center\" layout-margin> <md-button ng-click=\"state='login'\" flex-order=0 flex-order-gt-xs=0> <span mb-translate>Login</span> </md-button> </div> </div> </div> </div>"
   );
 
 
   $templateCache.put('views/mb-navigator.html',
-    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href={{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
+    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
   );
 
 
@@ -18395,7 +16894,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/mb-preferences.html',
-    "<md-content style=\"width: 100%; height: 100%; overflow: auto\"> <md-list ng-cloak> <md-list-item ng-repeat=\"page in pages\" ng-href=preferences/{{::page.id}}> <mb-icon>{{::page.icon}}</mb-icon> <p translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content>"
+    "<md-content style=\"width: 100%; height: 100%; overflow: auto\"> <md-list ng-cloak> <md-list-item ng-repeat=\"page in pages\" ng-href=preferences/{{::page.id}}> <mb-icon>{{::page.icon}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content>"
   );
 
 
@@ -18410,17 +16909,17 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/modules/mb-resources-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option translate=\"\">None</md-option> <md-option ng-value=\"'before'\" translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option mb-translate=\"\">None</md-option> <md-option ng-value=\"'before'\" mb-translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" mb-translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" mb-translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
   );
 
 
   $templateCache.put('views/options/mb-local.html',
-    "<md-divider></md-divider> <md-input-container class=md-block> <label translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
+    "<md-divider></md-divider> <md-input-container class=md-block> <label mb-translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | mb-translate}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
 
 
   $templateCache.put('views/options/mb-theme.html',
-    "<md-input-container class=md-block> <label translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block ng-init=\"app.setting.navigationPath = app.setting.navigationPath || true\"> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex translate>Navigation path</sapn> </md-switch> </md-input-container>"
+    "<md-input-container class=md-block> <label mb-translate>Theme</label> <md-select ng-model=app.setting.theme> <md-option ng-repeat=\"theme in themes\" value={{theme.id}} mb-translate>{{theme.label}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block ng-init=\"app.setting.navigationPath = app.setting.navigationPath || true\"> <md-switch class=md-primary name=special ng-model=app.setting.navigationPath> <sapn flex mb-translate>Navigation path</sapn> </md-switch> </md-input-container>"
   );
 
 
@@ -18440,32 +16939,32 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-view-login.html',
-    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| translate}}</md-button>      </div> </form> </div> </div>"
+    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'| mb-translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'| mb-translate}}</md-button>      </div> </form> </div> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-brand.html',
-    "<div layout=column layout-margin ng-cloak flex> <mb-titled-block mb-title=\"{{'Configurations' | translate}}\"> <md-input-container class=md-block> <label translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> </mb-titled-block> <div layout=row layout-wrap layout-margin> <mb-titled-block mb-title=\"{{'Brand' | translate}}\"> <mb-inline ng-model=app.config.logo mb-inline-type=image mb-inline-label=\"Application Logo\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.logo}}> </mb-inline> </mb-titled-block> <mb-titled-block mb-title=\"{{'Favicon' | translate }}\"> <mb-inline ng-model=app.config.favicon mb-inline-type=image mb-inline-label=\"Application Favicon\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.favicon}}> </mb-inline> </mb-titled-block> </div> </div>"
+    "<div layout=column layout-margin ng-cloak flex> <mb-titled-block mb-title=\"{{'Configurations' | mb-translate}}\"> <md-input-container class=md-block> <label mb-translate>Title</label> <input required md-no-asterisk name=title ng-model=\"app.config.title\"> </md-input-container> <md-input-container class=md-block> <label mb-translate>Description</label> <input md-no-asterisk name=description ng-model=\"app.config.description\"> </md-input-container> </mb-titled-block> <div layout=row layout-wrap layout-margin> <mb-titled-block mb-title=\"{{'Brand' | mb-translate}}\"> <mb-inline ng-model=app.config.logo mb-inline-type=image mb-inline-label=\"Application Logo\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.logo}}> </mb-inline> </mb-titled-block> <mb-titled-block mb-title=\"{{'Favicon' | mb-translate }}\"> <mb-inline ng-model=app.config.favicon mb-inline-type=image mb-inline-label=\"Application Favicon\" mb-inline-enable=true> <img width=256px height=256px ng-src={{app.config.favicon}}> </mb-inline> </mb-titled-block> </div> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-language.html',
-    " <div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site:' | translate}}</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | translate}} </md-checkbox> </div> </div>"
+    " <div layout=column layout-align=\"center center\" layout-margin style=\"min-height: 300px\" flex> <div layout=column layout-align=\"center start\"> <p>{{'Select default language of site:' | mb-translate}}</p> <md-checkbox ng-repeat=\"lang in languages\" style=\"margin: 8px\" ng-checked=\"myLanguage.key === lang.key\" ng-click=setLanguage(lang) aria-label={{lang.key}}> {{lang.title | mb-translate}} </md-checkbox> </div> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label translate>Language</label> <md-select ng-model=__app.configs.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label translate>Direction</label> <md-select ng-model=__app.configs.dir placeholder=Direction> <md-option value=rtl translate>Right to left</md-option> <md-option value=ltr translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Calendar</label> <md-select ng-model=__app.configs.calendar placeholder=\"\"> <md-option value=Gregorian translate>Gregorian</md-option> <md-option value=Jalaali translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label translate>Date format</label> <md-select ng-model=__app.configs.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY translate> <span translate>Month Day Year, </span> <span translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD translate> <span translate>Year Month Day, </span> <span translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" translate> <span translate>Year Month Day, </span> <span translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=__app.configs.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | mb-translate}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=__app.configs.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=__app.configs.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=__app.configs.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> <span mb-translate>Month Day Year, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-modules.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p mb-translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p mb-translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
   );
 
 
   $templateCache.put('views/preferences/mb-update.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-switch class=md-secondary ng-model=app.config.update.showMessage aria-label=\"Show spa update message option\"> <p mb-translate=\"\">Show update message to customers</p> </md-switch> <md-switch class=md-secondary ng-model=app.config.update.autoReload ng-disabled=!app.config.update.showMessage aria-label=\"Automatically reload page option\"> <p mb-translate=\"\">Reload the page automatically on update</p> </md-switch> </div>"
   );
 
 
@@ -18475,12 +16974,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-cms-content-upload.html',
-    "<div layout=column flex> <lf-ng-md-file-input lf-files=ctrl.files accept=image/* progress preview drag flex> </lf-ng-md-file-input>  <md-content layout-padding> <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
+    "<div layout=column flex> <lf-ng-md-file-input lf-files=ctrl.files accept=image/* progress preview drag flex> </lf-ng-md-file-input>  <md-content layout-padding> <div layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(_absolutPathFlag) aria-label=\"Absolute path of the image\"> <span mb-translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
   $templateCache.put('views/resources/mb-cms-images.html',
-    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'image')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <mb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</mb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content> <md-content>  <div layout-padding layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(absolutPathFlag) aria-label=\"Absolute path of the image\"> <span translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
+    "<div layout=column mb-preloading=\"ctrl.state === 'busy'\" ng-init=\"ctrl.addFilter('media_type', 'image')\" flex> <mb-pagination-bar style=\"border-top-right-radius: 10px; border-bottom-left-radius: 10px\" mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=row layout-wrap layout-align=\"start start\" flex> <div ng-click=\"ctrl.setSelected(pobject, $index, $event);\" ng-repeat=\"pobject in ctrl.items track by pobject.id\" style=\"border: 16px; border-style: solid; border-width: 1px; margin: 8px\" md-colors=\"ctrl.isSelected($index) ? {borderColor:'accent'} : {}\" ng-if=!listViewMode> <img style=\"width: 128px; height: 128px\" ng-src=\"{{'/api/v2/cms/contents/'+pobject.id+'/thumbnail'}}\"> </div> <md-list ng-if=listViewMode> <md-list-item ng-repeat=\"pobject in items track by pobject.id\" ng-click=\"ctrl.setSelected(pobject, $index, $event);\" md-colors=\"ctrl.isSelected($index) ? {background:'accent'} : {}\" class=md-3-line> <img ng-if=\"pobject.mime_type.startsWith('image/')\" style=\"width: 128px; height: 128px\" ng-src=/api/v2/cms/contents/{{pobject.id}}/thumbnail> <mb-icon ng-if=\"!pobject.mime_type.startsWith('image/')\">insert_drive_file</mb-icon> <div class=md-list-item-text layout=column> <h3>{{pobject.title}}</h3> <h4>{{pobject.name}}</h4> <p>{{pobject.description}}</p> </div> <md-divider md-inset></md-divider> </md-list-item> </md-list>  <div layout=column layout-align=\"center center\"> <md-progress-circular ng-show=\"ctrl.status === 'working'\" md-diameter=96> Loading ... </md-progress-circular> </div> </md-content> <md-content>  <div layout-padding layout=row> <md-checkbox ng-model=_absolutPathFlag ng-change=ctrl.setAbsolute(absolutPathFlag) aria-label=\"Absolute path of the image\"> <span mb-translate>Absolute path</span> </md-checkbox> </div> </md-content> </div>"
   );
 
 
@@ -18490,7 +16989,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-language-custome.html',
-    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <md-autocomplete flex required md-input-name=Language md-selected-item=language md-search-text=resourceCtrl.searchText md-items=\"item in resourceCtrl.querySearch(resourceCtrl.searchText)\" md-item-text=item.key md-require-match=\"\" md-floating-label=Key input-aria-describedby=\"Language Key\"> <md-item-template> <span md-highlight-text=resourceCtrl.searchText>{{item.title}} ({{item.key}})</span> </md-item-template> <div ng-messages=searchForm.autocompleteField.$error ng-if=searchForm.autocompleteField.$touched> <div ng-message=required>You <b>must</b> have a language key.</div> <div ng-message=md-require-match>Please select an existing language.</div> <div ng-message=minlength>Your entry is not long enough.</div> <div ng-message=maxlength>Your entry is too long.</div> </div> </md-autocomplete> <md-input-container> <label translate>Title</label> <input ng-model=language.title> </md-input-container> </form>"
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <md-autocomplete flex required md-input-name=Language md-selected-item=language md-search-text=resourceCtrl.searchText md-items=\"item in resourceCtrl.querySearch(resourceCtrl.searchText)\" md-item-text=item.key md-require-match=\"\" md-floating-label=Key input-aria-describedby=\"Language Key\"> <md-item-template> <span md-highlight-text=resourceCtrl.searchText>{{item.title}} ({{item.key}})</span> </md-item-template> <div ng-messages=searchForm.autocompleteField.$error ng-if=searchForm.autocompleteField.$touched> <div ng-message=required>You <b>must</b> have a language key.</div> <div ng-message=md-require-match>Please select an existing language.</div> <div ng-message=minlength>Your entry is not long enough.</div> <div ng-message=maxlength>Your entry is too long.</div> </div> </md-autocomplete> <md-input-container> <label mb-translate>Title</label> <input ng-model=language.title> </md-input-container> </form>"
   );
 
 
@@ -18530,12 +17029,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/wb-url.html',
-    "<div layout=column layout-padding flex> <p translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label translate>URL</label> <input ng-model=value> </md-input-container> </div>"
+    "<div layout=column layout-padding flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=value> </md-input-container> </div>"
   );
 
 
   $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
   );
 
 
@@ -18550,7 +17049,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/toolbars/mb-dashboard.html',
-    "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <mb-icon>menu</mb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span translate=\"\">Display list of messages</span> </md-tooltip> <mb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</mb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> </div>"
+    "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <mb-icon>menu</mb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | mb-translate}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span mb-translate=\"\">Display list of messages</span> </md-tooltip> <mb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</mb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> </div>"
   );
 
 
@@ -18560,22 +17059,22 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/users/mb-account.html',
-    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt=row>  <mb-titled-block mb-title=Account mb-progress=ctrl.avatarLoading flex-gt-sm=50> <div layout=column> <md-input-container> <label translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label translate>Email</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </div> </mb-titled-block> </div> </md-content>"
+    "<md-content mb-preloading=ctrl.loadingUser class=md-padding layout-padding flex> <div layout-gt=row>  <mb-titled-block mb-title=Account mb-progress=ctrl.avatarLoading flex-gt-sm=50> <div layout=column> <md-input-container> <label mb-translate>ID</label> <input ng-model=ctrl.user.id disabled> </md-input-container> <md-input-container> <label mb-translate>Username</label> <input ng-model=ctrl.user.login disabled> </md-input-container> <md-input-container> <label mb-translate>Email</label> <input ng-model=ctrl.user.email type=email disabled> </md-input-container> </div> </mb-titled-block> </div> </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-password.html',
-    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span translate>Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
+    "<md-content class=md-padding layout-padding flex>  <mb-titled-block mb-title=\"Change password\" mb-progress=ctrl.changingPassword flex-gt-sm=50> <p mb-translate>Insert current password and new password to change it.</p> <form name=ctrl.passForm ng-submit=\"ctrl.changePassword(data, ctrl.passForm)\" layout=column layout-padding> <input hide type=\"submit\"> <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.changingPassword && changePassMessage\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{changePassMessage}}</span></p> </div> <md-input-container layout-fill> <label mb-translate>current password</label> <input name=oldPass ng-model=data.oldPass type=password required> <div ng-messages=ctrl.passForm.oldPass.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label mb-translate>new password</label> <input name=newPass ng-model=data.newPass type=password required> <div ng-messages=ctrl.passForm.newPass.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container layout-fill> <label mb-translate>repeat new password</label> <input name=newPass2 ng-model=newPass2 type=password compare-to=data.newPass required> <div ng-messages=ctrl.passForm.newPass2.$error> <div ng-message=required mb-translate>This field is required.</div> <div ng-message=compareTo mb-translate>password is not match.</div> </div> </md-input-container> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=\"ctrl.changePassword(data, ctrl.passForm)\" ng-disabled=ctrl.passForm.$invalid> <span mb-translate>Change password</span> </md-button> </div> </form> </mb-titled-block>  </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-profile.html',
-    "<md-content layout-gt-sm=row layout=column style=\"width: 100%; height: fit-content\">  <mb-titled-block flex-gt-sm=50 mb-title=Avatar mb-progress=ctrl.avatarLoading layout=column style=\"margin: 8px\"> <div flex layout=column layout-fill> <div layout=row style=\"flex-grow: 1; min-height: 100px\" layout-align=\"center center\"> <lf-ng-md-file-input style=\"flex-grow: 1; padding: 10px\" ng-show=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img style=\"max-width: 300px; max-height: 300px; min-width: 24px; min-height: 24px\" ng-if=\"ctrl.avatarState === 'normal'\" ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div style=\"flex-grow:0; min-height: 40px\"> <div layout=column layout-align=\"center none\" style=\"flex-grow: 0\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn translate=\"\">Delete</sapn> </md-button> </div> <div style=\"flex-grow: 0\" layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn translate=\"\">Cancel</sapn> </md-button> </div> </div> </div> </mb-titled-block>  <mb-titled-block flex-gt-sm=50 mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" layout=column style=\"margin: 8px\"> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </md-content>"
+    "<md-content layout-gt-sm=row layout=column style=\"width: 100%; height: fit-content\">  <mb-titled-block flex-gt-sm=50 mb-title=Avatar mb-progress=ctrl.avatarLoading layout=column style=\"margin: 8px\"> <div flex layout=column layout-fill> <div layout=row style=\"flex-grow: 1; min-height: 100px\" layout-align=\"center center\"> <lf-ng-md-file-input style=\"flex-grow: 1; padding: 10px\" ng-show=\"ctrl.avatarState === 'edit'\" lf-files=ctrl.avatarFiles accept=image/* progress preview drag> </lf-ng-md-file-input> <img style=\"max-width: 300px; max-height: 300px; min-width: 24px; min-height: 24px\" ng-if=\"ctrl.avatarState === 'normal'\" ng-src=/api/v2/user/accounts/{{ctrl.user.id}}/avatar ng-src-error=\"https://www.gravatar.com/avatar/{{app.user.current.id|wbmd5}}?d=identicon&size=32\"> </div> <div style=\"flex-grow:0; min-height: 40px\"> <div layout=column layout-align=\"center none\" style=\"flex-grow: 0\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'normal'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.editAvatar()> <sapn mb-translate=\"\">Edit</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.deleteAvatar()> <sapn mb-translate=\"\">Delete</sapn> </md-button> </div> <div style=\"flex-grow: 0\" layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\" ng-if=\"ctrl.avatarState === 'edit'\"> <md-button class=\"md-raised md-primary\" ng-click=ctrl.uploadAvatar(ctrl.avatarFiles)> <sapn mb-translate=\"\">Save</sapn> </md-button> <md-button class=\"md-raised md-accent\" ng-click=ctrl.cancelEditAvatar()> <sapn mb-translate=\"\">Cancel</sapn> </md-button> </div> </div> </div> </mb-titled-block>  <mb-titled-block flex-gt-sm=50 mb-title=\"Public Information\" mb-progress=\"ctrl.loadingProfile || ctrl.savingProfile\" layout=column style=\"margin: 8px\"> <form name=contactForm layout=column layout-padding> <md-input-container layout-fill> <label mb-translate=\"\">First Name</label> <input ng-model=ctrl.profile.first_name> </md-input-container> <md-input-container layout-fill> <label mb-translate=\"\">Last Name</label> <input ng-model=ctrl.profile.last_name> </md-input-container> <md-input-container layout-fill> <label mb-translate=\"\">Public Email</label> <input name=email ng-model=ctrl.profile.public_email type=email> </md-input-container> <md-input-container layout-fill> <label mb-translate=\"\">Language</label> <input ng-model=ctrl.profile.language> </md-input-container> <md-input-container layout-fill> <label mb-translate=\"\">Timezone</label> <input ng-model=ctrl.profile.timezone> </md-input-container> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button class=\"md-raised md-primary\" ng-click=save()> <sapn mb-translate=\"\">Update</sapn> </md-button> </div> </mb-titled-block> </md-content>"
   );
 
 
   $templateCache.put('views/users/mb-recover-password.html',
-    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 translate>reset password</h3> <p translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required translate>This field is required.</div> <div ng-message=compareTo translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | translate}} </md-button> </div> </div> </md-content>"
+    " <md-content layout=row layout-align=none layout-align-gt-sm=\"center center\" flex> <div md-whiteframe=3 style=\"max-height: none\" flex=100 flex-gt-sm=50 layout=column>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=!ctrl.changingPass style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div layout-margin> <h3 mb-translate>reset password</h3> <p mb-translate>reset password description</p> </div> <div style=\"text-align: center\" layout-margin ng-show=!ctrl.changingPass> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" mb-translate>Failed to reset password.</span> <span ng-show=\"ctrl.changePassState === 'fail'\" md-colors=\"{color:'warn'}\" mb-translate>{{$scope.changePassMessage}}</span> <span ng-show=\"ctrl.changePassState === 'success'\" md-colors=\"{color:'primary'}\" mb-translate>Password is reset.</span> </div> <form name=ctrl.myForm ng-submit=changePassword(data) layout=column layout-margin> <md-input-container> <label mb-translate>Token</label> <input ng-model=data.token name=token required> <div ng-messages=ctrl.myForm.token.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>New password</label> <input ng-model=data.password name=password type=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Repeat new password</label> <input name=password2 ng-model=repeatPassword type=password compare-to=data.password required> <div ng-messages=ctrl.myForm.password2.$error> <div ng-message=required mb-translate>This field is required.</div> <div ng-message=compareTo mb-translate>Passwords is not match.</div> </div> </md-input-container> <input hide type=\"submit\"> </form> <div layout=column layout-align=\"center none\" layout-gt-xs=row layout-align-gt-xs=\"end center\"> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=0 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=changePassword(data)>{{'change password' | mb-translate}}</md-button>     <md-button ng-click=cancel() flex-order=0 flex-order-gt-xs=0 class=md-raised> {{'cancel' | mb-translate}} </md-button> </div> </div> </md-content>"
   );
 
 }]);
