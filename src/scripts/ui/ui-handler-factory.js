@@ -34,7 +34,7 @@ angular.module('mblowfish-core').factory('MbUiHandler', function() {
 	function MbUiHandler(configs) {
 		_.assign(this, configs);
 	};
-	
+
 	// Circle derives from Shape
 	MbUiHandler.prototype = Object.create(Object.prototype);
 
@@ -52,7 +52,11 @@ angular.module('mblowfish-core').factory('MbUiHandler', function() {
 		}
 
 		try {
-			this.$element.remove();
+			if (this.$keepRootElement) {
+				this.$element.empty();
+			} else {
+				this.$element.remove();
+			}
 			delete this.$element;
 		} catch (err) {
 			// TODO: log

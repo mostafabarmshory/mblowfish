@@ -3899,7 +3899,7 @@ var RESOURCE_CHILDREN_AUNCHOR = 'wb-select-resource-children';
 This is a service to get resources. 
 
  */
-angular.module('mblowfish-core').provider('$mbResource', function() {
+mblowfish.provider('$mbResource', function() {
 
 
 
@@ -3975,17 +3975,18 @@ angular.module('mblowfish-core').provider('$mbResource', function() {
 		var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
 		return mbDialog.show({
 			controller: 'ResourceDialogCtrl',
+			controllerAs: 'ctrl',
 			templateUrl: tmplUrl,
 			parent: angular.element(document.body),
 			clickOutsideToClose: false,
 			fullscreen: true,
 			multiple: true,
 			locals: {
-				'pages': pages,
-				'style': option.style || {
+				$pages: pages,
+				$style: option.$style || {
 					title: tag
 				},
-				'data': option.data || {}
+				$value: option.$value || {}
 			}
 		});
 	}
@@ -4019,75 +4020,54 @@ angular.module('mblowfish-core').provider('$mbResource', function() {
 
 
 
-/*
- * Manages resource dialog
- * @ngInject
+/**
+@name ResourceDialogCtrl
+@description
+Manages resource dialog and allows internal containers to work.
+
+@ngInject
  */
-mblowfish.controller('ResourceDialogCtrl', function($scope, $mdDialog, $wbUtil, $rootScope,
-	$q, $controller, $compile, pages, style, data, $element, $window) {
+mblowfish.controller('ResourceDialogCtrl', function(
+	$scope, $value, $element, $pages, $style,
+	$mdDialog, MbContainer) {
 
-	$scope.value = angular.copy(data);
-	$scope.style = style;
-	var currentScope = null;
+	//-------------------------------------------------------------
+	// Variables
+	//-------------------------------------------------------------
 
-	function hide() {
-		$mdDialog.hide();
-	}
+	var value = angular.copy($value);
+	var ctrl = this;
+	var currentContainer;
+	var currentPage;
 
+
+	//-------------------------------------------------------------
+	// functions
+	//-------------------------------------------------------------
 	function cancel() {
 		return $mdDialog.cancel();
 	}
 
 	/**
-	 * Answer the dialog
-	 * 
-	 * If there is an answer function in the current page controller
-	 * then the result of the answer function will be returned as 
-	 * the main result.
-	 * 
-	 * @memberof WbResourceCtrl
+	Answer the dialog
+	
+	If there is an answer function in the current page controller
+	then the result of the answer function will be returned as 
+	the main result.
+	
+	@memberof WbResourceCtrl
 	 */
 	function answer() {
-		$scope.loadingAnswer = true;
-		var res = null;
-		if (currentScope && angular.isFunction(currentScope.answer)) {
-			res = $q.when(currentScope.answer())
-				.then($mdDialog.hide);
-		} else {
-			res = $mdDialog.hide($scope.value);
-		}
-		return res.finally(function() {
-			$scope.loadingAnswer = false;
-		});
+		return $mdDialog.hide(value);
 	}
 
-	/*
-	 * Sets value to the real var
-	 */
-	this.setValue = function(value) {
-		$scope.value = value;
-	};
+	function getValue() {
+		return value;
+	}
 
-	/*
-	 * Gets current value
-	 */
-	this.getValue = function() {
-		return $scope.value;
-	};
-
-	/**
-	 * encapsulate template srce with panel widget template.
-	 * 
-	 * @param page
-	 *            setting page config
-	 * @param tempateSrc
-	 *            setting page html template
-	 * @returns encapsulate html template
-	 */
-	function _encapsulatePanel(page, template) {
-		// TODO: maso, 2017: pass all paramter to the setting
-		// panel.
-		return template;
+	function setValue(newValue) {
+		value = newValue;
+		return this;
 	}
 
 	/**
@@ -4096,77 +4076,50 @@ mblowfish.controller('ResourceDialogCtrl', function($scope, $mdDialog, $wbUtil, 
 	 * @returns
 	 */
 	function loadPage(page) {
-		var jobs = [];
-		var pages2 = [];
-
-		$scope._selectedIndex = pages.indexOf(page);
-
 		// 1- Find element
 		var target = $element.find('#' + RESOURCE_CHILDREN_AUNCHOR);
 
 		// 2- Clear childrens
-		target.empty();
-		currentScope = null;
-
-
-		// 3- load pages
-		//          var page = pages[index];
-		var template = $wbUtil.getTemplateFor(page);
-		if (angular.isDefined(template)) {
-			jobs.push($q.when(template).then(function(templateSrc) {
-				templateSrc = _encapsulatePanel(page, templateSrc);
-				var element = angular.element(templateSrc);
-				var scope = $rootScope.$new(false, $scope);
-				currentScope = scope;
-				scope.page = page;
-				scope.value = $scope.value;
-				if (angular.isDefined(page.controller)) {
-					var controller = $controller(page.controller, {
-						$scope: scope,
-						$element: element,
-						style: style,
-						data: data
-					});
-					if (page.controllerAs) {
-						scope[page.controllerAs] = controller;
-					}
-				}
-				$compile(element)(scope);
-				pages2.push(element);
-			}));
+		if (currentContainer) {
+			currentContainer.destroy();
+			target.empty();
 		}
 
-		$q.all(jobs).then(function() {
-			angular.forEach(pages2, function(element) {
-				target.append(element);
-			});
+		currentPage = page;
+		currentContainer = new MbContainer(page);
+		return currentContainer.render({
+			$element: target,
+			$scope: $scope.$new(false),
+			$style: $style,
+			$value: value,
+			$resource: ctrl,
+			$keepRootElement: true, // Do not remove element
 		});
 	}
 
-	if (angular.isFunction($window.openHelp)) {
-		$scope.openHelp = function($event) {
-			cancel().then(function() {
-				$window.openHelp(pages[$scope._selectedIndex], $event);
-			});
-		};
+	function isPageVisible(page) {
+		return page === currentPage;
 	}
 
-	$scope.pages = pages;
+	//-------------------------------------------------------------
+	// end
+	//-------------------------------------------------------------
+	_.assign(ctrl, {
+		style: $style,
+		pages: $pages,
 
-	$scope.loadPage = loadPage;
+		getValue: getValue,
+		setValue: setValue,
+		answer: answer,
+		cancel: cancel,
 
-	$scope.hide = hide;
-	$scope.cancel = cancel;
-	$scope.answer = answer;
+		loadPage: loadPage,
+		isPageVisible: isPageVisible,
+	});
 
-	if (pages.length) {
-		loadPage(pages[0]);
+	if ($pages.length) {
+		loadPage($pages[0]);
 	}
-
-	var ctrl = this;
-	$scope.setValue = function(value) {
-		return ctrl.setValue(value);
-	};
 });
 
 /*
@@ -4776,6 +4729,7 @@ angular.module('mblowfish-core').service('$mbUtil', function() {
 		for (var i = 0; i < roles.length; i++) {
 			var role = roles[i];
 			permissions[role.application + '_' + role.code_name] = true;
+			permissions[role.application + '.' + role.code_name] = true;
 		}
 		return permissions;
 	}
@@ -6360,7 +6314,21 @@ angular.module('mblowfish-core')
 
 
  */
-mblowfish.directive('mbTitledBlock', function() {
+mblowfish.directive('mbTitledBlock', function($mbActions) {
+
+	function postLink(scope) {
+		scope.$evalAction = function(item) {
+			if (item.expression) {
+				return scope.$parent.$eval(item.expression);
+			}
+			if (item.actionId) {
+				return $mbActions.exec(item.actionId);
+			}
+			if (angular.isFunction(item.action)) {
+				item.action();
+			}
+		}
+	}
 	return {
 		replace: true,
 		restrict: 'E',
@@ -6371,10 +6339,7 @@ mblowfish.directive('mbTitledBlock', function() {
 			mbProgress: '<?',
 			mbMoreActions: '='
 		},
-		/*
-		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-		 */
-
+		link: postLink,
 		templateUrl: 'views/directives/mb-titled-block.html'
 	};
 });
@@ -7139,11 +7104,7 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
-/*
- * 
- */
-.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
+mblowfish.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
 
     /*
      * Extends collection controller
@@ -17564,7 +17525,7 @@ view, or an editor.
 
 
  */
-angular.module('mblowfish-core').factory('MbContainer', function(
+mblowfish.factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
 	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming) {
 
@@ -17663,11 +17624,11 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 			link($scope);
 
 
-			cmp.$handler = new MbUiHandler({
+			cmp.$handler = new MbUiHandler(_.assign(locals, {
 				$scope: $scope,
 				$element: $element,
 				$controller: $ctrl
-			});
+			}));
 			return cmp.$handler;
 		});
 	}
@@ -18110,8 +18071,36 @@ angular.module('mblowfish-core').factory('MbFrame', function($mbUiUtil, MbContai
 		return this.menu;
 	};
 
-	MbFrame.prototype.setTitle = function() { };
-	MbFrame.prototype.close = function() { };
+	MbFrame.prototype.setTitle = function(title) {
+		switch ($mbLayout.getMode()) {
+			case 'docker':
+				this.$handler.$dockerContainer.setTitle(title);
+				break;
+			default:
+				// TODO: support mobile layout
+				break;
+		}
+	};
+
+	/**
+	Close the frame
+	
+	In docker view the frame will be closed.
+	
+	In the mobile view we load previews view.
+	
+	@memberof MbFrame
+	 */
+	MbFrame.prototype.close = function() {
+		switch ($mbLayout.getMode()) {
+			case 'docker':
+				this.$handler.$dockerContainer.close();
+				break;
+			default:
+				// TODO: support mobile layout
+				break;
+		}
+	};
 
 	MbFrame.prototype.setFocus = function() {
 		$mbLayout.setFocus(this);
@@ -18560,7 +18549,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			component.destroy();
 		});
 		return component.render({
-			$frame: editor,
+			$dockerContainer: editor,
 			$element: element,
 			$state: state
 		});
@@ -18639,6 +18628,9 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 
 		setLayout: setLayout,
 		getLayout: getLayout,
+		getMode: function() {
+			return mode;
+		},
 	}
 	provider = {
 		setDefault: function(name) {
@@ -20477,7 +20469,7 @@ angular.module('mblowfish-core').factory('MbUiHandler', function() {
 	function MbUiHandler(configs) {
 		_.assign(this, configs);
 	};
-	
+
 	// Circle derives from Shape
 	MbUiHandler.prototype = Object.create(Object.prototype);
 
@@ -20495,7 +20487,11 @@ angular.module('mblowfish-core').factory('MbUiHandler', function() {
 		}
 
 		try {
-			this.$element.remove();
+			if (this.$keepRootElement) {
+				this.$element.empty();
+			} else {
+				this.$element.remove();
+			}
 			delete this.$element;
 		} catch (err) {
 			// TODO: log
@@ -20934,12 +20930,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/dialogs/wb-select-resource-single-page.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row>       <span flex></span> <md-button ng-click=cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content mb-preloading=loadingAnswer flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column ng-hide=\"pages.length === 1\"> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=style.icon>{{::style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in pages | orderBy:priority\" ng-click=\"loadPage(page, $event);\" md-colors=\"_selectedIndex===$index ? {background:'accent'} : {}\"> <mb-icon>{{page.icon || 'attachment'}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" md-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
@@ -20984,7 +20980,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div layout=column style=\"border-radius: 5px; padding: 0px\" class=md-whiteframe-2dp> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=item.action() aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+    "<div layout=column style=\"border-radius: 5px; padding: 0px\" class=md-whiteframe-2dp> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
 
 

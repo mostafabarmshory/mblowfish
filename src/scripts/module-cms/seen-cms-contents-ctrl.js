@@ -22,11 +22,7 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
-/*
- * 
- */
-.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
+mblowfish.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
 
     /*
      * Extends collection controller

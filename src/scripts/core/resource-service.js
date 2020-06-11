@@ -32,7 +32,7 @@ var RESOURCE_CHILDREN_AUNCHOR = 'wb-select-resource-children';
 This is a service to get resources. 
 
  */
-angular.module('mblowfish-core').provider('$mbResource', function() {
+mblowfish.provider('$mbResource', function() {
 
 
 
@@ -108,17 +108,18 @@ angular.module('mblowfish-core').provider('$mbResource', function() {
 		var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
 		return mbDialog.show({
 			controller: 'ResourceDialogCtrl',
+			controllerAs: 'ctrl',
 			templateUrl: tmplUrl,
 			parent: angular.element(document.body),
 			clickOutsideToClose: false,
 			fullscreen: true,
 			multiple: true,
 			locals: {
-				'pages': pages,
-				'style': option.style || {
+				$pages: pages,
+				$style: option.$style || {
 					title: tag
 				},
-				'data': option.data || {}
+				$value: option.$value || {}
 			}
 		});
 	}
@@ -152,75 +153,54 @@ angular.module('mblowfish-core').provider('$mbResource', function() {
 
 
 
-/*
- * Manages resource dialog
- * @ngInject
+/**
+@name ResourceDialogCtrl
+@description
+Manages resource dialog and allows internal containers to work.
+
+@ngInject
  */
-mblowfish.controller('ResourceDialogCtrl', function($scope, $mdDialog, $wbUtil, $rootScope,
-	$q, $controller, $compile, pages, style, data, $element, $window) {
+mblowfish.controller('ResourceDialogCtrl', function(
+	$scope, $value, $element, $pages, $style,
+	$mdDialog, MbContainer) {
 
-	$scope.value = angular.copy(data);
-	$scope.style = style;
-	var currentScope = null;
+	//-------------------------------------------------------------
+	// Variables
+	//-------------------------------------------------------------
 
-	function hide() {
-		$mdDialog.hide();
-	}
+	var value = angular.copy($value);
+	var ctrl = this;
+	var currentContainer;
+	var currentPage;
 
+
+	//-------------------------------------------------------------
+	// functions
+	//-------------------------------------------------------------
 	function cancel() {
 		return $mdDialog.cancel();
 	}
 
 	/**
-	 * Answer the dialog
-	 * 
-	 * If there is an answer function in the current page controller
-	 * then the result of the answer function will be returned as 
-	 * the main result.
-	 * 
-	 * @memberof WbResourceCtrl
+	Answer the dialog
+	
+	If there is an answer function in the current page controller
+	then the result of the answer function will be returned as 
+	the main result.
+	
+	@memberof WbResourceCtrl
 	 */
 	function answer() {
-		$scope.loadingAnswer = true;
-		var res = null;
-		if (currentScope && angular.isFunction(currentScope.answer)) {
-			res = $q.when(currentScope.answer())
-				.then($mdDialog.hide);
-		} else {
-			res = $mdDialog.hide($scope.value);
-		}
-		return res.finally(function() {
-			$scope.loadingAnswer = false;
-		});
+		return $mdDialog.hide(value);
 	}
 
-	/*
-	 * Sets value to the real var
-	 */
-	this.setValue = function(value) {
-		$scope.value = value;
-	};
+	function getValue() {
+		return value;
+	}
 
-	/*
-	 * Gets current value
-	 */
-	this.getValue = function() {
-		return $scope.value;
-	};
-
-	/**
-	 * encapsulate template srce with panel widget template.
-	 * 
-	 * @param page
-	 *            setting page config
-	 * @param tempateSrc
-	 *            setting page html template
-	 * @returns encapsulate html template
-	 */
-	function _encapsulatePanel(page, template) {
-		// TODO: maso, 2017: pass all paramter to the setting
-		// panel.
-		return template;
+	function setValue(newValue) {
+		value = newValue;
+		return this;
 	}
 
 	/**
@@ -229,75 +209,48 @@ mblowfish.controller('ResourceDialogCtrl', function($scope, $mdDialog, $wbUtil, 
 	 * @returns
 	 */
 	function loadPage(page) {
-		var jobs = [];
-		var pages2 = [];
-
-		$scope._selectedIndex = pages.indexOf(page);
-
 		// 1- Find element
 		var target = $element.find('#' + RESOURCE_CHILDREN_AUNCHOR);
 
 		// 2- Clear childrens
-		target.empty();
-		currentScope = null;
-
-
-		// 3- load pages
-		//          var page = pages[index];
-		var template = $wbUtil.getTemplateFor(page);
-		if (angular.isDefined(template)) {
-			jobs.push($q.when(template).then(function(templateSrc) {
-				templateSrc = _encapsulatePanel(page, templateSrc);
-				var element = angular.element(templateSrc);
-				var scope = $rootScope.$new(false, $scope);
-				currentScope = scope;
-				scope.page = page;
-				scope.value = $scope.value;
-				if (angular.isDefined(page.controller)) {
-					var controller = $controller(page.controller, {
-						$scope: scope,
-						$element: element,
-						style: style,
-						data: data
-					});
-					if (page.controllerAs) {
-						scope[page.controllerAs] = controller;
-					}
-				}
-				$compile(element)(scope);
-				pages2.push(element);
-			}));
+		if (currentContainer) {
+			currentContainer.destroy();
+			target.empty();
 		}
 
-		$q.all(jobs).then(function() {
-			angular.forEach(pages2, function(element) {
-				target.append(element);
-			});
+		currentPage = page;
+		currentContainer = new MbContainer(page);
+		return currentContainer.render({
+			$element: target,
+			$scope: $scope.$new(false),
+			$style: $style,
+			$value: value,
+			$resource: ctrl,
+			$keepRootElement: true, // Do not remove element
 		});
 	}
 
-	if (angular.isFunction($window.openHelp)) {
-		$scope.openHelp = function($event) {
-			cancel().then(function() {
-				$window.openHelp(pages[$scope._selectedIndex], $event);
-			});
-		};
+	function isPageVisible(page) {
+		return page === currentPage;
 	}
 
-	$scope.pages = pages;
+	//-------------------------------------------------------------
+	// end
+	//-------------------------------------------------------------
+	_.assign(ctrl, {
+		style: $style,
+		pages: $pages,
 
-	$scope.loadPage = loadPage;
+		getValue: getValue,
+		setValue: setValue,
+		answer: answer,
+		cancel: cancel,
 
-	$scope.hide = hide;
-	$scope.cancel = cancel;
-	$scope.answer = answer;
+		loadPage: loadPage,
+		isPageVisible: isPageVisible,
+	});
 
-	if (pages.length) {
-		loadPage(pages[0]);
+	if ($pages.length) {
+		loadPage($pages[0]);
 	}
-
-	var ctrl = this;
-	$scope.setValue = function(value) {
-		return ctrl.setValue(value);
-	};
 });

@@ -1,8 +1,8 @@
-<md-dialog aria-label="Select item/items"
+<md-dialog
+	aria-label="Select item/items"
 	style="width:70%; height:70%;">
 	<form ng-cloak layout="column" flex>
 		<md-dialog-content
-			mb-preloading="loadingAnswer"
 			flex
 			layout="row">
 			<md-sidenav
@@ -10,27 +10,26 @@
 				md-component-id="left"
 				md-is-locked-open="true"
 				md-whiteframe="4"
-				layout="column"
-				ng-hide="pages.length === 1">
+				layout="column">
 				<div
-	    			style="text-align: center;">
-					<mb-icon size="64px" ng-if="style.icon">{{::style.icon}}</mb-icon>
+					style="text-align: center;">
+					<mb-icon size="64px" ng-if="ctrl.style.icon">{{::ctrl.style.icon}}</mb-icon>
 					<h2 
 						style="text-align: center;"
-						mb-translate>{{::style.title}}</h2>
+						mb-translate>{{::ctrl.style.title}}</h2>
 					<p 
 						style="text-align: center;"
-						mb-translate>{{::style.description}}</p>
+						mb-translate>{{::ctrl.style.description}}</p>
 				</div>
 				<md-devider></md-devider>
 				<md-content>
 					<md-list
 						style="padding:0px; margin: 0px">
 						<md-list-item 
-							ng-repeat="page in pages | orderBy:priority"
-							ng-click="loadPage(page, $event);"
-							md-colors="_selectedIndex===$index ? {background:'accent'} : {}">
-							<mb-icon>{{page.icon || 'attachment'}}</mb-icon>
+							ng-repeat="page in ctrl.pages | orderBy:priority"
+							ng-click="ctrl.loadPage(page, $event);"
+							md-colors="ctrl.isPageVisible(page) ? {background:'accent'} : {}">
+							<mb-icon>{{::(page.icon || 'attachment')}}</mb-icon>
 							<p mb-translate>{{::page.title}}</p>
 						</md-list-item>
 					</md-list>
@@ -50,14 +49,14 @@
 		<md-dialog-actions layout="row">
 			<span flex></span>
 			<md-button
-                aria-label="Cancel"
-				ng-click="cancel()"> 
+				aria-label="Cancel"
+				ng-click="ctrl.cancel()"> 
 				<span mb-translate="">Close</span> 
 			</md-button>
 			<md-button
 				class="md-primary"
-                aria-label="Done"
-				ng-click="answer()"> 
+				aria-label="Done"
+				ng-click="ctrl.answer()"> 
 				<span mb-translate="">Ok</span> 
 			</md-button>
 	    </md-dialog-actions>

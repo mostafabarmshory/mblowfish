@@ -75,6 +75,7 @@ angular.module('mblowfish-core').service('$mbUtil', function() {
 		for (var i = 0; i < roles.length; i++) {
 			var role = roles[i];
 			permissions[role.application + '_' + role.code_name] = true;
+			permissions[role.application + '.' + role.code_name] = true;
 		}
 		return permissions;
 	}

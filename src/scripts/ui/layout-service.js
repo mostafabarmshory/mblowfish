@@ -256,7 +256,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			component.destroy();
 		});
 		return component.render({
-			$frame: editor,
+			$dockerContainer: editor,
 			$element: element,
 			$state: state
 		});
@@ -335,6 +335,9 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 
 		setLayout: setLayout,
 		getLayout: getLayout,
+		getMode: function() {
+			return mode;
+		},
 	}
 	provider = {
 		setDefault: function(name) {

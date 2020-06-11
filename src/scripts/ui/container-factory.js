@@ -49,7 +49,7 @@ view, or an editor.
 
 
  */
-angular.module('mblowfish-core').factory('MbContainer', function(
+mblowfish.factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
 	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming) {
 
@@ -148,11 +148,11 @@ angular.module('mblowfish-core').factory('MbContainer', function(
 			link($scope);
 
 
-			cmp.$handler = new MbUiHandler({
+			cmp.$handler = new MbUiHandler(_.assign(locals, {
 				$scope: $scope,
 				$element: $element,
 				$controller: $ctrl
-			});
+			}));
 			return cmp.$handler;
 		});
 	}

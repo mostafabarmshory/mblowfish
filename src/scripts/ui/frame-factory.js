@@ -63,8 +63,36 @@ angular.module('mblowfish-core').factory('MbFrame', function($mbUiUtil, MbContai
 		return this.menu;
 	};
 
-	MbFrame.prototype.setTitle = function() { };
-	MbFrame.prototype.close = function() { };
+	MbFrame.prototype.setTitle = function(title) {
+		switch ($mbLayout.getMode()) {
+			case 'docker':
+				this.$handler.$dockerContainer.setTitle(title);
+				break;
+			default:
+				// TODO: support mobile layout
+				break;
+		}
+	};
+
+	/**
+	Close the frame
+	
+	In docker view the frame will be closed.
+	
+	In the mobile view we load previews view.
+	
+	@memberof MbFrame
+	 */
+	MbFrame.prototype.close = function() {
+		switch ($mbLayout.getMode()) {
+			case 'docker':
+				this.$handler.$dockerContainer.close();
+				break;
+			default:
+				// TODO: support mobile layout
+				break;
+		}
+	};
 
 	MbFrame.prototype.setFocus = function() {
 		$mbLayout.setFocus(this);

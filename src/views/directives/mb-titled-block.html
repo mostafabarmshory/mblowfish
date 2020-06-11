@@ -20,14 +20,14 @@
 			<md-button
 				class="md-icon-button"
 				aria-label="Menu"
-				ng-click="$mdOpenMenu($event)">
+				ng-click="$mdMenu.open($event)">
 				<mb-icon>more_vert</mb-icon>
 			</md-button>
 			<md-menu-content width="4">
 				<md-menu-item
 					ng-repeat="item in mbMoreActions">
 					<md-button
-						ng-click="item.action()"
+						ng-click="$evalAction(item)"
 						aria-label="{{::item.title}}">
 						<mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
 						<span mb-translate="">{{::item.title}}</span>
