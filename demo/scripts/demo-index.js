@@ -29,7 +29,7 @@ mblowfish.config(function(
 	$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
 	$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider,
 	$mbEditorProvider,
-	$mbTranslateProvider,
+	$mbTranslateProvider, $mbTranslateSanitizationProvider,
 	$mbStorageProvider, $locationProvider) {
 	//
 	// Application manager
@@ -166,7 +166,7 @@ mblowfish.config(function(
 		.preferredLanguage('fa')
 		.useMissingTranslationHandler('MbMissingTranslationHandler')
 		.useLoader('MbLanguageLoader');
-	$mbTranslateSanitization
+	$mbTranslateSanitizationProvider
 		.useStrategy(['sanitize']);
 
 
@@ -174,21 +174,38 @@ mblowfish.config(function(
 	//  By initializing the main toolbar you can add list of action or component
 	// into the toolbar.
 	//
-	$mbToolbarProvider.init([{
-		url: '/app/demo',
-		items: ['demo.alert']
-	}, {
-		url: '/app',
-		items: [
-			'mb.preferences',
-		]
-	}]);
+	$mbToolbarProvider
+		.init([{
+			url: '/app/demo',
+			items: [
+				'mb.app.navigator.toggle',
+				'demo.alert'
+			]
+		}, {
+			url: '/app',
+			items: [
+				'mb.preferences',
+			]
+		}]);
 
 
 	//
 	// $mbAction: manages all actions
 	//
 	$mbActionsProvider
+		.init({
+			items: {
+				'mb.app.navigator.toggle': {
+					title: 'Navigator',
+					description: 'Tooble Navigator Sidenav',
+					icon: 'menu',
+					/* @ngInject */
+					action: function($mbSidenav) {
+						$mbSidenav.getSidenav('/app/navigator').toggle();
+					}
+				}
+			}
+		})
 		.addAction('demo.alert', {
 			icon: 'face',
 			title: 'Add local module',
@@ -240,6 +257,22 @@ mblowfish.config(function(
 			anchor: 'editors',
 			templateUrl: 'views/components/index.html',
 			groups: ['Tutorials&Demo']
+		})
+		.addView('/demo/core/resources/file', {
+			title: 'File',
+			icon: 'file',
+			controller: 'TestResoucesCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/core/resource-file.html',
+			groups: ['Resources']
+		})
+		.addView('/demo/core/resources/image-url', {
+			title: 'Image URL',
+			icon: 'gollary',
+			controller: 'TestResoucesCtrl',
+			controllerAs: 'ctrl',
+			templateUrl: 'views/core/resource-image-url.html',
+			groups: ['Resources']
 		});
 })
 	.run(function($mbToolbar, $window, MbAction) {

@@ -76,6 +76,14 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
 		}
 	};
 
+	function findItemFrom(item, collection) {
+		for (var i = 0; i < collection.length; i++) {
+			if (collection[i].id === item.id) {
+				return collection[i];
+			}
+		}
+	}
+
 	var STATE_INIT = 'init';
 	var STATE_BUSY = 'busy';
 	var STATE_IDEAL = 'ideal';
@@ -166,7 +174,7 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
 		// this.items = _.concat(items, deff);
 		var ctrl = this;
 		_.forEach(items, function(item) {
-			ctrl.items.push(item);
+			ctrl.items.unshift(item);
 		});
 		if (this.id) {
 			this.fireEvent(this.id, 'update', this.items);
@@ -199,7 +207,15 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
      */
 	this.updateViewItems = function(items) {
 		// XXX: maso, 2019: update view items
+		var ctrl = this;
+		_.forEach(items, function(item) {
+			var viewItem = findItemFrom(item, ctrl.items);
+			if (viewItem) {
+				_.assign(viewItem, item);
+			}
+		});
 	};
+
 
     /**
      * Returns list of all items in the view

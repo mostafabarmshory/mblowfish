@@ -21,20 +21,60 @@
  */
 
 
-angular.module('mblowfish-core').run(function($notification, $help) {
+/**
+@ngdoc Controller
+@name TestResources
+@description 
+
+This is a simple controller to check system resources.
+
+ */
+mblowfish.controller('TestResoucesCtrl', function($scope, $mbResource) {
+
+	var ctrl = this;
+
+	function selectFile() {
+		$mbResource
+			.get('file', {
+				$style: {
+					accept: '.*',
+				}
+			})
+			.then(function(file) {
+				$scope.file = file;
+			})
+	}
 
 
-    /*
-     * Display help for an item
-     */
-	window.openHelp = function(item) {
-		return $help.openHelp(item);
-	};
+	function selectFiles() {
+		$mbResource
+			.get('files', {
+				$style: {
+					accept: '.*',
+				}
+			})
+			.then(function(files) {
+				$scope.files = files;
+			})
+	}
 
-	// Hadi 1396-12-22: update alerts
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
 
+	function selectImageUrl() {
+		$mbResource
+			.get('image-url', {
+				$style: {
+					title: 'Image URL'
+				},
+				$value: $scope.imageUrl
+			})
+			.then(function(url) {
+				$scope.imageUrl = url;
+			});
+	}
+
+	_.assign(ctrl, {
+		selectFile: selectFile,
+		selectFiles: selectFiles,
+		selectImageUrl: selectImageUrl,
+	});
 });

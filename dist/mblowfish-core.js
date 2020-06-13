@@ -7080,156 +7080,624 @@ angular.module('mblowfish-core')
 });
 
 
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.controller('MbSeenCmsContentsCtrl',function ($scope, $cms, $q, $controller) {
-
-    /*
-     * Extends collection controller
-     */
-    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
-
-    // Override the schema function
-    this.getModelSchema = function () {
-        return $cms.contentSchema();
-    };
-
-    // get contents
-    this.getModels = function (parameterQuery) {
-        return $cms.getContents(parameterQuery);
-    };
-
-    // get a content
-    this.getModel = function (id) {
-        return $cms.getContent(id);
-    };
-
-    // delete account
-    this.deleteModel = function (content) {
-        return $cms.deleteContent(content.id);
-    };
-
-    /**
-     * Uploads a file on the server.
-     * 
-     * To upload the file there are two actions:
-     * 
-     * <ul>
-     * <li>create a new content</li>
-     * <li>upload content value</li>
-     * </ul>
-     * 
-     * This function change the state of the controller into the
-     * working.
-     */
-    this.uploadFile = function (content, file) {
-        /*
-         * upload file
-         */
-        function uploadContentValue(newContent) {
-            if (file) {
-                return newContent.uploadValue(file)//
-                .then(function () {
-                    return newContent;
-                });
-            }
-            return $q.resolve(newContent);
-        }
-
-        // XXX: maso, 2018: check content is not anonymous
-        return $cms.putContent(content)//
-        .then(uploadContentValue);
-    }
-
-    this.init({
-        eventType: '/cms/contents'
-    });
-});
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-angular.module('mblowfish-core')
 /*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
-.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
 
-    /*
-     * Extends collection controller
-     */
-    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
+mblowfish.run(function(appcache, $window) {
 
-    // Override the schema function
-    this.getModelSchema = function () {
-        return $cms.termTaxonomySchema();
-    };
+	/*
+	 * Reload the page
+	 * 
+	 * @deprecated use page service
+	 */
+	function reload() {
+		$window.location.reload();
+	}
 
-    // get contents
-    this.getModels = function (parameterQuery) {
-        return $cms.getTermTaxonomies(parameterQuery);
-    };
+	/*
+	 * Reload the application
+	 */
+	function updateApplication() {
+		var setting = {};
+		if (setting.showMessage) {
+			if (setting.autoReload) {
+				alert('Application is update. Page will be reload automatically.')//
+					.then(reload);
+			} else {
+				confirm('Application is update. Reload the page for new version?')//
+					.then(reload);
+			}
+		} else {
+			toast('Application is updated.');
+		}
+	}
 
-    // get a content
-    this.getModel = function (id) {
-        return $cms.getTermTaxonomy(id);
-    };
+	// Check update
+	function doUpdate() {
+		appcache
+			.swapCache()//
+			.then(updateApplication());
+	}
 
-    // delete account
-    this.deleteModel = function (content) {
-        return $cms.deleteTermTaxonomy(content.id);
-    };
-
-    this.init({
-        eventType: '/cms/term-taxonomies'
-    });
+	appcache
+		.checkUpdate()
+		.then(doUpdate);
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+mblowfish.run(function($notification) {
+	// Hadi 1396-12-22: update alerts
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/*
+ * Init application resources
+ */
+mblowfish.config(function($mbResourceProvider) {
+
+	$mbResourceProvider
+		.addPage('wb-url', {
+			title: 'URL',
+			icon: 'link',
+			templateUrl: 'views/resources/wb-url.html',
+			tags: [
+				'url',
+				'image-url',
+				'vedio-url',
+				'audio-url',
+				'page-url',
+				'avatar-url',
+				'thumbnail-url'
+			]
+		})
+		.addPage('local-file', {
+			icon: 'file_upload',
+			label: 'Local file',
+			templateUrl: 'views/resources/mb-local-file.html',
+			/*@ngInject*/
+			controller: function($resource, $style) {
+				var ctrl = this;
+				function setFile(files) {
+					var val;
+					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+						val = files[0].lfFile;
+					}
+					$resource.setValue(val);
+				}
+				_.assign(ctrl, {
+					$style: $style,
+					setFile: setFile
+				});
+			},
+			controllerAs: 'ctrl',
+			priority: 1,
+			tags: ['file']
+		})
+		.addPage('local-files', {
+			icon: 'file_upload',
+			label: 'Local files',
+			templateUrl: 'views/resources/mb-local-files.html',
+			/*@ngInject*/
+			controller: function($resource, $style) {
+				var ctrl = this;
+				function setFiles(files) {
+					$resource.setValue(files);
+				}
+				_.assign(ctrl, {
+					$style: $style,
+					setFiles: setFiles
+				});
+			},
+			controllerAs: 'ctrl',
+			priority: 1,
+			tags: ['files']
+		});
+	//		.addPage({
+	//			type: 'script',
+	//			icon: 'script',
+	//			label: 'Script',
+	//			templateUrl: 'views/resources/wb-event-code-editor.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope, $window, $element) {
+	//				var ctrl = this;
+	//				this.value = $scope.value || {
+	//					code: '',
+	//					language: 'javascript',
+	//					languages: [{
+	//						text: 'HTML/XML',
+	//						value: 'markup'
+	//					},
+	//					{
+	//						text: 'JavaScript',
+	//						value: 'javascript'
+	//					},
+	//					{
+	//						text: 'CSS',
+	//						value: 'css'
+	//					}]
+	//				};
+	//				this.setCode = function(code) {
+	//					this.value.code = code;
+	//					$scope.$parent.setValue(this.value);
+	//				};
+	//
+	//				this.setLanguage = function(language) {
+	//					this.value.code = language;
+	//					$scope.$parent.setValue(this.value);
+	//				};
+	//
+	//				this.setEditor = function(editor) {
+	//					this.editor = editor;
+	//					editor.setOptions({
+	//						enableBasicAutocompletion: true,
+	//						enableLiveAutocompletion: true,
+	//						showPrintMargin: false,
+	//						maxLines: Infinity,
+	//						fontSize: '100%'
+	//					});
+	//					$scope.editor = editor;
+	//					//              editor.setTheme('resources/libs/ace/theme/chrome');
+	//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
+	//					editor.setValue(ctrl.value.code || '');
+	//					editor.on('change', function() {
+	//						ctrl.setCode(editor.getValue());
+	//					});
+	//				};
+	//
+	//				//          var ctrl = this;
+	//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
+	//					.then(function() {
+	//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
+	//					});
+	//			},
+	//			controllerAs: 'ctrl',
+	//			tags: ['code', 'script']
+	//		});
+
+	//	function getDomain() {
+	//		return $location.protocol() + //
+	//			'://' + //
+	//			$location.host() + //
+	//			(($location.port() ? ':' + $location.port() : ''));
+	//	}
+	//
+	//	//  TODO: maso, 2018: replace with class
+	//	function getSelection() {
+	//		if (!this.__selections) {
+	//			this.__selections = angular.isArray(this.value) ? this.value : [];
+	//		}
+	//		return this.__selections;
+	//	}
+	//
+	//	function getIndexOf(list, item) {
+	//		if (!angular.isDefined(item.id)) {
+	//			return list.indexOf(item);
+	//		}
+	//		for (var i = 0; i < list.length; i++) {
+	//			if (list[i].id === item.id) {
+	//				return i;
+	//			}
+	//		}
+	//	}
+	//
+	//	function setSelected(item, selected) {
+	//		var selectionList = this.getSelection();
+	//		var index = getIndexOf(selectionList, item);
+	//		if (selected) {
+	//			// add to selection
+	//			if (index >= 0) {
+	//				return;
+	//			}
+	//			selectionList.push(item);
+	//		} else {
+	//			// remove from selection
+	//			if (index > -1) {
+	//				selectionList.splice(index, 1);
+	//			}
+	//		}
+	//	}
+	//
+	//	function isSelected(item) {
+	//		var selectionList = this.getSelection();
+	//		return getIndexOf(selectionList, item) >= 0;
+	//	}
+	//
+	//
+	//	/**
+	//	 * @ngdoc Resources
+	//	 * @name Account
+	//	 * @description Get an account from resource
+	//	 *
+	//	 * Enable user to select an account
+	//	 */
+	//	$mbResourceProvider
+	//		.addPage({
+	//			label: 'Account',
+	//			type: 'account',
+	//			templateUrl: 'views/resources/mb-accounts.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = false;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item) {
+	//					$scope.$parent.setValue(item);
+	//					$scope.$parent.answer();
+	//				};
+	//				this.isSelected = function(item) {
+	//					return item === this.value || item.id === this.value.id;
+	//				};
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['account']
+	//		})
+	//		.addPage({
+	//			label: 'Account',
+	//			type: 'account id',
+	//			templateUrl: 'views/resources/mb-accounts.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = false;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item) {
+	//					$scope.$parent.setValue(item.id);
+	//					$scope.$parent.answer();
+	//				};
+	//				this.isSelected = function(item) {
+	//					return item.id === this.value;
+	//				};
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['account_id', 'owner_id']
+	//		})
+	//		.addPage({
+	//			label: 'Accounts',
+	//			type: 'account-list',
+	//			templateUrl: 'views/resources/mb-accounts.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = true;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item, selected) {
+	//					this._setSelected(item, selected);
+	//					$scope.$parent.setValue(this.getSelection());
+	//				};
+	//				this._setSelected = setSelected;
+	//				this.isSelected = isSelected;
+	//				this.getSelection = getSelection;
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['accounts', '/user/accounts']
+	//		})
+	//		.addPage({
+	//			label: 'Role List',
+	//			type: 'role-list',
+	//			templateUrl: 'views/resources/mb-roles.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = true;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item, selected) {
+	//					this._setSelected(item, selected);
+	//					$scope.$parent.setValue(this.getSelection());
+	//				};
+	//				this._setSelected = setSelected;
+	//				this.isSelected = isSelected;
+	//				this.getSelection = getSelection;
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['roles', '/user/roles']
+	//		})
+	//		.addPage({
+	//		label: 'Group List',
+	//		type: 'group-list',
+	//		templateUrl: 'views/resources/mb-groups.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope) {
+	//			// TODO: maso, 2018: load selected item
+	//			$scope.multi = true;
+	//			this.value = $scope.value;
+	//			this.setSelected = function(item, selected) {
+	//				this._setSelected(item, selected);
+	//				$scope.$parent.setValue(this.getSelection());
+	//			};
+	//			this._setSelected = setSelected;
+	//			this.isSelected = isSelected;
+	//			this.getSelection = getSelection;
+	//		},
+	//		controllerAs: 'resourceCtrl',
+	//		priority: 8,
+	//		tags: ['groups']
+	//	})
+	//	.addPage({
+	//		type: 'cms-content-image',
+	//		icon: 'image',
+	//		label: 'Images',
+	//		templateUrl: 'views/resources/mb-cms-images.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope) {
+	//
+	//			/*
+	//			 * Extends collection controller
+	//			 */
+	//			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+	//				$scope: $scope
+	//			}));
+	//
+	//			/**
+	//			 * Sets the absolute mode
+	//			 *
+	//			 * @param {boolean}
+	//			 *            absolute mode of the controler
+	//			 */
+	//			this.setAbsolute = function(absolute) {
+	//				this.absolute = absolute;
+	//			}
+	//
+	//			/**
+	//			 * Checks if the mode is absolute
+	//			 *
+	//			 * @return absolute mode of the controller
+	//			 */
+	//			this.isAbsolute = function() {
+	//				return this.absolute;
+	//			}
+	//
+	//			/*
+	//			 * Sets value
+	//			 */
+	//			this.setSelected = function(content) {
+	//				var path = '/api/v2/cms/contents/' + content.id + '/content';
+	//				if (this.isAbsolute()) {
+	//					path = getDomain() + path;
+	//				}
+	//				this.value = path;
+	//				$scope.$parent.setValue(path);
+	//			}
+	//
+	//			// init the controller
+	//			this.init()
+	//		},
+	//		controllerAs: 'ctrl',
+	//		priority: 10,
+	//		tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
+	//	})
+	//	.addPage({
+	//		type: 'content-upload',
+	//		icon: 'file_upload',
+	//		label: 'Upload',
+	//		templateUrl: 'views/resources/mb-cms-content-upload.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope, $cms, $mbTranslate, $mbCrypto) {
+	//
+	//			/*
+	//			 * Extends collection controller
+	//			 */
+	//			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
+	//				$scope: $scope
+	//			}));
+	//
+	//			this.absolute = false;
+	//			this.files = [];
+	//
+	//			/**
+	//			 * Sets the absolute mode
+	//			 *
+	//			 * @param {boolean}
+	//			 *            absolute mode of the controler
+	//			 */
+	//			this.setAbsolute = function(absolute) {
+	//				this.absolute = absolute;
+	//			}
+	//
+	//			/**
+	//			 * Checks if the mode is absolute
+	//			 *
+	//			 * @return absolute mode of the controller
+	//			 */
+	//			this.isAbsolute = function() {
+	//				return this.absolute;
+	//			}
+	//
+	//			/*
+	//			 * Add answer to controller
+	//			 */
+	//			var ctrl = this;
+	//			$scope.answer = function() {
+	//				// create data
+	//				var data = {};
+	//				data.name = this.name || $mbCrypto.uuid();
+	//				data.description = this.description || 'Auto loaded content';
+	//				var file = null;
+	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
+	//					file = ctrl.files[0].lfFile;
+	//					data.title = file.name;
+	//				}
+	//				// upload data to server
+	//				return ctrl.uploadFile(data, file)//
+	//					.then(function(content) {
+	//						var value = '/api/v2/cms/contents/' + content.id + '/content';
+	//						if (ctrl.isAbsolute()) {
+	//							value = getDomain() + value;
+	//						}
+	//						return value;
+	//					})//
+	//					.catch(function() {
+	//						alert('Failed to create or upload content');
+	//					});
+	//			};
+	//			// init the controller
+	//			this.init();
+	//
+	//			// re-labeling lf-ng-md-file component for multi languages support
+	//			angular.element(function() {
+	//				var elm = angular.element('.lf-ng-md-file-input-drag-text');
+	//				if (elm[0]) {
+	//					elm.text($mbTranslate.instant('Drag & Drop File Here'));
+	//				}
+	//
+	//				elm = angular.element('.lf-ng-md-file-input-button-brower');
+	//				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+	//					elm[0].childNodes[1].data = ' ' + $mbTranslate.instant('Browse');
+	//				}
+	//
+	//				elm = angular.element('.lf-ng-md-file-input-button-remove');
+	//				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
+	//					elm[0].childNodes[1].data = $mbTranslate.instant('Remove');
+	//				}
+	//
+	//				elm = angular.element('.lf-ng-md-file-input-caption-text-default');
+	//				if (elm[0]) {
+	//					elm.text($mbTranslate.instant('Select File'));
+	//				}
+	//			});
+	//		},
+	//		controllerAs: 'ctrl',
+	//		priority: 1,
+	//		tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
+	//	})
+	//	.addPage({
+	//		type: 'local-file',
+	//		icon: 'file_upload',
+	//		label: 'Local file',
+	//		templateUrl: 'views/resources/mb-local-file.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope, $q, style) {
+	//			var ctrl = this;
+	//			$scope.style = style;
+	//			$scope.answer = function() {
+	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
+	//					return $q.resolve(ctrl.files[0].lfFile);
+	//				}
+	//				return $q.reject('No file selected');
+	//			};
+	//		},
+	//		controllerAs: 'resourceCtrl',
+	//		priority: 1,
+	//		tags: ['local-file']
+	//	});
+	//
+	//
+	//
+	//	//-------------------------------------------------------------//
+	//	// CMS:
+	//	//
+	//	// - Term Taxonomies
+	//	//-------------------------------------------------------------//
+	//	$mbResource.addPage({
+	//		label: 'Term Taxonomies',
+	//		type: '/cms/term-taxonomies',
+	//		templateUrl: 'views/resources/mb-term-taxonomies.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope) {
+	//			$scope.multi = true;
+	//			this.value = $scope.value;
+	//			this.setSelected = function(item, selected) {
+	//				this._setSelected(item, selected);
+	//				$scope.$parent.setValue(this.getSelection());
+	//			};
+	//			this._setSelected = setSelected;
+	//			this.isSelected = isSelected;
+	//			this.getSelection = getSelection;
+	//		},
+	//		controllerAs: 'resourceCtrl',
+	//		priority: 8,
+	//		tags: ['/cms/term-taxonomies']
+	//	});
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12636,6 +13104,14 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
 		}
 	};
 
+	function findItemFrom(item, collection) {
+		for (var i = 0; i < collection.length; i++) {
+			if (collection[i].id === item.id) {
+				return collection[i];
+			}
+		}
+	}
+
 	var STATE_INIT = 'init';
 	var STATE_BUSY = 'busy';
 	var STATE_IDEAL = 'ideal';
@@ -12726,7 +13202,7 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
 		// this.items = _.concat(items, deff);
 		var ctrl = this;
 		_.forEach(items, function(item) {
-			ctrl.items.push(item);
+			ctrl.items.unshift(item);
 		});
 		if (this.id) {
 			this.fireEvent(this.id, 'update', this.items);
@@ -12759,7 +13235,15 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
      */
 	this.updateViewItems = function(items) {
 		// XXX: maso, 2019: update view items
+		var ctrl = this;
+		_.forEach(items, function(item) {
+			var viewItem = findItemFrom(item, ctrl.items);
+			if (viewItem) {
+				_.assign(viewItem, item);
+			}
+		});
 	};
+
 
     /**
      * Returns list of all items in the view
@@ -14103,646 +14587,6 @@ angular.module('mblowfish-core')
 
     this.init();
 });
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.run(function(appcache, $window, $rootScope) {
-
-	var oldWatch;
-
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
-
-	// Check update
-	function doUpdate() {
-		appcache.swapCache()//
-			.then(updateApplication());
-	}
-
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core').run(function($notification, $help) {
-
-
-    /*
-     * Display help for an item
-     */
-	window.openHelp = function(item) {
-		return $help.openHelp(item);
-	};
-
-	// Hadi 1396-12-22: update alerts
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-
-});
-///*
-// * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
-// *
-// * Permission is hereby granted, free of charge, to any person obtaining a copy
-// * of this software and associated documentation files (the "Software"), to deal
-// * in the Software without restriction, including without limitation the rights
-// * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// * copies of the Software, and to permit persons to whom the Software is
-// * furnished to do so, subject to the following conditions:
-// *
-// * The above copyright notice and this permission notice shall be included in all
-// * copies or substantial portions of the Software.
-// *
-// * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// * SOFTWARE.
-// */
-//
-//
-//angular.module('mblowfish-core')
-//	/*
-//	 * Init application resources
-//	 */
-//	.run(function($mbResource, $location, $controller) {
-//
-//		$mbResource.addPage({
-//			type: 'wb-url',
-//			icon: 'link',
-//			label: 'URL',
-//			templateUrl: 'views/resources/wb-url.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				$scope.$watch('value', function(value) {
-//					$scope.$parent.setValue(value);
-//				});
-//			},
-//			controllerAs: 'ctrl',
-//			tags: ['file', 'image', 'vedio', 'audio', 'page', 'url', 'link',
-//				'avatar', 'thumbnail',
-//				// new models
-//				'image-url', 'vedio-url', 'audio-url', 'page-url']
-//		});
-//
-//		$mbResource.addPage({
-//			type: 'script',
-//			icon: 'script',
-//			label: 'Script',
-//			templateUrl: 'views/resources/wb-event-code-editor.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope, $window, $element) {
-//				var ctrl = this;
-//				this.value = $scope.value || {
-//					code: '',
-//					language: 'javascript',
-//					languages: [{
-//						text: 'HTML/XML',
-//						value: 'markup'
-//					},
-//					{
-//						text: 'JavaScript',
-//						value: 'javascript'
-//					},
-//					{
-//						text: 'CSS',
-//						value: 'css'
-//					}]
-//				};
-//				this.setCode = function(code) {
-//					this.value.code = code;
-//					$scope.$parent.setValue(this.value);
-//				};
-//
-//				this.setLanguage = function(language) {
-//					this.value.code = language;
-//					$scope.$parent.setValue(this.value);
-//				};
-//
-//				this.setEditor = function(editor) {
-//					this.editor = editor;
-//					editor.setOptions({
-//						enableBasicAutocompletion: true,
-//						enableLiveAutocompletion: true,
-//						showPrintMargin: false,
-//						maxLines: Infinity,
-//						fontSize: '100%'
-//					});
-//					$scope.editor = editor;
-//					//              editor.setTheme('resources/libs/ace/theme/chrome');
-//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
-//					editor.setValue(ctrl.value.code || '');
-//					editor.on('change', function() {
-//						ctrl.setCode(editor.getValue());
-//					});
-//				};
-//
-//				//          var ctrl = this;
-//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-//					.then(function() {
-//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-//					});
-//			},
-//			controllerAs: 'ctrl',
-//			tags: ['code', 'script']
-//		});
-//
-//		function getDomain() {
-//			return $location.protocol() + //
-//				'://' + //
-//				$location.host() + //
-//				(($location.port() ? ':' + $location.port() : ''));
-//		}
-//
-//		//  TODO: maso, 2018: replace with class
-//		function getSelection() {
-//			if (!this.__selections) {
-//				this.__selections = angular.isArray(this.value) ? this.value : [];
-//			}
-//			return this.__selections;
-//		}
-//
-//		function getIndexOf(list, item) {
-//			if (!angular.isDefined(item.id)) {
-//				return list.indexOf(item);
-//			}
-//			for (var i = 0; i < list.length; i++) {
-//				if (list[i].id === item.id) {
-//					return i;
-//				}
-//			}
-//		}
-//
-//		function setSelected(item, selected) {
-//			var selectionList = this.getSelection();
-//			var index = getIndexOf(selectionList, item);
-//			if (selected) {
-//				// add to selection
-//				if (index >= 0) {
-//					return;
-//				}
-//				selectionList.push(item);
-//			} else {
-//				// remove from selection
-//				if (index > -1) {
-//					selectionList.splice(index, 1);
-//				}
-//			}
-//		}
-//
-//		function isSelected(item) {
-//			var selectionList = this.getSelection();
-//			return getIndexOf(selectionList, item) >= 0;
-//		}
-//
-//
-//		/**
-//		 * @ngdoc Resources
-//		 * @name Account
-//		 * @description Get an account from resource
-//		 *
-//		 * Enable user to select an account
-//		 */
-//		$mbResource.addPage({
-//			label: 'Account',
-//			type: 'account',
-//			templateUrl: 'views/resources/mb-accounts.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				// TODO: maso, 2018: load selected item
-//				$scope.multi = false;
-//				this.value = $scope.value;
-//				this.setSelected = function(item) {
-//					$scope.$parent.setValue(item);
-//					$scope.$parent.answer();
-//				};
-//				this.isSelected = function(item) {
-//					return item === this.value || item.id === this.value.id;
-//				};
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 8,
-//			tags: ['account']
-//		});
-//
-//		$mbResource.addPage({
-//			label: 'Account',
-//			type: 'account id',
-//			templateUrl: 'views/resources/mb-accounts.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				// TODO: maso, 2018: load selected item
-//				$scope.multi = false;
-//				this.value = $scope.value;
-//				this.setSelected = function(item) {
-//					$scope.$parent.setValue(item.id);
-//					$scope.$parent.answer();
-//				};
-//				this.isSelected = function(item) {
-//					return item.id === this.value;
-//				};
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 8,
-//			tags: ['account_id', 'owner_id']
-//		});
-//
-//		/**
-//		 * @ngdoc Resources
-//		 * @name Accounts
-//		 * @description Gets list of accounts
-//		 *
-//		 * Display a list of accounts and allow user to select them.
-//		 */
-//		$mbResource.addPage({
-//			label: 'Accounts',
-//			type: 'account-list',
-//			templateUrl: 'views/resources/mb-accounts.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				// TODO: maso, 2018: load selected item
-//				$scope.multi = true;
-//				this.value = $scope.value;
-//				this.setSelected = function(item, selected) {
-//					this._setSelected(item, selected);
-//					$scope.$parent.setValue(this.getSelection());
-//				};
-//				this._setSelected = setSelected;
-//				this.isSelected = isSelected;
-//				this.getSelection = getSelection;
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 8,
-//			tags: ['accounts', '/user/accounts']
-//		});
-//
-//		// Resource for role-list
-//		$mbResource.addPage({
-//			label: 'Role List',
-//			type: 'role-list',
-//			templateUrl: 'views/resources/mb-roles.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				// TODO: maso, 2018: load selected item
-//				$scope.multi = true;
-//				this.value = $scope.value;
-//				this.setSelected = function(item, selected) {
-//					this._setSelected(item, selected);
-//					$scope.$parent.setValue(this.getSelection());
-//				};
-//				this._setSelected = setSelected;
-//				this.isSelected = isSelected;
-//				this.getSelection = getSelection;
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 8,
-//			tags: ['roles', '/user/roles']
-//		});
-//
-//
-//		// Resource for group-list
-//		$mbResource.addPage({
-//			label: 'Group List',
-//			type: 'group-list',
-//			templateUrl: 'views/resources/mb-groups.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				// TODO: maso, 2018: load selected item
-//				$scope.multi = true;
-//				this.value = $scope.value;
-//				this.setSelected = function(item, selected) {
-//					this._setSelected(item, selected);
-//					$scope.$parent.setValue(this.getSelection());
-//				};
-//				this._setSelected = setSelected;
-//				this.isSelected = isSelected;
-//				this.getSelection = getSelection;
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 8,
-//			tags: ['groups']
-//		});
-//
-//
-//		/**
-//		 * @ngdoc WB Resources
-//		 * @name cms-content-image
-//		 * @description Load an Image URL from contents
-//		 */
-//		$mbResource.addPage({
-//			type: 'cms-content-image',
-//			icon: 'image',
-//			label: 'Images',
-//			templateUrl: 'views/resources/mb-cms-images.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//
-//				/*
-//				 * Extends collection controller
-//				 */
-//				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-//					$scope: $scope
-//				}));
-//
-//				/**
-//				 * Sets the absolute mode
-//				 *
-//				 * @param {boolean}
-//				 *            absolute mode of the controler
-//				 */
-//				this.setAbsolute = function(absolute) {
-//					this.absolute = absolute;
-//				}
-//
-//				/**
-//				 * Checks if the mode is absolute
-//				 *
-//				 * @return absolute mode of the controller
-//				 */
-//				this.isAbsolute = function() {
-//					return this.absolute;
-//				}
-//
-//				/*
-//				 * Sets value
-//				 */
-//				this.setSelected = function(content) {
-//					var path = '/api/v2/cms/contents/' + content.id + '/content';
-//					if (this.isAbsolute()) {
-//						path = getDomain() + path;
-//					}
-//					this.value = path;
-//					$scope.$parent.setValue(path);
-//				}
-//
-//				// init the controller
-//				this.init()
-//			},
-//			controllerAs: 'ctrl',
-//			priority: 10,
-//			tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
-//		});
-//		// TODO: maso, 2018: Add video resource
-//		// TODO: maso, 2018: Add audio resource
-//
-//		/**
-//		 * @ngdoc WB Resources
-//		 * @name content-upload
-//		 * @description Upload a content and returns its URL
-//		 */
-//		$mbResource.addPage({
-//			type: 'content-upload',
-//			icon: 'file_upload',
-//			label: 'Upload',
-//			templateUrl: 'views/resources/mb-cms-content-upload.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope, $cms, $mbTranslate, $mbCrypto) {
-//
-//				/*
-//				 * Extends collection controller
-//				 */
-//				angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-//					$scope: $scope
-//				}));
-//
-//				this.absolute = false;
-//				this.files = [];
-//
-//				/**
-//				 * Sets the absolute mode
-//				 *
-//				 * @param {boolean}
-//				 *            absolute mode of the controler
-//				 */
-//				this.setAbsolute = function(absolute) {
-//					this.absolute = absolute;
-//				}
-//
-//				/**
-//				 * Checks if the mode is absolute
-//				 *
-//				 * @return absolute mode of the controller
-//				 */
-//				this.isAbsolute = function() {
-//					return this.absolute;
-//				}
-//
-//				/*
-//				 * Add answer to controller
-//				 */
-//				var ctrl = this;
-//				$scope.answer = function() {
-//					// create data
-//					var data = {};
-//					data.name = this.name || $mbCrypto.uuid();
-//					data.description = this.description || 'Auto loaded content';
-//					var file = null;
-//					if (angular.isArray(ctrl.files) && ctrl.files.length) {
-//						file = ctrl.files[0].lfFile;
-//						data.title = file.name;
-//					}
-//					// upload data to server
-//					return ctrl.uploadFile(data, file)//
-//						.then(function(content) {
-//							var value = '/api/v2/cms/contents/' + content.id + '/content';
-//							if (ctrl.isAbsolute()) {
-//								value = getDomain() + value;
-//							}
-//							return value;
-//						})//
-//						.catch(function() {
-//							alert('Failed to create or upload content');
-//						});
-//				};
-//				// init the controller
-//				this.init();
-//
-//				// re-labeling lf-ng-md-file component for multi languages support
-//				angular.element(function() {
-//					var elm = angular.element('.lf-ng-md-file-input-drag-text');
-//					if (elm[0]) {
-//						elm.text($mbTranslate.instant('Drag & Drop File Here'));
-//					}
-//
-//					elm = angular.element('.lf-ng-md-file-input-button-brower');
-//					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-//						elm[0].childNodes[1].data = ' ' + $mbTranslate.instant('Browse');
-//					}
-//
-//					elm = angular.element('.lf-ng-md-file-input-button-remove');
-//					if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-//						elm[0].childNodes[1].data = $mbTranslate.instant('Remove');
-//					}
-//
-//					elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-//					if (elm[0]) {
-//						elm.text($mbTranslate.instant('Select File'));
-//					}
-//				});
-//			},
-//			controllerAs: 'ctrl',
-//			priority: 1,
-//			tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
-//		});
-//
-//
-//
-//
-//		/**
-//		 * @ngdoc WB Resources
-//		 * @name file-local
-//		 * @description Select a local file and return the object
-//		 * 
-//		 * This is used to select local file. It may be used in any part of the system. For example,
-//		 * to upload as content.
-//		 */
-//		$mbResource.addPage({
-//			type: 'local-file',
-//			icon: 'file_upload',
-//			label: 'Local file',
-//			templateUrl: 'views/resources/mb-local-file.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope, $q, style) {
-//				var ctrl = this;
-//				$scope.style = style;
-//				$scope.answer = function() {
-//					if (angular.isArray(ctrl.files) && ctrl.files.length) {
-//						return $q.resolve(ctrl.files[0].lfFile);
-//					}
-//					return $q.reject('No file selected');
-//				};
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 1,
-//			tags: ['local-file']
-//		});
-//
-//
-//
-//		//-------------------------------------------------------------//
-//		// CMS:
-//		//
-//		// - Term Taxonomies
-//		//-------------------------------------------------------------//
-//		$mbResource.addPage({
-//			label: 'Term Taxonomies',
-//			type: '/cms/term-taxonomies',
-//			templateUrl: 'views/resources/mb-term-taxonomies.html',
-//			/*
-//			 * @ngInject
-//			 */
-//			controller: function($scope) {
-//				$scope.multi = true;
-//				this.value = $scope.value;
-//				this.setSelected = function(item, selected) {
-//					this._setSelected(item, selected);
-//					$scope.$parent.setValue(this.getSelection());
-//				};
-//				this._setSelected = setSelected;
-//				this.isSelected = isSelected;
-//				this.getSelection = getSelection;
-//			},
-//			controllerAs: 'resourceCtrl',
-//			priority: 8,
-//			tags: ['/cms/term-taxonomies']
-//		});
-//	});
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
@@ -21145,7 +20989,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-local-file.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=resourceCtrl.files accept=\"{{style.accept || '*'}}\" progress preview drag flex> </lf-ng-md-file-input> </div>"
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag flex> </lf-ng-md-file-input> </div>"
+  );
+
+
+  $templateCache.put('views/resources/mb-local-files.html',
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag multiple flex> </lf-ng-md-file-input> </div>"
   );
 
 
@@ -21170,7 +21019,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/wb-url.html',
-    "<div layout=column layout-padding flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=value> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=value ng-change=ctrl.setValue(value)> </md-input-container> </div>"
   );
 
 

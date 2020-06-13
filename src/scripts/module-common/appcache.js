@@ -20,9 +20,7 @@
  * SOFTWARE.
  */
 
-mblowfish.run(function(appcache, $window, $rootScope) {
-
-	var oldWatch;
+mblowfish.run(function(appcache, $window) {
 
 	/*
 	 * Reload the page
@@ -37,7 +35,7 @@ mblowfish.run(function(appcache, $window, $rootScope) {
 	 * Reload the application
 	 */
 	function updateApplication() {
-		var setting = $rootScope.app.config.update || {};
+		var setting = {};
 		if (setting.showMessage) {
 			if (setting.autoReload) {
 				alert('Application is update. Page will be reload automatically.')//
@@ -53,18 +51,12 @@ mblowfish.run(function(appcache, $window, $rootScope) {
 
 	// Check update
 	function doUpdate() {
-		appcache.swapCache()//
+		appcache
+			.swapCache()//
 			.then(updateApplication());
 	}
 
-	oldWatch = $rootScope.$watch('__app.state', function(status) {
-		if (status && status.startsWith('ready')) {
-			// Remove the watch
-			oldWatch();
-			// check for update
-			return appcache//
-				.checkUpdate()//
-				.then(doUpdate);
-		}
-	});
+	appcache
+		.checkUpdate()
+		.then(doUpdate);
 });

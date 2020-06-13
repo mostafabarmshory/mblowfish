@@ -1,11 +1,15 @@
 <div 
 	layout="column"
 	layout-padding
+	ng-init="value=ctrl.getValue()"
 	flex>
 	<p mb-translate>Insert a valid URL, please.</p>
 	<md-input-container 
 		class="md-icon-float md-block">
 		<label mb-translate>URL</label>
-		<input ng-model="value" type="text">
+		<input 
+			ng-model="url"
+			ng-change="ctrl.setUrl(url)"
+			type="text">
 	</md-input-container>
 </div>

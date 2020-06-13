@@ -1,7 +1,5 @@
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,40 +20,11 @@
  * SOFTWARE.
  */
 
-angular.module('mblowfish-core')
-/*
- * 
- */
-.controller('MbSeenCmsTermTaxonomiesCtrl',function ($scope, $cms, $controller) {
 
-    /*
-     * Extends collection controller
-     */
-    angular.extend(this, $controller('MbSeenAbstractCollectionCtrl', {
-        $scope : $scope
-    }));
-
-    // Override the schema function
-    this.getModelSchema = function () {
-        return $cms.termTaxonomySchema();
-    };
-
-    // get contents
-    this.getModels = function (parameterQuery) {
-        return $cms.getTermTaxonomies(parameterQuery);
-    };
-
-    // get a content
-    this.getModel = function (id) {
-        return $cms.getTermTaxonomy(id);
-    };
-
-    // delete account
-    this.deleteModel = function (content) {
-        return $cms.deleteTermTaxonomy(content.id);
-    };
-
-    this.init({
-        eventType: '/cms/term-taxonomies'
-    });
+mblowfish.run(function($notification) {
+	// Hadi 1396-12-22: update alerts
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
 });
