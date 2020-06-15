@@ -23,6 +23,7 @@
 var actions = {};
 var views = {};
 var editors = {};
+var resources = {};
 
 var rootScopeConstants = {};
 
@@ -69,7 +70,7 @@ var mbApplicationModule = angular
 		'mdColorPicker',
 	])
 	.config(function($mdThemingProvider,
-		$mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
+		$mbActionsProvider, $mbViewProvider, $mbEditorProvider, $mbResourceProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -101,6 +102,11 @@ var mbApplicationModule = angular
 		// Load editors
 		_.forEach(editors, function(editor, editorId) {
 			$mbEditorProvider.addEditor(editorId, editor);
+		});
+
+		// Load resources
+		_.forEach(resources, function(id, config) {
+			$mbResourceProvider.addPage(id, config);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -205,7 +211,10 @@ window.mblowfish = {
 			mbApplicationModule.constant(constantId, constant);
 		});
 	},
-
+	addResource: function(resourceId, resource) {
+		resources[resourceId] = resource;
+		return window.mblowfish;
+	},
 	//-------------------------------------------------------------
 	// Angular Map
 	//-------------------------------------------------------------
