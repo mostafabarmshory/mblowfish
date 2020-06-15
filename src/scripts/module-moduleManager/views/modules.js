@@ -52,7 +52,7 @@ mblowfish.addView('/app/modules', {
 		};
 
 		var ctrl = this;
-		this.addEventHandler(MODULE_STORE_PATH, function() {
+		this.addEventHandler(MB_MODULE_SP, function() {
 			ctrl.loadModules();
 		});
 

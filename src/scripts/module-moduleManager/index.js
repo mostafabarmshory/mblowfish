@@ -24,7 +24,10 @@
  * Manages system moduels
  */
 mblowfish.addConstants({
-	MB_MODULE_RT: '/app/modules',
+	MB_MODULE_RT: '/app/modules', // Resource Type
+	MB_MODULE_SP: '/app/modules', // Store Path
+	MB_MODULE_SK: 'mbModules', // Storage Key
+	
 	
 	MB_MODULE_CREATE_ACTION: 'mb.module.create',
 	MB_MODULE_DELETE_ACTION: 'mb.module.delete',

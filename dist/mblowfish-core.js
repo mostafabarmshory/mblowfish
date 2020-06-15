@@ -1326,7 +1326,7 @@ var mbApplicationModule = angular
 		});
 
 		// Load resources
-		_.forEach(resources, function(id, config) {
+		_.forEach(resources, function(config, id) {
 			$mbResourceProvider.addPage(id, config);
 		});
 	})
@@ -1449,7 +1449,7 @@ window.mblowfish = {
 	},
 	loadModules: function(prefixKey) {
 		var storage = storageSupported(window, 'localStorage');
-		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MODULE_STORAGE_KEY));
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MB_MODULE_SK));
 		var jobs = [];
 		_.forEach(moduleList, function(module) {
 			jobs.push(moduleLoad(module));
@@ -2035,7 +2035,10 @@ function watchAttribute(scope, attribute, valueCallback, changeCallback) {
  * Manages system moduels
  */
 mblowfish.addConstants({
-	MB_MODULE_RT: '/app/modules',
+	MB_MODULE_RT: '/app/modules', // Resource Type
+	MB_MODULE_SP: '/app/modules', // Store Path
+	MB_MODULE_SK: 'mbModules', // Storage Key
+	
 	
 	MB_MODULE_CREATE_ACTION: 'mb.module.create',
 	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
@@ -4329,8 +4332,6 @@ angular.module('mblowfish-core').service('$mbLogger', function() {
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-var MODULE_STORAGE_KEY = 'mbModules';
-var MODULE_STORE_PATH = '/modules';
 
 function moduleLoadLibrary(path) {
 	var defer = jQuery.Deferred();
@@ -4400,10 +4401,6 @@ mblowfish.provider('$mbModules', function() {
 	//------------------------------------------------------------------------------
 	// Services
 	//------------------------------------------------------------------------------
-
-	var q;
-	var window;
-	var mbApplication;
 	var mbDispatcher;
 	var mbStorage;
 
@@ -4419,7 +4416,7 @@ mblowfish.provider('$mbModules', function() {
 		modules[module.url] = module;
 		saveModules();
 		//>> fire changes
-		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+		mbDispatcher.dispatch(MB_MODULE_SP, {
 			type: 'create',
 			items: [module]
 		});
@@ -4429,7 +4426,7 @@ mblowfish.provider('$mbModules', function() {
 		delete modules[module.url];
 		saveModules();
 		//>> fire changes
-		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+		mbDispatcher.dispatch(MB_MODULE_SP, {
 			type: 'delete',
 			items: [module]
 		});
@@ -4441,7 +4438,7 @@ mblowfish.provider('$mbModules', function() {
 
 	function saveModules() {
 		//>> Save changes
-		mbStorage.mbModules =_.cloneDeep(modules);
+		mbStorage[MB_MODULE_SK] =_.cloneDeep(modules);
 	}
 
 	function load() {
@@ -12561,7 +12558,7 @@ mblowfish.addView('/app/modules', {
 		};
 
 		var ctrl = this;
-		this.addEventHandler(MODULE_STORE_PATH, function() {
+		this.addEventHandler(MB_MODULE_SP, function() {
 			ctrl.loadModules();
 		});
 

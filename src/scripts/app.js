@@ -105,7 +105,7 @@ var mbApplicationModule = angular
 		});
 
 		// Load resources
-		_.forEach(resources, function(id, config) {
+		_.forEach(resources, function(config, id) {
 			$mbResourceProvider.addPage(id, config);
 		});
 	})
@@ -228,7 +228,7 @@ window.mblowfish = {
 	},
 	loadModules: function(prefixKey) {
 		var storage = storageSupported(window, 'localStorage');
-		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MODULE_STORAGE_KEY));
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MB_MODULE_SK));
 		var jobs = [];
 		_.forEach(moduleList, function(module) {
 			jobs.push(moduleLoad(module));

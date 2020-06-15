@@ -19,8 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-var MODULE_STORAGE_KEY = 'mbModules';
-var MODULE_STORE_PATH = '/modules';
 
 function moduleLoadLibrary(path) {
 	var defer = jQuery.Deferred();
@@ -90,10 +88,6 @@ mblowfish.provider('$mbModules', function() {
 	//------------------------------------------------------------------------------
 	// Services
 	//------------------------------------------------------------------------------
-
-	var q;
-	var window;
-	var mbApplication;
 	var mbDispatcher;
 	var mbStorage;
 
@@ -109,7 +103,7 @@ mblowfish.provider('$mbModules', function() {
 		modules[module.url] = module;
 		saveModules();
 		//>> fire changes
-		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+		mbDispatcher.dispatch(MB_MODULE_SP, {
 			type: 'create',
 			items: [module]
 		});
@@ -119,7 +113,7 @@ mblowfish.provider('$mbModules', function() {
 		delete modules[module.url];
 		saveModules();
 		//>> fire changes
-		mbDispatcher.dispatch(MODULE_STORE_PATH, {
+		mbDispatcher.dispatch(MB_MODULE_SP, {
 			type: 'delete',
 			items: [module]
 		});
@@ -131,7 +125,7 @@ mblowfish.provider('$mbModules', function() {
 
 	function saveModules() {
 		//>> Save changes
-		mbStorage.mbModules =_.cloneDeep(modules);
+		mbStorage[MB_MODULE_SK] =_.cloneDeep(modules);
 	}
 
 	function load() {
