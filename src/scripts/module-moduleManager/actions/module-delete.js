@@ -20,13 +20,17 @@
  * SOFTWARE.
  */
 
-/**
- * Manages system moduels
- */
-mblowfish.addConstants({
-	MB_MODULE_RT: '/app/modules',
-	
-	MB_MODULE_CREATE_ACTION: 'mb.module.create',
-	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
-	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
+mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	title: 'Delete local module',
+	icon: 'view_module',
+	/* @ngInject */
+	action: function($window, $mbModules, $event) {
+		return $window
+			.confirm('Delete modules?')
+			.then(function() {
+				_.forEach($event.modules, function(m) {
+					$mbModules.removeModule(m);
+				});
+			});
+	}
 });

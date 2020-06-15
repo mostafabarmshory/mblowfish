@@ -1354,7 +1354,7 @@ var mbApplicationModule = angular
 
 		_.forEach(rootScopeConstants, function(constant, id) {
 			$rootScope[id] = constant;
-		})
+		});
 	});
 
 /***************************************************************************
@@ -1458,6 +1458,614 @@ window.mblowfish = {
 	}
 };
 
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+//	$preferences.newPage('update', {
+//		templateUrl: 'views/preferences/mb-update.html',
+//		title: 'Update application',
+//		description: 'Settings of updating process and how to update the application.',
+//		icon: 'autorenew'
+//	});
+
+/*
+ * Init application resources
+ */
+mblowfish.config(function($mbResourceProvider) {
+
+	$mbResourceProvider
+		.addPage('wb-url', {
+			title: 'URL',
+			icon: 'link',
+			templateUrl: 'views/resources/wb-url.html',
+			/*@ngInject*/
+			controller: function($scope, $resource, $style) {
+				var ctrl = this;
+				$scope.url = $resource.getValue();
+				if (!_.isString($scope.url)) {
+					$scope.url = '';
+				}
+				function setUrl(url) {
+					$resource.setValue(url);
+				}
+				_.assign(ctrl, {
+					$style: $style,
+					setUrl: setUrl
+				});
+			},
+			controllerAs: 'ctrl',
+			tags: [
+				'url',
+				'image-url',
+				'vedio-url',
+				'audio-url',
+				'page-url',
+				'avatar-url',
+				'thumbnail-url'
+			]
+		})
+		.addPage('local-file', {
+			icon: 'file_upload',
+			label: 'Local file',
+			templateUrl: 'views/resources/mb-local-file.html',
+			/*@ngInject*/
+			controller: function($scope, $resource, $style) {
+				var ctrl = this;
+				function setFile(files) {
+					var val;
+					if (angular.isArray(files) && files.length) {
+						val = files[0].lfFile;
+					}
+					$resource.setValue(val);
+				}
+				$scope.files = [];
+				$scope.$watch('files.length', function() {
+					setFile($scope.files);
+				});
+				_.assign(ctrl, {
+					$style: $style,
+					setFile: setFile
+				});
+			},
+			controllerAs: 'ctrl',
+			priority: 1,
+			tags: ['file']
+		})
+		.addPage('local-files', {
+			icon: 'file_upload',
+			label: 'Local files',
+			templateUrl: 'views/resources/mb-local-files.html',
+			/*@ngInject*/
+			controller: function($scope, $resource, $style) {
+				var ctrl = this;
+				function setFiles(files) {
+					var vals = [];
+					_.forEach(files, function(file) {
+						vals.push(file.lfFile);
+					});
+					$resource.setValue(vals);
+				}
+				$scope.files = [];
+				$scope.$watch('files.length', function() {
+					setFiles($scope.files);
+				});
+				_.assign(ctrl, {
+					$style: $style,
+					setFiles: setFiles
+				});
+			},
+			controllerAs: 'ctrl',
+			priority: 1,
+			tags: ['files']
+		});
+	//		.addPage({
+	//			type: 'script',
+	//			icon: 'script',
+	//			label: 'Script',
+	//			templateUrl: 'views/resources/wb-event-code-editor.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope, $window, $element) {
+	//				var ctrl = this;
+	//				this.value = $scope.value || {
+	//					code: '',
+	//					language: 'javascript',
+	//					languages: [{
+	//						text: 'HTML/XML',
+	//						value: 'markup'
+	//					},
+	//					{
+	//						text: 'JavaScript',
+	//						value: 'javascript'
+	//					},
+	//					{
+	//						text: 'CSS',
+	//						value: 'css'
+	//					}]
+	//				};
+	//				this.setCode = function(code) {
+	//					this.value.code = code;
+	//					$scope.$parent.setValue(this.value);
+	//				};
+	//
+	//				this.setLanguage = function(language) {
+	//					this.value.code = language;
+	//					$scope.$parent.setValue(this.value);
+	//				};
+	//
+	//				this.setEditor = function(editor) {
+	//					this.editor = editor;
+	//					editor.setOptions({
+	//						enableBasicAutocompletion: true,
+	//						enableLiveAutocompletion: true,
+	//						showPrintMargin: false,
+	//						maxLines: Infinity,
+	//						fontSize: '100%'
+	//					});
+	//					$scope.editor = editor;
+	//					//              editor.setTheme('resources/libs/ace/theme/chrome');
+	//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
+	//					editor.setValue(ctrl.value.code || '');
+	//					editor.on('change', function() {
+	//						ctrl.setCode(editor.getValue());
+	//					});
+	//				};
+	//
+	//				//          var ctrl = this;
+	//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
+	//					.then(function() {
+	//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
+	//					});
+	//			},
+	//			controllerAs: 'ctrl',
+	//			tags: ['code', 'script']
+	//		});
+
+	//	function getDomain() {
+	//		return $location.protocol() + //
+	//			'://' + //
+	//			$location.host() + //
+	//			(($location.port() ? ':' + $location.port() : ''));
+	//	}
+	//
+	//	//  TODO: maso, 2018: replace with class
+	//	function getSelection() {
+	//		if (!this.__selections) {
+	//			this.__selections = angular.isArray(this.value) ? this.value : [];
+	//		}
+	//		return this.__selections;
+	//	}
+	//
+	//	function getIndexOf(list, item) {
+	//		if (!angular.isDefined(item.id)) {
+	//			return list.indexOf(item);
+	//		}
+	//		for (var i = 0; i < list.length; i++) {
+	//			if (list[i].id === item.id) {
+	//				return i;
+	//			}
+	//		}
+	//	}
+	//
+	//	function setSelected(item, selected) {
+	//		var selectionList = this.getSelection();
+	//		var index = getIndexOf(selectionList, item);
+	//		if (selected) {
+	//			// add to selection
+	//			if (index >= 0) {
+	//				return;
+	//			}
+	//			selectionList.push(item);
+	//		} else {
+	//			// remove from selection
+	//			if (index > -1) {
+	//				selectionList.splice(index, 1);
+	//			}
+	//		}
+	//	}
+	//
+	//	function isSelected(item) {
+	//		var selectionList = this.getSelection();
+	//		return getIndexOf(selectionList, item) >= 0;
+	//	}
+	//
+	//
+	//	/**
+	//	 * @ngdoc Resources
+	//	 * @name Account
+	//	 * @description Get an account from resource
+	//	 *
+	//	 * Enable user to select an account
+	//	 */
+	//	$mbResourceProvider
+	//		.addPage({
+	//			label: 'Account',
+	//			type: 'account',
+	//			templateUrl: 'views/resources/mb-accounts.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = false;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item) {
+	//					$scope.$parent.setValue(item);
+	//					$scope.$parent.answer();
+	//				};
+	//				this.isSelected = function(item) {
+	//					return item === this.value || item.id === this.value.id;
+	//				};
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['account']
+	//		})
+	//		.addPage({
+	//			label: 'Account',
+	//			type: 'account id',
+	//			templateUrl: 'views/resources/mb-accounts.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = false;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item) {
+	//					$scope.$parent.setValue(item.id);
+	//					$scope.$parent.answer();
+	//				};
+	//				this.isSelected = function(item) {
+	//					return item.id === this.value;
+	//				};
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['account_id', 'owner_id']
+	//		})
+	//		.addPage({
+	//			label: 'Accounts',
+	//			type: 'account-list',
+	//			templateUrl: 'views/resources/mb-accounts.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = true;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item, selected) {
+	//					this._setSelected(item, selected);
+	//					$scope.$parent.setValue(this.getSelection());
+	//				};
+	//				this._setSelected = setSelected;
+	//				this.isSelected = isSelected;
+	//				this.getSelection = getSelection;
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['accounts', '/user/accounts']
+	//		})
+	//		.addPage({
+	//			label: 'Role List',
+	//			type: 'role-list',
+	//			templateUrl: 'views/resources/mb-roles.html',
+	//			/*
+	//			 * @ngInject
+	//			 */
+	//			controller: function($scope) {
+	//				// TODO: maso, 2018: load selected item
+	//				$scope.multi = true;
+	//				this.value = $scope.value;
+	//				this.setSelected = function(item, selected) {
+	//					this._setSelected(item, selected);
+	//					$scope.$parent.setValue(this.getSelection());
+	//				};
+	//				this._setSelected = setSelected;
+	//				this.isSelected = isSelected;
+	//				this.getSelection = getSelection;
+	//			},
+	//			controllerAs: 'resourceCtrl',
+	//			priority: 8,
+	//			tags: ['roles', '/user/roles']
+	//		})
+	//		.addPage({
+	//		label: 'Group List',
+	//		type: 'group-list',
+	//		templateUrl: 'views/resources/mb-groups.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope) {
+	//			// TODO: maso, 2018: load selected item
+	//			$scope.multi = true;
+	//			this.value = $scope.value;
+	//			this.setSelected = function(item, selected) {
+	//				this._setSelected(item, selected);
+	//				$scope.$parent.setValue(this.getSelection());
+	//			};
+	//			this._setSelected = setSelected;
+	//			this.isSelected = isSelected;
+	//			this.getSelection = getSelection;
+	//		},
+	//		controllerAs: 'resourceCtrl',
+	//		priority: 8,
+	//		tags: ['groups']
+	//	})
+	//	.addPage({
+	//		type: 'local-file',
+	//		icon: 'file_upload',
+	//		label: 'Local file',
+	//		templateUrl: 'views/resources/mb-local-file.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope, $q, style) {
+	//			var ctrl = this;
+	//			$scope.style = style;
+	//			$scope.answer = function() {
+	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
+	//					return $q.resolve(ctrl.files[0].lfFile);
+	//				}
+	//				return $q.reject('No file selected');
+	//			};
+	//		},
+	//		controllerAs: 'resourceCtrl',
+	//		priority: 1,
+	//		tags: ['local-file']
+	//	});
+	//
+	//
+	//
+	//	//-------------------------------------------------------------//
+	//	// CMS:
+	//	//
+	//	// - Term Taxonomies
+	//	//-------------------------------------------------------------//
+	//	$mbResource.addPage({
+	//		label: 'Term Taxonomies',
+	//		type: '/cms/term-taxonomies',
+	//		templateUrl: 'views/resources/mb-term-taxonomies.html',
+	//		/*
+	//		 * @ngInject
+	//		 */
+	//		controller: function($scope) {
+	//			$scope.multi = true;
+	//			this.value = $scope.value;
+	//			this.setSelected = function(item, selected) {
+	//				this._setSelected(item, selected);
+	//				$scope.$parent.setValue(this.getSelection());
+	//			};
+	//			this._setSelected = setSelected;
+	//			this.isSelected = isSelected;
+	//			this.getSelection = getSelection;
+	//		},
+	//		controllerAs: 'resourceCtrl',
+	//		priority: 8,
+	//		tags: ['/cms/term-taxonomies']
+	//	});
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish
+	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
+		// Format and parse dates based on moment's 'L'-format
+		// 'L'-format may later be changed
+		$mdDateLocaleProvider.parseDate = function(dateString) {
+			var m = moment(dateString, 'L', true);
+			return m.isValid() ? m.toDate() : new Date(NaN);
+		};
+
+		$mdDateLocaleProvider.formatDate = function(date) {
+			var m = moment(date);
+			return m.isValid() ? m.format('L') : '';
+		};
+
+		// Pages
+		$mbPreferencesProvider
+			.addPage('local', {
+				title: 'local',
+				icon: 'language',
+				templateUrl: 'views/preferences/mb-local.html',
+				controller: 'MbLocalCtrl',
+				controllerAs: 'ctrl'
+			})
+			.addPage('brand', {
+				title: 'Branding',
+				icon: 'copyright',
+				templateUrl: 'views/preferences/mb-brand.html',
+				// controller : 'settingsBrandCtrl',
+				controllerAs: 'ctrl'
+			});
+
+
+		$mbResourceProvider
+			.addPage('language', {
+				label: 'Custom',
+				templateUrl: 'views/resources/mb-language-custome.html',
+				controller: 'MbLocalResourceLanguageCustomCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.viraweb123', {
+				label: 'Common',
+				templateUrl: 'views/resources/mb-language-list.html',
+				controller: 'MbLocalResourceLanguageCommonCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.upload', {
+				label: 'Upload',
+				templateUrl: 'views/resources/mb-language-upload.html',
+				controller: 'MbLocalResourceLanguageUploadCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			});
+	})
+	.run(function runTranslate($mbTranslate) {
+
+		var key = $mbTranslate.storageKey(),
+			storage = $mbTranslate.storage();
+
+		var fallbackFromIncorrectStorageValue = function() {
+			var preferred = $mbTranslate.preferredLanguage();
+			if (angular.isString(preferred)) {
+				$mbTranslate.use(preferred);
+				// $mbTranslate.use() will also remember the language.
+				// So, we don't need to call storage.put() here.
+			} else {
+				storage.put(key, $mbTranslate.use());
+			}
+		};
+
+		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
+
+		if (storage) {
+			if (!storage.get(key)) {
+				fallbackFromIncorrectStorageValue();
+			} else {
+				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
+			}
+		} else if (angular.isString($mbTranslate.preferredLanguage())) {
+			$mbTranslate.use($mbTranslate.preferredLanguage());
+		}
+	});
+
+
+
+/**
+ * Returns the scope's namespace.
+ * @private
+ * @param scope
+ * @returns {string}
+ */
+function getTranslateNamespace(scope) {
+	'use strict';
+	if (scope.translateNamespace) {
+		return scope.translateNamespace;
+	}
+	if (scope.$parent) {
+		return getTranslateNamespace(scope.$parent);
+	}
+}
+
+function watchAttribute(scope, attribute, valueCallback, changeCallback) {
+	'use strict';
+	if (!attribute) {
+		return;
+	}
+	if (attribute.substr(0, 2) === '::') {
+		attribute = attribute.substr(2);
+	} else {
+		scope.$watch(attribute, function(newValue) {
+			valueCallback(newValue);
+			changeCallback();
+		}, true);
+	}
+	valueCallback(scope.$eval(attribute));
+}
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Manages system moduels
+ */
+mblowfish.addConstants({
+	MB_MODULE_RT: '/app/modules',
+	
+	MB_MODULE_CREATE_ACTION: 'mb.module.create',
+	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
+	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.addConstants({
+	MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
+});
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -7267,7 +7875,6 @@ angular.module('mblowfish-core')
 
 });
 
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7360,409 +7967,6 @@ mblowfish.run(function($notification) {
 	window.prompt = $notification.prompt;
 	window.toast = $notification.toast;
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/*
- * Init application resources
- */
-mblowfish.config(function($mbResourceProvider) {
-
-	$mbResourceProvider
-		.addPage('wb-url', {
-			title: 'URL',
-			icon: 'link',
-			templateUrl: 'views/resources/wb-url.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				$scope.url = $resource.getValue();
-				if (!_.isString($scope.url)) {
-					$scope.url = '';
-				}
-				function setUrl(url) {
-					$resource.setValue(url);
-				}
-				_.assign(ctrl, {
-					$style: $style,
-					setUrl: setUrl
-				});
-			},
-			controllerAs: 'ctrl',
-			tags: [
-				'url',
-				'image-url',
-				'vedio-url',
-				'audio-url',
-				'page-url',
-				'avatar-url',
-				'thumbnail-url'
-			]
-		})
-		.addPage('local-file', {
-			icon: 'file_upload',
-			label: 'Local file',
-			templateUrl: 'views/resources/mb-local-file.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				function setFile(files) {
-					var val;
-					if (angular.isArray(files) && files.length) {
-						val = files[0].lfFile;
-					}
-					$resource.setValue(val);
-				}
-				$scope.files = [];
-				$scope.$watch('files.length', function() {
-					setFile($scope.files);
-				});
-				_.assign(ctrl, {
-					$style: $style,
-					setFile: setFile
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['file']
-		})
-		.addPage('local-files', {
-			icon: 'file_upload',
-			label: 'Local files',
-			templateUrl: 'views/resources/mb-local-files.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				function setFiles(files) {
-					var vals = [];
-					_.forEach(files, function(file){
-						vals.push(file.lfFile);
-					});
-					$resource.setValue(vals);
-				}
-				$scope.files = [];
-				$scope.$watch('files.length', function() {
-					setFiles($scope.files);
-				});
-				_.assign(ctrl, {
-					$style: $style,
-					setFiles: setFiles
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['files']
-		});
-	//		.addPage({
-	//			type: 'script',
-	//			icon: 'script',
-	//			label: 'Script',
-	//			templateUrl: 'views/resources/wb-event-code-editor.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope, $window, $element) {
-	//				var ctrl = this;
-	//				this.value = $scope.value || {
-	//					code: '',
-	//					language: 'javascript',
-	//					languages: [{
-	//						text: 'HTML/XML',
-	//						value: 'markup'
-	//					},
-	//					{
-	//						text: 'JavaScript',
-	//						value: 'javascript'
-	//					},
-	//					{
-	//						text: 'CSS',
-	//						value: 'css'
-	//					}]
-	//				};
-	//				this.setCode = function(code) {
-	//					this.value.code = code;
-	//					$scope.$parent.setValue(this.value);
-	//				};
-	//
-	//				this.setLanguage = function(language) {
-	//					this.value.code = language;
-	//					$scope.$parent.setValue(this.value);
-	//				};
-	//
-	//				this.setEditor = function(editor) {
-	//					this.editor = editor;
-	//					editor.setOptions({
-	//						enableBasicAutocompletion: true,
-	//						enableLiveAutocompletion: true,
-	//						showPrintMargin: false,
-	//						maxLines: Infinity,
-	//						fontSize: '100%'
-	//					});
-	//					$scope.editor = editor;
-	//					//              editor.setTheme('resources/libs/ace/theme/chrome');
-	//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
-	//					editor.setValue(ctrl.value.code || '');
-	//					editor.on('change', function() {
-	//						ctrl.setCode(editor.getValue());
-	//					});
-	//				};
-	//
-	//				//          var ctrl = this;
-	//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-	//					.then(function() {
-	//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-	//					});
-	//			},
-	//			controllerAs: 'ctrl',
-	//			tags: ['code', 'script']
-	//		});
-
-	//	function getDomain() {
-	//		return $location.protocol() + //
-	//			'://' + //
-	//			$location.host() + //
-	//			(($location.port() ? ':' + $location.port() : ''));
-	//	}
-	//
-	//	//  TODO: maso, 2018: replace with class
-	//	function getSelection() {
-	//		if (!this.__selections) {
-	//			this.__selections = angular.isArray(this.value) ? this.value : [];
-	//		}
-	//		return this.__selections;
-	//	}
-	//
-	//	function getIndexOf(list, item) {
-	//		if (!angular.isDefined(item.id)) {
-	//			return list.indexOf(item);
-	//		}
-	//		for (var i = 0; i < list.length; i++) {
-	//			if (list[i].id === item.id) {
-	//				return i;
-	//			}
-	//		}
-	//	}
-	//
-	//	function setSelected(item, selected) {
-	//		var selectionList = this.getSelection();
-	//		var index = getIndexOf(selectionList, item);
-	//		if (selected) {
-	//			// add to selection
-	//			if (index >= 0) {
-	//				return;
-	//			}
-	//			selectionList.push(item);
-	//		} else {
-	//			// remove from selection
-	//			if (index > -1) {
-	//				selectionList.splice(index, 1);
-	//			}
-	//		}
-	//	}
-	//
-	//	function isSelected(item) {
-	//		var selectionList = this.getSelection();
-	//		return getIndexOf(selectionList, item) >= 0;
-	//	}
-	//
-	//
-	//	/**
-	//	 * @ngdoc Resources
-	//	 * @name Account
-	//	 * @description Get an account from resource
-	//	 *
-	//	 * Enable user to select an account
-	//	 */
-	//	$mbResourceProvider
-	//		.addPage({
-	//			label: 'Account',
-	//			type: 'account',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = false;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item) {
-	//					$scope.$parent.setValue(item);
-	//					$scope.$parent.answer();
-	//				};
-	//				this.isSelected = function(item) {
-	//					return item === this.value || item.id === this.value.id;
-	//				};
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['account']
-	//		})
-	//		.addPage({
-	//			label: 'Account',
-	//			type: 'account id',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = false;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item) {
-	//					$scope.$parent.setValue(item.id);
-	//					$scope.$parent.answer();
-	//				};
-	//				this.isSelected = function(item) {
-	//					return item.id === this.value;
-	//				};
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['account_id', 'owner_id']
-	//		})
-	//		.addPage({
-	//			label: 'Accounts',
-	//			type: 'account-list',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = true;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item, selected) {
-	//					this._setSelected(item, selected);
-	//					$scope.$parent.setValue(this.getSelection());
-	//				};
-	//				this._setSelected = setSelected;
-	//				this.isSelected = isSelected;
-	//				this.getSelection = getSelection;
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['accounts', '/user/accounts']
-	//		})
-	//		.addPage({
-	//			label: 'Role List',
-	//			type: 'role-list',
-	//			templateUrl: 'views/resources/mb-roles.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = true;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item, selected) {
-	//					this._setSelected(item, selected);
-	//					$scope.$parent.setValue(this.getSelection());
-	//				};
-	//				this._setSelected = setSelected;
-	//				this.isSelected = isSelected;
-	//				this.getSelection = getSelection;
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['roles', '/user/roles']
-	//		})
-	//		.addPage({
-	//		label: 'Group List',
-	//		type: 'group-list',
-	//		templateUrl: 'views/resources/mb-groups.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//			// TODO: maso, 2018: load selected item
-	//			$scope.multi = true;
-	//			this.value = $scope.value;
-	//			this.setSelected = function(item, selected) {
-	//				this._setSelected(item, selected);
-	//				$scope.$parent.setValue(this.getSelection());
-	//			};
-	//			this._setSelected = setSelected;
-	//			this.isSelected = isSelected;
-	//			this.getSelection = getSelection;
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 8,
-	//		tags: ['groups']
-	//	})
-	//	.addPage({
-	//		type: 'local-file',
-	//		icon: 'file_upload',
-	//		label: 'Local file',
-	//		templateUrl: 'views/resources/mb-local-file.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope, $q, style) {
-	//			var ctrl = this;
-	//			$scope.style = style;
-	//			$scope.answer = function() {
-	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
-	//					return $q.resolve(ctrl.files[0].lfFile);
-	//				}
-	//				return $q.reject('No file selected');
-	//			};
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 1,
-	//		tags: ['local-file']
-	//	});
-	//
-	//
-	//
-	//	//-------------------------------------------------------------//
-	//	// CMS:
-	//	//
-	//	// - Term Taxonomies
-	//	//-------------------------------------------------------------//
-	//	$mbResource.addPage({
-	//		label: 'Term Taxonomies',
-	//		type: '/cms/term-taxonomies',
-	//		templateUrl: 'views/resources/mb-term-taxonomies.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//			$scope.multi = true;
-	//			this.value = $scope.value;
-	//			this.setSelected = function(item, selected) {
-	//				this._setSelected(item, selected);
-	//				$scope.$parent.setValue(this.getSelection());
-	//			};
-	//			this._setSelected = setSelected;
-	//			this.isSelected = isSelected;
-	//			this.getSelection = getSelection;
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 8,
-	//		tags: ['/cms/term-taxonomies']
-	//	});
-});
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -9134,145 +9338,6 @@ mblowfish.filter('translate', function($parse, $mbTranslate) {
 	return translateFilter;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish
-	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
-		// Format and parse dates based on moment's 'L'-format
-		// 'L'-format may later be changed
-		$mdDateLocaleProvider.parseDate = function(dateString) {
-			var m = moment(dateString, 'L', true);
-			return m.isValid() ? m.toDate() : new Date(NaN);
-		};
-
-		$mdDateLocaleProvider.formatDate = function(date) {
-			var m = moment(date);
-			return m.isValid() ? m.format('L') : '';
-		};
-
-		// Pages
-		$mbPreferencesProvider
-			.addPage('local', {
-				title: 'local',
-				icon: 'language',
-				templateUrl: 'views/preferences/mb-local.html',
-				controller: 'MbLocalCtrl',
-				controllerAs: 'ctrl'
-			})
-			.addPage('brand', {
-				title: 'Branding',
-				icon: 'copyright',
-				templateUrl: 'views/preferences/mb-brand.html',
-				// controller : 'settingsBrandCtrl',
-				controllerAs: 'ctrl'
-			});
-
-
-		$mbResourceProvider
-			.addPage('language', {
-				label: 'Custom',
-				templateUrl: 'views/resources/mb-language-custome.html',
-				controller: 'MbLocalResourceLanguageCustomCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.viraweb123', {
-				label: 'Common',
-				templateUrl: 'views/resources/mb-language-list.html',
-				controller: 'MbLocalResourceLanguageCommonCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.upload', {
-				label: 'Upload',
-				templateUrl: 'views/resources/mb-language-upload.html',
-				controller: 'MbLocalResourceLanguageUploadCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			});
-	})
-	.run(function runTranslate($mbTranslate) {
-
-		var key = $mbTranslate.storageKey(),
-			storage = $mbTranslate.storage();
-
-		var fallbackFromIncorrectStorageValue = function() {
-			var preferred = $mbTranslate.preferredLanguage();
-			if (angular.isString(preferred)) {
-				$mbTranslate.use(preferred);
-				// $mbTranslate.use() will also remember the language.
-				// So, we don't need to call storage.put() here.
-			} else {
-				storage.put(key, $mbTranslate.use());
-			}
-		};
-
-		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
-
-		if (storage) {
-			if (!storage.get(key)) {
-				fallbackFromIncorrectStorageValue();
-			} else {
-				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
-			}
-		} else if (angular.isString($mbTranslate.preferredLanguage())) {
-			$mbTranslate.use($mbTranslate.preferredLanguage());
-		}
-	});
-
-
-
-/**
- * Returns the scope's namespace.
- * @private
- * @param scope
- * @returns {string}
- */
-function getTranslateNamespace(scope) {
-	'use strict';
-	if (scope.translateNamespace) {
-		return scope.translateNamespace;
-	}
-	if (scope.$parent) {
-		return getTranslateNamespace(scope.$parent);
-	}
-}
-
-function watchAttribute(scope, attribute, valueCallback, changeCallback) {
-	'use strict';
-	if (!attribute) {
-		return;
-	}
-	if (attribute.substr(0, 2) === '::') {
-		attribute = attribute.substr(2);
-	} else {
-		scope.$watch(attribute, function(newValue) {
-			valueCallback(newValue);
-			changeCallback();
-		}, true);
-	}
-	valueCallback(scope.$eval(attribute));
-}
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12356,48 +12421,21 @@ mblowfish.controller('MbLanguagesCtrl', function(
  * SOFTWARE.
  */
 
-/**
-@ngdoc Controllers
-@name MbHelpCtrl
-@description Help page controller
-
-Watches total system and update help data.
-
- */
-mblowfish.controller('MbModulesCtrl', function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $mbModules, $mbActions
-) {
-	/*
-	 * Extends collection controller from MbAbstractCtrl 
-	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
-		$scope: $scope
-	}));
-
-	this.loadModules = function() {
-		this.modules = $mbModules.getModules();
+mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	title: 'Add local module',
+	/* @ngInject*/
+	action: function($mbResource, $mbModules) {
+		return $mbResource
+			.get(MB_MODULE_RT, {
+				style: {},
+			})
+			.then(function(modules) {
+				_.forEach(modules, function(m) {
+					$mbModules.addModule(m);
+				});
+			});
 	}
-
-	this.addModule = function($event) {
-		$mbActions.exec('mb.modules.create', $event);
-	};
-
-	this.deleteModule = function(item, $event) {
-		$event.modules = [item];
-		$mbActions.exec('mb.modules.delete', $event);
-	};
-
-	var ctrl = this;
-	this.addEventHandler(MODULE_STORE_PATH, function() {
-		ctrl.loadModules();
-	});
-
-	ctrl.loadModules();
-});
-
-
-
+})
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12420,94 +12458,116 @@ mblowfish.controller('MbModulesCtrl', function(
  * SOFTWARE.
  */
 
-/**
- * Manages system moduels
- */
-mblowfish.config(function($mbPreferencesProvider, $mbActionsProvider, $mbResourceProvider) {
-
-	//-------------------------------------------------------------
-	// Preferences:
-	// Pages: modules, application,
-	//-------------------------------------------------------------
-	$mbPreferencesProvider
-		.addPage('modules', {
-			title: 'Modules',
-			icon: 'language',
-			description: 'Manage global modules to enable for all users.',
-			templateUrl: 'views/modules/mb-preference.html',
-			controller: 'MbModulesCtrl',
-			controllerAs: 'ctrl',
-		});
-	//	$preferences.newPage({
-	//		id: 'update',
-	//		templateUrl: 'views/preferences/mb-update.html',
-	//		title: 'Update application',
-	//		description: 'Settings of updating process and how to update the application.',
-	//		icon: 'autorenew'
-	//	});
-	//	$options.newPage({
-	//		title: 'modules',
-	//		description: 'Manage user modules to enable for all current device.',
-	//		templateUrl: 'views/modules/mb-option.html',
-	//		tags: ['modules']
-	//	});
-
-
-	//-------------------------------------------------------------
-	// Actions:
-	//-------------------------------------------------------------
-	$mbActionsProvider
-		.addAction('mb.modules.create', {
-			title: 'Add local module',
-			/* @ngInject*/
-			action: function($mbResource, $mbModules) {
-				return $mbResource
-					.get('/app/modules', {
-						style: {},
-					})
-					.then(function(modules) {
-						_.forEach(modules, function(m) {
-							$mbModules.addModule(m);
-						});
-					});
-			}
-		})
-		.addAction('mb.modules.delete', {
-			title: 'Delete local module',
-			icon: 'view_module',
-			/* @ngInject */
-			action: function($window, $mbModules, $event) {
-				return $window
-					.confirm('Delete modules?')
-					.then(function() {
-						_.forEach($event.modules, function(m) {
-							$mbModules.removeModule(m);
-						});
-					});
-			}
-		});
-
-
-
-	//-------------------------------------------------------------
-	// Resources:
-	//-------------------------------------------------------------
-	$mbResourceProvider
-		.addPage('mb-module-manual', {
-			label: 'Manual',
-			templateUrl: 'views/modules/mb-resources-manual.html',
-			/*@ngInject*/
-			controller: function($scope) {
-				$scope.$watch('module', function(value) {
-					$scope.$parent.setValue([value]);
-				}, true);
-				$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-			},
-			controllerAs: 'resourceCtrl',
-			tags: ['/app/modules']
-		});
+mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	title: 'Delete local module',
+	icon: 'view_module',
+	/* @ngInject */
+	action: function($window, $mbModules, $event) {
+		return $window
+			.confirm('Delete modules?')
+			.then(function() {
+				_.forEach($event.modules, function(m) {
+					$mbModules.removeModule(m);
+				});
+			});
+	}
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
+mblowfish.addResource('mb-module-manual', {
+	label: 'Manual',
+	templateUrl: 'views/modules/mb-resources-manual.html',
+	/*@ngInject*/
+	controller: function($scope, $resource) {
+		$scope.$watch('module', function(value) {
+			$resource.setValue([value]);
+		}, true);
+		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+	},
+	controllerAs: 'resourceCtrl',
+	tags: [MB_MODULE_RT]
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addView('/app/modules', {
+	title: 'Modules',
+	icon: 'language',
+	description: 'Manage global modules to enable for all users.',
+	templateUrl: 'views/modules/mb-preference.html',
+	controllerAs: 'ctrl',
+	/* @ngInject */
+	controller: function(
+	/* angularjs */ $scope, $controller,
+	/* Mblowfish */ $mbModules, $mbActions
+	) {
+		/*
+		 * Extends collection controller from MbAbstractCtrl 
+		 */
+		angular.extend(this, $controller('MbAbstractCtrl', {
+			$scope: $scope
+		}));
+
+		this.loadModules = function() {
+			this.modules = $mbModules.getModules();
+		}
+
+		this.addModule = function($event) {
+			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
+		};
+
+		this.deleteModule = function(item, $event) {
+			$event.modules = [item];
+			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+		};
+
+		var ctrl = this;
+		this.addEventHandler(MODULE_STORE_PATH, function() {
+			ctrl.loadModules();
+		});
+
+		ctrl.loadModules();
+	}
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12595,57 +12655,14 @@ angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function
 
 	$scope.groups = groups
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
-	$mbActionsProvider
-		.addAction('mb.preferences', {
-			title: 'Preferences',
-			icon: 'settings',
-			/* @ngInject */
-			action: function($location) {
-				return $location.url('preferences');
-			}
-		});//
-
-	$mbViewProvider
-		.addView('/preferences', {
-			title: 'Preferences',
-			templateUrl: 'views/mb-preferences.html',
-			aunchor: 'editors',
-			controller: 'MbPreferencesCtrl',
-			controllerAs: 'ctrl',
-			groups: ['Utilities']
-		});
-
-	$mbEditorProvider
-		.addEditor('/preferences/:preferenceId', {
-			title: 'Preference',
-			templateUrl: 'views/mb-preference.html',
-			controller: 'MbPreferenceEditorCtrl',
-			controllerAs: 'ctrl',
-		});
-});
-
+mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
+	title: 'Preferences',
+	icon: 'settings',
+	/* @ngInject */
+	action: function($location) {
+		return $location.url('preferences');
+	}
+});//
 /* 
  * The MIT License (MIT)
  * 
@@ -12670,33 +12687,42 @@ mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider
  * SOFTWARE.
  */
 
-mblowfish.controller('MbPreferenceEditorCtrl', function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
-	//------------------------------------------------
-	// variables
-	//------------------------------------------------
-	var preferenceId = $state.params.preferenceId;
-	var pageConfig = $mbPreferences.getPage(preferenceId);
-	var pageComponent = new MbComponent(pageConfig);
-	var anchor = $element.find('#page-panel');
-	
-	
-	//------------------------------------------------
-	// functions
-	//------------------------------------------------
-	function renderPage(){
-		return pageComponent.render({
-			$element: anchor,
-			$scope: $scope,
-			$editor: $editor
-		});
-	}
+mblowfish.addEditor('/preferences/:preferenceId', {
+	title: 'Preference',
+	templateUrl: 'views/mb-preference.html',
+	/* @ngInject */
+	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
+		//------------------------------------------------
+		// variables
+		//------------------------------------------------
+		var preferenceId = $state.params.preferenceId;
+		var pageConfig = $mbPreferences.getPage(preferenceId);
+		var pageComponent = new MbComponent(pageConfig);
+		var anchor = $element.find('#page-panel');
 
 
-	//------------------------------------------------
-	// end
-	//------------------------------------------------
-	renderPage();
+		//------------------------------------------------
+		// functions
+		//------------------------------------------------
+		function renderPage() {
+			return pageComponent.render({
+				$element: anchor,
+				$scope: $scope,
+				$editor: $editor
+			});
+		}
+
+
+		//------------------------------------------------
+		// end
+		//------------------------------------------------
+		renderPage();
+	},
+	controllerAs: 'ctrl',
 });
+
+
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12730,9 +12756,19 @@ mblowfish.controller('MbPreferenceEditorCtrl', function($scope, $element, $mbPre
  * the current SPA usually.
  * 
  */
-mblowfish.controller('MbPreferencesCtrl', function($scope, $mbPreferences) {
-	// Load settings
-	$scope.pages = $mbPreferences.getPages()//
+
+
+mblowfish.addView('/preferences', {
+	title: 'Preferences',
+	templateUrl: 'views/mb-preferences.html',
+	aunchor: 'editors',
+	/* @ngInject */
+	controller: function($scope, $mbPreferences) {
+		// Load settings
+		$scope.pages = $mbPreferences.getPages()//
+	},
+	controllerAs: 'ctrl',
+	groups: ['Utilities']
 });
 
 

@@ -20,44 +20,42 @@
  * SOFTWARE.
  */
 
-/**
-@ngdoc Controllers
-@name MbHelpCtrl
-@description Help page controller
-
-Watches total system and update help data.
-
- */
-mblowfish.controller('MbModulesCtrl', function(
+mblowfish.addView('/app/modules', {
+	title: 'Modules',
+	icon: 'language',
+	description: 'Manage global modules to enable for all users.',
+	templateUrl: 'views/modules/mb-preference.html',
+	controllerAs: 'ctrl',
+	/* @ngInject */
+	controller: function(
 	/* angularjs */ $scope, $controller,
 	/* Mblowfish */ $mbModules, $mbActions
-) {
-	/*
-	 * Extends collection controller from MbAbstractCtrl 
-	 */
-	angular.extend(this, $controller('MbAbstractCtrl', {
-		$scope: $scope
-	}));
+	) {
+		/*
+		 * Extends collection controller from MbAbstractCtrl 
+		 */
+		angular.extend(this, $controller('MbAbstractCtrl', {
+			$scope: $scope
+		}));
 
-	this.loadModules = function() {
-		this.modules = $mbModules.getModules();
-	}
+		this.loadModules = function() {
+			this.modules = $mbModules.getModules();
+		}
 
-	this.addModule = function($event) {
-		$mbActions.exec('mb.modules.create', $event);
-	};
+		this.addModule = function($event) {
+			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
+		};
 
-	this.deleteModule = function(item, $event) {
-		$event.modules = [item];
-		$mbActions.exec('mb.modules.delete', $event);
-	};
+		this.deleteModule = function(item, $event) {
+			$event.modules = [item];
+			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+		};
 
-	var ctrl = this;
-	this.addEventHandler(MODULE_STORE_PATH, function() {
+		var ctrl = this;
+		this.addEventHandler(MODULE_STORE_PATH, function() {
+			ctrl.loadModules();
+		});
+
 		ctrl.loadModules();
-	});
-
-	ctrl.loadModules();
+	}
 });
-
-

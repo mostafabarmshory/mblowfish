@@ -1,7 +1,5 @@
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,30 +20,18 @@
  * SOFTWARE.
  */
 
-mblowfish.controller('MbPreferenceEditorCtrl', function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
-	//------------------------------------------------
-	// variables
-	//------------------------------------------------
-	var preferenceId = $state.params.preferenceId;
-	var pageConfig = $mbPreferences.getPage(preferenceId);
-	var pageComponent = new MbComponent(pageConfig);
-	var anchor = $element.find('#page-panel');
-	
-	
-	//------------------------------------------------
-	// functions
-	//------------------------------------------------
-	function renderPage(){
-		return pageComponent.render({
-			$element: anchor,
-			$scope: $scope,
-			$editor: $editor
-		});
+mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	title: 'Add local module',
+	/* @ngInject*/
+	action: function($mbResource, $mbModules) {
+		return $mbResource
+			.get(MB_MODULE_RT, {
+				style: {},
+			})
+			.then(function(modules) {
+				_.forEach(modules, function(m) {
+					$mbModules.addModule(m);
+				});
+			});
 	}
-
-
-	//------------------------------------------------
-	// end
-	//------------------------------------------------
-	renderPage();
-});
+})

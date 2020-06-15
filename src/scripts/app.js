@@ -133,7 +133,7 @@ var mbApplicationModule = angular
 
 		_.forEach(rootScopeConstants, function(constant, id) {
 			$rootScope[id] = constant;
-		})
+		});
 	});
 
 /***************************************************************************

@@ -20,18 +20,16 @@
  * SOFTWARE.
  */
 
-
-/**
- * @ngdoc Controllers
- * @name MbPreferencesCtrl
- * @description Manages preferences page
- * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
- * 
- */
-mblowfish.controller('MbPreferencesCtrl', function($scope, $mbPreferences) {
-	// Load settings
-	$scope.pages = $mbPreferences.getPages()//
+mblowfish.addResource('mb-module-manual', {
+	label: 'Manual',
+	templateUrl: 'views/modules/mb-resources-manual.html',
+	/*@ngInject*/
+	controller: function($scope, $resource) {
+		$scope.$watch('module', function(value) {
+			$resource.setValue([value]);
+		}, true);
+		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+	},
+	controllerAs: 'resourceCtrl',
+	tags: [MB_MODULE_RT]
 });

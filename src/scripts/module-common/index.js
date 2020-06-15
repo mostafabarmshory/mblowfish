@@ -21,6 +21,13 @@
  */
 
 
+//	$preferences.newPage('update', {
+//		templateUrl: 'views/preferences/mb-update.html',
+//		title: 'Update application',
+//		description: 'Settings of updating process and how to update the application.',
+//		icon: 'autorenew'
+//	});
+
 /*
  * Init application resources
  */
@@ -93,7 +100,7 @@ mblowfish.config(function($mbResourceProvider) {
 				var ctrl = this;
 				function setFiles(files) {
 					var vals = [];
-					_.forEach(files, function(file){
+					_.forEach(files, function(file) {
 						vals.push(file.lfFile);
 					});
 					$resource.setValue(vals);

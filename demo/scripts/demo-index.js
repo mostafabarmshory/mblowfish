@@ -184,7 +184,7 @@ mblowfish.config(function(
 		}, {
 			url: '/app',
 			items: [
-				'mb.preferences',
+				MB_PREFERENCES_SHOW_ACTION,
 			]
 		}]);
 

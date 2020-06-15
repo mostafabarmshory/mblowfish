@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,13 +22,38 @@
  * SOFTWARE.
  */
 
-/**
- * Manages system moduels
- */
-mblowfish.addConstants({
-	MB_MODULE_RT: '/app/modules',
-	
-	MB_MODULE_CREATE_ACTION: 'mb.module.create',
-	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
-	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
+mblowfish.addEditor('/preferences/:preferenceId', {
+	title: 'Preference',
+	templateUrl: 'views/mb-preference.html',
+	/* @ngInject */
+	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
+		//------------------------------------------------
+		// variables
+		//------------------------------------------------
+		var preferenceId = $state.params.preferenceId;
+		var pageConfig = $mbPreferences.getPage(preferenceId);
+		var pageComponent = new MbComponent(pageConfig);
+		var anchor = $element.find('#page-panel');
+
+
+		//------------------------------------------------
+		// functions
+		//------------------------------------------------
+		function renderPage() {
+			return pageComponent.render({
+				$element: anchor,
+				$scope: $scope,
+				$editor: $editor
+			});
+		}
+
+
+		//------------------------------------------------
+		// end
+		//------------------------------------------------
+		renderPage();
+	},
+	controllerAs: 'ctrl',
 });
+
+

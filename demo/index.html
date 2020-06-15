@@ -32,6 +32,7 @@
 	<link rel="stylesheet" href="styles/badge.css">
 	<link rel="stylesheet" href="styles/container.css">
 	<link rel="stylesheet" href="styles/core.css">
+	<link rel="stylesheet" href="styles/demo-theme.css">
 	<link rel="stylesheet" href="styles/dialogs.css">
 	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
 	<link rel="stylesheet" href="styles/infinate-scroll.css">
@@ -51,7 +52,6 @@
 	<link rel="stylesheet" href="styles/ui-layout-base.css">
 	<link rel="stylesheet" href="styles/ui-status.css">
 	<link rel="stylesheet" href="styles/ui.css">
-	<link rel="stylesheet" href="styles/demo-theme.css">
 	<!-- endinjector -->
 	<!-- endbuild -->
 
@@ -100,8 +100,15 @@
 
 	<!-- build:js({.tmp,app}) scripts/scripts.js -->
 	<!-- injector:js -->
-	<script src="libs/moment-jalaali.js"></script>
+	<script src="scripts/test-runs/test-app.js"></script>
 	<script src="scripts/app.js"></script>
+	<script src="scripts/demo-index.js"></script>
+	<script src="scripts/module-account/index.js"></script>
+	<script src="scripts/module-common/index.js"></script>
+	<script src="scripts/module-local/index.js"></script>
+	<script src="scripts/module-moduleManager/index.js"></script>
+	<script src="scripts/module-preferences/index.js"></script>
+	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/core/account-service.js"></script>
 	<script src="scripts/core/angular-hack-configs.js"></script>
 	<script src="scripts/core/application-service.js"></script>
@@ -150,10 +157,8 @@
 	<script src="scripts/module-account/account-actions-ctrl.js"></script>
 	<script src="scripts/module-account/account-container-ctrl.js"></script>
 	<script src="scripts/module-account/account-profile-editor-ctrl.js"></script>
-	<script src="scripts/module-account/index.js"></script>
 	<script src="scripts/module-common/appcache.js"></script>
 	<script src="scripts/module-common/hack-window.js"></script>
-	<script src="scripts/module-common/index.js"></script>
 	<script src="scripts/module-help/help.js"></script>
 	<script src="scripts/module-iframe/IFrameContainerCtrl.js"></script>
 	<script src="scripts/module-iframe/module.js"></script>
@@ -170,7 +175,6 @@
 	<script src="scripts/module-local/filters/currency-filter.js"></script>
 	<script src="scripts/module-local/filters/date-filter.js"></script>
 	<script src="scripts/module-local/filters/translate.js"></script>
-	<script src="scripts/module-local/index.js"></script>
 	<script src="scripts/module-local/resources/country-iso3166.js"></script>
 	<script src="scripts/module-local/resources/language-common-ctrl.js"></script>
 	<script src="scripts/module-local/resources/language-custome-ctrl.js"></script>
@@ -178,13 +182,15 @@
 	<script src="scripts/module-local/services/translate-sanitization.js"></script>
 	<script src="scripts/module-local/services/translation.js"></script>
 	<script src="scripts/module-local/views/languages-ctrl.js"></script>
-	<script src="scripts/module-moduleManager/controllers.js"></script>
-	<script src="scripts/module-moduleManager/index.js"></script>
+	<script src="scripts/module-moduleManager/actions/module-create.js"></script>
+	<script src="scripts/module-moduleManager/actions/module-delete.js"></script>
+	<script src="scripts/module-moduleManager/resources/module-manual.js"></script>
+	<script src="scripts/module-moduleManager/views/modules.js"></script>
 	<script src="scripts/module-navigator/module.js"></script>
 	<script src="scripts/module-navigator/navigator-container-ctrl.js"></script>
-	<script src="scripts/module-preferences/index.js"></script>
-	<script src="scripts/module-preferences/preference-editor-ctrl.js"></script>
-	<script src="scripts/module-preferences/preferences-list-ctrl.js"></script>
+	<script src="scripts/module-preferences/actions/preferences-show.js"></script>
+	<script src="scripts/module-preferences/editors/preference.js"></script>
+	<script src="scripts/module-preferences/views/preferences.js"></script>
 	<script src="scripts/module-preload/preload-component-ctrl.js"></script>
 	<script src="scripts/module-seen/abstract-ctrl.js"></script>
 	<script src="scripts/module-seen/seen-abstract-binaryItem-ctrl.js"></script>
@@ -200,6 +206,23 @@
 	<script src="scripts/services/metrics.js"></script>
 	<script src="scripts/services/navigator.js"></script>
 	<script src="scripts/services/notification.js"></script>
+	<script src="scripts/test-controller/content-wburger.js"></script>
+	<script src="scripts/test-controller/dynamic-form.js"></script>
+	<script src="scripts/test-controller/help.js"></script>
+	<script src="scripts/test-controller/infinate-items.js"></script>
+	<script src="scripts/test-controller/inline.js"></script>
+	<script src="scripts/test-controller/my-demo.js"></script>
+	<script src="scripts/test-controller/navigator-dialogs.js"></script>
+	<script src="scripts/test-controller/navigator-hidden.js"></script>
+	<script src="scripts/test-controller/pagination-bar.js"></script>
+	<script src="scripts/test-controller/resources.js"></script>
+	<script src="scripts/test-controller/tables-class-test.js"></script>
+	<script src="scripts/test-controller/themes.js"></script>
+	<script src="scripts/test-controller/titled-block.js"></script>
+	<script src="scripts/test-controller/toolbar.js"></script>
+	<script src="scripts/test-core/resource.js"></script>
+	<script src="scripts/test-editors/iframe-editor.js"></script>
+	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/ui-components/html-unsafe-filter.js"></script>
 	<script src="scripts/ui-dialog/dialog-default-ctrl.js"></script>
 	<script src="scripts/ui-dialog/dialog-factory.js"></script>
@@ -239,25 +262,6 @@
 	<script src="scripts/ui/uiUtil-service.js"></script>
 	<script src="scripts/ui/view-factory.js"></script>
 	<script src="scripts/ui/view-service.js"></script>
-	<script src="scripts/demo-index.js"></script>
-	<script src="scripts/test-controller/content-wburger.js"></script>
-	<script src="scripts/test-controller/dynamic-form.js"></script>
-	<script src="scripts/test-controller/help.js"></script>
-	<script src="scripts/test-controller/infinate-items.js"></script>
-	<script src="scripts/test-controller/inline.js"></script>
-	<script src="scripts/test-controller/my-demo.js"></script>
-	<script src="scripts/test-controller/navigator-dialogs.js"></script>
-	<script src="scripts/test-controller/navigator-hidden.js"></script>
-	<script src="scripts/test-controller/pagination-bar.js"></script>
-	<script src="scripts/test-controller/resources.js"></script>
-	<script src="scripts/test-controller/tables-class-test.js"></script>
-	<script src="scripts/test-controller/themes.js"></script>
-	<script src="scripts/test-controller/titled-block.js"></script>
-	<script src="scripts/test-controller/toolbar.js"></script>
-	<script src="scripts/test-core/resource.js"></script>
-	<script src="scripts/test-editors/iframe-editor.js"></script>
-	<script src="scripts/test-runs/test-app.js"></script>
-	<script src="scripts/test-views/demo-explorer.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
 
