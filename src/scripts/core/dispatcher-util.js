@@ -158,6 +158,7 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 
 	// End
 	service = {
+		fireEvent: fireEvent,
 		fireCreated: fireCreated,
 		fireDeleted: fireDeleted,
 		fireUpdated: fireUpdated,
