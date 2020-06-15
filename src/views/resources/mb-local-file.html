@@ -5,11 +5,11 @@
 	<lf-ng-md-file-input
 		lf-files="files"
 		ng-change="ctrl.setFiles(files)"
-		accept="{{ctrl.$style.accept || '*'}}"
+		accept="{{ctrl.$style.accept || '.*'}}"
 		lf-drag-and-drop-label="{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}"
 		lf-browse-label="{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}"
 		lf-remove-label="{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}"
-		aria-label="fileupload"
+		aria-label="upload file"
 		progress
 		preview
 		drag

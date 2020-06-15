@@ -21,7 +21,6 @@
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
@@ -33,13 +32,15 @@ angular.module('mblowfish-core')
  *  wb-on-esc="toast('ESC')">
  * ```
  */
-.directive('wbOnEsc', function() {
-    return function(scope, elm, attr) {
-        elm.bind('keydown', function(e) {
-            if (e.keyCode === 27) {
-                scope.$apply(attr.wbOnEsc);
-            }
-        });
-    };
+mblowfish.directive('wbOnEsc', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keydown', function(e) {
+			if (e.keyCode === 27) {
+				scope.$eval(attr.wbOnEsc, {
+					$event: e
+				});
+			}
+		});
+	};
 });
 

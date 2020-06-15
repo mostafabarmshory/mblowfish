@@ -28,7 +28,7 @@
 @description Manage dialogs
 
  */
-angular.module('mblowfish-core').provider('$mbDialog', function() {
+mblowfish.provider('$mbDialog', function() {
 
 	//--------------------------------------------------------
 	// Services

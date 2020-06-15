@@ -20,6 +20,13 @@
  * SOFTWARE.
  */
 
+var actions = {};
+var views = {};
+var editors = {};
+
+var rootScopeConstants = {};
+
+
 /**
 @ngdoc action-group
 @name User
@@ -61,7 +68,8 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 		'mdColorPicker',
 	])
-	.config(function($mdThemingProvider) {
+	.config(function($mdThemingProvider,
+		$mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -79,8 +87,23 @@ var mbApplicationModule = angular
 			.dark();
 
 		$mdThemingProvider.alwaysWatchTheme(true);
+
+		// Load actions
+		_.forEach(actions, function(action, actionId) {
+			$mbActionsProvider.addAction(actionId, action);
+		});
+
+		// Load views
+		_.forEach(views, function(view, viewId) {
+			$mbViewProvider.addView(viewId, view);
+		});
+
+		// Load editors
+		_.forEach(editors, function(editor, editorId) {
+			$mbEditorProvider.addEditor(editorId, editor);
+		});
 	})
-	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window, $mbEditor) {
+	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
 		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
 		$mbEditor.registerEditor('/ui/notfound/:path*', {
@@ -101,6 +124,10 @@ var mbApplicationModule = angular
 		angular.forEach(extensions, function(ext) {
 			$window.mblowfish.addExtension(ext);
 		});
+
+		_.forEach(rootScopeConstants, function(constant, id) {
+			$rootScope[id] = constant;
+		})
 	});
 
 /***************************************************************************
@@ -155,6 +182,29 @@ window.mblowfish = {
 		return window.mblowfish;
 	},
 
+
+	//-------------------------------------------------------------
+	// UI
+	//-------------------------------------------------------------
+	addAction: function(actionId, action) {
+		actions[actionId] = action;
+		return window.mblowfish;
+	},
+	addEditor: function(editorId, editor) {
+		editors[editorId] = editor;
+		return window.mblowfish;
+	},
+	addView: function(viewId, view) {
+		views[viewId] = view;
+		return window.mblowfish;
+	},
+	addConstants: function(constants) {
+		_.forEach(constants, function(constant, constantId) {
+			rootScopeConstants[constantId] = constant;
+			window[constantId] = constant;
+			mbApplicationModule.constant(constantId, constant);
+		});
+	},
 
 	//-------------------------------------------------------------
 	// Angular Map

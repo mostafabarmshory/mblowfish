@@ -36,7 +36,7 @@ There are three categories of actions;
  */
 mblowfish.controller('MbSeenAbstractItemCtrl', function(
 	/* AngularJS  */ $scope, $controller, $q, $window,
-	/* MBlowfish  */ 
+	/* MBlowfish  */
 	/* ngRoute    */ $mbRouteParams) {
 
 
@@ -256,7 +256,10 @@ mblowfish.controller('MbSeenAbstractItemCtrl', function(
 		// XXX: maso, 2019: update state
 		var ctrl = this;
 
-		var job = this.updateModel(ctrl.item);
+		var job = this.updateModel(ctrl.item)
+			.then(function(item) {
+				ctrl.fireUpdated(ctrl.eventType, item);
+			});
 		// TODO: maso, 2020: add job tos list
 		return job;
 	}
@@ -278,9 +281,7 @@ mblowfish.controller('MbSeenAbstractItemCtrl', function(
 			ctrl.busy = true;
 			return ctrl.deleteModel(ctrl.item)
 				.then(function() {
-					ctrl.fireDeleted(ctrl.eventType, tempItem);
-				}, function() {
-					// XXX: maso, 2019: handle error
+					ctrl.fireDeleted(ctrl.eventType, ctrl.item);
 				})
 				.finally(function() {
 					ctrl.busy = false;
@@ -428,7 +429,7 @@ mblowfish.controller('MbSeenAbstractItemCtrl', function(
 			// TODO: load model
 		}
 
-		this.reload();
+		return this.reload();
 	};
 
 });

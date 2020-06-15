@@ -66,3 +66,110 @@ Describe a user's action, are not setters. (e.g. select-page not set-page-id)
 - Receive all information and callbacks as props
 
  */
+mblowfish.provider('$mbDispatcherUtil', function() {
+	var service;
+	var provider;
+	var mbDispatcher;
+	var Event;
+	//-------------------------------------------------------------------
+	// Functions
+
+
+
+	/**
+	 * Fire an action is performed on items
+	 * 
+	 * Here is common list of action to dils with objects:
+	 * 
+	 * - created
+	 * - read
+	 * - updated
+	 * - deleted
+	 * 
+	 * to fire an item is created:
+	 * 
+	 * this.fireEvent(type, 'created', item);
+	 * 
+	 * to fire items created:
+	 * 
+	 * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
+	 * 
+	 * to fire list of items created
+	 * 
+	 * var items = [];
+	 * ...
+	 * this.fireEvent(type, 'created', items);
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireEvent(type, action, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
+		return mbDispatcher.dispatch(type, new Event({
+			type: type,
+			key: action,
+			values: values
+		}));
+	};
+
+
+	/**
+	 * Fires items read
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireRead(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'read', values);
+	}
+
+	/**
+	 * Fires items updated
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireUpdated(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'update', values);
+	}
+
+	/**
+	 * Fires items deleted
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireDeleted(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'delete', values);
+	}
+
+	/**
+	 * Fires items created
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireCreated(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'create', values);
+	}
+
+	// End
+	service = {
+		fireCreated: fireCreated,
+		fireDeleted: fireDeleted,
+		fireUpdated: fireUpdated,
+		fireRead: fireRead,
+	};
+
+	provider = {
+		$get: function($mbDispatcher, MbEvent) {
+			mbDispatcher = $mbDispatcher;
+			Event = MbEvent;
+			return service;
+		}
+	}
+	return provider;
+});

@@ -89,12 +89,26 @@ angular.module('mblowfish-core').service('$mbUtil', function() {
 		return map;
 	}
 
-	this.rolesToPermissions = rolesToPermissions;
-	this.keyValueToMap = keyValueToMap;
-	this.shallowCopy = shallowCopy;
-	this.parseBooleanValue = parseBooleanValue;
-	this.noop = angular.noop;
-	this.isArray = angular.isArray;
-	this.isObject = angular.isObject;
-	this.isDefined = angular.isDefined;
+
+
+	function isEqualId(a, b) {
+		if (_.isUndefined(a) || _.isUndefined(b)) {
+			return false;
+		}
+		return _.isEqual(a + '', b + '');
+	}
+
+
+	_.assign(this, {
+		isEqualId: isEqualId,
+		rolesToPermissions: rolesToPermissions,
+		keyValueToMap: keyValueToMap,
+		shallowCopy: shallowCopy,
+		parseBooleanValue: parseBooleanValue,
+		noop: angular.noop,
+		isArray: angular.isArray,
+		isObject: angular.isObject,
+		isDefined:  angular.isDefined,
+		isFunction: angular.isFunction,
+	});
 });

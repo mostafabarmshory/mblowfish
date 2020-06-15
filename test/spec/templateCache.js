@@ -272,7 +272,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/wb-url.html',
-    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=value ng-change=ctrl.setValue(value)> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
   );
 
 

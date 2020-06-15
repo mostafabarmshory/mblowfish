@@ -1241,6 +1241,13 @@ if (typeof exports == "object") {
  * SOFTWARE.
  */
 
+var actions = {};
+var views = {};
+var editors = {};
+
+var rootScopeConstants = {};
+
+
 /**
 @ngdoc action-group
 @name User
@@ -1282,7 +1289,8 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 		'mdColorPicker',
 	])
-	.config(function($mdThemingProvider) {
+	.config(function($mdThemingProvider,
+		$mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1300,8 +1308,23 @@ var mbApplicationModule = angular
 			.dark();
 
 		$mdThemingProvider.alwaysWatchTheme(true);
+
+		// Load actions
+		_.forEach(actions, function(action, actionId) {
+			$mbActionsProvider.addAction(actionId, action);
+		});
+
+		// Load views
+		_.forEach(views, function(view, viewId) {
+			$mbViewProvider.addView(viewId, view);
+		});
+
+		// Load editors
+		_.forEach(editors, function(editor, editorId) {
+			$mbEditorProvider.addEditor(editorId, editor);
+		});
 	})
-	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window, $mbEditor) {
+	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
 		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
 		$mbEditor.registerEditor('/ui/notfound/:path*', {
@@ -1322,6 +1345,10 @@ var mbApplicationModule = angular
 		angular.forEach(extensions, function(ext) {
 			$window.mblowfish.addExtension(ext);
 		});
+
+		_.forEach(rootScopeConstants, function(constant, id) {
+			$rootScope[id] = constant;
+		})
 	});
 
 /***************************************************************************
@@ -1376,6 +1403,29 @@ window.mblowfish = {
 		return window.mblowfish;
 	},
 
+
+	//-------------------------------------------------------------
+	// UI
+	//-------------------------------------------------------------
+	addAction: function(actionId, action) {
+		actions[actionId] = action;
+		return window.mblowfish;
+	},
+	addEditor: function(editorId, editor) {
+		editors[editorId] = editor;
+		return window.mblowfish;
+	},
+	addView: function(viewId, view) {
+		views[viewId] = view;
+		return window.mblowfish;
+	},
+	addConstants: function(constants) {
+		_.forEach(constants, function(constant, constantId) {
+			rootScopeConstants[constantId] = constant;
+			window[constantId] = constant;
+			mbApplicationModule.constant(constantId, constant);
+		});
+	},
 
 	//-------------------------------------------------------------
 	// Angular Map
@@ -2610,6 +2660,114 @@ Describe a user's action, are not setters. (e.g. select-page not set-page-id)
 - Receive all information and callbacks as props
 
  */
+mblowfish.provider('$mbDispatcherUtil', function() {
+	var service;
+	var provider;
+	var mbDispatcher;
+	var Event;
+	//-------------------------------------------------------------------
+	// Functions
+
+
+
+	/**
+	 * Fire an action is performed on items
+	 * 
+	 * Here is common list of action to dils with objects:
+	 * 
+	 * - created
+	 * - read
+	 * - updated
+	 * - deleted
+	 * 
+	 * to fire an item is created:
+	 * 
+	 * this.fireEvent(type, 'created', item);
+	 * 
+	 * to fire items created:
+	 * 
+	 * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
+	 * 
+	 * to fire list of items created
+	 * 
+	 * var items = [];
+	 * ...
+	 * this.fireEvent(type, 'created', items);
+	 * 
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireEvent(type, action, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
+		return mbDispatcher.dispatch(type, new Event({
+			type: type,
+			key: action,
+			values: values
+		}));
+	};
+
+
+	/**
+	 * Fires items read
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireRead(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'read', values);
+	}
+
+	/**
+	 * Fires items updated
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireUpdated(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'update', values);
+	}
+
+	/**
+	 * Fires items deleted
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireDeleted(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'delete', values);
+	}
+
+	/**
+	 * Fires items created
+	 * 
+	 * @see MbAbstractCtrl#fireEvent
+	 * @memberof MbAbstractCtrl
+	 */
+	function fireCreated(type, items) {
+		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+		return fireEvent(type, 'create', values);
+	}
+
+	// End
+	service = {
+		fireCreated: fireCreated,
+		fireDeleted: fireDeleted,
+		fireUpdated: fireUpdated,
+		fireRead: fireRead,
+	};
+
+	provider = {
+		$get: function($mbDispatcher, MbEvent) {
+			mbDispatcher = $mbDispatcher;
+			Event = MbEvent;
+			return service;
+		}
+	}
+	return provider;
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4743,14 +4901,28 @@ angular.module('mblowfish-core').service('$mbUtil', function() {
 		return map;
 	}
 
-	this.rolesToPermissions = rolesToPermissions;
-	this.keyValueToMap = keyValueToMap;
-	this.shallowCopy = shallowCopy;
-	this.parseBooleanValue = parseBooleanValue;
-	this.noop = angular.noop;
-	this.isArray = angular.isArray;
-	this.isObject = angular.isObject;
-	this.isDefined = angular.isDefined;
+
+
+	function isEqualId(a, b) {
+		if (_.isUndefined(a) || _.isUndefined(b)) {
+			return false;
+		}
+		return _.isEqual(a + '', b + '');
+	}
+
+
+	_.assign(this, {
+		isEqualId: isEqualId,
+		rolesToPermissions: rolesToPermissions,
+		keyValueToMap: keyValueToMap,
+		shallowCopy: shallowCopy,
+		parseBooleanValue: parseBooleanValue,
+		noop: angular.noop,
+		isArray: angular.isArray,
+		isObject: angular.isObject,
+		isDefined:  angular.isDefined,
+		isFunction: angular.isFunction,
+	});
 });
 
 /* 
@@ -5646,16 +5818,19 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
 		/*
 		 * @depricated use ngChange
 		 */
-		ctrl.saveModel = function(d) {
+		ctrl.saveModel = function(d, event) {
 			ngModel.$setViewValue(d);
 			if (attr.mbInlineOnSave) {
 				scope.$data = d;
-				var value = $parse(attr.mbInlineOnSave)(scope);
-				$q.when(value).then(function() {
-					delete scope.error;
-				}, function(error) {
-					scope.error = error;
+				var value = $parse(attr.mbInlineOnSave)(scope, {
+					$event: event
 				});
+				$q.when(value)
+					.then(function() {
+						delete scope.error;
+					}, function(error) {
+						scope.error = error;
+					});
 			}
 		};
 	}
@@ -5682,8 +5857,8 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
 				return this.editMode;
 			};
 
-			this.save = function() {
-				this.saveModel(this.model);
+			this.save = function($event) {
+				this.saveModel(this.model, $event);
 				this.setEditMode(false);
 			};
 
@@ -5695,36 +5870,34 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
             /*
              * Select image url
              */
-			this.updateImage = function() {
+			this.updateImage = function($event) {
 				var ctrl = this;
-				return $mbResource.get('image', {
-					style: {
+				return $mbResource.get('image-url', {
+					$style: {
 						icon: 'image',
-						title: $scope.mbInlineLabel || 'Select image',
-						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
+						title: $scope.mbInlineLabel || 'Select Image URL',
 					},
-					data: this.model
+					$data: this.model
 				}).then(function(url) {
 					ctrl.model = url;
-					ctrl.save();
+					ctrl.save($event);
 				});
 			};
 
 			/*
              * Select image url
              */
-			this.updateFile = function() {
+			this.updateFile = function($event) {
 				var ctrl = this;
-				return $mbResource.get('local-file', {
-					style: {
+				return $mbResource.get('file', {
+					$style: {
 						icon: 'file',
-						title: $scope.mbInlineLabel || 'Select file',
-						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
+						title: $scope.mbInlineLabel || 'Select File',
 					},
-					data: this.model
+					$value: this.model
 				}).then(function(file) {
 					ctrl.model = file;
-					ctrl.save();
+					ctrl.save($event);
 				});
 			};
 		},
@@ -5853,7 +6026,7 @@ angular.module('mblowfish-core')
  * in filter section.
  * 
  */
-angular.module('mblowfish-core').directive('mbPaginationBar', function($window, $timeout, $parse) {
+angular.module('mblowfish-core').directive('mbPaginationBar', function(MbAction, $window, $timeout, $parse) {
 
 	function postLink(scope, element, attrs) {
 
@@ -5967,7 +6140,11 @@ angular.module('mblowfish-core').directive('mbPaginationBar', function($window, 
 		}
 
 		scope.runAction = function(action, $event) {
-			action.exec($event);
+			var newAction = action;
+			if (!(newAction instanceof MbAction)) {
+				newAction = new MbAction(action);
+			}
+			return newAction.exec($event);
 		};
 
 		scope.showBoxOne = false;
@@ -6523,8 +6700,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
-
 /**
  * @ngdoc Directives
  * @name wb-on-enter
@@ -6535,14 +6710,16 @@ angular.module('mblowfish-core')
  *  wb-on-enter="toast('ESC')">
  * ```
  */
-.directive('wbOnEnter', function() {
-    return function(scope, elm, attr) {
-        elm.bind('keypress', function(e) {
-            if (e.keyCode === 13) {
-                scope.$apply(attr.wbOnEnter);
-            }
-        });
-    };
+mblowfish.directive('wbOnEnter', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keypress', function(e) {
+			if (e.keyCode === 13) {
+				scope.$eval(attr.wbOnEnter, {
+					$event: e
+				});
+			}
+		});
+	};
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -6567,7 +6744,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
@@ -6582,18 +6758,20 @@ angular.module('mblowfish-core')
  * 	href="image/path">
  * ```
  */
-.directive('wbOnError', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('error', function() {
-                // call the function that was passed
-                if (attrs.wbOnError) {
-                    scope.$apply(attrs.wbOnError);
-                }
-            });
-        }
-    };
+mblowfish.directive('wbOnError', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('error', function(e) {
+				// call the function that was passed
+				if (attrs.wbOnError) {
+					scope.$eval(attrs.wbOnError, {
+						$event: e
+					});
+				}
+			});
+		}
+	};
 });
 
 /*
@@ -6619,7 +6797,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
@@ -6631,14 +6808,16 @@ angular.module('mblowfish-core')
  *  wb-on-esc="toast('ESC')">
  * ```
  */
-.directive('wbOnEsc', function() {
-    return function(scope, elm, attr) {
-        elm.bind('keydown', function(e) {
-            if (e.keyCode === 27) {
-                scope.$apply(attr.wbOnEsc);
-            }
-        });
-    };
+mblowfish.directive('wbOnEsc', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keydown', function(e) {
+			if (e.keyCode === 27) {
+				scope.$eval(attr.wbOnEsc, {
+					$event: e
+				});
+			}
+		});
+	};
 });
 
 
@@ -6665,7 +6844,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
@@ -6681,22 +6859,22 @@ angular.module('mblowfish-core')
  * 	href="image/path">
  * ```
  */
-.directive('wbOnLoad', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('load', function(event, data) {
-                // call the function that was passed
-                if (attrs.wbOnLoad) {
-                    scope.$eval(attrs.wbOnLoad, {
-                        $event: event,
-                        $element: element,
-                        $data: data
-                    });
-                }
-            });
-        }
-    };
+mblowfish.directive('wbOnLoad', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('load', function(event, data) {
+				// call the function that was passed
+				if (attrs.wbOnLoad) {
+					scope.$eval(attrs.wbOnLoad, {
+						$event: event,
+						$element: element,
+						$data: data
+					});
+				}
+			});
+		}
+	};
 });
 
 /*
@@ -7205,6 +7383,22 @@ mblowfish.config(function($mbResourceProvider) {
 			title: 'URL',
 			icon: 'link',
 			templateUrl: 'views/resources/wb-url.html',
+			/*@ngInject*/
+			controller: function($scope, $resource, $style) {
+				var ctrl = this;
+				$scope.url = $resource.getValue();
+				if (!_.isString($scope.url)) {
+					$scope.url = '';
+				}
+				function setUrl(url) {
+					$resource.setValue(url);
+				}
+				_.assign(ctrl, {
+					$style: $style,
+					setUrl: setUrl
+				});
+			},
+			controllerAs: 'ctrl',
 			tags: [
 				'url',
 				'image-url',
@@ -7220,15 +7414,19 @@ mblowfish.config(function($mbResourceProvider) {
 			label: 'Local file',
 			templateUrl: 'views/resources/mb-local-file.html',
 			/*@ngInject*/
-			controller: function($resource, $style) {
+			controller: function($scope, $resource, $style) {
 				var ctrl = this;
 				function setFile(files) {
 					var val;
-					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+					if (angular.isArray(files) && files.length) {
 						val = files[0].lfFile;
 					}
 					$resource.setValue(val);
 				}
+				$scope.files = [];
+				$scope.$watch('files.length', function() {
+					setFile($scope.files);
+				});
 				_.assign(ctrl, {
 					$style: $style,
 					setFile: setFile
@@ -7243,11 +7441,19 @@ mblowfish.config(function($mbResourceProvider) {
 			label: 'Local files',
 			templateUrl: 'views/resources/mb-local-files.html',
 			/*@ngInject*/
-			controller: function($resource, $style) {
+			controller: function($scope, $resource, $style) {
 				var ctrl = this;
 				function setFiles(files) {
-					$resource.setValue(files);
+					var vals = [];
+					_.forEach(files, function(file){
+						vals.push(file.lfFile);
+					});
+					$resource.setValue(vals);
 				}
+				$scope.files = [];
+				$scope.$watch('files.length', function() {
+					setFiles($scope.files);
+				});
 				_.assign(ctrl, {
 					$style: $style,
 					setFiles: setFiles
@@ -7492,157 +7698,6 @@ mblowfish.config(function($mbResourceProvider) {
 	//		controllerAs: 'resourceCtrl',
 	//		priority: 8,
 	//		tags: ['groups']
-	//	})
-	//	.addPage({
-	//		type: 'cms-content-image',
-	//		icon: 'image',
-	//		label: 'Images',
-	//		templateUrl: 'views/resources/mb-cms-images.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//
-	//			/*
-	//			 * Extends collection controller
-	//			 */
-	//			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-	//				$scope: $scope
-	//			}));
-	//
-	//			/**
-	//			 * Sets the absolute mode
-	//			 *
-	//			 * @param {boolean}
-	//			 *            absolute mode of the controler
-	//			 */
-	//			this.setAbsolute = function(absolute) {
-	//				this.absolute = absolute;
-	//			}
-	//
-	//			/**
-	//			 * Checks if the mode is absolute
-	//			 *
-	//			 * @return absolute mode of the controller
-	//			 */
-	//			this.isAbsolute = function() {
-	//				return this.absolute;
-	//			}
-	//
-	//			/*
-	//			 * Sets value
-	//			 */
-	//			this.setSelected = function(content) {
-	//				var path = '/api/v2/cms/contents/' + content.id + '/content';
-	//				if (this.isAbsolute()) {
-	//					path = getDomain() + path;
-	//				}
-	//				this.value = path;
-	//				$scope.$parent.setValue(path);
-	//			}
-	//
-	//			// init the controller
-	//			this.init()
-	//		},
-	//		controllerAs: 'ctrl',
-	//		priority: 10,
-	//		tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
-	//	})
-	//	.addPage({
-	//		type: 'content-upload',
-	//		icon: 'file_upload',
-	//		label: 'Upload',
-	//		templateUrl: 'views/resources/mb-cms-content-upload.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope, $cms, $mbTranslate, $mbCrypto) {
-	//
-	//			/*
-	//			 * Extends collection controller
-	//			 */
-	//			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-	//				$scope: $scope
-	//			}));
-	//
-	//			this.absolute = false;
-	//			this.files = [];
-	//
-	//			/**
-	//			 * Sets the absolute mode
-	//			 *
-	//			 * @param {boolean}
-	//			 *            absolute mode of the controler
-	//			 */
-	//			this.setAbsolute = function(absolute) {
-	//				this.absolute = absolute;
-	//			}
-	//
-	//			/**
-	//			 * Checks if the mode is absolute
-	//			 *
-	//			 * @return absolute mode of the controller
-	//			 */
-	//			this.isAbsolute = function() {
-	//				return this.absolute;
-	//			}
-	//
-	//			/*
-	//			 * Add answer to controller
-	//			 */
-	//			var ctrl = this;
-	//			$scope.answer = function() {
-	//				// create data
-	//				var data = {};
-	//				data.name = this.name || $mbCrypto.uuid();
-	//				data.description = this.description || 'Auto loaded content';
-	//				var file = null;
-	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
-	//					file = ctrl.files[0].lfFile;
-	//					data.title = file.name;
-	//				}
-	//				// upload data to server
-	//				return ctrl.uploadFile(data, file)//
-	//					.then(function(content) {
-	//						var value = '/api/v2/cms/contents/' + content.id + '/content';
-	//						if (ctrl.isAbsolute()) {
-	//							value = getDomain() + value;
-	//						}
-	//						return value;
-	//					})//
-	//					.catch(function() {
-	//						alert('Failed to create or upload content');
-	//					});
-	//			};
-	//			// init the controller
-	//			this.init();
-	//
-	//			// re-labeling lf-ng-md-file component for multi languages support
-	//			angular.element(function() {
-	//				var elm = angular.element('.lf-ng-md-file-input-drag-text');
-	//				if (elm[0]) {
-	//					elm.text($mbTranslate.instant('Drag & Drop File Here'));
-	//				}
-	//
-	//				elm = angular.element('.lf-ng-md-file-input-button-brower');
-	//				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-	//					elm[0].childNodes[1].data = ' ' + $mbTranslate.instant('Browse');
-	//				}
-	//
-	//				elm = angular.element('.lf-ng-md-file-input-button-remove');
-	//				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-	//					elm[0].childNodes[1].data = $mbTranslate.instant('Remove');
-	//				}
-	//
-	//				elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-	//				if (elm[0]) {
-	//					elm.text($mbTranslate.instant('Select File'));
-	//				}
-	//			});
-	//		},
-	//		controllerAs: 'ctrl',
-	//		priority: 1,
-	//		tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
 	//	})
 	//	.addPage({
 	//		type: 'local-file',
@@ -12703,7 +12758,7 @@ mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
 @description Generic controller which is used as base in the platform
 
  */
-mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) {
+mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 
 	//--------------------------------------------------------
 	// --Events--
@@ -12759,27 +12814,8 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireEvent = function(type, action, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
-		var source = this;
-		return $mbDispatcher.dispatch(type, new MbEvent({
-			source: source,
-			type: type,
-			key: action,
-			values: values
-		}));
-	};
+	this.fireEvent = $mbDispatcherUtil.fireEvent;
 
-	/**
-	 * Fires items created
-	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireCreated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'create', values);
-	};
 
 	/**
 	 * Fires items read
@@ -12787,10 +12823,7 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireRead = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'read', values);
-	};
+	this.fireRead = $mbDispatcherUtil.fireRead;
 
 	/**
 	 * Fires items updated
@@ -12798,10 +12831,7 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireUpdated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'update', values);
-	};
+	this.fireUpdated = $mbDispatcherUtil.fireUpdated;
 
 	/**
 	 * Fires items deleted
@@ -12809,24 +12839,18 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireDeleted = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'delete', values);
-	};
-	
+	this.fireDeleted = $mbDispatcherUtil.fireDeleted;
+
 	/**
 	 * Fires items created
 	 * 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireCreated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'create', values);
-	};
+	this.fireCreated = $mbDispatcherUtil.fireCreated;
 
 
-	this.destroy = function(){
+	this.destroy = function() {
 		for (var i = 0; i < ctrl._hids.length; i++) {
 			var handlerId = ctrl._hids[i];
 			$mbDispatcher.off(handlerId.type, handlerId.id);
@@ -13374,12 +13398,12 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
 					ctrl.fireDeleted(ctrl.eventType, tempItem);
 				}, function(ex) {
 					$log.error(ex);
-					$window.alert('Fail to delete item.')
+					alert('Fail to delete item.')
 				});
 		}
 		// delete the item
 		if (this.deleteConfirm) {
-			$window.confirm(DELETE_MODEL_MESSAGE)
+			confirm(DELETE_MODEL_MESSAGE)
 				.then(function() {
 					return _deleteInternal();
 				});
@@ -13714,7 +13738,7 @@ There are three categories of actions;
  */
 mblowfish.controller('MbSeenAbstractItemCtrl', function(
 	/* AngularJS  */ $scope, $controller, $q, $window,
-	/* MBlowfish  */ 
+	/* MBlowfish  */
 	/* ngRoute    */ $mbRouteParams) {
 
 
@@ -13934,7 +13958,10 @@ mblowfish.controller('MbSeenAbstractItemCtrl', function(
 		// XXX: maso, 2019: update state
 		var ctrl = this;
 
-		var job = this.updateModel(ctrl.item);
+		var job = this.updateModel(ctrl.item)
+			.then(function(item) {
+				ctrl.fireUpdated(ctrl.eventType, item);
+			});
 		// TODO: maso, 2020: add job tos list
 		return job;
 	}
@@ -13956,9 +13983,7 @@ mblowfish.controller('MbSeenAbstractItemCtrl', function(
 			ctrl.busy = true;
 			return ctrl.deleteModel(ctrl.item)
 				.then(function() {
-					ctrl.fireDeleted(ctrl.eventType, tempItem);
-				}, function() {
-					// XXX: maso, 2019: handle error
+					ctrl.fireDeleted(ctrl.eventType, ctrl.item);
 				})
 				.finally(function() {
 					ctrl.busy = false;
@@ -14106,7 +14131,7 @@ mblowfish.controller('MbSeenAbstractItemCtrl', function(
 			// TODO: load model
 		}
 
-		this.reload();
+		return this.reload();
 	};
 
 });
@@ -15099,7 +15124,7 @@ angular.module('mblowfish-core')
  * @name AmdNavigatorDialogCtrl
  * @description # AccountCtrl Controller of the mblowfish-core
  */
-angular.module('mblowfish-core').controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
+mblowfish.controller('AmdNavigatorDialogCtrl', function($scope, $mdDialog, config) {
 	$scope.config = config;
 	$scope.hide = function() {
 		$mdDialog.cancel();
@@ -16780,7 +16805,7 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 	/* @ngInject */
 	var defaultActionController = function($element, $action) {
@@ -16805,21 +16830,23 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $locati
 	Action.prototype = Object.create(MbComponent.prototype);
 
 	Action.prototype.exec = function($event) {
-		if (this.alias) {
+		if (this.alias || _.isString(this.actionId)) {
 			var actionId = this.actionId || this.id;
-			var $actions = $injector.get('$actions');
+			var $actions = $injector.get('$mbActions');
 			return $actions.exec(actionId, $event);
 		}
 		if (this.action) {
-			return $injector.invoke(this.action, this, {
+			var result = $injector.invoke(this.action, this, {
 				$event: $event
 			});
+			return $q.when(result);
 		}
 		if (this.url) {
 			return $location.url(this.url);
 		}
 		// TODO: maso, 2020: log to show the error
-		// $window.alert('Action \'' + this.id + '\' is not executable!?')
+		alert('Action \'' + this.id + '\' is not executable!?');
+		return $q.reject();
 	};
 
 	Action.prototype.render = function(locals) {
@@ -16959,6 +16986,7 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	*/
 	var dispatcher;
 	var Action;
+	var q;
 
 	/*
 	All storage and variables
@@ -17005,8 +17033,8 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 		var action = this.getAction(actionId);
 		if (!action) {
 			// TODO: maso, 2020: add an alert system to manage all errors and notifications
-			$window.alert('Action \'' + actionId + '\' not found!');
-			return;
+			alert('Action \'' + actionId + '\' not found!');
+			return q.reject();
 		}
 		// TODO: maso, 2020: run action inside the actions service
 		return action.exec($event);
@@ -17025,9 +17053,10 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	/* @ngInject */
 	var service = function(
         /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, MbAction) {
+        /* mb        */ $mbDispatcher, MbAction, $q) {
 		dispatcher = $mbDispatcher;
 		window = $window;
+		q = $q;
 		Action = MbAction;
 
 		loadActions();
@@ -17055,6 +17084,7 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 		init: function(actionsConfig) {
 			if (configs) {
 				// TODO: 2020: merge actions
+				actionsConfig.items = _.merge(configs.items, actionsConfig.items);
 			}
 			configs = actionsConfig;
 			return provider;
@@ -17524,7 +17554,7 @@ mblowfish.factory('MbContainer', function(
 @description Manage dialogs
 
  */
-angular.module('mblowfish-core').provider('$mbDialog', function() {
+mblowfish.provider('$mbDialog', function() {
 
 	//--------------------------------------------------------
 	// Services
@@ -17554,6 +17584,123 @@ angular.module('mblowfish-core').provider('$mbDialog', function() {
 	return provider;
 });
 
+
+
+/**
+@ngdoc Controllers
+@name MbDynamicFormDialogCtrl
+@description 
+
+AccountCtrl Controller of the mblowfish-core
+ */
+mblowfish.controller('MbDynamicFormDialogCtrl', function($scope, $mdDialog, $schema, $value, $style) {
+	$scope.style = $style;
+	$scope.data = $value;
+	$scope.schema = $schema;
+	$scope.hide = function() {
+		$mdDialog.cancel();
+	};
+	$scope.cancel = function() {
+		$mdDialog.cancel();
+	};
+	$scope.answer = function(a) {
+		$mdDialog.hide(a);
+	};
+});
+
+
+
+mblowfish.provider('$mbDynamicForm', function() {
+
+	//-----------------------------------------------------------------------------------
+	// Services and factories
+	//-----------------------------------------------------------------------------------
+	var service;
+	var provider;
+	var rootElement;
+	var mbDialog;
+	var sce;
+
+
+	var isFunction;
+	var isDefined;
+
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
+
+
+	//-----------------------------------------------------------------------------------
+	// Global functions
+	//-----------------------------------------------------------------------------------
+
+	function validateSchema(schema) {
+		return schema;
+	}
+
+	function getSchemaFor(dynamicFormConfig) {
+		var schema, schemaUrl;
+		if (isDefined(schema = dynamicFormConfig.schema)) {
+			if (isFunction(schema)) {
+				scheam = scheam(dynamicFormConfig);
+			}
+		} else if (isDefined(schemaUrl = dynamicFormConfig.schemaUrl)) {
+			if (isFunction(schemaUrl)) {
+				templateUrl = schemaUrl(dynamicFormConfig);
+			}
+			if (isDefined(schemaUrl)) {
+				sce.valueOf(schemaUrl);
+				schema = $templateRequest(schemaUrl);
+			}
+		}
+		return q.when(schema);
+	}
+
+	function openDialog(formConfig) {
+		return getSchemaFor(formConfig)
+			.then(function(schema) {
+				return mbDialog.show({
+					templateUrl: 'views/dialogs/mb-dynamic-form.html',
+					controller: 'MbDynamicFormDialogCtrl',
+					controllerAs: 'ctrl',
+					parent: rootElement,
+					clickOutsideToClose: false,
+					fullscreen: true,
+					multiple: true,
+					locals: {
+						$value: formConfig.value || formConfig.$value,
+						$schema: validateSchema(schema),
+						$style: {
+							title: formConfig.title,
+							description: formConfig.description,
+							icon: formConfig.icon,
+						}
+					}
+				});
+			});
+	}
+
+
+	//-----------------------------------------------------------------------------------
+	// end
+	//-----------------------------------------------------------------------------------
+	service = {
+		openDialog: openDialog,
+	};
+	provider = {
+		$get: function($mbDialog, $sce, $mbUtil) {
+			mbDialog = $mbDialog;
+			sce = $sce;
+
+			isDefined = $mbUtil.isDefined;
+			isFunction = $mbUtil.isFunction;
+
+			return service;
+		}
+	}
+	return provider;
+});
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -19779,7 +19926,7 @@ angular.module('mblowfish-core').directive('mbStatus', function($mbTheming) {
  */
 
 
-angular.module('mblowfish-core').config(function($mdThemingProvider) {
+mblowfish.config(function($mdThemingProvider) {
 
 	// Dark theme
 	$mdThemingProvider
@@ -20758,6 +20905,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('views/dialogs/mb-dynamic-form.html',
+    "<md-dialog layout=column ng-cloak flex=50> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate=\"\">{{::style.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=\"answer(data, $event)\" ng-disabled=myForm.$invalid> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel($event)> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout-padding> <mb-dynamic-form ng-model=data mb-parameters=schema.children> </mb-dynamic-form> </md-dialog-content> </md-dialog>"
+  );
+
+
   $templateCache.put('views/dialogs/mb-prompt.html',
     "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>input</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p mb-translate>{{config.message}}</p> <md-input-container class=md-block> <label mb-translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
   );
@@ -20799,7 +20951,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage()> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile() ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile()> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save() mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save() mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save() wb-on-esc=ctrlInline.cancel() ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save($event) wb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
@@ -20989,7 +21141,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-local-file.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag flex> </lf-ng-md-file-input> </div>"
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '.*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=\"upload file\" progress preview drag flex> </lf-ng-md-file-input> </div>"
   );
 
 
@@ -21019,7 +21171,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/wb-url.html',
-    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=value ng-change=ctrl.setValue(value)> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
   );
 
 

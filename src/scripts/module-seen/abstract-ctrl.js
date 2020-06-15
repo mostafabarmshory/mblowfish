@@ -26,7 +26,7 @@
 @description Generic controller which is used as base in the platform
 
  */
-mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) {
+mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 
 	//--------------------------------------------------------
 	// --Events--
@@ -82,27 +82,8 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireEvent = function(type, action, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
-		var source = this;
-		return $mbDispatcher.dispatch(type, new MbEvent({
-			source: source,
-			type: type,
-			key: action,
-			values: values
-		}));
-	};
+	this.fireEvent = $mbDispatcherUtil.fireEvent;
 
-	/**
-	 * Fires items created
-	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
-	 */
-	this.fireCreated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'create', values);
-	};
 
 	/**
 	 * Fires items read
@@ -110,10 +91,7 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireRead = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'read', values);
-	};
+	this.fireRead = $mbDispatcherUtil.fireRead;
 
 	/**
 	 * Fires items updated
@@ -121,10 +99,7 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireUpdated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'update', values);
-	};
+	this.fireUpdated = $mbDispatcherUtil.fireUpdated;
 
 	/**
 	 * Fires items deleted
@@ -132,24 +107,18 @@ mblowfish.controller('MbAbstractCtrl', function($scope, $mbDispatcher, MbEvent) 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireDeleted = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'delete', values);
-	};
-	
+	this.fireDeleted = $mbDispatcherUtil.fireDeleted;
+
 	/**
 	 * Fires items created
 	 * 
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireCreated = function(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return this.fireEvent(type, 'create', values);
-	};
+	this.fireCreated = $mbDispatcherUtil.fireCreated;
 
 
-	this.destroy = function(){
+	this.destroy = function() {
 		for (var i = 0; i < ctrl._hids.length; i++) {
 			var handlerId = ctrl._hids[i];
 			$mbDispatcher.off(handlerId.type, handlerId.id);

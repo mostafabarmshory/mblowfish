@@ -346,12 +346,12 @@ mblowfish.controller('MbSeenAbstractCollectionCtrl', function($scope, $controlle
 					ctrl.fireDeleted(ctrl.eventType, tempItem);
 				}, function(ex) {
 					$log.error(ex);
-					$window.alert('Fail to delete item.')
+					alert('Fail to delete item.')
 				});
 		}
 		// delete the item
 		if (this.deleteConfirm) {
-			$window.confirm(DELETE_MODEL_MESSAGE)
+			confirm(DELETE_MODEL_MESSAGE)
 				.then(function() {
 					return _deleteInternal();
 				});

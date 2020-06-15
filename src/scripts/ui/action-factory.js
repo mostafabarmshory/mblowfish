@@ -35,7 +35,7 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent) {
+angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 	/* @ngInject */
 	var defaultActionController = function($element, $action) {
@@ -60,21 +60,23 @@ angular.module('mblowfish-core').factory('MbAction', function($injector, $locati
 	Action.prototype = Object.create(MbComponent.prototype);
 
 	Action.prototype.exec = function($event) {
-		if (this.alias) {
+		if (this.alias || _.isString(this.actionId)) {
 			var actionId = this.actionId || this.id;
-			var $actions = $injector.get('$actions');
+			var $actions = $injector.get('$mbActions');
 			return $actions.exec(actionId, $event);
 		}
 		if (this.action) {
-			return $injector.invoke(this.action, this, {
+			var result = $injector.invoke(this.action, this, {
 				$event: $event
 			});
+			return $q.when(result);
 		}
 		if (this.url) {
 			return $location.url(this.url);
 		}
 		// TODO: maso, 2020: log to show the error
-		// $window.alert('Action \'' + this.id + '\' is not executable!?')
+		alert('Action \'' + this.id + '\' is not executable!?');
+		return $q.reject();
 	};
 
 	Action.prototype.render = function(locals) {

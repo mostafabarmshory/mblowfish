@@ -21,7 +21,7 @@
  */
 
 
-angular.module('mblowfish-core').config(function($mdThemingProvider) {
+mblowfish.config(function($mdThemingProvider) {
 
 	// Dark theme
 	$mdThemingProvider

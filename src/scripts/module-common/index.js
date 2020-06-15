@@ -35,7 +35,7 @@ mblowfish.config(function($mbResourceProvider) {
 			controller: function($scope, $resource, $style) {
 				var ctrl = this;
 				$scope.url = $resource.getValue();
-				if(!_.isString($scope.url)){
+				if (!_.isString($scope.url)) {
 					$scope.url = '';
 				}
 				function setUrl(url) {
@@ -62,15 +62,19 @@ mblowfish.config(function($mbResourceProvider) {
 			label: 'Local file',
 			templateUrl: 'views/resources/mb-local-file.html',
 			/*@ngInject*/
-			controller: function($resource, $style) {
+			controller: function($scope, $resource, $style) {
 				var ctrl = this;
 				function setFile(files) {
 					var val;
-					if (angular.isArray(ctrl.files) && ctrl.files.length) {
+					if (angular.isArray(files) && files.length) {
 						val = files[0].lfFile;
 					}
 					$resource.setValue(val);
 				}
+				$scope.files = [];
+				$scope.$watch('files.length', function() {
+					setFile($scope.files);
+				});
 				_.assign(ctrl, {
 					$style: $style,
 					setFile: setFile
@@ -85,11 +89,19 @@ mblowfish.config(function($mbResourceProvider) {
 			label: 'Local files',
 			templateUrl: 'views/resources/mb-local-files.html',
 			/*@ngInject*/
-			controller: function($resource, $style) {
+			controller: function($scope, $resource, $style) {
 				var ctrl = this;
 				function setFiles(files) {
-					$resource.setValue(files);
+					var vals = [];
+					_.forEach(files, function(file){
+						vals.push(file.lfFile);
+					});
+					$resource.setValue(vals);
 				}
+				$scope.files = [];
+				$scope.$watch('files.length', function() {
+					setFiles($scope.files);
+				});
 				_.assign(ctrl, {
 					$style: $style,
 					setFiles: setFiles
@@ -334,157 +346,6 @@ mblowfish.config(function($mbResourceProvider) {
 	//		controllerAs: 'resourceCtrl',
 	//		priority: 8,
 	//		tags: ['groups']
-	//	})
-	//	.addPage({
-	//		type: 'cms-content-image',
-	//		icon: 'image',
-	//		label: 'Images',
-	//		templateUrl: 'views/resources/mb-cms-images.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//
-	//			/*
-	//			 * Extends collection controller
-	//			 */
-	//			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-	//				$scope: $scope
-	//			}));
-	//
-	//			/**
-	//			 * Sets the absolute mode
-	//			 *
-	//			 * @param {boolean}
-	//			 *            absolute mode of the controler
-	//			 */
-	//			this.setAbsolute = function(absolute) {
-	//				this.absolute = absolute;
-	//			}
-	//
-	//			/**
-	//			 * Checks if the mode is absolute
-	//			 *
-	//			 * @return absolute mode of the controller
-	//			 */
-	//			this.isAbsolute = function() {
-	//				return this.absolute;
-	//			}
-	//
-	//			/*
-	//			 * Sets value
-	//			 */
-	//			this.setSelected = function(content) {
-	//				var path = '/api/v2/cms/contents/' + content.id + '/content';
-	//				if (this.isAbsolute()) {
-	//					path = getDomain() + path;
-	//				}
-	//				this.value = path;
-	//				$scope.$parent.setValue(path);
-	//			}
-	//
-	//			// init the controller
-	//			this.init()
-	//		},
-	//		controllerAs: 'ctrl',
-	//		priority: 10,
-	//		tags: ['image', 'url', 'image-url', 'avatar', 'thumbnail']
-	//	})
-	//	.addPage({
-	//		type: 'content-upload',
-	//		icon: 'file_upload',
-	//		label: 'Upload',
-	//		templateUrl: 'views/resources/mb-cms-content-upload.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope, $cms, $mbTranslate, $mbCrypto) {
-	//
-	//			/*
-	//			 * Extends collection controller
-	//			 */
-	//			angular.extend(this, $controller('AmWbSeenCmsContentsCtrl', {
-	//				$scope: $scope
-	//			}));
-	//
-	//			this.absolute = false;
-	//			this.files = [];
-	//
-	//			/**
-	//			 * Sets the absolute mode
-	//			 *
-	//			 * @param {boolean}
-	//			 *            absolute mode of the controler
-	//			 */
-	//			this.setAbsolute = function(absolute) {
-	//				this.absolute = absolute;
-	//			}
-	//
-	//			/**
-	//			 * Checks if the mode is absolute
-	//			 *
-	//			 * @return absolute mode of the controller
-	//			 */
-	//			this.isAbsolute = function() {
-	//				return this.absolute;
-	//			}
-	//
-	//			/*
-	//			 * Add answer to controller
-	//			 */
-	//			var ctrl = this;
-	//			$scope.answer = function() {
-	//				// create data
-	//				var data = {};
-	//				data.name = this.name || $mbCrypto.uuid();
-	//				data.description = this.description || 'Auto loaded content';
-	//				var file = null;
-	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
-	//					file = ctrl.files[0].lfFile;
-	//					data.title = file.name;
-	//				}
-	//				// upload data to server
-	//				return ctrl.uploadFile(data, file)//
-	//					.then(function(content) {
-	//						var value = '/api/v2/cms/contents/' + content.id + '/content';
-	//						if (ctrl.isAbsolute()) {
-	//							value = getDomain() + value;
-	//						}
-	//						return value;
-	//					})//
-	//					.catch(function() {
-	//						alert('Failed to create or upload content');
-	//					});
-	//			};
-	//			// init the controller
-	//			this.init();
-	//
-	//			// re-labeling lf-ng-md-file component for multi languages support
-	//			angular.element(function() {
-	//				var elm = angular.element('.lf-ng-md-file-input-drag-text');
-	//				if (elm[0]) {
-	//					elm.text($mbTranslate.instant('Drag & Drop File Here'));
-	//				}
-	//
-	//				elm = angular.element('.lf-ng-md-file-input-button-brower');
-	//				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-	//					elm[0].childNodes[1].data = ' ' + $mbTranslate.instant('Browse');
-	//				}
-	//
-	//				elm = angular.element('.lf-ng-md-file-input-button-remove');
-	//				if (elm[0] && elm[0].childNodes[1] && elm[0].childNodes[1].data) {
-	//					elm[0].childNodes[1].data = $mbTranslate.instant('Remove');
-	//				}
-	//
-	//				elm = angular.element('.lf-ng-md-file-input-caption-text-default');
-	//				if (elm[0]) {
-	//					elm.text($mbTranslate.instant('Select File'));
-	//				}
-	//			});
-	//		},
-	//		controllerAs: 'ctrl',
-	//		priority: 1,
-	//		tags: ['image', 'audio', 'vedio', 'file', 'url', 'image-url', 'avatar', 'thumbnail']
 	//	})
 	//	.addPage({
 	//		type: 'local-file',

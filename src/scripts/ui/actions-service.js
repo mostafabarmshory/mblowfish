@@ -41,6 +41,7 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	*/
 	var dispatcher;
 	var Action;
+	var q;
 
 	/*
 	All storage and variables
@@ -87,8 +88,8 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 		var action = this.getAction(actionId);
 		if (!action) {
 			// TODO: maso, 2020: add an alert system to manage all errors and notifications
-			$window.alert('Action \'' + actionId + '\' not found!');
-			return;
+			alert('Action \'' + actionId + '\' not found!');
+			return q.reject();
 		}
 		// TODO: maso, 2020: run action inside the actions service
 		return action.exec($event);
@@ -107,9 +108,10 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	/* @ngInject */
 	var service = function(
         /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, MbAction) {
+        /* mb        */ $mbDispatcher, MbAction, $q) {
 		dispatcher = $mbDispatcher;
 		window = $window;
+		q = $q;
 		Action = MbAction;
 
 		loadActions();
@@ -137,6 +139,7 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 		init: function(actionsConfig) {
 			if (configs) {
 				// TODO: 2020: merge actions
+				actionsConfig.items = _.merge(configs.items, actionsConfig.items);
 			}
 			configs = actionsConfig;
 			return provider;
