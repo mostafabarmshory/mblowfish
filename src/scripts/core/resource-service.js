@@ -158,12 +158,29 @@ mblowfish.provider('$mbResource', function() {
 @description
 Manages resource dialog and allows internal containers to work.
 
+Resources are free to set a process to performe before closing the dialog. It is common in
+resources required process.
+
+@example
+	mblowfish.addResource('test',{
+		tags:['image'],
+		controller: function($resource){
+			$resource.process = function(){
+				return $http.get('resource/from/web')
+					.then(function(value){
+						$resources.setValue(value);
+					});
+			}
+		}
+	});
+
 @ngInject
  */
 mblowfish.controller('ResourceDialogCtrl', function(
 	$scope, $value, $element, $pages, $style,
 	$mdDialog, MbContainer) {
 
+	var isFunction = _.isFunction;
 	//-------------------------------------------------------------
 	// Variables
 	//-------------------------------------------------------------
@@ -191,6 +208,15 @@ mblowfish.controller('ResourceDialogCtrl', function(
 	@memberof WbResourceCtrl
 	 */
 	function answer() {
+		if (isFunction(ctrl.process)) {
+			return ctrl.isBusy = ctrl.process()
+				.then(function() {
+					return $mdDialog.hide(value);
+				})
+				.finally(function() {
+					delete ctrl.isBusy;
+				});
+		}
 		return $mdDialog.hide(value);
 	}
 
@@ -217,6 +243,7 @@ mblowfish.controller('ResourceDialogCtrl', function(
 			currentContainer.destroy();
 			target.empty();
 		}
+		delete ctrl.process;
 
 		currentPage = page;
 		currentContainer = new MbContainer(page);

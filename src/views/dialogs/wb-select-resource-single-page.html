@@ -2,6 +2,12 @@
 	aria-label="Select item/items"
 	style="width:50%; height:70%;">
 	<form ng-cloak layout="column" flex>
+		<!-- Progress -->
+		<md-progress-linear
+			ng-style="{'visibility': ctrl.isBusy?'visible':'hidden'}"
+			md-mode="indeterminate"
+			class="md-primary">
+		</md-progress-linear>
 		<md-dialog-content
 			flex
 			layout="row">
