@@ -1,0 +1,12 @@
+<div style="width: 100%; height: 100%; margin: 0px; padding: 150px; background: red;">
+	<h1>Click on button to login</h1>
+	<p>This is a virtual user manager</p>
+	<md-button ng-click="ctrl.login({
+						login: 'admin',
+						password: 'admin'
+					})">Login with Admin</md-button>
+	<md-button ng-click="ctrl.login({
+						login: 'guest',
+						password: 'guest'
+					})">Login with Guest</md-button>
+</div>

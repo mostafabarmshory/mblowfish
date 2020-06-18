@@ -61,14 +61,6 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		}
 	};
 
-	var loadTenantSettings = {
-		title: 'Loading Tenant Settings',
-		/* @ngInject */
-		action: function() {
-			// XXX: maso, 2020: 
-		}
-	};
-
 	var loadAccountDetail = {
 		title: 'Loading Account Details',
 		/* @ngInject */
@@ -94,7 +86,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 				loginComponent.destroy();
 			}
 
-			$mbDispatcher.on('/account', function() {
+			$mbDispatcher.on(MB_SECURITY_ACCOUNT_SP, function() {
 				if ($mbAccount.isAnonymous()) {
 					renderPanel();
 				} else {
@@ -134,14 +126,11 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	// Local Variables
 	//-------------------------------------------------
 	var key = 'mblowfish';
-	var tenantRequired = false;
 	var accountDetailRequired = false;
 	var settingsRequired = true;
 	var logingRequired = false;
 	var loginComponentConfig = {
-		templateUrl: 'views/mb-login-default.html',
-		controller: 'MbAccountContainerCtrl',
-		controllerAs: 'ctrl',
+		template: '<h1>No login page</h1>',
 	};
 	var loginComponent;
 	var settinsRequired = true;
@@ -208,15 +197,6 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 	function setLoginComponent(componentConfig) {
 		loginComponentConfig = componentConfig;
 		return provider;
-	}
-
-	function setTenantRequired(flag) {
-		tenantRequired = flag;
-		return provider;
-	}
-
-	function isTenantRequired() {
-		return tenantRequired;
 	}
 
 	function setAccountDetailRequired(flag) {
@@ -291,9 +271,6 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		if (settinsRequired) {
 			addAction(STATE_INIT, loadSettingsJob);
 		}
-		if (tenantRequired) {
-			addAction(STATE_INIT, loadTenantSettings);
-		}
 		if (accountDetailRequired || logingRequired) {
 			addAction(STATE_INIT, loadAccountDetail);
 		}
@@ -315,7 +292,6 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		isPreloadingEnabled: isPreloadingEnabled,
 		getPreloadingComponent: getPreloadingComponent,
 		isLoginRequired: isLoginRequired,
-		isTenantRequired: isTenantRequired,
 		isAccountDetailRequired: isAccountDetailRequired,
 		isSettingsRequired: isSettingsRequired,
 		getState: getState,
@@ -338,7 +314,6 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		addAction: addAction,
 		setPreloadingEnabled: setPreloadingEnabled,
 		setPreloadingComponent: setPreloadingComponent,
-		setTenantRequired: setTenantRequired,
 		setAccountDetailRequired: setAccountDetailRequired,
 		setSettingsRequired: setSettingsRequired,
 		setLogingRequired: setLogingRequired,

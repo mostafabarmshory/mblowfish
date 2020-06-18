@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+var MB_MODULE_SK = 'mbModules';
+
 var actions = {};
 var views = {};
 var editors = {};
@@ -237,3 +239,13 @@ window.mblowfish = {
 	}
 };
 
+
+
+
+//-------------------------------------------------------------------------------------------------
+//
+//-------------------------------------------------------------------------------------------------
+
+mblowfish.addConstants({
+	MB_SECURITY_ACCOUNT_SP: '/app/security/account'
+});

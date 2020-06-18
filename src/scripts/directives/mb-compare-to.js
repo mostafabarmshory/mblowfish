@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +22,26 @@
  * SOFTWARE.
  */
 
-/**
- * 
- */
-mblowfish.controller('TestContentWeburgerCtrl', function($scope) {
 
-	$scope.model = {};
+/**
+ * @ngdoc Directives
+ * @name mb-compare-to
+ * @description Compare two attributes.
+ */
+mblowfish.directive('mbCompareTo', function() {
+	return {
+		require: 'ngModel',
+		scope: {
+			otherModelValue: '=compareTo'
+		},
+		link: function(scope, element, attributes, ngModel) {
+			ngModel.$validators.compareTo = function(modelValue) {
+				return modelValue === scope.otherModelValue;
+			};
+
+			scope.$watch('otherModelValue', function() {
+				ngModel.$validate();
+			});
+		}
+	};
 });

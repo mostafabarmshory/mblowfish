@@ -28,9 +28,11 @@
 mblowfish.config(function(
 	$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
 	$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider,
-	$mbEditorProvider,
+	$mbAccountProvider,
 	$mbTranslateProvider, $mbTranslateSanitizationProvider,
 	$mbStorageProvider, $locationProvider) {
+	$mbAccountProvider
+		.addAuthenticationProvider('DemoMemoryAuthenticationProvider');
 	//
 	// Application manager
 	//
@@ -55,16 +57,21 @@ mblowfish.config(function(
 		//				return deferred.promise;
 		//			}
 		//		})
-		.setTenantRequired(false)
 		.setAccountDetailRequired(false)
 		.setSettingsRequired(true)
 		.setLogingRequired(true)
 		// Set custom login panel
-		//		.setLoginComponent({
-		//			template: '<h1 style="width: 100%; height: 100%; margin: 0px; padding: 150px; background: red;">You are not login</h1>',
-		//			controller: 'MbAccountContainerCtrl',
-		//			controllerAs: 'ctrl'
-		//		})
+		.setLoginComponent({
+			templateUrl: 'views/demo-account-select.html',
+			/* @ngInject */
+			controller: function($mbAccount) {
+				function login(cred) {
+					return $mbAccount.login(cred);
+				}
+				this.login = login;
+			},
+			controllerAs: 'ctrl'
+		})
 		;
 
 	$mbSettingsProvider

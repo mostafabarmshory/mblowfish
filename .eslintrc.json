@@ -15,6 +15,7 @@
 		"jQuery": true,
 		"moduleLoad": true,
 		"_": true,
+		"mblowfish": true,
 		"MODULE_STORAGE_KEY": true,
 		"storageSupported": true
 	},

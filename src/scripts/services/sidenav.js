@@ -10,7 +10,7 @@
  * @description Manage sidenaves and drowver
  * 
  */
-angular.module('mblowfish-core').provider('$mbSidenav', function() {
+mblowfish.provider('$mbSidenav', function() {
 	var Sidenav;
 
 	var provider;

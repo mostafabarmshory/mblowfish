@@ -72,123 +72,46 @@ common expressions which are available in security.
 
 For example, to add security into a view or editor:
 
-	{
-		url: '/view/url',
+@example
+	mblowfish.addView('/view/path', {
 		...
 		preAuthorize: 'isAuthenticated() && hasRole('account.manager')'
-	}
+	});
 
+@tutorial core-security-in-views.md
+@tutorial core-security-authentication-provider.md
 
  */
-angular.module('mblowfish-core').provider('$mbAccount', function() {
+mblowfish.provider('$mbAccount', function() {
 	//---------------------------------------
 	// Services
 	//---------------------------------------
-	var rolesToPermissions;
-	var httpParamSerializerJQLike;
-
 	var provider;
 	var service;
 
 	var rootScope;
-	var http;
-	var usr;
 	var dispatcher;
+	var q;
+	var Authentication;
 
-	var Account;
-	var Profile;
-	var Group;
-	var Role;
 
 	//---------------------------------------
 	// variables
 	//---------------------------------------
-	var USER_DETAIL_GRAPHQL = '{id, login, profiles{first_name, last_name, language, timezone}, roles{id, application, code_name}, groups{id, name, roles{id, application, code_name}}}';
-
-	var ACCOUNT_STORE_NAME = '/user/account/current';
-	var ACCOUNT_PROFILES_STORE_NAME = '/user/account/current';
-
-	var STATE_INIT = 0;
-	var STATE_LOGIN = 1;
-	var STATE_ANONYMOUS = 2;
-	var state;
-
-	/*
-	Force to remember the login
-	*/
 	var rememberMe = true;
-	var exrpressionsEnabled = true;
-
-	/*
-	True if is authenticated at the current run
-	 */
 	var authenticated = false;
+	var authentication;
+	var principal; // principles (maps of roles)
 
-	var account;
-	var roles;
-	var groups;
-	var permissions;
-	var profile;
-	var profiles;
+	var exrpressionsEnabled = true;
+	var providers = [];
 
 	//---------------------------------------
 	// functions
 	//---------------------------------------
-
 	function setExrpressionsEnabled(flag) {
 		exrpressionsEnabled = flag;
 		return provider;
-	}
-
-	function parsAccount(accountData) {
-		var oldAccount = account;
-		var oldProfiles = profiles;
-		var oldProfile = profile;
-		var oldGroups = groups;
-
-		//>> Load profiles
-		profiles = [];
-		profile = undefined;
-		if (angular.isArray(accountData.profiles)) {
-			_.forEach(accountData.profiles, function(profileConfig) {
-				profiles.push(new Profile(profileConfig))
-			});
-		}
-		if (profiles[0]) {
-			profile = profiles[0];
-		}
-
-		//>> Load rolses
-		permissions = rolesToPermissions(accountData.roles || []);
-		roles = [];
-		_.forEach(accountData.roles, function(role) {
-			roles[role.application + '_' + role.code_name] = new Role(role);
-		});
-
-		//>> Load groups
-		var groups = {};
-		_.forEach(accountData.groups, function(group) {
-			groups[group.name] = new Group(group);
-			_.assign(permissions, rolesToPermissions(group.roles || []));
-		});
-
-
-		//>> set account
-		account = new Account(accountData);
-
-
-		//>> Fire events
-		if (exrpressionsEnabled) {
-			updateRootScope();
-		}
-		var $event = {
-			src: this,
-			type: 'update',
-		};
-		dispatcher.dispatch(ACCOUNT_STORE_NAME, _.assign({}, $event, {
-			value: account,
-			oldValue: oldAccount
-		}));
 	}
 
 
@@ -202,9 +125,7 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	 @memberof $mbAccount
 	 */
 	function reload() {
-		return usr.getAccount('current', {
-			graphql: USER_DETAIL_GRAPHQL
-		}).then(parsAccount);
+		login(authentication);
 	}
 
 	/**
@@ -214,14 +135,19 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	 @param {object} credential User and password of the user
 	 */
 	function login(credential) {
-		return http({
-			method: 'POST',
-			url: '/api/v2/user/login',
-			data: httpParamSerializerJQLike(credential),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
+		for (var i = 0; i < providers.length; i++) {
+			if (providers[i].supports(credential)) {
+				return providers[i].authenticate(credential)
+					.then(function(newAuth) {
+						newAuth.provider = providers[i];
+						updateAuthentication(newAuth);
+						authenticated = newAuth.authenticated;
+					});
 			}
-		}).then(reload);
+		}
+		return q.reject({
+			message: 'No suitable provider found'
+		});
 	}
 
 	/**
@@ -232,72 +158,54 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	 @memberof $mbAccount
 	 */
 	function logout() {
-		if (state = STATE_ANONYMOUS) {
-			return;
-		}
-		return http({
-			method: 'POST',
-			url: '/api/v2/user/logout',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
+		for (var i = 0; i < providers.length; i++) {
+			if (providers[i] === authentication.provider) {
+				return providers[i].forget(authentication)
+					.then(updateAuthentication);
 			}
-		}).then(reload);
+		}
+		for (var i = 0; i < providers.length; i++) {
+			if (providers[i].supports(authentication)) {
+				return providers[i].forget(authentication)
+					.then(updateAuthentication);
+			}
+		}
+		return q.reject({
+			message: 'No suitable provider found'
+		});
+	}
+
+	function getAuthentication() {
+		return authention;
+	}
+
+	function getPrincipal() {
+		return principal;
 	}
 
 	/**
-	 
-	 @memberof $mbAccount
-	 */
-	function getAccount() {
-		return account;
-	}
-
-	/**
-	 
-	 @memberof $mbAccount
-	 */
-	function getProfile() {
-		return profile;
-	}
-
-	/**
-	 
-	 @memberof $mbAccount
-	 */
-	function getProfiles() {
-		return profiles;
-	}
-
-	/**
-	 
-	 @memberof $mbAccount
-	 */
-	function getRoles() {
-		return roles;
-	}
-
-	/**
-	 
-	 @memberof $mbAccount
-	 */
-	function getGroups() {
-		return groups;
-	}
-
-	/**
+	@name hasRole
+	@memberof $mbAccount
+	
 	Returns true if the current principal has the specified role.
+	
+	@returns {boolean} true if current principle contains the input role
 	 */
 	function hasRole(role) {
 		return hasAnyRole(role);
 	}
 
 	/**
+	@name hasAnyRole
+	@memberof $mbAccount
+	
 	Returns true if the current principal has any of the supplied roles (given as a comma-separated list of strings)
 	
+	@returns {boolean} true if current principle contains any input roles
 	 */
 	function hasAnyRole() {
 		for (var i = 0; i < arguments.length; i++) {
-			if (permissions[arguments[i]]) {
+			if (principal[arguments[i]]) {
 				return true;
 			}
 		}
@@ -305,27 +213,32 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	}
 
 	/**
+	@name isAnonymous
+	@memberof $mbAccount
+	
 	Returns true if the current principal is an anonymous user
 	
-	@memberof $mbAccount
 	 */
 	function isAnonymous() {
-		return !account || account.isAnonymous();
+		return !authentication.authenticated;
 	}
 
 	/**
+	@name isRememberMe
+	@memberof $mbAccount
+	
 	Returns true if the current principal is a remember-me user
 	
-	@memberof $mbAccount
 	 */
 	function isRememberMe() {
 		return rememberMe;
 	}
 
 	/**
-	Set remember me option enable
-	
+	@name setRememberMe
 	@memberof $mbAccount
+	
+	Set remember me option enable
 	 */
 	function setRememberMe(flag) {
 		rememberMe = flag;
@@ -333,28 +246,36 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 	}
 
 	/**
+	@name isAuthenticated
+	@memberof $mbAccount
+	
 	Returns true if the user is not anonymous
 	 */
 	function isAuthenticated() {
-		return account && !account.isAnonymous();
+		return authentication.authenticated;
 	}
 
 	/**
+	@name isFullyAuthenticated
+	@memberof $mbAccount
+	
 	Returns true if the user is not an anonymous or a remember-me user
 	 */
 	function isFullyAuthenticated() {
 		return authenticated && isAuthenticated();
 	}
 
-
+	// Load basic functions into the rootScope
 	function loadExpressions() {
+		if (!exrpressionsEnabled) {
+			return;
+		}
 		_.assign(rootScope, {
 			isAnonymous: isAnonymous,
 			hasRole: hasRole,
 			hasAnyRole: hasAnyRole,
-			principal: roles,
-			authentication: account,
-			permissions: permissions,
+			principal: principal,
+			authentication: authentication,
 			permitAll: true,
 			denyAll: false,
 			isRememberMe: isRememberMe,
@@ -363,24 +284,25 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 		});
 	}
 
-	/*
-	Updates all global modules in root scope
-	*/
-	function updateRootScope() {
-		_.assign(rootScope, {
-			principal: roles,
-			authentication: account,
-			permissions: permissions,
-		}, account);
+	//	Updates all global modules in root scope
+	function updateAuthentication(newAuthentication) {
+		authentication = newAuthentication;
+		if (exrpressionsEnabled) {
+			_.assign(rootScope, {
+				principal: principal,
+				authentication: authentication,
+			});
+		}
+		dispatcher.dispatch(MB_SECURITY_ACCOUNT_SP, {
+			valeus: [authentication]
+		});
 	}
 
 	//---------------------------------------
 	// End
 	//---------------------------------------
 	service = {
-		STATE_INIT: STATE_INIT,
-		STATE_LOGIN: STATE_LOGIN,
-		STATE_ANONYMOUS: STATE_ANONYMOUS,
+		reload: reload,
 		login: login,
 		logout: logout,
 		isAnonymous: isAnonymous,
@@ -389,43 +311,33 @@ angular.module('mblowfish-core').provider('$mbAccount', function() {
 		isRememberMe: isRememberMe,
 		isAuthenticated: isAuthenticated,
 		isFullyAuthenticated: isFullyAuthenticated,
-		getGroups: getGroups,
-		getRoles: getRoles,
-		getProfile: getProfile,
-		getProfiles: getProfiles,
-		getAccount: getAccount,
-		reload: reload,
+		getAuthentication: getAuthentication,
+		getPrincipal: getPrincipal,
 	};
 	provider = {
 		/* @ngInject */
-		$get: function(
-			$rootScope, $http, $usr, $dispatcher,
-			$mbUtil, $httpParamSerializerJQLike,
-			UserAccount, UserProfile, UserGroup, UserRole
-		) {
-			//>> Static methosd
-			rolesToPermissions = $mbUtil.rolesToPermissions;
-			httpParamSerializerJQLike = $httpParamSerializerJQLike;
-
+		$get: function($q, $rootScope, $mbDispatcher, $injector, MbAuthentication) {
 			//>> Services
 			rootScope = $rootScope;
-			http = $http;
-			usr = $usr;
-			dispatcher = $dispatcher;
-
-			Account = UserAccount;
-			Profile = UserProfile;
-			Group = UserGroup;
-			Role = UserRole;
+			dispatcher = $mbDispatcher;
+			Authentication = MbAuthentication;
+			q = $q;
 
 			//>> load the service
-			if (exrpressionsEnabled) {
-				loadExpressions();
-			}
+			authentication = new Authentication();
+			loadExpressions();
+			_.forEach(provider.providers, function(name) {
+				var Factory = $injector.get(name);
+				providers.push(new Factory());
+			});
 			return service;
 		},
 		setExrpressionsEnabled: setExrpressionsEnabled,
 		setRememberMe: setRememberMe,
+		providers: [],
+		addAuthenticationProvider: function(name) {
+			provider.providers.push(name);
+		}
 	};
 	return provider;
 });

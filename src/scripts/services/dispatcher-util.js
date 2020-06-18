@@ -100,7 +100,6 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	 * ...
 	 * this.fireEvent(type, 'created', items);
 	 * 
-	 * @memberof MbAbstractCtrl
 	 */
 	function fireEvent(type, action, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
@@ -115,8 +114,6 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	/**
 	 * Fires items read
 	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
 	 */
 	function fireRead(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
@@ -126,8 +123,6 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	/**
 	 * Fires items updated
 	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
 	 */
 	function fireUpdated(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
@@ -137,8 +132,6 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	/**
 	 * Fires items deleted
 	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
 	 */
 	function fireDeleted(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
@@ -148,8 +141,6 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	/**
 	 * Fires items created
 	 * 
-	 * @see MbAbstractCtrl#fireEvent
-	 * @memberof MbAbstractCtrl
 	 */
 	function fireCreated(type, items) {
 		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);

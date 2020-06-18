@@ -196,7 +196,7 @@
 
 
 
-angular.module('mblowfish-core').directive('mbView', function(
+mblowfish.directive('mbView', function(
 	/* MB        */ $mbLayout, $mbRoute,
 	/* AngularJS */ $location, $dispatcher, $mbApplication, $q) {
 

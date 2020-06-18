@@ -46,6 +46,14 @@
   transform: translateX(-100%);
 }
 
+[dir=rtl] md-menu-item > .md-button {
+    direction: rtl;
+    text-align: right;
+}
+[dir=ltr] md-menu-item > .md-button {
+    direction: ltr;
+    text-align: left;
+}
 [dir=ltr] md-list-item > ng-md-icon:first-child,
 [dir=ltr] md-list-item .md-list-item-inner > ng-md-icon:first-child{
     -webkit-margin-end: 32px;
@@ -57,14 +65,6 @@
 [dir=rtl] md-list-item .md-list-item-inner > ng-md-icon:first-child{
     -webkit-margin-end: 32px;
     margin-left: 32px;
-}
-[dir=rtl] md-menu-item > .md-button {
-    direction: rtl;
-    text-align: right;
-}
-[dir=ltr] md-menu-item > .md-button {
-    direction: ltr;
-    text-align: left;
 }
 .mb-badge {
 	background-color: rgb(0, 130, 130);

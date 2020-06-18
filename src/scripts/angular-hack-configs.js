@@ -21,7 +21,7 @@
  */
 
 
-angular.module('mblowfish-core').config(function($httpProvider) {
+mblowfish.config(function($httpProvider) {
 	// An interceptor to handle errors of server response
 	// All that the interceptor does is in 'httpRequestInterceptor' factory.
 	$httpProvider.interceptors.push('MbHttpRequestInterceptor');
@@ -42,5 +42,5 @@ angular.module('mblowfish-core').config(function($httpProvider) {
 	$httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
 	// extra
 	$httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
-	$httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+	$httpProvider.defaults.headers.get.Pragma = 'no-cache';
 });
