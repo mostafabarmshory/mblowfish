@@ -212,6 +212,7 @@ window.mblowfish = {
 			window[constantId] = constant;
 			mbApplicationModule.constant(constantId, constant);
 		});
+		return window.mblowfish;
 	},
 	addResource: function(resourceId, resource) {
 		resources[resourceId] = resource;
