@@ -74,29 +74,42 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		/* @ngInject */
 		action: function(MbComponent, $rootElement, $mbAccount, $mbDispatcher) {
 			loginComponent = new MbComponent(loginComponentConfig);
+			var renderJob;
 			function renderPanel() {
 				element = angular.element('<mb-login-panel></mb-login-panel>');
 				$rootElement.append(element);
-				return loginComponent.render({
-					$element: element,
-				});
+				return loginComponent
+					.render({
+						$element: element,
+					})
+					.finally(function() {
+						delete renderJob;
+					});
 			}
 
 			function destroy() {
-				loginComponent.destroy();
+				if (renderJob) {
+					renderJob = renderJob
+						.finally(function() {
+							loginComponent.destroy();
+						});
+				} else {
+					loginComponent.destroy();
+				}
 			}
 
 			$mbDispatcher.on(MB_SECURITY_ACCOUNT_SP, function() {
 				if ($mbAccount.isAnonymous()) {
-					renderPanel();
+					renderJob = renderPanel();
 				} else {
 					destroy();
 				}
 			});
 
 			if ($mbAccount.isAnonymous()) {
-				return renderPanel();
+				renderJob = renderPanel();
 			}
+			return renderJob;
 		}
 	};
 

@@ -204,6 +204,9 @@ mblowfish.provider('$mbAccount', function() {
 	@returns {boolean} true if current principle contains any input roles
 	 */
 	function hasAnyRole() {
+		if (_.isUndefined(principal)) {
+			return false;
+		}
 		for (var i = 0; i < arguments.length; i++) {
 			if (principal[arguments[i]]) {
 				return true;
