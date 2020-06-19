@@ -22,26 +22,19 @@
 
 
 /**
-@ngdoc directive
-@name mb-status
-@description List of component to display in status
+@ngdoc Directive
+@name mb-sidenav
+@description Defines a place to add sidenaves
+
+
 
  */
-angular.module('mblowfish-core').directive('mbStatus', function($mbTheming) {
-	
-	function link($scope, $element) {
-		// 0- init UI
-		$element.empty();
-		$mbTheming($element);
-	}
-
+mblowfish.directive('mbSidenavs', function($mbSidenav) {
 	return {
-		restrict: 'E',
+		restrict: 'AE',
 		replace: false,
-		/* @ngInject */
-		controller: function() {
-		},
-		controllerAs: 'ctrl',
-		link: link
+		link: function($scope, $element) {
+			$mbSidenav.setRootElement($element);
+		}
 	};
 });
