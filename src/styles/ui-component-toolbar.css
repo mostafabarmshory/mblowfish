@@ -6,16 +6,24 @@ mb-toolbar-group {
 	padding: 0px !important;
 	margin: 0px !important;
 	
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+	display: block;
 	
 	overflow: hidden;
 }
 
 mb-toolbar-group>mb-toolbar {
+	display: inline-block;
+	
 	height: 24px !important;
 	overflow: hidden;
+}
+
+mb-toolbar-group>.left {
+	float: left;
+}
+
+mb-toolbar-group>.right {
+	float: right;
 }
 
 mb-toolbar>mb-toolbar-item.mbAction {

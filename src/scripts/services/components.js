@@ -28,48 +28,71 @@
 
 
  */
-angular.module('mblowfish-core').provider('$mbComponent', function() {
+mblowfish.provider('$mbComponent', function() {
 
-	var Component;
+	var
+		Component,
+		service,
+		provider;
 
-	var configs = {};
-	var components = {};
 
-	function add(componentId, component) {
+	var
+		configs = {
+			items: {}
+		},
+		components = {};
+
+	function addComponent(componentId, component) {
+		if (!(component instanceof Component)) {
+			component = new Component(component);
+		}
 		components[componentId] = component;
+		return service;
 	}
 
-	function get(componentId) {
+	function getComponent(componentId) {
 		return components[componentId];
 	}
 
-	function remove(componentId) {
-		delete components[componentId];
+	function removeComponent(componentId) {
+		var component = components[componentId];
+		if (!component) {
+			component.destroy();
+			delete components[componentId];
+		}
+		return service;
 	}
 
 	function loadItems() {
 		var items = configs.items || {};
 		_.forEach(items, function(config, componentId) {
-			var component = new Component(item);
-			add(componentId, component);
+			var component = new Component(config);
+			addComponent(componentId, component);
 		});
 	}
 
-	return {
+	service = {
+		addComponent: addComponent,
+		removeComponent: removeComponent,
+		getComponent: getComponent,
+	};
+	provider = {
 		/* @ngInject */
 		$get: function(MbComponent) {
 			Component = MbComponent;
 
 			loadItems();
 
-			this.add = add;
-			this.remove = remove;
-			this.get = get;
-
-			return this;
+			return service;
 		},
 		init: function(moduleConfigs) {
 			configs = moduleConfigs;
+			return provider;
+		},
+		addComponent: function(id, config) {
+			configs.items[id] = config;
+			return provider;
 		}
 	};
+	return provider;
 });

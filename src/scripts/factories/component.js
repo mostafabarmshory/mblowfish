@@ -50,7 +50,7 @@ view, or an editor.
 
 @tutorial ui-component-action
  */
-angular.module('mblowfish-core').factory('MbComponent', function(
+mblowfish.factory('MbComponent', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming,
 	/* Mblowfish */ $mbUiUtil) {
 

@@ -5528,7 +5528,7 @@ It is not possible to add a toolbar with aa specific url into the view more than
 
 
  */
-angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
+mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 
 
 	function link($scope, $element, $attr, $ctrl) {
@@ -5568,7 +5568,7 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 			this.handlers = {};
 
 			this.addToolbar = function(toolbar) {
-				if(_.isString(toolbar)){
+				if (_.isString(toolbar)) {
 					toolbar = $mbToolbar.getToolbar(toolbar);
 				}
 				if (!_.isUndefined(this.handlers[toolbar.url])) {
@@ -5578,6 +5578,9 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				// reserve a postions
 				var element = angular.element('<mb-toolbar></mb-toolbar>');
 				element.attr('id', toolbar.url);
+				if (toolbar.float) {
+					element.addClass(toolbar.float);
+				}
 				$element.append(element);
 
 				// render toolbar
@@ -5594,7 +5597,7 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 
 			this.removeToolbar = function(toolbar) {
 				var url = toolbar;
-				if(toolbar instanceof MbToolbar){
+				if (toolbar instanceof MbToolbar) {
 					url = toolbar.url;
 				}
 				if (_.isUndefined(this.handler[url])) {
@@ -6239,7 +6242,7 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent, $q) {
+mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 	/* @ngInject */
 	var defaultActionController = function($element, $action) {
@@ -6371,7 +6374,7 @@ view, or an editor.
 
 @tutorial ui-component-action
  */
-angular.module('mblowfish-core').factory('MbComponent', function(
+mblowfish.factory('MbComponent', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming,
 	/* Mblowfish */ $mbUiUtil) {
 
@@ -7333,7 +7336,7 @@ Toolbar is a UI component.
 You can add a toolbar into a toolbar, however, do not add them more than two lever.
 
  */
-angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
+mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 
 	function MbToolbar(configs) {
 		MbContainer.call(this, configs);
@@ -7401,17 +7404,11 @@ angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbA
 		var items = toolbar.items || [];
 		_.forEach(items, function(itemId) {
 			// get item
-			var item = $mbActions.getAction(itemId);
-			if (item) {
-				toolbar.addAction(item);
-				return;
-			}
-			item = $mbComponent.get(itemId);
+			var item = $mbComponent.getComponent(itemId);
 			if (item) {
 				toolbar.addComponent(item);
 				return;
 			}
-			// TODO: maso, 2020: add log
 		});
 
 		// adding dynamci action
@@ -12934,51 +12931,50 @@ applications. This service is responsible to manage global actions.
 Note: if an action added at the configuration then there is no event.
 
  */
-angular.module('mblowfish-core').provider('$mbActions', function() {
+mblowfish.provider('$mbActions', function() {
 
 
 	/*
 	All required services to do actions
 	*/
-	var dispatcher;
-	var Action;
-	var q;
+	var
+		q,
+		Action,
+		service,
+		provider;
 
 	/*
 	All storage and variables
 	*/
-	var configs = {
-		items: {}
-	};
-	var actions = {};
-	var groups = {};
+	var
+		configs = {
+			items: {}
+		},
+		actions = {};
 
-	function addAction(commandId, action) {
+	function addAction(actionId, action) {
 		if (!(action instanceof Action)) {
 			action = new Action(action);
 		}
-		actions[commandId] = action;
-		action.id = commandId;
+		actions[actionId] = action;
+		action.id = actionId;
+		mbComponent.addComponent(actionId, action);
 		return service;
 	}
 
-	function removeAction(commandId, action) {
-		delete actions[commandId];
+	function removeAction(acctionId) {
+		mbComponent.removeComponent(actionId);
+		delete actions[acctionId];
 		return service;
 	}
 
-	function getAction(commandId) {
-		return actions[commandId];
+	function getAction(actionId) {
+		return actions[actionId];
 	}
 
 	function getActions() {
 		return actions;
 	};
-
-	function addGroup(groupId, groupConfigs) { }
-	function removeGroup(groupId) { }
-	function getGroup(groupId) { }
-	function getGroups() { }
 
 
 	function exec(actionId, $event) {
@@ -13006,37 +13002,29 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	}
 
 
-	/* @ngInject */
-	var service = function(
-        /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, MbAction, $q) {
-		dispatcher = $mbDispatcher;
-		window = $window;
-		q = $q;
-		Action = MbAction;
-
-		loadActions();
-
-		this.addAction = addAction;
-		this.removeAction = removeAction;
-		this.getAction = getAction;
-		this.getActions = getActions;
-		this.exec = exec;
-
-		this.addGroup = addGroup;
-		this.removeGroup = removeGroup;
-		this.getGroup = getGroup;
-		this.getGroups = getGroups;
-
-		// Legacy
-		newAction = addAction;
-
-
-		return this;
+	service = {
+		addAction: addAction,
+		removeAction: removeAction,
+		getAction: getAction,
+		getActions: getActions,
+		exec: exec,
 	};
 
-	var provider = {
-		$get: service,
+	provider = {
+		/* @ngInject */
+		$get: function(
+        /* angularjs */ $window,
+        /* mb        */ $mbDispatcher, $mbComponent, MbAction, $q) {
+			dispatcher = $mbDispatcher;
+			mbComponent = $mbComponent;
+			window = $window;
+			q = $q;
+			Action = MbAction;
+
+			loadActions();
+
+			return service;
+		},
 		init: function(actionsConfig) {
 			if (configs) {
 				// TODO: 2020: merge actions
@@ -13465,50 +13453,73 @@ angular.module('mblowfish-core').service('$clipboard', function() {
 
 
  */
-angular.module('mblowfish-core').provider('$mbComponent', function() {
+mblowfish.provider('$mbComponent', function() {
 
-	var Component;
+	var
+		Component,
+		service,
+		provider;
 
-	var configs = {};
-	var components = {};
 
-	function add(componentId, component) {
+	var
+		configs = {
+			items: {}
+		},
+		components = {};
+
+	function addComponent(componentId, component) {
+		if (!(component instanceof Component)) {
+			component = new Component(component);
+		}
 		components[componentId] = component;
+		return service;
 	}
 
-	function get(componentId) {
+	function getComponent(componentId) {
 		return components[componentId];
 	}
 
-	function remove(componentId) {
-		delete components[componentId];
+	function removeComponent(componentId) {
+		var component = components[componentId];
+		if (!component) {
+			component.destroy();
+			delete components[componentId];
+		}
+		return service;
 	}
 
 	function loadItems() {
 		var items = configs.items || {};
 		_.forEach(items, function(config, componentId) {
-			var component = new Component(item);
-			add(componentId, component);
+			var component = new Component(config);
+			addComponent(componentId, component);
 		});
 	}
 
-	return {
+	service = {
+		addComponent: addComponent,
+		removeComponent: removeComponent,
+		getComponent: getComponent,
+	};
+	provider = {
 		/* @ngInject */
 		$get: function(MbComponent) {
 			Component = MbComponent;
 
 			loadItems();
 
-			this.add = add;
-			this.remove = remove;
-			this.get = get;
-
-			return this;
+			return service;
 		},
 		init: function(moduleConfigs) {
 			configs = moduleConfigs;
+			return provider;
+		},
+		addComponent: function(id, config) {
+			configs.items[id] = config;
+			return provider;
 		}
 	};
+	return provider;
 });
 
 /* 

@@ -33,51 +33,50 @@ applications. This service is responsible to manage global actions.
 Note: if an action added at the configuration then there is no event.
 
  */
-angular.module('mblowfish-core').provider('$mbActions', function() {
+mblowfish.provider('$mbActions', function() {
 
 
 	/*
 	All required services to do actions
 	*/
-	var dispatcher;
-	var Action;
-	var q;
+	var
+		q,
+		Action,
+		service,
+		provider;
 
 	/*
 	All storage and variables
 	*/
-	var configs = {
-		items: {}
-	};
-	var actions = {};
-	var groups = {};
+	var
+		configs = {
+			items: {}
+		},
+		actions = {};
 
-	function addAction(commandId, action) {
+	function addAction(actionId, action) {
 		if (!(action instanceof Action)) {
 			action = new Action(action);
 		}
-		actions[commandId] = action;
-		action.id = commandId;
+		actions[actionId] = action;
+		action.id = actionId;
+		mbComponent.addComponent(actionId, action);
 		return service;
 	}
 
-	function removeAction(commandId, action) {
-		delete actions[commandId];
+	function removeAction(acctionId) {
+		mbComponent.removeComponent(actionId);
+		delete actions[acctionId];
 		return service;
 	}
 
-	function getAction(commandId) {
-		return actions[commandId];
+	function getAction(actionId) {
+		return actions[actionId];
 	}
 
 	function getActions() {
 		return actions;
 	};
-
-	function addGroup(groupId, groupConfigs) { }
-	function removeGroup(groupId) { }
-	function getGroup(groupId) { }
-	function getGroups() { }
 
 
 	function exec(actionId, $event) {
@@ -105,37 +104,29 @@ angular.module('mblowfish-core').provider('$mbActions', function() {
 	}
 
 
-	/* @ngInject */
-	var service = function(
-        /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, MbAction, $q) {
-		dispatcher = $mbDispatcher;
-		window = $window;
-		q = $q;
-		Action = MbAction;
-
-		loadActions();
-
-		this.addAction = addAction;
-		this.removeAction = removeAction;
-		this.getAction = getAction;
-		this.getActions = getActions;
-		this.exec = exec;
-
-		this.addGroup = addGroup;
-		this.removeGroup = removeGroup;
-		this.getGroup = getGroup;
-		this.getGroups = getGroups;
-
-		// Legacy
-		newAction = addAction;
-
-
-		return this;
+	service = {
+		addAction: addAction,
+		removeAction: removeAction,
+		getAction: getAction,
+		getActions: getActions,
+		exec: exec,
 	};
 
-	var provider = {
-		$get: service,
+	provider = {
+		/* @ngInject */
+		$get: function(
+        /* angularjs */ $window,
+        /* mb        */ $mbDispatcher, $mbComponent, MbAction, $q) {
+			dispatcher = $mbDispatcher;
+			mbComponent = $mbComponent;
+			window = $window;
+			q = $q;
+			Action = MbAction;
+
+			loadActions();
+
+			return service;
+		},
 		init: function(actionsConfig) {
 			if (configs) {
 				// TODO: 2020: merge actions

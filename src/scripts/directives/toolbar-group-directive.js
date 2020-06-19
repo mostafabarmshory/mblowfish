@@ -39,7 +39,7 @@ It is not possible to add a toolbar with aa specific url into the view more than
 
 
  */
-angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
+mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 
 
 	function link($scope, $element, $attr, $ctrl) {
@@ -79,7 +79,7 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 			this.handlers = {};
 
 			this.addToolbar = function(toolbar) {
-				if(_.isString(toolbar)){
+				if (_.isString(toolbar)) {
 					toolbar = $mbToolbar.getToolbar(toolbar);
 				}
 				if (!_.isUndefined(this.handlers[toolbar.url])) {
@@ -89,6 +89,9 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 				// reserve a postions
 				var element = angular.element('<mb-toolbar></mb-toolbar>');
 				element.attr('id', toolbar.url);
+				if (toolbar.float) {
+					element.addClass(toolbar.float);
+				}
 				$element.append(element);
 
 				// render toolbar
@@ -105,7 +108,7 @@ angular.module('mblowfish-core').directive('mbToolbarGroup', function($mbToolbar
 
 			this.removeToolbar = function(toolbar) {
 				var url = toolbar;
-				if(toolbar instanceof MbToolbar){
+				if (toolbar instanceof MbToolbar) {
 					url = toolbar.url;
 				}
 				if (_.isUndefined(this.handler[url])) {

@@ -39,7 +39,7 @@ Toolbar is a UI component.
 You can add a toolbar into a toolbar, however, do not add them more than two lever.
 
  */
-angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
+mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 
 	function MbToolbar(configs) {
 		MbContainer.call(this, configs);
@@ -107,17 +107,11 @@ angular.module('mblowfish-core').factory('MbToolbar', function(MbContainer, $mbA
 		var items = toolbar.items || [];
 		_.forEach(items, function(itemId) {
 			// get item
-			var item = $mbActions.getAction(itemId);
-			if (item) {
-				toolbar.addAction(item);
-				return;
-			}
-			item = $mbComponent.get(itemId);
+			var item = $mbComponent.getComponent(itemId);
 			if (item) {
 				toolbar.addComponent(item);
 				return;
 			}
-			// TODO: maso, 2020: add log
 		});
 
 		// adding dynamci action

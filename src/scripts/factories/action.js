@@ -35,7 +35,7 @@ system.
 
 @tutorial core-action-callById
  */
-angular.module('mblowfish-core').factory('MbAction', function($injector, $location, MbComponent, $q) {
+mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 	/* @ngInject */
 	var defaultActionController = function($element, $action) {
