@@ -223,6 +223,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function(
 			/* AngularJS */ $rootScope,
 			/* Mblowfish */ $mbUiUtil, $mbRoute, MbEditor) {

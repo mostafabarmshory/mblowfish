@@ -310,6 +310,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		getState: getState,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($q, $mbSettings, MbJob, $dispatcher) {
 			//>> Set services
 			mbSettings = $mbSettings;

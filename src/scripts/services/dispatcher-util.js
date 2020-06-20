@@ -157,6 +157,7 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function($mbDispatcher, MbEvent) {
 			mbDispatcher = $mbDispatcher;
 			Event = MbEvent;

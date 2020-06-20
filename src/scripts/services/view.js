@@ -169,6 +169,7 @@ angular.module('mblowfish-core').provider('$mbView', function() {
 		getViews: getViews
 	};
 	provider = {
+		/* @ngInject */
 		$get: function(
 		/* AngularJS */ $rootScope,
 		/* Mblowfish */ $mbRoute, MbView) {

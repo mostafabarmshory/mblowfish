@@ -79,6 +79,7 @@ mblowfish.provider('$mbDynamicForm', function() {
 		openDialog: openDialog,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($mbDialog, $sce, $mbUtil) {
 			mbDialog = $mbDialog;
 			sce = $sce;

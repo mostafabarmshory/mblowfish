@@ -24,7 +24,7 @@
 
 Manages clipboard
  */
-angular.module('mblowfish-core').service('$clipboard', function() {
+mblowfish.service('$clipboard', function() {
 
 	this.copyTo = function(model) {
         /*

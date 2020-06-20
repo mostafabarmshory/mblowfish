@@ -75,6 +75,7 @@ mblowfish.provider('$mbSidenav', function() {
 	}
 
 	provider = {
+		/* @ngInject */
 		$get: function($mdSidenav, MbSidenav) {
 			mdSidenav = $mdSidenav;
 			Sidenav = MbSidenav;

@@ -51,6 +51,7 @@ mblowfish.provider('$mbDialog', function() {
 	// End
 	//--------------------------------------------------------
 	provider = {
+		/* @ngInject */
 		$get: function($mdDialog) {
 			return $mdDialog;
 		}

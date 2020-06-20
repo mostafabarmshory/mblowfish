@@ -90,6 +90,7 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function($rootScope, $mbStorage, $q) {
 			rootScope = $rootScope;
 			mbStorage = $mbStorage;

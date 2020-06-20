@@ -103,7 +103,8 @@ angular.module('mblowfish-core').provider('$mbPreferences', function() {
 		open: open
 	};
 	provider = {
-		$get: function($location, $mbEditor) {
+		/* @ngInject */
+		$get: function($location) {
 			location = $location;
 
 			init();

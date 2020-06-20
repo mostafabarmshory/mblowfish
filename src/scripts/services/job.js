@@ -73,6 +73,7 @@ angular.module('mblowfish-core').provider('$mbJobs', function() {
 		removeJob: removeJob,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($injector) {
 			//>> init services
 			injector = $injector;

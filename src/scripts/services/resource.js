@@ -140,6 +140,7 @@ mblowfish.provider('$mbResource', function() {
 		getPages: getPages,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($mbDialog) {
 			mbDialog = $mbDialog;
 			return service;

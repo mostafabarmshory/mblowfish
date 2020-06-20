@@ -425,6 +425,7 @@ mblowfish.provider('$mbLocal', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function($mbStorage, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
 			mbStorage = $mbStorage;
 			mdDateLocale = $mdDateLocale;
