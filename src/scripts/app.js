@@ -22,11 +22,11 @@
 
 var MB_MODULE_SK = 'mbModules';
 
-var actions = {};
-var views = {};
-var editors = {};
-var resources = {};
-
+var actions = {},
+	views = {},
+	editors = {},
+	resources = {},
+	components = {};
 var rootScopeConstants = {};
 
 
@@ -46,33 +46,22 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-		'ngMaterial',
 		'ngAnimate',
+		'ngAria',
 		'ngCookies',
-		'ngSanitize', //
-		//	Seen
-		'seen-core',
-		'seen-user',
-		'seen-tenant',
-		'seen-supertenant',
-		'seen-cms',
-		'seen-monitor',
-		'seen-shop',
-		'seen-sdp',
-		'seen-seo',
+		'ngMaterial',
+		'ngMessages',
+		'ngSanitize',
 		//	AM-WB
 		'am-wb-core',
 		//	Others
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-		'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
+
 		'ng-appcache',//
-		'ngFileSaver',//
-		'mdSteppers',//
 		'angular-material-persian-datepicker',
-		'mdColorPicker',
 	])
-	.config(function($mdThemingProvider,
-		$mbActionsProvider, $mbViewProvider, $mbEditorProvider, $mbResourceProvider) {
+	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -109,6 +98,11 @@ var mbApplicationModule = angular
 		// Load resources
 		_.forEach(resources, function(config, id) {
 			$mbResourceProvider.addPage(id, config);
+		});
+
+		// load components
+		_.forEach(components, function(config, id) {
+			$mbComponentProvider.addComponent(id, config);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -218,6 +212,10 @@ window.mblowfish = {
 		resources[resourceId] = resource;
 		return window.mblowfish;
 	},
+	addComponent: function(componentId, component) {
+		components[componentId] = component;
+		return window.mblowfish;
+	},
 	//-------------------------------------------------------------
 	// Angular Map
 	//-------------------------------------------------------------
@@ -225,8 +223,11 @@ window.mblowfish = {
 		angular.element.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
-	bootstrap: function(dom) {
-		angular.bootstrap(dom, ['mblowfish-core'], {});
+	bootstrap: function(dom, modules, configs) {
+		modules = modules || [];
+		modules.push('mblowfish-core');
+		configs = configs || {};
+		angular.bootstrap(dom, modules, configs);
 		return window.mblowfish;
 	},
 	loadModules: function(prefixKey) {

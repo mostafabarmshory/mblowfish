@@ -44,7 +44,7 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 		}
 	}
 	return {
-		replace: true,
+		replace: false,
 		restrict: 'E',
 		transclude: true,
 		scope: {

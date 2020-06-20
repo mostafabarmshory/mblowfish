@@ -6,6 +6,8 @@ mb-toolbar-group {
 	padding: 0px !important;
 	margin: 0px !important;
 	
+	line-height: 0px;
+	
 	display: block;
 	
 	overflow: hidden;
@@ -30,6 +32,7 @@ mb-toolbar>mb-toolbar-item.mbAction {
 	margin: 0px !important;
 	padding: 4px !important;
 	cursor: pointer !important;
+	display: block;
 }
 
 

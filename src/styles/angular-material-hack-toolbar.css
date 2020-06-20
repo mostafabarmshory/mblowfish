@@ -1,3 +1,9 @@
+.md-toolbar-tools {
+	min-height: auto !important;
+	height: auto !important;
+}
+
 md-toolbar {
+	height: 40px;
 	min-height: auto !important;
 }

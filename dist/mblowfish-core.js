@@ -1243,11 +1243,11 @@ if (typeof exports == "object") {
 
 var MB_MODULE_SK = 'mbModules';
 
-var actions = {};
-var views = {};
-var editors = {};
-var resources = {};
-
+var actions = {},
+	views = {},
+	editors = {},
+	resources = {},
+	components = {};
 var rootScopeConstants = {};
 
 
@@ -1267,33 +1267,22 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-		'ngMaterial',
 		'ngAnimate',
+		'ngAria',
 		'ngCookies',
-		'ngSanitize', //
-		//	Seen
-		'seen-core',
-		'seen-user',
-		'seen-tenant',
-		'seen-supertenant',
-		'seen-cms',
-		'seen-monitor',
-		'seen-shop',
-		'seen-sdp',
-		'seen-seo',
+		'ngMaterial',
+		'ngMessages',
+		'ngSanitize',
 		//	AM-WB
 		'am-wb-core',
 		//	Others
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-		'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
+
 		'ng-appcache',//
-		'ngFileSaver',//
-		'mdSteppers',//
 		'angular-material-persian-datepicker',
-		'mdColorPicker',
 	])
-	.config(function($mdThemingProvider,
-		$mbActionsProvider, $mbViewProvider, $mbEditorProvider, $mbResourceProvider) {
+	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1330,6 +1319,11 @@ var mbApplicationModule = angular
 		// Load resources
 		_.forEach(resources, function(config, id) {
 			$mbResourceProvider.addPage(id, config);
+		});
+
+		// load components
+		_.forEach(components, function(config, id) {
+			$mbComponentProvider.addComponent(id, config);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -1439,6 +1433,10 @@ window.mblowfish = {
 		resources[resourceId] = resource;
 		return window.mblowfish;
 	},
+	addComponent: function(componentId, component) {
+		components[componentId] = component;
+		return window.mblowfish;
+	},
 	//-------------------------------------------------------------
 	// Angular Map
 	//-------------------------------------------------------------
@@ -1446,8 +1444,11 @@ window.mblowfish = {
 		angular.element.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
-	bootstrap: function(dom) {
-		angular.bootstrap(dom, ['mblowfish-core'], {});
+	bootstrap: function(dom, modules, configs) {
+		modules = modules || [];
+		modules.push('mblowfish-core');
+		configs = configs || {};
+		angular.bootstrap(dom, modules, configs);
 		return window.mblowfish;
 	},
 	loadModules: function(prefixKey) {
@@ -5062,7 +5063,7 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 		}
 	}
 	return {
-		replace: true,
+		replace: false,
 		restrict: 'E',
 		transclude: true,
 		scope: {
@@ -18608,7 +18609,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-titled-block.html',
-    "<div layout=column style=\"border-radius: 5px; padding: 0px\" class=md-whiteframe-2dp> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
 
 

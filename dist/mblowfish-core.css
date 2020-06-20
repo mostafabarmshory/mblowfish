@@ -66,7 +66,13 @@
     -webkit-margin-end: 32px;
     margin-left: 32px;
 }
+.md-toolbar-tools {
+	min-height: auto !important;
+	height: auto !important;
+}
+
 md-toolbar {
+	height: 40px;
 	min-height: auto !important;
 }
 .mb-badge {
@@ -707,6 +713,16 @@ and open the template in the editor.
 .mb-sidenav-ontop {
 	z-index: 61;
 }
+
+
+.mb-titled-block {
+	margin: 8px;
+	border-radius: 5px; 
+	padding: 0px;
+	
+	display: flex;
+	flex-direction: column;
+}
 /*
  * Tree 
  * 
@@ -873,6 +889,8 @@ mb-toolbar-group {
 	padding: 0px !important;
 	margin: 0px !important;
 	
+	line-height: 0px;
+	
 	display: block;
 	
 	overflow: hidden;
@@ -897,6 +915,7 @@ mb-toolbar>mb-toolbar-item.mbAction {
 	margin: 0px !important;
 	padding: 4px !important;
 	cursor: pointer !important;
+	display: block;
 }
 
 
