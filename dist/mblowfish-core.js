@@ -13307,6 +13307,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 		getState: getState,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($q, $mbSettings, MbJob, $dispatcher) {
 			//>> Set services
 			mbSettings = $mbSettings;
@@ -13358,7 +13359,7 @@ angular.module('mblowfish-core').provider('$mbApplication', function() {
 
 Manages clipboard
  */
-angular.module('mblowfish-core').service('$clipboard', function() {
+mblowfish.service('$clipboard', function() {
 
 	this.copyTo = function(model) {
         /*
@@ -13758,6 +13759,7 @@ mblowfish.provider('$mbDialog', function() {
 	// End
 	//--------------------------------------------------------
 	provider = {
+		/* @ngInject */
 		$get: function($mdDialog) {
 			return $mdDialog;
 		}
@@ -13924,6 +13926,7 @@ mblowfish.provider('$mbDispatcherUtil', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function($mbDispatcher, MbEvent) {
 			mbDispatcher = $mbDispatcher;
 			Event = MbEvent;
@@ -14159,6 +14162,7 @@ mblowfish.provider('$mbDynamicForm', function() {
 		openDialog: openDialog,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($mbDialog, $sce, $mbUtil) {
 			mbDialog = $mbDialog;
 			sce = $sce;
@@ -16221,7 +16225,8 @@ angular.module('mblowfish-core').provider('$mbPreferences', function() {
 		open: open
 	};
 	provider = {
-		$get: function($location, $mbEditor) {
+		/* @ngInject */
+		$get: function($location) {
 			location = $location;
 
 			init();
@@ -16378,6 +16383,7 @@ mblowfish.provider('$mbResource', function() {
 		getPages: getPages,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($mbDialog) {
 			mbDialog = $mbDialog;
 			return service;
@@ -18506,6 +18512,7 @@ angular.module('mblowfish-core').provider('$mbView', function() {
 		getViews: getViews
 	};
 	provider = {
+		/* @ngInject */
 		$get: function(
 		/* AngularJS */ $rootScope,
 		/* Mblowfish */ $mbRoute, MbView) {
