@@ -85,6 +85,7 @@
 	<script src="scripts/app.js"></script>
 	<script src="scripts/demo-index.js"></script>
 	<script src="scripts/module-common/index.js"></script>
+	<script src="scripts/module-layouts/index.js"></script>
 	<script src="scripts/module-local/index.js"></script>
 	<script src="scripts/module-moduleManager/index.js"></script>
 	<script src="scripts/module-preferences/index.js"></script>
@@ -132,6 +133,7 @@
 	<script src="scripts/factories/frame.js"></script>
 	<script src="scripts/factories/group.js"></script>
 	<script src="scripts/factories/job.js"></script>
+	<script src="scripts/factories/layout-provider.js"></script>
 	<script src="scripts/factories/layout.js"></script>
 	<script src="scripts/factories/menu.js"></script>
 	<script src="scripts/factories/network-http-interceptor.js"></script>
@@ -146,6 +148,12 @@
 	<script src="scripts/module-help/help.js"></script>
 	<script src="scripts/module-iframe/IFrameContainerCtrl.js"></script>
 	<script src="scripts/module-iframe/module.js"></script>
+	<script src="scripts/module-layouts/actions/load-layout.js"></script>
+	<script src="scripts/module-layouts/actions/save-current-layout.js"></script>
+	<script src="scripts/module-layouts/components/layouts-toolbar.js"></script>
+	<script src="scripts/module-layouts/factories/layout-provider-local.js"></script>
+	<script src="scripts/module-layouts/resources/accounts.js"></script>
+	<script src="scripts/module-layouts/services/layouts-local-storage.js"></script>
 	<script src="scripts/module-local/directives/translate-attr.js"></script>
 	<script src="scripts/module-local/directives/translate-cloak.js"></script>
 	<script src="scripts/module-local/directives/translate-directive.js"></script>
@@ -224,6 +232,7 @@
 	<script src="scripts/test-controller/toolbar.js"></script>
 	<script src="scripts/test-editors/iframe-editor.js"></script>
 	<script src="scripts/test-factories/account-memory-authentication-provider.js"></script>
+	<script src="scripts/test-factories/layout-provider-default.js"></script>
 	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/test-views/resource.js"></script>
 	<!-- endinjector -->
@@ -241,7 +250,8 @@
 		<mb-view
 			mb-mode="docker"></mb-view>
 		<mb-toolbar-group
-			mb-url="/app/status">
+			mb-url="/app/status"
+			mb-toolbars="['/app/layouts']">
 		</mb-toolbar-group>
 	</main>
 </body>

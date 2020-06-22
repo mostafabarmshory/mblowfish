@@ -1,0 +1,20 @@
+<md-menu
+	class="amd-account-toolbar">
+	<mb-icon
+		class="anchor"
+		ng-click="$mdOpenMenu()" 
+		aria-label="Open menu">dashboard</mb-icon>
+	<md-menu-content width="3">
+		<!-- maso, 2017: adding user function dynamically. -->
+		<md-menu-item>
+			<md-button 
+				ng-click="ctrl.saveAs($event)"
+				mb-translate>Save Current Layout As</md-button>
+		</md-menu-item>
+		<md-menu-item>
+			<md-button 
+				ng-click="ctrl.loadLayout($event)"
+				mb-translate>Load Layout</md-button>
+		</md-menu-item>
+	</md-menu-content>
+</md-menu>

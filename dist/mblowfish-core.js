@@ -1247,7 +1247,8 @@ var actions = {},
 	views = {},
 	editors = {},
 	resources = {},
-	components = {};
+	components = {},
+	applicationProcesses = {};
 var rootScopeConstants = {};
 
 
@@ -1282,7 +1283,7 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
-		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider) {
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1324,6 +1325,13 @@ var mbApplicationModule = angular
 		// load components
 		_.forEach(components, function(config, id) {
 			$mbComponentProvider.addComponent(id, config);
+		});
+
+		// load processes
+		_.forEach(applicationProcesses, function(processList, id) {
+			_.forEach(processList, function(process) {
+				$mbApplicationProvider.addAction(id, process);
+			});
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -1435,6 +1443,14 @@ window.mblowfish = {
 	},
 	addComponent: function(componentId, component) {
 		components[componentId] = component;
+		return window.mblowfish;
+	},
+
+	addApplicationProcess: function(state, process) {
+		if (_.isUndefined(applicationProcesses[state])) {
+			applicationProcesses[state] = [];
+		}
+		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
 	//-------------------------------------------------------------
@@ -1883,6 +1899,33 @@ mblowfish.config(function($mbResourceProvider) {
 	//	});
 });
 
+/*
+Desktop module is used to manage local/remote desktop.
+*/
+
+mblowfish.addConstants({
+
+	MB_LAYOUTS_LAYOUTS_SP: '/app/layouts',
+
+	MB_LAYOUTS_TOOLBAR_COMPONENT: 'mb.layouts.controller.toolbar.component',
+
+	MB_LAYOUTS_SAVE_CURRENT_ACTION: 'mb.layouts.save.current', // save current layout as new desktop
+	MB_LAYOUTS_LOAD_ACTION: 'mb.layouts.load',
+});
+
+/*
+Process to load stored layouts
+ */
+mblowfish.addApplicationProcess('init', {
+	title: 'Loading layouts',
+	/* @ngInject */
+	action:function($mbLayout, $mbStorage) {
+		var layoutMaps = $mbStorage.storedLayouts || {};
+		_.forEach(layoutMaps, function(layout, id) {
+			$mbLayout.setLayout(id, layout);
+		});
+	}
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -7096,18 +7139,64 @@ angular.module('mblowfish-core').factory('MbJob', function($mbJobs, $q, $injecto
 
 
 /**
+@ngdoc Factories
+@name MbLayoutProvider
+@description An action item
+
+ */
+mblowfish.factory('MbLayoutProvider', function() {
+
+	function MbLayoutProvider() {
+		return this;
+	};
+
+	MbLayoutProvider.prototype.has = function(/*name*/) {
+		return false;
+	};
+	
+	
+	MbLayoutProvider.prototype.get = function(/*name*/) {
+	};
+
+	MbLayoutProvider.prototype.list = function(/*name*/) {
+	};
+
+	return MbLayoutProvider;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
  * @ngdoc Factories
  * @name MbLayout
  * @description An action item
  * 
  */
-angular.module('mblowfish-core').factory('MbLayout', function() {
+mblowfish.factory('MbLayout', function() {
 
 	function MbLayout() {
 		return this;
-	};
-
-	MbLayout.prototype.foo = function($) {
 	};
 
 	return MbLayout;
@@ -7981,6 +8070,181 @@ angular.module('mblowfish-core').run(function(
 //		.addToolbar('/mb/iframe');
 });
 
+mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
+	title: 'Load Layout',
+	icon: 'launch',
+	/* @ngInject */
+	action: function($event, $mbLayout, $mbResource) {
+		function loadLayout(layoutName) {
+			$mbLayout.setLayout(layoutName);
+		}
+
+		var vals = $event.values;
+		if (_.isUndefined(vals) || vals.length < 0) {
+			$mbResource
+				.get(MB_LAYOUTS_LAYOUTS_SP, {
+					title: 'Select layout',
+					$style: {
+						multi: false
+					}
+				})
+				.then(function(values) {
+					loadLayout(values[0]);
+				});
+		} else {
+			loadLayout(vals[0]);
+		}
+	}
+})
+mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
+	title: 'Save Layout',
+	icon: 'save',
+	/* @ngInject */
+	action: function($mbLayout, $mbLayoutsLocalStorage) {
+		function saveAs(layoutId) {
+			$mbLayoutsLocalStorage.createLayout(layoutId, $mbLayout.getCurrentLayout());
+		}
+		prompt('Name of the layout.', 'layout')
+			.then(function(layoutId) {
+				if (!$mbLayoutsLocalStorage.hasLayout(layoutId)) {
+					saveAs(layoutId);
+				} else {
+					confirm('A layout with the same name exist. Overidde the layout?')
+						.then(function() {
+							saveAs(layoutId);
+						});
+				}
+			});
+	}
+})
+mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
+	templateUrl: 'views/layouts/components/controller-toolbar.html',
+	icon: 'dashboard',
+	controllerAs: 'ctrl',
+	/* @ngInject */
+	controller: function($mbActions){
+		this.saveAs = function($event){
+			$mbActions.exec(MB_LAYOUTS_SAVE_CURRENT_ACTION, $event);
+		}
+		this.loadLayout = function($event){
+			$mbActions.exec(MB_LAYOUTS_LOAD_ACTION, $event);
+		}
+	}
+});
+
+mblowfish.factory('MbLayoutsLayoutProviderLocal', function(MbLayoutProvider, $mbLayoutsLocalStorage) {
+
+	Provider = function() {
+		MbLayoutProvider.apply(this, arguments);
+	}
+	Provider.prototype = Object.create(MbLayoutProvider.prototype);
+
+	Provider.prototype.list = function() {
+		return $mbLayoutsLocalStorage.getLayouts();
+	};
+
+	Provider.prototype.has = function(name) {
+		return $mbLayoutsLocalStorage.hasLayout(name);
+	};
+
+	Provider.prototype.get = function(name) {
+		return $mbLayoutsLocalStorage.getLayout(name);
+	};
+
+	return Provider;
+});
+mblowfish.addResource('mb-layouts-local-storage', {
+	title: 'Stored Layouts',
+	templateUrl: 'views/layouts/resources/layouts.html',
+	tags: [MB_LAYOUTS_LAYOUTS_SP],
+	controllerAs: 'ctrl',
+	/* @ngInject */
+	controller: function($scope, $resource, $mbLayoutsLocalStorage, $style) {
+		var ctrl = this;
+		var selected;
+
+		function setSelected(layoutName) {
+			selected = layoutName;
+			$resource.setValue([layoutName]);
+		}
+
+		function isSelected(layoutName) {
+			return selected === layoutName;
+		}
+
+		_.assign(ctrl, {
+			layouts: $mbLayoutsLocalStorage.getLayouts(),
+			setSelected: setSelected,
+			isSelected: isSelected,
+		});
+	}
+});
+
+mblowfish.provider('$mbLayoutsLocalStorage', function() {
+	var
+		provider,
+		service,
+		mbStorage,
+		mbDispatcherUtil;
+
+	function createLayout(layoutName, layoutData) {
+		if (!_.isUndefined(mbStorage.mbLayouts[layoutName])) {
+			return updateLayout(layoutName, layoutData);
+		}
+		mbStorage.mbLayouts[layoutName] = layoutData;
+		mbDispatcherUtil.fireCreated(MB_LAYOUTS_LAYOUTS_SP, layoutData);
+	}
+
+	function updateLayout(layoutName, layoutData) {
+		if (_.isUndefined(mbStorage.mbLayouts[layoutName])) {
+			return createLayout(layoutName, layoutData);
+		}
+		mbStorage.mbLayouts[layoutName] = layoutData;
+		mbDispatcherUtil.fireUpdated(MB_LAYOUTS_LAYOUTS_SP, layoutData);
+	}
+
+	function deleteLayout(layoutName) {
+		delete mbStorage.mbLayouts[layoutName];
+		mbDispatcherUtil.fireDeleted(MB_LAYOUTS_LAYOUTS_SP, layoutData);
+	}
+
+	function getLayout(layoutName) {
+		return mbStorage.mbLayouts[layoutName];
+	}
+
+	function hasLayout(layoutName) {
+		return !_.isUndefined(mbStorage.mbLayouts[layoutName]);
+	}
+
+	function getLayouts() {
+		return Object.getOwnPropertyNames(mbStorage.mbLayouts);
+	}
+
+
+
+	service = {
+		createLayout: createLayout,
+		updateLayout: updateLayout,
+		deleteLayout: deleteLayout,
+		getLayout: getLayout,
+		getLayouts: getLayouts,
+		hasLayout: hasLayout,
+	};
+	provider = {
+		$get: function($mbStorage, $mbDispatcherUtil) {
+			mbStorage = $mbStorage;
+			mbDispatcherUtil = $mbDispatcherUtil;
+
+			// init
+			if (_.isUndefined(mbStorage.mbLayouts)) {
+				mbStorage.mbLayouts = {};
+			}
+
+			return service;
+		}
+	}
+	return provider;
+})
 
 /**
 @ngdoc directive
@@ -13034,7 +13298,7 @@ The application service is responsible to:
 	
 These are required to load an applications.
 */
-angular.module('mblowfish-core').provider('$mbApplication', function() {
+mblowfish.provider('$mbApplication', function() {
 
 	//-------------------------------------------------
 	// Services
@@ -14400,6 +14664,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function(
 			/* AngularJS */ $rootScope,
 			/* Mblowfish */ $mbUiUtil, $mbRoute, MbEditor) {
@@ -14608,6 +14873,7 @@ angular.module('mblowfish-core').provider('$mbJobs', function() {
 		removeJob: removeJob,
 	};
 	provider = {
+		/* @ngInject */
 		$get: function($injector) {
 			//>> init services
 			injector = $injector;
@@ -14654,7 +14920,7 @@ All components (view and editors) which is opened in the current session will be
 to show in the next sessions too.
 
  */
-angular.module('mblowfish-core').provider('$mbLayout', function() {
+mblowfish.provider('$mbLayout', function() {
 
 
 	//-----------------------------------------------------------------------------------
@@ -14666,27 +14932,21 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	var compile; // = $compile
 	var injector;// = $injector;
 	var mbStorage; // = $mbStorage
-
+	var location;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
 	//-----------------------------------------------------------------------------------
+	var layoutProviders = [];
+	var currentLayout;
+	var frames = [];
+	var defaultLayoutName;
 
-	/*
-	List of layouts which is loaded at run time by configurations. These are not
-	editable
-	*/
-	var hardCodeLayout = {};
+	var docker;
+	var dockerBodyElement;
+	var dockerPanelElement;
+	var dockerViewElement;
 
-	var defaultLayoutName = 'default';
-	var currentLayoutName;
-
-	/*
-	Default layout of the sysetm. If there is no layout then this one will be
-	used as default layout.
-	This field will be stored in local storage for farther usage.
-	 */
-	var layouts = {}
 
 	// Root element of the layout system
 	var rootElement;
@@ -14697,19 +14957,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	//-----------------------------------------------------------------------------------
 	// Global functions
 	//-----------------------------------------------------------------------------------
-	function getLayout(name) {
-		name = name || defaultLayoutName;
-		var layout = layouts[name];
-		if (!layout) {
-			layout = _.cloneDeep(hardCodeLayout[name]);
-			layouts[name] = layout;
-		}
-		return layout;
-	}
 
-	function setLayout(name, layout) {
-		layouts[name] = layout;
-	}
 
 	/**
 	@description Open a frame on the layout system and stores the configuration
@@ -14740,14 +14988,15 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		return result;
 	}
 
-	function reload(element, layoutName) {
+	function reload(element) {
 		rootElement = element;
-		currentLayoutName = layoutName || defaultLayoutName;
 		switch (mode) {
 			case 'docker':
+				destroyDockerLayout();
 				loadDockerLayout();
 				break;
 			default:
+				destroyMobileView();
 				loadMobileView();
 				break;
 		}
@@ -14757,37 +15006,29 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		// TODO:
 	}
 
-	function storeState() {
-		// 1 - create new config
-		storage = {};
-		storage.layouts = layouts;
-		storage.currentLayoutName = currentLayoutName;
-
-		// 2- store
-		mbStorage.mbLayout = storage;
-	}
-
 	function init() {
-		// 1 - load layout from storage
-		storage = mbStorage.mbLayout || {};
-		layouts = storage.layouts || {};
-		currentLayoutName = storage.currentLayoutName || defaultLayoutName;
+		switch (mode) {
+			case 'docker':
+				initDockerLayout();
+				break;
+			default:
+				initMobileView();
+				break;
+		}
 	}
 
 	//-----------------------------------------------------------------------------------
 	// Mobile Layout
 	//-----------------------------------------------------------------------------------
+	function initMobileView() { }
+	function destroyMobileView() { }
 	function loadMobileView() { }
-	function openMobileView(component, anchor) { }
+	function openMobileView(/*component, anchor*/) { }
 
 
 	//-----------------------------------------------------------------------------------
 	// Docker Layout
 	//-----------------------------------------------------------------------------------
-	var docker;
-	var dockerBodyElement;
-	var dockerPanelElement;
-	var dockerViewElement;
 
 	var DOCKER_COMPONENT_EDITOR_ID = 'editors';
 	var DOCKER_COMPONENT_VIEW_CLASS = 'mb_docker_container_view';
@@ -14797,7 +15038,88 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
 	var DOCKER_VIEW_CLASS = 'mb_docker_view';
 
+	function initDockerLayout() {
+		restorDockerState();
+		//loadDockerLayout();
+	}
 
+	function setLayout(name) {
+		var layoutData = getDockerLayout(name);
+		destroyDockerLayout();
+		currentLayout = layoutData;
+		loadDockerLayout();
+		storeDockerState();
+	}
+
+	function getDockerLayout(name) {
+		for (var i = 0; i < layoutProviders.length; i++) {
+			var layoutProvider = layoutProviders[i];
+			if (layoutProvider.has(name)) {
+				return layoutProvider.get(name);
+			}
+		}
+	}
+
+	function storeDockerState() {
+		mbStorage.mbLayout = currentLayout;
+	}
+
+	function restorDockerState() {
+		currentLayout = mbStorage.mbLayout || getDockerLayout(defaultLayoutName);
+	}
+
+	function destroyDockerLayout() {
+		// TODO:
+		if (!docker) {
+			return;
+		}
+		try {
+			docker.off('initialised', onDockerInitialised);
+			docker.off('stackCreated', dockerStackCreated);
+			docker.off('componentCreated', dockerComponentCreate);
+			docker.off('stateChanged', onDockerStateChanged);
+			docker.off('activeContentItemChanged', dockerActiveContentItemChanged);
+		} catch (ex) { }
+		_.forEach(frames, function(frame) {
+			frame.destroy();
+		});
+		frames = [];
+		docker.destroy();
+		dockerBodyElement.empty();
+	}
+
+	function onDockerStateChanged() {
+		currentLayout = docker.toConfig();
+		storeDockerState();
+	}
+
+	function dockerActiveContentItemChanged(e) {
+		var frame = e.container.$frame;
+		location.url(frame.url);
+		try {
+			if (rootScope.$$phase !== '$digest') {
+				rootScope.$apply();
+			}
+		} catch (e) { }
+	}
+
+	function onDockerInitialised() {
+		// link element
+		var link = compile(dockerBodyElement.contents());
+		link(rootScope);
+	}
+
+	function dockerStackCreated(stack) {
+		// link element
+		var link = compile(stack.element);
+		link(rootScope);
+	}
+
+	function dockerComponentCreate(component) {
+		// link element
+		var link = compile(component.element);
+		link(rootScope);
+	}
 
 	function loadDockerLayout() {
 		// load element
@@ -14812,26 +15134,23 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		dockerViewElement.addClass(DOCKER_VIEW_CLASS);
 
 		// load docker view
-		docker = new GoldenLayout(getLayout(currentLayoutName), dockerViewElement);
+		docker = new GoldenLayout(currentLayout, dockerViewElement);
 		docker.registerComponent('component', loadComponent);
 
-
-		docker.on('stateChanged', function() {
-			layouts[currentLayoutName] = docker.toConfig();
-			storeState();
-		});
-
-		docker.on('selectionChanged', function() {
-			// XXX: maso, 2020: change active view or editor
-		});
-
-		docker.on('initialised', function() {
-			// link element
-			var link = compile(dockerBodyElement.contents());
-			link(rootScope);
-		});
-		docker.init();
+		docker.on('initialised', onDockerInitialised);
+		docker.on('stackCreated', dockerStackCreated);
+		docker.on('componentCreated', dockerComponentCreate);
+		try {
+			docker.init();
+		} catch (e) {
+			setLayout(defaultLayoutName);
+		}
+		docker.on('stateChanged', onDockerStateChanged);
+		docker.on('activeContentItemChanged', dockerActiveContentItemChanged);
 	}
+
+
+
 	/*
 	 *  In docker view, this will create a new tap and add into the editor area
 	 * based on Golden Layout Manager.
@@ -14853,16 +15172,6 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			component = $mbEditor.fetch(
 				'/ui/notfound/' + state.url, // path
 				state);                      // parameters
-			// TODO: add the editor
-			//		$mbEditor
-			//			.add('/mb/notfound/:path*', {
-			//				template: '<h1>Path not found</h1><p>path: {{:path}}</p>',
-			//				anchore: 'editors',
-			//				/* @ngInject */
-			//				controller: function($scope, $state) {
-			//					$scope.path = $state.params.path;
-			//				},
-			//			});
 		}
 
 		// discannect all resrouces
@@ -14875,6 +15184,21 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		element.addClass(DOCKER_COMPONENT_VIEW_CLASS);
 		editor.on('destroy', function() {
 			component.destroy();
+			var index = frames.indexOf(component);
+			if (index) {
+				frames.splice(index, 1);
+			}
+		});
+		editor.$frame = component;
+		editor.on('tab', function() {
+			editor.tab.element.on('click', function() {
+				location.url(component.url);
+				try {
+					if (rootScope.$$phase !== '$digest') {
+						rootScope.$apply();
+					}
+				} catch (e) { }
+			});
 		});
 		return component.render({
 			$dockerContainer: editor,
@@ -14885,6 +15209,9 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 	}
 
 	function getDockerContentById(id) {
+		if (!docker.root) {
+			setLayout(defaultLayoutName);
+		}
 		var items = docker.root.getItemsById(id);
 		return items[0];
 	}
@@ -14953,36 +15280,36 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		reload: reload,
 		open: open,
 		setFocus: setFocus,
-
 		setLayout: setLayout,
-		getLayout: getLayout,
+		getCurrentLayout: function() {
+			return docker.toConfig();
+		},
 		getMode: function() {
 			return mode;
 		},
 	}
 	provider = {
-		setDefault: function(name) {
-			defaultLayoutName = name;
-			return provider;
-		},
-		addLayout: function(name, layout) {
-			hardCodeLayout[name] = layout;
-			return provider
-		},
-		getLayout: function(name) {
-			return hardCodeLayout[name];
-		},
+		providers: [],
 		setMode: function(appMode) {
 			mode = appMode;
-			return;
+			return provider;
+		},
+		addProvider: function(providerFactoryName) {
+			provider.providers.push(providerFactoryName);
+			return provider;
+		},
+		setDefalutLayout: function(layoutName) {
+			defaultLayoutName = layoutName;
+			return provider;
 		},
 		/* @ngInject */
 		$get: function(
-			/* Angularjs */ $compile, $rootScope, $injector,
+			/* Angularjs */ $compile, $rootScope, $injector, $location,
 			/* MblowFish */ $mbStorage) {
 			//
 			// 1- Init layouts
 			//
+			location = $location;
 			rootScope = rootScope || $rootScope;
 			compile = $compile;
 			injector = $injector;
@@ -14992,6 +15319,11 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 			//
 			// 3- Initialize the laytout
 			//
+			_.forEach(provider.providers, function(providerName) {
+				var Provider = $injector.get(providerName);
+				var pro = new Provider();
+				layoutProviders.push(pro);
+			});
 			init();
 			return service;
 		}
@@ -15004,6 +15336,7 @@ angular.module('mblowfish-core').provider('$mbLayout', function() {
 		'lmGoldenlayout',
 		'lmContent',
 		'lmSplitter',
+		'lmStack',
 		'lmHeader',
 		'lmControls',
 		'lmMaximised',
@@ -15450,6 +15783,7 @@ mblowfish.provider('$mbLocal', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function($mbStorage, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
 			mbStorage = $mbStorage;
 			mdDateLocale = $mdDateLocale;
@@ -17495,6 +17829,7 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	};
 
 	provider = {
+		/* @ngInject */
 		$get: function($rootScope, $mbStorage, $q) {
 			rootScope = $rootScope;
 			mbStorage = $mbStorage;
@@ -17585,6 +17920,7 @@ mblowfish.provider('$mbSidenav', function() {
 	}
 
 	provider = {
+		/* @ngInject */
 		$get: function($mdSidenav, MbSidenav) {
 			mdSidenav = $mdSidenav;
 			Sidenav = MbSidenav;

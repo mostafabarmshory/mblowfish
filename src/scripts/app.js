@@ -26,7 +26,8 @@ var actions = {},
 	views = {},
 	editors = {},
 	resources = {},
-	components = {};
+	components = {},
+	applicationProcesses = {};
 var rootScopeConstants = {};
 
 
@@ -61,7 +62,7 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
-		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider) {
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -103,6 +104,13 @@ var mbApplicationModule = angular
 		// load components
 		_.forEach(components, function(config, id) {
 			$mbComponentProvider.addComponent(id, config);
+		});
+
+		// load processes
+		_.forEach(applicationProcesses, function(processList, id) {
+			_.forEach(processList, function(process) {
+				$mbApplicationProvider.addAction(id, process);
+			});
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -214,6 +222,14 @@ window.mblowfish = {
 	},
 	addComponent: function(componentId, component) {
 		components[componentId] = component;
+		return window.mblowfish;
+	},
+
+	addApplicationProcess: function(state, process) {
+		if (_.isUndefined(applicationProcesses[state])) {
+			applicationProcesses[state] = [];
+		}
+		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
 	//-------------------------------------------------------------

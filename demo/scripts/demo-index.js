@@ -100,65 +100,11 @@ mblowfish
 		// at runtime.
 		//
 		// $mbLayoutProvider.setMode('auto');
-		$mbLayoutProvider.setDefault('Demo Layout');
-		$mbLayoutProvider.addLayout('Demo Layout', {
-			settings: {
-				hasHeaders: true,
-				constrainDragToContainer: true,
-				reorderEnabled: true,
-				selectionEnabled: true,
-				popoutWholeStack: false,
-				blockedPopoutsThrowError: true,
-				closePopoutsOnUnload: true,
-				showPopoutIcon: false,
-				showMaximiseIcon: true,
-				showCloseIcon: true
-			},
-			dimensions: {
-				borderWidth: 5,
-				minItemHeight: 16,
-				minItemWidth: 50,
-				headerHeight: 20,
-				dragProxyWidth: 300,
-				dragProxyHeight: 200
-			},
-			content: [{
-				id: 'main',
-				type: 'row',
-				isClosable: false,
-				componentState: {},
-				content: [{
-					id: 'configs',
-					type: 'stack',
-					isClosable: false,
-					width: 25,
-					content: [{
-						id: 'demo-pages',
-						type: 'component',
-						componentName: 'component',
-						componentState: {
-							url: '/demo',
-							isView: true,
-						}
-					}]
-				}, {
-					type: 'column',
-					isClosable: false,
-					content: [{
-						id: 'editors',
-						type: 'stack',
-						title: 'Editors',
-						isClosable: false,
-						componentState: {}
-					}, {
-						id: 'logs',
-						type: 'stack',
-						isClosable: false,
-						height: 30,
-					}]
-				}]
-			}]
-		});
+		$mbLayoutProvider
+			.setMode('docker')
+			.addProvider('MbLayoutsLayoutProviderLocal')
+			.addProvider('DemoLayoutProviderDefault')
+			.setDefalutLayout('default');
 
 
 		// Translation 
@@ -218,6 +164,12 @@ mblowfish
 					'test.component.id',
 					//				MB_ACCOUNT_LOGIN_ACTION,
 					//				MB_ACCOUNT_LOGOUT_ACTION,
+				]
+			}, {
+				url: '/app/layouts',
+				float: 'right',
+				items: [
+					MB_LAYOUTS_TOOLBAR_COMPONENT
 				]
 			}]);
 

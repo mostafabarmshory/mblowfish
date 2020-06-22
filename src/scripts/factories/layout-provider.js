@@ -22,16 +22,27 @@
 
 
 /**
- * @ngdoc Factories
- * @name MbLayout
- * @description An action item
- * 
- */
-mblowfish.factory('MbLayout', function() {
+@ngdoc Factories
+@name MbLayoutProvider
+@description An action item
 
-	function MbLayout() {
+ */
+mblowfish.factory('MbLayoutProvider', function() {
+
+	function MbLayoutProvider() {
 		return this;
 	};
 
-	return MbLayout;
+	MbLayoutProvider.prototype.has = function(/*name*/) {
+		return false;
+	};
+	
+	
+	MbLayoutProvider.prototype.get = function(/*name*/) {
+	};
+
+	MbLayoutProvider.prototype.list = function(/*name*/) {
+	};
+
+	return MbLayoutProvider;
 });

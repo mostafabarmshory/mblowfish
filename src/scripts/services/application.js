@@ -37,7 +37,7 @@ The application service is responsible to:
 	
 These are required to load an applications.
 */
-angular.module('mblowfish-core').provider('$mbApplication', function() {
+mblowfish.provider('$mbApplication', function() {
 
 	//-------------------------------------------------
 	// Services
