@@ -5572,7 +5572,7 @@ mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 					return;
 				}
 				// reserve a postions
-				var element = angular.element('<mb-toolbar></mb-toolbar>');
+				var element = angular.element('<mb-toolbar><mb-toolbar-content></mb-toolbar-content></mb-toolbar>');
 				element.attr('id', toolbar.url);
 				if (toolbar.float) {
 					element.addClass(toolbar.float);
@@ -5584,7 +5584,7 @@ mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 				toolbar.render({
 					$rootScope: $scope,
 					$toolbarGroup: ctrl,
-					$element: element
+					$element: element.find('mb-toolbar-content')
 				}).then(function(handler) {
 					ctrl.handlers[toolbar.url] = handler;
 				});
@@ -18953,6 +18953,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-titled-block.html',
     "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+  );
+
+
+  $templateCache.put('views/layouts/components/controller-toolbar.html',
+    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
+  );
+
+
+  $templateCache.put('views/layouts/resources/layouts.html',
+    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> </md-list-item> </md-list>"
   );
 
 

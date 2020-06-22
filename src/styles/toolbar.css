@@ -28,7 +28,15 @@ mb-toolbar-group>.right {
 	float: right;
 }
 
-mb-toolbar>mb-toolbar-item.mbAction {
+mb-toolbar>mb-toolbar-content {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 0px;
+	padding: 0px;
+}
+
+mb-toolbar>mb-toolbar-content>mb-toolbar-item.mbAction {
 	margin: 0px !important;
 	padding: 4px !important;
 	cursor: pointer !important;

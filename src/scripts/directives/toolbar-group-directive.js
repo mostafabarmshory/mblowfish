@@ -87,7 +87,7 @@ mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 					return;
 				}
 				// reserve a postions
-				var element = angular.element('<mb-toolbar></mb-toolbar>');
+				var element = angular.element('<mb-toolbar><mb-toolbar-content></mb-toolbar-content></mb-toolbar>');
 				element.attr('id', toolbar.url);
 				if (toolbar.float) {
 					element.addClass(toolbar.float);
@@ -99,7 +99,7 @@ mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 				toolbar.render({
 					$rootScope: $scope,
 					$toolbarGroup: ctrl,
-					$element: element
+					$element: element.find('mb-toolbar-content')
 				}).then(function(handler) {
 					ctrl.handlers[toolbar.url] = handler;
 				});
