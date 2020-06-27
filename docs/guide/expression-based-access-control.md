@@ -74,11 +74,11 @@ which means that access will only be allowed for users with the role "cms.author
 Here we're actually using a editor argument as part of the expression to decide whether the current user has the “admin” permission for the given contact. The expression is linked into the MBlowfish Security module through the application context, as we'll see below. You can access any of the action arguments by name variables, provided your code has debug information compiled in. Any AngularJS functionality is available within the expression, so you can also access properties on the arguments. For example, if you wanted a particular frame to only allow access to a user whose username matched that of the contact, you could write
 
 
-	mblowfish.addAction('cms.content.new', {
-		...
-		preAuthorize: 'authentication.login === $event.values[0].contentName',
-		...
-	})
+mblowfish.addAction('cms.content.new', {
+	...
+	preAuthorize: 'authentication.login === $event.values[0].contentName',
+	...
+})
 
 Here we are accessing another built–in expression, authentication, which is the Authentication stored in the security context. You can also access its “principal” property directly, using the expression principal. The value will often be a UserDetails instance, so you might use an expression like principal.login or principal.active.
 
@@ -93,7 +93,7 @@ As you may already be aware, MBlowfish Security supports filtering of collection
 		postFilter: "hasPermission($filterObject, 'read') || hasPermission($filterObject, 'admin')",
 	}
 	
-When using the postFilter attribute, MBlowfish Security iterates through the returned collection and removes any elements for which the supplied expression is false. The name $filterObject refers to the current object in the collection. You can also filter before the method call, using @PreFilter, though this is a less common requirement. The syntax is just the same, but if there is more than one argument which is a collection type then you have to select one by name using the filterTarget property of this annotation.
+When using the postFilter attribute, MBlowfish Security iterates through the returned collection and removes any elements for which the supplied expression is false. The name $filterObject refers to the current object in the collection. You can also filter before the method call, using preFilter, though this is a less common requirement. The syntax is just the same, but if there is more than one argument which is a collection type then you have to select one by name using the filterTarget property of this annotation.
 
 Note that filtering is obviously not a substitute for tuning your data retrieval queries. If you are filtering large collections and removing many of the entries then this is likely to be inefficient.
 
