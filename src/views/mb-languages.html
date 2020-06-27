@@ -10,17 +10,17 @@
 		<md-content>
 			<md-toolbar>
 				<div class="md-toolbar-tools">
-					<label flex translate="">Languages</label>
+					<label flex mb-translate="">Languages</label>
 					<md-button
 						ng-click="ctrl.addLanguage()"
 						class="md-icon-button" 
 						aria-label="Add new language">
-						<wb-icon>add</wb-icon>
+						<mb-icon>add</mb-icon>
 					</md-button>
 					<md-button
 						class="md-icon-button" 
 						aria-label="Upload a language">
-						<wb-icon>more_vert</wb-icon>
+						<mb-icon>more_vert</mb-icon>
 					</md-button>
 				</div>
 			</md-toolbar>
@@ -29,17 +29,17 @@
 					<md-list-item 
 						ng-repeat="lang in app.config.languages" 
 						ng-click="ctrl.setLanguage(lang)">
-						<p translate="">{{lang.title}}</p>
+						<p mb-translate="">{{lang.title}}</p>
 	
 						<md-button
 							class="md-icon-button"
 							ng-click="ctrl.saveAs(lang)" 
 							aria-label="Save language as a file">
-							<wb-icon>download</wb-icon>
+							<mb-icon>download</mb-icon>
 							<md-tooltip 
 								md-direction="left" 
 								md-delay="1500">
-								<span translate>Save language as a file</span>
+								<span mb-translate>Save language as a file</span>
 							</md-tooltip>
 						</md-button>
 	
@@ -47,11 +47,11 @@
 							class="md-icon-button"
 							ng-click="ctrl.deleteLanguage(lang)" 
 							aria-label="Delete language" >
-							<wb-icon>delete</wb-icon>
+							<mb-icon>delete</mb-icon>
 							<md-tooltip 
 								md-direction="left" 
 								md-delay="1500">
-								<span translate>Delete language</span>
+								<span mb-translate>Delete language</span>
 							</md-tooltip>
 						</md-button>
 					</md-list-item>
@@ -67,12 +67,12 @@
 		<div
 			ng-if="!ctrl.selectedLanguage"
 			layout-padding>
-			<h3 translate>Select a language to view/edit translations.</h3>
+			<h3 mb-translate>Select a language to view/edit translations.</h3>
 		</div>
 	
 		<fieldset
 			ng-if="ctrl.selectedLanguage">
-			<legend><span translate="">Selected Language</span></legend>
+			<legend><span mb-translate="">Selected Language</span></legend>
 			<div 
 				layout="row"
 				layout-align="space-between center">
@@ -81,11 +81,11 @@
 	<!--				 class="md-raised md-primary" -->
 	<!--				 ng-click="editLanguage(ctrl.selectedLanguage)"  -->
 	<!--				 aria-label="Delete language" > -->
-	<!--				 <wb-icon>edit</wb-icon> -->
+	<!--				 <mb-icon>edit</mb-icon> -->
 	<!--				 <md-tooltip  -->
 	<!--					 md-direction="left"  -->
 	<!--					 md-delay="1500"> -->
-	<!--					 <span translate>Edit language</span> -->
+	<!--					 <span mb-translate>Edit language</span> -->
 	<!--				 </md-tooltip> -->
 	<!--			 </md-button> -->
 			</div>
@@ -94,7 +94,7 @@
 		<fieldset
 			ng-if="ctrl.selectedLanguage"
 			class="standard">
-			<legend><span translate="">Language map</span></legend>
+			<legend><span mb-translate="">Language map</span></legend>
 			<div 
 				layout="column" 
 				layout-margin>
@@ -107,15 +107,15 @@
 						ng-model="ctrl.selectedLanguage.map[key]" 
 						ng-model-options="{ updateOn: 'blur', debounce: 3000 }"
 						type="text">
-					<wb-icon 
-						ng-click="ctrl.deleteWord(key)">delete</wb-icon>		  
+					<mb-icon 
+						ng-click="ctrl.deleteWord(key)">delete</mb-icon>		  
 				</md-input-container>
 			</div>
 			<md-button 
 				class="md-primary md-raised md-icon-button"
 				ng-click="ctrl.addWord()"
 				aria-label="Add word to language">
-				<wb-icon>add</wb-icon>
+				<mb-icon>add</mb-icon>
 			</md-button>
 		</fieldset>
 	</md-content>

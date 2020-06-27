@@ -1,0 +1,10 @@
+
+
+.mb-titled-block {
+	margin: 8px;
+	border-radius: 5px; 
+	padding: 0px;
+	
+	display: flex;
+	flex-direction: column;
+}

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="100mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="toolbar-group-float-right-order.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="598.34249"
+     inkscape:cy="122.19833"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1600"
+     inkscape:window-height="836"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#9b607b;fill-opacity:0.72941176;stroke:none;stroke-width:3.92741418;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect815"
+       width="603.953"
+       height="113.3815"
+       x="-195.62411"
+       y="16.352682" />
+    <rect
+       style="fill:#d40000;fill-opacity:0.72941176;stroke:none;stroke-width:4.00869274;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect817"
+       width="177.65755"
+       height="70.134293"
+       x="-188.59282"
+       y="36.119987" />
+    <rect
+       style="fill:#d40000;fill-opacity:0.72941176;stroke:none;stroke-width:3.97051549;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect817-3"
+       width="174.28978"
+       height="70.134293"
+       x="218.4671"
+       y="35.4491" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:31.43249893px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.7858125"
+       x="10.932312"
+       y="174.63777"
+       id="text848"><tspan
+         sodipodi:role="line"
+         id="tspan846"
+         x="10.932312"
+         y="174.63777"
+         style="stroke-width:0.7858125">Toolbar Group</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:31.43249893px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.7858125"
+       x="-158.96638"
+       y="80.575661"
+       id="text856"><tspan
+         sodipodi:role="line"
+         id="tspan854"
+         x="-158.96638"
+         y="80.575661"
+         style="stroke-width:0.7858125">Toolbar</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:31.43249893px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.7858125"
+       x="253.1452"
+       y="82.149956"
+       id="text860"><tspan
+         sodipodi:role="line"
+         id="tspan858"
+         x="253.1452"
+         y="82.149956"
+         style="stroke-width:0.7858125">Toolbar</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:31.43249893px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.7858125"
+       x="218.61134"
+       y="270.05786"
+       id="text883"><tspan
+         sodipodi:role="line"
+         id="tspan881"
+         x="218.61134"
+         y="270.05786"
+         style="stroke-width:0.7858125">Float Right</tspan></text>
+    <path
+       style="fill:#28170b;fill-opacity:0.72941176;stroke:none;stroke-width:7.80000019;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 651.54883 100.91797 L 636.01758 118.1543 L 646.83203 118.13281 L 646.83203 309.38086 L 655.40234 309.38086 L 655.40234 118.11328 L 666.25781 118.0918 L 651.54883 100.91797 z "
+       transform="matrix(0.78581249,0,0,0.78581249,-206.85,0)"
+       id="rect885" />
+  </g>
+</svg>

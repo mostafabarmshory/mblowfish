@@ -46,6 +46,14 @@
   transform: translateX(-100%);
 }
 
+[dir=rtl] md-menu-item > .md-button {
+    direction: rtl;
+    text-align: right;
+}
+[dir=ltr] md-menu-item > .md-button {
+    direction: ltr;
+    text-align: left;
+}
 [dir=ltr] md-list-item > ng-md-icon:first-child,
 [dir=ltr] md-list-item .md-list-item-inner > ng-md-icon:first-child{
     -webkit-margin-end: 32px;
@@ -58,13 +66,14 @@
     -webkit-margin-end: 32px;
     margin-left: 32px;
 }
-[dir=rtl] md-menu-item > .md-button {
-    direction: rtl;
-    text-align: right;
+.md-toolbar-tools {
+	min-height: auto !important;
+	height: auto !important;
 }
-[dir=ltr] md-menu-item > .md-button {
-    direction: ltr;
-    text-align: left;
+
+md-toolbar {
+	height: 40px;
+	min-height: auto !important;
 }
 .mb-badge {
 	background-color: rgb(0, 130, 130);
@@ -704,6 +713,100 @@ and open the template in the editor.
 .mb-sidenav-ontop {
 	z-index: 61;
 }
+
+
+.mb-titled-block {
+	margin: 8px;
+	border-radius: 5px; 
+	padding: 0px;
+	
+	display: flex;
+	flex-direction: column;
+}
+/**********************************************************************************
+mbToolbar
+**********************************************************************************/
+mb-toolbar-group {
+	min-height: 24px !important;
+	padding: 0px !important;
+	margin: 0px !important;
+	
+	line-height: 0px;
+	
+	display: block;
+	
+	overflow: hidden;
+}
+
+mb-toolbar-group>mb-toolbar {
+	display: inline-block;
+	
+	height: 24px !important;
+	overflow: hidden;
+}
+
+mb-toolbar-group>.left {
+	float: left;
+}
+
+mb-toolbar-group>.right {
+	float: right;
+}
+
+mb-toolbar>mb-toolbar-content {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 0px;
+	padding: 0px;
+}
+
+mb-toolbar>mb-toolbar-content>mb-toolbar-item.mbAction {
+	margin: 0px !important;
+	padding: 4px !important;
+	cursor: pointer !important;
+	display: block;
+}
+
+
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+
+Pallet:
+- Primary: rgb(63,81,181)
+*****************************************************************************************/
+mb-toolbar-group.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+mb-toolbar.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+mb-toolbar-group.md-dark-theme {
+	background: rgb(0, 0, 0);
+	color: rgba(255,255,255,0.87);
+}
+
+mb-toolbar.md-dark-theme {
+	background: rgb(46, 52, 54);
+	color: rgb(243, 243, 243);
+}
+
+
+
+
 /*
  * Tree 
  * 
@@ -862,71 +965,6 @@ mb-status.md-dark-theme {
 
 
 
-/**********************************************************************************
-mbToolbar
-**********************************************************************************/
-mb-toolbar-group {
-	min-height: 24px !important;
-	padding: 0px !important;
-	margin: 0px !important;
-	
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	
-	overflow: hidden;
-}
-
-mb-toolbar-group>mb-toolbar {
-	height: 24px !important;
-	overflow: hidden;
-}
-
-mb-toolbar>mb-toolbar-item.mbAction {
-	margin: 0px !important;
-	padding: 4px !important;
-	cursor: pointer !important;
-}
-
-
-/****************************************************************************************
-Theme: default
-Class: .md-default-theme
-
-Pallet:
-- Primary: rgb(63,81,181)
-*****************************************************************************************/
-mb-toolbar-group.md-default-theme {
-	background: rgb(63,81,181);
-	color: rgb(243, 243, 243);
-}
-
-mb-toolbar.md-default-theme {
-	background: rgb(63,81,181);
-	color: rgb(243, 243, 243);
-}
-
-/****************************************************************************************
-Theme: dark
-Class: .md-dark-theme
-
-
-Pallet:
-- Primary: rgb(0,0,0)
-*****************************************************************************************/
-mb-toolbar-group.md-dark-theme {
-	background: rgb(0, 0, 0);
-	color: rgba(255,255,255,0.87);
-}
-
-mb-toolbar.md-dark-theme {
-	background: rgb(46, 52, 54);
-	color: rgb(243, 243, 243);
-}
-
-
-
-
 /*********************************************************************************
 mene
 *********************************************************************************/
@@ -960,7 +998,7 @@ mbIcon
  */
 /* mixin definition ; sets LTR and RTL within the same style call */
 
-md-autocomplete button wb-icon {
+md-autocomplete button mb-icon {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -968,20 +1006,20 @@ md-autocomplete button wb-icon {
     transform: translate3d(-50%, -50%, 0) scale(0.9);
 }
 
-md-autocomplete button wb-icon path {
+md-autocomplete button mb-icon path {
     stroke-width: 0;
 }
 
-.md-button.wb-icon {
+.md-button.mb-icon {
     padding: 0;
     background: none;
 }
 
-.md-button.md-fab wb-icon {
+.md-button.md-fab mb-icon {
     margin-top: 0;
 }
 
-md-checkbox .wb-icon {
+md-checkbox .mb-icon {
     transition: 240ms;
     position: absolute;
     top: 0;
@@ -992,11 +1030,11 @@ md-checkbox .wb-icon {
     border-radius: 2px;
 }
 
-md-checkbox.md-checked .wb-icon {
+md-checkbox.md-checked .mb-icon {
     border: none;
 }
 
-md-checkbox.md-checked .wb-icon:after {
+md-checkbox.md-checked .mb-icon:after {
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
     position: absolute;
@@ -1011,7 +1049,7 @@ md-checkbox.md-checked .wb-icon:after {
     content: '';
 }
 
-.md-chips .md-chip .md-chip-remove wb-icon {
+.md-chips .md-chip .md-chip-remove mb-icon {
     height: 18px;
     width: 18px;
     position: absolute;
@@ -1021,7 +1059,7 @@ md-checkbox.md-checked .wb-icon:after {
     transform: translate3d(-50%, -50%, 0);
 }
 
-wb-icon {
+mb-icon {
     margin: auto;
     background-repeat: no-repeat no-repeat;
     display: inline-block;
@@ -1031,83 +1069,83 @@ wb-icon {
 /*     width: 24px; */
 }
 
-wb-icon svg {
+mb-icon svg {
     pointer-events: none;
     display: block;
 }
 
-wb-icon[md-font-icon] {
+mb-icon[md-font-icon] {
     line-height: 1;
     width: auto;
 }
 
-wb-icon[disabled] svg {
+mb-icon[disabled] svg {
     fill: rgba(0, 0, 0, 0.26);
 }
 
-md-input-container > wb-icon {
+md-input-container > mb-icon {
     position: absolute;
     top: 5px;
     left: 2px;
 }
 
-md-input-container > wb-icon + input {
+md-input-container > mb-icon + input {
     margin-left: 36px;
 }
 
-md-input-container.md-icon-float > wb-icon {
+md-input-container.md-icon-float > mb-icon {
     top: 26px;
     left: 2px;
 }
 
-md-input-container.md-icon-float > wb-icon + input {
+md-input-container.md-icon-float > mb-icon + input {
     margin-left: 36px;
 }
 
 @media screen and (-ms-high-contrast: active) {
-    md-input-container.md-default-theme > wb-icon {
+    md-input-container.md-default-theme > mb-icon {
         fill: #fff;
     }
 }
 
-md-list-item > div.md-primary > wb-icon,
-md-list-item > div.md-secondary > wb-icon,
-md-list-item > wb-icon:first-child,
-md-list-item > wb-icon.md-secondary,
-md-list-item .md-list-item-inner > div.md-primary > wb-icon,
-md-list-item .md-list-item-inner > div.md-secondary > wb-icon,
-md-list-item .md-list-item-inner > wb-icon:first-child,
-md-list-item .md-list-item-inner > wb-icon.md-secondary {
+md-list-item > div.md-primary > mb-icon,
+md-list-item > div.md-secondary > mb-icon,
+md-list-item > mb-icon:first-child,
+md-list-item > mb-icon.md-secondary,
+md-list-item .md-list-item-inner > div.md-primary > mb-icon,
+md-list-item .md-list-item-inner > div.md-secondary > mb-icon,
+md-list-item .md-list-item-inner > mb-icon:first-child,
+md-list-item .md-list-item-inner > mb-icon.md-secondary {
     width: 24px;
     margin-top: 16px;
     margin-bottom: 12px;
     box-sizing: content-box;
 }
 
-[dir=rtl] md-list-item > wb-icon:first-child,
-[dir=rtl] md-list-item .md-list-item-inner > wb-icon:first-child {
+[dir=rtl] md-list-item > mb-icon:first-child,
+[dir=rtl] md-list-item .md-list-item-inner > mb-icon:first-child {
     margin-left: 32px;
 }
 
-[dir=ltr] md-list-item > wb-icon:first-child,
-[dir=ltr] md-list-item .md-list-item-inner > wb-icon:first-child {
+[dir=ltr] md-list-item > mb-icon:first-child,
+[dir=ltr] md-list-item .md-list-item-inner > mb-icon:first-child {
     margin-right: 32px;
 }
 
-md-list-item.md-2-line > wb-icon:first-child,
-md-list-item.md-2-line > .md-no-style > wb-icon:first-child {
+md-list-item.md-2-line > mb-icon:first-child,
+md-list-item.md-2-line > .md-no-style > mb-icon:first-child {
     -webkit-align-self: flex-start;
     -ms-flex-item-align: start;
     align-self: flex-start;
 }
 
-md-list-item.md-3-line > wb-icon:first-child,
-md-list-item.md-3-line > .md-no-style > wb-icon:first-child {
+md-list-item.md-3-line > mb-icon:first-child,
+md-list-item.md-3-line > .md-no-style > mb-icon:first-child {
     margin-top: 16px;
 }
 
-md-tabs-wrapper md-prev-button wb-icon,
-md-tabs-wrapper md-next-button wb-icon {
+md-tabs-wrapper md-prev-button mb-icon,
+md-tabs-wrapper md-next-button mb-icon {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1115,7 +1153,7 @@ md-tabs-wrapper md-next-button wb-icon {
     transform: translate3d(-50%, -50%, 0);
 }
 
-md-tabs-wrapper md-next-button wb-icon {
+md-tabs-wrapper md-next-button mb-icon {
     -webkit-transform: translate3d(-50%, -50%, 0) rotate(180deg);
     transform: translate3d(-50%, -50%, 0) rotate(180deg);
 }
@@ -1133,17 +1171,17 @@ md-input-container.md-icon-float > label {
 	position: absolute; 
 }
 */
-md-input-container.md-icon-float>wb-icon {
+md-input-container.md-icon-float>mb-icon {
 	top: 8px;
 	left: 2px;
 	right: auto;
 }
 
-[dir=rtl] md-input-container.md-icon-float>wb-icon {
+[dir=rtl] md-input-container.md-icon-float>mb-icon {
 	left: auto;
 }
 
-[dir=rtl] md-input-container.md-icon-float>wb-icon {
+[dir=rtl] md-input-container.md-icon-float>mb-icon {
 	right: 2px;
 }
 /*
@@ -1184,17 +1222,17 @@ md-input-container.md-icon-right {
 	padding-right: 0; 
 }
 */
-md-input-container.md-icon-right>wb-icon:last-of-type {
+md-input-container.md-icon-right>mb-icon:last-of-type {
 	margin: 0;
 	right: 2px;
 	left: auto;
 }
 
-[dir=rtl] md-input-container.md-icon-right>wb-icon:last-of-type {
+[dir=rtl] md-input-container.md-icon-right>mb-icon:last-of-type {
 	right: auto;
 }
 
-[dir=rtl] md-input-container.md-icon-right>wb-icon:last-of-type {
+[dir=rtl] md-input-container.md-icon-right>mb-icon:last-of-type {
 	left: 2px;
 }
 /*
@@ -1214,28 +1252,28 @@ md-input-container.md-icon-left.md-icon-right > label .md-placeholder {
  * Fill the icon with color in high contrast
  */
 @media screen and (-ms-high-contrast: active) {
-	md-input-container.md-default-theme>wb-icon {
+	md-input-container.md-default-theme>mb-icon {
 		fill: #fff;
 	}
 }
 
 
-/* md-input-container > wb-icon { */
+/* md-input-container > mb-icon { */
 /*     position: absolute; */
 /*     top: 5px; */
 /*     left: 2px; */
 /* } */
 
-md-input-container > wb-icon + input {
+md-input-container > mb-icon + input {
     margin-left: 0px !important;
 }
 
-/* md-input-container.md-icon-float > wb-icon { */
+/* md-input-container.md-icon-float > mb-icon { */
 /*     top: 26px; */
 /*     left: 2px; */
 /* } */
 
-/* md-input-container.md-icon-float > wb-icon + input { */
+/* md-input-container.md-icon-float > mb-icon + input { */
 /*     margin-left: 36px; */
 /* } */
 
@@ -1249,7 +1287,7 @@ md-input-container > wb-icon + input {
 	margin-left: 4px;
 }
 
-.wb-icon-mini {
+.mb-icon-mini {
 	padding: 0px;
 	margin: 0px;
 	font-size: 1rem;

@@ -1,60 +1,61 @@
 
 <md-divider></md-divider>
 <md-input-container class="md-block">
-	<label translate>Language & Local</label>
+	<label mb-translate>Language & Local</label>
 	<md-select 
 		ng-model="app.setting.local">
 		<md-option 
 			ng-repeat="lang in languages"
-			ng-value="lang.key">{{lang.title | translate}}</md-option>
+			ng-value="lang.key"
+			mb-translate>{{lang.title}}</md-option>
 	</md-select>
 </md-input-container>
 <md-input-container class="md-block">
-	<label translate>Direction</label>
+	<label mb-translate>Direction</label>
 	<md-select 
 		ng-model="app.setting.dir" 
 		placeholder="Direction">
 		<md-option 
 			value="rtl" 
-			translate>Right to left</md-option>
+			mb-translate>Right to left</md-option>
 		<md-option 
 			value="ltr" 
-			translate>Left to right</md-option>
+			mb-translate>Left to right</md-option>
 	</md-select>
 </md-input-container>
 
 <md-input-container class="md-block">
-	<label translate>Calendar</label>
+	<label mb-translate>Calendar</label>
 	<md-select 
 		ng-model="app.setting.calendar" 
 		placeholder="">
 		<md-option 
 			value="Gregorian"
-			translate>Gregorian</md-option>
+			mb-translate>Gregorian</md-option>
 		<md-option 
 			value="Jalaali"
-			translate>Jalaali</md-option>
+			mb-translate>Jalaali</md-option>
 	</md-select>
 </md-input-container>
 
 <md-input-container class="md-block">
-	<label translate>Date format</label>
+	<label mb-translate>Date format</label>
 	<md-select 
 		ng-model="app.setting.dateFormat" 
 		placeholder="">
 		<md-option 
 			value="jMM-jDD-jYYYY"
-			translate>
+			mb-translate>
 			{{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}}
 		</md-option>
 		<md-option 
 			value="jYYYY-jMM-jDD"
-			translate>
+			mb-translate>
 			{{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}}
 		</md-option>
 		<md-option 
 			value="jYYYY jMMMM jDD"
-			translate>
+			mb-translate>
 			{{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}}
 		</md-option>
 	</md-select>

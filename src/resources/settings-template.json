@@ -5,7 +5,7 @@
 	"local.language": "en",
 	"local.timezone": "utc",
 	"local.currency": "USD",
-	"local.callender": "Garegory",
+	"local.callender": "en",
 	"local.format.datetime": "YYYY MM DD hh:mm:ss",
 	"local.format.date": "YYYY MM DD"
 }

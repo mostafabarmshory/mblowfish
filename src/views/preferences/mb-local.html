@@ -4,67 +4,67 @@
 	ng-cloak
 	flex>
 	<md-input-container class="md-icon-float md-block">
-		<label translate>Language</label>
+		<label mb-translate>Language</label>
 		<md-select 
 			ng-model="__app.configs.language">
 			<md-option 
 				ng-repeat="lang in languages"
 				ng-value="lang.key">{{lang.title | translate}}</md-option>
 		</md-select>
-		<wb-icon
+		<mb-icon
 			style="cursor: pointer;" 
-			ng-click="goToManage()">settings</wb-icon>
+			ng-click="goToManage()">settings</mb-icon>
 	</md-input-container>
 	
 	<md-input-container class="md-block">
-		<label translate>Direction</label>
+		<label mb-translate>Direction</label>
 		<md-select 
 			ng-model="__app.configs.dir" 
 			placeholder="Direction">
 			<md-option 
 				value="rtl" 
-				translate>Right to left</md-option>
+				mb-translate>Right to left</md-option>
 			<md-option 
 				value="ltr" 
-				translate>Left to right</md-option>
+				mb-translate>Left to right</md-option>
 		</md-select>
 	</md-input-container>
 
 	<md-input-container class="md-block">
-		<label translate>Calendar</label>
+		<label mb-translate>Calendar</label>
 		<md-select 
 			ng-model="__app.configs.calendar" 
 			placeholder="">
 			<md-option 
 				value="Gregorian"
-				translate>Gregorian</md-option>
+				mb-translate>Gregorian</md-option>
 			<md-option 
 				value="Jalaali"
-				translate>Jalaali</md-option>
+				mb-translate>Jalaali</md-option>
 		</md-select>
 	</md-input-container>
 	
 	<md-input-container class="md-block">
-		<label translate>Date format</label>
+		<label mb-translate>Date format</label>
 		<md-select 
 			ng-model="__app.configs.dateFormat" 
 			placeholder="">
 			<md-option 
 				value="jMM-jDD-jYYYY"
-				translate>
-                            <span translate>Month  Day  Year,   </span> <span translate>Ex.   </span>
+				mb-translate>
+                            <span mb-translate>Month  Day  Year,   </span> <span mb-translate>Ex.   </span>
                             {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}}
 			</md-option>
 			<md-option 
 				value="jYYYY-jMM-jDD"
-				translate>
-                            <span translate>Year  Month  Day,   </span> <span translate>Ex.   </span>
+				mb-translate>
+                            <span mb-translate>Year  Month  Day,   </span> <span mb-translate>Ex.   </span>
                             {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}}
 			</md-option>
 			<md-option 
 				value="jYYYY jMMMM jDD"
-				translate>
-                            <span translate>Year  Month  Day,   </span> <span translate>Ex.   </span>
+				mb-translate>
+                            <span mb-translate>Year  Month  Day,   </span> <span mb-translate>Ex.   </span>
                             {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}}
 			</md-option>
 		</md-select>

@@ -22,6 +22,7 @@
 		"jQuery": true,
 		"moduleLoad": false,
 		"_": false,
+		"mblowfish": false,
 		"MODULE_STORAGE_KEY": false,
 		"storageSupported": false
 	}

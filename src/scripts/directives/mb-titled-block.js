@@ -22,15 +22,29 @@
 
 
 /**
- * @ngdoc Directives
- * @name mb-titled-block
- * @descritpion Title block
- *
- *
+@ngdoc Directives
+@name mb-titled-block
+@descritpion Title block
+
+
  */
-angular.module('mblowfish-core').directive('mbTitledBlock', function() {
+mblowfish.directive('mbTitledBlock', function($mbActions) {
+
+	function postLink(scope) {
+		scope.$evalAction = function(item) {
+			if (item.expression) {
+				return scope.$parent.$eval(item.expression);
+			}
+			if (item.actionId) {
+				return $mbActions.exec(item.actionId);
+			}
+			if (angular.isFunction(item.action)) {
+				item.action();
+			}
+		}
+	}
 	return {
-		replace: true,
+		replace: false,
 		restrict: 'E',
 		transclude: true,
 		scope: {
@@ -39,10 +53,7 @@ angular.module('mblowfish-core').directive('mbTitledBlock', function() {
 			mbProgress: '<?',
 			mbMoreActions: '='
 		},
-		/*
-		 * فهرستی از عمل‌هایی که می‌خواهیم به این نوار ابزار اضافه کنیم
-		 */
-
+		link: postLink,
 		templateUrl: 'views/directives/mb-titled-block.html'
 	};
 });

@@ -19,31 +19,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-mblowfish.config(function($mbActionsProvider, $mbViewProvider, $mbEditorProvider) {
-	$mbActionsProvider
-		.addAction('mb.preferences', {
-			title: 'Preferences',
-			icon: 'settings',
-			/* @ngInject */
-			action: function($location) {
-				return $location.url('preferences');
-			}
-		});//
-
-	$mbViewProvider
-		.addView('/preferences', {
-			title: 'Preferences',
-			templateUrl: 'views/mb-preferences.html',
-			aunchor: 'editors',
-			controller: 'MbPreferencesCtrl',
-			controllerAs: 'ctrl'
-		});
-
-	$mbEditorProvider
-		.addEditor('/preferences/:preferenceId', {
-			title: 'Preference',
-			templateUrl: 'views/mb-preference.html',
-			controller: 'MbPreferenceEditorCtrl',
-			controllerAs: 'ctrl',
-		});
+mblowfish.addConstants({
+	MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
 });

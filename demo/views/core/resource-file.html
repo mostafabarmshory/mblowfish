@@ -1,0 +1,24 @@
+<md-content>
+
+	<div
+		layout-margin
+		layout="row">
+		<md-button
+			ng-click="ctrl.selectFile()">
+			Select file
+		</md-button>
+		<md-button
+			ng-click="ctrl.selectFiles()">
+			Select files
+		</md-button>
+	</div>
+	<ul>
+		<li
+			ng-repeat="file in files">
+			{{file.lfFileName}}
+		</li>
+	</ul>
+	<div>
+			{{file.lfFileName}}
+	</div>
+</md-content>

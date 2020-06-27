@@ -7,7 +7,7 @@
 		hide-gt-sm 
 		ng-click="toggleNavigationSidenav()" 
 		aria-label="Menu">
-		<wb-icon>menu</wb-icon>
+		<mb-icon>menu</mb-icon>
 	</md-button>
 	
 	<img 
@@ -37,7 +37,7 @@
 		ng-click="menu.exec($event);"
 		class="md-icon-button">
 		<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{menu.description}}</md-tooltip>
-		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
+		<mb-icon ng-if="menu.icon">{{menu.icon}}</mb-icon>
 	</md-button>
 	<md-divider ng-if="scopeMenu.items.length"></md-divider>
 	<md-button
@@ -46,8 +46,8 @@
 		ng-href="{{menu.url}}"
 		ng-click="menu.exec($event);"
 		class="md-icon-button">
-		<md-tooltip ng-if="menu.tooltip || menu.description" md-delay="1500">{{menu.description | translate}}</md-tooltip>
-		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
+		<md-tooltip ng-if="menu.tooltip || menu.description" md-delay="1500">{{menu.description  | translate}}</md-tooltip>
+		<mb-icon ng-if="menu.icon">{{menu.icon}}</mb-icon>
 	</md-button>
 	
 	
@@ -58,11 +58,11 @@
 		style="overflow: visible;"
 		class="md-icon-button">
 		<md-tooltip md-delay="1500">
-			<span  translate="">Display list of messages</span>
+			<span  mb-translate="">Display list of messages</span>
 		</md-tooltip>
-		<wb-icon
+		<mb-icon
 			mb-badge="{{messageCount}}"
-			mb-badge-fill="accent">notifications</wb-icon>
+			mb-badge-fill="accent">notifications</mb-icon>
 	</md-button>
 	
 	<mb-user-menu></mb-user-menu>
@@ -72,6 +72,6 @@
 		ng-click="menu.exec($event)"
 		class="md-icon-button">
 		<md-tooltip ng-if="menu.tooltip" md-delay="1500">{{menu.tooltip}}</md-tooltip>
-		<wb-icon ng-if="menu.icon">{{menu.icon}}</wb-icon>
+		<mb-icon ng-if="menu.icon">{{menu.icon}}</mb-icon>
 	</md-button>
 </div>

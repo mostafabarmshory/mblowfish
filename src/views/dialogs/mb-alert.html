@@ -3,14 +3,14 @@
 	ng-cloak>
 	<md-toolbar>
 		<div class="md-toolbar-tools">
-			<wb-icon>error</wb-icon>
-			<h2 translate>{{app.title}}</h2>
+			<mb-icon>error</mb-icon>
+			<h2 mb-translate>{{app.title}}</h2>
 			<span flex></span>
 			<md-button 
 				class="md-icon-button" 
 				ng-click="cancel()"
 				aria-label="close">
-				<wb-icon aria-label="Close dialog">close</wb-icon>
+				<mb-icon aria-label="Close dialog">close</mb-icon>
 			</md-button>
 		</div>
 	</md-toolbar>
@@ -19,6 +19,6 @@
 		layout-padding
 		layout-align="center center" 
 		flex>
-		<p translate>{{config.message}}</p>
+		<p mb-translate>{{config.message}}</p>
 	</md-dialog-content>
 </md-dialog>

@@ -61,16 +61,19 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
 		/*
 		 * @depricated use ngChange
 		 */
-		ctrl.saveModel = function(d) {
+		ctrl.saveModel = function(d, event) {
 			ngModel.$setViewValue(d);
 			if (attr.mbInlineOnSave) {
 				scope.$data = d;
-				var value = $parse(attr.mbInlineOnSave)(scope);
-				$q.when(value).then(function() {
-					delete scope.error;
-				}, function(error) {
-					scope.error = error;
+				var value = $parse(attr.mbInlineOnSave)(scope, {
+					$event: event
 				});
+				$q.when(value)
+					.then(function() {
+						delete scope.error;
+					}, function(error) {
+						scope.error = error;
+					});
 			}
 		};
 	}
@@ -97,8 +100,8 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
 				return this.editMode;
 			};
 
-			this.save = function() {
-				this.saveModel(this.model);
+			this.save = function($event) {
+				this.saveModel(this.model, $event);
 				this.setEditMode(false);
 			};
 
@@ -110,36 +113,34 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
             /*
              * Select image url
              */
-			this.updateImage = function() {
+			this.updateImage = function($event) {
 				var ctrl = this;
-				return $mbResource.get('image', {
-					style: {
+				return $mbResource.get('image-url', {
+					$style: {
 						icon: 'image',
-						title: $scope.mbInlineLabel || 'Select image',
-						description: $scope.mbInlineDescription || 'Select a file from resources to change current image'
+						title: $scope.mbInlineLabel || 'Select Image URL',
 					},
-					data: this.model
+					$data: this.model
 				}).then(function(url) {
 					ctrl.model = url;
-					ctrl.save();
+					ctrl.save($event);
 				});
 			};
 
 			/*
              * Select image url
              */
-			this.updateFile = function() {
+			this.updateFile = function($event) {
 				var ctrl = this;
-				return $mbResource.get('local-file', {
-					style: {
+				return $mbResource.get('file', {
+					$style: {
 						icon: 'file',
-						title: $scope.mbInlineLabel || 'Select file',
-						description: $scope.mbInlineDescription || 'Select a file from resources to change current data'
+						title: $scope.mbInlineLabel || 'Select File',
 					},
-					data: this.model
+					$value: this.model
 				}).then(function(file) {
 					ctrl.model = file;
-					ctrl.save();
+					ctrl.save($event);
 				});
 			};
 		},

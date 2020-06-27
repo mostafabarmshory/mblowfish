@@ -48,7 +48,7 @@
       ng-src-error="https://www.gravatar.com/avatar/{{account.id}}?">
   ```
  */
-angular.module('mblowfish-core').directive('ngSrcError', function() {
+mblowfish.directive('ngSrcError', function() {
 	return {
 		link: function(scope, element, attrs) {
 			element.bind('error', function() {

@@ -1,12 +1,12 @@
 <md-input-container 
 	class="md-block">
-	<label translate>Theme</label>
+	<label mb-translate>Theme</label>
 	<md-select 
 		ng-model="app.setting.theme">
 		<md-option 
 			ng-repeat="theme in themes"
 			value="{{theme.id}}" 
-			translate>{{theme.label}}</md-option>
+			mb-translate>{{theme.label}}</md-option>
 	</md-select>
 </md-input-container>
 <md-input-container 
@@ -16,6 +16,6 @@
 		class="md-primary" 
 		name="special" 
 		ng-model="app.setting.navigationPath" >
-			<sapn flex translate>Navigation path</sapn>
+			<sapn flex mb-translate>Navigation path</sapn>
 		</md-switch>
 </md-input-container>

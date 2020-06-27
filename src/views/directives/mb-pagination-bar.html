@@ -9,7 +9,7 @@
                     ng-if="mbIcon"
                     md-no-ink class="md-icon-button"
                     aria-label="{{::mbIcon}}">
-                    <wb-icon>{{::mbIcon}}</wb-icon>
+                    <mb-icon>{{::mbIcon}}</mb-icon>
                 </md-button>
                 <h2 flex md-truncate ng-if="mbTitle">{{::mbTitle}}</h2>
                 <md-button
@@ -17,35 +17,35 @@
                     class="md-icon-button"
                     aria-label="Reload"
                     ng-click="__reload()">
-                    <wb-icon>repeat</wb-icon>
+                    <mb-icon>repeat</mb-icon>
                 </md-button>
                 <md-button
                     ng-show="mbSortKeys"
                     class="md-icon-button"
                     aria-label="Sort"
                     ng-click="showSort = !showSort">
-                    <wb-icon>sort</wb-icon>
+                    <mb-icon>sort</mb-icon>
                 </md-button>
                 <md-button
                     ng-show="filterKeys"
                     class="md-icon-button"
                     aria-label="Sort"
                     ng-click="showFilter = !showFilter">
-                    <wb-icon>filter_list</wb-icon>
+                    <mb-icon>filter_list</mb-icon>
                 </md-button>
                 <md-button
                     ng-show="mbEnableSearch"
                     class="md-icon-button"
                     aria-label="Search"
                     ng-click="showSearch = true; focusToElement('searchInput');">
-                    <wb-icon>search</wb-icon>
+                    <mb-icon>search</mb-icon>
                 </md-button>
                 <md-button
                     ng-if="exportData"
                     class="md-icon-button"
                     aria-label="Export"
                     ng-click="exportData()">
-                    <wb-icon>save</wb-icon>
+                    <mb-icon>save</mb-icon>
                 </md-button>
 
                 <span flex ng-if="!mbTitle"></span>
@@ -55,7 +55,7 @@
                         class="md-icon-button"
                         aria-label="Menu"
                         ng-click="$mdOpenMenu($event)">
-                        <wb-icon>more_vert</wb-icon>
+                        <mb-icon>more_vert</mb-icon>
                     </md-button>
                     <md-menu-content width="4">
                         <md-menu-item
@@ -63,8 +63,8 @@
                             <md-button
                                 ng-click="runAction(item, $event)"
                                 aria-label="{{::item.title}}">
-                                <wb-icon ng-show="item.icon">{{::item.icon}}</wb-icon>
-                                <span translate="">{{::item.title}}</span>
+                                <mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
+                                <span mb-translate="">{{::item.title}}</span>
                             </md-button>
                         </md-menu-item>
                     </md-menu-content>
@@ -82,7 +82,7 @@
                     style="min-width:0px"
                     ng-click="showSearch = false"
                     aria-label="Back">
-                    <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
+                    <mb-icon class="icon-rotate-180-for-rtl">arrow_back</mb-icon>
                 </md-button>
 
                 <md-input-container
@@ -109,10 +109,10 @@
                     style="min-width:0px"
                     ng-click="showSort = false"
                     aria-label="Back">
-                    <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
+                    <mb-icon class="icon-rotate-180-for-rtl">arrow_back</mb-icon>
                 </md-button>
 
-                <h3 translate="">Sort</h3>
+                <h3 mb-translate="">Sort</h3>
 
                 <span style="width: 10px"></span>
 
@@ -127,9 +127,9 @@
                     <md-menu-content width="4">
                         <md-menu-item ng-repeat="key in mbSortKeys">
                             <md-button ng-click="query.sortBy = key; setSortOrder()">
-                                <wb-icon ng-if="query.sortBy === key">check_circle</wb-icon>
-                                <wb-icon ng-if="query.sortBy !== key">radio_button_unchecked</wb-icon>
-                                {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key|translate}}
+                                <mb-icon ng-if="query.sortBy === key">check_circle</mb-icon>
+                                <mb-icon ng-if="query.sortBy !== key">radio_button_unchecked</mb-icon>
+                                {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key| translate}}
                             </md-button>
                         </md-menu-item>
                     </md-menu-content>
@@ -141,22 +141,22 @@
                         layout="row"
                         style="text-transform: none;"
                         ng-click="$mdMenu.open()">
-                        <wb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</wb-icon>
-                        <wb-icon ng-if="query.sortDesc">filter_list</wb-icon>
+                        <mb-icon ng-if="!query.sortDesc" class="icon-rotate-180">filter_list</mb-icon>
+                        <mb-icon ng-if="query.sortDesc">filter_list</mb-icon>
                         {{query.sortDesc ? 'Descending' : 'Ascending'|translate}}
                     </md-button>
                     <md-menu-content width="4">
                         <md-menu-item>
                             <md-button ng-click="query.sortDesc = false;setSortOrder()">
-                                <wb-icon ng-if="!query.sortDesc">check_circle</wb-icon>
-                                <wb-icon ng-if="query.sortDesc">radio_button_unchecked</wb-icon>
+                                <mb-icon ng-if="!query.sortDesc">check_circle</mb-icon>
+                                <mb-icon ng-if="query.sortDesc">radio_button_unchecked</mb-icon>
                                 {{::'Ascending'|translate}}
                             </md-button>
                         </md-menu-item>
                         <md-menu-item>
                             <md-button ng-click="query.sortDesc = true;setSortOrder()">
-                                <wb-icon ng-if="query.sortDesc">check_circle</wb-icon>
-                                <wb-icon ng-if="!query.sortDesc">radio_button_unchecked</wb-icon>
+                                <mb-icon ng-if="query.sortDesc">check_circle</mb-icon>
+                                <mb-icon ng-if="!query.sortDesc">radio_button_unchecked</mb-icon>
                                 {{::'Descending'|translate}}
                             </md-button>
                         </md-menu-item>
@@ -179,9 +179,9 @@
                         style="min-width:0px"
                         ng-click="showFilter = false"
                         aria-label="Back">
-                        <wb-icon class="icon-rotate-180-for-rtl">arrow_back</wb-icon>
+                        <mb-icon class="icon-rotate-180-for-rtl">arrow_back</mb-icon>
                     </md-button>
-                    <h3 translate="">Filters</h3>
+                    <h3 mb-translate="">Filters</h3>
                 </div>
                 <div
                     layout="row">
@@ -189,12 +189,12 @@
                         ng-if="filters && filters.length"
                         ng-click="applyFilter()"
                         class="md-icon-button">
-                        <wb-icon>done</wb-icon>
+                        <mb-icon>done</mb-icon>
                     </md-button>
                     <md-button
                         ng-click="addFilter()"
                         class="md-icon-button">
-                        <wb-icon>add</wb-icon>
+                        <mb-icon>add</mb-icon>
                     </md-button>
                 </div>
             </div>
@@ -217,7 +217,7 @@
                 style="width: 50%">
                 <md-input-container
                     style="padding: 0px;margin: 0px;width: 20%">
-                    <label translate="">Key</label>
+                    <label mb-translate="">Key</label>
                     <md-select
                         name="filter"
                         ng-model="filter.key"
@@ -226,7 +226,7 @@
                         <md-option
                             ng-repeat="key in filterKeys"
                             ng-value="key">
-                            <span translate="">{{key}}</span>
+                            <span mb-translate="">{{key}}</span>
                         </md-option>
                     </md-select>
                 </md-input-container>
@@ -234,7 +234,7 @@
                 <md-input-container
                     style="padding: 0px;margin: 0px;"
                     ng-if="showFilterValue">
-                    <label translate="">Value</label>
+                    <label mb-translate="">Value</label>
                     <input
                         ng-model="filter.value"
                         required>
@@ -244,7 +244,7 @@
                 ng-if="showFilterValue"
                 ng-click="removeFilter(filter,$index)"
                 class="md-icon-button">
-                <wb-icon>delete</wb-icon>
+                <mb-icon>delete</mb-icon>
             </md-button>
         </div>
     </div>

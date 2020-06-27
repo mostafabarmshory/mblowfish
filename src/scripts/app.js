@@ -20,6 +20,17 @@
  * SOFTWARE.
  */
 
+var MB_MODULE_SK = 'mbModules';
+
+var actions = {},
+	views = {},
+	editors = {},
+	resources = {},
+	components = {},
+	applicationProcesses = {};
+var rootScopeConstants = {};
+
+
 /**
 @ngdoc action-group
 @name User
@@ -36,29 +47,22 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-		'ngMaterial',
 		'ngAnimate',
+		'ngAria',
 		'ngCookies',
-		'ngSanitize', //
-		//	Seen
-		'seen-core',
-		'seen-user',
-		'seen-tenant',
-		'seen-cms',
-		'seen-monitor',
+		'ngMaterial',
+		'ngMessages',
+		'ngSanitize',
 		//	AM-WB
 		'am-wb-core',
 		//	Others
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-		'vcRecaptcha', //https://github.com/VividCortex/angular-recaptcha
+
 		'ng-appcache',//
-		'ngFileSaver',//
-		'mdSteppers',//
 		'angular-material-persian-datepicker',
-		'pascalprecht.translate',
-		'mdColorPicker',
 	])
-	.config(function($mdThemingProvider) {
+	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -76,8 +80,40 @@ var mbApplicationModule = angular
 			.dark();
 
 		$mdThemingProvider.alwaysWatchTheme(true);
+
+		// Load actions
+		_.forEach(actions, function(action, actionId) {
+			$mbActionsProvider.addAction(actionId, action);
+		});
+
+		// Load views
+		_.forEach(views, function(view, viewId) {
+			$mbViewProvider.addView(viewId, view);
+		});
+
+		// Load editors
+		_.forEach(editors, function(editor, editorId) {
+			$mbEditorProvider.addEditor(editorId, editor);
+		});
+
+		// Load resources
+		_.forEach(resources, function(config, id) {
+			$mbResourceProvider.addPage(id, config);
+		});
+
+		// load components
+		_.forEach(components, function(config, id) {
+			$mbComponentProvider.addComponent(id, config);
+		});
+
+		// load processes
+		_.forEach(applicationProcesses, function(processList, id) {
+			_.forEach(processList, function(process) {
+				$mbApplicationProvider.addAction(id, process);
+			});
+		});
 	})
-	.run(function instantiateRoute($widget, $mbRouteParams, $injector, $window, $mbEditor) {
+	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
 		$widget.setProvider('$mbRouteParams', $mbRouteParams);
 
 		$mbEditor.registerEditor('/ui/notfound/:path*', {
@@ -98,6 +134,10 @@ var mbApplicationModule = angular
 		angular.forEach(extensions, function(ext) {
 			$window.mblowfish.addExtension(ext);
 		});
+
+		_.forEach(rootScopeConstants, function(constant, id) {
+			$rootScope[id] = constant;
+		});
 	});
 
 /***************************************************************************
@@ -116,34 +156,99 @@ window.mblowfish = {
 	// Module
 	//-------------------------------------------------------------
 	controller: function() {
-		return mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		mbApplicationModule.controller.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	service: function() {
+		mbApplicationModule.service.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	directive: function() {
-		return mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		mbApplicationModule.directive.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	filter: function() {
+		mbApplicationModule.filter.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	run: function() {
-		return mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		mbApplicationModule.run.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	config: function() {
-		return mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		mbApplicationModule.config.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 	provider: function() {
-		return mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+		mbApplicationModule.provider.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	factory: function() {
+		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
+	},
+	constant: function() {
+		mbApplicationModule.constant.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
 
 
+	//-------------------------------------------------------------
+	// UI
+	//-------------------------------------------------------------
+	addAction: function(actionId, action) {
+		actions[actionId] = action;
+		return window.mblowfish;
+	},
+	addEditor: function(editorId, editor) {
+		editors[editorId] = editor;
+		return window.mblowfish;
+	},
+	addView: function(viewId, view) {
+		views[viewId] = view;
+		return window.mblowfish;
+	},
+	addConstants: function(constants) {
+		_.forEach(constants, function(constant, constantId) {
+			rootScopeConstants[constantId] = constant;
+			window[constantId] = constant;
+			mbApplicationModule.constant(constantId, constant);
+		});
+		return window.mblowfish;
+	},
+	addResource: function(resourceId, resource) {
+		resources[resourceId] = resource;
+		return window.mblowfish;
+	},
+	addComponent: function(componentId, component) {
+		components[componentId] = component;
+		return window.mblowfish;
+	},
+
+	addApplicationProcess: function(state, process) {
+		if (_.isUndefined(applicationProcesses[state])) {
+			applicationProcesses[state] = [];
+		}
+		applicationProcesses[state].push(process);
+		return window.mblowfish;
+	},
 	//-------------------------------------------------------------
 	// Angular Map
 	//-------------------------------------------------------------
 	element: function() {
-		return angular.element.apply(mbApplicationModule, arguments);
+		angular.element.apply(mbApplicationModule, arguments);
+		return window.mblowfish;
 	},
-	bootstrap: function(dom) {
-		return angular.bootstrap(dom, ['mblowfish-core'], {});
+	bootstrap: function(dom, modules, configs) {
+		modules = modules || [];
+		modules.push('mblowfish-core');
+		configs = configs || {};
+		angular.bootstrap(dom, modules, configs);
+		return window.mblowfish;
 	},
 	loadModules: function(prefixKey) {
 		var storage = storageSupported(window, 'localStorage');
-		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' +MODULE_STORAGE_KEY));
+		var moduleList = JSON.parse(storage.getItem(prefixKey + '.' + MB_MODULE_SK));
 		var jobs = [];
 		_.forEach(moduleList, function(module) {
 			jobs.push(moduleLoad(module));
@@ -152,3 +257,13 @@ window.mblowfish = {
 	}
 };
 
+
+
+
+//-------------------------------------------------------------------------------------------------
+//
+//-------------------------------------------------------------------------------------------------
+
+mblowfish.addConstants({
+	MB_SECURITY_ACCOUNT_SP: '/app/security/account'
+});

@@ -1,13 +1,18 @@
 <div
-  layout="column"
-  layout-padding
-  flex>
-  <lf-ng-md-file-input
-    lf-files="resourceCtrl.files"
-    accept="{{style.accept || '*'}}"
-    progress
-    preview
-    drag
-    flex>
-  </lf-ng-md-file-input>
+	layout="column"
+	layout-padding
+	flex>
+	<lf-ng-md-file-input
+		lf-files="files"
+		ng-change="ctrl.setFiles(files)"
+		accept="{{ctrl.$style.accept || '.*'}}"
+		lf-drag-and-drop-label="{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}"
+		lf-browse-label="{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}"
+		lf-remove-label="{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}"
+		aria-label="upload file"
+		progress
+		preview
+		drag
+		flex>
+	</lf-ng-md-file-input>
 </div>

@@ -28,7 +28,7 @@
  * 
  * 
  */
-angular.module('mblowfish-core').service('$notification', function($navigator, $mdToast) {
+mblowfish.service('$notification', function($navigator, $mdToast) {
 
 	/**
 	 * The alert() method displays an alert box with a specified message and an
@@ -49,17 +49,17 @@ angular.module('mblowfish-core').service('$notification', function($navigator, $
 	 */
 	function alert(message) {
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/mb-alert.html',
-			config : {
-				message : message
+			templateUrl: 'views/dialogs/mb-alert.html',
+			config: {
+				message: message
 			}
 		})
-		// return true even it the page is canceled
-		.then(function(){
-			return true;
-		}, function(){
-			return true;
-		});
+			// return true even it the page is canceled
+			.then(function() {
+				return true;
+			}, function() {
+				return true;
+			});
 	}
 
 	/**
@@ -84,9 +84,9 @@ angular.module('mblowfish-core').service('$notification', function($navigator, $
 	function confirm(message) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/mb-confirm.html',
-			config : {
-				message : message
+			templateUrl: 'views/dialogs/mb-confirm.html',
+			config: {
+				message: message
 			}
 		});
 	}
@@ -114,10 +114,10 @@ angular.module('mblowfish-core').service('$notification', function($navigator, $
 	function prompt(text, defaultText) {
 		// XXX: maso, 1395: wait for response (sync method)
 		return $navigator.openDialog({
-			templateUrl : 'views/dialogs/mb-prompt.html',
-			config : {
-				message : text,
-				model : defaultText
+			templateUrl: 'views/dialogs/mb-prompt.html',
+			config: {
+				message: text,
+				model: defaultText
 			}
 		});
 	}
@@ -129,7 +129,7 @@ angular.module('mblowfish-core').service('$notification', function($navigator, $
 	 */
 	function toast(text) {
 		return $mdToast.show(
-				$mdToast.simple()
+			$mdToast.simple()
 				.textContent(text)
 				.hideDelay(3000)
 		);

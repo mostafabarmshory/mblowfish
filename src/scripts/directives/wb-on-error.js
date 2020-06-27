@@ -21,7 +21,6 @@
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
@@ -36,16 +35,18 @@ angular.module('mblowfish-core')
  * 	href="image/path">
  * ```
  */
-.directive('wbOnError', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('error', function() {
-                // call the function that was passed
-                if (attrs.wbOnError) {
-                    scope.$apply(attrs.wbOnError);
-                }
-            });
-        }
-    };
+mblowfish.directive('wbOnError', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('error', function(e) {
+				// call the function that was passed
+				if (attrs.wbOnError) {
+					scope.$eval(attrs.wbOnError, {
+						$event: e
+					});
+				}
+			});
+		}
+	};
 });

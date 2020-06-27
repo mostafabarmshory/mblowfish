@@ -46,9 +46,9 @@ module.exports = function(grunt) {
 	 * تعیین شود.
 	 */
 	require('jit-grunt')(grunt, {
-		useminPrepare : 'grunt-usemin',
-		ngtemplates : 'grunt-angular-templates',
-		configureProxies : 'grunt-connect-proxy',
+		useminPrepare: 'grunt-usemin',
+		ngtemplates: 'grunt-angular-templates',
+		configureProxies: 'grunt-connect-proxy',
 		uglify: 'grunt-contrib-uglify-es'
 	});
 
@@ -57,10 +57,10 @@ module.exports = function(grunt) {
 	 * شده در پرونده bower.json تعیین می‌شود.
 	 */
 	var appConfig = {
-			app : require('./bower.json').appPath || 'src',
-			demo : require('./bower.json').demoPath || 'demo',
-			dist : 'dist',
-			pkg : require('./bower.json')
+		app: require('./bower.json').appPath || 'src',
+		demo: require('./bower.json').demoPath || 'demo',
+		dist: 'dist',
+		pkg: require('./bower.json')
 	};
 
 	// تنظیم تمام وظایف مورد نیاز در پروژه
@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 		 * تنظیم‌های پروژه: تمام تنظیم‌هایی که در وظایف استفاده می‌شود بر اساس
 		 * این متغیر است.
 		 */
-		yeoman : appConfig,
+		yeoman: appConfig,
 
 		/*
 		 * در فرآیند توسعه پرونده‌های موجود در سیستم به روز رسانی می‌شود و در
@@ -78,57 +78,57 @@ module.exports = function(grunt) {
 		 * روز می‌شود کاوشگر باید به روز شود تا این به روز رسانی مشاهد شود. این
 		 * وظیفه پرونده‌ها را مشاهده و کارهای لازم را انجام می‌دهد.
 		 */
-		watch : {
-			bower : {
-				files : [ 'bower.json' ],
-				tasks : [ 'wiredep' ]
+		watch: {
+			bower: {
+				files: ['bower.json'],
+				tasks: ['wiredep']
 			},
-			js : {
-				files : [
-                    '<%= yeoman.app %>/libs/*.js',
+			js: {
+				files: [
+					'<%= yeoman.app %>/libs/*.js',
 					'<%= yeoman.app %>/scripts/**/*.js',
 					'<%= yeoman.demo %>/scripts/**/*.js'
-					],
-					tasks : [
-						'injector',
-						'newer:jshint:all'
-						],
-						options : {
-							livereload : '<%= connect.options.livereload %>'
-						}
+				],
+				tasks: [
+					'injector',
+					'newer:jshint:all'
+				],
+				options: {
+					livereload: '<%= connect.options.livereload %>'
+				}
 			},
-			jsTest : {
-				files : [ 'test/spec/{,*/}*.js' ],
-				tasks : [
+			jsTest: {
+				files: ['test/spec/{,*/}*.js'],
+				tasks: [
 					'injector',
 					'newer:jshint:test', // 
-					'karma' ]
+					'karma']
 			},
-			styles : {
-				files : [
+			styles: {
+				files: [
 					'<%= yeoman.app %>/styles/**/*.css',
 					'<%= yeoman.demo %>/styles/**/*.css'
-					],
-					tasks : [
-						'injector',
-						'newer:copy:styles', 
-						'postcss'
-						]
+				],
+				tasks: [
+					'injector',
+					'newer:copy:styles',
+					'postcss'
+				]
 			},
-			gruntfile : {
-				files : [ 'Gruntfile.js' ]
+			gruntfile: {
+				files: ['Gruntfile.js']
 			},
-			livereload : {
-				options : {
-					livereload : '<%= connect.options.livereload %>'
+			livereload: {
+				options: {
+					livereload: '<%= connect.options.livereload %>'
 				},
-				files : [
+				files: [
 					'<%= yeoman.demo %>/**/*.html',
 					'<%= yeoman.app %>/views/**/*.html',
 					'.tmp/styles/{,*/}*.css',
 					'<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
 					'<%= yeoman.demo %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-					]
+				]
 			}
 		},
 
@@ -138,41 +138,41 @@ module.exports = function(grunt) {
 		 */
 
 		// The actual grunt server settings
-		connect : {
-			options : {
-				port : 9001,
+		connect: {
+			options: {
+				port: 9001,
 				// Change this to '0.0.0.0' to access the server from
 				// outside.
-				hostname : 'localhost',
-				livereload : 35729
+				hostname: 'localhost',
+				livereload: 35729
 			},
-			proxies : [ {
-				context : '/', // the context of the data service
+			proxies: [{
+				context: '/', // the context of the data service
 				// wherever the data service is running
-				host : '<%= yeoman.pkg.backend.host %>',
+				host: '<%= yeoman.pkg.backend.host %>',
 				// the port that the data service is running on
-				port : '<%= yeoman.pkg.backend.port %>',
-				changeOrigin : true,
-				headers : {
-					host : '<%= yeoman.pkg.backend.host %>'
+				port: '<%= yeoman.pkg.backend.port %>',
+				changeOrigin: true,
+				headers: {
+					host: '<%= yeoman.pkg.backend.host %>'
 				}
-			} ],
-			livereload : {
-				options : {
-					open : true,
-					middleware : function(connect, options) {
+			}],
+			livereload: {
+				options: {
+					open: true,
+					middleware: function(connect, options) {
 						var middlewares = [];
 						//Matches everything that does not contain a '.' (period)
-						middlewares.push(modRewrite([ 
+						middlewares.push(modRewrite([
 							'!/api/.*|^.*\\..*$ /index.html [L]',
 							'[^\.]*http?s:\/\/.*$ /index.html [L]',
 						]));
 						middlewares.push(connect.static('.tmp'));
 						middlewares.push(
-								connect()
+							connect()
 								.use('/bower_components', connect.static('./bower_components')));
 						middlewares.push(
-								connect()
+							connect()
 								.use('/app/styles', connect.static('./app/styles')));
 						middlewares.push(connect.static('demo'));
 						middlewares.push(connect.static(appConfig.app));
@@ -180,7 +180,7 @@ module.exports = function(grunt) {
 							middlewares.push(connect.static(base));
 						});
 						if (!Array.isArray(options.base)) {
-							options.base = [ options.base ];
+							options.base = [options.base];
 						}
 
 						// Setup the proxy
@@ -195,22 +195,22 @@ module.exports = function(grunt) {
 					}
 				}
 			},
-			test : {
-				options : {
-					port : 9001,
-					middleware : function(connect) {
+			test: {
+				options: {
+					port: 9001,
+					middleware: function(connect) {
 						return [
 							connect.static('.tmp'),
 							connect.static('test'),
 							connect().use('/bower_components', connect.static('./bower_components')),
-							connect.static(appConfig.app) ];
+							connect.static(appConfig.app)];
 					}
 				}
 			},
-			dist : {
-				options : {
-					open : true,
-					base : '<%= yeoman.dist %>'
+			dist: {
+				options: {
+					open: true,
+					base: '<%= yeoman.dist %>'
 				}
 			}
 		},
@@ -245,19 +245,19 @@ module.exports = function(grunt) {
 		 * http://jshint.com/docs/reporters/
 		 * 
 		 */
-		jshint : {
-			options : {
-				jshintrc : '.jshintrc',
-				reporter : require('jshint-stylish')
+		jshint: {
+			options: {
+				jshintrc: '.jshintrc',
+				reporter: require('jshint-stylish')
 			},
-			all : {
-				src : [ 'Gruntfile.js', '<%= yeoman.app %>/{,*/}*.js' ]
+			all: {
+				src: ['Gruntfile.js', '<%= yeoman.app %>/{,*/}*.js']
 			},
-			test : {
-				options : {
-					jshintrc : 'test/.jshintrc'
+			test: {
+				options: {
+					jshintrc: 'test/.jshintrc'
 				},
-				src : [ 'test/spec/{,*/}*.js' ]
+				src: ['test/spec/{,*/}*.js']
 			}
 		},
 
@@ -268,11 +268,11 @@ module.exports = function(grunt) {
 		 * 
 		 * https://eslint.org/
 		 */
-		eslint : {
+		eslint: {
 			options: {
 				configFile: '.eslintrc.json'
 			},
-			target : [ '<%= yeoman.app %>/{,*/}*.js' ]
+			target: ['<%= yeoman.app %>/{,*/}*.js']
 		},
 
 		/*
@@ -283,15 +283,15 @@ module.exports = function(grunt) {
 		 * @see https://github.com/krampstudio/grunt-jsdoc
 		 * @see https://github.com/krampstudio/grunt-jsdoc-plugin
 		 */
-		jsdoc : {
-			all : {
-				src : [ '<%= yeoman.app %>/scripts/**/*.js' ],
-				options : {
-					destination : 'doc',
-					configure : 'node_modules/angular-jsdoc/common/conf.json',
-					template : 'node_modules/angular-jsdoc/default',
-					tutorial : 'docs/tutorials',
-					readme : 'README.md'
+		jsdoc: {
+			all: {
+				src: ['<%= yeoman.app %>/scripts/**/*.js'],
+				options: {
+					destination: 'doc',
+					configure: 'node_modules/angular-jsdoc/common/conf.json',
+					template: 'node_modules/angular-jsdoc/default',
+					tutorial: 'docs/tutorials',
+					readme: 'README.md'
 				}
 			}
 		},
@@ -309,17 +309,17 @@ module.exports = function(grunt) {
 		 * عنوان پرنده‌های اضافه در نظر گرفته می‌شوند و به صورت خودکار حذف
 		 * می‌شوند.
 		 */
-		clean : {
-			dist : {
-				files : [ {
-					dot : true,
-					src : [ //
+		clean: {
+			dist: {
+				files: [{
+					dot: true,
+					src: [ //
 						'.tmp', '<%= yeoman.dist %>/{,*/}*', //
 						'!<%= yeoman.dist %>/.git{,*/}*' //
-						]
-				} ]
+					]
+				}]
 			},
-			server : '.tmp'
+			server: '.tmp'
 		},
 
 		/*
@@ -333,31 +333,31 @@ module.exports = function(grunt) {
 		 * این کار روش ساده‌ای داره، یه الگو پیدا می‌شه و بعد وسط اون الگو با
 		 * فهرست فایلهایی وابستگی‌ها پر می‌شه.
 		 */
-		wiredep : {
-			app : {
-				devDependencies : true,
-				src : [ 'demo/index.html' ],
-				ignorePath : /\.\.\//
+		wiredep: {
+			app: {
+				devDependencies: true,
+				src: ['demo/index.html'],
+				ignorePath: /\.\.\//
 			},
-			test : {
-				devDependencies : true,
-				src : [
+			test: {
+				devDependencies: true,
+				src: [
 					'<%= karma.unit.configFile %>',
 					'<%= karma.debug.configFile %>',
 					'<%= karma.build.configFile %>'
-					],
-					ignorePath : /\.\.\//,
-					fileTypes : {
-						js : {
-							block : /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
-							detect : {
-								js : /'(.*\.js)'/gi
-							},
-							replace : {
-								js : '\'{{filePath}}\','
-							}
+				],
+				ignorePath: /\.\.\//,
+				fileTypes: {
+					js: {
+						block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
+						detect: {
+							js: /'(.*\.js)'/gi
+						},
+						replace: {
+							js: '\'{{filePath}}\','
 						}
 					}
+				}
 			}
 		},
 
@@ -368,44 +368,44 @@ module.exports = function(grunt) {
 		// minification. These next options are pre-configured if you do
 		// not wish
 		// to use the Usemin blocks.
-		cssmin : {
-			dist : {
-				files : {
-					'<%= yeoman.dist %>/<%= yeoman.pkg.name %>.min.css' : [ //
+		cssmin: {
+			dist: {
+				files: {
+					'<%= yeoman.dist %>/<%= yeoman.pkg.name %>.min.css': [ //
 						'.tmp/styles/{,*/}*.css' //
-						]
+					]
 				}
 			}
 		},
-		uglify : {
-			dist : {
-				files : {
-					'<%= yeoman.dist %>/<%= yeoman.pkg.name %>.min.js' : [ //
+		uglify: {
+			dist: {
+				files: {
+					'<%= yeoman.dist %>/<%= yeoman.pkg.name %>.min.js': [ //
 						'.tmp/{,*/}*.js' //
-						]
+					]
 				}
 			}
 		},
 
-		imagemin : {
-			dist : {
-				files : [ {
-					expand : true,
-					cwd : '<%= yeoman.app %>/images',
-					src : '{,*/}*.{png,jpg,jpeg,gif}',
-					dest : '<%= yeoman.dist %>/images'
-				} ]
+		imagemin: {
+			dist: {
+				files: [{
+					expand: true,
+					cwd: '<%= yeoman.app %>/images',
+					src: '{,*/}*.{png,jpg,jpeg,gif}',
+					dest: '<%= yeoman.dist %>/images'
+				}]
 			}
 		},
 
-		svgmin : {
-			dist : {
-				files : [ {
-					expand : true,
-					cwd : '<%= yeoman.app %>/images',
-					src : '{,*/}*.svg',
-					dest : '<%= yeoman.dist %>/images'
-				} ]
+		svgmin: {
+			dist: {
+				files: [{
+					expand: true,
+					cwd: '<%= yeoman.app %>/images',
+					src: '{,*/}*.svg',
+					dest: '<%= yeoman.dist %>/images'
+				}]
 			}
 		},
 		/*
@@ -420,21 +420,23 @@ module.exports = function(grunt) {
 		 * مستقیم به عنوان محصول ارائه می‌شه ولی یکی تو پوشه موقت ایجاد می‌شه تا
 		 * بتونیم کارهای دیگه‌ای روش انجام بدیم.
 		 */
-		concat : {
-			tmp : {
-				src : [ 
-                    '<%= yeoman.app %>/libs/*.js',
-                    '<%= yeoman.app %>/scripts/{,*/}*.js' 
+		concat: {
+			tmp: {
+				src: [
+					'<%= yeoman.app %>/libs/*.js',
+					'<%= yeoman.app %>/scripts/app.js',
+					'<%= yeoman.app %>/scripts/**/index.js',
+					'<%= yeoman.app %>/scripts/**/*.js'
 				],
-				dest : '.tmp/<%= yeoman.pkg.name %>.js'
+				dest: '.tmp/<%= yeoman.pkg.name %>.js'
 			},
-			distcss : {
-				src : [ '<%= yeoman.app %>/{,*/}*.css' ],
-				dest : '<%= yeoman.dist %>/<%= yeoman.pkg.name %>.css'
+			distcss: {
+				src: ['<%= yeoman.app %>/{,*/}*.css'],
+				dest: '<%= yeoman.dist %>/<%= yeoman.pkg.name %>.css'
 			},
-			dist : {
-				src : [ '.tmp/{,*/}*.js' ],
-				dest : '<%= yeoman.dist %>/<%= yeoman.pkg.name %>.js'
+			dist: {
+				src: ['.tmp/{,*/}*.js'],
+				dest: '<%= yeoman.dist %>/<%= yeoman.pkg.name %>.js'
 			}
 		},
 
@@ -442,27 +444,27 @@ module.exports = function(grunt) {
 		 * 
 		 * 
 		 */
-		htmlmin : {
-			dist : {
-				options : {
-					conservativeCollapse : true,
-					removeCommentsFromCDATA : true,
-					collapseBooleanAttributes : true,
-					collapseWhitespace : true,
-					removeAttributeQuotes : true,
-					removeComments : true, // Only if you don't use comment
+		htmlmin: {
+			dist: {
+				options: {
+					conservativeCollapse: true,
+					removeCommentsFromCDATA: true,
+					collapseBooleanAttributes: true,
+					collapseWhitespace: true,
+					removeAttributeQuotes: true,
+					removeComments: true, // Only if you don't use comment
 					// directives!
-					removeEmptyAttributes : true,
-					removeRedundantAttributes : true,
-					removeScriptTypeAttributes : true,
-					removeStyleLinkTypeAttributes : true
+					removeEmptyAttributes: true,
+					removeRedundantAttributes: true,
+					removeScriptTypeAttributes: true,
+					removeStyleLinkTypeAttributes: true
 				},
-				files : [ {
-					expand : true,
-					cwd : '<%= yeoman.dist %>',
-					src : [ '*.html' ],
-					dest : '<%= yeoman.dist %>'
-				} ]
+				files: [{
+					expand: true,
+					cwd: '<%= yeoman.dist %>',
+					src: ['*.html'],
+					dest: '<%= yeoman.dist %>'
+				}]
 			}
 		},
 
@@ -477,26 +479,26 @@ module.exports = function(grunt) {
 		 * 
 		 * این بسته رو می‌تونیم با سایر بسته‌ها ترکیب کنیم.
 		 */
-		ngtemplates : {
-			dist : {
-				options : {
-					module : '<%= yeoman.pkg.moduleName %>',
-					htmlmin : '<%= htmlmin.dist.options %>',
-					usemin : 'scripts/scripts.js'
+		ngtemplates: {
+			dist: {
+				options: {
+					module: '<%= yeoman.pkg.moduleName %>',
+					htmlmin: '<%= htmlmin.dist.options %>',
+					usemin: 'scripts/scripts.js'
 				},
-				cwd : '<%= yeoman.app %>',
-				src : 'views/{,*/}*.html',
-				dest : '.tmp/templateCache.js'
+				cwd: '<%= yeoman.app %>',
+				src: 'views/**/*.html',
+				dest: '.tmp/templateCache.js'
 			},
 			test: {
-				options : {
-					module : '<%= yeoman.pkg.moduleName %>',
-					htmlmin : '<%= htmlmin.dist.options %>',
-					usemin : 'scripts/scripts.js'
+				options: {
+					module: '<%= yeoman.pkg.moduleName %>',
+					htmlmin: '<%= htmlmin.dist.options %>',
+					usemin: 'scripts/scripts.js'
 				},
-				cwd : '<%= yeoman.app %>',
-				src : 'views/{,*/}*.html',
-				dest : 'test/spec/templateCache.js'
+				cwd: '<%= yeoman.app %>',
+				src: 'views/**/*.html',
+				dest: 'test/spec/templateCache.js'
 			}
 		},
 
@@ -515,88 +517,88 @@ module.exports = function(grunt) {
 		 * همگی پرونده‌های موقت هستن. به این ترتیب می‌تونیم تمام پرونده‌های
 		 * موجود در این مسیر رو کامل به هم بریزیم.
 		 */
-		ngAnnotate : {
+		ngAnnotate: {
 			options: {
-				singleQuotes: true 
-			}, 
-			dist : {
-				files : [ {
-					expand : true,
-					cwd : '.tmp/',
-					src : '*.js',
-					dest : '.tmp/'
-				} ]
+				singleQuotes: true
+			},
+			dist: {
+				files: [{
+					expand: true,
+					cwd: '.tmp/',
+					src: '*.js',
+					dest: '.tmp/'
+				}]
 			}
 		},
 
 		// Copies remaining files to places other tasks can use
-		copy : {
-			dist : {
-				files : [
+		copy: {
+			dist: {
+				files: [
 					{
-						expand : true,
-						dot : true,
-						cwd : '<%= yeoman.app %>',
-						dest : '<%= yeoman.dist %>',
-						src : [ '*.{ico,png,txt}',
+						expand: true,
+						dot: true,
+						cwd: '<%= yeoman.app %>',
+						dest: '<%= yeoman.dist %>',
+						src: ['*.{ico,png,txt}',
 							'images/{,*/}*.{webp}',
-							'styles/fonts/{,*/}*.*' ]
+							'styles/fonts/{,*/}*.*']
 					}, {
-						expand : true,
-						cwd : '.tmp/images',
-						dest : '<%= yeoman.dist %>/images',
-						src : [ 'generated/*' ]
-					},{
+						expand: true,
+						cwd: '.tmp/images',
+						dest: '<%= yeoman.dist %>/images',
+						src: ['generated/*']
+					}, {
 						// TODO: maso, 2018: optimize resource
-						dot : true,
-						expand : true,
-						cwd : '<%= yeoman.app %>/resources',
-						dest : '<%= yeoman.dist %>/resources',
-						src : '**/*.*'
+						dot: true,
+						expand: true,
+						cwd: '<%= yeoman.app %>/resources',
+						dest: '<%= yeoman.dist %>/resources',
+						src: '**/*.*'
 					}]
 			},
-			styles : {
-				expand : true,
-				cwd : '<%= yeoman.app %>/styles',
-				dest : '.tmp/styles/',
-				src : '{,*/}*.css'
+			styles: {
+				expand: true,
+				cwd: '<%= yeoman.app %>/styles',
+				dest: '.tmp/styles/',
+				src: '{,*/}*.css'
 			}
 		},
 
 		// Add vendor prefixed styles
-		postcss : {
-			options : {
-				processors : [ 
+		postcss: {
+			options: {
+				processors: [
 					require('pixrem')(),
-					require('autoprefixer')({browsers: 'last 2 versions'})
-					]
+					require('autoprefixer')({ browsers: 'last 2 versions' })
+				]
 			},
-			server : {
-				options : {
-					map : true
+			server: {
+				options: {
+					map: true
 				},
-				files : [ {
-					expand : true,
-					cwd : '.tmp/styles/',
-					src : '{,*/}*.css',
-					dest : '.tmp/styles/'
-				} ]
+				files: [{
+					expand: true,
+					cwd: '.tmp/styles/',
+					src: '{,*/}*.css',
+					dest: '.tmp/styles/'
+				}]
 			},
-			dist : {
-				files : [ {
-					expand : true,
-					cwd : '.tmp/styles/',
-					src : '{,*/}*.css',
-					dest : '.tmp/styles/'
-				} ]
+			dist: {
+				files: [{
+					expand: true,
+					cwd: '.tmp/styles/',
+					src: '{,*/}*.css',
+					dest: '.tmp/styles/'
+				}]
 			}
 		},
 
 		// Run some tasks in parallel to speed up the build process
-		concurrent : {
-			server : [ 'copy:styles'],
-			test : [ 'copy:styles' ],
-			dist : [ 'copy:styles', 'concat:tmp', 'imagemin', 'svgmin' ]
+		concurrent: {
+			server: ['copy:styles'],
+			test: ['copy:styles'],
+			dist: ['copy:styles', 'concat:tmp', 'imagemin', 'svgmin']
 		},
 
 		/*
@@ -611,20 +613,20 @@ module.exports = function(grunt) {
 		 * http://bahmutov.calepin.co/debugging-karma-unit-tests.html
 		 * 
 		 */
-		karma : {
-			unit : {
-				configFile : 'test/karma.build.conf.js',
-				singleRun : true
+		karma: {
+			unit: {
+				configFile: 'test/karma.build.conf.js',
+				singleRun: true
 			},
-			build : {
-				configFile : 'test/karma.build.conf.js',
-				singleRun : true
+			build: {
+				configFile: 'test/karma.build.conf.js',
+				singleRun: true
 			},
-			debug : {
-				configFile : 'test/karma.unit.conf.js',
-				port : 9999,
-				singleRun : false,
-				browsers : [ 'Chrome' ]
+			debug: {
+				configFile: 'test/karma.unit.conf.js',
+				port: 9999,
+				singleRun: false,
+				browsers: ['Chrome']
 			}
 		},
 
@@ -634,74 +636,89 @@ module.exports = function(grunt) {
 		 * 
 		 * SEE: https://github.com/klei/grunt-injector
 		 */
-		injector : {
-			options : {
+		injector: {
+			options: {
 				// Task-specific options go here.
-				relative : true,
-				addRootSlash : false,
-				ignorePath : [
+				relative: true,
+				addRootSlash: false,
+				ignorePath: [
 					'../<%= yeoman.app %>/',
 					'<%= yeoman.demo %>/'
-					]
+				],
+				sort: function(a, b) {
+					if (a.endsWith('app.js')) {
+						return -1;
+					}
+					if (b.endsWith('app.js')) {
+						return 1;
+					}
+					if (a.endsWith('index.js') && !b.endsWith('index.js')) {
+						return -1;
+					}
+					if (!a.endsWith('index.js') && b.endsWith('index.js')) {
+						return 1;
+					}
+					return a.localeCompare(b);
+				}
 			},
-			project_files : {
-				files : {
-					'<%= yeoman.demo %>/index.html' : [
-	                    '<%= yeoman.app %>/libs/*.js',
+			project_files: {
+				files: {
+					'<%= yeoman.demo %>/index.html': [
+						'<%= yeoman.app %>/libs/*.js',
 						'<%= yeoman.app %>/scripts/**/*.js',
 						'<%= yeoman.app %>/styles/**/*.css',
 						'<%= yeoman.demo %>/scripts/**/*.js',
 						'<%= yeoman.demo %>/styles/**/*.css'
-						]
+					]
 				}
 			}
 		},
 
-        strip_code: {
-            options:{
-                blocks: [
-                    {
-                        start_block: '/* start-test-block */',
-                        end_block: '/* end-test-block */'
-                    },
-                    {
-                        start_block: '<!-- start-html-test-code -->',
-                        end_block: '<!-- end-html-test-code -->'
-                    }
-                ]
-            },
-            your_target: {
-                src: 'dist/*.js'
-            }
-        },
+		strip_code: {
+			options: {
+				blocks: [
+					{
+						start_block: '/* start-test-block */',
+						end_block: '/* end-test-block */'
+					},
+					{
+						start_block: '<!-- start-html-test-code -->',
+						end_block: '<!-- end-html-test-code -->'
+					}
+				]
+			},
+			your_target: {
+				src: 'dist/*.js'
+			}
+		},
 	});
 
 	grunt.registerTask('demo', 'Compile then start a connect web server',
-			function(target) {
-		if (target === 'dist') {
-			return grunt.task.run([ 
-				'build',
-				// added just before connect
-				'configureProxies:server',
-				'connect:dist:keepalive'
+		function(target) {
+			if (target === 'dist') {
+				return grunt.task.run([
+					'build',
+					// added just before connect
+					'configureProxies:server',
+					'connect:dist:keepalive'
 				]);
-		}
+			}
 
-		grunt.task.run([
-			'clean:server',
-			'wiredep',
-			'injector',
-			'concurrent:server',
-			'postcss:server',
-			'configureProxies:server', // added just before connect
-			'connect:livereload',
-			'watch'
+			grunt.task.run([
+				'clean:server',
+				'wiredep',
+				'injector',
+				'concurrent:server',
+				'postcss:server',
+				'configureProxies:server', // added just before connect
+				'connect:livereload',
+				'watch'
 			]);
-	});
+		});
 
 	grunt.registerTask('setversion', function(arg1) {
 		console.log(`Attempting to update version to ${arg1}`);
-		var parsedJson= grunt.file.readJSON('bower.json');//read in the current
+		var parsedJson = grunt.file.readJSON('bower.json');//read in the current
 		parsedJson.version = arg1; //set the top level version field to arg1
 		grunt.file.write('bower.json', JSON.stringify(parsedJson, null, 2));
 	});
@@ -714,7 +731,7 @@ module.exports = function(grunt) {
 		'concurrent:test', //
 		'postcss:server', //
 		'karma:unit' //
-		]);
+	]);
 
 	grunt.registerTask('debug', [ //
 		'clean', //
@@ -723,7 +740,7 @@ module.exports = function(grunt) {
 		'concurrent:server', //
 		'postcss', //
 		'karma:debug' //
-		]);
+	]);
 
 	grunt.registerTask('build', [ //
 		'wiredep', //
@@ -739,18 +756,18 @@ module.exports = function(grunt) {
 		'strip_code', //
 		'uglify', //
 		'cssmin' //
-		]);
+	]);
 
 	grunt.registerTask('default', [ //
 		'newer:jshint', //
 		'newer:eslint', //
 		'test', //
 		'build' //
-		]);
+	]);
 
 	grunt.registerTask('release', [ //
-		'default', 
+		'default',
 		'karma:build',
 		'jsdoc'
-		]);
+	]);
 };
