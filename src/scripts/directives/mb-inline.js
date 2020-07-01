@@ -27,7 +27,7 @@
  * @name mb-inline
  * @description Inline editing field
  */
-angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbResource) {
+mblowfish.directive('mbInline', function($q, $parse, $mbResource) {
 
     /**
      * Link data and view
@@ -66,7 +66,8 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
 			if (attr.mbInlineOnSave) {
 				scope.$data = d;
 				var value = $parse(attr.mbInlineOnSave)(scope, {
-					$event: event
+					$event: event,
+					$value: d
 				});
 				$q.when(value)
 					.then(function() {
@@ -88,6 +89,24 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
          * @ngInject
          */
 		controller: function($scope) {
+			
+			this.hasPageFor = function(){
+				return $mbResource.hasPageFor($scope.mbInlineType);
+			};
+			this.setFromResource = function($event){
+				var ctrl = this;
+				return $mbResource.get($scope.mbInlineType, {
+					$style: {
+						icon: 'file',
+						title: $scope.mbInlineLabel || 'Select resource',
+					},
+					$value: this.model
+				}).then(function(value) {
+					ctrl.model = value;
+					ctrl.save($event);
+				});
+			};
+			
 			this.edit = function() {
 				this.editMode = true;
 			};

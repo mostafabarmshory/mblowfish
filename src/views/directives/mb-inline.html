@@ -259,6 +259,9 @@
 		<button 
 			ng-if="mbInlineSaveButton && ctrlInline.editMode"
 			ng-click="ctrlInline.save()">save</button>
+		<button 
+			ng-if="ctrlInline.editMode && ctrlInline.hasPageFor()"
+			ng-click="ctrlInline.setFromResource($event)">...</button>
 		<ng-transclude 
 			ng-hide="ctrlInline.editMode" 
 			ng-click="ctrlInline.edit()"
