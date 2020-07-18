@@ -6,10 +6,16 @@
 	<md-input-container class="md-icon-float md-block">
 		<label mb-translate>Language</label>
 		<md-select 
-			ng-model="__app.configs.language">
+			ng-model="config[SETTING_LOCAL_LANGUAGE]">
 			<md-option 
-				ng-repeat="lang in languages"
-				ng-value="lang.key">{{lang.title | translate}}</md-option>
+				ng-repeat="lang in [{
+					title: 'Persian',
+					key: 'fa'
+				},{
+					title: 'English',
+					key: 'en'
+				}]"
+				ng-value="lang.key">{{::(lang.title | translate)}}</md-option>
 		</md-select>
 		<mb-icon
 			style="cursor: pointer;" 
@@ -19,7 +25,7 @@
 	<md-input-container class="md-block">
 		<label mb-translate>Direction</label>
 		<md-select 
-			ng-model="__app.configs.dir" 
+			ng-model="config[SETTING_LOCAL_DIRECTION]" 
 			placeholder="Direction">
 			<md-option 
 				value="rtl" 
@@ -33,7 +39,7 @@
 	<md-input-container class="md-block">
 		<label mb-translate>Calendar</label>
 		<md-select 
-			ng-model="__app.configs.calendar" 
+			ng-model="config[SETTING_LOCAL_CALENDAR]" 
 			placeholder="">
 			<md-option 
 				value="Gregorian"
@@ -47,26 +53,49 @@
 	<md-input-container class="md-block">
 		<label mb-translate>Date format</label>
 		<md-select 
-			ng-model="__app.configs.dateFormat" 
+			ng-model="config[SETTING_LOCAL_DATEFORMAT]" 
 			placeholder="">
 			<md-option 
-				value="jMM-jDD-jYYYY"
-				mb-translate>
-                            <span mb-translate>Month  Day  Year,   </span> <span mb-translate>Ex.   </span>
-                            {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}}
+				value="jMM-jDD-jYYYY">
+				<span mb-translate>Month  Day  Year,   </span> 
+				<span>{{'2018-01-01 15:00:00' | mbDate:'jMM-jDD-jYYYY'}}</span> 
 			</md-option>
 			<md-option 
-				value="jYYYY-jMM-jDD"
-				mb-translate>
-                            <span mb-translate>Year  Month  Day,   </span> <span mb-translate>Ex.   </span>
-                            {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}}
+				value="jYYYY-jMM-jDD">
+				<span mb-translate>Year  Month  Day,   </span>
+				<span>{{'2018-01-01 00:00:00' | mbDate:'jYYYY-jMM-jDD'}}</span>
 			</md-option>
 			<md-option 
-				value="jYYYY jMMMM jDD"
-				mb-translate>
-                            <span mb-translate>Year  Month  Day,   </span> <span mb-translate>Ex.   </span>
-                            {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}}
+				value="jYYYY jMMMM jDD">
+				<span mb-translate>Year  Month  Day,   </span>
+				<span>{{'2018-01-01 15:00:00' | mbDate:'jYYYY jMMMM jDD'}}</span>
 			</md-option>
 		</md-select>
 	</md-input-container>
+	
+	<md-input-container class="md-block">
+		<label mb-translate>Date Time format</label>
+		<md-select 
+			ng-model="config[SETTING_LOCAL_DATETIMEFORMAT]" 
+			placeholder="">
+			<md-option 
+				value="jMM-jDD-jYYYY HH:mm:ss">
+				<span mb-translate>Month  Day  Year ,</span> 
+				<span>{{'2018-01-01 15:00:00' | mbDate:'jMM-jDD-jYYYY HH:mm:ss'}}</span>
+			</md-option>
+			<md-option 
+				value="jYYYY-jMM-jDD HH:mm:ss">
+				<span mb-translate>Year  Month  Day,</span>
+				<span>{{'2018-01-01 15:00:00' | mbDateTime:'jYYYY-jMM-jDD HH:mm:ss'}}</span>
+			</md-option>
+		</md-select>
+	</md-input-container>
+	
+	<div
+		layout="row">
+		<md-button
+			ng-click="ctrl.save()"
+			translate>Save</md-button>
+	</div>
+
 </div>

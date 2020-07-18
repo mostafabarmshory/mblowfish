@@ -27,7 +27,8 @@ var actions = {},
 	editors = {},
 	resources = {},
 	components = {},
-	applicationProcesses = {};
+	applicationProcesses = {},
+	preferences = {};
 var rootScopeConstants = {};
 
 
@@ -62,7 +63,8 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
-		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider) {
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
+		$mbPreferencesProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -111,6 +113,10 @@ var mbApplicationModule = angular
 			_.forEach(processList, function(process) {
 				$mbApplicationProvider.addAction(id, process);
 			});
+		});
+		
+		_.forEach(preferences, function(com, id) {
+			$mbPreferencesProvider.addPage(id, com);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -224,6 +230,10 @@ window.mblowfish = {
 		components[componentId] = component;
 		return window.mblowfish;
 	},
+	addPreference: function(preferenceId, preference) {
+		preferences[preferenceId] = preference;
+		return window.mblowfish;
+	},
 
 	addApplicationProcess: function(state, process) {
 		if (_.isUndefined(applicationProcesses[state])) {
@@ -265,5 +275,20 @@ window.mblowfish = {
 //-------------------------------------------------------------------------------------------------
 
 mblowfish.addConstants({
-	MB_SECURITY_ACCOUNT_SP: '/app/security/account'
+	MB_SECURITY_ACCOUNT_SP: '/app/security/account',
+
+	MB_SETTINGS_SP: '/app/settings',
+	MB_SETTINGS_ST: '/app/settings',
+
+
+
+	STORE_LOCAL_PATH: '/app/local',
+
+	SETTING_LOCAL_LANGUAGE: 'local.language',
+	SETTING_LOCAL_DATEFORMAT: 'local.dateformat',
+	SETTING_LOCAL_DATETIMEFORMAT: 'local.datetimeformat',
+	SETTING_LOCAL_CURRENCY: 'local.currency',
+	SETTING_LOCAL_DIRECTION: 'local.direction',
+	SETTING_LOCAL_CALENDAR: 'local.calendar',
+	SETTING_LOCAL_TIMEZONE: 'local.timezone',
 });

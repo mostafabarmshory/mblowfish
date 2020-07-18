@@ -1401,6 +1401,10 @@ table.mb-table-description tr td:first-child {
 	right: 3px
 }
 
+[dir=rtl] .lm_header .lm_controls {
+	left: 3px
+}
+
 .lm_header .lm_controls>li {
 	cursor: pointer;
 	float: left;

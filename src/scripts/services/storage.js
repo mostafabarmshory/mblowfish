@@ -28,7 +28,7 @@
  * @description A service to work with storage of browser
  * 
  */
-angular.module('mblowfish-core').provider('$mbStorage', function() {
+mblowfish.provider('$mbStorage', function() {
 
 
 
@@ -97,20 +97,6 @@ angular.module('mblowfish-core').provider('$mbStorage', function() {
 			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
 			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
 			var $storage = {
-				//				get: function(name) {
-				//					return $storage[name];
-				//				},
-				//				put: function(name, value) {
-				//					$storage[name] = value;
-				//					return $storage;
-				//				},
-				//				remove: function(name) {
-				//					delete $storage[name];
-				//					return $storage;
-				//				},
-				//				has: function(name) {
-				//					return ($localStorage[name] ? true : false);
-				//				},
 				$default: function(items) {
 					for (var k in items) {
 						angular.isDefined($storage[k]) || ($storage[k] = angular.copy(items[k]));

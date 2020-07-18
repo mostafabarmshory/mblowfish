@@ -1248,7 +1248,8 @@ var actions = {},
 	editors = {},
 	resources = {},
 	components = {},
-	applicationProcesses = {};
+	applicationProcesses = {},
+	preferences = {};
 var rootScopeConstants = {};
 
 
@@ -1283,7 +1284,8 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
-		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider) {
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
+		$mbPreferencesProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1332,6 +1334,10 @@ var mbApplicationModule = angular
 			_.forEach(processList, function(process) {
 				$mbApplicationProvider.addAction(id, process);
 			});
+		});
+		
+		_.forEach(preferences, function(com, id) {
+			$mbPreferencesProvider.addPage(id, com);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -1445,6 +1451,10 @@ window.mblowfish = {
 		components[componentId] = component;
 		return window.mblowfish;
 	},
+	addPreference: function(preferenceId, preference) {
+		preferences[preferenceId] = preference;
+		return window.mblowfish;
+	},
 
 	addApplicationProcess: function(state, process) {
 		if (_.isUndefined(applicationProcesses[state])) {
@@ -1486,7 +1496,22 @@ window.mblowfish = {
 //-------------------------------------------------------------------------------------------------
 
 mblowfish.addConstants({
-	MB_SECURITY_ACCOUNT_SP: '/app/security/account'
+	MB_SECURITY_ACCOUNT_SP: '/app/security/account',
+
+	MB_SETTINGS_SP: '/app/settings',
+	MB_SETTINGS_ST: '/app/settings',
+
+
+
+	STORE_LOCAL_PATH: '/app/local',
+
+	SETTING_LOCAL_LANGUAGE: 'local.language',
+	SETTING_LOCAL_DATEFORMAT: 'local.dateformat',
+	SETTING_LOCAL_DATETIMEFORMAT: 'local.datetimeformat',
+	SETTING_LOCAL_CURRENCY: 'local.currency',
+	SETTING_LOCAL_DIRECTION: 'local.direction',
+	SETTING_LOCAL_CALENDAR: 'local.calendar',
+	SETTING_LOCAL_TIMEZONE: 'local.timezone',
 });
 
 /*
@@ -1961,23 +1986,16 @@ mblowfish
 			var m = moment(date);
 			return m.isValid() ? m.format('L') : '';
 		};
-
-		// Pages
-		$mbPreferencesProvider
-			.addPage('local', {
-				title: 'local',
-				icon: 'language',
-				templateUrl: 'views/preferences/mb-local.html',
-				controller: 'MbLocalCtrl',
-				controllerAs: 'ctrl'
-			})
-			.addPage('brand', {
-				title: 'Branding',
-				icon: 'copyright',
-				templateUrl: 'views/preferences/mb-brand.html',
-				// controller : 'settingsBrandCtrl',
-				controllerAs: 'ctrl'
-			});
+///*
+//		// Pages
+//		$mbPreferencesProvider
+//			.addPage('brand', {
+//				title: 'Branding',
+//				icon: 'copyright',
+//				templateUrl: 'views/preferences/mb-brand.html',
+//				// controller : 'settingsBrandCtrl',
+//				controllerAs: 'ctrl'
+//			});*/
 
 
 		$mbResourceProvider
@@ -9273,7 +9291,8 @@ mblowfish
 	 */
 	.filter('mbDateTime', function($mbLocal) {
 		return function(inputDate, format) {
-			return $mbLocal.formatDateTime(inputDate, format);
+			var a = $mbLocal.formatDateTime(inputDate, format);
+			return a;
 		};
 	});
 
@@ -9348,6 +9367,46 @@ mblowfish.filter('translate', function($parse, $mbTranslate) {
 	return translateFilter;
 });
 
+mblowfish.addPreference('local', {
+	title: 'local',
+	icon: 'language',
+	templateUrl: 'views/preferences/mb-local.html',
+	/* @ngInject */
+	controller: function($scope, $mbSettings) {
+		var names = [
+			SETTING_LOCAL_LANGUAGE,
+			SETTING_LOCAL_DATEFORMAT,
+			SETTING_LOCAL_DATETIMEFORMAT,
+			SETTING_LOCAL_CURRENCY,
+			SETTING_LOCAL_DIRECTION,
+			SETTING_LOCAL_CALENDAR,
+			SETTING_LOCAL_TIMEZONE,
+		];
+		var ctrl = this;
+		$scope.config = {};
+
+		function load() {
+			_.forEach(names, function(name) {
+				$scope.config[name] = $mbSettings.get(name);
+			});
+		}
+
+		function save() {
+			_.forEach(names, function(name) {
+				$mbSettings.set(name, $scope.config[name]);
+			});
+		}
+
+		_.assign(ctrl, {
+			load: load,
+			save: save,
+		});
+
+
+		load();
+	},
+	controllerAs: 'ctrl'
+})
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -15399,15 +15458,6 @@ mblowfish.provider('$mbLayout', function() {
  * SOFTWARE.
  */
 
-var STORE_LOCAL_PATH = '/app/local';
-
-var SETTING_LOCAL_LANGUAGE = 'local.language';
-var SETTING_LOCAL_DATEFORMAT = 'local.dateformat';
-var SETTING_LOCAL_DATETIMEFORMAT = 'local.datetimeformat';
-var SETTING_LOCAL_CURRENCY = 'local.currency';
-var SETTING_LOCAL_DIRECTION = 'local.direction';
-var SETTING_LOCAL_CALENDAR = 'local.calendar';
-var SETTING_LOCAL_TIMEZONE = 'local.timezone';
 
 
 /**
@@ -15468,7 +15518,7 @@ mblowfish.provider('$mbLocal', function() {
 	var defaultCalendar = 'en';
 	var defaultCurrency = 'USD';
 	var defaultDateFormat = 'jYYYY-jMM-jDD';
-	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD HH:mm:ss';
 	var defaultDirection = 'ltr';
 	var defaultLanguage = 'en';
 	var defaultTimezone = 'UTC';
@@ -15481,7 +15531,7 @@ mblowfish.provider('$mbLocal', function() {
 	var calendar;
 	var timezone;
 
-	var autoSave = true;
+	var autoSave = false;
 	var exrpressionsEnabled = true;
 
 
@@ -15498,7 +15548,7 @@ mblowfish.provider('$mbLocal', function() {
 				format = format.replace('j', '');
 			}
 			return moment
-				.utc(inputDate)
+				.utc(inputDate, 'YYYY-MM-DD HH:mm:ss')
 				.local()
 				.format(format);
 		} catch (ex) {
@@ -15737,23 +15787,24 @@ mblowfish.provider('$mbLocal', function() {
 	}
 
 	function save() {
-		mbStorage[SETTING_LOCAL_CALENDAR] = calendar;
-		mbStorage[SETTING_LOCAL_CURRENCY] = currency;
-		mbStorage[SETTING_LOCAL_DATEFORMAT] = dateFormat;
-		mbStorage[SETTING_LOCAL_DATETIMEFORMAT] = dateTimeFormat;
-		mbStorage[SETTING_LOCAL_DIRECTION] = direction;
-		mbStorage[SETTING_LOCAL_LANGUAGE] = language;
-		mbStorage[SETTING_LOCAL_TIMEZONE] = timezone;
+		mbSettings
+			.set(SETTING_LOCAL_CALENDAR, calendar)
+			.set(SETTING_LOCAL_CURRENCY, currency)
+			.set(SETTING_LOCAL_DATEFORMAT, dateFormat)
+			.set(SETTING_LOCAL_DATETIMEFORMAT, dateTimeFormat)
+			.set(SETTING_LOCAL_DIRECTION, direction)
+			.set(SETTING_LOCAL_LANGUAGE, language)
+			.set(SETTING_LOCAL_TIMEZONE, timezone);
 	}
 
 	function load() {
-		setCalendar(mbStorage[SETTING_LOCAL_CALENDAR] || defaultCalendar);
-		setCurrency(mbStorage[SETTING_LOCAL_CURRENCY] || defaultCurrency);
-		setDateFormat(mbStorage[SETTING_LOCAL_DATEFORMAT] || defaultDateFormat);
-		setDateTimeFormat(mbStorage[SETTING_LOCAL_DATETIMEFORMAT] || defaultDateTimeFormat);
-		setDirection(mbStorage[SETTING_LOCAL_DIRECTION] || defaultDirection);
-		setLanguage(mbStorage[SETTING_LOCAL_LANGUAGE] || defaultLanguage);
-		setTimezone(mbStorage[SETTING_LOCAL_TIMEZONE] || defaultLanguage);
+		setCalendar(mbSettings.get(SETTING_LOCAL_CALENDAR, defaultCalendar));
+		setCurrency(mbSettings.get(SETTING_LOCAL_CURRENCY, defaultCurrency));
+		setDateFormat(mbSettings.get(SETTING_LOCAL_DATEFORMAT, defaultDateFormat));
+		setDateTimeFormat(mbSettings.get(SETTING_LOCAL_DATETIMEFORMAT, defaultDateTimeFormat));
+		setDirection(mbSettings.get(SETTING_LOCAL_DIRECTION, defaultDirection));
+		setLanguage(mbSettings.get(SETTING_LOCAL_LANGUAGE, defaultLanguage));
+		setTimezone(mbSettings.get(SETTING_LOCAL_TIMEZONE, defaultLanguage));
 
 		if (exrpressionsEnabled) {
 			rootScope.isLanguage = function(lang) {
@@ -15810,11 +15861,7 @@ mblowfish.provider('$mbLocal', function() {
 			rootScope = $rootScope;
 			mbTranslate = $mbTranslate;
 
-			if (autoSave) {
-				load();
-			} else {
-				setLanguage(defaultLanguage);
-			}
+			load();
 			return service;
 		},
 		setDefaultLanguage: function(language) {
@@ -17783,7 +17830,7 @@ angular.module('mblowfish-core').service('$mbSelection', function() {
 @name $mbSettings
 @description Default selection system.
  */
-angular.module('mblowfish-core').provider('$mbSettings', function() {
+mblowfish.provider('$mbSettings', function() {
 	//---------------------------------------
 	// Services
 	//---------------------------------------
@@ -17791,12 +17838,15 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	var service;
 	var rootScope;
 	var mbStorage;
+	var mbDispatcherUtil;
 
 	//---------------------------------------
 	// Variables
 	//---------------------------------------
 	var templateUrl = 'resources/settings-template.json';
-
+	var exrpressionsEnabled = false;
+	var settings = {};
+	var autosave = true;
 	//---------------------------------------
 	// functions
 	//---------------------------------------
@@ -17807,18 +17857,38 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	@returns {Promise} A promise to load settings
 	 */
 	function load() {
+		settings = mbStorage[MB_SETTINGS_SP] || {};
+	}
 
+	function get(key, defaultValue) {
+		return settings[key] || defaultValue;
+	}
+
+	function set(key, value) {
+		settings[key] = value;
+		if (autosave) {
+			save();
+		}
+		// Fire setting is changed
+		mbDispatcherUtil.fireUpdated(MB_SETTINGS_ST, {
+			values: [value],
+			keys: [key]
+		});
+		return service;
+	}
+
+	function save() {
+		mbStorage[MB_SETTINGS_SP] = settings;
+	}
+
+	function has(key) {
+		return ~_.isUndefined(settigns[key]);
 	}
 
 	function setTemplateUrl(url) {
 		templateUrl = url;
 		return provider;
 	}
-
-	function getTemplateUrl() {
-		return templateUrl;
-	}
-
 
 	function loadLocalData() {
 		/*
@@ -17835,8 +17905,12 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	}
 
 	function setAutosaveEnabled(flag) {
-		setAutosave = flag;
+		autosave = flag;
 		return provider;
+	}
+
+	function setExrpressionsEnabled() {
+
 	}
 
 	//---------------------------------------
@@ -17844,20 +17918,27 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	//---------------------------------------
 	service = {
 		load: load,
-		getTemplateUrl: getTemplateUrl,
+		get: get,
+		set: set,
+		save: save,
+		has: has,
 	};
 
 	provider = {
 		/* @ngInject */
-		$get: function($rootScope, $mbStorage, $q) {
+		$get: function($rootScope, $mbStorage, $q, $mbDispatcherUtil) {
 			rootScope = $rootScope;
 			mbStorage = $mbStorage;
 			q = $q;
+			mbDispatcherUtil = $mbDispatcherUtil;
+			
+			load();
 
 			return service;
 		},
 		setTemplateUrl: setTemplateUrl,
 		setAutosaveEnabled: setAutosaveEnabled,
+		setExrpressionsEnabled: setExrpressionsEnabled,
 	};
 	return provider;
 });
@@ -17997,7 +18078,7 @@ mblowfish.provider('$mbSidenav', function() {
  * @description A service to work with storage of browser
  * 
  */
-angular.module('mblowfish-core').provider('$mbStorage', function() {
+mblowfish.provider('$mbStorage', function() {
 
 
 
@@ -18066,20 +18147,6 @@ angular.module('mblowfish-core').provider('$mbStorage', function() {
 			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
 			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
 			var $storage = {
-				//				get: function(name) {
-				//					return $storage[name];
-				//				},
-				//				put: function(name, value) {
-				//					$storage[name] = value;
-				//					return $storage;
-				//				},
-				//				remove: function(name) {
-				//					delete $storage[name];
-				//					return $storage;
-				//				},
-				//				has: function(name) {
-				//					return ($localStorage[name] ? true : false);
-				//				},
 				$default: function(items) {
 					for (var k in items) {
 						angular.isDefined($storage[k]) || ($storage[k] = angular.copy(items[k]));
@@ -19076,7 +19143,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=__app.configs.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=__app.configs.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=__app.configs.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=__app.configs.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> <span mb-translate>Month Day Year, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=config[SETTING_LOCAL_LANGUAGE]> <md-option ng-repeat=\"lang in [{\n" +
+    "\t\t\t\t\ttitle: 'Persian',\n" +
+    "\t\t\t\t\tkey: 'fa'\n" +
+    "\t\t\t\t},{\n" +
+    "\t\t\t\t\ttitle: 'English',\n" +
+    "\t\t\t\t\tkey: 'en'\n" +
+    "\t\t\t\t}]\" ng-value=lang.key>{{::(lang.title | translate)}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=config[SETTING_LOCAL_DIRECTION] placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=config[SETTING_LOCAL_CALENDAR] placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=config[SETTING_LOCAL_DATEFORMAT] placeholder=\"\"> <md-option value=jMM-jDD-jYYYY> <span mb-translate>Month Day Year, </span> <span>{{'2018-01-01 15:00:00' | mbDate:'jMM-jDD-jYYYY'}}</span> </md-option> <md-option value=jYYYY-jMM-jDD> <span mb-translate>Year Month Day, </span> <span>{{'2018-01-01 00:00:00' | mbDate:'jYYYY-jMM-jDD'}}</span> </md-option> <md-option value=\"jYYYY jMMMM jDD\"> <span mb-translate>Year Month Day, </span> <span>{{'2018-01-01 15:00:00' | mbDate:'jYYYY jMMMM jDD'}}</span> </md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date Time format</label> <md-select ng-model=config[SETTING_LOCAL_DATETIMEFORMAT] placeholder=\"\"> <md-option value=\"jMM-jDD-jYYYY HH:mm:ss\"> <span mb-translate>Month Day Year ,</span> <span>{{'2018-01-01 15:00:00' | mbDate:'jMM-jDD-jYYYY HH:mm:ss'}}</span> </md-option> <md-option value=\"jYYYY-jMM-jDD HH:mm:ss\"> <span mb-translate>Year Month Day,</span> <span>{{'2018-01-01 15:00:00' | mbDateTime:'jYYYY-jMM-jDD HH:mm:ss'}}</span> </md-option> </md-select> </md-input-container> <div layout=row> <md-button ng-click=ctrl.save() translate>Save</md-button> </div> </div>"
   );
 
 

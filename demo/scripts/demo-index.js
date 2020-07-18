@@ -76,7 +76,7 @@ mblowfish
 			;
 
 		$mbSettingsProvider
-			.setAutosaveEnabled(false)
+			.setAutosaveEnabled(true)
 			.setTemplateUrl('resources/settings-template.json');
 
 		//

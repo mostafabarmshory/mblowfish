@@ -43,6 +43,7 @@ mblowfish
 	 */
 	.filter('mbDateTime', function($mbLocal) {
 		return function(inputDate, format) {
-			return $mbLocal.formatDateTime(inputDate, format);
+			var a = $mbLocal.formatDateTime(inputDate, format);
+			return a;
 		};
 	});

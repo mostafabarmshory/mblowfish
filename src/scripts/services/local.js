@@ -22,15 +22,6 @@
  * SOFTWARE.
  */
 
-var STORE_LOCAL_PATH = '/app/local';
-
-var SETTING_LOCAL_LANGUAGE = 'local.language';
-var SETTING_LOCAL_DATEFORMAT = 'local.dateformat';
-var SETTING_LOCAL_DATETIMEFORMAT = 'local.datetimeformat';
-var SETTING_LOCAL_CURRENCY = 'local.currency';
-var SETTING_LOCAL_DIRECTION = 'local.direction';
-var SETTING_LOCAL_CALENDAR = 'local.calendar';
-var SETTING_LOCAL_TIMEZONE = 'local.timezone';
 
 
 /**
@@ -91,7 +82,7 @@ mblowfish.provider('$mbLocal', function() {
 	var defaultCalendar = 'en';
 	var defaultCurrency = 'USD';
 	var defaultDateFormat = 'jYYYY-jMM-jDD';
-	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD HH:mm:ss';
 	var defaultDirection = 'ltr';
 	var defaultLanguage = 'en';
 	var defaultTimezone = 'UTC';
@@ -104,7 +95,7 @@ mblowfish.provider('$mbLocal', function() {
 	var calendar;
 	var timezone;
 
-	var autoSave = true;
+	var autoSave = false;
 	var exrpressionsEnabled = true;
 
 
@@ -121,7 +112,7 @@ mblowfish.provider('$mbLocal', function() {
 				format = format.replace('j', '');
 			}
 			return moment
-				.utc(inputDate)
+				.utc(inputDate, 'YYYY-MM-DD HH:mm:ss')
 				.local()
 				.format(format);
 		} catch (ex) {
@@ -360,23 +351,24 @@ mblowfish.provider('$mbLocal', function() {
 	}
 
 	function save() {
-		mbStorage[SETTING_LOCAL_CALENDAR] = calendar;
-		mbStorage[SETTING_LOCAL_CURRENCY] = currency;
-		mbStorage[SETTING_LOCAL_DATEFORMAT] = dateFormat;
-		mbStorage[SETTING_LOCAL_DATETIMEFORMAT] = dateTimeFormat;
-		mbStorage[SETTING_LOCAL_DIRECTION] = direction;
-		mbStorage[SETTING_LOCAL_LANGUAGE] = language;
-		mbStorage[SETTING_LOCAL_TIMEZONE] = timezone;
+		mbSettings
+			.set(SETTING_LOCAL_CALENDAR, calendar)
+			.set(SETTING_LOCAL_CURRENCY, currency)
+			.set(SETTING_LOCAL_DATEFORMAT, dateFormat)
+			.set(SETTING_LOCAL_DATETIMEFORMAT, dateTimeFormat)
+			.set(SETTING_LOCAL_DIRECTION, direction)
+			.set(SETTING_LOCAL_LANGUAGE, language)
+			.set(SETTING_LOCAL_TIMEZONE, timezone);
 	}
 
 	function load() {
-		setCalendar(mbStorage[SETTING_LOCAL_CALENDAR] || defaultCalendar);
-		setCurrency(mbStorage[SETTING_LOCAL_CURRENCY] || defaultCurrency);
-		setDateFormat(mbStorage[SETTING_LOCAL_DATEFORMAT] || defaultDateFormat);
-		setDateTimeFormat(mbStorage[SETTING_LOCAL_DATETIMEFORMAT] || defaultDateTimeFormat);
-		setDirection(mbStorage[SETTING_LOCAL_DIRECTION] || defaultDirection);
-		setLanguage(mbStorage[SETTING_LOCAL_LANGUAGE] || defaultLanguage);
-		setTimezone(mbStorage[SETTING_LOCAL_TIMEZONE] || defaultLanguage);
+		setCalendar(mbSettings.get(SETTING_LOCAL_CALENDAR, defaultCalendar));
+		setCurrency(mbSettings.get(SETTING_LOCAL_CURRENCY, defaultCurrency));
+		setDateFormat(mbSettings.get(SETTING_LOCAL_DATEFORMAT, defaultDateFormat));
+		setDateTimeFormat(mbSettings.get(SETTING_LOCAL_DATETIMEFORMAT, defaultDateTimeFormat));
+		setDirection(mbSettings.get(SETTING_LOCAL_DIRECTION, defaultDirection));
+		setLanguage(mbSettings.get(SETTING_LOCAL_LANGUAGE, defaultLanguage));
+		setTimezone(mbSettings.get(SETTING_LOCAL_TIMEZONE, defaultLanguage));
 
 		if (exrpressionsEnabled) {
 			rootScope.isLanguage = function(lang) {
@@ -433,11 +425,7 @@ mblowfish.provider('$mbLocal', function() {
 			rootScope = $rootScope;
 			mbTranslate = $mbTranslate;
 
-			if (autoSave) {
-				load();
-			} else {
-				setLanguage(defaultLanguage);
-			}
+			load();
 			return service;
 		},
 		setDefaultLanguage: function(language) {
