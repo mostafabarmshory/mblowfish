@@ -28,7 +28,8 @@ var actions = {},
 	resources = {},
 	components = {},
 	applicationProcesses = {},
-	preferences = {};
+	preferences = {},
+	sidnavs = {};
 var rootScopeConstants = {};
 
 
@@ -64,7 +65,7 @@ var mbApplicationModule = angular
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
 		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-		$mbPreferencesProvider) {
+		$mbPreferencesProvider, $mbSidenavProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -117,6 +118,10 @@ var mbApplicationModule = angular
 		
 		_.forEach(preferences, function(com, id) {
 			$mbPreferencesProvider.addPage(id, com);
+		});
+		
+		_.forEach(sidnavs, function(com, id) {
+			$mbSidenavProvider.addSidenav(id, com);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -240,6 +245,11 @@ window.mblowfish = {
 			applicationProcesses[state] = [];
 		}
 		applicationProcesses[state].push(process);
+		return window.mblowfish;
+	},
+	
+	addSidenav: function(componentId, component) {
+		sidnavs[componentId] = component;
 		return window.mblowfish;
 	},
 	//-------------------------------------------------------------
