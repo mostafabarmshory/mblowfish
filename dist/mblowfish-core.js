@@ -1249,7 +1249,8 @@ var actions = {},
 	resources = {},
 	components = {},
 	applicationProcesses = {},
-	preferences = {};
+	preferences = {},
+	sidnavs = {};
 var rootScopeConstants = {};
 
 
@@ -1285,7 +1286,7 @@ var mbApplicationModule = angular
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
 		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-		$mbPreferencesProvider) {
+		$mbPreferencesProvider, $mbSidenavProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1338,6 +1339,10 @@ var mbApplicationModule = angular
 		
 		_.forEach(preferences, function(com, id) {
 			$mbPreferencesProvider.addPage(id, com);
+		});
+		
+		_.forEach(sidnavs, function(com, id) {
+			$mbSidenavProvider.addSidenav(id, com);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -1461,6 +1466,11 @@ window.mblowfish = {
 			applicationProcesses[state] = [];
 		}
 		applicationProcesses[state].push(process);
+		return window.mblowfish;
+	},
+	
+	addSidenav: function(componentId, component) {
+		sidnavs[componentId] = component;
 		return window.mblowfish;
 	},
 	//-------------------------------------------------------------
@@ -2119,6 +2129,31 @@ mblowfish.addConstants({
 	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addConstants({
+	MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION: 'mb.navigator.sidenav.tiggle',
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12637,70 +12672,17 @@ mblowfish.addView('/app/modules', {
 		ctrl.loadModules();
 	}
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core').run(function($mbView) {
-	$mbView.add('/mb/ui/views/navigator/', {
-		title: 'Navigator',
-		description: 'Navigate all path and routs of the pandel',
-		controller: 'MbNavigatorContainerCtrl',
-		controllerAs: 'ctrl',
-		templateUrl: 'views/mb-navigator.html',
-		groups: ['Utilities']
-	});//
+
+mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
+	title: 'Navigator',
+	description: 'Tooble Navigator Sidenav',
+	icon: 'menu',
+	/* @ngInject */
+	action: function($mbSidenav) {
+		$mbSidenav.getSidenav('/app/navigator').toggle();
+	}
 });
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-
-/**
- @ngdoc Controllers
- @name MbNavigatorContainerCtrl
- @description Navigator controller
- 
- */
-angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function($scope, $mbView) {
+mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
 	var groups = {
 		'others': {
 			title: 'Others',
@@ -12724,6 +12706,28 @@ angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function
 
 	$scope.groups = groups
 });
+
+mblowfish.addSidenav('/app/navigator', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	locked: 'false',
+	position: 'start'
+});
+
+mblowfish.addView('/mb/ui/views/navigator/', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	groups: ['Utilities']
+});
+
+
+
 mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
 	title: 'Preferences',
 	icon: 'settings',
@@ -19230,6 +19234,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/ui/mb-view-main.html',
     "<body class=mb_body>  <div>  <div id=view></div> </div> </body>"
+  );
+
+
+  $templateCache.put('scripts/module-navigator/views/navigator.html',
+    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
   );
 
 }]);
