@@ -1336,11 +1336,11 @@ var mbApplicationModule = angular
 				$mbApplicationProvider.addAction(id, process);
 			});
 		});
-		
+
 		_.forEach(preferences, function(com, id) {
 			$mbPreferencesProvider.addPage(id, com);
 		});
-		
+
 		_.forEach(sidnavs, function(com, id) {
 			$mbSidenavProvider.addSidenav(id, com);
 		});
@@ -1424,7 +1424,6 @@ window.mblowfish = {
 		return window.mblowfish;
 	},
 
-
 	//-------------------------------------------------------------
 	// UI
 	//-------------------------------------------------------------
@@ -1468,7 +1467,7 @@ window.mblowfish = {
 		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
-	
+
 	addSidenav: function(componentId, component) {
 		sidnavs[componentId] = component;
 		return window.mblowfish;
@@ -1477,8 +1476,7 @@ window.mblowfish = {
 	// Angular Map
 	//-------------------------------------------------------------
 	element: function() {
-		angular.element.apply(mbApplicationModule, arguments);
-		return window.mblowfish;
+		return angular.element.apply(angular, arguments);
 	},
 	bootstrap: function(dom, modules, configs) {
 		modules = modules || [];
@@ -7313,6 +7311,51 @@ angular.module('mblowfish-core').factory('MbMenu', function() {
 	};
 
 	return MbMenu;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ @ngdoc Factories
+ @name MbMimeType
+ @description A wrapper of mimetype
+ 
+ */
+mblowfish.factory('MbMimetype', function($injector) {
+
+	function MbMimetype(type, subtype, suffix) {
+		this.type = type
+		this.subtype = subtype
+		this.suffix = suffix
+	};
+
+	MbMimetype.prototype.isEquals = function(mimetype) {
+		return $injector
+			.get('$mbMimetype')
+			.isEqual(this, mimetype);
+	};
+
+	return MbMimetype;
 });
 
 /*
@@ -14626,6 +14669,10 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 		return service;
 	}
 
+	function getRegesterdEditors() {
+		return editorConfigs;
+	}
+
 	/**
 	Removes editor description from system
 	
@@ -14738,6 +14785,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	service = {
 		registerEditor: registerEditor,
 		unregisterEditor: unregisterEditor,
+		getRegesterdEditors: getRegesterdEditors,
 
 		open: open,
 		fetch: fetch,
@@ -15999,6 +16047,164 @@ angular.module('mblowfish-core').service('$mbMenu', function() {
 	return this;
 });
 
+
+mblowfish.provider('$mbMimetype', function() {
+
+	/**
+	 * RegExp to match type in RFC 6838
+	 *
+	 * type-name = restricted-name
+	 * subtype-name = restricted-name
+	 * restricted-name = restricted-name-first *126restricted-name-chars
+	 * restricted-name-first  = ALPHA / DIGIT
+	 * restricted-name-chars  = ALPHA / DIGIT / "!" / "#" /
+	 *                          "$" / "&" / "-" / "^" / "_"
+	 * restricted-name-chars =/ "." ; Characters before first dot always
+	 *                              ; specify a facet name
+	 * restricted-name-chars =/ "+" ; Characters after last plus always
+	 *                              ; specify a structured syntax suffix
+	 * ALPHA =  %x41-5A / %x61-7A   ; A-Z / a-z
+	 * DIGIT =  %x30-39             ; 0-9
+	 */
+	var
+		SUBTYPE_NAME_REGEXP = /^[A-Za-z0-9\*][A-Za-z0-9!#$&^_.-]{0,126}$/,
+		TYPE_NAME_REGEXP = /^[A-Za-z0-9\*][A-Za-z0-9!#$&^_-]{0,126}$/,
+		TYPE_REGEXP = /^ *([A-Za-z0-9\*][A-Za-z0-9!#$&^_-]{0,126})\/([A-Za-z0-9\*][A-Za-z0-9!#$&^_.+-]{0,126}) *$/;
+
+	var
+		provider,
+		service,
+		Mimetype;
+
+
+
+	/**
+	 * Format object to media type.
+	 *
+	 * @param {object} obj
+	 * @return {string}
+	 * @public
+	 */
+	function format(obj) {
+		if (!_.isObject(obj)) {
+			throw new TypeError('argument obj is required');
+		}
+
+		var subtype = obj.subtype;
+		var suffix = obj.suffix;
+		var type = obj.type;
+
+		if (!type || !TYPE_NAME_REGEXP.test(type)) {
+			throw new TypeError('invalid type');
+		}
+
+		if (!subtype || !SUBTYPE_NAME_REGEXP.test(subtype)) {
+			throw new TypeError('invalid subtype');
+		}
+
+		// format as type/subtype
+		var string = type + '/' + subtype;
+
+		// append +suffix
+		if (suffix) {
+			if (!TYPE_NAME_REGEXP.test(suffix)) {
+				throw new TypeError('invalid suffix');
+			}
+
+			string += '+' + suffix;
+		}
+
+		return string;
+	}
+
+	/**
+	 * Test media type.
+	 *
+	 * @param {string} string
+	 * @return {object}
+	 * @public
+	 */
+
+	function test(string) {
+		if (!string) {
+			throw new TypeError('argument string is required');
+		}
+
+		if (typeof string !== 'string') {
+			throw new TypeError('argument string is required to be a string');
+		}
+
+		return TYPE_REGEXP.test(string.toLowerCase());
+	}
+
+	/**
+	 * Parse media type to object.
+	 *
+	 * @param {string} string
+	 * @return {object}
+	 * @public
+	 */
+
+	function parse(string) {
+		if (string instanceof Mimetype) {
+			return string;
+		}
+
+		if (!string) {
+			throw new TypeError('argument string is required');
+		}
+
+		if (typeof string !== 'string') {
+			throw new TypeError('argument string is required to be a string');
+		}
+
+		var match = TYPE_REGEXP.exec(string.toLowerCase());
+
+		if (!match) {
+			throw new TypeError('invalid media type');
+		}
+
+		var type = match[1];
+		var subtype = match[2];
+		var suffix;
+
+		// suffix after last +
+		var index = subtype.lastIndexOf('+');
+		if (index !== -1) {
+			suffix = subtype.substr(index + 1);
+			subtype = subtype.substr(0, index);
+		}
+
+		return new Mimetype(type, subtype, suffix);
+	}
+
+	function isEqual(a, b) {
+		a = parse(a);
+		b = parse(b);
+
+		return (a.type === '*' || b.type === '*' || a.type === b.type) &&
+			(a.subtype === '*' || b.subtype === '*' || a.subtype === b.subtype);
+	}
+
+
+	//---------------------------------------------------------------------
+	// init
+	//---------------------------------------------------------------------
+	service = {
+		parse: parse,
+		test: test,
+		format: format,
+		isEqual: isEqual
+	};
+	provider = {
+		$get: function(MbMimetype) {
+			'ngInject';
+			Mimetype = MbMimetype;
+			return service;
+		}
+	};
+	return provider;
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -18589,18 +18795,17 @@ angular.module('mblowfish-core').service('$mbUiUtil', function(
 
 
 	/**
-	 * @param on {string} current url
-	 * @param route {Object} route regexp to match the url against
-	 * @return {?Object}
-	 *
-	 * @description
-	 * Check if the route matches the current url.
-	 *
-	 * Inspired by match in
-	 * visionmedia/express/lib/router/router.js.
+	 @param on {string} current url
+	 @param route {Object} route regexp to match the url against
+	 @return {?Object}
+	 
+	 @description
+	 Check if the route matches the current url.
+	 
+	 Inspired by match in
+	 visionmedia/express/lib/router/router.js.
 
-
-	@memberof $mbUiUtil
+	 @memberof $mbUiUtil
 	 */
 	this.switchRouteMatcher = function(on, route) {
 		var keys = route.keys,
@@ -19068,11 +19273,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/mb-languages.html',
     "<div ng-controller=\"MbLanguagesCtrl as ctrl\" layout=row flex> <md-sidenav class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex mb-translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <mb-icon>add</mb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <mb-icon>more_vert</mb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p mb-translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <mb-icon>download</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span mb-translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <mb-icon>delete</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span mb-translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 mb-translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span mb-translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span mb-translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key] ng-model-options=\"{ updateOn: 'blur', debounce: 3000 }\"> <mb-icon ng-click=ctrl.deleteWord(key)>delete</mb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <mb-icon>add</mb-icon> </md-button> </fieldset> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/mb-navigator.html',
-    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
   );
 
 

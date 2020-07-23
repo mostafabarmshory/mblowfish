@@ -115,11 +115,11 @@ var mbApplicationModule = angular
 				$mbApplicationProvider.addAction(id, process);
 			});
 		});
-		
+
 		_.forEach(preferences, function(com, id) {
 			$mbPreferencesProvider.addPage(id, com);
 		});
-		
+
 		_.forEach(sidnavs, function(com, id) {
 			$mbSidenavProvider.addSidenav(id, com);
 		});
@@ -203,7 +203,6 @@ window.mblowfish = {
 		return window.mblowfish;
 	},
 
-
 	//-------------------------------------------------------------
 	// UI
 	//-------------------------------------------------------------
@@ -247,7 +246,7 @@ window.mblowfish = {
 		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
-	
+
 	addSidenav: function(componentId, component) {
 		sidnavs[componentId] = component;
 		return window.mblowfish;
@@ -256,8 +255,7 @@ window.mblowfish = {
 	// Angular Map
 	//-------------------------------------------------------------
 	element: function() {
-		angular.element.apply(mbApplicationModule, arguments);
-		return window.mblowfish;
+		return angular.element.apply(angular, arguments);
 	},
 	bootstrap: function(dom, modules, configs) {
 		modules = modules || [];

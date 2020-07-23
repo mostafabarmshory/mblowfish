@@ -103,6 +103,10 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 		return service;
 	}
 
+	function getRegesterdEditors() {
+		return editorConfigs;
+	}
+
 	/**
 	Removes editor description from system
 	
@@ -215,6 +219,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	service = {
 		registerEditor: registerEditor,
 		unregisterEditor: unregisterEditor,
+		getRegesterdEditors: getRegesterdEditors,
 
 		open: open,
 		fetch: fetch,
