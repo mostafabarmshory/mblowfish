@@ -25,7 +25,7 @@
 @name $mbSettings
 @description Default selection system.
  */
-angular.module('mblowfish-core').provider('$mbSettings', function() {
+mblowfish.provider('$mbSettings', function() {
 	//---------------------------------------
 	// Services
 	//---------------------------------------
@@ -33,12 +33,15 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	var service;
 	var rootScope;
 	var mbStorage;
+	var mbDispatcherUtil;
 
 	//---------------------------------------
 	// Variables
 	//---------------------------------------
 	var templateUrl = 'resources/settings-template.json';
-
+	var exrpressionsEnabled = false;
+	var settings = {};
+	var autosave = true;
 	//---------------------------------------
 	// functions
 	//---------------------------------------
@@ -49,18 +52,38 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	@returns {Promise} A promise to load settings
 	 */
 	function load() {
+		settings = mbStorage[MB_SETTINGS_SP] || {};
+	}
 
+	function get(key, defaultValue) {
+		return settings[key] || defaultValue;
+	}
+
+	function set(key, value) {
+		settings[key] = value;
+		if (autosave) {
+			save();
+		}
+		// Fire setting is changed
+		mbDispatcherUtil.fireUpdated(MB_SETTINGS_ST, {
+			values: [value],
+			keys: [key]
+		});
+		return service;
+	}
+
+	function save() {
+		mbStorage[MB_SETTINGS_SP] = settings;
+	}
+
+	function has(key) {
+		return ~_.isUndefined(settigns[key]);
 	}
 
 	function setTemplateUrl(url) {
 		templateUrl = url;
 		return provider;
 	}
-
-	function getTemplateUrl() {
-		return templateUrl;
-	}
-
 
 	function loadLocalData() {
 		/*
@@ -77,8 +100,12 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	}
 
 	function setAutosaveEnabled(flag) {
-		setAutosave = flag;
+		autosave = flag;
 		return provider;
+	}
+
+	function setExrpressionsEnabled() {
+
 	}
 
 	//---------------------------------------
@@ -86,20 +113,27 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	//---------------------------------------
 	service = {
 		load: load,
-		getTemplateUrl: getTemplateUrl,
+		get: get,
+		set: set,
+		save: save,
+		has: has,
 	};
 
 	provider = {
 		/* @ngInject */
-		$get: function($rootScope, $mbStorage, $q) {
+		$get: function($rootScope, $mbStorage, $q, $mbDispatcherUtil) {
 			rootScope = $rootScope;
 			mbStorage = $mbStorage;
 			q = $q;
+			mbDispatcherUtil = $mbDispatcherUtil;
+			
+			load();
 
 			return service;
 		},
 		setTemplateUrl: setTemplateUrl,
 		setAutosaveEnabled: setAutosaveEnabled,
+		setExrpressionsEnabled: setExrpressionsEnabled,
 	};
 	return provider;
 });

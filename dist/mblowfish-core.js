@@ -1248,7 +1248,9 @@ var actions = {},
 	editors = {},
 	resources = {},
 	components = {},
-	applicationProcesses = {};
+	applicationProcesses = {},
+	preferences = {},
+	sidnavs = {};
 var rootScopeConstants = {};
 
 
@@ -1283,7 +1285,8 @@ var mbApplicationModule = angular
 		'angular-material-persian-datepicker',
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
-		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider) {
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
+		$mbPreferencesProvider, $mbSidenavProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1332,6 +1335,14 @@ var mbApplicationModule = angular
 			_.forEach(processList, function(process) {
 				$mbApplicationProvider.addAction(id, process);
 			});
+		});
+
+		_.forEach(preferences, function(com, id) {
+			$mbPreferencesProvider.addPage(id, com);
+		});
+
+		_.forEach(sidnavs, function(com, id) {
+			$mbSidenavProvider.addSidenav(id, com);
 		});
 	})
 	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
@@ -1413,7 +1424,6 @@ window.mblowfish = {
 		return window.mblowfish;
 	},
 
-
 	//-------------------------------------------------------------
 	// UI
 	//-------------------------------------------------------------
@@ -1445,6 +1455,10 @@ window.mblowfish = {
 		components[componentId] = component;
 		return window.mblowfish;
 	},
+	addPreference: function(preferenceId, preference) {
+		preferences[preferenceId] = preference;
+		return window.mblowfish;
+	},
 
 	addApplicationProcess: function(state, process) {
 		if (_.isUndefined(applicationProcesses[state])) {
@@ -1453,12 +1467,16 @@ window.mblowfish = {
 		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
+
+	addSidenav: function(componentId, component) {
+		sidnavs[componentId] = component;
+		return window.mblowfish;
+	},
 	//-------------------------------------------------------------
 	// Angular Map
 	//-------------------------------------------------------------
 	element: function() {
-		angular.element.apply(mbApplicationModule, arguments);
-		return window.mblowfish;
+		return angular.element.apply(angular, arguments);
 	},
 	bootstrap: function(dom, modules, configs) {
 		modules = modules || [];
@@ -1486,7 +1504,22 @@ window.mblowfish = {
 //-------------------------------------------------------------------------------------------------
 
 mblowfish.addConstants({
-	MB_SECURITY_ACCOUNT_SP: '/app/security/account'
+	MB_SECURITY_ACCOUNT_SP: '/app/security/account',
+
+	MB_SETTINGS_SP: '/app/settings',
+	MB_SETTINGS_ST: '/app/settings',
+
+
+
+	STORE_LOCAL_PATH: '/app/local',
+
+	SETTING_LOCAL_LANGUAGE: 'local.language',
+	SETTING_LOCAL_DATEFORMAT: 'local.dateformat',
+	SETTING_LOCAL_DATETIMEFORMAT: 'local.datetimeformat',
+	SETTING_LOCAL_CURRENCY: 'local.currency',
+	SETTING_LOCAL_DIRECTION: 'local.direction',
+	SETTING_LOCAL_CALENDAR: 'local.calendar',
+	SETTING_LOCAL_TIMEZONE: 'local.timezone',
 });
 
 /*
@@ -1961,23 +1994,16 @@ mblowfish
 			var m = moment(date);
 			return m.isValid() ? m.format('L') : '';
 		};
-
-		// Pages
-		$mbPreferencesProvider
-			.addPage('local', {
-				title: 'local',
-				icon: 'language',
-				templateUrl: 'views/preferences/mb-local.html',
-				controller: 'MbLocalCtrl',
-				controllerAs: 'ctrl'
-			})
-			.addPage('brand', {
-				title: 'Branding',
-				icon: 'copyright',
-				templateUrl: 'views/preferences/mb-brand.html',
-				// controller : 'settingsBrandCtrl',
-				controllerAs: 'ctrl'
-			});
+///*
+//		// Pages
+//		$mbPreferencesProvider
+//			.addPage('brand', {
+//				title: 'Branding',
+//				icon: 'copyright',
+//				templateUrl: 'views/preferences/mb-brand.html',
+//				// controller : 'settingsBrandCtrl',
+//				controllerAs: 'ctrl'
+//			});*/
 
 
 		$mbResourceProvider
@@ -2101,6 +2127,31 @@ mblowfish.addConstants({
 	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addConstants({
+	MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION: 'mb.navigator.sidenav.tiggle',
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4582,7 +4633,7 @@ angular.module('mblowfish-core')
  * @name mb-inline
  * @description Inline editing field
  */
-angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbResource) {
+mblowfish.directive('mbInline', function($q, $parse, $mbResource) {
 
     /**
      * Link data and view
@@ -4621,7 +4672,8 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
 			if (attr.mbInlineOnSave) {
 				scope.$data = d;
 				var value = $parse(attr.mbInlineOnSave)(scope, {
-					$event: event
+					$event: event,
+					$value: d
 				});
 				$q.when(value)
 					.then(function() {
@@ -4643,6 +4695,24 @@ angular.module('mblowfish-core').directive('mbInline', function($q, $parse, $mbR
          * @ngInject
          */
 		controller: function($scope) {
+			
+			this.hasPageFor = function(){
+				return $mbResource.hasPageFor($scope.mbInlineType);
+			};
+			this.setFromResource = function($event){
+				var ctrl = this;
+				return $mbResource.get($scope.mbInlineType, {
+					$style: {
+						icon: 'file',
+						title: $scope.mbInlineLabel || 'Select resource',
+					},
+					$value: this.model
+				}).then(function(value) {
+					ctrl.model = value;
+					ctrl.save($event);
+				});
+			};
+			
 			this.edit = function() {
 				this.editMode = true;
 			};
@@ -7265,6 +7335,51 @@ angular.module('mblowfish-core').factory('MbMenu', function() {
  * SOFTWARE.
  */
 
+/**
+ @ngdoc Factories
+ @name MbMimeType
+ @description A wrapper of mimetype
+ 
+ */
+mblowfish.factory('MbMimetype', function($injector) {
+
+	function MbMimetype(type, subtype, suffix) {
+		this.type = type
+		this.subtype = subtype
+		this.suffix = suffix
+	};
+
+	MbMimetype.prototype.isEquals = function(mimetype) {
+		return $injector
+			.get('$mbMimetype')
+			.isEqual(this, mimetype);
+	};
+
+	return MbMimetype;
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 
 
 /**
@@ -9254,7 +9369,8 @@ mblowfish
 	 */
 	.filter('mbDateTime', function($mbLocal) {
 		return function(inputDate, format) {
-			return $mbLocal.formatDateTime(inputDate, format);
+			var a = $mbLocal.formatDateTime(inputDate, format);
+			return a;
 		};
 	});
 
@@ -9329,6 +9445,46 @@ mblowfish.filter('translate', function($parse, $mbTranslate) {
 	return translateFilter;
 });
 
+mblowfish.addPreference('local', {
+	title: 'local',
+	icon: 'language',
+	templateUrl: 'views/preferences/mb-local.html',
+	/* @ngInject */
+	controller: function($scope, $mbSettings) {
+		var names = [
+			SETTING_LOCAL_LANGUAGE,
+			SETTING_LOCAL_DATEFORMAT,
+			SETTING_LOCAL_DATETIMEFORMAT,
+			SETTING_LOCAL_CURRENCY,
+			SETTING_LOCAL_DIRECTION,
+			SETTING_LOCAL_CALENDAR,
+			SETTING_LOCAL_TIMEZONE,
+		];
+		var ctrl = this;
+		$scope.config = {};
+
+		function load() {
+			_.forEach(names, function(name) {
+				$scope.config[name] = $mbSettings.get(name);
+			});
+		}
+
+		function save() {
+			_.forEach(names, function(name) {
+				$mbSettings.set(name, $scope.config[name]);
+			});
+		}
+
+		_.assign(ctrl, {
+			load: load,
+			save: save,
+		});
+
+
+		load();
+	},
+	controllerAs: 'ctrl'
+})
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -12559,70 +12715,17 @@ mblowfish.addView('/app/modules', {
 		ctrl.loadModules();
 	}
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core').run(function($mbView) {
-	$mbView.add('/mb/ui/views/navigator/', {
-		title: 'Navigator',
-		description: 'Navigate all path and routs of the pandel',
-		controller: 'MbNavigatorContainerCtrl',
-		controllerAs: 'ctrl',
-		templateUrl: 'views/mb-navigator.html',
-		groups: ['Utilities']
-	});//
+
+mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
+	title: 'Navigator',
+	description: 'Tooble Navigator Sidenav',
+	icon: 'menu',
+	/* @ngInject */
+	action: function($mbSidenav) {
+		$mbSidenav.getSidenav('/app/navigator').toggle();
+	}
 });
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-
-/**
- @ngdoc Controllers
- @name MbNavigatorContainerCtrl
- @description Navigator controller
- 
- */
-angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function($scope, $mbView) {
+mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
 	var groups = {
 		'others': {
 			title: 'Others',
@@ -12646,6 +12749,28 @@ angular.module('mblowfish-core').controller('MbNavigatorContainerCtrl', function
 
 	$scope.groups = groups
 });
+
+mblowfish.addSidenav('/app/navigator', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	locked: 'false',
+	position: 'start'
+});
+
+mblowfish.addView('/mb/ui/views/navigator/', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	groups: ['Utilities']
+});
+
+
+
 mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
 	title: 'Preferences',
 	icon: 'settings',
@@ -14544,6 +14669,10 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 		return service;
 	}
 
+	function getRegesterdEditors() {
+		return editorConfigs;
+	}
+
 	/**
 	Removes editor description from system
 	
@@ -14656,6 +14785,7 @@ angular.module('mblowfish-core').provider('$mbEditor', function() {
 	service = {
 		registerEditor: registerEditor,
 		unregisterEditor: unregisterEditor,
+		getRegesterdEditors: getRegesterdEditors,
 
 		open: open,
 		fetch: fetch,
@@ -15380,15 +15510,6 @@ mblowfish.provider('$mbLayout', function() {
  * SOFTWARE.
  */
 
-var STORE_LOCAL_PATH = '/app/local';
-
-var SETTING_LOCAL_LANGUAGE = 'local.language';
-var SETTING_LOCAL_DATEFORMAT = 'local.dateformat';
-var SETTING_LOCAL_DATETIMEFORMAT = 'local.datetimeformat';
-var SETTING_LOCAL_CURRENCY = 'local.currency';
-var SETTING_LOCAL_DIRECTION = 'local.direction';
-var SETTING_LOCAL_CALENDAR = 'local.calendar';
-var SETTING_LOCAL_TIMEZONE = 'local.timezone';
 
 
 /**
@@ -15449,7 +15570,7 @@ mblowfish.provider('$mbLocal', function() {
 	var defaultCalendar = 'en';
 	var defaultCurrency = 'USD';
 	var defaultDateFormat = 'jYYYY-jMM-jDD';
-	var defaultDateTimeFormat = 'jYYYY-jMM-jDD hh:mm:ss';
+	var defaultDateTimeFormat = 'jYYYY-jMM-jDD HH:mm:ss';
 	var defaultDirection = 'ltr';
 	var defaultLanguage = 'en';
 	var defaultTimezone = 'UTC';
@@ -15462,7 +15583,7 @@ mblowfish.provider('$mbLocal', function() {
 	var calendar;
 	var timezone;
 
-	var autoSave = true;
+	var autoSave = false;
 	var exrpressionsEnabled = true;
 
 
@@ -15479,7 +15600,7 @@ mblowfish.provider('$mbLocal', function() {
 				format = format.replace('j', '');
 			}
 			return moment
-				.utc(inputDate)
+				.utc(inputDate, 'YYYY-MM-DD HH:mm:ss')
 				.local()
 				.format(format);
 		} catch (ex) {
@@ -15718,23 +15839,24 @@ mblowfish.provider('$mbLocal', function() {
 	}
 
 	function save() {
-		mbStorage[SETTING_LOCAL_CALENDAR] = calendar;
-		mbStorage[SETTING_LOCAL_CURRENCY] = currency;
-		mbStorage[SETTING_LOCAL_DATEFORMAT] = dateFormat;
-		mbStorage[SETTING_LOCAL_DATETIMEFORMAT] = dateTimeFormat;
-		mbStorage[SETTING_LOCAL_DIRECTION] = direction;
-		mbStorage[SETTING_LOCAL_LANGUAGE] = language;
-		mbStorage[SETTING_LOCAL_TIMEZONE] = timezone;
+		mbSettings
+			.set(SETTING_LOCAL_CALENDAR, calendar)
+			.set(SETTING_LOCAL_CURRENCY, currency)
+			.set(SETTING_LOCAL_DATEFORMAT, dateFormat)
+			.set(SETTING_LOCAL_DATETIMEFORMAT, dateTimeFormat)
+			.set(SETTING_LOCAL_DIRECTION, direction)
+			.set(SETTING_LOCAL_LANGUAGE, language)
+			.set(SETTING_LOCAL_TIMEZONE, timezone);
 	}
 
 	function load() {
-		setCalendar(mbStorage[SETTING_LOCAL_CALENDAR] || defaultCalendar);
-		setCurrency(mbStorage[SETTING_LOCAL_CURRENCY] || defaultCurrency);
-		setDateFormat(mbStorage[SETTING_LOCAL_DATEFORMAT] || defaultDateFormat);
-		setDateTimeFormat(mbStorage[SETTING_LOCAL_DATETIMEFORMAT] || defaultDateTimeFormat);
-		setDirection(mbStorage[SETTING_LOCAL_DIRECTION] || defaultDirection);
-		setLanguage(mbStorage[SETTING_LOCAL_LANGUAGE] || defaultLanguage);
-		setTimezone(mbStorage[SETTING_LOCAL_TIMEZONE] || defaultLanguage);
+		setCalendar(mbSettings.get(SETTING_LOCAL_CALENDAR, defaultCalendar));
+		setCurrency(mbSettings.get(SETTING_LOCAL_CURRENCY, defaultCurrency));
+		setDateFormat(mbSettings.get(SETTING_LOCAL_DATEFORMAT, defaultDateFormat));
+		setDateTimeFormat(mbSettings.get(SETTING_LOCAL_DATETIMEFORMAT, defaultDateTimeFormat));
+		setDirection(mbSettings.get(SETTING_LOCAL_DIRECTION, defaultDirection));
+		setLanguage(mbSettings.get(SETTING_LOCAL_LANGUAGE, defaultLanguage));
+		setTimezone(mbSettings.get(SETTING_LOCAL_TIMEZONE, defaultLanguage));
 
 		if (exrpressionsEnabled) {
 			rootScope.isLanguage = function(lang) {
@@ -15791,11 +15913,7 @@ mblowfish.provider('$mbLocal', function() {
 			rootScope = $rootScope;
 			mbTranslate = $mbTranslate;
 
-			if (autoSave) {
-				load();
-			} else {
-				setLanguage(defaultLanguage);
-			}
+			load();
 			return service;
 		},
 		setDefaultLanguage: function(language) {
@@ -15929,6 +16047,164 @@ angular.module('mblowfish-core').service('$mbMenu', function() {
 	return this;
 });
 
+
+mblowfish.provider('$mbMimetype', function() {
+
+	/**
+	 * RegExp to match type in RFC 6838
+	 *
+	 * type-name = restricted-name
+	 * subtype-name = restricted-name
+	 * restricted-name = restricted-name-first *126restricted-name-chars
+	 * restricted-name-first  = ALPHA / DIGIT
+	 * restricted-name-chars  = ALPHA / DIGIT / "!" / "#" /
+	 *                          "$" / "&" / "-" / "^" / "_"
+	 * restricted-name-chars =/ "." ; Characters before first dot always
+	 *                              ; specify a facet name
+	 * restricted-name-chars =/ "+" ; Characters after last plus always
+	 *                              ; specify a structured syntax suffix
+	 * ALPHA =  %x41-5A / %x61-7A   ; A-Z / a-z
+	 * DIGIT =  %x30-39             ; 0-9
+	 */
+	var
+		SUBTYPE_NAME_REGEXP = /^[A-Za-z0-9\*][A-Za-z0-9!#$&^_.-]{0,126}$/,
+		TYPE_NAME_REGEXP = /^[A-Za-z0-9\*][A-Za-z0-9!#$&^_-]{0,126}$/,
+		TYPE_REGEXP = /^ *([A-Za-z0-9\*][A-Za-z0-9!#$&^_-]{0,126})\/([A-Za-z0-9\*][A-Za-z0-9!#$&^_.+-]{0,126}) *$/;
+
+	var
+		provider,
+		service,
+		Mimetype;
+
+
+
+	/**
+	 * Format object to media type.
+	 *
+	 * @param {object} obj
+	 * @return {string}
+	 * @public
+	 */
+	function format(obj) {
+		if (!_.isObject(obj)) {
+			throw new TypeError('argument obj is required');
+		}
+
+		var subtype = obj.subtype;
+		var suffix = obj.suffix;
+		var type = obj.type;
+
+		if (!type || !TYPE_NAME_REGEXP.test(type)) {
+			throw new TypeError('invalid type');
+		}
+
+		if (!subtype || !SUBTYPE_NAME_REGEXP.test(subtype)) {
+			throw new TypeError('invalid subtype');
+		}
+
+		// format as type/subtype
+		var string = type + '/' + subtype;
+
+		// append +suffix
+		if (suffix) {
+			if (!TYPE_NAME_REGEXP.test(suffix)) {
+				throw new TypeError('invalid suffix');
+			}
+
+			string += '+' + suffix;
+		}
+
+		return string;
+	}
+
+	/**
+	 * Test media type.
+	 *
+	 * @param {string} string
+	 * @return {object}
+	 * @public
+	 */
+
+	function test(string) {
+		if (!string) {
+			throw new TypeError('argument string is required');
+		}
+
+		if (typeof string !== 'string') {
+			throw new TypeError('argument string is required to be a string');
+		}
+
+		return TYPE_REGEXP.test(string.toLowerCase());
+	}
+
+	/**
+	 * Parse media type to object.
+	 *
+	 * @param {string} string
+	 * @return {object}
+	 * @public
+	 */
+
+	function parse(string) {
+		if (string instanceof Mimetype) {
+			return string;
+		}
+
+		if (!string) {
+			throw new TypeError('argument string is required');
+		}
+
+		if (typeof string !== 'string') {
+			throw new TypeError('argument string is required to be a string');
+		}
+
+		var match = TYPE_REGEXP.exec(string.toLowerCase());
+
+		if (!match) {
+			throw new TypeError('invalid media type');
+		}
+
+		var type = match[1];
+		var subtype = match[2];
+		var suffix;
+
+		// suffix after last +
+		var index = subtype.lastIndexOf('+');
+		if (index !== -1) {
+			suffix = subtype.substr(index + 1);
+			subtype = subtype.substr(0, index);
+		}
+
+		return new Mimetype(type, subtype, suffix);
+	}
+
+	function isEqual(a, b) {
+		a = parse(a);
+		b = parse(b);
+
+		return (a.type === '*' || b.type === '*' || a.type === b.type) &&
+			(a.subtype === '*' || b.subtype === '*' || a.subtype === b.subtype);
+	}
+
+
+	//---------------------------------------------------------------------
+	// init
+	//---------------------------------------------------------------------
+	service = {
+		parse: parse,
+		test: test,
+		format: format,
+		isEqual: isEqual
+	};
+	provider = {
+		$get: function(MbMimetype) {
+			'ngInject';
+			Mimetype = MbMimetype;
+			return service;
+		}
+	};
+	return provider;
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -17764,7 +18040,7 @@ angular.module('mblowfish-core').service('$mbSelection', function() {
 @name $mbSettings
 @description Default selection system.
  */
-angular.module('mblowfish-core').provider('$mbSettings', function() {
+mblowfish.provider('$mbSettings', function() {
 	//---------------------------------------
 	// Services
 	//---------------------------------------
@@ -17772,12 +18048,15 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	var service;
 	var rootScope;
 	var mbStorage;
+	var mbDispatcherUtil;
 
 	//---------------------------------------
 	// Variables
 	//---------------------------------------
 	var templateUrl = 'resources/settings-template.json';
-
+	var exrpressionsEnabled = false;
+	var settings = {};
+	var autosave = true;
 	//---------------------------------------
 	// functions
 	//---------------------------------------
@@ -17788,18 +18067,38 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	@returns {Promise} A promise to load settings
 	 */
 	function load() {
+		settings = mbStorage[MB_SETTINGS_SP] || {};
+	}
 
+	function get(key, defaultValue) {
+		return settings[key] || defaultValue;
+	}
+
+	function set(key, value) {
+		settings[key] = value;
+		if (autosave) {
+			save();
+		}
+		// Fire setting is changed
+		mbDispatcherUtil.fireUpdated(MB_SETTINGS_ST, {
+			values: [value],
+			keys: [key]
+		});
+		return service;
+	}
+
+	function save() {
+		mbStorage[MB_SETTINGS_SP] = settings;
+	}
+
+	function has(key) {
+		return ~_.isUndefined(settigns[key]);
 	}
 
 	function setTemplateUrl(url) {
 		templateUrl = url;
 		return provider;
 	}
-
-	function getTemplateUrl() {
-		return templateUrl;
-	}
-
 
 	function loadLocalData() {
 		/*
@@ -17816,8 +18115,12 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	}
 
 	function setAutosaveEnabled(flag) {
-		setAutosave = flag;
+		autosave = flag;
 		return provider;
+	}
+
+	function setExrpressionsEnabled() {
+
 	}
 
 	//---------------------------------------
@@ -17825,20 +18128,27 @@ angular.module('mblowfish-core').provider('$mbSettings', function() {
 	//---------------------------------------
 	service = {
 		load: load,
-		getTemplateUrl: getTemplateUrl,
+		get: get,
+		set: set,
+		save: save,
+		has: has,
 	};
 
 	provider = {
 		/* @ngInject */
-		$get: function($rootScope, $mbStorage, $q) {
+		$get: function($rootScope, $mbStorage, $q, $mbDispatcherUtil) {
 			rootScope = $rootScope;
 			mbStorage = $mbStorage;
 			q = $q;
+			mbDispatcherUtil = $mbDispatcherUtil;
+			
+			load();
 
 			return service;
 		},
 		setTemplateUrl: setTemplateUrl,
 		setAutosaveEnabled: setAutosaveEnabled,
+		setExrpressionsEnabled: setExrpressionsEnabled,
 	};
 	return provider;
 });
@@ -17978,7 +18288,7 @@ mblowfish.provider('$mbSidenav', function() {
  * @description A service to work with storage of browser
  * 
  */
-angular.module('mblowfish-core').provider('$mbStorage', function() {
+mblowfish.provider('$mbStorage', function() {
 
 
 
@@ -18047,20 +18357,6 @@ angular.module('mblowfish-core').provider('$mbStorage', function() {
 			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
 			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
 			var $storage = {
-				//				get: function(name) {
-				//					return $storage[name];
-				//				},
-				//				put: function(name, value) {
-				//					$storage[name] = value;
-				//					return $storage;
-				//				},
-				//				remove: function(name) {
-				//					delete $storage[name];
-				//					return $storage;
-				//				},
-				//				has: function(name) {
-				//					return ($localStorage[name] ? true : false);
-				//				},
 				$default: function(items) {
 					for (var k in items) {
 						angular.isDefined($storage[k]) || ($storage[k] = angular.copy(items[k]));
@@ -18499,18 +18795,17 @@ angular.module('mblowfish-core').service('$mbUiUtil', function(
 
 
 	/**
-	 * @param on {string} current url
-	 * @param route {Object} route regexp to match the url against
-	 * @return {?Object}
-	 *
-	 * @description
-	 * Check if the route matches the current url.
-	 *
-	 * Inspired by match in
-	 * visionmedia/express/lib/router/router.js.
+	 @param on {string} current url
+	 @param route {Object} route regexp to match the url against
+	 @return {?Object}
+	 
+	 @description
+	 Check if the route matches the current url.
+	 
+	 Inspired by match in
+	 visionmedia/express/lib/router/router.js.
 
-
-	@memberof $mbUiUtil
+	 @memberof $mbUiUtil
 	 */
 	this.switchRouteMatcher = function(on, route) {
 		var keys = route.keys,
@@ -18927,7 +19222,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save($event) wb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save($event) wb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
@@ -18978,11 +19273,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/mb-languages.html',
     "<div ng-controller=\"MbLanguagesCtrl as ctrl\" layout=row flex> <md-sidenav class=md-sidenav-left md-component-id=lanaguage-manager-left md-is-locked-open=true md-whiteframe=4> <md-content> <md-toolbar> <div class=md-toolbar-tools> <label flex mb-translate=\"\">Languages</label> <md-button ng-click=ctrl.addLanguage() class=md-icon-button aria-label=\"Add new language\"> <mb-icon>add</mb-icon> </md-button> <md-button class=md-icon-button aria-label=\"Upload a language\"> <mb-icon>more_vert</mb-icon> </md-button> </div> </md-toolbar> <div> <md-list> <md-list-item ng-repeat=\"lang in app.config.languages\" ng-click=ctrl.setLanguage(lang)> <p mb-translate=\"\">{{lang.title}}</p> <md-button class=md-icon-button ng-click=ctrl.saveAs(lang) aria-label=\"Save language as a file\"> <mb-icon>download</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span mb-translate>Save language as a file</span> </md-tooltip> </md-button> <md-button class=md-icon-button ng-click=ctrl.deleteLanguage(lang) aria-label=\"Delete language\"> <mb-icon>delete</mb-icon> <md-tooltip md-direction=left md-delay=1500> <span mb-translate>Delete language</span> </md-tooltip> </md-button> </md-list-item> </md-list> </div> </md-content> </md-sidenav> <md-content flex mb-preloading=working layout-padding> <div ng-if=!ctrl.selectedLanguage layout-padding> <h3 mb-translate>Select a language to view/edit translations.</h3> </div> <fieldset ng-if=ctrl.selectedLanguage> <legend><span mb-translate=\"\">Selected Language</span></legend> <div layout=row layout-align=\"space-between center\"> <label>{{ctrl.selectedLanguage.title}} ({{ctrl.selectedLanguage.key}})</label>            </div> </fieldset> <fieldset ng-if=ctrl.selectedLanguage class=standard> <legend><span mb-translate=\"\">Language map</span></legend> <div layout=column layout-margin> <md-input-container class=\"md-icon-float md-block\" flex ng-repeat=\"(key, value) in ctrl.selectedLanguage.map\"> <label>{{key}}</label> <input ng-model=ctrl.selectedLanguage.map[key] ng-model-options=\"{ updateOn: 'blur', debounce: 3000 }\"> <mb-icon ng-click=ctrl.deleteWord(key)>delete</mb-icon> </md-input-container> </div> <md-button class=\"md-primary md-raised md-icon-button\" ng-click=ctrl.addWord() aria-label=\"Add word to language\"> <mb-icon>add</mb-icon> </md-button> </fieldset> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/mb-navigator.html',
-    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
   );
 
 
@@ -19057,7 +19347,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/preferences/mb-local.html',
-    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=__app.configs.language> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key>{{lang.title | translate}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=__app.configs.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=__app.configs.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=__app.configs.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> <span mb-translate>Month Day Year, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> <span mb-translate>Year Month Day, </span> <span mb-translate>Ex. </span> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container> </div>"
+    "<div layout=column layout-padding ng-cloak flex> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>Language</label> <md-select ng-model=config[SETTING_LOCAL_LANGUAGE]> <md-option ng-repeat=\"lang in [{\n" +
+    "\t\t\t\t\ttitle: 'Persian',\n" +
+    "\t\t\t\t\tkey: 'fa'\n" +
+    "\t\t\t\t},{\n" +
+    "\t\t\t\t\ttitle: 'English',\n" +
+    "\t\t\t\t\tkey: 'en'\n" +
+    "\t\t\t\t}]\" ng-value=lang.key>{{::(lang.title | translate)}}</md-option> </md-select> <mb-icon style=\"cursor: pointer\" ng-click=goToManage()>settings</mb-icon> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=config[SETTING_LOCAL_DIRECTION] placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=config[SETTING_LOCAL_CALENDAR] placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=config[SETTING_LOCAL_DATEFORMAT] placeholder=\"\"> <md-option value=jMM-jDD-jYYYY> <span mb-translate>Month Day Year, </span> <span>{{'2018-01-01 15:00:00' | mbDate:'jMM-jDD-jYYYY'}}</span> </md-option> <md-option value=jYYYY-jMM-jDD> <span mb-translate>Year Month Day, </span> <span>{{'2018-01-01 00:00:00' | mbDate:'jYYYY-jMM-jDD'}}</span> </md-option> <md-option value=\"jYYYY jMMMM jDD\"> <span mb-translate>Year Month Day, </span> <span>{{'2018-01-01 15:00:00' | mbDate:'jYYYY jMMMM jDD'}}</span> </md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date Time format</label> <md-select ng-model=config[SETTING_LOCAL_DATETIMEFORMAT] placeholder=\"\"> <md-option value=\"jMM-jDD-jYYYY HH:mm:ss\"> <span mb-translate>Month Day Year ,</span> <span>{{'2018-01-01 15:00:00' | mbDate:'jMM-jDD-jYYYY HH:mm:ss'}}</span> </md-option> <md-option value=\"jYYYY-jMM-jDD HH:mm:ss\"> <span mb-translate>Year Month Day,</span> <span>{{'2018-01-01 15:00:00' | mbDateTime:'jYYYY-jMM-jDD HH:mm:ss'}}</span> </md-option> </md-select> </md-input-container> <div layout=row> <md-button ng-click=ctrl.save() translate>Save</md-button> </div> </div>"
   );
 
 
@@ -19138,6 +19434,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/ui/mb-view-main.html',
     "<body class=mb_body>  <div>  <div id=view></div> </div> </body>"
+  );
+
+
+  $templateCache.put('scripts/module-navigator/views/navigator.html',
+    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
   );
 
 }]);

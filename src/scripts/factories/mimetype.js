@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,13 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-angular.module('mblowfish-core').run(function($mbView) {
-	$mbView.add('/mb/ui/views/navigator/', {
-		title: 'Navigator',
-		description: 'Navigate all path and routs of the pandel',
-		controller: 'MbNavigatorContainerCtrl',
-		controllerAs: 'ctrl',
-		templateUrl: 'views/mb-navigator.html',
-		groups: ['Utilities']
-	});//
+
+/**
+ @ngdoc Factories
+ @name MbMimeType
+ @description A wrapper of mimetype
+ 
+ */
+mblowfish.factory('MbMimetype', function($injector) {
+
+	function MbMimetype(type, subtype, suffix) {
+		this.type = type
+		this.subtype = subtype
+		this.suffix = suffix
+	};
+
+	MbMimetype.prototype.isEquals = function(mimetype) {
+		return $injector
+			.get('$mbMimetype')
+			.isEqual(this, mimetype);
+	};
+
+	return MbMimetype;
 });

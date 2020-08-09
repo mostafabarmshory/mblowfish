@@ -79,18 +79,17 @@ angular.module('mblowfish-core').service('$mbUiUtil', function(
 
 
 	/**
-	 * @param on {string} current url
-	 * @param route {Object} route regexp to match the url against
-	 * @return {?Object}
-	 *
-	 * @description
-	 * Check if the route matches the current url.
-	 *
-	 * Inspired by match in
-	 * visionmedia/express/lib/router/router.js.
+	 @param on {string} current url
+	 @param route {Object} route regexp to match the url against
+	 @return {?Object}
+	 
+	 @description
+	 Check if the route matches the current url.
+	 
+	 Inspired by match in
+	 visionmedia/express/lib/router/router.js.
 
-
-	@memberof $mbUiUtil
+	 @memberof $mbUiUtil
 	 */
 	this.switchRouteMatcher = function(on, route) {
 		var keys = route.keys,

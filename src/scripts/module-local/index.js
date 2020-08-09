@@ -33,23 +33,16 @@ mblowfish
 			var m = moment(date);
 			return m.isValid() ? m.format('L') : '';
 		};
-
-		// Pages
-		$mbPreferencesProvider
-			.addPage('local', {
-				title: 'local',
-				icon: 'language',
-				templateUrl: 'views/preferences/mb-local.html',
-				controller: 'MbLocalCtrl',
-				controllerAs: 'ctrl'
-			})
-			.addPage('brand', {
-				title: 'Branding',
-				icon: 'copyright',
-				templateUrl: 'views/preferences/mb-brand.html',
-				// controller : 'settingsBrandCtrl',
-				controllerAs: 'ctrl'
-			});
+///*
+//		// Pages
+//		$mbPreferencesProvider
+//			.addPage('brand', {
+//				title: 'Branding',
+//				icon: 'copyright',
+//				templateUrl: 'views/preferences/mb-brand.html',
+//				// controller : 'settingsBrandCtrl',
+//				controllerAs: 'ctrl'
+//			});*/
 
 
 		$mbResourceProvider
