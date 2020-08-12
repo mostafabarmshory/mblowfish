@@ -1981,138 +1981,6 @@ mblowfish.addApplicationProcess('init', {
  * SOFTWARE.
  */
 
-mblowfish
-	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
-		// Format and parse dates based on moment's 'L'-format
-		// 'L'-format may later be changed
-		$mdDateLocaleProvider.parseDate = function(dateString) {
-			var m = moment(dateString, 'L', true);
-			return m.isValid() ? m.toDate() : new Date(NaN);
-		};
-
-		$mdDateLocaleProvider.formatDate = function(date) {
-			var m = moment(date);
-			return m.isValid() ? m.format('L') : '';
-		};
-///*
-//		// Pages
-//		$mbPreferencesProvider
-//			.addPage('brand', {
-//				title: 'Branding',
-//				icon: 'copyright',
-//				templateUrl: 'views/preferences/mb-brand.html',
-//				// controller : 'settingsBrandCtrl',
-//				controllerAs: 'ctrl'
-//			});*/
-
-
-		$mbResourceProvider
-			.addPage('language', {
-				label: 'Custom',
-				templateUrl: 'views/resources/mb-language-custome.html',
-				controller: 'MbLocalResourceLanguageCustomCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.viraweb123', {
-				label: 'Common',
-				templateUrl: 'views/resources/mb-language-list.html',
-				controller: 'MbLocalResourceLanguageCommonCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.upload', {
-				label: 'Upload',
-				templateUrl: 'views/resources/mb-language-upload.html',
-				controller: 'MbLocalResourceLanguageUploadCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			});
-	})
-	.run(function runTranslate($mbTranslate) {
-
-		var key = $mbTranslate.storageKey(),
-			storage = $mbTranslate.storage();
-
-		var fallbackFromIncorrectStorageValue = function() {
-			var preferred = $mbTranslate.preferredLanguage();
-			if (angular.isString(preferred)) {
-				$mbTranslate.use(preferred);
-				// $mbTranslate.use() will also remember the language.
-				// So, we don't need to call storage.put() here.
-			} else {
-				storage.put(key, $mbTranslate.use());
-			}
-		};
-
-		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
-
-		if (storage) {
-			if (!storage.get(key)) {
-				fallbackFromIncorrectStorageValue();
-			} else {
-				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
-			}
-		} else if (angular.isString($mbTranslate.preferredLanguage())) {
-			$mbTranslate.use($mbTranslate.preferredLanguage());
-		}
-	});
-
-
-
-/**
- * Returns the scope's namespace.
- * @private
- * @param scope
- * @returns {string}
- */
-function getTranslateNamespace(scope) {
-	'use strict';
-	if (scope.translateNamespace) {
-		return scope.translateNamespace;
-	}
-	if (scope.$parent) {
-		return getTranslateNamespace(scope.$parent);
-	}
-}
-
-function watchAttribute(scope, attribute, valueCallback, changeCallback) {
-	'use strict';
-	if (!attribute) {
-		return;
-	}
-	if (attribute.substr(0, 2) === '::') {
-		attribute = attribute.substr(2);
-	} else {
-		scope.$watch(attribute, function(newValue) {
-			valueCallback(newValue);
-			changeCallback();
-		}, true);
-	}
-	valueCallback(scope.$eval(attribute));
-}
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 /**
  * Manages system moduels
  */
@@ -2177,6 +2045,138 @@ mblowfish.addConstants({
 	MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish
+	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
+		// Format and parse dates based on moment's 'L'-format
+		// 'L'-format may later be changed
+		$mdDateLocaleProvider.parseDate = function(dateString) {
+			var m = moment(dateString, 'L', true);
+			return m.isValid() ? m.toDate() : new Date(NaN);
+		};
+
+		$mdDateLocaleProvider.formatDate = function(date) {
+			var m = moment(date);
+			return m.isValid() ? m.format('L') : '';
+		};
+		///*
+		//		// Pages
+		//		$mbPreferencesProvider
+		//			.addPage('brand', {
+		//				title: 'Branding',
+		//				icon: 'copyright',
+		//				templateUrl: 'views/preferences/mb-brand.html',
+		//				// controller : 'settingsBrandCtrl',
+		//				controllerAs: 'ctrl'
+		//			});*/
+
+
+		$mbResourceProvider
+			.addPage('language', {
+				label: 'Custom',
+				templateUrl: 'views/resources/mb-language-custome.html',
+				controller: 'MbLocalResourceLanguageCustomCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.viraweb123', {
+				label: 'Common',
+				templateUrl: 'views/resources/mb-language-list.html',
+				controller: 'MbLocalResourceLanguageCommonCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.upload', {
+				label: 'Upload',
+				templateUrl: 'views/resources/mb-language-upload.html',
+				controller: 'MbLocalResourceLanguageUploadCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			});
+	})
+	.run(function runTranslate($mbTranslate, $mbSettings) {
+
+		var key = $mbSettings.get(SETTING_LOCAL_LANGUAGE, $mbTranslate.storageKey()),
+			storage = $mbTranslate.storage();
+
+		var fallbackFromIncorrectStorageValue = function() {
+			var preferred = $mbTranslate.preferredLanguage();
+			if (angular.isString(preferred)) {
+				$mbTranslate.use(preferred);
+				// $mbTranslate.use() will also remember the language.
+				// So, we don't need to call storage.put() here.
+			} else {
+				storage.put(key, $mbTranslate.use());
+			}
+		};
+
+		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
+
+		if (storage) {
+			if (!storage.get(key)) {
+				fallbackFromIncorrectStorageValue();
+			} else {
+				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
+			}
+		} else if (angular.isString($mbTranslate.preferredLanguage())) {
+			$mbTranslate.use($mbTranslate.preferredLanguage());
+		}
+	});
+
+
+
+/**
+ * Returns the scope's namespace.
+ * @private
+ * @param scope
+ * @returns {string}
+ */
+function getTranslateNamespace(scope) {
+	'use strict';
+	if (scope.translateNamespace) {
+		return scope.translateNamespace;
+	}
+	if (scope.$parent) {
+		return getTranslateNamespace(scope.$parent);
+	}
+}
+
+function watchAttribute(scope, attribute, valueCallback, changeCallback) {
+	'use strict';
+	if (!attribute) {
+		return;
+	}
+	if (attribute.substr(0, 2) === '::') {
+		attribute = attribute.substr(2);
+	} else {
+		scope.$watch(attribute, function(newValue) {
+			valueCallback(newValue);
+			changeCallback();
+		}, true);
+	}
+	valueCallback(scope.$eval(attribute));
+}
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -8360,6 +8360,352 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
 	}
 	return provider;
 })
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	title: 'Add local module',
+	/* @ngInject*/
+	action: function($mbResource, $mbModules) {
+		return $mbResource
+			.get(MB_MODULE_RT, {
+				style: {},
+			})
+			.then(function(modules) {
+				_.forEach(modules, function(m) {
+					$mbModules.addModule(m);
+				});
+			});
+	}
+})
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	title: 'Delete local module',
+	icon: 'view_module',
+	/* @ngInject */
+	action: function($window, $mbModules, $event) {
+		return $window
+			.confirm('Delete modules?')
+			.then(function() {
+				_.forEach($event.modules, function(m) {
+					$mbModules.removeModule(m);
+				});
+			});
+	}
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addResource('mb-module-manual', {
+	label: 'Manual',
+	templateUrl: 'views/modules/mb-resources-manual.html',
+	/*@ngInject*/
+	controller: function($scope, $resource) {
+		$scope.$watch('module', function(value) {
+			$resource.setValue([value]);
+		}, true);
+		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+	},
+	controllerAs: 'resourceCtrl',
+	tags: [MB_MODULE_RT]
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addView('/app/modules', {
+	title: 'Modules',
+	icon: 'language',
+	description: 'Manage global modules to enable for all users.',
+	templateUrl: 'views/modules/mb-preference.html',
+	controllerAs: 'ctrl',
+	/* @ngInject */
+	controller: function(
+	/* angularjs */ $scope, $controller,
+	/* Mblowfish */ $mbModules, $mbActions
+	) {
+		/*
+		 * Extends collection controller from MbAbstractCtrl 
+		 */
+		angular.extend(this, $controller('MbAbstractCtrl', {
+			$scope: $scope
+		}));
+
+		this.loadModules = function() {
+			this.modules = $mbModules.getModules();
+		}
+
+		this.addModule = function($event) {
+			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
+		};
+
+		this.deleteModule = function(item, $event) {
+			$event.modules = [item];
+			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+		};
+
+		var ctrl = this;
+		this.addEventHandler(MB_MODULE_SP, function() {
+			ctrl.loadModules();
+		});
+
+		ctrl.loadModules();
+	}
+});
+
+mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
+	title: 'Navigator',
+	description: 'Tooble Navigator Sidenav',
+	icon: 'menu',
+	/* @ngInject */
+	action: function($mbSidenav) {
+		$mbSidenav.getSidenav('/app/navigator').toggle();
+	}
+});
+mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
+	var groups = {
+		'others': {
+			title: 'Others',
+			items: {}
+		}
+	};
+
+	var items = $mbView.getViews();
+	_.forEach(items, function(item, url) {
+		var itmeGroups = item.groups || ['others'];
+		_.forEach(itmeGroups, function(groupId) {
+			if (_.isUndefined(groups[groupId])) {
+				groups[groupId] = {
+					title: groupId,
+					items: {}
+				};
+			}
+			groups[groupId].items[url] = item;
+		});
+	});
+
+	$scope.groups = groups
+});
+
+mblowfish.addSidenav('/app/navigator', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	locked: 'false',
+	position: 'start'
+});
+
+mblowfish.addView('/mb/ui/views/navigator/', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	groups: ['Utilities']
+});
+
+
+
+mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
+	title: 'Preferences',
+	icon: 'settings',
+	/* @ngInject */
+	action: function($location) {
+		return $location.url('preferences');
+	}
+});//
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addEditor('/preferences/:preferenceId', {
+	title: 'Preference',
+	templateUrl: 'views/mb-preference.html',
+	/* @ngInject */
+	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
+		//------------------------------------------------
+		// variables
+		//------------------------------------------------
+		var preferenceId = $state.params.preferenceId;
+		var pageConfig = $mbPreferences.getPage(preferenceId);
+		var pageComponent = new MbComponent(pageConfig);
+		var anchor = $element.find('#page-panel');
+
+
+		//------------------------------------------------
+		// functions
+		//------------------------------------------------
+		function renderPage() {
+			return pageComponent.render({
+				$element: anchor,
+				$scope: $scope,
+				$editor: $editor
+			});
+		}
+
+
+		//------------------------------------------------
+		// end
+		//------------------------------------------------
+		renderPage();
+	},
+	controllerAs: 'ctrl',
+});
+
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbPreferencesCtrl
+ * @description Manages preferences page
+ * 
+ * In the preferences page, all configs of the system are displayed and
+ * users are able to change them. These preferences pages are related to
+ * the current SPA usually.
+ * 
+ */
+
+
+mblowfish.addView('/preferences', {
+	title: 'Preferences',
+	templateUrl: 'views/mb-preferences.html',
+	aunchor: 'editors',
+	/* @ngInject */
+	controller: function($scope, $mbPreferences) {
+		// Load settings
+		$scope.pages = $mbPreferences.getPages()//
+	},
+	controllerAs: 'ctrl',
+	groups: ['Utilities']
+});
+
+
+
+mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
+
+});
 
 /**
 @ngdoc directive
@@ -9077,62 +9423,110 @@ mblowfish.directive('mbTranslate', function($mbTranslate, $interpolate, $compile
 
 
 // TODO: maso, 2020: create a language editor
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+/**
+ * @ngdoc object
+ * @name pascalprecht.translate.$translateMissingTranslationHandlerLog
+ * @requires $log
+ *
+ * @description
+ * Uses angular's `$log` service to give a warning when trying to translate a
+ * translation id which doesn't exist.
+ *
+ * @returns {function} Handler function
  */
-
-mblowfish.factory('MbLanguageLoader', function($q) {
-	return function(option) {
-		var deferred = $q.defer();
-		deferred.resolve({});
-		return deferred.promise;
+mblowfish.factory('$mbTranslateMissingTranslationHandlerLog', function($log) {
+	'ngInject';
+	return function(translationId) {
+		$log.warn('Translation for ' + translationId + ' doesn\'t exist');
 	};
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
-mblowfish.factory('MbMissingTranslationHandler', function() {
-	return function(translationID) {
-		//		$mbTranslationDb.addTranslationId(translationID);
+
+/**
+ * @ngdoc Factory
+ * @name $translateStaticFilesLoader
+ * @requires $q
+ * @requires $http
+ *
+ * @description
+ * Creates a loading function for a typical static file url pattern:
+ * "lang-en_US.json", "lang-de_DE.json", etc. Using this builder,
+ * the response of these urls must be an object of key-value pairs.
+ *
+ * @param {object} options Options object, which gets prefix, suffix, key, and fileMap
+ */
+mblowfish.factory('$mbTranslateStaticFilesLoader', function($q, $http) {
+	'ngInject';
+
+	return function(options) {
+
+		if (!options || (!angular.isArray(options.files) && (!angular.isString(options.prefix) || !angular.isString(options.suffix)))) {
+			throw new Error('Couldn\'t load static files, no files and prefix or suffix specified!');
+		}
+
+		if (!options.files) {
+			options.files = [{
+				prefix: options.prefix,
+				suffix: options.suffix
+			}];
+		}
+
+		var load = function(file) {
+			if (!file || (!angular.isString(file.prefix) || !angular.isString(file.suffix))) {
+				throw new Error('Couldn\'t load static file, no prefix or suffix specified!');
+			}
+
+			var fileUrl = [
+				file.prefix,
+				options.key,
+				file.suffix
+			].join('');
+
+			if (angular.isObject(options.fileMap) && options.fileMap[fileUrl]) {
+				fileUrl = options.fileMap[fileUrl];
+			}
+
+			return $http(angular.extend({
+				url: fileUrl,
+				method: 'GET'
+			}, options.$http))
+				.then(function(result) {
+					return result.data;
+				}, function() {
+					return $q.reject(options.key);
+				});
+		};
+
+		var promises = [],
+			length = options.files.length;
+
+		for (var i = 0; i < length; i++) {
+			promises.push(load({
+				prefix: options.files[i].prefix,
+				key: options.key,
+				suffix: options.files[i].suffix
+			}));
+		}
+
+		return $q.all(promises)
+			.then(function(data) {
+				var length = data.length,
+					mergedData = {};
+
+				for (var i = 0; i < length; i++) {
+					for (var key in data[i]) {
+						mergedData[key] = data[i][key];
+					}
+				}
+
+				return mergedData;
+			});
 	};
 });
+
+
+
+
 
 /**
 @ngdoc object
@@ -9247,7 +9641,7 @@ can load translation tables directly into the cache by consuming the
 
 @return {object} $cacheFactory object.
  */
-mblowfish.factory('$translationCache', function $translationCache($cacheFactory) {
+mblowfish.factory('$translationCache', function($cacheFactory) {
 	return $cacheFactory('translations');
 });
 
@@ -12544,352 +12938,6 @@ mblowfish.controller('MbLanguagesCtrl', function(
 		});
 		return FileSaver.saveAs(data, 'language.json');
 	};
-
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
-	title: 'Add local module',
-	/* @ngInject*/
-	action: function($mbResource, $mbModules) {
-		return $mbResource
-			.get(MB_MODULE_RT, {
-				style: {},
-			})
-			.then(function(modules) {
-				_.forEach(modules, function(m) {
-					$mbModules.addModule(m);
-				});
-			});
-	}
-})
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
-	title: 'Delete local module',
-	icon: 'view_module',
-	/* @ngInject */
-	action: function($window, $mbModules, $event) {
-		return $window
-			.confirm('Delete modules?')
-			.then(function() {
-				_.forEach($event.modules, function(m) {
-					$mbModules.removeModule(m);
-				});
-			});
-	}
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addResource('mb-module-manual', {
-	label: 'Manual',
-	templateUrl: 'views/modules/mb-resources-manual.html',
-	/*@ngInject*/
-	controller: function($scope, $resource) {
-		$scope.$watch('module', function(value) {
-			$resource.setValue([value]);
-		}, true);
-		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-	},
-	controllerAs: 'resourceCtrl',
-	tags: [MB_MODULE_RT]
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addView('/app/modules', {
-	title: 'Modules',
-	icon: 'language',
-	description: 'Manage global modules to enable for all users.',
-	templateUrl: 'views/modules/mb-preference.html',
-	controllerAs: 'ctrl',
-	/* @ngInject */
-	controller: function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $mbModules, $mbActions
-	) {
-		/*
-		 * Extends collection controller from MbAbstractCtrl 
-		 */
-		angular.extend(this, $controller('MbAbstractCtrl', {
-			$scope: $scope
-		}));
-
-		this.loadModules = function() {
-			this.modules = $mbModules.getModules();
-		}
-
-		this.addModule = function($event) {
-			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
-		};
-
-		this.deleteModule = function(item, $event) {
-			$event.modules = [item];
-			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
-		};
-
-		var ctrl = this;
-		this.addEventHandler(MB_MODULE_SP, function() {
-			ctrl.loadModules();
-		});
-
-		ctrl.loadModules();
-	}
-});
-
-mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
-	title: 'Navigator',
-	description: 'Tooble Navigator Sidenav',
-	icon: 'menu',
-	/* @ngInject */
-	action: function($mbSidenav) {
-		$mbSidenav.getSidenav('/app/navigator').toggle();
-	}
-});
-mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
-	var groups = {
-		'others': {
-			title: 'Others',
-			items: {}
-		}
-	};
-
-	var items = $mbView.getViews();
-	_.forEach(items, function(item, url) {
-		var itmeGroups = item.groups || ['others'];
-		_.forEach(itmeGroups, function(groupId) {
-			if (_.isUndefined(groups[groupId])) {
-				groups[groupId] = {
-					title: groupId,
-					items: {}
-				};
-			}
-			groups[groupId].items[url] = item;
-		});
-	});
-
-	$scope.groups = groups
-});
-
-mblowfish.addSidenav('/app/navigator', {
-	title: 'Navigator',
-	description: 'Navigate all path and routs of the pandel',
-	controller: 'MbNavigatorCtrl',
-	controllerAs: 'ctrl',
-	templateUrl: 'scripts/module-navigator/views/navigator.html',
-	locked: 'false',
-	position: 'start'
-});
-
-mblowfish.addView('/mb/ui/views/navigator/', {
-	title: 'Navigator',
-	description: 'Navigate all path and routs of the pandel',
-	controller: 'MbNavigatorCtrl',
-	controllerAs: 'ctrl',
-	templateUrl: 'scripts/module-navigator/views/navigator.html',
-	groups: ['Utilities']
-});
-
-
-
-mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
-	title: 'Preferences',
-	icon: 'settings',
-	/* @ngInject */
-	action: function($location) {
-		return $location.url('preferences');
-	}
-});//
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addEditor('/preferences/:preferenceId', {
-	title: 'Preference',
-	templateUrl: 'views/mb-preference.html',
-	/* @ngInject */
-	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
-		//------------------------------------------------
-		// variables
-		//------------------------------------------------
-		var preferenceId = $state.params.preferenceId;
-		var pageConfig = $mbPreferences.getPage(preferenceId);
-		var pageComponent = new MbComponent(pageConfig);
-		var anchor = $element.find('#page-panel');
-
-
-		//------------------------------------------------
-		// functions
-		//------------------------------------------------
-		function renderPage() {
-			return pageComponent.render({
-				$element: anchor,
-				$scope: $scope,
-				$editor: $editor
-			});
-		}
-
-
-		//------------------------------------------------
-		// end
-		//------------------------------------------------
-		renderPage();
-	},
-	controllerAs: 'ctrl',
-});
-
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Controllers
- * @name MbPreferencesCtrl
- * @description Manages preferences page
- * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
- * 
- */
-
-
-mblowfish.addView('/preferences', {
-	title: 'Preferences',
-	templateUrl: 'views/mb-preferences.html',
-	aunchor: 'editors',
-	/* @ngInject */
-	controller: function($scope, $mbPreferences) {
-		// Load settings
-		$scope.pages = $mbPreferences.getPages()//
-	},
-	controllerAs: 'ctrl',
-	groups: ['Utilities']
-});
-
-
-
-mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
 
 });
 /*

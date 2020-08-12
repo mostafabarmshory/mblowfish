@@ -11,6 +11,6 @@ can load translation tables directly into the cache by consuming the
 
 @return {object} $cacheFactory object.
  */
-mblowfish.factory('$translationCache', function $translationCache($cacheFactory) {
+mblowfish.factory('$translationCache', function($cacheFactory) {
 	return $cacheFactory('translations');
 });

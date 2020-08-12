@@ -33,16 +33,16 @@ mblowfish
 			var m = moment(date);
 			return m.isValid() ? m.format('L') : '';
 		};
-///*
-//		// Pages
-//		$mbPreferencesProvider
-//			.addPage('brand', {
-//				title: 'Branding',
-//				icon: 'copyright',
-//				templateUrl: 'views/preferences/mb-brand.html',
-//				// controller : 'settingsBrandCtrl',
-//				controllerAs: 'ctrl'
-//			});*/
+		///*
+		//		// Pages
+		//		$mbPreferencesProvider
+		//			.addPage('brand', {
+		//				title: 'Branding',
+		//				icon: 'copyright',
+		//				templateUrl: 'views/preferences/mb-brand.html',
+		//				// controller : 'settingsBrandCtrl',
+		//				controllerAs: 'ctrl'
+		//			});*/
 
 
 		$mbResourceProvider
@@ -68,9 +68,9 @@ mblowfish
 				tags: ['/app/languages', 'language']
 			});
 	})
-	.run(function runTranslate($mbTranslate) {
+	.run(function runTranslate($mbTranslate, $mbSettings) {
 
-		var key = $mbTranslate.storageKey(),
+		var key = $mbSettings.get(SETTING_LOCAL_LANGUAGE, $mbTranslate.storageKey()),
 			storage = $mbTranslate.storage();
 
 		var fallbackFromIncorrectStorageValue = function() {
