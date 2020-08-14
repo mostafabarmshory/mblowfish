@@ -198,7 +198,7 @@
 
 mblowfish.directive('mbView', function(
 	/* MB        */ $mbLayout, $mbRoute,
-	/* AngularJS */ $location, $dispatcher, $mbApplication, $q) {
+	/* AngularJS */ $location, $mbDispatcher, $mbApplication, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -207,9 +207,9 @@ mblowfish.directive('mbView', function(
 		var layout = attr.mbLayout || 'docker';
 
 		// staso, 2019: fire the state is changed
-		$dispatcher.on('/app/state', checkApp);
+		$mbDispatcher.on('/app/state', checkApp);
 		scope.$on('$destroy', function() {
-			$dispatcher.off('/app/state', update);
+			$mbDispatcher.off('/app/state', update);
 		});
 
 

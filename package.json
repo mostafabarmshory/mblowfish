@@ -87,7 +87,8 @@
 		"node": ">=0.10.0"
 	},
 	"scripts": {
-		"test": "karma start test/karma.conf.js",
+		"test": "grunt test",
+		"test:debug": "grunt debug",
 		"build": "grunt",
 		"dev": "grunt demo"
 	},

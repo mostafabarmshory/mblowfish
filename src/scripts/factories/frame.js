@@ -27,7 +27,7 @@
 @description A container which is managed with layout manager to display
 
  */
-angular.module('mblowfish-core').factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
+mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar

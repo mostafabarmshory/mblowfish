@@ -58,6 +58,10 @@
 	<!-- build:js(src) scripts/vendor.js -->
 	<!-- bower:js -->
 	<script src="bower_components/jquery/dist/jquery.js"></script>
+	<script src="bower_components/lodash/lodash.js"></script>
+	<script src="bower_components/flux/dist/Flux.js"></script>
+	<script src="bower_components/mustache.js/mustache.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-animate/angular-animate.js"></script>
 	<script src="bower_components/angular-aria/angular-aria.js"></script>
@@ -66,16 +70,9 @@
 	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 	<script src="bower_components/golden-layout/dist/goldenlayout.min.js"></script>
-	<script src="bower_components/moment/moment.js"></script>
-	<script src="bower_components/lodash/lodash.js"></script>
-	<script src="bower_components/flux/dist/Flux.js"></script>
-	<script src="bower_components/mustache.js/mustache.js"></script>
-	<script src="bower_components/am-wb-core/dist/am-wb-core.min.js"></script>
 	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
 	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
-	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
-	<script src="bower_components/loglevel/dist/loglevel.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -94,6 +91,7 @@
 	<script src="scripts/angular-hack-configs.js"></script>
 	<script src="scripts/angular-hack-icons-configs.js"></script>
 	<script src="scripts/angular-hack-theme-configs.js"></script>
+	<script src="scripts/angular-hack-window.js"></script>
 	<script src="scripts/controllers/abstract-ctrl.js"></script>
 	<script src="scripts/controllers/dialog-default-ctrl.js"></script>
 	<script src="scripts/controllers/dynamic-form-dialog-ctrl.js"></script>
@@ -143,6 +141,8 @@
 	<script src="scripts/factories/toolbar.js"></script>
 	<script src="scripts/factories/ui-handler.js"></script>
 	<script src="scripts/factories/view.js"></script>
+	<script src="scripts/factories/wizard-page.js"></script>
+	<script src="scripts/factories/wizard.js"></script>
 	<script src="scripts/filters/crypto-md5.js"></script>
 	<script src="scripts/filters/html-unsafe.js"></script>
 	<script src="scripts/module-common/appcache.js"></script>
@@ -224,6 +224,10 @@
 	<script src="scripts/services/uiUtil.js"></script>
 	<script src="scripts/services/util.js"></script>
 	<script src="scripts/services/view.js"></script>
+	<script src="scripts/services/wizard.js"></script>
+	<script src="scripts/test-actions/alert.js"></script>
+	<script src="scripts/test-actions/navigator-sidenav-toogle.js"></script>
+	<script src="scripts/test-actions/travel-create.js"></script>
 	<script src="scripts/test-controller/dynamic-form.js"></script>
 	<script src="scripts/test-controller/help.js"></script>
 	<script src="scripts/test-controller/infinate-items.js"></script>
@@ -242,6 +246,12 @@
 	<script src="scripts/test-factories/layout-provider-default.js"></script>
 	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/test-views/resource.js"></script>
+	<script src="scripts/wizards/carPage.js"></script>
+	<script src="scripts/wizards/finalPage.js"></script>
+	<script src="scripts/wizards/holiday.js"></script>
+	<script src="scripts/wizards/holidayPage.js"></script>
+	<script src="scripts/wizards/planePage.js"></script>
+	<script src="scripts/wizards/trainPage.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
 

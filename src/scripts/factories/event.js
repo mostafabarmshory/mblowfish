@@ -27,7 +27,7 @@
 @name MbEvent
 @description An event item
 
-Events are used to propagate signals to the application. It is based on $dispatcher. 
+Events are used to propagate signals to the application. It is based on $mbDispatcher. 
 
 NOTE: All platform events (from mb or children) are instance of this factory.
 

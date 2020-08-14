@@ -23,7 +23,7 @@
 /**
  * Manages system moduels
  */
-mblowfish.addConstants({
+mblowfish.constant({
 	MB_MODULE_RT: '/app/modules', // Resource Type
 	MB_MODULE_SP: '/app/modules', // Store Path
 	MB_MODULE_SK: 'mbModules', // Storage Key

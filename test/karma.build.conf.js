@@ -50,6 +50,10 @@ module.exports = function(config) {
 		files: [
 			// bower:js
 			'bower_components/jquery/dist/jquery.js',
+			'bower_components/lodash/lodash.js',
+			'bower_components/flux/dist/Flux.js',
+			'bower_components/mustache.js/mustache.js',
+			'bower_components/moment/moment.js',
 			'bower_components/angular/angular.js',
 			'bower_components/angular-animate/angular-animate.js',
 			'bower_components/angular-aria/angular-aria.js',
@@ -58,16 +62,9 @@ module.exports = function(config) {
 			'bower_components/angular-material/angular-material.js',
 			'bower_components/angular-sanitize/angular-sanitize.js',
 			'bower_components/golden-layout/dist/goldenlayout.min.js',
-			'bower_components/moment/moment.js',
-			'bower_components/lodash/lodash.js',
-			'bower_components/flux/dist/Flux.js',
-			'bower_components/mustache.js/mustache.js',
-			'bower_components/am-wb-core/dist/am-wb-core.min.js',
 			'bower_components/ng-appcache/dist/appcache.js',
 			'bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js',
 			'bower_components/angular-material-persian-datepicker/dist/datePicker.min.js',
-			'bower_components/weakmap-polyfill/weakmap-polyfill.js',
-			'bower_components/loglevel/dist/loglevel.min.js',
 			'bower_components/angular-mocks/angular-mocks.js',
 			// endbower
 			'src/libs/**/*.js',

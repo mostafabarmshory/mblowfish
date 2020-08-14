@@ -29,7 +29,9 @@ var actions = {},
 	components = {},
 	applicationProcesses = {},
 	preferences = {},
-	sidnavs = {};
+	sidnavs = {},
+	wizards = {},
+	wizardPages = {};
 var rootScopeConstants = {};
 
 
@@ -56,7 +58,7 @@ var mbApplicationModule = angular
 		'ngMessages',
 		'ngSanitize',
 		//	AM-WB
-		'am-wb-core',
+		//		'am-wb-core',
 		//	Others
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 
@@ -65,7 +67,7 @@ var mbApplicationModule = angular
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
 		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-		$mbPreferencesProvider, $mbSidenavProvider) {
+		$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -123,9 +125,16 @@ var mbApplicationModule = angular
 		_.forEach(sidnavs, function(com, id) {
 			$mbSidenavProvider.addSidenav(id, com);
 		});
+
+		_.forEach(wizardPages, function(wp, id) {
+			$mbWizardProvider.addWizardPage(id, wp);
+		});
+
+		_.forEach(wizards, function(w, id) {
+			$mbWizardProvider.addWizard(id, w);
+		});
 	})
-	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
-		$widget.setProvider('$mbRouteParams', $mbRouteParams);
+	.run(function instantiateRoute($rootScope, $injector, $window, $mbEditor) {
 
 		$mbEditor.registerEditor('/ui/notfound/:path*', {
 			template: '<h1>Not found</h1>'
@@ -156,6 +165,10 @@ var mbApplicationModule = angular
  ***************************************************************************/
 window.mblowfish = {
 	extensions: [],
+	extension: function(loader) {
+		this.extensions.push(loader);
+		return window.mblowfish;
+	},
 	addExtension: function(loader) {
 		this.extensions.push(loader);
 		return window.mblowfish;
@@ -198,14 +211,83 @@ window.mblowfish = {
 		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
-	constant: function() {
-		mbApplicationModule.constant.apply(mbApplicationModule, arguments);
-		return window.mblowfish;
-	},
 
 	//-------------------------------------------------------------
 	// UI
 	//-------------------------------------------------------------
+	action: function(actionId, action) {
+		actions[actionId] = action;
+		return window.mblowfish;
+	},
+	editor: function(editorId, editor) {
+		editors[editorId] = editor;
+		return window.mblowfish;
+	},
+	view: function(viewId, view) {
+		views[viewId] = view;
+		return window.mblowfish;
+	},
+	/**
+	Register a constant service with the $injector, such as a string, a number, 
+	an array, an object or a function. Like the value, it is not possible to 
+	inject other services into a constant.
+
+	But unlike value, a constant can be injected into a module configuration 
+	function and it cannot be overridden by an decorator.
+	 */
+	constant: function(name, object) {
+		var values = {};
+		if (_.isUndefined(object)) {
+			values = name;
+		} else {
+			values[name] = object;
+		}
+
+		_.forEach(values, function(constant, constantId) {
+			// for injection
+			mbApplicationModule.constant(constantId, constant);
+
+			// global access
+			rootScopeConstants[constantId] = constant;
+			window[constantId] = constant;
+			mbApplicationModule.constant(constantId, constant);
+		});
+		return window.mblowfish;
+	},
+	resource: function(resourceId, resource) {
+		resources[resourceId] = resource;
+		return window.mblowfish;
+	},
+	component: function(componentId, component) {
+		components[componentId] = component;
+		return window.mblowfish;
+	},
+	preference: function(preferenceId, preference) {
+		preferences[preferenceId] = preference;
+		return window.mblowfish;
+	},
+	applicationProcess: function(state, process) {
+		if (_.isUndefined(applicationProcesses[state])) {
+			applicationProcesses[state] = [];
+		}
+		applicationProcesses[state].push(process);
+		return window.mblowfish;
+	},
+	sidenav: function(componentId, component) {
+		sidnavs[componentId] = component;
+		return window.mblowfish;
+	},
+
+	wizard: function(wizardId, wizardConfig) {
+		wizards[wizardId] = wizardConfig;
+		return window.mblowfish;
+	},
+	wizardPage: function(wizardPageId, wizardPageConfig) {
+		wizardPages[wizardPageId] = wizardPageConfig;
+		return window.mblowfish;
+	},
+
+	//>> Legecy
 	addAction: function(actionId, action) {
 		actions[actionId] = action;
 		return window.mblowfish;
@@ -238,7 +320,6 @@ window.mblowfish = {
 		preferences[preferenceId] = preference;
 		return window.mblowfish;
 	},
-
 	addApplicationProcess: function(state, process) {
 		if (_.isUndefined(applicationProcesses[state])) {
 			applicationProcesses[state] = [];
@@ -246,7 +327,6 @@ window.mblowfish = {
 		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
-
 	addSidenav: function(componentId, component) {
 		sidnavs[componentId] = component;
 		return window.mblowfish;

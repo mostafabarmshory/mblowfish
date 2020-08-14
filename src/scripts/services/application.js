@@ -311,12 +311,12 @@ mblowfish.provider('$mbApplication', function() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($q, $mbSettings, MbJob, $dispatcher) {
+		$get: function($q, $mbSettings, MbJob, $mbDispatcher) {
 			//>> Set services
 			mbSettings = $mbSettings;
 			q = $q;
 			Job = MbJob;
-			dispatcher = $dispatcher;
+			dispatcher = $mbDispatcher;
 
 			//>> Load application
 			load();
