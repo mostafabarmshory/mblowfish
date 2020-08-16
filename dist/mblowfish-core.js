@@ -1250,7 +1250,9 @@ var actions = {},
 	components = {},
 	applicationProcesses = {},
 	preferences = {},
-	sidnavs = {};
+	sidnavs = {},
+	wizards = {},
+	wizardPages = {};
 var rootScopeConstants = {};
 
 
@@ -1277,7 +1279,7 @@ var mbApplicationModule = angular
 		'ngMessages',
 		'ngSanitize',
 		//	AM-WB
-		'am-wb-core',
+		//		'am-wb-core',
 		//	Others
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 
@@ -1286,7 +1288,7 @@ var mbApplicationModule = angular
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
 		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-		$mbPreferencesProvider, $mbSidenavProvider) {
+		$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1344,9 +1346,16 @@ var mbApplicationModule = angular
 		_.forEach(sidnavs, function(com, id) {
 			$mbSidenavProvider.addSidenav(id, com);
 		});
+
+		_.forEach(wizardPages, function(wp, id) {
+			$mbWizardProvider.addWizardPage(id, wp);
+		});
+
+		_.forEach(wizards, function(w, id) {
+			$mbWizardProvider.addWizard(id, w);
+		});
 	})
-	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
-		$widget.setProvider('$mbRouteParams', $mbRouteParams);
+	.run(function instantiateRoute($rootScope, $injector, $window, $mbEditor) {
 
 		$mbEditor.registerEditor('/ui/notfound/:path*', {
 			template: '<h1>Not found</h1>'
@@ -1377,6 +1386,10 @@ var mbApplicationModule = angular
  ***************************************************************************/
 window.mblowfish = {
 	extensions: [],
+	extension: function(loader) {
+		this.extensions.push(loader);
+		return window.mblowfish;
+	},
 	addExtension: function(loader) {
 		this.extensions.push(loader);
 		return window.mblowfish;
@@ -1419,14 +1432,83 @@ window.mblowfish = {
 		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
-	constant: function() {
-		mbApplicationModule.constant.apply(mbApplicationModule, arguments);
-		return window.mblowfish;
-	},
 
 	//-------------------------------------------------------------
 	// UI
 	//-------------------------------------------------------------
+	action: function(actionId, action) {
+		actions[actionId] = action;
+		return window.mblowfish;
+	},
+	editor: function(editorId, editor) {
+		editors[editorId] = editor;
+		return window.mblowfish;
+	},
+	view: function(viewId, view) {
+		views[viewId] = view;
+		return window.mblowfish;
+	},
+	/**
+	Register a constant service with the $injector, such as a string, a number, 
+	an array, an object or a function. Like the value, it is not possible to 
+	inject other services into a constant.
+
+	But unlike value, a constant can be injected into a module configuration 
+	function and it cannot be overridden by an decorator.
+	 */
+	constant: function(name, object) {
+		var values = {};
+		if (_.isUndefined(object)) {
+			values = name;
+		} else {
+			values[name] = object;
+		}
+
+		_.forEach(values, function(constant, constantId) {
+			// for injection
+			mbApplicationModule.constant(constantId, constant);
+
+			// global access
+			rootScopeConstants[constantId] = constant;
+			window[constantId] = constant;
+			mbApplicationModule.constant(constantId, constant);
+		});
+		return window.mblowfish;
+	},
+	resource: function(resourceId, resource) {
+		resources[resourceId] = resource;
+		return window.mblowfish;
+	},
+	component: function(componentId, component) {
+		components[componentId] = component;
+		return window.mblowfish;
+	},
+	preference: function(preferenceId, preference) {
+		preferences[preferenceId] = preference;
+		return window.mblowfish;
+	},
+	applicationProcess: function(state, process) {
+		if (_.isUndefined(applicationProcesses[state])) {
+			applicationProcesses[state] = [];
+		}
+		applicationProcesses[state].push(process);
+		return window.mblowfish;
+	},
+	sidenav: function(componentId, component) {
+		sidnavs[componentId] = component;
+		return window.mblowfish;
+	},
+
+	wizard: function(wizardId, wizardConfig) {
+		wizards[wizardId] = wizardConfig;
+		return window.mblowfish;
+	},
+	wizardPage: function(wizardPageId, wizardPageConfig) {
+		wizardPages[wizardPageId] = wizardPageConfig;
+		return window.mblowfish;
+	},
+
+	//>> Legecy
 	addAction: function(actionId, action) {
 		actions[actionId] = action;
 		return window.mblowfish;
@@ -1459,7 +1541,6 @@ window.mblowfish = {
 		preferences[preferenceId] = preference;
 		return window.mblowfish;
 	},
-
 	addApplicationProcess: function(state, process) {
 		if (_.isUndefined(applicationProcesses[state])) {
 			applicationProcesses[state] = [];
@@ -1467,7 +1548,6 @@ window.mblowfish = {
 		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
-
 	addSidenav: function(componentId, component) {
 		sidnavs[componentId] = component;
 		return window.mblowfish;
@@ -1984,7 +2064,7 @@ mblowfish.addApplicationProcess('init', {
 /**
  * Manages system moduels
  */
-mblowfish.addConstants({
+mblowfish.constant({
 	MB_MODULE_RT: '/app/modules', // Resource Type
 	MB_MODULE_SP: '/app/modules', // Store Path
 	MB_MODULE_SK: 'mbModules', // Storage Key
@@ -3402,6 +3482,208 @@ mblowfish.config(function($mdThemingProvider) {
 	$mdThemingProvider.alwaysWatchTheme(true);
 });
 
+
+
+mblowfish.run(function($window, $q, $rootScope) {
+
+	var libs = {};
+	var styles = {};
+
+	/**
+	 * Loads a library
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @path path of library
+	 * @return promise to load the library
+	 */
+	$window.loadLibrary = function(path) {
+		if (libs[path]) {
+			return $q.resolve({
+				message: 'isload'
+			});
+		}
+		var defer = $q.defer();
+
+		//		var document = this.getDocument();
+		var script = document.createElement('script');
+		script.src = path;
+		script.async = 1;
+		script.onload = function() {
+			libs[path] = true;
+			defer.resolve({
+				path: path,
+				message: 'loaded'
+			});
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		script.onerror = function() {
+			libs[path] = false;
+			defer.reject({
+				path: path,
+				message: 'fail'
+			});
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		document.getElementsByTagName('head')[0].appendChild(script);
+		return defer.promise;
+	};
+
+	$window.removeLibrary = function(path) {
+		return $q.resolve({
+			source: path
+		});
+	};
+
+	/**
+	 * Check if the library is loaded
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @return true if the library is loaded
+	 */
+	$window.isLibraryLoaded = function(path) {
+		if (libs[path]) {
+			return true;
+		}
+		return false;
+	};
+
+	/**
+	 * Loads a style
+	 * 
+	 * loads css 
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @path path of library
+	 * @return promise to load the library
+	 */
+	$window.loadStyle = function(path) {
+		if (styles[path]) {
+			return $q.resolve(styles[path]);
+		}
+		var defer = $q.defer();
+
+		//		var document = this.getDocument();
+		var style = document.createElement('link');
+		style.setAttribute('rel', 'stylesheet');
+		style.setAttribute('type', 'text/css');
+		style.setAttribute('href', path);
+		style.onload = function() {
+			styles[path] = {
+				element: style,
+				path: path
+			};
+			defer.resolve(styles[path]);
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		style.onerror = function() {
+			styles[path] = undefined;
+			defer.reject({
+				path: path,
+				message: 'fail'
+			});
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		document.getElementsByTagName('head')[0].appendChild(style);
+		styles[path] = defer.promise;
+		return styles[path];
+	};
+
+	$window.removeStyle = function(path) {
+		if (!this.isStyleLoaded(path)) {
+			return $q.resolve({});
+		}
+		var item = styles[path];
+		item.element.parentNode.removeChild(item.element);
+		styles[path] = undefined;
+		$q.resolve(item);
+	};
+
+	/**
+	 * Check if the style is loaded
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @return true if the library is loaded
+	 */
+	$window.isStyleLoaded = function(path) {
+		if (styles[path]) {
+			return true;
+		}
+		return false;
+	};
+
+
+	/**
+	 * Set meta
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @params key {string} the key of meta
+	 * @params value {string} the value of meta
+	 */
+	$window.setMeta = function(key, value) {
+		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
+		var headElement = $('head');
+		var elements = headElement.find('meta[name="' + searchkey + '"]');
+		// remove element
+		if (_.isUndefined(value)) {
+			if (elements.length) {
+				elements.remove();
+			}
+			return;
+		}
+		// update element
+		var metaElement;
+		if (elements.length === 0) {
+			// title element not found
+			metaElement = angular.element('<meta name=\'' + key + '\' content=\'\' />');
+			headElement.append(metaElement);
+		} else {
+			metaElement = angular.element(elements[0]);
+		}
+		metaElement.attr('content', value);
+	};
+
+	$window.getMeta = function(key) {
+		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
+		var headElement = $('head');
+		var elements = headElement.find('meta[name="' + searchkey + '"]');
+		if (elements.length === 0) {
+			return;
+		}
+		return elements.attr('content');
+	};
+
+	/**
+	 * Set link
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @params key {string} the key of meta
+	 * @params data {string} the value of meta
+	 */
+	$window.setLink = function(key, data) {
+		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
+		var headElement = $('head');
+		var elements = headElement.find('link[key=' + searchkey + ']');
+		var metaElement;
+		if (elements.length === 0) {
+			// title element not found
+			metaElement = angular.element('<link key=\'' + key + '\' />');
+			headElement.append(metaElement);
+		} else {
+			metaElement = angular.element(elements[0]);
+		}
+		for (var property in data) {
+			metaElement.attr(property, data[property]);
+		}
+	};
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5436,7 +5718,7 @@ angular.module('mblowfish-core')
 
 mblowfish.directive('mbView', function(
 	/* MB        */ $mbLayout, $mbRoute,
-	/* AngularJS */ $location, $dispatcher, $mbApplication, $q) {
+	/* AngularJS */ $location, $mbDispatcher, $mbApplication, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -5445,9 +5727,9 @@ mblowfish.directive('mbView', function(
 		var layout = attr.mbLayout || 'docker';
 
 		// staso, 2019: fire the state is changed
-		$dispatcher.on('/app/state', checkApp);
+		$mbDispatcher.on('/app/state', checkApp);
 		scope.$on('$destroy', function() {
-			$dispatcher.off('/app/state', update);
+			$mbDispatcher.off('/app/state', update);
 		});
 
 
@@ -5941,6 +6223,137 @@ mblowfish.directive('wbOnLoad', function() {
 	};
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.factory('MbObservableObject', function($log) {
+
+	function ObservableObject() {
+		this.silent = false;
+		this.callbacks = {};
+	}
+
+	/**
+	 * Set widget silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.setSilent = function(silent) {
+		this.silent = silent;
+	};
+
+	/**
+	 * Checks if the element is silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.isSilent = function() {
+		return this.silent;
+	};
+
+	/**
+	 * Adds new callback of type
+	 * 
+	 * @param typeof
+	 *            the event
+	 * @param callback
+	 *            to call on the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.on = function(type, callback) {
+		if (!angular.isFunction(callback)) {
+			throw {
+				message: 'Callback must be a function'
+			};
+		}
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			callbacks[type] = [];
+		}
+		if (callbacks[type].includes(callback)) {
+			return;
+		}
+		callbacks[type].push(callback);
+	};
+
+	/**
+	 * Remove the callback
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param callback
+	 *            to remove
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.off = function(type, callback) {
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			return;
+		}
+		var index = callbacks[type].indexOf(callback);
+		if (index > -1) {
+			callbacks[type].splice(index, 1);
+		}
+	};
+
+	/**
+	 * Call all callbacks on the given event type.
+	 * 
+	 * Before callbacks, widget processors will process the widget and event.
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param params
+	 *            to add to the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.fire = function(type, params) {
+		// 1- Call processors
+		var event = _.merge({
+			source: this,
+			type: type
+		}, params || {});
+		var callbacks = this.callbacks;
+
+		// 2- call listeners
+		if (this.isSilent() || !angular.isDefined(callbacks[type])) {
+			return;
+		}
+		var cl = callbacks[type];
+		for (var i = 0; i < cl.length; i++) {
+			// TODO: maso, 2018: check if the event is stopped to propagate
+			try {
+				cl[i].apply(cl[i], [event]);
+			} catch (error) {
+				$log.error({
+					source: 'ObservableObject',
+					message: 'The listener throw an unexpected exception.',
+					exception: error
+				});
+			}
+		}
+	};
+
+	return ObservableObject;
+});
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -6615,7 +7028,7 @@ view, or an editor.
  */
 mblowfish.factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
-	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming) {
+	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming, MbObservableObject) {
 
 	/*
 	Create new instance of a UI component. It may used as view, editor
@@ -6626,6 +7039,7 @@ mblowfish.factory('MbContainer', function(
 	@param {object} configs - A configuration set to crate a new instance
 	*/
 	function MbContainer(configs) {
+		MbObservableObject.call(this);
 		_.assignIn(this, {
 			// global attributes
 			url: undefined,
@@ -6647,6 +7061,8 @@ mblowfish.factory('MbContainer', function(
 		this.$handler = undefined;
 		return this;
 	};
+
+	MbContainer.prototype = Object.create(MbObservableObject.prototype);
 
 	/**
 	Gets template of the component
@@ -6817,7 +7233,7 @@ angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
 @name MbEvent
 @description An event item
 
-Events are used to propagate signals to the application. It is based on $dispatcher. 
+Events are used to propagate signals to the application. It is based on $mbDispatcher. 
 
 NOTE: All platform events (from mb or children) are instance of this factory.
 
@@ -6898,7 +7314,7 @@ angular.module('mblowfish-core').factory('MbEvent', function() {
 @description A container which is managed with layout manager to display
 
  */
-angular.module('mblowfish-core').factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
+mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
@@ -7624,7 +8040,7 @@ mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 It handles visible part of components or containers.
 
  */
-angular.module('mblowfish-core').factory('MbUiHandler', function() {
+mblowfish.factory('MbUiHandler', function() {
 
 	function MbUiHandler(configs) {
 		_.assign(this, configs);
@@ -7709,7 +8125,7 @@ A view is consists fo a toolbar, menu and the main view. You are free to
 contributes directly into them.
 
  */
-angular.module('mblowfish-core').factory('MbView', function(MbFrame) {
+mblowfish.factory('MbView', function(MbFrame) {
 
 	function MbView(configs) {
 		// Call constructor of superclass to initialize superclass-derived members.
@@ -7727,6 +8143,322 @@ angular.module('mblowfish-core').factory('MbView', function(MbFrame) {
 	return MbView;
 });
 
+mblowfish.factory('MbWizardPage', function(MbComponent, $injector) {
+
+
+	var MbWizardPage = function(config) {
+		config = _.assign({
+			title: '',
+			description: '',
+			isWizardPage: true,
+		}, config);
+
+		this.userNextPage = config.nextPage;
+		this.userIsPageComplete = config.isPageComplete;
+
+		delete config.nextPage;
+		delete config.isPageComplete;
+		MbComponent.call(this, config);
+		return this;
+	};
+
+
+	// Circle derives from Shape
+	MbWizardPage.prototype = Object.create(MbComponent.prototype);
+
+	MbWizardPage.prototype.getNextPage = function() { };
+	MbWizardPage.prototype.getNextPageIndex = function() {
+		if (this.userNextPage) {
+			if (_.isFunction(this.userNextPage)) {
+				return this.$wizard.pageIdToIndex(this.invoke(this.userNextPage));
+			}
+			return this.$wizard.pageIdToIndex(this.userNextPage);
+		}
+		return this.index + 1;
+	};
+
+	MbWizardPage.prototype.isPageComplete = function() {
+		if (this.userIsPageComplete) {
+			return this.invoke(this.userIsPageComplete);
+		}
+		return true;
+	};
+
+	/*
+	Calls a user function
+	*/
+	MbWizardPage.prototype.invoke = function(userFunction, locals) {
+		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+			$wizard: this.$wizard,
+			$currentPage: this,
+			$currentPageIndex: this.index
+		}));
+	};
+
+	return MbWizardPage;
+});
+
+/**
+A regestred wizard
+
+
+ */
+mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
+
+	var MbWizard = function(config) {
+		var $wizard = this;
+		config = _.assign({
+			title: '',
+			description: '',
+			isWizard: true,
+			pages: [],
+			templateUrl: 'scripts/factories/wizard.html',
+			controllerAs: 'ctrl',
+			controller: function($scope) {
+				'ngInject';
+				var ctrl = this;
+				// todo
+				this.title = config.title;
+				this.description = config.description;
+				this.image = config.image;
+
+				this.backPage = function($event) {
+					$wizard.flipToPreviousPage($event);
+				}
+
+				this.nextPage = function($event) {
+					$wizard.flipNextPage($event);
+				};
+
+				this.cancelWizard = function($event) {
+					$wizard.performCancel($event);
+				};
+
+				this.finishWizard = function($event) {
+					$wizard.performFinish($event);
+				};
+
+				// bind
+				$wizard.on('errorMessageChanged', function() {
+					ctrl.errorMessage = $wizard.getErrorMessage();
+					updateButtons();
+				});
+
+				$wizard.on('pageChanged', function() {
+					updateButtons();
+				});
+
+				$wizard.on('change', function() {
+					updateButtons();
+				});
+
+				function updateButtons() {
+					ctrl.nextDisabled = !$wizard.canFlipToNextPage();
+					ctrl.backDisabled = !$wizard.canFlipToPreviousPage();
+					ctrl.cancelDisabled = true;
+					ctrl.finishDisabled = !$wizard.canFinish();
+					ctrl.helpDisabled = !$wizard.isHelpAvailable();
+				}
+			},
+		}, config);
+		this.wizardPageIds = config.pages;
+		// bind to class variable
+		this.userOnChange = config.onChange;
+		this.userPerformCancel = config.performCancel;
+		this.userCanFinish = config.canFinish;
+		this.userPerformFinish = config.performFinish;
+		this.data = {};
+		// remove user functions
+		delete config.pages;
+		delete config.onChange;
+		delete config.canFinish;
+		delete config.performCancel;
+		delete config.performFinish;
+		MbContainer.call(this, config);
+		return this;
+	};
+
+
+	// Circle derives from Shape
+	MbWizard.prototype = Object.create(MbContainer.prototype);
+
+	MbWizard.prototype.setErrorMessage = function(message) {
+		this.errorMessage = message;
+		this.fire('errorMessageChanged', {
+			value: message
+		});
+		return this;
+	};
+
+	MbWizard.prototype.getErrorMessage = function() {
+		return this.errorMessage;
+	};
+
+	MbWizard.prototype.getNextPage = function() {
+		return this.pages[this.calculateNextPageIndex()];
+	};
+
+	MbWizard.prototype.pageIdToIndex = function(id) {
+		return this.wizardPageIds.indexOf(id);
+	};
+
+	MbWizard.prototype.calculateNextPageIndex = function() {
+		if (this.currentPageIndex === -1) {
+			return 0;
+		}
+		var index = this.currentPage.getNextPageIndex();
+		if (index > -1) {
+			return index;
+		}
+		if (this.currentPage.index < this.pages.length - 1) {
+			return this.currentPage.index + 1;
+		}
+	}
+
+	MbWizard.prototype.flipTo = function(nextPageIndex) {
+		if (this.currentPage) {
+			this.currentPage.destroy();
+			delete this.currentPage;
+		}
+		this.currentPageIndex = nextPageIndex;
+		this.currentPage = this.pages[nextPageIndex];
+		var wizard = this;
+		var element = mblowfish.element('<div></div>');
+		this.$body.append(element);
+		return this.currentPage.render({
+			$element: element,
+			$wizard: this,
+			$currentPage: this.currentPage,
+			$currentPageIndex: nextPageIndex
+		}).then(function() {
+			wizard.fire('pageChanged');
+		});
+	};
+
+	MbWizard.prototype.flipNextPage = function() {
+		if (!this.canFlipToNextPage()) {
+			return;
+		}
+		var nextPageIndex = this.calculateNextPageIndex();
+		if (nextPageIndex < 0) {
+			return;
+		}
+		if (this.currentPage) {
+			this.pageStack.push(this.currentPage);
+		}
+		return this.flipTo(nextPageIndex);
+	};
+
+	MbWizard.prototype.canFlipToNextPage = function() {
+		// >> this is first page
+		if (this.currentPageIndex === -1 && this.pages.length > 0) {
+			return true;
+		}
+		return this.currentPage.isPageComplete() &&
+			this.currentPage.getNextPageIndex() > -1;
+	};
+
+	MbWizard.prototype.flipToPreviousPage = function() {
+		if (!this.canFlipToPreviousPage()) {
+			return;
+		}
+		var page = this.pageStack.pop();
+		var pageIndex = this.pages.indexOf(page);
+		this.flipTo(pageIndex);
+	};
+
+	MbWizard.prototype.canFlipToPreviousPage = function() {
+		if (this.currentPageIndex < 1) {
+			return false;
+		}
+		return true;
+	};
+
+	MbWizard.prototype.performFinish = function($event) {
+		var result;
+		if (_.isFunction(this.userPerformFinish)) {
+			result = this.invoke(this.userPerformFinish);
+		}
+		var wizard = this;
+		$q.when(result)
+			.then(function() {
+				wizard.fire('finish', $event);
+			});
+	};
+
+	MbWizard.prototype.canFinish = function() {
+		var result = true;
+		if (_.isFunction(this.userCanFinish)) {
+			result = this.invoke(this.userCanFinish);
+		}
+		return result;
+	};
+
+	MbWizard.prototype.performCancel = function($event) {
+		this.fire('cancel', $event);
+		return this.destroy();
+	};
+
+	MbWizard.prototype.render = function(locals) {
+		var wizard = this;
+		this.pageStack = [];
+		this.currentPage = undefined;
+		this.currentPageIndex = -1;
+		return MbContainer.prototype.render.apply(this, [locals])
+			.then(function(handler) {
+				wizard.$body = handler.$element.find('#body');
+				wizard.flipNextPage();
+			});
+	};
+
+	MbWizard.prototype.destroy = function() {
+		if (this.currentPage) {
+			this.pageStack.push(this.currentPage);
+		}
+		_.forEach(this.pageStack, function(page) {
+			page.destroy();
+		});
+		delete this.pageStack;
+		delete this.currentPage;
+		return MbContainer.prototype.destroy.apply(this);
+	};
+
+	/*
+	Calls a user function
+	*/
+	MbWizard.prototype.invoke = function(userFunction, locals) {
+		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+			$wizard: this,
+			$currentPage: this.currentPage,
+			$currentPageIndex: this.currentPageIndex
+		}));
+	};
+
+
+	MbWizard.prototype.getData = function(key) {
+		return this.data[key];
+	};
+
+	MbWizard.prototype.isHelpAvailable = function() {
+		return false;
+	};
+
+	MbWizard.prototype.setData = function(key, value) {
+		this.data[key] = value;
+		var $event = {
+			value: value,
+			key: key,
+		};
+		this.fire('changed', $event);
+		if (_.isFunction(this.userOnChange)) {
+			this.invoke(this.userOnChange, {
+				$event: $event
+			});
+		}
+	};
+
+	return MbWizard;
+});
 /* 
  * The MIT License (MIT)
  * 
@@ -8455,11 +9187,11 @@ mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
  * SOFTWARE.
  */
 
-mblowfish.addResource('mb-module-manual', {
+mblowfish.resource('mb-module-manual', {
 	label: 'Manual',
-	templateUrl: 'views/modules/mb-resources-manual.html',
-	/*@ngInject*/
+	templateUrl: 'scripts/module-moduleManager/resources/module-manual.html',
 	controller: function($scope, $resource) {
+		'ngInject';
 		$scope.$watch('module', function(value) {
 			$resource.setValue([value]);
 		}, true);
@@ -8490,17 +9222,18 @@ mblowfish.addResource('mb-module-manual', {
  * SOFTWARE.
  */
 
-mblowfish.addView('/app/modules', {
+mblowfish.view('/app/modules', {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
-	templateUrl: 'views/modules/mb-preference.html',
+	templateUrl: 'scripts/module-moduleManager/views/modules.html',
+	groups: ['Utilities'],
 	controllerAs: 'ctrl',
-	/* @ngInject */
 	controller: function(
 	/* angularjs */ $scope, $controller,
 	/* Mblowfish */ $mbModules, $mbActions
 	) {
+		'ngInject';
 		/*
 		 * Extends collection controller from MbAbstractCtrl 
 		 */
@@ -13767,12 +14500,12 @@ mblowfish.provider('$mbApplication', function() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($q, $mbSettings, MbJob, $dispatcher) {
+		$get: function($q, $mbSettings, MbJob, $mbDispatcher) {
 			//>> Set services
 			mbSettings = $mbSettings;
 			q = $q;
 			Job = MbJob;
-			dispatcher = $dispatcher;
+			dispatcher = $mbDispatcher;
 
 			//>> Load application
 			load();
@@ -14431,7 +15164,7 @@ different from generic pub-sub systems in two ways:
 
 @tutorial core-flux-dispatcher-hypotheticalFligh
  */
-angular.module('mblowfish-core').provider('$mbDispatcher', function() {
+mblowfish.provider('$mbDispatcher', function() {
 
 	//---------------------------------------
 	// service
@@ -18573,7 +19306,7 @@ function storageSupported($window, storageType) {
 @description Manages theme of an element
 
  */
-angular.module('mblowfish-core').provider('$mbTheming', function() {
+mblowfish.provider('$mbTheming', function() {
 	var mdTheming;
 
 	function applyTheme(element) {
@@ -19233,6 +19966,212 @@ angular.module('mblowfish-core').provider('$mbView', function() {
 	return provider;
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Serivces
+@name $mbWizard
+@description Manages wizards and run
+
+ */
+mblowfish.provider('$mbWizard', function() {
+
+	//-----------------------------------------------------------------------------------
+	// Service and Factory
+	//-----------------------------------------------------------------------------------
+	var provider,
+		service,
+		mbDialog,
+		Wizard,
+		WizardPage,
+		rootScope;
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
+	var wizardConfigs = {},
+		wizardPageConfigs = {};
+
+
+	//-----------------------------------------------------------------------------------
+	// functions
+	//-----------------------------------------------------------------------------------
+	function addWizard(wizardId, wizardConfig) {
+		wizardConfigs[wizardId] = wizardConfig;
+		return service;
+	}
+
+	function getWizard(wizardId) {
+		if (!hasWizard(wizardId)) {
+			throw {
+				message: 'Wizard not found'
+			};
+		}
+		return wizardConfigs[wizardId];
+	}
+
+	/**
+	Checks if a wizard with given id exist
+	
+	@memberof $mbWizard
+	@param wizardId {string} The id of the wizard
+	 */
+	function hasWizard(wizardId) {
+		return !_.isUndefined(wizardConfigs[wizardId]);
+	}
+
+	function openWizardWithDialog(wizard) {
+		// Open with dialog
+		mbDialog.show({
+			template: '<md-dialog></md-dialog>',
+			parent: angular.element(document.body),
+			controller: function($scope, $mdDialog, $element) {
+				'ngInject';
+				wizard.render({
+					$scope: $scope,
+					$element: $element.find('md-dialog'),
+				});
+
+				wizard.on('finish', function() {
+					$mdDialog.hide();
+				});
+
+				wizard.on('cancel', function() {
+					$mdDialog.cancel();
+				});
+			},
+		});
+	}
+
+	function openWizardWithElement(wizard, $element) {
+		// Open with in the $element
+		wizard.render({
+			$scope: rootScope.$new(),
+			$element: $element,
+		});
+	}
+
+	/**
+	Opens a wizard with in a dialog and return the prommise to do
+	final process.
+	
+	@memberof $mbWizard
+	@param wizardId {string} The id of the wizard
+	@param $element {JqueryDOM} the place to render the wizard
+	 */
+	function openWizard(wizardId, $element) {
+		var wizardConfig = getWizard(wizardId);
+		var wizard = new Wizard(_.assign({}, wizardConfig));
+		wizard.pages = [];
+		// load pages
+		_.forEach(wizardConfig.pages || [], function(pageId, index) {
+			var page = getWizardPage(pageId);
+			page.$wizard = wizard;
+			page.index = index;
+			wizard.pages.push(page);
+		});
+		if (_.isUndefined($element)) {
+			openWizardWithDialog(wizard);
+		} else {
+			openWizardWithElement(wizard, $element);
+		}
+		return wizard;
+	}
+
+	/**
+	Registers/Overrid a wizard page with given ID
+	
+	@memberof $mbWizard
+	@param pageId {string} the id of the page
+	@param wizardPageConfig {object} the configuration
+	@return the $mbWizard service
+	 */
+	function addWizardPage(pageId, wizardPageConfig) {
+		wizardPageConfigs[pageId] = wizardPageConfig;
+		return service;
+	}
+
+	/**
+	Creates new instance of a page with the given id
+	
+	@memberof $wizard
+	@throws PageNotFoundException if the page not found.
+	 */
+	function getWizardPage(pageId) {
+		if (!hasWizardPage(pageId)) {
+			throw {
+				message: 'Wizard page not found:' + pageId
+			};
+		}
+		return new WizardPage(wizardPageConfigs[pageId]);
+	}
+
+	/**
+	Checks if the page exists.
+	
+	@memberof $wizard
+	@return true if the pageId exists
+	 */
+	function hasWizardPage(pageId) {
+		return !_.isUndefined(wizardPageConfigs[pageId]);
+	}
+
+	//-----------------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------------
+	service = {
+		addWizard: addWizard,
+		getWizard: getWizard,
+		hasWizard: hasWizard,
+		openWizard: openWizard,
+
+		addWizardPage: addWizardPage,
+		getWizardPage: getWizardPage,
+		hasWizardPage: hasWizardPage
+	};
+	provider = {
+		$get: function(MbWizard, MbWizardPage, $mbDialog, $rootScope) {
+			'ngInject';
+			Wizard = MbWizard;
+			WizardPage = MbWizardPage;
+			mbDialog = $mbDialog;
+			rootScope = $rootScope;
+
+			return service;
+		},
+		addWizard: function(wizardId, wizardConfig) {
+			addWizard(wizardId, wizardConfig);
+			return provider;
+		},
+		addWizardPage: function(pageId, wizardPageConfig) {
+			addWizardPage(pageId, wizardPageConfig);
+			return provider;
+		}
+	}
+	return provider;
+});
+
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -19366,16 +20305,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/modules/mb-preference.html',
-    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <mb-icon>add</mb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</mb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
-  );
-
-
-  $templateCache.put('views/modules/mb-resources-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option mb-translate=\"\">None</md-option> <md-option ng-value=\"'before'\" mb-translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" mb-translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" mb-translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
-  );
-
-
   $templateCache.put('views/options/mb-local.html',
     "<md-divider></md-divider> <md-input-container class=md-block> <label mb-translate>Language & Local</label> <md-select ng-model=app.setting.local> <md-option ng-repeat=\"lang in languages\" ng-value=lang.key mb-translate>{{lang.title}}</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Direction</label> <md-select ng-model=app.setting.dir placeholder=Direction> <md-option value=rtl mb-translate>Right to left</md-option> <md-option value=ltr mb-translate>Left to right</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Calendar</label> <md-select ng-model=app.setting.calendar placeholder=\"\"> <md-option value=Gregorian mb-translate>Gregorian</md-option> <md-option value=Jalaali mb-translate>Jalaali</md-option> </md-select> </md-input-container> <md-input-container class=md-block> <label mb-translate>Date format</label> <md-select ng-model=app.setting.dateFormat placeholder=\"\"> <md-option value=jMM-jDD-jYYYY mb-translate> {{'2018-01-01' | mbDate:'jMM-jDD-jYYYY'}} </md-option> <md-option value=jYYYY-jMM-jDD mb-translate> {{'2018-01-01' | mbDate:'jYYYY-jMM-jDD'}} </md-option> <md-option value=\"jYYYY jMMMM jDD\" mb-translate> {{'2018-01-01' | mbDate:'jYYYY jMMMM jDD'}} </md-option> </md-select> </md-input-container>"
   );
@@ -19504,6 +20433,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/ui/mb-view-main.html',
     "<body class=mb_body>  <div>  <div id=view></div> </div> </body>"
+  );
+
+
+  $templateCache.put('scripts/factories/wizard.html',
+    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-moduleManager/resources/module-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option mb-translate=\"\">None</md-option> <md-option ng-value=\"'before'\" mb-translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" mb-translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" mb-translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-moduleManager/views/modules.html',
+    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <mb-icon>add</mb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</mb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
   );
 
 

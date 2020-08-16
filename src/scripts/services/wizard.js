@@ -34,8 +34,10 @@ mblowfish.provider('$mbWizard', function() {
 	//-----------------------------------------------------------------------------------
 	var provider,
 		service,
+		mbDialog,
 		Wizard,
-		WizardPage;
+		WizardPage,
+		rootScope;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
@@ -51,7 +53,15 @@ mblowfish.provider('$mbWizard', function() {
 		wizardConfigs[wizardId] = wizardConfig;
 		return service;
 	}
-	function getWizard() { }
+
+	function getWizard(wizardId) {
+		if (!hasWizard(wizardId)) {
+			throw {
+				message: 'Wizard not found'
+			};
+		}
+		return wizardConfigs[wizardId];
+	}
 
 	/**
 	Checks if a wizard with given id exist
@@ -63,6 +73,36 @@ mblowfish.provider('$mbWizard', function() {
 		return !_.isUndefined(wizardConfigs[wizardId]);
 	}
 
+	function openWizardWithDialog(wizard) {
+		// Open with dialog
+		mbDialog.show({
+			template: '<md-dialog></md-dialog>',
+			parent: angular.element(document.body),
+			controller: function($scope, $mdDialog, $element) {
+				'ngInject';
+				wizard.render({
+					$scope: $scope,
+					$element: $element.find('md-dialog'),
+				});
+
+				wizard.on('finish', function() {
+					$mdDialog.hide();
+				});
+
+				wizard.on('cancel', function() {
+					$mdDialog.cancel();
+				});
+			},
+		});
+	}
+
+	function openWizardWithElement(wizard, $element) {
+		// Open with in the $element
+		wizard.render({
+			$scope: rootScope.$new(),
+			$element: $element,
+		});
+	}
 
 	/**
 	Opens a wizard with in a dialog and return the prommise to do
@@ -70,27 +110,64 @@ mblowfish.provider('$mbWizard', function() {
 	
 	@memberof $mbWizard
 	@param wizardId {string} The id of the wizard
+	@param $element {JqueryDOM} the place to render the wizard
 	 */
-	function openWizard(wizardId) {
-		if (!hasWizard(wizardId)) {
-			throw {
-				message: 'Wizard with the given wizard id not found: ' + wizardId
-			};
+	function openWizard(wizardId, $element) {
+		var wizardConfig = getWizard(wizardId);
+		var wizard = new Wizard(_.assign({}, wizardConfig));
+		wizard.pages = [];
+		// load pages
+		_.forEach(wizardConfig.pages || [], function(pageId, index) {
+			var page = getWizardPage(pageId);
+			page.$wizard = wizard;
+			page.index = index;
+			wizard.pages.push(page);
+		});
+		if (_.isUndefined($element)) {
+			openWizardWithDialog(wizard);
+		} else {
+			openWizardWithElement(wizard, $element);
 		}
-		// XXX: open within a dialog
-		var wizardConfig = wizardConfigs[wizardId];
-		var wizard = new Wizard(wizardConfig);
-
-
 		return wizard;
 	}
 
+	/**
+	Registers/Overrid a wizard page with given ID
+	
+	@memberof $mbWizard
+	@param pageId {string} the id of the page
+	@param wizardPageConfig {object} the configuration
+	@return the $mbWizard service
+	 */
 	function addWizardPage(pageId, wizardPageConfig) {
-		wizardConfigs[pageId] = wizardPageConfig;
+		wizardPageConfigs[pageId] = wizardPageConfig;
 		return service;
 	}
-	function getWizardPage() { }
-	function hasWizardPage() { }
+
+	/**
+	Creates new instance of a page with the given id
+	
+	@memberof $wizard
+	@throws PageNotFoundException if the page not found.
+	 */
+	function getWizardPage(pageId) {
+		if (!hasWizardPage(pageId)) {
+			throw {
+				message: 'Wizard page not found:' + pageId
+			};
+		}
+		return new WizardPage(wizardPageConfigs[pageId]);
+	}
+
+	/**
+	Checks if the page exists.
+	
+	@memberof $wizard
+	@return true if the pageId exists
+	 */
+	function hasWizardPage(pageId) {
+		return !_.isUndefined(wizardPageConfigs[pageId]);
+	}
 
 	//-----------------------------------------------------------------------------------
 	// End
@@ -106,11 +183,13 @@ mblowfish.provider('$mbWizard', function() {
 		hasWizardPage: hasWizardPage
 	};
 	provider = {
-		$get: function(MbWizard, MbWizardPage) {
+		$get: function(MbWizard, MbWizardPage, $mbDialog, $rootScope) {
 			'ngInject';
 			Wizard = MbWizard;
 			WizardPage = MbWizardPage;
-			
+			mbDialog = $mbDialog;
+			rootScope = $rootScope;
+
 			return service;
 		},
 		addWizard: function(wizardId, wizardConfig) {

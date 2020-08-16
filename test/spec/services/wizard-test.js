@@ -79,9 +79,7 @@ describe('Service $mbWizard ', function() {
 
 	it('should render a wizard on custom element', function() {
 		var $element = mblowfish.element('<div></div>');
-		var wizard = $mbWizard.openWizard(wizardIdRuntime, {
-			$element: $element
-		});
+		var wizard = $mbWizard.openWizard(wizardIdRuntime, $element);
 		
 		expect(wizard).not.toBe(undefined);
 		expect(wizard instanceof MbWizard).toBe(true);

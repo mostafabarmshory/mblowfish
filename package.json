@@ -90,7 +90,8 @@
 		"test": "grunt test",
 		"test:debug": "grunt debug",
 		"build": "grunt",
-		"dev": "grunt demo"
+		"dev": "grunt demo",
+		"demo": "grunt demo"
 	},
 	"dependencies": {
 		"angular": "^1.7.9"

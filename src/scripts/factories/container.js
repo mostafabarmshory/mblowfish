@@ -51,7 +51,7 @@ view, or an editor.
  */
 mblowfish.factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
-	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming) {
+	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming, MbObservableObject) {
 
 	/*
 	Create new instance of a UI component. It may used as view, editor
@@ -62,6 +62,7 @@ mblowfish.factory('MbContainer', function(
 	@param {object} configs - A configuration set to crate a new instance
 	*/
 	function MbContainer(configs) {
+		MbObservableObject.call(this);
 		_.assignIn(this, {
 			// global attributes
 			url: undefined,
@@ -83,6 +84,8 @@ mblowfish.factory('MbContainer', function(
 		this.$handler = undefined;
 		return this;
 	};
+
+	MbContainer.prototype = Object.create(MbObservableObject.prototype);
 
 	/**
 	Gets template of the component

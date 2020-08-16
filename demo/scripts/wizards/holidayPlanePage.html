@@ -1,0 +1,18 @@
+<md-input-container class="md-block">
+	<label>Plane Agency</label>
+	<input 
+		aria-label="Plane Agency"
+		name="planeAgency"
+		ng-model="ctrl.planeAgency"
+		ng-model-options="{getterSetter: true, debounce: 200}">
+</md-input-container>
+
+<md-input-container class="md-block">
+	<label>Plane Class</label>
+	<md-select
+		ng-model="ctrl.planeClass">
+		<md-option value="A">A</md-option>
+		<md-option value="B">B</md-option>
+		<md-option value="C">C</md-option>
+	</md-select>
+</md-input-container>

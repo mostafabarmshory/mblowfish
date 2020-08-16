@@ -182,7 +182,7 @@ mblowfish
 			.addSidenav('/app/navigator', {
 				title: 'Navigator',
 				description: 'Navigate all path and routs of the pandel',
-				controller: 'MbNavigatorContainerCtrl',
+				controller: 'MbNavigatorCtrl',
 				controllerAs: 'ctrl',
 				templateUrl: 'views/mb-navigator.html',
 				//		locked: '$mdMedia("min-width: 333px");',

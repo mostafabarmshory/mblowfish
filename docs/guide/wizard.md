@@ -48,19 +48,61 @@ This article explains the following:
 
 Mblowfish provides the class MbWizard and MbWizardPage to describe wizards and corresponding implementation classes that handle many of the details of implementing wizards. Our wizard HolidayWizard is an instance of MbWizard. Its main responsibilities are to create the pages inside the wizard and perform the work when the wizard is completed.
 
+This is the main data model which is going to fill through the wizard.
+
+	{
+		travelDate: '{date}',
+		returnDate: '{date}',
+		from: '{location}',
+		to: '{location}',
+		type: '[plane, car]',
+		planeClass: '[A,B,C]',
+		planeAgency: '{agency name}',
+		carModel: '{model}',
+		trainClass: '[A,B,C]',
+	}
+
+Following pages are required:
+
+- Travel Schedule
+- Holiday Location
+- Travel Type
+- Travel Plane Type
+- Travel Train Type
+- Travel Car Rent
+
+Page check if:
+
+- Page is complete
+- What is the next page
+
+Wizard check if:
+
+- Can performe finish
+- Is help available
+- 
+
 ### Adding Pages to a Wizard
 
 Each page is instantiated and added to the wizard. The order in which we add the pages to the wizard is the default navigation order. The page which is added first will be the starting page when the wizard is opened. Later we will look at ways of changing these defaults. The corresponding method on the HolidayWizard class is shown below:
 
 	mblowfish
-		.wizardPage('holidayPage', {..})
-		.wizardPage('planePage', {..})
-		.wizardPage('carPage', {..})
-		.wizard('holiday', {
+		.wizardPage('holidaySchedulePage', {..})
+		.wizardPage('holidayLocationPage', {..})
+		.wizardPage('holidayTypePage', {..})
+		.wizardPage('holidayPlanePage', {..})
+		.wizardPage('holidayTrainPage', {..})
+		.wizardPage('holidayCarPage', {..})
+		.wizardPage('holidayFinalPage', {..})
+		.wizard('holidayWizard', {
 			pages:[
-				'holidayPage',
-				'planePage',
-				'carPage'
+				'holidaySchedulePage',
+				'holidayLocationPage',
+				'holidayTypePage',
+				'holidayPlanePage',
+				'holidayTrainPage',
+				'holidayCarPage',
+				'holidayFinalPage',
 			]
 		});
 
@@ -70,18 +112,72 @@ Each page is instantiated and added to the wizard. The order in which we add the
 Each page is a full UI component. 
 
 	mblowfish
-		.wizardPage('holidayPage', {
+		.wizardPage('holidaySchedulePage', {
 			templateUrl: 'app/holidayPage.html',
 			controller: function($wizard, $wizardPage, $scope, ... ){..}
 		});
 
+### Changing the Page Order
 
-### Events
+We can change the order of the wizard pages by adding the getNextPage method of wizard. Before leaving the page, we save in the model the values chosen by the user. In our example, depending on the choice of travel the user will next see either the page with flights or the page for travelling by car.
 
-To resive data change event in wizard:
+
+‌By default the next page in the list is used. 
+
+Each page can override the sequence by adding nextPage param to the page configuration.
+
+The next page may be a function:
 
 	mblowfish
-		.wizardPage('holidayPage', {
+		.wizardPage('holidaySchedulePage', {
+			templateUrl: 'app/holidayPage.html',
+			controller: function($wizard, $wizardPage, $scope, ... ){..},
+			nextPage: function(){
+				
+			}
+		});
+
+Or the id of a page.
+
+	mblowfish
+		.wizardPage('holidayLocationPage', {
+			templateUrl: 'app/holidayLocationPage.html',
+			controller: function($wizard, $wizardPage, $scope, ... ){..},
+			nextPage: 'holidayTypePage'
+		});
+		
+		
+### Check if page is completed
+
+If the page is completed then the next button is enabel.
+
+If there is no error on page data, the page is concidered as a complete one.
+
+Each page may add extra logic to check if the page is complite by adding isPageComplete function.
+
+	mblowfish
+		.wizardPage('holidaySchedulePage', {
+			templateUrl: 'app/holidayPage.html',
+			controller: function($wizard, $wizardPage, $scope, ... ){..},
+			nextPage: 'holidayLocationPage',
+			isPageComplete: function($wizard){
+				'mbInject';
+				return $wizard.data.travelDate && $wizard.data.returnDate;
+			}
+		});
+
+## Customizing wizard
+		
+### Data validation
+
+By changing data, the valication process is being start. 
+
+To ad a custom validation process, add onChange function and check if the data is valid.
+
+The
+
+	mblowfish
+		.wizard('holidayPage', {
 			...
 			onChange: function($wizard){
 				if(!$wizard.data.url){
@@ -146,7 +242,7 @@ To implement the canFlipToNextPage method for the first page of our wizard, we f
 				}
 				if ($wizard.data.from && 
 					$wizard.data.to && 
-					$wizard.data.plan &&
+					$wizard.data.type &&
 					$wizard.data.returnDate){
 					return true;
 				}
@@ -160,30 +256,7 @@ Overwriting the canFinish method on the wizard class is useful when some fields 
 You can force the update of the navigation buttons. The right moment for this depends on your problem and the implementation of canFlipToNextPage and canFinish methods.
 
 
-## Changing the Page Order
-
-We can change the order of the wizard pages by adding the getNextPage method of wizard. Before leaving the page, we save in the model the values chosen by the user. In our example, depending on the choice of travel the user will next see either the page with flights or the page for travelling by car.
-
-
-
-	mblowfish
-		.wizard('holiday', {
-			...
-			getNextPage: function($wizard){
-				switch($wizard.currentPage){
-					case 'holidayPage': 
-						return 'planePage';
-					case 'planePage':
-						if($wizard.data.plan === 'car'){
-							 return 'carPage';
-						}
-						return 'finalPage';
-				}
-			}
-		});
-
-
-## Actions on Completion of the Wizard
+### Actions on Completion of the Wizard
 
 To complete a wizard, the user can press either the Finish or the Cancel buttons. If the Cancel button is pressed, the performCancel method is called and you should overwrite this to cleanup any resources allocated while running the wizard. The real work is done in performFinish. In our case, this method is quite simple:
 
@@ -208,7 +281,7 @@ You can start a wizard either by defining a wizard contribution to the workbench
 
 TODO: contribute wizard category and open a category as a wizard
 
-## Starting the Wizard Explicitly
+### Starting the Wizard Explicitly
 
 You may want to launch your wizard as a result of some action that you have defined.
 
