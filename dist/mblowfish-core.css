@@ -52,6 +52,7 @@ Wizard
 
 .mb-wizard  #spacer {
 	flex-grow: 1;
+	min-width: 64px;
 }
 /**
  * Created by mgh on 6/6/18.

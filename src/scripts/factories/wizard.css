@@ -52,4 +52,5 @@ Wizard
 
 .mb-wizard  #spacer {
 	flex-grow: 1;
+	min-width: 64px;
 }

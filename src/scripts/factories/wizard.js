@@ -18,10 +18,6 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 			controller: function($scope) {
 				'ngInject';
 				var ctrl = this;
-				// todo
-				this.title = config.title;
-				this.description = config.description;
-				this.image = config.image;
 
 				this.backPage = function($event) {
 					$wizard.flipToPreviousPage($event);
@@ -46,6 +42,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 				});
 
 				$wizard.on('pageChanged', function() {
+					updateConfigs();
 					updateButtons();
 				});
 
@@ -59,6 +56,13 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 					ctrl.cancelDisabled = true;
 					ctrl.finishDisabled = !$wizard.canFinish();
 					ctrl.helpDisabled = !$wizard.isHelpAvailable();
+				}
+
+				function updateConfigs() {
+					var page = $wizard.currentPage || {};
+					ctrl.title = page.title || config.title;
+					ctrl.description = page.description || config.description;
+					ctrl.image = page.image || config.image;
 				}
 			},
 		}, config);
@@ -155,8 +159,10 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		if (this.currentPageIndex === -1 && this.pages.length > 0) {
 			return true;
 		}
+		var nextPageIndex = this.currentPage.getNextPageIndex();
 		return this.currentPage.isPageComplete() &&
-			this.currentPage.getNextPageIndex() > -1;
+			nextPageIndex > -1 &&
+			nextPageIndex < this.pages.length;
 	};
 
 	MbWizard.prototype.flipToPreviousPage = function() {
@@ -250,7 +256,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 			value: value,
 			key: key,
 		};
-		this.fire('changed', $event);
+		this.fire('change', $event);
 		if (_.isFunction(this.userOnChange)) {
 			this.invoke(this.userOnChange, {
 				$event: $event
