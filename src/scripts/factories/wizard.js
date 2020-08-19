@@ -183,7 +183,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 
 	MbWizard.prototype.performFinish = function($event) {
 		var result;
-		if (_.isFunction(this.userPerformFinish)) {
+		if (this.userPerformFinish) {
 			result = this.invoke(this.userPerformFinish);
 		}
 		var wizard = this;

@@ -24,10 +24,10 @@ mblowfish.factory('MbWizardPage', function(MbComponent, $injector) {
 	MbWizardPage.prototype.getNextPage = function() { };
 	MbWizardPage.prototype.getNextPageIndex = function() {
 		if (this.userNextPage) {
-			if (_.isFunction(this.userNextPage)) {
-				return this.$wizard.pageIdToIndex(this.invoke(this.userNextPage));
+			if (_.isString(this.userNextPage)) {
+				return this.$wizard.pageIdToIndex(this.userNextPage);
 			}
-			return this.$wizard.pageIdToIndex(this.userNextPage);
+			return this.$wizard.pageIdToIndex(this.invoke(this.userNextPage));
 		}
 		return this.index + 1;
 	};
