@@ -35,6 +35,7 @@ mblowfish.provider('$mbWizard', function() {
 	var provider,
 		service,
 		mbDialog,
+		mbSettings,
 		Wizard,
 		WizardPage,
 		rootScope;
@@ -80,6 +81,8 @@ mblowfish.provider('$mbWizard', function() {
 			parent: angular.element(document.body),
 			controller: function($scope, $mdDialog, $element) {
 				'ngInject';
+				$element
+					.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
 				wizard.render({
 					$scope: $scope,
 					$element: $element.find('md-dialog'),
@@ -98,6 +101,8 @@ mblowfish.provider('$mbWizard', function() {
 
 	function openWizardWithElement(wizard, $element) {
 		// Open with in the $element
+		$element
+			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
 		wizard.render({
 			$scope: rootScope.$new(),
 			$element: $element,
@@ -183,12 +188,13 @@ mblowfish.provider('$mbWizard', function() {
 		hasWizardPage: hasWizardPage
 	};
 	provider = {
-		$get: function(MbWizard, MbWizardPage, $mbDialog, $rootScope) {
+		$get: function(MbWizard, MbWizardPage, $mbDialog, $rootScope, $mbSettings) {
 			'ngInject';
 			Wizard = MbWizard;
 			WizardPage = MbWizardPage;
 			mbDialog = $mbDialog;
 			rootScope = $rootScope;
+			mbSettings = $mbSettings;
 
 			return service;
 		},

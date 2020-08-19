@@ -39,33 +39,28 @@ mblowfish.provider('$mbLayout', function() {
 	//-----------------------------------------------------------------------------------
 	// Services and factories
 	//-----------------------------------------------------------------------------------
-	var service;
-	var provider;
-	var rootScope; // = $rootScope
-	var compile; // = $compile
-	var injector;// = $injector;
-	var mbStorage; // = $mbStorage
-	var location;
+	var service,
+		provider,
+		rootScope, // = $rootScope
+		compile, // = $compile
+		injector,// = $injector;
+		mbStorage, // = $mbStorage
+		mbSettings,
+		location;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
 	//-----------------------------------------------------------------------------------
-	var layoutProviders = [];
-	var currentLayout;
-	var frames = [];
-	var defaultLayoutName;
-
-	var docker;
-	var dockerBodyElement;
-	var dockerPanelElement;
-	var dockerViewElement;
-
-
-	// Root element of the layout system
-	var rootElement;
-
-	// layout mode
-	var mode = 'docker';
+	var layoutProviders = [],
+		currentLayout,
+		frames = [],
+		defaultLayoutName,
+		docker,
+		dockerBodyElement,
+		dockerPanelElement,
+		dockerViewElement,
+		rootElement,// Root element of the layout system
+		mode = 'docker';// layout mode
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -294,7 +289,9 @@ mblowfish.provider('$mbLayout', function() {
 
 		// load element
 		var element = editor.getElement();
-		element.addClass(DOCKER_COMPONENT_VIEW_CLASS);
+		element
+			.addClass(DOCKER_COMPONENT_VIEW_CLASS)
+			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
 		editor.on('destroy', function() {
 			component.destroy();
 			var index = frames.indexOf(component);
@@ -418,7 +415,7 @@ mblowfish.provider('$mbLayout', function() {
 		/* @ngInject */
 		$get: function(
 			/* Angularjs */ $compile, $rootScope, $injector, $location,
-			/* MblowFish */ $mbStorage) {
+			/* MblowFish */ $mbStorage, $mbSettings) {
 			//
 			// 1- Init layouts
 			//
@@ -428,6 +425,7 @@ mblowfish.provider('$mbLayout', function() {
 			injector = $injector;
 
 			mbStorage = $mbStorage;
+			mbSettings = $mbSettings;
 
 			//
 			// 3- Initialize the laytout

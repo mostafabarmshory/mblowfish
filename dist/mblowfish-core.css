@@ -20,6 +20,11 @@ Wizard
 	background-repeat: no-repeat;
 }
 
+[dir=rtl] .mb-wizard>#header {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg' xmlns:cc='http://creativecommons.org/ns%23' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23'%3E%3Cmetadata%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage'/%3E%3Cdc:title/%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cpath d='m200.04 200.03s-9.8816-36.182-30.082-54.989c-7.6928-7.162-39.051 24.707-53.228-43.027-14.176-67.735-15.373-38.937-42.681-22.078-27.309 16.86-15.977-74.813-39.219-78.472s-34.796 73.183-34.796 73.183l-0.0355 125.43z' fill='%230067ec' fill-opacity='.19685'/%3E%3Cpath d='m200.04 200.03s-54.739-36.925-53.332-64.489c2.454-48.087-21.449-29.53-42.478 18.973-21.029 48.503-5.8728-29.437-44.182-18.578s-1.9769-77.813-25.219-81.472-34.796 20.183-34.796 20.183l-0.0355 125.43z' fill='%230067ec' fill-opacity='.36614'/%3E%3C/svg%3E%0A");
+	background-position: left bottom;
+}
+
 .mb-wizard>#header #text{
 	flex-grow: 1;
 }
