@@ -53,7 +53,7 @@ Here is list of services related to an specific editor:
 These are injectable to an editor contrller.
 
  */
-angular.module('mblowfish-core').provider('$mbEditor', function() {
+mblowfish.provider('$mbEditor', function() {
 	//------------------------------------------------
 	// Services
 	//------------------------------------------------
