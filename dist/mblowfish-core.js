@@ -5131,143 +5131,6 @@ angular.module('mblowfish-core')
 });
 
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-	/**
-	 *
-	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, $mbTranslate, QueryParameter) {
-
-	    var qp = new QueryParameter();
-
-	    function postLink(scope, elem, attrs, ctrls) {
-		var ngModelCtrl = ctrls[0];
-		var ctrl = this;
-		ngModelCtrl.$render = function () {
-		    ctrl.currency = ngModelCtrl.$modelValue;
-		    if (ctrl.currency) {
-			ctrl.loadGates();
-		    }
-		};
-
-		this.loadGates = function () {
-		    if (this.loadingGates) {
-			return;
-		    }
-		    this.loadingGates = true;
-		    qp.setFilter('currency', this.currency);
-		    var ctrl = this;
-		    return $bank.getBackends(qp)//
-			    .then(function (gatesPag) {
-				ctrl.gates = gatesPag.items;
-				return gatesPag;
-			    })//
-			    .finally(function () {
-				ctrl.loadingGates = false;
-			    });
-		};
-
-		//function pay(backend, discountCode){
-		this.pay = function (backend, discountCode) {
-		    if (this.paying) {
-			return;
-		    }
-		    this.paying = true;
-		    // create receipt and send to bank receipt page.
-		    var data = {
-			backend: backend.id,
-			callback: attrs.mbCallbackUrl ? attrs.mbCallbackUrl : $location.absUrl()
-		    };
-		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
-			data.discount_code = discountCode;
-		    }
-		    var ctrl = this;
-		    $parse(attrs.mbPay)(scope.$parent, {
-			$backend: backend,
-			$discount: discountCode,
-			$callback: data.callback,
-			$data: data
-		    })//
-			    .then(function (receipt) {
-				ctrl.paying = false;
-				$navigator.openPage('bank/receipts/' + receipt.id);
-			    }, function (error) {
-				ctrl.paying = false;
-				alert($mbTranslate.instant(error.data.message));
-			    });
-		};
-
-//		function checkDiscount(code){
-//			$discount.discount(code)//
-//			.then(function(discount){
-//				if(typeof discount.validation_code === 'undefined' || discount.validation_code === 0){
-//					$scope.discount_message = 'discount is valid';
-//				}else{
-//					switch(discount.validation_code){
-//					case 1:
-//						$scope.discount_message = 'discount is used before';
-//						break;
-//					case 2: 
-//						$scope.discount_message = 'discount is expired';
-//						break;
-//					case 3: 
-//						// discount is not owned by user.
-//						$scope.discount_message = 'discount is not valid';
-//						break;
-//					}
-//				}
-//			}, function(error){
-//				$scope.error = error.data.message;
-//				if(error.status === 404){				
-//					$scope.discount_message = 'discount is not found';
-//				}else{
-//					$scope.discount_message = 'unknown error while get discount info';
-//				}
-//			});
-//		}
-
-		
-
-		scope.ctrl = this;
-	    }
-
-	    return {
-		replace: true,
-		restrict: 'E',
-		templateUrl: 'views/directives/mb-pay.html',
-		scope: {
-		    mbCallbackUrl: '@?',
-		    mbPay: '@',
-		    mbDiscountEnable: '='
-		},
-		link: postLink,
-		require: ['ngModel']
-	    };
-	});
-
-/*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -15428,7 +15291,7 @@ Here is list of services related to an specific editor:
 These are injectable to an editor contrller.
 
  */
-angular.module('mblowfish-core').provider('$mbEditor', function() {
+mblowfish.provider('$mbEditor', function() {
 	//------------------------------------------------
 	// Services
 	//------------------------------------------------
@@ -20247,16 +20110,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
     "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500> <span mb-translate>home</span> </md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> <span mb-translate>{{::menu.title}} </span></md-button> </div> </div>"
-  );
-
-
-  $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <mb-icon>{{::mbIcon}}</mb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <mb-icon>repeat</mb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <mb-icon>sort</mb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <mb-icon>filter_list</mb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <mb-icon>search</mb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <mb-icon>save</mb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <mb-icon ng-if=\"query.sortBy === key\">check_circle</mb-icon> <mb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</mb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key| translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <mb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</mb-icon> <mb-icon ng-if=query.sortDesc>filter_list</mb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <mb-icon ng-if=!query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=query.sortDesc>radio_button_unchecked</mb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <mb-icon ng-if=query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=!query.sortDesc>radio_button_unchecked</mb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <mb-icon>done</mb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <mb-icon>add</mb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label mb-translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span mb-translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label mb-translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <mb-icon>delete</mb-icon> </md-button> </div> </div> </div>"
-  );
-
-
-  $templateCache.put('views/directives/mb-pay.html',
-    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=\"ctrl.loadingGates || ctrl.paying\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p mb-translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span mb-translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
   );
 
 
