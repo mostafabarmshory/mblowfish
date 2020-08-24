@@ -20,17 +20,18 @@
  * SOFTWARE.
  */
 
-mblowfish.addView('/app/modules', {
+mblowfish.view('/app/modules', {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
-	templateUrl: 'views/modules/mb-preference.html',
+	templateUrl: 'scripts/module-moduleManager/views/modules.html',
+	groups: ['Utilities'],
 	controllerAs: 'ctrl',
-	/* @ngInject */
 	controller: function(
 	/* angularjs */ $scope, $controller,
 	/* Mblowfish */ $mbModules, $mbActions
 	) {
+		'ngInject';
 		/*
 		 * Extends collection controller from MbAbstractCtrl 
 		 */

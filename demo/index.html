@@ -24,6 +24,7 @@
 	
 	<!-- build:css({.tmp/serve,src}) styles/app.css -->
 	<!-- injector:css -->
+	<link rel="stylesheet" href="scripts/factories/wizard.css">
 	<link rel="stylesheet" href="styles/angular-material-common.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-button.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-icon.css">
@@ -58,6 +59,10 @@
 	<!-- build:js(src) scripts/vendor.js -->
 	<!-- bower:js -->
 	<script src="bower_components/jquery/dist/jquery.js"></script>
+	<script src="bower_components/lodash/lodash.js"></script>
+	<script src="bower_components/flux/dist/Flux.js"></script>
+	<script src="bower_components/mustache.js/mustache.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-animate/angular-animate.js"></script>
 	<script src="bower_components/angular-aria/angular-aria.js"></script>
@@ -66,16 +71,9 @@
 	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 	<script src="bower_components/golden-layout/dist/goldenlayout.min.js"></script>
-	<script src="bower_components/moment/moment.js"></script>
-	<script src="bower_components/lodash/lodash.js"></script>
-	<script src="bower_components/flux/dist/Flux.js"></script>
-	<script src="bower_components/mustache.js/mustache.js"></script>
-	<script src="bower_components/am-wb-core/dist/am-wb-core.min.js"></script>
 	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
 	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
-	<script src="bower_components/weakmap-polyfill/weakmap-polyfill.js"></script>
-	<script src="bower_components/loglevel/dist/loglevel.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
@@ -86,14 +84,15 @@
 	<script src="scripts/demo-index.js"></script>
 	<script src="scripts/module-common/index.js"></script>
 	<script src="scripts/module-layouts/index.js"></script>
-	<script src="scripts/module-local/index.js"></script>
 	<script src="scripts/module-moduleManager/index.js"></script>
 	<script src="scripts/module-navigator/index.js"></script>
 	<script src="scripts/module-preferences/index.js"></script>
+	<script src="scripts/module-translate/index.js"></script>
 	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/angular-hack-configs.js"></script>
 	<script src="scripts/angular-hack-icons-configs.js"></script>
 	<script src="scripts/angular-hack-theme-configs.js"></script>
+	<script src="scripts/angular-hack-window.js"></script>
 	<script src="scripts/controllers/abstract-ctrl.js"></script>
 	<script src="scripts/controllers/dialog-default-ctrl.js"></script>
 	<script src="scripts/controllers/dynamic-form-dialog-ctrl.js"></script>
@@ -109,7 +108,6 @@
 	<script src="scripts/directives/mb-infinateScroll.js"></script>
 	<script src="scripts/directives/mb-inline.js"></script>
 	<script src="scripts/directives/mb-navigation-bar.js"></script>
-	<script src="scripts/directives/mb-pay.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-sidenav.js"></script>
 	<script src="scripts/directives/mb-titled-block.js"></script>
@@ -139,10 +137,13 @@
 	<script src="scripts/factories/menu.js"></script>
 	<script src="scripts/factories/mimetype.js"></script>
 	<script src="scripts/factories/network-http-interceptor.js"></script>
+	<script src="scripts/factories/ObservableObject.js"></script>
 	<script src="scripts/factories/sidenav.js"></script>
 	<script src="scripts/factories/toolbar.js"></script>
 	<script src="scripts/factories/ui-handler.js"></script>
 	<script src="scripts/factories/view.js"></script>
+	<script src="scripts/factories/wizard-page.js"></script>
+	<script src="scripts/factories/wizard.js"></script>
 	<script src="scripts/filters/crypto-md5.js"></script>
 	<script src="scripts/filters/html-unsafe.js"></script>
 	<script src="scripts/module-common/appcache.js"></script>
@@ -156,27 +157,6 @@
 	<script src="scripts/module-layouts/factories/layout-provider-local.js"></script>
 	<script src="scripts/module-layouts/resources/accounts.js"></script>
 	<script src="scripts/module-layouts/services/layouts-local-storage.js"></script>
-	<script src="scripts/module-local/directives/translate-attr.js"></script>
-	<script src="scripts/module-local/directives/translate-cloak.js"></script>
-	<script src="scripts/module-local/directives/translate-directive.js"></script>
-	<script src="scripts/module-local/directives/translate-language.js"></script>
-	<script src="scripts/module-local/directives/translate.js"></script>
-	<script src="scripts/module-local/editors/translate-ctrl.js"></script>
-	<script src="scripts/module-local/factories/local-language-loader-factory.js"></script>
-	<script src="scripts/module-local/factories/missing-translation-handler-factory.js"></script>
-	<script src="scripts/module-local/factories/translate-default-Interpolation.js"></script>
-	<script src="scripts/module-local/factories/translation-cache.js"></script>
-	<script src="scripts/module-local/filters/currency-filter.js"></script>
-	<script src="scripts/module-local/filters/date-filter.js"></script>
-	<script src="scripts/module-local/filters/translate.js"></script>
-	<script src="scripts/module-local/preferences/local.js"></script>
-	<script src="scripts/module-local/resources/country-iso3166.js"></script>
-	<script src="scripts/module-local/resources/language-common-ctrl.js"></script>
-	<script src="scripts/module-local/resources/language-custome-ctrl.js"></script>
-	<script src="scripts/module-local/resources/language-upload.js"></script>
-	<script src="scripts/module-local/services/translate-sanitization.js"></script>
-	<script src="scripts/module-local/services/translation.js"></script>
-	<script src="scripts/module-local/views/languages-ctrl.js"></script>
 	<script src="scripts/module-moduleManager/actions/module-create.js"></script>
 	<script src="scripts/module-moduleManager/actions/module-delete.js"></script>
 	<script src="scripts/module-moduleManager/resources/module-manual.js"></script>
@@ -189,6 +169,28 @@
 	<script src="scripts/module-preferences/editors/preference.js"></script>
 	<script src="scripts/module-preferences/views/preferences.js"></script>
 	<script src="scripts/module-preload/preload-component-ctrl.js"></script>
+	<script src="scripts/module-translate/directives/translate-attr.js"></script>
+	<script src="scripts/module-translate/directives/translate-cloak.js"></script>
+	<script src="scripts/module-translate/directives/translate-directive.js"></script>
+	<script src="scripts/module-translate/directives/translate-language.js"></script>
+	<script src="scripts/module-translate/directives/translate.js"></script>
+	<script src="scripts/module-translate/editors/translate-ctrl.js"></script>
+	<script src="scripts/module-translate/factories/handler-local-storage.js"></script>
+	<script src="scripts/module-translate/factories/handler-log.js"></script>
+	<script src="scripts/module-translate/factories/loader-static-files.js"></script>
+	<script src="scripts/module-translate/factories/translate-default-Interpolation.js"></script>
+	<script src="scripts/module-translate/factories/translation-cache.js"></script>
+	<script src="scripts/module-translate/filters/currency-filter.js"></script>
+	<script src="scripts/module-translate/filters/date-filter.js"></script>
+	<script src="scripts/module-translate/filters/translate.js"></script>
+	<script src="scripts/module-translate/preferences/local.js"></script>
+	<script src="scripts/module-translate/resources/country-iso3166.js"></script>
+	<script src="scripts/module-translate/resources/language-common-ctrl.js"></script>
+	<script src="scripts/module-translate/resources/language-custome-ctrl.js"></script>
+	<script src="scripts/module-translate/resources/language-upload.js"></script>
+	<script src="scripts/module-translate/services/translate-sanitization.js"></script>
+	<script src="scripts/module-translate/services/translation.js"></script>
+	<script src="scripts/module-translate/views/languages-ctrl.js"></script>
 	<script src="scripts/services/account.js"></script>
 	<script src="scripts/services/actions.js"></script>
 	<script src="scripts/services/application.js"></script>
@@ -223,6 +225,10 @@
 	<script src="scripts/services/uiUtil.js"></script>
 	<script src="scripts/services/util.js"></script>
 	<script src="scripts/services/view.js"></script>
+	<script src="scripts/services/wizard.js"></script>
+	<script src="scripts/test-actions/alert.js"></script>
+	<script src="scripts/test-actions/navigator-sidenav-toogle.js"></script>
+	<script src="scripts/test-actions/travel-create.js"></script>
 	<script src="scripts/test-controller/dynamic-form.js"></script>
 	<script src="scripts/test-controller/help.js"></script>
 	<script src="scripts/test-controller/infinate-items.js"></script>
@@ -241,6 +247,14 @@
 	<script src="scripts/test-factories/layout-provider-default.js"></script>
 	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/test-views/resource.js"></script>
+	<script src="scripts/wizards/holidayCarPage.js"></script>
+	<script src="scripts/wizards/holidayFinalPage.js"></script>
+	<script src="scripts/wizards/holidayLocationPage.js"></script>
+	<script src="scripts/wizards/holidayPlanePage.js"></script>
+	<script src="scripts/wizards/holidaySchedulePage.js"></script>
+	<script src="scripts/wizards/holidayTrainPage.js"></script>
+	<script src="scripts/wizards/holidayTypePage.js"></script>
+	<script src="scripts/wizards/holidayWizard.js"></script>
 	<!-- endinjector -->
 	<!-- endbuild -->
 

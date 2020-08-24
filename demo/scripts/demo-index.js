@@ -27,7 +27,7 @@
  */
 mblowfish
 	.config(function(
-		$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider, $mbActionsProvider,
+		$mbApplicationProvider, $mbLayoutProvider, $mbToolbarProvider,
 		$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider,
 		$mbAccountProvider, $mbComponentProvider,
 		$mbTranslateProvider, $mbTranslateSanitizationProvider,
@@ -118,8 +118,7 @@ mblowfish
 				'User': 'کاربر',
 			})
 			.preferredLanguage('fa')
-			.useMissingTranslationHandler('MbMissingTranslationHandler')
-			.useLoader('MbLanguageLoader');
+			.useMissingTranslationHandlerLog();
 		$mbTranslateSanitizationProvider
 			.useStrategy(['sanitize']);
 
@@ -148,7 +147,9 @@ mblowfish
 				url: '/app/demo',
 				items: [
 					'mb.app.navigator.toggle',
-					'demo.alert'
+					'demo.alert',
+					MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION,
+					'demo.travel.create'
 				]
 			}, {
 				url: '/app',
@@ -177,35 +178,11 @@ mblowfish
 		//
 		// $mbAction: manages all actions
 		//
-		$mbActionsProvider
-			.init({
-				items: {
-					'mb.app.navigator.toggle': {
-						title: 'Navigator',
-						description: 'Tooble Navigator Sidenav',
-						icon: 'menu',
-						/* @ngInject */
-						action: function($mbSidenav) {
-							$mbSidenav.getSidenav('/app/navigator').toggle();
-						}
-					}
-				}
-			})
-			.addAction('demo.alert', {
-				icon: 'face',
-				title: 'Add local module',
-				description: 'Adds new module into the application.',
-				/* @ngInject */
-				action: function($window) {
-					$window.alert('Alert action is called!?');
-				}
-			});
-
 		$mbSidenavProvider
 			.addSidenav('/app/navigator', {
 				title: 'Navigator',
 				description: 'Navigate all path and routs of the pandel',
-				controller: 'MbNavigatorContainerCtrl',
+				controller: 'MbNavigatorCtrl',
 				controllerAs: 'ctrl',
 				templateUrl: 'views/mb-navigator.html',
 				//		locked: '$mdMedia("min-width: 333px");',

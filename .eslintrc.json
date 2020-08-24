@@ -15,9 +15,16 @@
 		"jQuery": true,
 		"moduleLoad": true,
 		"_": true,
+		"$": true,
 		"mblowfish": true,
 		"MODULE_STORAGE_KEY": true,
-		"storageSupported": true
+		"storageSupported": true,
+		
+		
+		"MB_LOCAL_LANGUAGE_SETTING":             true,
+		"MB_LOCAL_DATE_FORMAT_SETTING":          true,
+		"MB_LOCAL_DATE_TIME_FORMAT_SETTING":     true,
+		"MB_LOCAL_CALENDAR_SETTING":             true
 	},
 	"extends": "eslint:recommended",
 	"parserOptions": {

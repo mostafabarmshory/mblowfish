@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
-mblowfish.addResource('mb-module-manual', {
+mblowfish.resource('mb-module-manual', {
 	label: 'Manual',
-	templateUrl: 'views/modules/mb-resources-manual.html',
-	/*@ngInject*/
+	templateUrl: 'scripts/module-moduleManager/resources/module-manual.html',
 	controller: function($scope, $resource) {
+		'ngInject';
 		$scope.$watch('module', function(value) {
 			$resource.setValue([value]);
 		}, true);

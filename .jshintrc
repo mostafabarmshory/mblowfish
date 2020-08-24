@@ -22,10 +22,16 @@
 		"jQuery": true,
 		"moduleLoad": false,
 		"_": false,
+		"$": false,
 		"mblowfish": false,
 		"MODULE_STORAGE_KEY": false,
 		"storageSupported": false,
 		"AMD_BANK_GATES_CREATE_ACTION": false,
-		"MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION": false
+		"MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION": false,
+		
+		"MB_LOCAL_LANGUAGE_SETTING": false,
+		"MB_LOCAL_DATE_FORMAT_SETTING": false,
+		"MB_LOCAL_DATE_TIME_FORMAT_SETTING": false,
+		"MB_LOCAL_CALENDAR_SETTING": false
 	}
 }

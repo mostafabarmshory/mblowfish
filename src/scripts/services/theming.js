@@ -28,7 +28,7 @@
 @description Manages theme of an element
 
  */
-angular.module('mblowfish-core').provider('$mbTheming', function() {
+mblowfish.provider('$mbTheming', function() {
 	var mdTheming;
 
 	function applyTheme(element) {

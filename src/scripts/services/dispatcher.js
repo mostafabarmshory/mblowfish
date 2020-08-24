@@ -34,7 +34,7 @@ different from generic pub-sub systems in two ways:
 
 @tutorial core-flux-dispatcher-hypotheticalFligh
  */
-angular.module('mblowfish-core').provider('$mbDispatcher', function() {
+mblowfish.provider('$mbDispatcher', function() {
 
 	//---------------------------------------
 	// service

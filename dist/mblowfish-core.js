@@ -1250,7 +1250,9 @@ var actions = {},
 	components = {},
 	applicationProcesses = {},
 	preferences = {},
-	sidnavs = {};
+	sidnavs = {},
+	wizards = {},
+	wizardPages = {};
 var rootScopeConstants = {};
 
 
@@ -1277,7 +1279,7 @@ var mbApplicationModule = angular
 		'ngMessages',
 		'ngSanitize',
 		//	AM-WB
-		'am-wb-core',
+		//		'am-wb-core',
 		//	Others
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 
@@ -1286,7 +1288,7 @@ var mbApplicationModule = angular
 	])
 	.config(function($mdThemingProvider, $mbActionsProvider, $mbViewProvider,
 		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-		$mbPreferencesProvider, $mbSidenavProvider) {
+		$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider) {
 		// Dark theme
 		$mdThemingProvider
 			.theme('dark')//
@@ -1344,9 +1346,16 @@ var mbApplicationModule = angular
 		_.forEach(sidnavs, function(com, id) {
 			$mbSidenavProvider.addSidenav(id, com);
 		});
+
+		_.forEach(wizardPages, function(wp, id) {
+			$mbWizardProvider.addWizardPage(id, wp);
+		});
+
+		_.forEach(wizards, function(w, id) {
+			$mbWizardProvider.addWizard(id, w);
+		});
 	})
-	.run(function instantiateRoute($rootScope, $widget, $mbRouteParams, $injector, $window, $mbEditor) {
-		$widget.setProvider('$mbRouteParams', $mbRouteParams);
+	.run(function instantiateRoute($rootScope, $injector, $window, $mbEditor) {
 
 		$mbEditor.registerEditor('/ui/notfound/:path*', {
 			template: '<h1>Not found</h1>'
@@ -1377,6 +1386,10 @@ var mbApplicationModule = angular
  ***************************************************************************/
 window.mblowfish = {
 	extensions: [],
+	extension: function(loader) {
+		this.extensions.push(loader);
+		return window.mblowfish;
+	},
 	addExtension: function(loader) {
 		this.extensions.push(loader);
 		return window.mblowfish;
@@ -1419,14 +1432,83 @@ window.mblowfish = {
 		mbApplicationModule.factory.apply(mbApplicationModule, arguments);
 		return window.mblowfish;
 	},
-	constant: function() {
-		mbApplicationModule.constant.apply(mbApplicationModule, arguments);
-		return window.mblowfish;
-	},
 
 	//-------------------------------------------------------------
 	// UI
 	//-------------------------------------------------------------
+	action: function(actionId, action) {
+		actions[actionId] = action;
+		return window.mblowfish;
+	},
+	editor: function(editorId, editor) {
+		editors[editorId] = editor;
+		return window.mblowfish;
+	},
+	view: function(viewId, view) {
+		views[viewId] = view;
+		return window.mblowfish;
+	},
+	/**
+	Register a constant service with the $injector, such as a string, a number, 
+	an array, an object or a function. Like the value, it is not possible to 
+	inject other services into a constant.
+
+	But unlike value, a constant can be injected into a module configuration 
+	function and it cannot be overridden by an decorator.
+	 */
+	constant: function(name, object) {
+		var values = {};
+		if (_.isUndefined(object)) {
+			values = name;
+		} else {
+			values[name] = object;
+		}
+
+		_.forEach(values, function(constant, constantId) {
+			// for injection
+			mbApplicationModule.constant(constantId, constant);
+
+			// global access
+			rootScopeConstants[constantId] = constant;
+			window[constantId] = constant;
+			mbApplicationModule.constant(constantId, constant);
+		});
+		return window.mblowfish;
+	},
+	resource: function(resourceId, resource) {
+		resources[resourceId] = resource;
+		return window.mblowfish;
+	},
+	component: function(componentId, component) {
+		components[componentId] = component;
+		return window.mblowfish;
+	},
+	preference: function(preferenceId, preference) {
+		preferences[preferenceId] = preference;
+		return window.mblowfish;
+	},
+	applicationProcess: function(state, process) {
+		if (_.isUndefined(applicationProcesses[state])) {
+			applicationProcesses[state] = [];
+		}
+		applicationProcesses[state].push(process);
+		return window.mblowfish;
+	},
+	sidenav: function(componentId, component) {
+		sidnavs[componentId] = component;
+		return window.mblowfish;
+	},
+
+	wizard: function(wizardId, wizardConfig) {
+		wizards[wizardId] = wizardConfig;
+		return window.mblowfish;
+	},
+	wizardPage: function(wizardPageId, wizardPageConfig) {
+		wizardPages[wizardPageId] = wizardPageConfig;
+		return window.mblowfish;
+	},
+
+	//>> Legecy
 	addAction: function(actionId, action) {
 		actions[actionId] = action;
 		return window.mblowfish;
@@ -1459,7 +1541,6 @@ window.mblowfish = {
 		preferences[preferenceId] = preference;
 		return window.mblowfish;
 	},
-
 	addApplicationProcess: function(state, process) {
 		if (_.isUndefined(applicationProcesses[state])) {
 			applicationProcesses[state] = [];
@@ -1467,7 +1548,6 @@ window.mblowfish = {
 		applicationProcesses[state].push(process);
 		return window.mblowfish;
 	},
-
 	addSidenav: function(componentId, component) {
 		sidnavs[componentId] = component;
 		return window.mblowfish;
@@ -1981,142 +2061,10 @@ mblowfish.addApplicationProcess('init', {
  * SOFTWARE.
  */
 
-mblowfish
-	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
-		// Format and parse dates based on moment's 'L'-format
-		// 'L'-format may later be changed
-		$mdDateLocaleProvider.parseDate = function(dateString) {
-			var m = moment(dateString, 'L', true);
-			return m.isValid() ? m.toDate() : new Date(NaN);
-		};
-
-		$mdDateLocaleProvider.formatDate = function(date) {
-			var m = moment(date);
-			return m.isValid() ? m.format('L') : '';
-		};
-///*
-//		// Pages
-//		$mbPreferencesProvider
-//			.addPage('brand', {
-//				title: 'Branding',
-//				icon: 'copyright',
-//				templateUrl: 'views/preferences/mb-brand.html',
-//				// controller : 'settingsBrandCtrl',
-//				controllerAs: 'ctrl'
-//			});*/
-
-
-		$mbResourceProvider
-			.addPage('language', {
-				label: 'Custom',
-				templateUrl: 'views/resources/mb-language-custome.html',
-				controller: 'MbLocalResourceLanguageCustomCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.viraweb123', {
-				label: 'Common',
-				templateUrl: 'views/resources/mb-language-list.html',
-				controller: 'MbLocalResourceLanguageCommonCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.upload', {
-				label: 'Upload',
-				templateUrl: 'views/resources/mb-language-upload.html',
-				controller: 'MbLocalResourceLanguageUploadCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			});
-	})
-	.run(function runTranslate($mbTranslate) {
-
-		var key = $mbTranslate.storageKey(),
-			storage = $mbTranslate.storage();
-
-		var fallbackFromIncorrectStorageValue = function() {
-			var preferred = $mbTranslate.preferredLanguage();
-			if (angular.isString(preferred)) {
-				$mbTranslate.use(preferred);
-				// $mbTranslate.use() will also remember the language.
-				// So, we don't need to call storage.put() here.
-			} else {
-				storage.put(key, $mbTranslate.use());
-			}
-		};
-
-		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
-
-		if (storage) {
-			if (!storage.get(key)) {
-				fallbackFromIncorrectStorageValue();
-			} else {
-				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
-			}
-		} else if (angular.isString($mbTranslate.preferredLanguage())) {
-			$mbTranslate.use($mbTranslate.preferredLanguage());
-		}
-	});
-
-
-
-/**
- * Returns the scope's namespace.
- * @private
- * @param scope
- * @returns {string}
- */
-function getTranslateNamespace(scope) {
-	'use strict';
-	if (scope.translateNamespace) {
-		return scope.translateNamespace;
-	}
-	if (scope.$parent) {
-		return getTranslateNamespace(scope.$parent);
-	}
-}
-
-function watchAttribute(scope, attribute, valueCallback, changeCallback) {
-	'use strict';
-	if (!attribute) {
-		return;
-	}
-	if (attribute.substr(0, 2) === '::') {
-		attribute = attribute.substr(2);
-	} else {
-		scope.$watch(attribute, function(newValue) {
-			valueCallback(newValue);
-			changeCallback();
-		}, true);
-	}
-	valueCallback(scope.$eval(attribute));
-}
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 /**
  * Manages system moduels
  */
-mblowfish.addConstants({
+mblowfish.constant({
 	MB_MODULE_RT: '/app/modules', // Resource Type
 	MB_MODULE_SP: '/app/modules', // Store Path
 	MB_MODULE_SK: 'mbModules', // Storage Key
@@ -2177,6 +2125,138 @@ mblowfish.addConstants({
 	MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish
+	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
+		// Format and parse dates based on moment's 'L'-format
+		// 'L'-format may later be changed
+		$mdDateLocaleProvider.parseDate = function(dateString) {
+			var m = moment(dateString, 'L', true);
+			return m.isValid() ? m.toDate() : new Date(NaN);
+		};
+
+		$mdDateLocaleProvider.formatDate = function(date) {
+			var m = moment(date);
+			return m.isValid() ? m.format('L') : '';
+		};
+		///*
+		//		// Pages
+		//		$mbPreferencesProvider
+		//			.addPage('brand', {
+		//				title: 'Branding',
+		//				icon: 'copyright',
+		//				templateUrl: 'views/preferences/mb-brand.html',
+		//				// controller : 'settingsBrandCtrl',
+		//				controllerAs: 'ctrl'
+		//			});*/
+
+
+		$mbResourceProvider
+			.addPage('language', {
+				label: 'Custom',
+				templateUrl: 'views/resources/mb-language-custome.html',
+				controller: 'MbLocalResourceLanguageCustomCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.viraweb123', {
+				label: 'Common',
+				templateUrl: 'views/resources/mb-language-list.html',
+				controller: 'MbLocalResourceLanguageCommonCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			})
+			.addPage('language.upload', {
+				label: 'Upload',
+				templateUrl: 'views/resources/mb-language-upload.html',
+				controller: 'MbLocalResourceLanguageUploadCtrl',
+				controllerAs: 'resourceCtrl',
+				tags: ['/app/languages', 'language']
+			});
+	})
+	.run(function runTranslate($mbTranslate, $mbSettings) {
+
+		var key = $mbSettings.get(SETTING_LOCAL_LANGUAGE, $mbTranslate.storageKey()),
+			storage = $mbTranslate.storage();
+
+		var fallbackFromIncorrectStorageValue = function() {
+			var preferred = $mbTranslate.preferredLanguage();
+			if (angular.isString(preferred)) {
+				$mbTranslate.use(preferred);
+				// $mbTranslate.use() will also remember the language.
+				// So, we don't need to call storage.put() here.
+			} else {
+				storage.put(key, $mbTranslate.use());
+			}
+		};
+
+		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
+
+		if (storage) {
+			if (!storage.get(key)) {
+				fallbackFromIncorrectStorageValue();
+			} else {
+				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
+			}
+		} else if (angular.isString($mbTranslate.preferredLanguage())) {
+			$mbTranslate.use($mbTranslate.preferredLanguage());
+		}
+	});
+
+
+
+/**
+ * Returns the scope's namespace.
+ * @private
+ * @param scope
+ * @returns {string}
+ */
+function getTranslateNamespace(scope) {
+	'use strict';
+	if (scope.translateNamespace) {
+		return scope.translateNamespace;
+	}
+	if (scope.$parent) {
+		return getTranslateNamespace(scope.$parent);
+	}
+}
+
+function watchAttribute(scope, attribute, valueCallback, changeCallback) {
+	'use strict';
+	if (!attribute) {
+		return;
+	}
+	if (attribute.substr(0, 2) === '::') {
+		attribute = attribute.substr(2);
+	} else {
+		scope.$watch(attribute, function(newValue) {
+			valueCallback(newValue);
+			changeCallback();
+		}, true);
+	}
+	valueCallback(scope.$eval(attribute));
+}
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3402,6 +3482,208 @@ mblowfish.config(function($mdThemingProvider) {
 	$mdThemingProvider.alwaysWatchTheme(true);
 });
 
+
+
+mblowfish.run(function($window, $q, $rootScope) {
+
+	var libs = {};
+	var styles = {};
+
+	/**
+	 * Loads a library
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @path path of library
+	 * @return promise to load the library
+	 */
+	$window.loadLibrary = function(path) {
+		if (libs[path]) {
+			return $q.resolve({
+				message: 'isload'
+			});
+		}
+		var defer = $q.defer();
+
+		//		var document = this.getDocument();
+		var script = document.createElement('script');
+		script.src = path;
+		script.async = 1;
+		script.onload = function() {
+			libs[path] = true;
+			defer.resolve({
+				path: path,
+				message: 'loaded'
+			});
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		script.onerror = function() {
+			libs[path] = false;
+			defer.reject({
+				path: path,
+				message: 'fail'
+			});
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		document.getElementsByTagName('head')[0].appendChild(script);
+		return defer.promise;
+	};
+
+	$window.removeLibrary = function(path) {
+		return $q.resolve({
+			source: path
+		});
+	};
+
+	/**
+	 * Check if the library is loaded
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @return true if the library is loaded
+	 */
+	$window.isLibraryLoaded = function(path) {
+		if (libs[path]) {
+			return true;
+		}
+		return false;
+	};
+
+	/**
+	 * Loads a style
+	 * 
+	 * loads css 
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @path path of library
+	 * @return promise to load the library
+	 */
+	$window.loadStyle = function(path) {
+		if (styles[path]) {
+			return $q.resolve(styles[path]);
+		}
+		var defer = $q.defer();
+
+		//		var document = this.getDocument();
+		var style = document.createElement('link');
+		style.setAttribute('rel', 'stylesheet');
+		style.setAttribute('type', 'text/css');
+		style.setAttribute('href', path);
+		style.onload = function() {
+			styles[path] = {
+				element: style,
+				path: path
+			};
+			defer.resolve(styles[path]);
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		style.onerror = function() {
+			styles[path] = undefined;
+			defer.reject({
+				path: path,
+				message: 'fail'
+			});
+			if (!$rootScope.$$phase) {
+				$rootScope.$digest();
+			}
+		};
+		document.getElementsByTagName('head')[0].appendChild(style);
+		styles[path] = defer.promise;
+		return styles[path];
+	};
+
+	$window.removeStyle = function(path) {
+		if (!this.isStyleLoaded(path)) {
+			return $q.resolve({});
+		}
+		var item = styles[path];
+		item.element.parentNode.removeChild(item.element);
+		styles[path] = undefined;
+		$q.resolve(item);
+	};
+
+	/**
+	 * Check if the style is loaded
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @return true if the library is loaded
+	 */
+	$window.isStyleLoaded = function(path) {
+		if (styles[path]) {
+			return true;
+		}
+		return false;
+	};
+
+
+	/**
+	 * Set meta
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @params key {string} the key of meta
+	 * @params value {string} the value of meta
+	 */
+	$window.setMeta = function(key, value) {
+		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
+		var headElement = $('head');
+		var elements = headElement.find('meta[name="' + searchkey + '"]');
+		// remove element
+		if (_.isUndefined(value)) {
+			if (elements.length) {
+				elements.remove();
+			}
+			return;
+		}
+		// update element
+		var metaElement;
+		if (elements.length === 0) {
+			// title element not found
+			metaElement = angular.element('<meta name=\'' + key + '\' content=\'\' />');
+			headElement.append(metaElement);
+		} else {
+			metaElement = angular.element(elements[0]);
+		}
+		metaElement.attr('content', value);
+	};
+
+	$window.getMeta = function(key) {
+		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
+		var headElement = $('head');
+		var elements = headElement.find('meta[name="' + searchkey + '"]');
+		if (elements.length === 0) {
+			return;
+		}
+		return elements.attr('content');
+	};
+
+	/**
+	 * Set link
+	 * 
+	 * @memberof NativeWindowWrapper
+	 * @params key {string} the key of meta
+	 * @params data {string} the value of meta
+	 */
+	$window.setLink = function(key, data) {
+		var searchkey = key.replace(new RegExp(':', 'g'), '\\:');
+		var headElement = $('head');
+		var elements = headElement.find('link[key=' + searchkey + ']');
+		var metaElement;
+		if (elements.length === 0) {
+			// title element not found
+			metaElement = angular.element('<link key=\'' + key + '\' />');
+			headElement.append(metaElement);
+		} else {
+			metaElement = angular.element(elements[0]);
+		}
+		for (var property in data) {
+			metaElement.attr(property, data[property]);
+		}
+	};
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -4849,143 +5131,6 @@ angular.module('mblowfish-core')
 });
 
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-	/**
-	 *
-	 */
-	.directive('mbPay', function ($bank, $parse, $location, $navigator, $mbTranslate, QueryParameter) {
-
-	    var qp = new QueryParameter();
-
-	    function postLink(scope, elem, attrs, ctrls) {
-		var ngModelCtrl = ctrls[0];
-		var ctrl = this;
-		ngModelCtrl.$render = function () {
-		    ctrl.currency = ngModelCtrl.$modelValue;
-		    if (ctrl.currency) {
-			ctrl.loadGates();
-		    }
-		};
-
-		this.loadGates = function () {
-		    if (this.loadingGates) {
-			return;
-		    }
-		    this.loadingGates = true;
-		    qp.setFilter('currency', this.currency);
-		    var ctrl = this;
-		    return $bank.getBackends(qp)//
-			    .then(function (gatesPag) {
-				ctrl.gates = gatesPag.items;
-				return gatesPag;
-			    })//
-			    .finally(function () {
-				ctrl.loadingGates = false;
-			    });
-		};
-
-		//function pay(backend, discountCode){
-		this.pay = function (backend, discountCode) {
-		    if (this.paying) {
-			return;
-		    }
-		    this.paying = true;
-		    // create receipt and send to bank receipt page.
-		    var data = {
-			backend: backend.id,
-			callback: attrs.mbCallbackUrl ? attrs.mbCallbackUrl : $location.absUrl()
-		    };
-		    if (typeof discountCode !== 'undefined' && discountCode !== null) {
-			data.discount_code = discountCode;
-		    }
-		    var ctrl = this;
-		    $parse(attrs.mbPay)(scope.$parent, {
-			$backend: backend,
-			$discount: discountCode,
-			$callback: data.callback,
-			$data: data
-		    })//
-			    .then(function (receipt) {
-				ctrl.paying = false;
-				$navigator.openPage('bank/receipts/' + receipt.id);
-			    }, function (error) {
-				ctrl.paying = false;
-				alert($mbTranslate.instant(error.data.message));
-			    });
-		};
-
-//		function checkDiscount(code){
-//			$discount.discount(code)//
-//			.then(function(discount){
-//				if(typeof discount.validation_code === 'undefined' || discount.validation_code === 0){
-//					$scope.discount_message = 'discount is valid';
-//				}else{
-//					switch(discount.validation_code){
-//					case 1:
-//						$scope.discount_message = 'discount is used before';
-//						break;
-//					case 2: 
-//						$scope.discount_message = 'discount is expired';
-//						break;
-//					case 3: 
-//						// discount is not owned by user.
-//						$scope.discount_message = 'discount is not valid';
-//						break;
-//					}
-//				}
-//			}, function(error){
-//				$scope.error = error.data.message;
-//				if(error.status === 404){				
-//					$scope.discount_message = 'discount is not found';
-//				}else{
-//					$scope.discount_message = 'unknown error while get discount info';
-//				}
-//			});
-//		}
-
-		
-
-		scope.ctrl = this;
-	    }
-
-	    return {
-		replace: true,
-		restrict: 'E',
-		templateUrl: 'views/directives/mb-pay.html',
-		scope: {
-		    mbCallbackUrl: '@?',
-		    mbPay: '@',
-		    mbDiscountEnable: '='
-		},
-		link: postLink,
-		require: ['ngModel']
-	    };
-	});
-
-/*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5436,7 +5581,7 @@ angular.module('mblowfish-core')
 
 mblowfish.directive('mbView', function(
 	/* MB        */ $mbLayout, $mbRoute,
-	/* AngularJS */ $location, $dispatcher, $mbApplication, $q) {
+	/* AngularJS */ $location, $mbDispatcher, $mbApplication, $q) {
 
 
 	function link(scope, $element, attr) {
@@ -5445,9 +5590,9 @@ mblowfish.directive('mbView', function(
 		var layout = attr.mbLayout || 'docker';
 
 		// staso, 2019: fire the state is changed
-		$dispatcher.on('/app/state', checkApp);
+		$mbDispatcher.on('/app/state', checkApp);
 		scope.$on('$destroy', function() {
-			$dispatcher.off('/app/state', update);
+			$mbDispatcher.off('/app/state', update);
 		});
 
 
@@ -5941,6 +6086,137 @@ mblowfish.directive('wbOnLoad', function() {
 	};
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.factory('MbObservableObject', function($log) {
+
+	function ObservableObject() {
+		this.silent = false;
+		this.callbacks = {};
+	}
+
+	/**
+	 * Set widget silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.setSilent = function(silent) {
+		this.silent = silent;
+	};
+
+	/**
+	 * Checks if the element is silent
+	 * 
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.isSilent = function() {
+		return this.silent;
+	};
+
+	/**
+	 * Adds new callback of type
+	 * 
+	 * @param typeof
+	 *            the event
+	 * @param callback
+	 *            to call on the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.on = function(type, callback) {
+		if (!angular.isFunction(callback)) {
+			throw {
+				message: 'Callback must be a function'
+			};
+		}
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			callbacks[type] = [];
+		}
+		if (callbacks[type].includes(callback)) {
+			return;
+		}
+		callbacks[type].push(callback);
+	};
+
+	/**
+	 * Remove the callback
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param callback
+	 *            to remove
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.off = function(type, callback) {
+		var callbacks = this.callbacks;
+		if (!angular.isArray(callbacks[type])) {
+			return;
+		}
+		var index = callbacks[type].indexOf(callback);
+		if (index > -1) {
+			callbacks[type].splice(index, 1);
+		}
+	};
+
+	/**
+	 * Call all callbacks on the given event type.
+	 * 
+	 * Before callbacks, widget processors will process the widget and event.
+	 * 
+	 * @param type
+	 *            of the event
+	 * @param params
+	 *            to add to the event
+	 * @memberof AmhObservableObject
+	 */
+	ObservableObject.prototype.fire = function(type, params) {
+		// 1- Call processors
+		var event = _.merge({
+			source: this,
+			type: type
+		}, params || {});
+		var callbacks = this.callbacks;
+
+		// 2- call listeners
+		if (this.isSilent() || !angular.isDefined(callbacks[type])) {
+			return;
+		}
+		var cl = callbacks[type];
+		for (var i = 0; i < cl.length; i++) {
+			// TODO: maso, 2018: check if the event is stopped to propagate
+			try {
+				cl[i].apply(cl[i], [event]);
+			} catch (error) {
+				$log.error({
+					source: 'ObservableObject',
+					message: 'The listener throw an unexpected exception.',
+					exception: error
+				});
+			}
+		}
+	};
+
+	return ObservableObject;
+});
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
@@ -6615,7 +6891,7 @@ view, or an editor.
  */
 mblowfish.factory('MbContainer', function(
 	/* Angularjs */ $rootScope, $compile, $controller, $q,
-	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming) {
+	/* Mblowfish */ $mbUiUtil, MbUiHandler, $mbTheming, MbObservableObject) {
 
 	/*
 	Create new instance of a UI component. It may used as view, editor
@@ -6626,6 +6902,7 @@ mblowfish.factory('MbContainer', function(
 	@param {object} configs - A configuration set to crate a new instance
 	*/
 	function MbContainer(configs) {
+		MbObservableObject.call(this);
 		_.assignIn(this, {
 			// global attributes
 			url: undefined,
@@ -6647,6 +6924,8 @@ mblowfish.factory('MbContainer', function(
 		this.$handler = undefined;
 		return this;
 	};
+
+	MbContainer.prototype = Object.create(MbObservableObject.prototype);
 
 	/**
 	Gets template of the component
@@ -6817,7 +7096,7 @@ angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
 @name MbEvent
 @description An event item
 
-Events are used to propagate signals to the application. It is based on $dispatcher. 
+Events are used to propagate signals to the application. It is based on $mbDispatcher. 
 
 NOTE: All platform events (from mb or children) are instance of this factory.
 
@@ -6898,7 +7177,7 @@ angular.module('mblowfish-core').factory('MbEvent', function() {
 @description A container which is managed with layout manager to display
 
  */
-angular.module('mblowfish-core').factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
+mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
@@ -7624,7 +7903,7 @@ mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 It handles visible part of components or containers.
 
  */
-angular.module('mblowfish-core').factory('MbUiHandler', function() {
+mblowfish.factory('MbUiHandler', function() {
 
 	function MbUiHandler(configs) {
 		_.assign(this, configs);
@@ -7709,7 +7988,7 @@ A view is consists fo a toolbar, menu and the main view. You are free to
 contributes directly into them.
 
  */
-angular.module('mblowfish-core').factory('MbView', function(MbFrame) {
+mblowfish.factory('MbView', function(MbFrame) {
 
 	function MbView(configs) {
 		// Call constructor of superclass to initialize superclass-derived members.
@@ -7727,6 +8006,328 @@ angular.module('mblowfish-core').factory('MbView', function(MbFrame) {
 	return MbView;
 });
 
+mblowfish.factory('MbWizardPage', function(MbComponent, $injector) {
+
+
+	var MbWizardPage = function(config) {
+		config = _.assign({
+			title: '',
+			description: '',
+			isWizardPage: true,
+		}, config);
+
+		this.userNextPage = config.nextPage;
+		this.userIsPageComplete = config.isPageComplete;
+
+		delete config.nextPage;
+		delete config.isPageComplete;
+		MbComponent.call(this, config);
+		return this;
+	};
+
+
+	// Circle derives from Shape
+	MbWizardPage.prototype = Object.create(MbComponent.prototype);
+
+	MbWizardPage.prototype.getNextPage = function() { };
+	MbWizardPage.prototype.getNextPageIndex = function() {
+		if (this.userNextPage) {
+			if (_.isString(this.userNextPage)) {
+				return this.$wizard.pageIdToIndex(this.userNextPage);
+			}
+			return this.$wizard.pageIdToIndex(this.invoke(this.userNextPage));
+		}
+		return this.index + 1;
+	};
+
+	MbWizardPage.prototype.isPageComplete = function() {
+		if (this.userIsPageComplete) {
+			return this.invoke(this.userIsPageComplete);
+		}
+		return true;
+	};
+
+	/*
+	Calls a user function
+	*/
+	MbWizardPage.prototype.invoke = function(userFunction, locals) {
+		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+			$wizard: this.$wizard,
+			$currentPage: this,
+			$currentPageIndex: this.index
+		}));
+	};
+
+	return MbWizardPage;
+});
+
+/**
+A regestred wizard
+
+
+ */
+mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
+
+	var MbWizard = function(config) {
+		var $wizard = this;
+		config = _.assign({
+			title: '',
+			description: '',
+			isWizard: true,
+			pages: [],
+			templateUrl: 'scripts/factories/wizard.html',
+			controllerAs: 'ctrl',
+			controller: function($scope) {
+				'ngInject';
+				var ctrl = this;
+
+				this.backPage = function($event) {
+					$wizard.flipToPreviousPage($event);
+				}
+
+				this.nextPage = function($event) {
+					$wizard.flipNextPage($event);
+				};
+
+				this.cancelWizard = function($event) {
+					$wizard.performCancel($event);
+				};
+
+				this.finishWizard = function($event) {
+					$wizard.performFinish($event);
+				};
+
+				// bind
+				$wizard.on('errorMessageChanged', function() {
+					ctrl.errorMessage = $wizard.getErrorMessage();
+					updateButtons();
+				});
+
+				$wizard.on('pageChanged', function() {
+					updateConfigs();
+					updateButtons();
+				});
+
+				$wizard.on('change', function() {
+					updateButtons();
+				});
+
+				function updateButtons() {
+					ctrl.nextDisabled = !$wizard.canFlipToNextPage();
+					ctrl.backDisabled = !$wizard.canFlipToPreviousPage();
+					ctrl.cancelDisabled = true;
+					ctrl.finishDisabled = !$wizard.canFinish();
+					ctrl.helpDisabled = !$wizard.isHelpAvailable();
+				}
+
+				function updateConfigs() {
+					var page = $wizard.currentPage || {};
+					ctrl.title = page.title || config.title;
+					ctrl.description = page.description || config.description;
+					ctrl.image = page.image || config.image;
+				}
+			},
+		}, config);
+		this.wizardPageIds = config.pages;
+		// bind to class variable
+		this.userOnChange = config.onChange;
+		this.userPerformCancel = config.performCancel;
+		this.userCanFinish = config.canFinish;
+		this.userPerformFinish = config.performFinish;
+		this.data = {};
+		// remove user functions
+		delete config.pages;
+		delete config.onChange;
+		delete config.canFinish;
+		delete config.performCancel;
+		delete config.performFinish;
+		MbContainer.call(this, config);
+		return this;
+	};
+
+
+	// Circle derives from Shape
+	MbWizard.prototype = Object.create(MbContainer.prototype);
+
+	MbWizard.prototype.setErrorMessage = function(message) {
+		this.errorMessage = message;
+		this.fire('errorMessageChanged', {
+			value: message
+		});
+		return this;
+	};
+
+	MbWizard.prototype.getErrorMessage = function() {
+		return this.errorMessage;
+	};
+
+	MbWizard.prototype.getNextPage = function() {
+		return this.pages[this.calculateNextPageIndex()];
+	};
+
+	MbWizard.prototype.pageIdToIndex = function(id) {
+		return this.wizardPageIds.indexOf(id);
+	};
+
+	MbWizard.prototype.calculateNextPageIndex = function() {
+		if (this.currentPageIndex === -1) {
+			return 0;
+		}
+		var index = this.currentPage.getNextPageIndex();
+		if (index > -1) {
+			return index;
+		}
+		if (this.currentPage.index < this.pages.length - 1) {
+			return this.currentPage.index + 1;
+		}
+	}
+
+	MbWizard.prototype.flipTo = function(nextPageIndex) {
+		if (this.currentPage) {
+			this.currentPage.destroy();
+			delete this.currentPage;
+		}
+		this.currentPageIndex = nextPageIndex;
+		this.currentPage = this.pages[nextPageIndex];
+		var wizard = this;
+		var element = mblowfish.element('<div></div>');
+		this.$body.append(element);
+		return this.currentPage.render({
+			$element: element,
+			$wizard: this,
+			$currentPage: this.currentPage,
+			$currentPageIndex: nextPageIndex
+		}).then(function() {
+			wizard.fire('pageChanged');
+		});
+	};
+
+	MbWizard.prototype.flipNextPage = function() {
+		if (!this.canFlipToNextPage()) {
+			return;
+		}
+		var nextPageIndex = this.calculateNextPageIndex();
+		if (nextPageIndex < 0) {
+			return;
+		}
+		if (this.currentPage) {
+			this.pageStack.push(this.currentPage);
+		}
+		return this.flipTo(nextPageIndex);
+	};
+
+	MbWizard.prototype.canFlipToNextPage = function() {
+		// >> this is first page
+		if (this.currentPageIndex === -1 && this.pages.length > 0) {
+			return true;
+		}
+		var nextPageIndex = this.currentPage.getNextPageIndex();
+		return this.currentPage.isPageComplete() &&
+			nextPageIndex > -1 &&
+			nextPageIndex < this.pages.length;
+	};
+
+	MbWizard.prototype.flipToPreviousPage = function() {
+		if (!this.canFlipToPreviousPage()) {
+			return;
+		}
+		var page = this.pageStack.pop();
+		var pageIndex = this.pages.indexOf(page);
+		this.flipTo(pageIndex);
+	};
+
+	MbWizard.prototype.canFlipToPreviousPage = function() {
+		if (this.currentPageIndex < 1) {
+			return false;
+		}
+		return true;
+	};
+
+	MbWizard.prototype.performFinish = function($event) {
+		var result;
+		if (this.userPerformFinish) {
+			result = this.invoke(this.userPerformFinish);
+		}
+		var wizard = this;
+		$q.when(result)
+			.then(function() {
+				wizard.fire('finish', $event);
+			});
+	};
+
+	MbWizard.prototype.canFinish = function() {
+		var result = true;
+		if (_.isFunction(this.userCanFinish)) {
+			result = this.invoke(this.userCanFinish);
+		}
+		return result;
+	};
+
+	MbWizard.prototype.performCancel = function($event) {
+		this.fire('cancel', $event);
+		return this.destroy();
+	};
+
+	MbWizard.prototype.render = function(locals) {
+		var wizard = this;
+		this.pageStack = [];
+		this.currentPage = undefined;
+		this.currentPageIndex = -1;
+		return MbContainer.prototype.render.apply(this, [locals])
+			.then(function(handler) {
+				wizard.$body = handler.$element.find('#body');
+				wizard.flipNextPage();
+			});
+	};
+
+	MbWizard.prototype.destroy = function() {
+		if (this.currentPage) {
+			this.pageStack.push(this.currentPage);
+		}
+		_.forEach(this.pageStack, function(page) {
+			page.destroy();
+		});
+		delete this.pageStack;
+		delete this.currentPage;
+		return MbContainer.prototype.destroy.apply(this);
+	};
+
+	/*
+	Calls a user function
+	*/
+	MbWizard.prototype.invoke = function(userFunction, locals) {
+		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+			$wizard: this,
+			$currentPage: this.currentPage,
+			$currentPageIndex: this.currentPageIndex
+		}));
+	};
+
+
+	MbWizard.prototype.getData = function(key) {
+		return this.data[key];
+	};
+
+	MbWizard.prototype.isHelpAvailable = function() {
+		return false;
+	};
+
+	MbWizard.prototype.setData = function(key, value) {
+		this.data[key] = value;
+		var $event = {
+			value: value,
+			key: key,
+		};
+		this.fire('change', $event);
+		if (_.isFunction(this.userOnChange)) {
+			this.invoke(this.userOnChange, {
+				$event: $event
+			});
+		}
+	};
+
+	return MbWizard;
+});
 /* 
  * The MIT License (MIT)
  * 
@@ -8360,6 +8961,353 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
 	}
 	return provider;
 })
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	title: 'Add local module',
+	/* @ngInject*/
+	action: function($mbResource, $mbModules) {
+		return $mbResource
+			.get(MB_MODULE_RT, {
+				style: {},
+			})
+			.then(function(modules) {
+				_.forEach(modules, function(m) {
+					$mbModules.addModule(m);
+				});
+			});
+	}
+})
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	title: 'Delete local module',
+	icon: 'view_module',
+	/* @ngInject */
+	action: function($window, $mbModules, $event) {
+		return $window
+			.confirm('Delete modules?')
+			.then(function() {
+				_.forEach($event.modules, function(m) {
+					$mbModules.removeModule(m);
+				});
+			});
+	}
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.resource('mb-module-manual', {
+	label: 'Manual',
+	templateUrl: 'scripts/module-moduleManager/resources/module-manual.html',
+	controller: function($scope, $resource) {
+		'ngInject';
+		$scope.$watch('module', function(value) {
+			$resource.setValue([value]);
+		}, true);
+		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
+	},
+	controllerAs: 'resourceCtrl',
+	tags: [MB_MODULE_RT]
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.view('/app/modules', {
+	title: 'Modules',
+	icon: 'language',
+	description: 'Manage global modules to enable for all users.',
+	templateUrl: 'scripts/module-moduleManager/views/modules.html',
+	groups: ['Utilities'],
+	controllerAs: 'ctrl',
+	controller: function(
+	/* angularjs */ $scope, $controller,
+	/* Mblowfish */ $mbModules, $mbActions
+	) {
+		'ngInject';
+		/*
+		 * Extends collection controller from MbAbstractCtrl 
+		 */
+		angular.extend(this, $controller('MbAbstractCtrl', {
+			$scope: $scope
+		}));
+
+		this.loadModules = function() {
+			this.modules = $mbModules.getModules();
+		}
+
+		this.addModule = function($event) {
+			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
+		};
+
+		this.deleteModule = function(item, $event) {
+			$event.modules = [item];
+			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+		};
+
+		var ctrl = this;
+		this.addEventHandler(MB_MODULE_SP, function() {
+			ctrl.loadModules();
+		});
+
+		ctrl.loadModules();
+	}
+});
+
+mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
+	title: 'Navigator',
+	description: 'Tooble Navigator Sidenav',
+	icon: 'menu',
+	/* @ngInject */
+	action: function($mbSidenav) {
+		$mbSidenav.getSidenav('/app/navigator').toggle();
+	}
+});
+mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
+	var groups = {
+		'others': {
+			title: 'Others',
+			items: {}
+		}
+	};
+
+	var items = $mbView.getViews();
+	_.forEach(items, function(item, url) {
+		var itmeGroups = item.groups || ['others'];
+		_.forEach(itmeGroups, function(groupId) {
+			if (_.isUndefined(groups[groupId])) {
+				groups[groupId] = {
+					title: groupId,
+					items: {}
+				};
+			}
+			groups[groupId].items[url] = item;
+		});
+	});
+
+	$scope.groups = groups
+});
+
+mblowfish.addSidenav('/app/navigator', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	locked: 'false',
+	position: 'start'
+});
+
+mblowfish.addView('/mb/ui/views/navigator/', {
+	title: 'Navigator',
+	description: 'Navigate all path and routs of the pandel',
+	controller: 'MbNavigatorCtrl',
+	controllerAs: 'ctrl',
+	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	groups: ['Utilities']
+});
+
+
+
+mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
+	title: 'Preferences',
+	icon: 'settings',
+	/* @ngInject */
+	action: function($location) {
+		return $location.url('preferences');
+	}
+});//
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.addEditor('/preferences/:preferenceId', {
+	title: 'Preference',
+	templateUrl: 'views/mb-preference.html',
+	/* @ngInject */
+	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
+		//------------------------------------------------
+		// variables
+		//------------------------------------------------
+		var preferenceId = $state.params.preferenceId;
+		var pageConfig = $mbPreferences.getPage(preferenceId);
+		var pageComponent = new MbComponent(pageConfig);
+		var anchor = $element.find('#page-panel');
+
+
+		//------------------------------------------------
+		// functions
+		//------------------------------------------------
+		function renderPage() {
+			return pageComponent.render({
+				$element: anchor,
+				$scope: $scope,
+				$editor: $editor
+			});
+		}
+
+
+		//------------------------------------------------
+		// end
+		//------------------------------------------------
+		renderPage();
+	},
+	controllerAs: 'ctrl',
+});
+
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Controllers
+ * @name MbPreferencesCtrl
+ * @description Manages preferences page
+ * 
+ * In the preferences page, all configs of the system are displayed and
+ * users are able to change them. These preferences pages are related to
+ * the current SPA usually.
+ * 
+ */
+
+
+mblowfish.addView('/preferences', {
+	title: 'Preferences',
+	templateUrl: 'views/mb-preferences.html',
+	aunchor: 'editors',
+	/* @ngInject */
+	controller: function($scope, $mbPreferences) {
+		// Load settings
+		$scope.pages = $mbPreferences.getPages()//
+	},
+	controllerAs: 'ctrl',
+	groups: ['Utilities']
+});
+
+
+
+mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
+
+});
 
 /**
 @ngdoc directive
@@ -9077,62 +10025,132 @@ mblowfish.directive('mbTranslate', function($mbTranslate, $interpolate, $compile
 
 
 // TODO: maso, 2020: create a language editor
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the 'Software'), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+/**
+ * @ngdoc object
+ * @name pascalprecht.translate.$translateMissingTranslationHandlerLog
+ * @requires $log
+ *
+ * @description
+ * Uses angular's `$log` service to give a warning when trying to translate a
+ * translation id which doesn't exist.
+ *
+ * @returns {function} Handler function
  */
-
-mblowfish.factory('MbLanguageLoader', function($q) {
-	return function(option) {
-		var deferred = $q.defer();
-		deferred.resolve({});
-		return deferred.promise;
+mblowfish.factory('$mbTranslateMissingTranslationHandlerStorage', function($mbStorage) {
+	'ngInject';
+	return function(translationId) {
+		if (_.isUndefined($mbStorage['missing-translation'])) {
+			$mbStorage['missing-translation'] = {};
+		}
+		$mbStorage['missing-translation'][translationId] = translationId;
 	};
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
-mblowfish.factory('MbMissingTranslationHandler', function() {
-	return function(translationID) {
-		//		$mbTranslationDb.addTranslationId(translationID);
+
+/**
+ * @ngdoc object
+ * @name pascalprecht.translate.$translateMissingTranslationHandlerLog
+ * @requires $log
+ *
+ * @description
+ * Uses angular's `$log` service to give a warning when trying to translate a
+ * translation id which doesn't exist.
+ *
+ * @returns {function} Handler function
+ */
+mblowfish.factory('$mbTranslateMissingTranslationHandlerLog', function($log) {
+	'ngInject';
+	return function(translationId) {
+		$log.warn('Translation for "' + translationId + '" doesn\'t exist');
 	};
 });
+
+
+/**
+ * @ngdoc Factory
+ * @name $translateStaticFilesLoader
+ * @requires $q
+ * @requires $http
+ *
+ * @description
+ * Creates a loading function for a typical static file url pattern:
+ * "lang-en_US.json", "lang-de_DE.json", etc. Using this builder,
+ * the response of these urls must be an object of key-value pairs.
+ *
+ * @param {object} options Options object, which gets prefix, suffix, key, and fileMap
+ */
+mblowfish.factory('$mbTranslateStaticFilesLoader', function($q, $http) {
+	'ngInject';
+
+	return function(options) {
+
+		if (!options || (!angular.isArray(options.files) && (!angular.isString(options.prefix) || !angular.isString(options.suffix)))) {
+			throw new Error('Couldn\'t load static files, no files and prefix or suffix specified!');
+		}
+
+		if (!options.files) {
+			options.files = [{
+				prefix: options.prefix,
+				suffix: options.suffix
+			}];
+		}
+
+		var load = function(file) {
+			if (!file || (!angular.isString(file.prefix) || !angular.isString(file.suffix))) {
+				throw new Error('Couldn\'t load static file, no prefix or suffix specified!');
+			}
+
+			var fileUrl = [
+				file.prefix,
+				options.key,
+				file.suffix
+			].join('');
+
+			if (angular.isObject(options.fileMap) && options.fileMap[fileUrl]) {
+				fileUrl = options.fileMap[fileUrl];
+			}
+
+			return $http(angular.extend({
+				url: fileUrl,
+				method: 'GET'
+			}, options.$http))
+				.then(function(result) {
+					return result.data;
+				}, function() {
+					return $q.reject(options.key);
+				});
+		};
+
+		var promises = [],
+			length = options.files.length;
+
+		for (var i = 0; i < length; i++) {
+			promises.push(load({
+				prefix: options.files[i].prefix,
+				key: options.key,
+				suffix: options.files[i].suffix
+			}));
+		}
+
+		return $q.all(promises)
+			.then(function(data) {
+				var length = data.length,
+					mergedData = {};
+
+				for (var i = 0; i < length; i++) {
+					for (var key in data[i]) {
+						mergedData[key] = data[i][key];
+					}
+				}
+
+				return mergedData;
+			});
+	};
+});
+
+
+
+
 
 /**
 @ngdoc object
@@ -9247,7 +10265,7 @@ can load translation tables directly into the cache by consuming the
 
 @return {object} $cacheFactory object.
  */
-mblowfish.factory('$translationCache', function $translationCache($cacheFactory) {
+mblowfish.factory('$translationCache', function($cacheFactory) {
 	return $cacheFactory('translations');
 });
 
@@ -12568,352 +13586,6 @@ mblowfish.controller('MbLanguagesCtrl', function(
  * SOFTWARE.
  */
 
-mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
-	title: 'Add local module',
-	/* @ngInject*/
-	action: function($mbResource, $mbModules) {
-		return $mbResource
-			.get(MB_MODULE_RT, {
-				style: {},
-			})
-			.then(function(modules) {
-				_.forEach(modules, function(m) {
-					$mbModules.addModule(m);
-				});
-			});
-	}
-})
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
-	title: 'Delete local module',
-	icon: 'view_module',
-	/* @ngInject */
-	action: function($window, $mbModules, $event) {
-		return $window
-			.confirm('Delete modules?')
-			.then(function() {
-				_.forEach($event.modules, function(m) {
-					$mbModules.removeModule(m);
-				});
-			});
-	}
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addResource('mb-module-manual', {
-	label: 'Manual',
-	templateUrl: 'views/modules/mb-resources-manual.html',
-	/*@ngInject*/
-	controller: function($scope, $resource) {
-		$scope.$watch('module', function(value) {
-			$resource.setValue([value]);
-		}, true);
-		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
-	},
-	controllerAs: 'resourceCtrl',
-	tags: [MB_MODULE_RT]
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addView('/app/modules', {
-	title: 'Modules',
-	icon: 'language',
-	description: 'Manage global modules to enable for all users.',
-	templateUrl: 'views/modules/mb-preference.html',
-	controllerAs: 'ctrl',
-	/* @ngInject */
-	controller: function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $mbModules, $mbActions
-	) {
-		/*
-		 * Extends collection controller from MbAbstractCtrl 
-		 */
-		angular.extend(this, $controller('MbAbstractCtrl', {
-			$scope: $scope
-		}));
-
-		this.loadModules = function() {
-			this.modules = $mbModules.getModules();
-		}
-
-		this.addModule = function($event) {
-			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
-		};
-
-		this.deleteModule = function(item, $event) {
-			$event.modules = [item];
-			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
-		};
-
-		var ctrl = this;
-		this.addEventHandler(MB_MODULE_SP, function() {
-			ctrl.loadModules();
-		});
-
-		ctrl.loadModules();
-	}
-});
-
-mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
-	title: 'Navigator',
-	description: 'Tooble Navigator Sidenav',
-	icon: 'menu',
-	/* @ngInject */
-	action: function($mbSidenav) {
-		$mbSidenav.getSidenav('/app/navigator').toggle();
-	}
-});
-mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
-	var groups = {
-		'others': {
-			title: 'Others',
-			items: {}
-		}
-	};
-
-	var items = $mbView.getViews();
-	_.forEach(items, function(item, url) {
-		var itmeGroups = item.groups || ['others'];
-		_.forEach(itmeGroups, function(groupId) {
-			if (_.isUndefined(groups[groupId])) {
-				groups[groupId] = {
-					title: groupId,
-					items: {}
-				};
-			}
-			groups[groupId].items[url] = item;
-		});
-	});
-
-	$scope.groups = groups
-});
-
-mblowfish.addSidenav('/app/navigator', {
-	title: 'Navigator',
-	description: 'Navigate all path and routs of the pandel',
-	controller: 'MbNavigatorCtrl',
-	controllerAs: 'ctrl',
-	templateUrl: 'scripts/module-navigator/views/navigator.html',
-	locked: 'false',
-	position: 'start'
-});
-
-mblowfish.addView('/mb/ui/views/navigator/', {
-	title: 'Navigator',
-	description: 'Navigate all path and routs of the pandel',
-	controller: 'MbNavigatorCtrl',
-	controllerAs: 'ctrl',
-	templateUrl: 'scripts/module-navigator/views/navigator.html',
-	groups: ['Utilities']
-});
-
-
-
-mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
-	title: 'Preferences',
-	icon: 'settings',
-	/* @ngInject */
-	action: function($location) {
-		return $location.url('preferences');
-	}
-});//
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-mblowfish.addEditor('/preferences/:preferenceId', {
-	title: 'Preference',
-	templateUrl: 'views/mb-preference.html',
-	/* @ngInject */
-	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
-		//------------------------------------------------
-		// variables
-		//------------------------------------------------
-		var preferenceId = $state.params.preferenceId;
-		var pageConfig = $mbPreferences.getPage(preferenceId);
-		var pageComponent = new MbComponent(pageConfig);
-		var anchor = $element.find('#page-panel');
-
-
-		//------------------------------------------------
-		// functions
-		//------------------------------------------------
-		function renderPage() {
-			return pageComponent.render({
-				$element: anchor,
-				$scope: $scope,
-				$editor: $editor
-			});
-		}
-
-
-		//------------------------------------------------
-		// end
-		//------------------------------------------------
-		renderPage();
-	},
-	controllerAs: 'ctrl',
-});
-
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Controllers
- * @name MbPreferencesCtrl
- * @description Manages preferences page
- * 
- * In the preferences page, all configs of the system are displayed and
- * users are able to change them. These preferences pages are related to
- * the current SPA usually.
- * 
- */
-
-
-mblowfish.addView('/preferences', {
-	title: 'Preferences',
-	templateUrl: 'views/mb-preferences.html',
-	aunchor: 'editors',
-	/* @ngInject */
-	controller: function($scope, $mbPreferences) {
-		// Load settings
-		$scope.pages = $mbPreferences.getPages()//
-	},
-	controllerAs: 'ctrl',
-	groups: ['Utilities']
-});
-
-
-
-mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
-
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 
 /**
 @ngdoc Services
@@ -13697,12 +14369,12 @@ mblowfish.provider('$mbApplication', function() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($q, $mbSettings, MbJob, $dispatcher) {
+		$get: function($q, $mbSettings, MbJob, $mbDispatcher) {
 			//>> Set services
 			mbSettings = $mbSettings;
 			q = $q;
 			Job = MbJob;
-			dispatcher = $dispatcher;
+			dispatcher = $mbDispatcher;
 
 			//>> Load application
 			load();
@@ -14361,7 +15033,7 @@ different from generic pub-sub systems in two ways:
 
 @tutorial core-flux-dispatcher-hypotheticalFligh
  */
-angular.module('mblowfish-core').provider('$mbDispatcher', function() {
+mblowfish.provider('$mbDispatcher', function() {
 
 	//---------------------------------------
 	// service
@@ -14619,7 +15291,7 @@ Here is list of services related to an specific editor:
 These are injectable to an editor contrller.
 
  */
-angular.module('mblowfish-core').provider('$mbEditor', function() {
+mblowfish.provider('$mbEditor', function() {
 	//------------------------------------------------
 	// Services
 	//------------------------------------------------
@@ -15056,33 +15728,28 @@ mblowfish.provider('$mbLayout', function() {
 	//-----------------------------------------------------------------------------------
 	// Services and factories
 	//-----------------------------------------------------------------------------------
-	var service;
-	var provider;
-	var rootScope; // = $rootScope
-	var compile; // = $compile
-	var injector;// = $injector;
-	var mbStorage; // = $mbStorage
-	var location;
+	var service,
+		provider,
+		rootScope, // = $rootScope
+		compile, // = $compile
+		injector,// = $injector;
+		mbStorage, // = $mbStorage
+		mbSettings,
+		location;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
 	//-----------------------------------------------------------------------------------
-	var layoutProviders = [];
-	var currentLayout;
-	var frames = [];
-	var defaultLayoutName;
-
-	var docker;
-	var dockerBodyElement;
-	var dockerPanelElement;
-	var dockerViewElement;
-
-
-	// Root element of the layout system
-	var rootElement;
-
-	// layout mode
-	var mode = 'docker';
+	var layoutProviders = [],
+		currentLayout,
+		frames = [],
+		defaultLayoutName,
+		docker,
+		dockerBodyElement,
+		dockerPanelElement,
+		dockerViewElement,
+		rootElement,// Root element of the layout system
+		mode = 'docker';// layout mode
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -15311,7 +15978,9 @@ mblowfish.provider('$mbLayout', function() {
 
 		// load element
 		var element = editor.getElement();
-		element.addClass(DOCKER_COMPONENT_VIEW_CLASS);
+		element
+			.addClass(DOCKER_COMPONENT_VIEW_CLASS)
+			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
 		editor.on('destroy', function() {
 			component.destroy();
 			var index = frames.indexOf(component);
@@ -15435,7 +16104,7 @@ mblowfish.provider('$mbLayout', function() {
 		/* @ngInject */
 		$get: function(
 			/* Angularjs */ $compile, $rootScope, $injector, $location,
-			/* MblowFish */ $mbStorage) {
+			/* MblowFish */ $mbStorage, $mbSettings) {
 			//
 			// 1- Init layouts
 			//
@@ -15445,6 +16114,7 @@ mblowfish.provider('$mbLayout', function() {
 			injector = $injector;
 
 			mbStorage = $mbStorage;
+			mbSettings = $mbSettings;
 
 			//
 			// 3- Initialize the laytout
@@ -18503,7 +19173,7 @@ function storageSupported($window, storageType) {
 @description Manages theme of an element
 
  */
-angular.module('mblowfish-core').provider('$mbTheming', function() {
+mblowfish.provider('$mbTheming', function() {
 	var mdTheming;
 
 	function applyTheme(element) {
@@ -19163,6 +19833,218 @@ angular.module('mblowfish-core').provider('$mbView', function() {
 	return provider;
 });
 
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Serivces
+@name $mbWizard
+@description Manages wizards and run
+
+ */
+mblowfish.provider('$mbWizard', function() {
+
+	//-----------------------------------------------------------------------------------
+	// Service and Factory
+	//-----------------------------------------------------------------------------------
+	var provider,
+		service,
+		mbDialog,
+		mbSettings,
+		Wizard,
+		WizardPage,
+		rootScope;
+
+	//-----------------------------------------------------------------------------------
+	// Variables
+	//-----------------------------------------------------------------------------------
+	var wizardConfigs = {},
+		wizardPageConfigs = {};
+
+
+	//-----------------------------------------------------------------------------------
+	// functions
+	//-----------------------------------------------------------------------------------
+	function addWizard(wizardId, wizardConfig) {
+		wizardConfigs[wizardId] = wizardConfig;
+		return service;
+	}
+
+	function getWizard(wizardId) {
+		if (!hasWizard(wizardId)) {
+			throw {
+				message: 'Wizard not found'
+			};
+		}
+		return wizardConfigs[wizardId];
+	}
+
+	/**
+	Checks if a wizard with given id exist
+	
+	@memberof $mbWizard
+	@param wizardId {string} The id of the wizard
+	 */
+	function hasWizard(wizardId) {
+		return !_.isUndefined(wizardConfigs[wizardId]);
+	}
+
+	function openWizardWithDialog(wizard) {
+		// Open with dialog
+		mbDialog.show({
+			template: '<md-dialog></md-dialog>',
+			parent: angular.element(document.body),
+			controller: function($scope, $mdDialog, $element) {
+				'ngInject';
+				$element
+					.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
+				wizard.render({
+					$scope: $scope,
+					$element: $element.find('md-dialog'),
+				});
+
+				wizard.on('finish', function() {
+					$mdDialog.hide();
+				});
+
+				wizard.on('cancel', function() {
+					$mdDialog.cancel();
+				});
+			},
+		});
+	}
+
+	function openWizardWithElement(wizard, $element) {
+		// Open with in the $element
+		$element
+			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
+		wizard.render({
+			$scope: rootScope.$new(),
+			$element: $element,
+		});
+	}
+
+	/**
+	Opens a wizard with in a dialog and return the prommise to do
+	final process.
+	
+	@memberof $mbWizard
+	@param wizardId {string} The id of the wizard
+	@param $element {JqueryDOM} the place to render the wizard
+	 */
+	function openWizard(wizardId, $element) {
+		var wizardConfig = getWizard(wizardId);
+		var wizard = new Wizard(_.assign({}, wizardConfig));
+		wizard.pages = [];
+		// load pages
+		_.forEach(wizardConfig.pages || [], function(pageId, index) {
+			var page = getWizardPage(pageId);
+			page.$wizard = wizard;
+			page.index = index;
+			wizard.pages.push(page);
+		});
+		if (_.isUndefined($element)) {
+			openWizardWithDialog(wizard);
+		} else {
+			openWizardWithElement(wizard, $element);
+		}
+		return wizard;
+	}
+
+	/**
+	Registers/Overrid a wizard page with given ID
+	
+	@memberof $mbWizard
+	@param pageId {string} the id of the page
+	@param wizardPageConfig {object} the configuration
+	@return the $mbWizard service
+	 */
+	function addWizardPage(pageId, wizardPageConfig) {
+		wizardPageConfigs[pageId] = wizardPageConfig;
+		return service;
+	}
+
+	/**
+	Creates new instance of a page with the given id
+	
+	@memberof $wizard
+	@throws PageNotFoundException if the page not found.
+	 */
+	function getWizardPage(pageId) {
+		if (!hasWizardPage(pageId)) {
+			throw {
+				message: 'Wizard page not found:' + pageId
+			};
+		}
+		return new WizardPage(wizardPageConfigs[pageId]);
+	}
+
+	/**
+	Checks if the page exists.
+	
+	@memberof $wizard
+	@return true if the pageId exists
+	 */
+	function hasWizardPage(pageId) {
+		return !_.isUndefined(wizardPageConfigs[pageId]);
+	}
+
+	//-----------------------------------------------------------------------------------
+	// End
+	//-----------------------------------------------------------------------------------
+	service = {
+		addWizard: addWizard,
+		getWizard: getWizard,
+		hasWizard: hasWizard,
+		openWizard: openWizard,
+
+		addWizardPage: addWizardPage,
+		getWizardPage: getWizardPage,
+		hasWizardPage: hasWizardPage
+	};
+	provider = {
+		$get: function(MbWizard, MbWizardPage, $mbDialog, $rootScope, $mbSettings) {
+			'ngInject';
+			Wizard = MbWizard;
+			WizardPage = MbWizardPage;
+			mbDialog = $mbDialog;
+			rootScope = $rootScope;
+			mbSettings = $mbSettings;
+
+			return service;
+		},
+		addWizard: function(wizardId, wizardConfig) {
+			addWizard(wizardId, wizardConfig);
+			return provider;
+		},
+		addWizardPage: function(pageId, wizardPageConfig) {
+			addWizardPage(pageId, wizardPageConfig);
+			return provider;
+		}
+	}
+	return provider;
+});
+
 angular.module('mblowfish-core').run(['$templateCache', function($templateCache) {
   'use strict';
 
@@ -19231,16 +20113,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/directives/mb-pagination-bar.html',
-    "<div layout=column> <div class=wrapper-stack-toolbar-container style=\"border-radius: 0px\">  <div md-colors=\"{background: 'primary-hue-1'}\"> <div class=md-toolbar-tools> <md-button ng-if=mbIcon md-no-ink class=md-icon-button aria-label={{::mbIcon}}> <mb-icon>{{::mbIcon}}</mb-icon> </md-button> <h2 flex md-truncate ng-if=mbTitle>{{::mbTitle}}</h2> <md-button ng-if=mbReload class=md-icon-button aria-label=Reload ng-click=__reload()> <mb-icon>repeat</mb-icon> </md-button> <md-button ng-show=mbSortKeys class=md-icon-button aria-label=Sort ng-click=\"showSort = !showSort\"> <mb-icon>sort</mb-icon> </md-button> <md-button ng-show=filterKeys class=md-icon-button aria-label=Sort ng-click=\"showFilter = !showFilter\"> <mb-icon>filter_list</mb-icon> </md-button> <md-button ng-show=mbEnableSearch class=md-icon-button aria-label=Search ng-click=\"showSearch = true; focusToElement('searchInput');\"> <mb-icon>search</mb-icon> </md-button> <md-button ng-if=exportData class=md-icon-button aria-label=Export ng-click=exportData()> <mb-icon>save</mb-icon> </md-button> <span flex ng-if=!mbTitle></span> <md-menu ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdOpenMenu($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=\"runAction(item, $event)\" aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSearch> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSearch = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <md-input-container flex md-theme=dark md-no-float class=\"md-block fit-input\"> <input id=searchInput placeholder=\"{{::'Search'|translate}}\" ng-model=query.searchTerm ng-change=searchQuery() ng-model-options=\"{debounce: 1000}\"> </md-input-container> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showSort> <div class=md-toolbar-tools> <md-button style=min-width:0px ng-click=\"showSort = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Sort</h3> <span style=\"width: 10px\"></span>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <h3>{{mbSortKeysTitles ? mbSortKeysTitles[mbSortKeys.indexOf(query.sortBy)] : query.sortBy | translate}}</h3> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"key in mbSortKeys\"> <md-button ng-click=\"query.sortBy = key; setSortOrder()\"> <mb-icon ng-if=\"query.sortBy === key\">check_circle</mb-icon> <mb-icon ng-if=\"query.sortBy !== key\">radio_button_unchecked</mb-icon> {{::mbSortKeysTitles ? mbSortKeysTitles[$index] : key| translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu>  <md-menu> <md-button layout=row style=\"text-transform: none\" ng-click=$mdMenu.open()> <mb-icon ng-if=!query.sortDesc class=icon-rotate-180>filter_list</mb-icon> <mb-icon ng-if=query.sortDesc>filter_list</mb-icon> {{query.sortDesc ? 'Descending' : 'Ascending'|translate}} </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"query.sortDesc = false;setSortOrder()\"> <mb-icon ng-if=!query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=query.sortDesc>radio_button_unchecked</mb-icon> {{::'Ascending'|translate}} </md-button> </md-menu-item> <md-menu-item> <md-button ng-click=\"query.sortDesc = true;setSortOrder()\"> <mb-icon ng-if=query.sortDesc>check_circle</mb-icon> <mb-icon ng-if=!query.sortDesc>radio_button_unchecked</mb-icon> {{::'Descending'|translate}} </md-button> </md-menu-item> </md-menu-content> </md-menu> </div> </div>  <div class=\"stack-toolbar new-box-showing-animation\" md-colors=\"{background: 'primary-hue-2'}\" ng-show=showFilter> <div layout=row layout-align=\"space-between center\" class=md-toolbar-tools> <div layout=row> <md-button style=min-width:0px ng-click=\"showFilter = false\" aria-label=Back> <mb-icon class=icon-rotate-180-for-rtl>arrow_back</mb-icon> </md-button> <h3 mb-translate=\"\">Filters</h3> </div> <div layout=row> <md-button ng-if=\"filters && filters.length\" ng-click=applyFilter() class=md-icon-button> <mb-icon>done</mb-icon> </md-button> <md-button ng-click=addFilter() class=md-icon-button> <mb-icon>add</mb-icon> </md-button> </div> </div> </div> </div>  <div layout=column md-colors=\"{background: 'primary-hue-1'}\" ng-show=\"showFilter && filters.length>0\" layout-padding>  <div ng-repeat=\"filter in filters track by $index\" layout=row layout-align=\"space-between center\" style=\"padding-top: 0px;padding-bottom: 0px\"> <div layout=row style=\"width: 50%\"> <md-input-container style=\"padding: 0px;margin: 0px;width: 20%\"> <label mb-translate=\"\">Key</label> <md-select name=filter ng-model=filter.key ng-change=\"showFilterValue=true;\" required> <md-option ng-repeat=\"key in filterKeys\" ng-value=key> <span mb-translate=\"\">{{key}}</span> </md-option> </md-select> </md-input-container> <span flex=5></span> <md-input-container style=\"padding: 0px;margin: 0px\" ng-if=showFilterValue> <label mb-translate=\"\">Value</label> <input ng-model=filter.value required> </md-input-container> </div> <md-button ng-if=showFilterValue ng-click=removeFilter(filter,$index) class=md-icon-button> <mb-icon>delete</mb-icon> </md-button> </div> </div> </div>"
-  );
-
-
-  $templateCache.put('views/directives/mb-pay.html',
-    "<div layout=column>  <div layout=column> <md-progress-linear style=min-width:50px ng-if=\"ctrl.loadingGates || ctrl.paying\" md-mode=indeterminate class=md-accent md-color> </md-progress-linear> <div layout=column ng-if=\"!ctrl.loadingGates && ctrl.gates.length\"> <p mb-translate>Select gate to pay</p> <div layout=row layout-align=\"center center\"> <md-button ng-repeat=\"gate in ctrl.gates\" ng-click=ctrl.pay(gate)> <img ng-src={{::gate.symbol}} style=\"max-height: 64px;border-radius: 4px\" alt={{::gate.title}}> </md-button> </div> </div> <div layout=row ng-if=\"!ctrl.loadingGates && ctrl.gates && !ctrl.gates.length\" layout-align=\"center center\"> <p style=\"color: red\"> <span mb-translate>No gate is defined for the currency of the wallet.</span> </p> </div> </div> </div>"
-  );
-
-
   $templateCache.put('views/directives/mb-preference-page.html',
     "<div id=mb-preference-body layout=row layout-margin flex> </div>"
   );
@@ -19293,16 +20165,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/mb-preloading-default.html',
     "<div class=mb-preloading-default> <div class=stage> <img src=resources/images/mb-preloading-blow.svg class=\"box bounce-7\"> </div> </div>"
-  );
-
-
-  $templateCache.put('views/modules/mb-preference.html',
-    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <mb-icon>add</mb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</mb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
-  );
-
-
-  $templateCache.put('views/modules/mb-resources-manual.html',
-    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option mb-translate=\"\">None</md-option> <md-option ng-value=\"'before'\" mb-translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" mb-translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" mb-translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
   );
 
 
@@ -19434,6 +20296,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/ui/mb-view-main.html',
     "<body class=mb_body>  <div>  <div id=view></div> </div> </body>"
+  );
+
+
+  $templateCache.put('scripts/factories/wizard.html',
+    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-moduleManager/resources/module-manual.html',
+    "<md-content layout=column layout-padding flex> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Title</label> <input ng-model=module.title> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>URL</label> <input ng-model=module.url required> </md-input-container> <md-input-container class=\"md-icon-float md-icon-right md-block\" required> <label mb-translate>Type</label> <input ng-model=module.type required placeholder=\"js, css\"> </md-input-container> <md-input-container class=md-block> <label>Load type</label> <md-select ng-model=module.load> <md-option mb-translate=\"\">None</md-option> <md-option ng-value=\"'before'\" mb-translate=\"\">Before Page Load</md-option> <md-option ng-value=\"'lazy'\" mb-translate=\"\">Lazy Load</md-option> <md-option ng-value=\"'after'\" mb-translate=\"\">After Page Load</md-option> </md-select> </md-input-container> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-moduleManager/views/modules.html',
+    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <mb-icon>add</mb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</mb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
   );
 
 

@@ -29,7 +29,7 @@
 It handles visible part of components or containers.
 
  */
-angular.module('mblowfish-core').factory('MbUiHandler', function() {
+mblowfish.factory('MbUiHandler', function() {
 
 	function MbUiHandler(configs) {
 		_.assign(this, configs);

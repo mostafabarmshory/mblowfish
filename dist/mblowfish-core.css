@@ -1,3 +1,64 @@
+/*
+Wizard
+
+*/
+
+.mb-wizard {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.mb-wizard>#header {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	padding: 8px;
+
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8' standalone='no'%3F%3E%3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' id='svg8' version='1.1' viewBox='0 0 200 200' height='200' width='200' sodipodi:docname='drawing.svg' inkscape:version='0.92.4 (5da689c313, 2019-01-14)'%3E%3Csodipodi:namedview pagecolor='%23ffffff' bordercolor='%23666666' borderopacity='1' objecttolerance='10' gridtolerance='10' guidetolerance='10' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:window-width='1600' inkscape:window-height='836' id='namedview9' showgrid='false' inkscape:zoom='1' inkscape:cx='94.638317' inkscape:cy='-63.276561' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:current-layer='svg8' /%3E%3Cdefs id='defs2'%3E%3Cfilter height='1.1631888' y='-0.081594385' width='1.0522885' x='-0.026144264' id='filter1972' style='color-interpolation-filters:sRGB'%3E%3CfeGaussianBlur id='feGaussianBlur1974' stdDeviation='2.1793696' /%3E%3C/filter%3E%3C/defs%3E%3Cmetadata id='metadata5'%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E%3Cdc:title /%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cpath style='fill:%230067ec;fill-opacity:0.19685041;stroke:none;stroke-width:1.7798214px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m -0.00634244,200.02622 c 0,0 9.88164164,-36.18231 30.08220744,-54.98889 7.692829,-7.16197 39.051259,24.7072 53.227598,-43.02735 C 97.479802,34.27543 98.676279,63.072724 125.98496,79.932333 153.29364,96.791941 141.9619,5.1193365 165.20361,1.4602283 188.44532,-2.1988801 200,74.642857 200,74.642857 l 0.0355,125.428163 z' id='path819' inkscape:connector-curvature='0' sodipodi:nodetypes='cszzzccc' /%3E%3Cpath style='fill:%230067ec;fill-opacity:0.36614176;stroke:none;stroke-width:1.7798214px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' d='m -0.006341,200.02622 c 0,0 54.738835,-36.92493 53.332207,-64.48889 -2.453968,-48.08738 21.44894,-29.53047 42.477594,18.97265 21.02865,48.50312 5.87282,-29.43725 44.1815,-18.57764 38.30868,10.85961 1.97694,-77.813 25.21865,-81.47211 C 188.44532,50.80112 200,74.64286 200,74.64286 l 0.0355,125.42816 z' id='path819-3' inkscape:connector-curvature='0' sodipodi:nodetypes='cszzzccc' /%3E%3C/svg%3E");
+	background-position: right bottom;
+	background-repeat: no-repeat;
+}
+
+[dir=rtl] .mb-wizard>#header {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg version='1.1' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg' xmlns:cc='http://creativecommons.org/ns%23' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23'%3E%3Cmetadata%3E%3Crdf:RDF%3E%3Ccc:Work rdf:about=''%3E%3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E%3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage'/%3E%3Cdc:title/%3E%3C/cc:Work%3E%3C/rdf:RDF%3E%3C/metadata%3E%3Cpath d='m200.04 200.03s-9.8816-36.182-30.082-54.989c-7.6928-7.162-39.051 24.707-53.228-43.027-14.176-67.735-15.373-38.937-42.681-22.078-27.309 16.86-15.977-74.813-39.219-78.472s-34.796 73.183-34.796 73.183l-0.0355 125.43z' fill='%230067ec' fill-opacity='.19685'/%3E%3Cpath d='m200.04 200.03s-54.739-36.925-53.332-64.489c2.454-48.087-21.449-29.53-42.478 18.973-21.029 48.503-5.8728-29.437-44.182-18.578s-1.9769-77.813-25.219-81.472-34.796 20.183-34.796 20.183l-0.0355 125.43z' fill='%230067ec' fill-opacity='.36614'/%3E%3C/svg%3E%0A");
+	background-position: left bottom;
+}
+
+.mb-wizard>#header #text{
+	flex-grow: 1;
+}
+
+.mb-wizard>#header p{
+	padding: 0px;
+	margin: 0px;
+}
+
+.mb-wizard>#header #image {
+	width: 64px;
+	height: 64px;
+	margin: 0px;
+	padding: 0px;
+}
+
+.mb-wizard>md-content{
+	flex-grow: 1;
+	min-width: 300px;
+	min-height: 300px;
+	overflow: auto;
+	padding: 16px;
+}
+
+.mb-wizard > #actions {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.mb-wizard  #spacer {
+	flex-grow: 1;
+	min-width: 64px;
+}
 /**
  * Created by mgh on 6/6/18.
  */

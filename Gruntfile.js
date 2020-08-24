@@ -57,8 +57,8 @@ module.exports = function(grunt) {
 	 * شده در پرونده bower.json تعیین می‌شود.
 	 */
 	var appConfig = {
-		app: require('./bower.json').appPath || 'src',
-		demo: require('./bower.json').demoPath || 'demo',
+		app: 'src',
+		demo: 'demo',
 		dist: 'dist',
 		pkg: require('./bower.json')
 	};
@@ -106,8 +106,8 @@ module.exports = function(grunt) {
 			},
 			styles: {
 				files: [
-					'<%= yeoman.app %>/styles/**/*.css',
-					'<%= yeoman.demo %>/styles/**/*.css'
+					'<%= yeoman.app %>/**/*.css',
+					'<%= yeoman.demo %>/**/*.css'
 				],
 				tasks: [
 					'injector',
@@ -431,7 +431,7 @@ module.exports = function(grunt) {
 				dest: '.tmp/<%= yeoman.pkg.name %>.js'
 			},
 			distcss: {
-				src: ['<%= yeoman.app %>/{,*/}*.css'],
+				src: ['<%= yeoman.app %>/**/*.css'],
 				dest: '<%= yeoman.dist %>/<%= yeoman.pkg.name %>.css'
 			},
 			dist: {
@@ -565,9 +565,9 @@ module.exports = function(grunt) {
 			},
 			styles: {
 				expand: true,
-				cwd: '<%= yeoman.app %>/styles',
+				cwd: '<%= yeoman.app %>',
 				dest: '.tmp/styles/',
-				src: '{,*/}*.css'
+				src: '**/*.css'
 			}
 		},
 
@@ -672,9 +672,9 @@ module.exports = function(grunt) {
 					'<%= yeoman.demo %>/index.html': [
 						'<%= yeoman.app %>/libs/*.js',
 						'<%= yeoman.app %>/scripts/**/*.js',
-						'<%= yeoman.app %>/styles/**/*.css',
+						'<%= yeoman.app %>/**/*.css',
 						'<%= yeoman.demo %>/scripts/**/*.js',
-						'<%= yeoman.demo %>/styles/**/*.css'
+						'<%= yeoman.demo %>/**/*.css'
 					]
 				}
 			}

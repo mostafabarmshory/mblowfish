@@ -30,7 +30,7 @@ A view is consists fo a toolbar, menu and the main view. You are free to
 contributes directly into them.
 
  */
-angular.module('mblowfish-core').factory('MbView', function(MbFrame) {
+mblowfish.factory('MbView', function(MbFrame) {
 
 	function MbView(configs) {
 		// Call constructor of superclass to initialize superclass-derived members.
