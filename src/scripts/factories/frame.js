@@ -27,7 +27,8 @@
 @description A container which is managed with layout manager to display
 
  */
-mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar) {
+mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolbar, $mbToolbar,
+	$location) {
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
