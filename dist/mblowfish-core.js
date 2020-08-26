@@ -3896,16 +3896,16 @@ mblowfish.controller('MbDynamicFormDialogCtrl', function($scope, $mdDialog, $sch
 
 
 
-angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mb-badge
  * @description Display a badge on items
  * 
  */
-.directive('mbBadge', function($mdTheming, $rootScope) {
+mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
 
-	function __badge_toRGB(color){
+	// XXX: maso, 2020: replace with md color
+	function __badge_toRGB(color) {
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
@@ -3914,11 +3914,8 @@ angular.module('mblowfish-core')
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
 
-		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
-		if(typeof theme === 'undefined'){
-			theme = $mdTheming.THEMES['default'];
-		}
-		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
 		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
 		return 'rgb(' + colorValue.join(',') + ')';
 	}
@@ -3931,22 +3928,22 @@ angular.module('mblowfish-core')
 				element.css(where, __badge_toRGB(color));
 			}
 		}
-//		function getPosition(){
-//		return {
-//		top: element.prop('offsetTop'),
-//		left: element.prop('offsetLeft'),
-//		width: element.prop('offsetWidth'),
-//		height: element.prop('offsetHeight')
-//		};
-//		}
+		//		function getPosition(){
+		//		return {
+		//		top: element.prop('offsetTop'),
+		//		left: element.prop('offsetLeft'),
+		//		width: element.prop('offsetWidth'),
+		//		height: element.prop('offsetHeight')
+		//		};
+		//		}
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
-		}, function(value){
+		}, function(value) {
 			style('color', value);
 		});
 		scope.$watch(function() {
 			return attributes.mbBadgeFill;
-		}, function(value){
+		}, function(value) {
 			style('background-color', value);
 		});
 	}
@@ -3962,11 +3959,10 @@ angular.module('mblowfish-core')
 	};
 });
 
-angular.module('mblowfish-core')
-.directive('mbBadge', function($mdTheming,/* $mdColors, $timeout, $window,*/ $compile, $rootScope) {
+mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
 
-
-	function __badge_toRGB(color){
+	// XXX: maso, 2020: replace with md-color
+	function __badge_toRGB(color) {
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
@@ -3975,11 +3971,8 @@ angular.module('mblowfish-core')
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
 
-		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
-		if(typeof theme === 'undefined'){
-			theme = $mdTheming.THEMES['default'];
-		}
-		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
 		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
 		return 'rgb(' + colorValue.join(',') + ')';
 	}
@@ -4002,7 +3995,7 @@ angular.module('mblowfish-core')
 				badge.css(where, __badge_toRGB(color));
 			}
 		}
-		function getPosition(){
+		function getPosition() {
 			return {
 				top: element.prop('offsetTop'),
 				left: element.prop('offsetLeft'),
@@ -4014,32 +4007,32 @@ angular.module('mblowfish-core')
 		function position(value) {
 			var top = element.prop('offsetTop');
 			badge.css({
-				'display' : attributes.mbBadge && top ? 'initial' : 'none',
-						'left' : value.left + value.width - 20 + offset + 'px',
-						'top' : value.top + value.height - 20 + offset + 'px'
+				'display': attributes.mbBadge && top ? 'initial' : 'none',
+				'left': value.left + value.width - 20 + offset + 'px',
+				'top': value.top + value.height - 20 + offset + 'px'
 			});
 		}
 
-//		function update () {
-//		position(getPosition());
-//		}
+		//		function update () {
+		//		position(getPosition());
+		//		}
 
 		badge.addClass('mb-badge');
 		badge.css('position', 'absolute');
 		parent.append(badge);
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
-		}, function(value){
+		}, function(value) {
 			style('color', value);
 		});
 		scope.$watch(function() {
 			return attributes.mbBadgeFill;
-		}, function(value){
+		}, function(value) {
 			style('background-color', value);
 		});
 		scope.$watch(function() {
 			return attributes.mbBadge;
-		}, function(value){
+		}, function(value) {
 			badge.text(value);
 			badge.css('display', value ? 'initial' : 'none');
 		});
@@ -4048,10 +4041,10 @@ angular.module('mblowfish-core')
 			position(value);
 		}, true);
 
-//		angular.element($window)
-//		.bind('resize', function(){
-//		update();
-//		});
+		//		angular.element($window)
+		//		.bind('resize', function(){
+		//		update();
+		//		});
 	}
 	return {
 		priority: 100,
@@ -6139,7 +6132,7 @@ mblowfish.directive('wbOnLoad', function() {
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-mblowfish.factory('MbObservableObject', function($log) {
+mblowfish.factory('MbObservableObject', function($mbLog) {
 
 	function ObservableObject() {
 		this.silent = false;
@@ -6238,7 +6231,7 @@ mblowfish.factory('MbObservableObject', function($log) {
 			try {
 				cl[i].apply(cl[i], [event]);
 			} catch (error) {
-				$log.error({
+				$mbLog.error({
 					source: 'ObservableObject',
 					message: 'The listener throw an unexpected exception.',
 					exception: error
@@ -10061,10 +10054,10 @@ mblowfish.directive('mbTranslate', function($mbTranslate, $interpolate, $compile
 /**
  * @ngdoc object
  * @name pascalprecht.translate.$translateMissingTranslationHandlerLog
- * @requires $log
+ * @requires $mbLog
  *
  * @description
- * Uses angular's `$log` service to give a warning when trying to translate a
+ * Uses angular's `$mbLog` service to give a warning when trying to translate a
  * translation id which doesn't exist.
  *
  * @returns {function} Handler function
@@ -10083,18 +10076,18 @@ mblowfish.factory('$mbTranslateMissingTranslationHandlerStorage', function($mbSt
 /**
  * @ngdoc object
  * @name pascalprecht.translate.$translateMissingTranslationHandlerLog
- * @requires $log
+ * @requires $mbLog
  *
  * @description
- * Uses angular's `$log` service to give a warning when trying to translate a
+ * Uses angular's `$mbLog` service to give a warning when trying to translate a
  * translation id which doesn't exist.
  *
  * @returns {function} Handler function
  */
-mblowfish.factory('$mbTranslateMissingTranslationHandlerLog', function($log) {
+mblowfish.factory('$mbTranslateMissingTranslationHandlerLog', function($mbLog) {
 	'ngInject';
 	return function(translationId) {
-		$log.warn('Translation for "' + translationId + '" doesn\'t exist');
+		$mbLog.warn('Translation for "' + translationId + '" doesn\'t exist');
 	};
 });
 
@@ -10726,7 +10719,7 @@ mblowfish.controller('MbLocalResourceLanguageUploadCtrl', function($scope, $http
  @ngdoc object
  @name $mbTranslateSanitization
  @requires $injector
- @requires $log
+ @requires $mbLog
 	
  @description
  Sanitizes interpolation parameters and translated texts.
@@ -10763,7 +10756,7 @@ mblowfish.provider('$mbTranslateSanitization', function() {
 
 	var $sanitize;
 	var $sce;
-	var $log;
+	var $mbLog;
 
 
 	//-------------------------------------------------------------------------
@@ -10939,7 +10932,7 @@ mblowfish.provider('$mbTranslateSanitization', function() {
 	 */
 	function sanitize(value, mode, strategy, context) {
 		if (!currentStrategy) {
-			$log.warn('No sanitization strategy has been configured.');
+			$mbLog.warn('No sanitization strategy has been configured.');
 			hasShownNoStrategyConfiguredWarning = true;
 		}
 
@@ -11011,8 +11004,8 @@ mblowfish.provider('$mbTranslateSanitization', function() {
 			if ($injector.has('$sce')) {
 				$sce = $injector.get('$sce');
 			}
-			if ($injector.has('$log')) {
-				$log = $injector.get('$log');
+			if ($injector.has('$mbLog')) {
+				$mbLog = $injector.get('$mbLog');
 			}
 			return service;
 		},
@@ -11044,7 +11037,7 @@ mblowfish.provider('$mbTranslateSanitization', function() {
  * @ngdoc object
  * @name $mbTranslate
  * @requires $interpolate
- * @requires $log
+ * @requires $mbLog
  * @requires $rootScope
  * @requires $q
  *
@@ -16676,44 +16669,41 @@ mblowfish.provider('$mbLocal', function() {
 
 /**
 @ngdoc Services
-@name $mbLogger
+@name $mbLog
 @description Manage and translate all backend error and messages
 
 
 
  */
-angular.module('mblowfish-core').service('$mbLogger', function() {
+mblowfish.provider('$mbLog', function() {
 
-	/**
-	 * Checks status, message and data of the error. If given form is not null,
-	 * it set related values in $error of fields in the form. It also returns a
-	 * general message to show to the user.
-	 */
-	this.errorMessage = function(error, form) {
-		var message = null;
-		if (error.status === 400 && form) { // Bad request
-			message = 'Form is not valid. Fix errors and retry.';
-			error.data.data.forEach(function(item) {
-				form[item.name].$error = {};
-				item.constraints.map(function(cons) {
-					if (form[item.name]) {
-						form[item.name].$error[cons.toLowerCase()] = true;
-					}
-				});
-			});
-		} else {
-			message = error.data.message;
+	//--------------------------------------------------------
+	// Services
+	//--------------------------------------------------------
+	var provider;
+	//	var service;
+
+
+	//--------------------------------------------------------
+	// varialbes
+	//--------------------------------------------------------
+
+
+	//--------------------------------------------------------
+	// Functions
+	//--------------------------------------------------------
+
+
+	//--------------------------------------------------------
+	// End
+	//--------------------------------------------------------
+	provider = {
+		$get: function($log) {
+			'ngInject';
+			return $log;
 		}
-		return message;
 	}
-	
-	this.error = function(){};
-	this.warn = function(){};
-	this.debug = function(){};
-	this.info = function(){};
-	
-
-	return this;
+	return provider;
 });
 
 /*
@@ -18890,8 +18880,7 @@ mblowfish.provider('$mbSidenav', function() {
 		}
 		_.forEach(sidenavs, function(sidenav, id) {
 			if (!sidenav.isVisible()) {
-				// XXX: maso, 2020: 
-				// support left, right
+				// XXX: maso, 2020: support left, right
 				var element = angular.element('<md-sidenav class="md-sidenav-left" ' +
 					' md-component-id="' + id + '"' +
 					'md-is-locked-open="' + sidenav.locked + '"' +
@@ -19048,7 +19037,7 @@ mblowfish.provider('$mbStorage', function() {
 
 		/* @ngInject */
 		$get: function(
-			$rootScope, $window, $log, $timeout, $document
+			$rootScope, $window, $mbLog, $timeout, $document
 		) {
 
 			// The magic number 10 is used which only works for some keyPrefixes...
@@ -19058,7 +19047,7 @@ mblowfish.provider('$mbStorage', function() {
 
 			// #9: Assign a placeholder object if Web Storage is unavailable to prevent breaking the entire AngularJS app
 			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
-			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
+			var webStorage = isSupported || ($mbLog.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
 			var $storage = {
 				$default: function(items) {
 					for (var k in items) {
@@ -20307,21 +20296,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
-  );
-
-
-  $templateCache.put('views/sidenavs/mb-messages.html',
-    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-title=Messages mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"message in ctrl.items track by message.id\" class=md-3-line> <mb-icon ng-class=\"\">mail</mb-icon> <div class=md-list-item-text> <p>{{::message.message}}</p> </div> <md-button class=\"md-secondary md-icon-button\" ng-click=ctrl.deleteItem(message) aria-label=remove> <mb-icon>delete</mb-icon> </md-button> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/sidenavs/mb-options.html',
-    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex style=\"position: relative; height: 100%\">   <mb-user-toolbar mb-actions=userActions> </mb-user-toolbar>  <md-content layout-padding flex> <mb-dynamic-tabs mb-tabs=tabs> </mb-dynamic-tabs> </md-content> </div>"
-  );
-
-
   $templateCache.put('views/toolbars/mb-dashboard.html',
     "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <mb-icon>menu</mb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span mb-translate=\"\">Display list of messages</span> </md-tooltip> <mb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</mb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> </div>"
   );
@@ -20334,6 +20308,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/factories/wizard.html',
     "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-help/sidenavs/help.html',
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
   );
 
 

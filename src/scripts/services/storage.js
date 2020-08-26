@@ -85,7 +85,7 @@ mblowfish.provider('$mbStorage', function() {
 
 		/* @ngInject */
 		$get: function(
-			$rootScope, $window, $log, $timeout, $document
+			$rootScope, $window, $mbLog, $timeout, $document
 		) {
 
 			// The magic number 10 is used which only works for some keyPrefixes...
@@ -95,7 +95,7 @@ mblowfish.provider('$mbStorage', function() {
 
 			// #9: Assign a placeholder object if Web Storage is unavailable to prevent breaking the entire AngularJS app
 			// Note: recheck mainly for testing (so we can use $window[storageType] rather than window[storageType])
-			var webStorage = isSupported || ($log.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
+			var webStorage = isSupported || ($mbLog.warn('This browser does not support Web Storage!'), { setItem: angular.noop, getItem: angular.noop, removeItem: angular.noop });
 			var $storage = {
 				$default: function(items) {
 					for (var k in items) {

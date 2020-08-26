@@ -23,42 +23,39 @@
 
 /**
 @ngdoc Services
-@name $mbLogger
+@name $mbLog
 @description Manage and translate all backend error and messages
 
 
 
  */
-angular.module('mblowfish-core').service('$mbLogger', function() {
+mblowfish.provider('$mbLog', function() {
 
-	/**
-	 * Checks status, message and data of the error. If given form is not null,
-	 * it set related values in $error of fields in the form. It also returns a
-	 * general message to show to the user.
-	 */
-	this.errorMessage = function(error, form) {
-		var message = null;
-		if (error.status === 400 && form) { // Bad request
-			message = 'Form is not valid. Fix errors and retry.';
-			error.data.data.forEach(function(item) {
-				form[item.name].$error = {};
-				item.constraints.map(function(cons) {
-					if (form[item.name]) {
-						form[item.name].$error[cons.toLowerCase()] = true;
-					}
-				});
-			});
-		} else {
-			message = error.data.message;
+	//--------------------------------------------------------
+	// Services
+	//--------------------------------------------------------
+	var provider;
+	//	var service;
+
+
+	//--------------------------------------------------------
+	// varialbes
+	//--------------------------------------------------------
+
+
+	//--------------------------------------------------------
+	// Functions
+	//--------------------------------------------------------
+
+
+	//--------------------------------------------------------
+	// End
+	//--------------------------------------------------------
+	provider = {
+		$get: function($log) {
+			'ngInject';
+			return $log;
 		}
-		return message;
 	}
-	
-	this.error = function(){};
-	this.warn = function(){};
-	this.debug = function(){};
-	this.info = function(){};
-	
-
-	return this;
+	return provider;
 });

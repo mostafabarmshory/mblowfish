@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-mblowfish.factory('MbObservableObject', function($log) {
+mblowfish.factory('MbObservableObject', function($mbLog) {
 
 	function ObservableObject() {
 		this.silent = false;
@@ -118,7 +118,7 @@ mblowfish.factory('MbObservableObject', function($log) {
 			try {
 				cl[i].apply(cl[i], [event]);
 			} catch (error) {
-				$log.error({
+				$mbLog.error({
 					source: 'ObservableObject',
 					message: 'The listener throw an unexpected exception.',
 					exception: error

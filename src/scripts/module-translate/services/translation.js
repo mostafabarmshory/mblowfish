@@ -4,7 +4,7 @@
  * @ngdoc object
  * @name $mbTranslate
  * @requires $interpolate
- * @requires $log
+ * @requires $mbLog
  * @requires $rootScope
  * @requires $q
  *

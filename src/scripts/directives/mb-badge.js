@@ -24,16 +24,16 @@
 
 
 
-angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mb-badge
  * @description Display a badge on items
  * 
  */
-.directive('mbBadge', function($mdTheming, $rootScope) {
+mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
 
-	function __badge_toRGB(color){
+	// XXX: maso, 2020: replace with md color
+	function __badge_toRGB(color) {
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
@@ -42,11 +42,8 @@ angular.module('mblowfish-core')
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
 
-		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
-		if(typeof theme === 'undefined'){
-			theme = $mdTheming.THEMES['default'];
-		}
-		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
 		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
 		return 'rgb(' + colorValue.join(',') + ')';
 	}
@@ -59,22 +56,22 @@ angular.module('mblowfish-core')
 				element.css(where, __badge_toRGB(color));
 			}
 		}
-//		function getPosition(){
-//		return {
-//		top: element.prop('offsetTop'),
-//		left: element.prop('offsetLeft'),
-//		width: element.prop('offsetWidth'),
-//		height: element.prop('offsetHeight')
-//		};
-//		}
+		//		function getPosition(){
+		//		return {
+		//		top: element.prop('offsetTop'),
+		//		left: element.prop('offsetLeft'),
+		//		width: element.prop('offsetWidth'),
+		//		height: element.prop('offsetHeight')
+		//		};
+		//		}
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
-		}, function(value){
+		}, function(value) {
 			style('color', value);
 		});
 		scope.$watch(function() {
 			return attributes.mbBadgeFill;
-		}, function(value){
+		}, function(value) {
 			style('background-color', value);
 		});
 	}
@@ -90,11 +87,10 @@ angular.module('mblowfish-core')
 	};
 });
 
-angular.module('mblowfish-core')
-.directive('mbBadge', function($mdTheming,/* $mdColors, $timeout, $window,*/ $compile, $rootScope) {
+mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
 
-
-	function __badge_toRGB(color){
+	// XXX: maso, 2020: replace with md-color
+	function __badge_toRGB(color) {
 		var split = (color || '').split('-');
 		if (split.length < 2) {
 			split.push('500');
@@ -103,11 +99,8 @@ angular.module('mblowfish-core')
 		var hueA = split[1] || '800'; // '800'
 		var colorR = split[0] || 'primary'; // 'warn'
 
-		var theme = $mdTheming.THEMES[$rootScope.app.setting.theme || $rootScope.app.config.theme || 'default'];
-		if(typeof theme === 'undefined'){
-			theme = $mdTheming.THEMES['default'];
-		}
-		var colorA = theme.colors[colorR] ?  theme.colors[colorR].name : colorR;
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
 		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
 		return 'rgb(' + colorValue.join(',') + ')';
 	}
@@ -130,7 +123,7 @@ angular.module('mblowfish-core')
 				badge.css(where, __badge_toRGB(color));
 			}
 		}
-		function getPosition(){
+		function getPosition() {
 			return {
 				top: element.prop('offsetTop'),
 				left: element.prop('offsetLeft'),
@@ -142,32 +135,32 @@ angular.module('mblowfish-core')
 		function position(value) {
 			var top = element.prop('offsetTop');
 			badge.css({
-				'display' : attributes.mbBadge && top ? 'initial' : 'none',
-						'left' : value.left + value.width - 20 + offset + 'px',
-						'top' : value.top + value.height - 20 + offset + 'px'
+				'display': attributes.mbBadge && top ? 'initial' : 'none',
+				'left': value.left + value.width - 20 + offset + 'px',
+				'top': value.top + value.height - 20 + offset + 'px'
 			});
 		}
 
-//		function update () {
-//		position(getPosition());
-//		}
+		//		function update () {
+		//		position(getPosition());
+		//		}
 
 		badge.addClass('mb-badge');
 		badge.css('position', 'absolute');
 		parent.append(badge);
 		scope.$watch(function() {
 			return attributes.mbBadgeColor;
-		}, function(value){
+		}, function(value) {
 			style('color', value);
 		});
 		scope.$watch(function() {
 			return attributes.mbBadgeFill;
-		}, function(value){
+		}, function(value) {
 			style('background-color', value);
 		});
 		scope.$watch(function() {
 			return attributes.mbBadge;
-		}, function(value){
+		}, function(value) {
 			badge.text(value);
 			badge.css('display', value ? 'initial' : 'none');
 		});
@@ -176,10 +169,10 @@ angular.module('mblowfish-core')
 			position(value);
 		}, true);
 
-//		angular.element($window)
-//		.bind('resize', function(){
-//		update();
-//		});
+		//		angular.element($window)
+		//		.bind('resize', function(){
+		//		update();
+		//		});
 	}
 	return {
 		priority: 100,
