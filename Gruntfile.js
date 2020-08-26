@@ -372,7 +372,7 @@ module.exports = function(grunt) {
 			dist: {
 				files: {
 					'<%= yeoman.dist %>/<%= yeoman.pkg.name %>.min.css': [ //
-						'.tmp/styles/{,*/}*.css' //
+						'.tmp/**/*.css' //
 					]
 				}
 			}
