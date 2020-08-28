@@ -1,6 +1,5 @@
 mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
-	templateUrl: 'views/layouts/components/controller-toolbar.html',
-	icon: 'dashboard',
+	templateUrl: 'scripts/module-layouts/components/layouts-toolbar.html',
 	controllerAs: 'ctrl',
 	/* @ngInject */
 	controller: function($mbActions){

@@ -119,7 +119,8 @@ mblowfish.provider('$mbResource', function() {
 				$style: option.$style || {
 					title: tag
 				},
-				$value: option.$value || {}
+				$value: option.$value || {},
+				$options: option,
 			}
 		});
 	}
@@ -178,7 +179,7 @@ resources required process.
 @ngInject
  */
 mblowfish.controller('ResourceDialogCtrl', function(
-	$scope, $value, $element, $pages, $style,
+	$scope, $value, $element, $pages, $style, $options,
 	$mdDialog, MbContainer) {
 
 	var isFunction = _.isFunction;
@@ -248,14 +249,14 @@ mblowfish.controller('ResourceDialogCtrl', function(
 
 		currentPage = page;
 		currentContainer = new MbContainer(page);
-		return currentContainer.render({
+		return currentContainer.render(_.assign({}, $options, {
 			$element: target,
 			$scope: $scope.$new(false),
 			$style: $style,
 			$value: value,
 			$resource: ctrl,
 			$keepRootElement: true, // Do not remove element
-		});
+		}));
 	}
 
 	function isPageVisible(page) {

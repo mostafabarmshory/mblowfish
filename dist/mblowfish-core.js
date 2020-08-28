@@ -7828,35 +7828,49 @@ mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 	MbToolbar.prototype.addAction = function(action) {
 		if (_.isUndefined(this.$handler)) {
 			this.actions.push(action);
-			return;
+		} else {
+			// keep action handler
+			if (_.isString(action)) {
+				action = $mbActions.getAction(action);
+			}
+			var toolbar = this;
+			loadComponent(toolbar, action).then(function(handler) {
+				toolbar.actionHandlers[action.id] = handler;
+				return handler;
+			});
 		}
-		// keep action handler
-		var toolbar = this;
-		return loadComponent(toolbar, action).then(function(handler) {
-			toolbar.actionHandlers[action.id] = handler;
-			return handler;
-		});
+		return this;
 	};
 
 	MbToolbar.prototype.removeAction = function(action) {
 		var handler = toolbar.actionHandlers[action.id];
 		delete toolbar.actionHandlers[action.id];
 		handler.destroy();
+		return this;
 	};
 
 	MbToolbar.prototype.addComponent = function(component) {
-		// keep action handler
-		var toolbar = this;
-		return loadComponent(toolbar, component).then(function(handler) {
-			toolbar.componentHandlers[component.id] = handler;
-			return handler;
-		});
+		if (_.isUndefined(this.$handler)) {
+			this.components.push(component);
+		} else {
+			if (_.isString(component)) {
+				action = $mbComponent.getComponent(action);
+			}
+			// keep action handler
+			var toolbar = this;
+			loadComponent(toolbar, component).then(function(handler) {
+				toolbar.componentHandlers[component.id] = handler;
+				return handler;
+			});
+		}
+		return this;
 	};
 
 	MbToolbar.prototype.removeComponent = function(component) {
 		var handler = toolbar.componentHandlers[component.id];
 		delete toolbar.componentHandlers[component.id];
 		handler.destroy();
+		return this;
 	};
 
 	/*
@@ -7878,6 +7892,12 @@ mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 			toolbar.addAction(action);
 		});
 		toolbar.actions = [];
+
+		// adding dynamci component
+		_.forEach(toolbar.components, function(component) {
+			toolbar.addComponent(component);
+		});
+		toolbar.components = [];
 	}
 
 
@@ -8860,8 +8880,7 @@ mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
 	}
 })
 mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
-	templateUrl: 'views/layouts/components/controller-toolbar.html',
-	icon: 'dashboard',
+	templateUrl: 'scripts/module-layouts/components/layouts-toolbar.html',
 	controllerAs: 'ctrl',
 	/* @ngInject */
 	controller: function($mbActions){
@@ -17665,7 +17684,8 @@ mblowfish.provider('$mbResource', function() {
 				$style: option.$style || {
 					title: tag
 				},
-				$value: option.$value || {}
+				$value: option.$value || {},
+				$options: option,
 			}
 		});
 	}
@@ -17724,7 +17744,7 @@ resources required process.
 @ngInject
  */
 mblowfish.controller('ResourceDialogCtrl', function(
-	$scope, $value, $element, $pages, $style,
+	$scope, $value, $element, $pages, $style, $options,
 	$mdDialog, MbContainer) {
 
 	var isFunction = _.isFunction;
@@ -17794,14 +17814,14 @@ mblowfish.controller('ResourceDialogCtrl', function(
 
 		currentPage = page;
 		currentContainer = new MbContainer(page);
-		return currentContainer.render({
+		return currentContainer.render(_.assign({}, $options, {
 			$element: target,
 			$scope: $scope.$new(false),
 			$style: $style,
 			$value: value,
 			$resource: ctrl,
 			$keepRootElement: true, // Do not remove element
-		});
+		}));
 	}
 
 	function isPageVisible(page) {
@@ -20145,11 +20165,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/layouts/components/controller-toolbar.html',
-    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
-  );
-
-
   $templateCache.put('views/layouts/resources/layouts.html',
     "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> </md-list-item> </md-list>"
   );
@@ -20313,6 +20328,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/module-help/sidenavs/help.html',
     "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-layouts/components/layouts-toolbar.html',
+    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
   );
 
 

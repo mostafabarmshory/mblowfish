@@ -76,11 +76,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/layouts/components/controller-toolbar.html',
-    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
-  );
-
-
   $templateCache.put('views/layouts/resources/layouts.html',
     "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> </md-list-item> </md-list>"
   );
@@ -244,6 +239,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/module-help/sidenavs/help.html',
     "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-layouts/components/layouts-toolbar.html',
+    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
   );
 
 
