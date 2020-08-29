@@ -76,11 +76,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/layouts/resources/layouts.html',
-    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> </md-list-item> </md-list>"
-  );
-
-
   $templateCache.put('views/mb-application-preloading.html',
     "<div> Loading ... </div>"
   );
@@ -244,6 +239,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/module-layouts/components/layouts-toolbar.html',
     "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
+  );
+
+
+  $templateCache.put('scripts/module-layouts/resources/layouts-local-storage.html',
+    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> <mb-icon class=md-secondary ng-click=\"ctrl.deleteLayout(layoutName, $event)\" aria-label=\"Delete layout\">delete</mb-icon> </md-list-item> </md-list>"
   );
 
 
