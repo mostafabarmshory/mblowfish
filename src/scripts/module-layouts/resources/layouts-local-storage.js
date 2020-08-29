@@ -1,10 +1,10 @@
 mblowfish.addResource('mb-layouts-local-storage', {
 	title: 'Stored Layouts',
-	templateUrl: 'views/layouts/resources/layouts.html',
+	templateUrl: 'scripts/module-layouts/resources/layouts-local-storage.html',
 	tags: [MB_LAYOUTS_LAYOUTS_SP],
 	controllerAs: 'ctrl',
-	/* @ngInject */
-	controller: function($scope, $resource, $mbLayoutsLocalStorage, $style) {
+	controller: function($resource, $mbLayoutsLocalStorage) {
+		'ngInject';
 		var ctrl = this;
 		var selected;
 
@@ -17,10 +17,16 @@ mblowfish.addResource('mb-layouts-local-storage', {
 			return selected === layoutName;
 		}
 
+		function deleteLayout(layoutName) {
+			$mbLayoutsLocalStorage.deleteLayout(layoutName);
+			ctrl.layouts = $mbLayoutsLocalStorage.getLayouts();
+		}
+
 		_.assign(ctrl, {
 			layouts: $mbLayoutsLocalStorage.getLayouts(),
 			setSelected: setSelected,
 			isSelected: isSelected,
+			deleteLayout: deleteLayout,
 		});
 	}
 });
