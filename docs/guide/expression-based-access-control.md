@@ -34,7 +34,7 @@ To use expressions to secure individual URLs, you would first need to set the us
 
 Enables the security expressions. And 
 
-	$mblowfish.addView('/user/accounts',{
+	$mblowfish.view('/user/accounts',{
 		...
 		access: 'hasRole("admin") && hasIpAddress("192.168.1.0/24")',
 		...

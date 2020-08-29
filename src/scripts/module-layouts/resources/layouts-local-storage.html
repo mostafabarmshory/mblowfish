@@ -1,0 +1,12 @@
+<md-list ng-cloak>
+	<md-list-item 
+		ng-repeat="layoutName in ctrl.layouts"
+		md-colors="ctrl.isSelected(layoutName) ? {background:'accent'} : {}" 
+		ng-click="ctrl.setSelected(layoutName)">
+		<p> {{ ::layoutName }} </p>
+		<mb-icon 
+			class="md-secondary" 
+			ng-click="ctrl.deleteLayout(layoutName, $event)"
+			aria-label="Delete layout">delete</mb-icon>
+	</md-list-item>
+</md-list>

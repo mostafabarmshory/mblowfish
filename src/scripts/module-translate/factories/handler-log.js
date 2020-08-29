@@ -1,18 +1,18 @@
 /**
  * @ngdoc object
  * @name pascalprecht.translate.$translateMissingTranslationHandlerLog
- * @requires $log
+ * @requires $mbLog
  *
  * @description
- * Uses angular's `$log` service to give a warning when trying to translate a
+ * Uses angular's `$mbLog` service to give a warning when trying to translate a
  * translation id which doesn't exist.
  *
  * @returns {function} Handler function
  */
-mblowfish.factory('$mbTranslateMissingTranslationHandlerLog', function($log) {
+mblowfish.factory('$mbTranslateMissingTranslationHandlerLog', function($mbLog) {
 	'ngInject';
 	return function(translationId) {
-		$log.warn('Translation for "' + translationId + '" doesn\'t exist');
+		$mbLog.warn('Translation for "' + translationId + '" doesn\'t exist');
 	};
 });
 

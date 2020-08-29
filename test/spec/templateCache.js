@@ -2,42 +2,42 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   'use strict';
 
   $templateCache.put('views/dialogs/mb-alert.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>error</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p mb-translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog mb-local layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>error</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p mb-translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-confirm.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>warning</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p mb-translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
+    "<md-dialog mb-local layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>warning</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(true) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=row layout-padding layout-align=\"center center\" flex> <p mb-translate>{{config.message}}</p> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-dynamic-form.html',
-    "<md-dialog layout=column ng-cloak flex=50> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate=\"\">{{::style.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=\"answer(data, $event)\" ng-disabled=myForm.$invalid> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel($event)> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout-padding> <mb-dynamic-form ng-model=data mb-parameters=schema.children> </mb-dynamic-form> </md-dialog-content> </md-dialog>"
+    "<md-dialog mb-local layout=column ng-cloak flex=50> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate=\"\">{{::style.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=\"answer(data, $event)\" ng-disabled=myForm.$invalid> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel($event)> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout-padding> <mb-dynamic-form ng-model=data mb-parameters=schema.children> </mb-dynamic-form> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mb-prompt.html',
-    "<md-dialog layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>input</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p mb-translate>{{config.message}}</p> <md-input-container class=md-block> <label mb-translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog mb-local layout=column ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <mb-icon>input</mb-icon> <h2 mb-translate>{{app.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=answer(config.model) aria-label=done> <mb-icon aria-label=Done>done</mb-icon> </md-button> <md-button class=md-icon-button ng-click=cancel() aria-label=close> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-padding layout-align=\"center stretch\" flex> <p mb-translate>{{config.message}}</p> <md-input-container class=md-block> <label mb-translate>Input value</label> <input ng-model=config.model aria-label=\"input value\"> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mbl-add-word.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate>Add new word</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(word)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <span flex=10></span> <md-input-container class=md-block flex-gt-sm> <label mb-translate=\"\">Key</label> <input ng-model=word.key> </md-input-container> <md-input-container class=md-block flex-gt-sm> <label mb-translate=\"\">mb-translate</label> <input ng-model=word.mb-translate> </md-input-container> </md-dialog-content> </md-dialog>"
+    "<md-dialog mb-local ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate>Add new word</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(word)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <span flex=10></span> <md-input-container class=md-block flex-gt-sm> <label mb-translate=\"\">Key</label> <input ng-model=word.key> </md-input-container> <md-input-container class=md-block flex-gt-sm> <label mb-translate=\"\">mb-translate</label> <input ng-model=word.mb-translate> </md-input-container> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/mbl-update-language.html',
-    "<md-dialog ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate>{{::config.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(config.language)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <div layout=column> <md-input-container> <label mb-translate>Key</label> <input ng-model=config.language.key ng-readonly=true> </md-input-container> <md-input-container> <label mb-translate>Title</label> <input ng-model=config.language.title ng-readonly=true> </md-input-container> </div> </md-dialog-content> </md-dialog>"
+    "<md-dialog mb-local ng-cloak> <md-toolbar> <div class=md-toolbar-tools> <h2 mb-translate>{{::config.title}}</h2> <span flex></span> <md-button class=md-icon-button ng-click=cancel()> <mb-icon aria-label=\"Close dialog\">close</mb-icon> </md-button> <md-button class=md-icon-button ng-click=answer(config.language)> <mb-icon aria-label=\"Close dialog\">done</mb-icon> </md-button> </div> </md-toolbar> <md-dialog-content layout=column layout-align=\"center stretch\" layout-padding flex> <div layout=column> <md-input-container> <label mb-translate>Key</label> <input ng-model=config.language.key ng-readonly=true> </md-input-container> <md-input-container> <label mb-translate>Title</label> <input ng-model=config.language.title ng-readonly=true> </md-input-container> </div> </md-dialog-content> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/wb-select-resource-single-page.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
   $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" md-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" md-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
@@ -73,16 +73,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-titled-block.html',
     "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
-  );
-
-
-  $templateCache.put('views/layouts/components/controller-toolbar.html',
-    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
-  );
-
-
-  $templateCache.put('views/layouts/resources/layouts.html',
-    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> </md-list-item> </md-list>"
   );
 
 
@@ -227,21 +217,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/sidenavs/mb-help.html',
-    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
-  );
-
-
-  $templateCache.put('views/sidenavs/mb-messages.html',
-    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex>  <mb-pagination-bar mb-title=Messages mb-model=ctrl.queryParameter mb-reload=ctrl.reload() mb-sort-keys=ctrl.getSortKeys() mb-more-actions=ctrl.getMoreActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"message in ctrl.items track by message.id\" class=md-3-line> <mb-icon ng-class=\"\">mail</mb-icon> <div class=md-list-item-text> <p>{{::message.message}}</p> </div> <md-button class=\"md-secondary md-icon-button\" ng-click=ctrl.deleteItem(message) aria-label=remove> <mb-icon>delete</mb-icon> </md-button> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/sidenavs/mb-options.html',
-    "<div mb-preloading=\"ctrl.state === 'busy'\" layout=column flex style=\"position: relative; height: 100%\">   <mb-user-toolbar mb-actions=userActions> </mb-user-toolbar>  <md-content layout-padding flex> <mb-dynamic-tabs mb-tabs=tabs> </mb-dynamic-tabs> </md-content> </div>"
-  );
-
-
   $templateCache.put('views/toolbars/mb-dashboard.html',
     "<div layout=row layout-align=\"start center\" itemscope itemtype=http://schema.org/WPHeader> <md-button class=md-icon-button hide-gt-sm ng-click=toggleNavigationSidenav() aria-label=Menu> <mb-icon>menu</mb-icon> </md-button> <img hide-gt-sm height=32px ng-if=app.config.logo ng-src=\"{{app.config.logo}}\"> <strong hide-gt-sm style=\"padding: 0px 8px 0px 8px\"> {{app.config.title}} </strong> <mb-navigation-bar hide show-gt-sm ng-show=\"app.setting.navigationPath !== false\"> </mb-navigation-bar> </div> <div layout=row layout-align=\"end center\">  <md-button ng-repeat=\"menu in scopeMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-divider ng-if=scopeMenu.items.length></md-divider> <md-button ng-repeat=\"menu in toolbarMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-href={{menu.url}} ng-click=menu.exec($event); class=md-icon-button> <md-tooltip ng-if=\"menu.tooltip || menu.description\" md-delay=1500>{{menu.description | translate}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> <md-button ng-show=messageCount ng-click=toggleMessageSidenav() style=\"overflow: visible\" class=md-icon-button> <md-tooltip md-delay=1500> <span mb-translate=\"\">Display list of messages</span> </md-tooltip> <mb-icon mb-badge={{messageCount}} mb-badge-fill=accent>notifications</mb-icon> </md-button> <mb-user-menu></mb-user-menu> <md-button ng-repeat=\"menu in userMenu.items | orderBy:['-priority']\" ng-show=menu.visible() ng-click=menu.exec($event) class=md-icon-button> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.tooltip}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> </md-button> </div>"
   );
@@ -254,6 +229,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/factories/wizard.html',
     "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-help/sidenavs/help.html',
+    "<md-toolbar class=md-hue-1 layout=column layout-align=center> <div layout=row layout-align=\"start center\"> <md-button class=md-icon-button aria-label=Close ng-click=closeHelp()> <mb-icon>close</mb-icon> </md-button> <span flex></span> <h4 mb-translate>Help</h4> </div> </md-toolbar> <md-content mb-preloading=helpLoading layout-padding flex> <wb-group ng-model=helpContent> </wb-group> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-layouts/components/layouts-toolbar.html',
+    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
+  );
+
+
+  $templateCache.put('scripts/module-layouts/resources/layouts-local-storage.html',
+    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> <mb-icon class=md-secondary ng-click=\"ctrl.deleteLayout(layoutName, $event)\" aria-label=\"Delete layout\">delete</mb-icon> </md-list-item> </md-list>"
   );
 
 

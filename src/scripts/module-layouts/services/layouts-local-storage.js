@@ -22,6 +22,7 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
 	}
 
 	function deleteLayout(layoutName) {
+		var layoutData = mbStorage.mbLayouts[layoutName];
 		delete mbStorage.mbLayouts[layoutName];
 		mbDispatcherUtil.fireDeleted(MB_LAYOUTS_LAYOUTS_SP, layoutData);
 	}

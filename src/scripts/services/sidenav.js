@@ -32,8 +32,7 @@ mblowfish.provider('$mbSidenav', function() {
 		}
 		_.forEach(sidenavs, function(sidenav, id) {
 			if (!sidenav.isVisible()) {
-				// XXX: maso, 2020: 
-				// support left, right
+				// XXX: maso, 2020: support left, right
 				var element = angular.element('<md-sidenav class="md-sidenav-left" ' +
 					' md-component-id="' + id + '"' +
 					'md-is-locked-open="' + sidenav.locked + '"' +

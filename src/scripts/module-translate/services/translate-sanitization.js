@@ -6,7 +6,7 @@
  @ngdoc object
  @name $mbTranslateSanitization
  @requires $injector
- @requires $log
+ @requires $mbLog
 	
  @description
  Sanitizes interpolation parameters and translated texts.
@@ -43,7 +43,7 @@ mblowfish.provider('$mbTranslateSanitization', function() {
 
 	var $sanitize;
 	var $sce;
-	var $log;
+	var $mbLog;
 
 
 	//-------------------------------------------------------------------------
@@ -219,7 +219,7 @@ mblowfish.provider('$mbTranslateSanitization', function() {
 	 */
 	function sanitize(value, mode, strategy, context) {
 		if (!currentStrategy) {
-			$log.warn('No sanitization strategy has been configured.');
+			$mbLog.warn('No sanitization strategy has been configured.');
 			hasShownNoStrategyConfiguredWarning = true;
 		}
 
@@ -291,8 +291,8 @@ mblowfish.provider('$mbTranslateSanitization', function() {
 			if ($injector.has('$sce')) {
 				$sce = $injector.get('$sce');
 			}
-			if ($injector.has('$log')) {
-				$log = $injector.get('$log');
+			if ($injector.has('$mbLog')) {
+				$mbLog = $injector.get('$mbLog');
 			}
 			return service;
 		},

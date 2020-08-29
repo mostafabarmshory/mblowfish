@@ -123,7 +123,7 @@ angular.module('mblowfish-core').provider('$mbView', function() {
 	@param {string} anchor Where the view placed.
 	 */
 	function fetchView(name, state, anchor) {
-		var view = this.get(name);
+		var view = getView(name);
 		anchor = anchor || view.anchor;
 		if (_.isUndefined(view)) {
 			// TODO: maso, 2020: View not found throw error
@@ -138,7 +138,7 @@ angular.module('mblowfish-core').provider('$mbView', function() {
 	};
 
 	function open(name, state, anchor) {
-		return fetch(name, state, anchor)
+		return fetchView(name, state, anchor)
 			.setVisible(true);
 	}
 

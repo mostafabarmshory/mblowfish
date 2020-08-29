@@ -69,35 +69,49 @@ mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 	MbToolbar.prototype.addAction = function(action) {
 		if (_.isUndefined(this.$handler)) {
 			this.actions.push(action);
-			return;
+		} else {
+			// keep action handler
+			if (_.isString(action)) {
+				action = $mbActions.getAction(action);
+			}
+			var toolbar = this;
+			loadComponent(toolbar, action).then(function(handler) {
+				toolbar.actionHandlers[action.id] = handler;
+				return handler;
+			});
 		}
-		// keep action handler
-		var toolbar = this;
-		return loadComponent(toolbar, action).then(function(handler) {
-			toolbar.actionHandlers[action.id] = handler;
-			return handler;
-		});
+		return this;
 	};
 
 	MbToolbar.prototype.removeAction = function(action) {
 		var handler = toolbar.actionHandlers[action.id];
 		delete toolbar.actionHandlers[action.id];
 		handler.destroy();
+		return this;
 	};
 
 	MbToolbar.prototype.addComponent = function(component) {
-		// keep action handler
-		var toolbar = this;
-		return loadComponent(toolbar, component).then(function(handler) {
-			toolbar.componentHandlers[component.id] = handler;
-			return handler;
-		});
+		if (_.isUndefined(this.$handler)) {
+			this.components.push(component);
+		} else {
+			if (_.isString(component)) {
+				action = $mbComponent.getComponent(action);
+			}
+			// keep action handler
+			var toolbar = this;
+			loadComponent(toolbar, component).then(function(handler) {
+				toolbar.componentHandlers[component.id] = handler;
+				return handler;
+			});
+		}
+		return this;
 	};
 
 	MbToolbar.prototype.removeComponent = function(component) {
 		var handler = toolbar.componentHandlers[component.id];
 		delete toolbar.componentHandlers[component.id];
 		handler.destroy();
+		return this;
 	};
 
 	/*
@@ -119,6 +133,12 @@ mblowfish.factory('MbToolbar', function(MbContainer, $mbActions, $mbComponent) {
 			toolbar.addAction(action);
 		});
 		toolbar.actions = [];
+
+		// adding dynamci component
+		_.forEach(toolbar.components, function(component) {
+			toolbar.addComponent(component);
+		});
+		toolbar.components = [];
 	}
 
 
