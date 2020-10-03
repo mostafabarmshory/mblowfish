@@ -115,7 +115,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 		return MbContainer.prototype.render.call(this, locals)
 			.then(function(handler) {
-				handler.$element.children().addClass('mb-container-content');
+				handler.$element.children().addClass('mb-layout-frame-content');
 				handler.$element.prepend(toolbarElement);
 				toolbar.render({
 					$element: toolbarElement,

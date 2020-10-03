@@ -110,8 +110,10 @@ mblowfish.provider('$mbLayout', function() {
 		}
 	}
 
-	function setFocus(frame) {
-		// TODO:
+	function setFocus(component) {
+		//		setActiveContentItem
+		var contentItem = component.$dockerContainer.parent;
+		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
 	function init() {
@@ -310,6 +312,7 @@ mblowfish.provider('$mbLayout', function() {
 				} catch (e) { }
 			});
 		});
+		component.$dockerContainer = editor;
 		return component.render({
 			$dockerContainer: editor,
 			$element: element,
@@ -334,8 +337,7 @@ mblowfish.provider('$mbLayout', function() {
 		if (component.isEditor) {
 			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
-
-
+		// TODO: support wizard
 		if (component.isView) {
 			var $mbView = injector.get('$mbView');
 			component = $mbView.fetch(
@@ -345,9 +347,9 @@ mblowfish.provider('$mbLayout', function() {
 		} else {
 			var $mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(
-				component.url,    // path
-				state,           // state
-				anchor);        // anchor
+				component.url,
+				state,
+				anchor);
 		}
 
 		if (_.isUndefined(component)) {

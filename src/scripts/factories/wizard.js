@@ -130,12 +130,12 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		var wizard = this;
 		var element = mblowfish.element('<div></div>');
 		this.$body.append(element);
-		return this.currentPage.render({
+		return this.currentPage.render(_.assign({}, this.$locals || {}, {
 			$element: element,
 			$wizard: this,
 			$currentPage: this.currentPage,
 			$currentPageIndex: nextPageIndex
-		}).then(function() {
+		})).then(function() {
 			wizard.fire('pageChanged');
 		});
 	};
@@ -211,6 +211,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		this.pageStack = [];
 		this.currentPage = undefined;
 		this.currentPageIndex = -1;
+		this.$locals = locals;
 		return MbContainer.prototype.render.apply(this, [locals])
 			.then(function(handler) {
 				wizard.$body = handler.$element.find('#body');
@@ -234,7 +235,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 	Calls a user function
 	*/
 	MbWizard.prototype.invoke = function(userFunction, locals) {
-		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+		return $injector.invoke(userFunction, this, _.assign({}, locals || {}, this.$locals, {
 			$wizard: this,
 			$currentPage: this.currentPage,
 			$currentPageIndex: this.currentPageIndex
