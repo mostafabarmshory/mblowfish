@@ -7290,7 +7290,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 		return MbContainer.prototype.render.call(this, locals)
 			.then(function(handler) {
-				handler.$element.children().addClass('mb-container-content');
+				handler.$element.children().addClass('mb-layout-frame-content');
 				handler.$element.prepend(toolbarElement);
 				toolbar.render({
 					$element: toolbarElement,
@@ -8238,12 +8238,12 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		var wizard = this;
 		var element = mblowfish.element('<div></div>');
 		this.$body.append(element);
-		return this.currentPage.render({
+		return this.currentPage.render(_.assign({}, this.$locals || {}, {
 			$element: element,
 			$wizard: this,
 			$currentPage: this.currentPage,
 			$currentPageIndex: nextPageIndex
-		}).then(function() {
+		})).then(function() {
 			wizard.fire('pageChanged');
 		});
 	};
@@ -8319,6 +8319,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		this.pageStack = [];
 		this.currentPage = undefined;
 		this.currentPageIndex = -1;
+		this.$locals = locals;
 		return MbContainer.prototype.render.apply(this, [locals])
 			.then(function(handler) {
 				wizard.$body = handler.$element.find('#body');
@@ -8342,7 +8343,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 	Calls a user function
 	*/
 	MbWizard.prototype.invoke = function(userFunction, locals) {
-		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+		return $injector.invoke(userFunction, this, _.assign({}, locals || {}, this.$locals, {
 			$wizard: this,
 			$currentPage: this.currentPage,
 			$currentPageIndex: this.currentPageIndex
@@ -15851,8 +15852,10 @@ mblowfish.provider('$mbLayout', function() {
 		}
 	}
 
-	function setFocus(frame) {
-		// TODO:
+	function setFocus(component) {
+		//		setActiveContentItem
+		var contentItem = component.$dockerContainer.parent;
+		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
 	function init() {
@@ -16051,6 +16054,7 @@ mblowfish.provider('$mbLayout', function() {
 				} catch (e) { }
 			});
 		});
+		component.$dockerContainer = editor;
 		return component.render({
 			$dockerContainer: editor,
 			$element: element,
@@ -16075,8 +16079,7 @@ mblowfish.provider('$mbLayout', function() {
 		if (component.isEditor) {
 			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
-
-
+		// TODO: support wizard
 		if (component.isView) {
 			var $mbView = injector.get('$mbView');
 			component = $mbView.fetch(
@@ -16086,9 +16089,9 @@ mblowfish.provider('$mbLayout', function() {
 		} else {
 			var $mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(
-				component.url,    // path
-				state,           // state
-				anchor);        // anchor
+				component.url,
+				state,
+				anchor);
 		}
 
 		if (_.isUndefined(component)) {
@@ -19958,7 +19961,7 @@ mblowfish.provider('$mbWizard', function() {
 		return !_.isUndefined(wizardConfigs[wizardId]);
 	}
 
-	function openWizardWithDialog(wizard) {
+	function openWizardWithDialog(wizard, locals) {
 		// Open with dialog
 		mbDialog.show({
 			template: '<md-dialog></md-dialog>',
@@ -19967,10 +19970,10 @@ mblowfish.provider('$mbWizard', function() {
 				'ngInject';
 				$element
 					.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
-				wizard.render({
+				wizard.render(_.assign({
 					$scope: $scope,
 					$element: $element.find('md-dialog'),
-				});
+				}, locals || {}));
 
 				wizard.on('finish', function() {
 					$mdDialog.hide();
@@ -19983,14 +19986,14 @@ mblowfish.provider('$mbWizard', function() {
 		});
 	}
 
-	function openWizardWithElement(wizard, $element) {
+	function openWizardWithElement(wizard, $element, locals) {
 		// Open with in the $element
 		$element
 			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
-		wizard.render({
+		wizard.render(_.assign({
 			$scope: rootScope.$new(),
 			$element: $element,
-		});
+		}, locals || {}));
 	}
 
 	/**
@@ -20001,7 +20004,8 @@ mblowfish.provider('$mbWizard', function() {
 	@param wizardId {string} The id of the wizard
 	@param $element {JqueryDOM} the place to render the wizard
 	 */
-	function openWizard(wizardId, $element) {
+	function openWizard(wizardId, $event) {
+		var $element = $event.locals.$element;
 		var wizardConfig = getWizard(wizardId);
 		var wizard = new Wizard(_.assign({}, wizardConfig));
 		wizard.pages = [];
@@ -20013,9 +20017,9 @@ mblowfish.provider('$mbWizard', function() {
 			wizard.pages.push(page);
 		});
 		if (_.isUndefined($element)) {
-			openWizardWithDialog(wizard);
+			openWizardWithDialog(wizard, $event.locals);
 		} else {
-			openWizardWithElement(wizard, $element);
+			openWizardWithElement(wizard, $element, $event.locals);
 		}
 		return wizard;
 	}
@@ -20065,7 +20069,14 @@ mblowfish.provider('$mbWizard', function() {
 		addWizard: addWizard,
 		getWizard: getWizard,
 		hasWizard: hasWizard,
-		openWizard: openWizard,
+		openWizard: function(id, $element){
+			var $event = {
+				locals: {}
+			};
+			$event.locals.$element = $element;
+			return openWizard(id, $event)
+		},
+		open: openWizard,
 
 		addWizardPage: addWizardPage,
 		getWizardPage: getWizardPage,
