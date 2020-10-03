@@ -4,12 +4,20 @@
 	<md-input-container
 		ng-show="prop.visible && prop.editable"
 		class="md-icon-float md-icon-right md-block">
-		<label>{{prop.title}}</label>
+		<label>{{::prop.title}}</label>
+
 		<input
+			ng-if="getTypeOf(prop)==='input'"
 			ng-required="{{prop.validators && prop.validators.indexOf('NotNull')>-1}}"
 			ng-model="values[prop.name]"
-			ng-change="modelChanged(prop.name, values[prop.name])"
-			>
+			ng-change="modelChanged(prop.name, values[prop.name])">
+		
+		<textarea
+			ng-if="getTypeOf(prop)==='textarea'"
+			ng-required="{{prop.validators && prop.validators.indexOf('NotNull')>-1}}"
+			ng-model="values[prop.name]"
+			ng-change="modelChanged(prop.name, values[prop.name])"></textarea>
+
 		<mb-icon
 			ng-show="hasResource(prop)"
 			ng-click="setValueFor(prop)">more_horiz</mb-icon>

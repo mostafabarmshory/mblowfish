@@ -4357,7 +4357,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mbDynamicForm
@@ -4365,53 +4364,65 @@ angular.module('mblowfish-core')
  * 
  * Each property will be managed by an indevisual property editor.
  */
-.directive('mbDynamicForm', function ($mbResource) {
+mblowfish.directive('mbDynamicForm', function($mbResource) {
+	'ngInject';
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @param ctrls
+	 * @returns
+	 */
+	function postLink(scope, element, attrs, ctrls) {
+		// Load ngModel
+		var ngModelCtrl = ctrls[0];
+		scope.values = {};
+		ngModelCtrl.$render = function() {
+			scope.values = ngModelCtrl.$viewValue || {};
+		};
 
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @param ctrls
-     * @returns
-     */
-    function postLink(scope, element, attrs, ctrls) {
-        // Load ngModel
-        var ngModelCtrl = ctrls[0];
-        scope.values = {};
-        ngModelCtrl.$render = function () {
-            scope.values = ngModelCtrl.$viewValue || {};
-        };
+		scope.modelChanged = function(key, value) {
+			scope.values[key] = value;
+			ngModelCtrl.$setViewValue(scope.values);
+		};
 
-        scope.modelChanged = function (key, value) {
-            scope.values[key] = value;
-            ngModelCtrl.$setViewValue(scope.values);
-        };
+		scope.hasResource = function(prop) {
+			return $mbResource.hasPageFor(prop.name);
+		};
 
-        scope.hasResource = function(prop){
-            return $mbResource.hasPageFor(prop.name);
-        };
-        
-        scope.setValueFor = function(prop){
-            return $mbResource.get(prop.name, {
-                data: prop.defaultValue
-            })
-            .then(function(value){
-                scope.modelChanged(prop.name, value);
-            });
-        };
-    }
+		scope.setValueFor = function(prop) {
+			return $mbResource
+				.get(prop.name, {
+					data: prop.defaultValue
+				})
+				.then(function(value) {
+					scope.modelChanged(prop.name, value);
+				});
+		};
 
-    return {
-        restrict: 'E',
-        require: ['ngModel'],
-        templateUrl: 'views/directives/mb-dynamic-form.html',
-        scope: {
-            mbParameters: '='
-        },
-        link: postLink
-    };
+		/**
+		Maps property to a element type.
+		 */
+		scope.getTypeOf = function(prop) {
+			var type = 'input';
+			if (prop.type === 'String' && prop.name === 'description') {
+				type = 'textarea';
+			}
+			return type;
+		};
+	}
+
+	return {
+		restrict: 'E',
+		require: ['ngModel'],
+		templateUrl: 'scripts/directives/mb-dynamic-form.html',
+		scope: {
+			mbParameters: '='
+		},
+		link: postLink
+	};
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -20153,11 +20164,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> </div>"
-  );
-
-
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
     "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span mb-translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
@@ -20331,6 +20337,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/ui/mb-view-main.html',
     "<body class=mb_body>  <div>  <div id=view></div> </div> </body>"
+  );
+
+
+  $templateCache.put('scripts/directives/mb-dynamic-form.html',
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-if=\"getTypeOf(prop)==='input'\" ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <textarea ng-if=\"getTypeOf(prop)==='textarea'\" ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> </div>"
   );
 
 
