@@ -186,7 +186,9 @@ mblowfish.provider('$mbWizard', function() {
 			var $event = {
 				locals: {}
 			};
-			$event.locals.$element = $element;
+			if($element){
+				$event.locals.$element = $element;
+			}
 			return openWizard(id, $event)
 		},
 		open: openWizard,

@@ -18,10 +18,13 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 			controller: function($scope) {
 				'ngInject';
 				var ctrl = this;
-
+				this.getPageCount = function(){
+					return $wizard.pages.length;
+				};
+				
 				this.backPage = function($event) {
 					$wizard.flipToPreviousPage($event);
-				}
+				};
 
 				this.nextPage = function($event) {
 					$wizard.flipNextPage($event);

@@ -7000,7 +7000,7 @@ mblowfish.factory('MbContainer', function(
 		this.$handler = true;
 		// If there is no root element, then we create a new one
 		if (_.isUndefined(locals.$element)) {
-			locals.$element = angualr.element('<div></div>');
+			locals.$element = angular.element('<div></div>');
 		}
 
 		// If there is no root element, then we create a new one
@@ -8137,10 +8137,13 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 			controller: function($scope) {
 				'ngInject';
 				var ctrl = this;
-
+				this.getPageCount = function(){
+					return $wizard.pages.length;
+				};
+				
 				this.backPage = function($event) {
 					$wizard.flipToPreviousPage($event);
-				}
+				};
 
 				this.nextPage = function($event) {
 					$wizard.flipNextPage($event);
@@ -15957,13 +15960,18 @@ mblowfish.provider('$mbLayout', function() {
 	}
 
 	function dockerActiveContentItemChanged(e) {
-		var frame = e.container.$frame;
-		location.url(frame.url);
+		if (!e.isComponent) {
+			return;
+		}
 		try {
+			var frame = e.container.$frame;
+			location.url(frame.url);
 			if (rootScope.$$phase !== '$digest') {
 				rootScope.$apply();
 			}
-		} catch (e) { }
+		} catch (e) {
+			// TODO: add loger
+		}
 	}
 
 	function onDockerInitialised() {
@@ -16023,12 +16031,10 @@ mblowfish.provider('$mbLayout', function() {
 		var component;
 		if (state.isView) {
 			var $mbView = injector.get('$mbView');
-			component = $mbView.get(state.url);
+			component = $mbView.get(state.url, state);
 		} else {
 			var $mbEditor = injector.get('$mbEditor');
-			component = $mbEditor.fetch(
-				state.url, // path
-				state);    // parameters
+			component = $mbEditor.fetch(state.url, state);
 		}
 		if (_.isUndefined(component)) {
 			$mbEditor = injector.get('$mbEditor');
@@ -16086,54 +16092,41 @@ mblowfish.provider('$mbLayout', function() {
 		return docker.root;
 	}
 
-	function openDockerContent(component, state, anchor) {
-		if (component.isEditor) {
-			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
-		}
-		// TODO: support wizard
-		if (component.isView) {
-			var $mbView = injector.get('$mbView');
-			component = $mbView.fetch(
-				component.url,   // path
-				state,           // state
-				anchor);        // anchor
-		} else {
-			var $mbEditor = injector.get('$mbEditor');
-			component = $mbEditor.fetch(
-				component.url,
-				state,
-				anchor);
-		}
-
-		if (_.isUndefined(component)) {
-			// TODO: maso, 2020: support undefined view
+	/*
+	Converts a route into a docker content and open 
+	
+	if the related content exist set foucous and return
+	
+	id on content is the route address.
+	 */
+	function openDockerContent(route, state, anchor) {
+		var dockerContent = getDockerContentById(route.url);
+		if (dockerContent) {
+			// dockerContent.setFocuse4
+			dockerContent.parent.setActiveContentItem(dockerContent);
 			return;
 		}
-		// discannect all resrouces
-		if (component.isVisible()) {
-			return component.setFocus();
+		// TODO: support wizard with route
+		if (route.isEditor) {
+			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
 
 		var anchorContent = getDockerContentById(anchor) || getDockerRootContent().contentItems[0];
-		// TODO: maso, 2020: load component info to load later
-		var contentConfig = {
-			//Non ReactJS
+		// Convert to docker component and append
+		return anchorContent.addChild({
+			id: route.url,
 			type: 'component',
 			componentName: 'component',
 			componentState: _.assign({}, state, {
-				url: component.url,
-				isEditor: component.isEditor,
-				isView: component.isView,
+				url: route.url,
+				isEditor: route.isEditor,
+				isView: route.isView,
 			}),
 			//General
-			content: [],
-			id: component.url,
 			isClosable: true,
-			title: component.title,
+			title: route.title,
 			activeItemIndex: 1
-		};
-		var ret = anchorContent.addChild(contentConfig);
-		return ret;
+		});
 	}
 
 
@@ -20084,7 +20077,9 @@ mblowfish.provider('$mbWizard', function() {
 			var $event = {
 				locals: {}
 			};
-			$event.locals.$element = $element;
+			if($element){
+				$event.locals.$element = $element;
+			}
 			return openWizard(id, $event)
 		},
 		open: openWizard,
@@ -20346,7 +20341,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/factories/wizard.html',
-    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
   );
 
 

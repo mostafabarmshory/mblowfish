@@ -30,9 +30,11 @@
 			<mb-icon>help</mb-icon>
 		</md-button>
 		<span id="spacer"></span>
+		
 		<md-button
 			class="md-raised"
 			id="back"
+			ng-show="ctrl.getPageCount() > 1"
 			ng-click="ctrl.backPage($event)"
 			ng-disabled="ctrl.backDisabled"
 			aria-label="Back">
@@ -41,11 +43,13 @@
 		<md-button
 			class="md-raised"
 			id="next"
+			ng-show="ctrl.getPageCount() > 1"
 			ng-click="ctrl.nextPage($event)"
 			ng-disabled="ctrl.nextDisabled"
 			aria-label="Next">
 			<span translate>Next</span>
 		</md-button>
+		
 		<md-button
 			class="md-raised md-accent"
 			id="cancel"

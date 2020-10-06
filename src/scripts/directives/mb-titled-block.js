@@ -54,6 +54,6 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 			mbMoreActions: '='
 		},
 		link: postLink,
-		templateUrl: 'views/directives/mb-titled-block.html'
+		templateUrl: 'scripts/directives/mb-titled-block.html'
 	};
 });
