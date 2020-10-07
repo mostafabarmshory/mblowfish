@@ -75,6 +75,8 @@ mblowfish.directive('mbDynamicForm', function($mbResource) {
 			var type = 'input';
 			if (prop.type === 'String' && prop.name === 'description') {
 				type = 'textarea';
+			} else if (prop.type === 'Datetime') {
+				type = 'datetime';
 			}
 			return type;
 		};
