@@ -4255,83 +4255,82 @@ angular.module('mblowfish-core').directive('mbContextMenu', function() {
  */
 
 
-angular.module('mblowfish-core')
 
 
-	/**
-	 * @ngdoc Directives
-	 * @name mb-datepicker
-	 * @descritpion Date picker
-	 * 
-	 * Select a date based on local.
-	 * 
-	 */
-	.directive('mbDatepicker', function($mdUtil, $rootScope) {
+/**
+ * @ngdoc Directives
+ * @name mb-datepicker
+ * @descritpion Date picker
+ * 
+ * Select a date based on local.
+ * 
+ */
+mblowfish.directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-		// **********************************************************
-		// Private Methods
-		// **********************************************************
-		function postLink(scope, element, attr, ctrls) {
-			scope.app = $rootScope.app || {};
-			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+	// **********************************************************
+	// Private Methods
+	// **********************************************************
+	function postLink(scope, element, attr, ctrls) {
+		scope.app = $rootScope.app || {};
+		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-			function render() {
-				if (!ngModelCtrl.$modelValue) {
-					return;
-				}
-				var date = moment //
-					.utc(ngModelCtrl.$modelValue) //
-					.local();
-				if (date.isValid()) {
-					scope.date = date;
-					return;
-				}
-				// TODO: maso, 2018: handle invalid date
+		function render() {
+			if (!ngModelCtrl.$modelValue) {
+				return;
 			}
-
-			function setValue() {
-				if (!scope.date) {
-					ngModelCtrl.$setViewValue(scope.date);
-					return;
-				}
-				var date = moment(scope.date) //
-					.utc() //
-					.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
-				ngModelCtrl.$setViewValue(date);
+			var date = moment //
+				.utc(ngModelCtrl.$modelValue) //
+				.local();
+			if (date.isValid()) {
+				scope.date = date;
+				return;
 			}
-
-			ngModelCtrl.$render = render;
-			scope.$watch('date', setValue);
+			// TODO: maso, 2018: handle invalid date
 		}
 
+		function setValue() {
+			if (!scope.date) {
+				ngModelCtrl.$setViewValue(scope.date);
+				return;
+			}
+			var date = moment(scope.date) //
+				.utc() //
+				.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
+			ngModelCtrl.$setViewValue(date);
+		}
 
-		return {
-			replace: false,
-			template: function() {
-				var app = $rootScope.app || {};
-				if (app.calendar === 'Gregorian') {
-					return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-				}
-				return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-			},
-			restrict: 'E',
-			scope: {
-				minDate: '=mbMinDate',
-				maxDate: '=mbMaxDate',
-				placeholder: '@mbPlaceholder',
-				hideIcons: '@?mbHideIcons',
-				dateFormat: '@?mbDateFormat'
-				//		        currentView: '@mdCurrentView',
-				//		        dateFilter: '=mdDateFilter',
-				//		        isOpen: '=?mdIsOpen',
-				//		        debounceInterval: '=mdDebounceInterval',
-				//		        dateLocale: '=mdDateLocale'
-			},
-			require: ['ngModel'],
-			priority: 210, // Run before ngAria
-			link: postLink
-		};
-	});
+		ngModelCtrl.$render = render;
+		scope.$watch('date', setValue);
+	}
+
+
+	return {
+		replace: false,
+		template: function() {
+			var app = $rootScope.app || {};
+			if (app.calendar === 'Gregorian') {
+				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+			}
+			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+		},
+		restrict: 'E',
+		scope: {
+			minDate: '=mbMinDate',
+			maxDate: '=mbMaxDate',
+			placeholder: '@mbPlaceholder',
+			hideIcons: '@?mbHideIcons',
+			dateFormat: '@?mbDateFormat'
+			//		        currentView: '@mdCurrentView',
+			//		        dateFilter: '=mdDateFilter',
+			//		        isOpen: '=?mdIsOpen',
+			//		        debounceInterval: '=mdDebounceInterval',
+			//		        dateLocale: '=mdDateLocale'
+		},
+		require: ['ngModel'],
+		priority: 210, // Run before ngAria
+		link: postLink
+	};
+});
 /* 
  * The MIT License (MIT)
  * 
@@ -4409,6 +4408,8 @@ mblowfish.directive('mbDynamicForm', function($mbResource) {
 			var type = 'input';
 			if (prop.type === 'String' && prop.name === 'description') {
 				type = 'textarea';
+			} else if (prop.type === 'Datetime') {
+				type = 'datetime';
 			}
 			return type;
 		};
@@ -5367,7 +5368,7 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 			mbMoreActions: '='
 		},
 		link: postLink,
-		templateUrl: 'views/directives/mb-titled-block.html'
+		templateUrl: 'scripts/directives/mb-titled-block.html'
 	};
 });
 
@@ -20179,11 +20180,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/directives/mb-titled-block.html',
-    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
-  );
-
-
   $templateCache.put('views/mb-application-preloading.html',
     "<div> Loading ... </div>"
   );
@@ -20336,7 +20332,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-if=\"getTypeOf(prop)==='input'\" ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <textarea ng-if=\"getTypeOf(prop)==='textarea'\" ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-if=\"getTypeOf(prop)==='input'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <md-input-container ng-if=\"getTypeOf(prop)==='textarea'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <textarea ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <mb-datepicker ng-if=\"getTypeOf(prop)==='datetime'\" ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></mb-datepicker> </div>"
+  );
+
+
+  $templateCache.put('scripts/directives/mb-titled-block.html',
+    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
 
 
