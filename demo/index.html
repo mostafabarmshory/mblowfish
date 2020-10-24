@@ -24,6 +24,7 @@
 	
 	<!-- build:css({.tmp/serve,src}) styles/app.css -->
 	<!-- injector:css -->
+	<link rel="stylesheet" href="scripts/factories/action.css">
 	<link rel="stylesheet" href="scripts/factories/frame.css">
 	<link rel="stylesheet" href="scripts/factories/wizard.css">
 	<link rel="stylesheet" href="styles/angular-material-common.css">
@@ -84,6 +85,8 @@
 	<script src="scripts/app.js"></script>
 	<script src="scripts/demo-index.js"></script>
 	<script src="scripts/module-common/index.js"></script>
+	<script src="scripts/module-help/index.js"></script>
+	<script src="scripts/module-iframe/index.js"></script>
 	<script src="scripts/module-layouts/index.js"></script>
 	<script src="scripts/module-moduleManager/index.js"></script>
 	<script src="scripts/module-navigator/index.js"></script>
@@ -150,9 +153,9 @@
 	<script src="scripts/filters/html-unsafe.js"></script>
 	<script src="scripts/module-common/appcache.js"></script>
 	<script src="scripts/module-common/hack-window.js"></script>
-	<script src="scripts/module-help/help.js"></script>
-	<script src="scripts/module-iframe/IFrameContainerCtrl.js"></script>
-	<script src="scripts/module-iframe/module.js"></script>
+	<script src="scripts/module-help/services/help.js"></script>
+	<script src="scripts/module-iframe/actions/open-url.js"></script>
+	<script src="scripts/module-iframe/editors/browser.js"></script>
 	<script src="scripts/module-layouts/actions/load-layout.js"></script>
 	<script src="scripts/module-layouts/actions/save-current-layout.js"></script>
 	<script src="scripts/module-layouts/components/layouts-toolbar.js"></script>
@@ -161,6 +164,8 @@
 	<script src="scripts/module-layouts/services/layouts-local-storage.js"></script>
 	<script src="scripts/module-moduleManager/actions/module-create.js"></script>
 	<script src="scripts/module-moduleManager/actions/module-delete.js"></script>
+	<script src="scripts/module-moduleManager/actions/module-export.js"></script>
+	<script src="scripts/module-moduleManager/actions/module-import.js"></script>
 	<script src="scripts/module-moduleManager/resources/module-manual.js"></script>
 	<script src="scripts/module-moduleManager/views/modules.js"></script>
 	<script src="scripts/module-navigator/actions/navigator-toggle.js"></script>

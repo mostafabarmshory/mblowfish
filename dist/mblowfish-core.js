@@ -2012,6 +2012,56 @@ mblowfish.config(function($mbResourceProvider) {
 	//	});
 });
 
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.addConstants({
+	//------------------------------------------------------------
+	// Resources Types
+	//------------------------------------------------------------
+	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
+
+	//------------------------------------------------------------
+	// Stoer Paths
+	//------------------------------------------------------------
+	//	SDP_LINKS_SP: '/sdp/links',
+
+	//------------------------------------------------------------
+	// Views
+	//------------------------------------------------------------
+	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
+
+	//------------------------------------------------------------
+	// ACTIONS
+	//------------------------------------------------------------
+	IFRAME_URL_OPEN_ACTION: 'iframe.url.open',
+
+	//------------------------------------------------------------
+	// wizards
+	//------------------------------------------------------------
+	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
+});
+
+
 /*
 Desktop module is used to manage local/remote desktop.
 */
@@ -2068,12 +2118,24 @@ mblowfish.constant({
 	MB_MODULE_RT: '/app/modules', // Resource Type
 	MB_MODULE_SP: '/app/modules', // Store Path
 	MB_MODULE_SK: 'mbModules', // Storage Key
-	
-	
+	MB_MODULE_MODULES_VIEW: '/app/modules',
+
 	MB_MODULE_CREATE_ACTION: 'mb.module.create',
 	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
 	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
+	MB_MODULE_IMPORT_ACTION: 'mb.module.import',
+	MB_MODULE_EXPORT_ACTION: 'mb.module.export'
 });
+
+mblowfish.run(function($mbToolbar) {
+	'ngInject';
+	$mbToolbar
+		.getToolbar(MB_MODULE_MODULES_VIEW)
+		.addAction(MB_MODULE_CREATE_ACTION)
+		.addAction(MB_MODULE_IMPORT_ACTION)
+		.addAction(MB_MODULE_EXPORT_ACTION);
+});
+
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8741,113 +8803,43 @@ mblowfish.service('$help', function ($q, $rootScope, /*$mbTranslate,*/ $injector
 //    };
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- @ngdoc Editor
- @name MbIFrameContainerCtrl
- @description A page preview editor
- 
- */
-angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($sce, $state) {
-
-	// Load secure path
-	this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
-
+mblowfish.addAction(IFRAME_URL_OPEN_ACTION, {
+	title: 'Open URL',
+	description: 'Open a url',
+	icon: 'open_in_browser',
+	/* @ngInject */
+	action: function($location) {
+		$window
+			.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
+			.then(function(input) {
+				$location.url('/mb/iframe/' + input);
+			});
+	}
 });
 
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core').run(function(
-	/* AngularJs */ $window,
-	/* Mblowfish */ $mbEditor, $mbActions, $mbToolbar) {
-
-	//
-	//  $mbEditor: manages all editor of an application. An editor has a dynamic
-	// address and there may be multiple instance of it at the same time but with
-	// different parameter.
-	//
-	// There are serveral editor registered here to cover some of our system 
-	// functionalities such as:
-	//
-	// - Open a new URL
-	//
-	$mbEditor.registerEditor('/mb/iframe/:url*', {
-		title: 'IFrame',
-		description: 'Open external page',
-		controller: 'MbIFrameContainerCtrl',
-		controllerAs: 'ctrl',
-		template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
-		groups: ['Utilities']
-	});
-
-	$mbActions.addAction('mb.iframe.open', {
-		title: 'Open URL',
-		description: 'Open a url',
-		icon: 'open_in_browser',
-		/* @ngInject */
-		action: function($location) {
-			$window.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
-				.then(function(input) {
-					$location.url('/mb/iframe/' + input);
-					// $mbEditor.open('/mb/iframe/' + input, {param1: 'value1'});
-				});
-		}
-	});
-
-	$mbToolbar.addToolbar('/mb/iframe', {
-		items: ['mb.iframe.open']
-	});
-
-//	//-----------------------------------------------------------------------
-//	//  Adds iframe toolbar into the main toolbar group. Note that, this 
-//	// must handle in the final application.
-//	//-----------------------------------------------------------------------
-//	$mbToolbar.getToolbarGroup()
-//		.addToolbar('/mb/iframe');
+//
+//  $mbEditor: manages all editor of an application. An editor has a dynamic
+// address and there may be multiple instance of it at the same time but with
+// different parameter.
+//
+// There are serveral editor registered here to cover some of our system 
+// functionalities such as:
+//
+// - Open a new URL
+//
+mblowfish.editor('/mb/iframe/:url*', {
+	title: 'Browser',
+	description: 'Open external page',
+	controllerAs: 'ctrl',
+	template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
+	groups: ['Utilities'],
+	controllerAs: 'ctrl',
+	controller: function($sce, $state) {
+		// Load secure path
+		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
+	}
 });
-
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 	title: 'Load Layout',
 	icon: 'launch',
@@ -9052,9 +9044,10 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
  */
 
 mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	icon: 'add',
 	title: 'Add local module',
-	/* @ngInject*/
 	action: function($mbResource, $mbModules) {
+		'ngInject';
 		return $mbResource
 			.get(MB_MODULE_RT, {
 				style: {},
@@ -9091,8 +9084,8 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 	title: 'Delete local module',
 	icon: 'view_module',
-	/* @ngInject */
 	action: function($window, $mbModules, $event) {
+		'ngInject';
 		return $window
 			.confirm('Delete modules?')
 			.then(function() {
@@ -9100,6 +9093,76 @@ mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 					$mbModules.removeModule(m);
 				});
 			});
+	}
+});
+
+mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
+	title: 'Export modules',
+	icon: 'cloud_download',
+	action: function($mbModules) {
+		'ngInject';
+
+		var filename = 'modules.json';
+		var modules = $mbModules.getModules();
+
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:application/json;charset=utf-8,' + JSON.stringify(modules));
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	}
+});
+
+mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
+	title: 'Import modules',
+	icon: 'cloud_upload',
+	action: function($mbModules, $mbDispatcher, $rootScope) {
+		'ngInject';
+
+
+		function clickElem(elem) {
+			// Thx user1601638 on Stack Overflow (6/6/2018 - https://stackoverflow.com/questions/13405129/javascript-create-and-save-file )
+			var eventMouse = document.createEvent('MouseEvents')
+			eventMouse.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+			elem.dispatchEvent(eventMouse)
+		}
+
+		function readFile(e) {
+			var file = e.target.files[0];
+			if (!file) {
+				return;
+			}
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var contents = e.target.result;
+				document.body.removeChild(fileInput);
+
+				var modules = JSON.parse(contents);
+				_.forEach(modules, function(module) {
+					$mbModules.addModule(module);
+				});
+
+				//>> fire changes
+				$mbDispatcher.dispatch(MB_MODULE_SP, {
+					type: 'create',
+					items: modules
+				});
+				$rootScope.$digest();
+			};
+			reader.readAsText(file);
+		}
+
+		var fileInput = document.createElement('input');
+		fileInput.type = 'file';
+		fileInput.style.display = 'none';
+		fileInput.onchange = readFile;
+		document.body.appendChild(fileInput);
+		clickElem(fileInput);
 	}
 });
 /*
@@ -9159,7 +9222,7 @@ mblowfish.resource('mb-module-manual', {
  * SOFTWARE.
  */
 
-mblowfish.view('/app/modules', {
+mblowfish.view(MB_MODULE_MODULES_VIEW, {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
@@ -19968,7 +20031,7 @@ mblowfish.provider('$mbWizard', function() {
 
 	function openWizardWithDialog(wizard, locals) {
 		// Open with dialog
-		return mbDialog.show({
+		mbDialog.show({
 			template: '<md-dialog></md-dialog>',
 			parent: angular.element(document.body),
 			controller: function($scope, $mdDialog, $element) {
@@ -19989,6 +20052,7 @@ mblowfish.provider('$mbWizard', function() {
 				});
 			},
 		});
+		return wizard;
 	}
 
 	function openWizardWithElement(wizard, $element, locals) {
@@ -19999,7 +20063,7 @@ mblowfish.provider('$mbWizard', function() {
 			$scope: rootScope.$new(),
 			$element: $element,
 		}, locals || {}));
-		// TODO: maso, 2020: create a promise to fire on end of the wizard
+		return wizard;
 	}
 
 	/**
@@ -20366,7 +20430,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-moduleManager/views/modules.html',
-    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <mb-icon>add</mb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</mb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
+    "<md-content> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules track by $index\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete> delete</mb-icon> </md-list-item> </md-list> </md-content>"
   );
 
 

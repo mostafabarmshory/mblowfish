@@ -1,4 +1,8 @@
 
+.mbAction {
+	cursor: pointer;
+}
+
 
 
 .mb-layout-frame-content{
@@ -1410,6 +1414,10 @@ table.mb-table-description tr td:first-child {
 	overflow: hidden;
 	position: relative
 }
+
+.lm_content>*:not(:first-child) { 
+	flex-grow: 1;
+} 
 
 .lm_dragging,
 .lm_dragging * {
