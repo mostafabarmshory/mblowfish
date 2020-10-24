@@ -21,9 +21,10 @@
  */
 
 mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	icon: 'add',
 	title: 'Add local module',
-	/* @ngInject*/
 	action: function($mbResource, $mbModules) {
+		'ngInject';
 		return $mbResource
 			.get(MB_MODULE_RT, {
 				style: {},

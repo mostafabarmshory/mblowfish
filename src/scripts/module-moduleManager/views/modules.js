@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-mblowfish.view('/app/modules', {
+mblowfish.view(MB_MODULE_MODULES_VIEW, {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',

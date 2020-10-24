@@ -76,7 +76,7 @@ mblowfish.provider('$mbWizard', function() {
 
 	function openWizardWithDialog(wizard, locals) {
 		// Open with dialog
-		return mbDialog.show({
+		mbDialog.show({
 			template: '<md-dialog></md-dialog>',
 			parent: angular.element(document.body),
 			controller: function($scope, $mdDialog, $element) {
@@ -97,6 +97,7 @@ mblowfish.provider('$mbWizard', function() {
 				});
 			},
 		});
+		return wizard;
 	}
 
 	function openWizardWithElement(wizard, $element, locals) {
@@ -107,7 +108,7 @@ mblowfish.provider('$mbWizard', function() {
 			$scope: rootScope.$new(),
 			$element: $element,
 		}, locals || {}));
-		// TODO: maso, 2020: create a promise to fire on end of the wizard
+		return wizard;
 	}
 
 	/**
