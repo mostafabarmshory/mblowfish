@@ -74,7 +74,7 @@ mblowfish.provider('$mbWizard', function() {
 		return !_.isUndefined(wizardConfigs[wizardId]);
 	}
 
-	function openWizardWithDialog(wizard) {
+	function openWizardWithDialog(wizard, locals) {
 		// Open with dialog
 		mbDialog.show({
 			template: '<md-dialog></md-dialog>',
@@ -83,10 +83,10 @@ mblowfish.provider('$mbWizard', function() {
 				'ngInject';
 				$element
 					.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
-				wizard.render({
+				wizard.render(_.assign({
 					$scope: $scope,
 					$element: $element.find('md-dialog'),
-				});
+				}, locals || {}));
 
 				wizard.on('finish', function() {
 					$mdDialog.hide();
@@ -97,16 +97,18 @@ mblowfish.provider('$mbWizard', function() {
 				});
 			},
 		});
+		return wizard;
 	}
 
-	function openWizardWithElement(wizard, $element) {
+	function openWizardWithElement(wizard, $element, locals) {
 		// Open with in the $element
 		$element
 			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
-		wizard.render({
+		wizard.render(_.assign({
 			$scope: rootScope.$new(),
 			$element: $element,
-		});
+		}, locals || {}));
+		return wizard;
 	}
 
 	/**
@@ -117,7 +119,8 @@ mblowfish.provider('$mbWizard', function() {
 	@param wizardId {string} The id of the wizard
 	@param $element {JqueryDOM} the place to render the wizard
 	 */
-	function openWizard(wizardId, $element) {
+	function openWizard(wizardId, $event) {
+		var $element = $event.locals.$element;
 		var wizardConfig = getWizard(wizardId);
 		var wizard = new Wizard(_.assign({}, wizardConfig));
 		wizard.pages = [];
@@ -129,11 +132,9 @@ mblowfish.provider('$mbWizard', function() {
 			wizard.pages.push(page);
 		});
 		if (_.isUndefined($element)) {
-			openWizardWithDialog(wizard);
-		} else {
-			openWizardWithElement(wizard, $element);
+			return openWizardWithDialog(wizard, $event.locals);
 		}
-		return wizard;
+		return openWizardWithElement(wizard, $element, $event.locals);
 	}
 
 	/**
@@ -181,7 +182,16 @@ mblowfish.provider('$mbWizard', function() {
 		addWizard: addWizard,
 		getWizard: getWizard,
 		hasWizard: hasWizard,
-		openWizard: openWizard,
+		openWizard: function(id, $element) {
+			var $event = {
+				locals: {}
+			};
+			if ($element) {
+				$event.locals.$element = $element;
+			}
+			return openWizard(id, $event)
+		},
+		open: openWizard,
 
 		addWizardPage: addWizardPage,
 		getWizardPage: getWizardPage,

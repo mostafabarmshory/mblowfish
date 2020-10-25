@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-mblowfish.view('/app/modules', {
+mblowfish.view(MB_MODULE_MODULES_VIEW, {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
@@ -50,6 +50,10 @@ mblowfish.view('/app/modules', {
 		this.deleteModule = function(item, $event) {
 			$event.modules = [item];
 			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+		};
+
+		this.openMenu = function($mdMenu, $event) {
+			return $mdMenu.open($event);
 		};
 
 		var ctrl = this;

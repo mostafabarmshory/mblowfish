@@ -2012,6 +2012,56 @@ mblowfish.config(function($mbResourceProvider) {
 	//	});
 });
 
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.addConstants({
+	//------------------------------------------------------------
+	// Resources Types
+	//------------------------------------------------------------
+	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
+
+	//------------------------------------------------------------
+	// Stoer Paths
+	//------------------------------------------------------------
+	//	SDP_LINKS_SP: '/sdp/links',
+
+	//------------------------------------------------------------
+	// Views
+	//------------------------------------------------------------
+	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
+
+	//------------------------------------------------------------
+	// ACTIONS
+	//------------------------------------------------------------
+	IFRAME_URL_OPEN_ACTION: 'iframe.url.open',
+
+	//------------------------------------------------------------
+	// wizards
+	//------------------------------------------------------------
+	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
+});
+
+
 /*
 Desktop module is used to manage local/remote desktop.
 */
@@ -2068,12 +2118,24 @@ mblowfish.constant({
 	MB_MODULE_RT: '/app/modules', // Resource Type
 	MB_MODULE_SP: '/app/modules', // Store Path
 	MB_MODULE_SK: 'mbModules', // Storage Key
-	
-	
+	MB_MODULE_MODULES_VIEW: '/app/modules',
+
 	MB_MODULE_CREATE_ACTION: 'mb.module.create',
 	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
 	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
+	MB_MODULE_IMPORT_ACTION: 'mb.module.import',
+	MB_MODULE_EXPORT_ACTION: 'mb.module.export'
 });
+
+mblowfish.run(function($mbToolbar) {
+	'ngInject';
+	$mbToolbar
+		.getToolbar(MB_MODULE_MODULES_VIEW)
+		.addAction(MB_MODULE_CREATE_ACTION)
+		.addAction(MB_MODULE_IMPORT_ACTION)
+		.addAction(MB_MODULE_EXPORT_ACTION);
+});
+
 
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -4255,83 +4317,82 @@ angular.module('mblowfish-core').directive('mbContextMenu', function() {
  */
 
 
-angular.module('mblowfish-core')
 
 
-	/**
-	 * @ngdoc Directives
-	 * @name mb-datepicker
-	 * @descritpion Date picker
-	 * 
-	 * Select a date based on local.
-	 * 
-	 */
-	.directive('mbDatepicker', function($mdUtil, $rootScope) {
+/**
+ * @ngdoc Directives
+ * @name mb-datepicker
+ * @descritpion Date picker
+ * 
+ * Select a date based on local.
+ * 
+ */
+mblowfish.directive('mbDatepicker', function($mdUtil, $rootScope) {
 
-		// **********************************************************
-		// Private Methods
-		// **********************************************************
-		function postLink(scope, element, attr, ctrls) {
-			scope.app = $rootScope.app || {};
-			var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
+	// **********************************************************
+	// Private Methods
+	// **********************************************************
+	function postLink(scope, element, attr, ctrls) {
+		scope.app = $rootScope.app || {};
+		var ngModelCtrl = ctrls[0] || $mdUtil.fakeNgModel();
 
-			function render() {
-				if (!ngModelCtrl.$modelValue) {
-					return;
-				}
-				var date = moment //
-					.utc(ngModelCtrl.$modelValue) //
-					.local();
-				if (date.isValid()) {
-					scope.date = date;
-					return;
-				}
-				// TODO: maso, 2018: handle invalid date
+		function render() {
+			if (!ngModelCtrl.$modelValue) {
+				return;
 			}
-
-			function setValue() {
-				if (!scope.date) {
-					ngModelCtrl.$setViewValue(scope.date);
-					return;
-				}
-				var date = moment(scope.date) //
-					.utc() //
-					.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
-				ngModelCtrl.$setViewValue(date);
+			var date = moment //
+				.utc(ngModelCtrl.$modelValue) //
+				.local();
+			if (date.isValid()) {
+				scope.date = date;
+				return;
 			}
-
-			ngModelCtrl.$render = render;
-			scope.$watch('date', setValue);
+			// TODO: maso, 2018: handle invalid date
 		}
 
+		function setValue() {
+			if (!scope.date) {
+				ngModelCtrl.$setViewValue(scope.date);
+				return;
+			}
+			var date = moment(scope.date) //
+				.utc() //
+				.format(scope.dateFormat || 'YYYY-MM-DD HH:mm:ss');
+			ngModelCtrl.$setViewValue(date);
+		}
 
-		return {
-			replace: false,
-			template: function() {
-				var app = $rootScope.app || {};
-				if (app.calendar === 'Gregorian') {
-					return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
-				}
-				return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
-			},
-			restrict: 'E',
-			scope: {
-				minDate: '=mbMinDate',
-				maxDate: '=mbMaxDate',
-				placeholder: '@mbPlaceholder',
-				hideIcons: '@?mbHideIcons',
-				dateFormat: '@?mbDateFormat'
-				//		        currentView: '@mdCurrentView',
-				//		        dateFilter: '=mdDateFilter',
-				//		        isOpen: '=?mdIsOpen',
-				//		        debounceInterval: '=mdDebounceInterval',
-				//		        dateLocale: '=mdDateLocale'
-			},
-			require: ['ngModel'],
-			priority: 210, // Run before ngAria
-			link: postLink
-		};
-	});
+		ngModelCtrl.$render = render;
+		scope.$watch('date', setValue);
+	}
+
+
+	return {
+		replace: false,
+		template: function() {
+			var app = $rootScope.app || {};
+			if (app.calendar === 'Gregorian') {
+				return '<md-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-datepicker>';
+			}
+			return '<md-persian-datepicker ng-model="date" md-hide-icons="calendar" md-placeholder="{{placeholder || \'Enter date\'}}"></md-persian-datepicker>';
+		},
+		restrict: 'E',
+		scope: {
+			minDate: '=mbMinDate',
+			maxDate: '=mbMaxDate',
+			placeholder: '@mbPlaceholder',
+			hideIcons: '@?mbHideIcons',
+			dateFormat: '@?mbDateFormat'
+			//		        currentView: '@mdCurrentView',
+			//		        dateFilter: '=mdDateFilter',
+			//		        isOpen: '=?mdIsOpen',
+			//		        debounceInterval: '=mdDebounceInterval',
+			//		        dateLocale: '=mdDateLocale'
+		},
+		require: ['ngModel'],
+		priority: 210, // Run before ngAria
+		link: postLink
+	};
+});
 /* 
  * The MIT License (MIT)
  * 
@@ -4357,7 +4418,6 @@ angular.module('mblowfish-core')
  */
 
 
-angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mbDynamicForm
@@ -4365,53 +4425,67 @@ angular.module('mblowfish-core')
  * 
  * Each property will be managed by an indevisual property editor.
  */
-.directive('mbDynamicForm', function ($mbResource) {
+mblowfish.directive('mbDynamicForm', function($mbResource) {
+	'ngInject';
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @param ctrls
+	 * @returns
+	 */
+	function postLink(scope, element, attrs, ctrls) {
+		// Load ngModel
+		var ngModelCtrl = ctrls[0];
+		scope.values = {};
+		ngModelCtrl.$render = function() {
+			scope.values = ngModelCtrl.$viewValue || {};
+		};
 
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @param ctrls
-     * @returns
-     */
-    function postLink(scope, element, attrs, ctrls) {
-        // Load ngModel
-        var ngModelCtrl = ctrls[0];
-        scope.values = {};
-        ngModelCtrl.$render = function () {
-            scope.values = ngModelCtrl.$viewValue || {};
-        };
+		scope.modelChanged = function(key, value) {
+			scope.values[key] = value;
+			ngModelCtrl.$setViewValue(scope.values);
+		};
 
-        scope.modelChanged = function (key, value) {
-            scope.values[key] = value;
-            ngModelCtrl.$setViewValue(scope.values);
-        };
+		scope.hasResource = function(prop) {
+			return $mbResource.hasPageFor(prop.name);
+		};
 
-        scope.hasResource = function(prop){
-            return $mbResource.hasPageFor(prop.name);
-        };
-        
-        scope.setValueFor = function(prop){
-            return $mbResource.get(prop.name, {
-                data: prop.defaultValue
-            })
-            .then(function(value){
-                scope.modelChanged(prop.name, value);
-            });
-        };
-    }
+		scope.setValueFor = function(prop) {
+			return $mbResource
+				.get(prop.name, {
+					data: prop.defaultValue
+				})
+				.then(function(value) {
+					scope.modelChanged(prop.name, value);
+				});
+		};
 
-    return {
-        restrict: 'E',
-        require: ['ngModel'],
-        templateUrl: 'views/directives/mb-dynamic-form.html',
-        scope: {
-            mbParameters: '='
-        },
-        link: postLink
-    };
+		/**
+		Maps property to a element type.
+		 */
+		scope.getTypeOf = function(prop) {
+			var type = 'input';
+			if (prop.type === 'String' && prop.name === 'description') {
+				type = 'textarea';
+			} else if (prop.type === 'Datetime') {
+				type = 'datetime';
+			}
+			return type;
+		};
+	}
+
+	return {
+		restrict: 'E',
+		require: ['ngModel'],
+		templateUrl: 'scripts/directives/mb-dynamic-form.html',
+		scope: {
+			mbParameters: '='
+		},
+		link: postLink
+	};
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -5356,7 +5430,7 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 			mbMoreActions: '='
 		},
 		link: postLink,
-		templateUrl: 'views/directives/mb-titled-block.html'
+		templateUrl: 'scripts/directives/mb-titled-block.html'
 	};
 });
 
@@ -6989,7 +7063,7 @@ mblowfish.factory('MbContainer', function(
 		this.$handler = true;
 		// If there is no root element, then we create a new one
 		if (_.isUndefined(locals.$element)) {
-			locals.$element = angualr.element('<div></div>');
+			locals.$element = angular.element('<div></div>');
 		}
 
 		// If there is no root element, then we create a new one
@@ -7290,7 +7364,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 		return MbContainer.prototype.render.call(this, locals)
 			.then(function(handler) {
-				handler.$element.children().addClass('mb-container-content');
+				handler.$element.children().addClass('mb-layout-frame-content');
 				handler.$element.prepend(toolbarElement);
 				toolbar.render({
 					$element: toolbarElement,
@@ -8126,10 +8200,13 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 			controller: function($scope) {
 				'ngInject';
 				var ctrl = this;
-
+				this.getPageCount = function(){
+					return $wizard.pages.length;
+				};
+				
 				this.backPage = function($event) {
 					$wizard.flipToPreviousPage($event);
-				}
+				};
 
 				this.nextPage = function($event) {
 					$wizard.flipNextPage($event);
@@ -8238,12 +8315,12 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		var wizard = this;
 		var element = mblowfish.element('<div></div>');
 		this.$body.append(element);
-		return this.currentPage.render({
+		return this.currentPage.render(_.assign({}, this.$locals || {}, {
 			$element: element,
 			$wizard: this,
 			$currentPage: this.currentPage,
 			$currentPageIndex: nextPageIndex
-		}).then(function() {
+		})).then(function() {
 			wizard.fire('pageChanged');
 		});
 	};
@@ -8319,6 +8396,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 		this.pageStack = [];
 		this.currentPage = undefined;
 		this.currentPageIndex = -1;
+		this.$locals = locals;
 		return MbContainer.prototype.render.apply(this, [locals])
 			.then(function(handler) {
 				wizard.$body = handler.$element.find('#body');
@@ -8342,7 +8420,7 @@ mblowfish.factory('MbWizard', function(MbContainer, $injector, $q) {
 	Calls a user function
 	*/
 	MbWizard.prototype.invoke = function(userFunction, locals) {
-		return $injector.invoke(userFunction, this, _.assign(locals || {}, {
+		return $injector.invoke(userFunction, this, _.assign({}, locals || {}, this.$locals, {
 			$wizard: this,
 			$currentPage: this.currentPage,
 			$currentPageIndex: this.currentPageIndex
@@ -8725,113 +8803,43 @@ mblowfish.service('$help', function ($q, $rootScope, /*$mbTranslate,*/ $injector
 //    };
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- @ngdoc Editor
- @name MbIFrameContainerCtrl
- @description A page preview editor
- 
- */
-angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($sce, $state) {
-
-	// Load secure path
-	this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
-
+mblowfish.addAction(IFRAME_URL_OPEN_ACTION, {
+	title: 'Open URL',
+	description: 'Open a url',
+	icon: 'open_in_browser',
+	/* @ngInject */
+	action: function($location) {
+		$window
+			.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
+			.then(function(input) {
+				$location.url('/mb/iframe/' + input);
+			});
+	}
 });
 
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-angular.module('mblowfish-core').run(function(
-	/* AngularJs */ $window,
-	/* Mblowfish */ $mbEditor, $mbActions, $mbToolbar) {
-
-	//
-	//  $mbEditor: manages all editor of an application. An editor has a dynamic
-	// address and there may be multiple instance of it at the same time but with
-	// different parameter.
-	//
-	// There are serveral editor registered here to cover some of our system 
-	// functionalities such as:
-	//
-	// - Open a new URL
-	//
-	$mbEditor.registerEditor('/mb/iframe/:url*', {
-		title: 'IFrame',
-		description: 'Open external page',
-		controller: 'MbIFrameContainerCtrl',
-		controllerAs: 'ctrl',
-		template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
-		groups: ['Utilities']
-	});
-
-	$mbActions.addAction('mb.iframe.open', {
-		title: 'Open URL',
-		description: 'Open a url',
-		icon: 'open_in_browser',
-		/* @ngInject */
-		action: function($location) {
-			$window.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
-				.then(function(input) {
-					$location.url('/mb/iframe/' + input);
-					// $mbEditor.open('/mb/iframe/' + input, {param1: 'value1'});
-				});
-		}
-	});
-
-	$mbToolbar.addToolbar('/mb/iframe', {
-		items: ['mb.iframe.open']
-	});
-
-//	//-----------------------------------------------------------------------
-//	//  Adds iframe toolbar into the main toolbar group. Note that, this 
-//	// must handle in the final application.
-//	//-----------------------------------------------------------------------
-//	$mbToolbar.getToolbarGroup()
-//		.addToolbar('/mb/iframe');
+//
+//  $mbEditor: manages all editor of an application. An editor has a dynamic
+// address and there may be multiple instance of it at the same time but with
+// different parameter.
+//
+// There are serveral editor registered here to cover some of our system 
+// functionalities such as:
+//
+// - Open a new URL
+//
+mblowfish.editor('/mb/iframe/:url*', {
+	title: 'Browser',
+	description: 'Open external page',
+	controllerAs: 'ctrl',
+	template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
+	groups: ['Utilities'],
+	controllerAs: 'ctrl',
+	controller: function($sce, $state) {
+		// Load secure path
+		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
+	}
 });
-
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 	title: 'Load Layout',
 	icon: 'launch',
@@ -9036,9 +9044,10 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
  */
 
 mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+	icon: 'add',
 	title: 'Add local module',
-	/* @ngInject*/
 	action: function($mbResource, $mbModules) {
+		'ngInject';
 		return $mbResource
 			.get(MB_MODULE_RT, {
 				style: {},
@@ -9075,8 +9084,8 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 	title: 'Delete local module',
 	icon: 'view_module',
-	/* @ngInject */
 	action: function($window, $mbModules, $event) {
+		'ngInject';
 		return $window
 			.confirm('Delete modules?')
 			.then(function() {
@@ -9084,6 +9093,76 @@ mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 					$mbModules.removeModule(m);
 				});
 			});
+	}
+});
+
+mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
+	title: 'Export modules',
+	icon: 'cloud_download',
+	action: function($mbModules) {
+		'ngInject';
+
+		var filename = 'modules.json';
+		var modules = $mbModules.getModules();
+
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:application/json;charset=utf-8,' + JSON.stringify(modules));
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	}
+});
+
+mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
+	title: 'Import modules',
+	icon: 'cloud_upload',
+	action: function($mbModules, $mbDispatcher, $rootScope) {
+		'ngInject';
+
+
+		function clickElem(elem) {
+			// Thx user1601638 on Stack Overflow (6/6/2018 - https://stackoverflow.com/questions/13405129/javascript-create-and-save-file )
+			var eventMouse = document.createEvent('MouseEvents')
+			eventMouse.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+			elem.dispatchEvent(eventMouse)
+		}
+
+		function readFile(e) {
+			var file = e.target.files[0];
+			if (!file) {
+				return;
+			}
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var contents = e.target.result;
+				document.body.removeChild(fileInput);
+
+				var modules = JSON.parse(contents);
+				_.forEach(modules, function(module) {
+					$mbModules.addModule(module);
+				});
+
+				//>> fire changes
+				$mbDispatcher.dispatch(MB_MODULE_SP, {
+					type: 'create',
+					items: modules
+				});
+				$rootScope.$digest();
+			};
+			reader.readAsText(file);
+		}
+
+		var fileInput = document.createElement('input');
+		fileInput.type = 'file';
+		fileInput.style.display = 'none';
+		fileInput.onchange = readFile;
+		document.body.appendChild(fileInput);
+		clickElem(fileInput);
 	}
 });
 /*
@@ -9143,7 +9222,7 @@ mblowfish.resource('mb-module-manual', {
  * SOFTWARE.
  */
 
-mblowfish.view('/app/modules', {
+mblowfish.view(MB_MODULE_MODULES_VIEW, {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
@@ -9173,6 +9252,10 @@ mblowfish.view('/app/modules', {
 		this.deleteModule = function(item, $event) {
 			$event.modules = [item];
 			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+		};
+
+		this.openMenu = function($mdMenu, $event) {
+			return $mdMenu.open($event);
 		};
 
 		var ctrl = this;
@@ -15851,8 +15934,10 @@ mblowfish.provider('$mbLayout', function() {
 		}
 	}
 
-	function setFocus(frame) {
-		// TODO:
+	function setFocus(component) {
+		//		setActiveContentItem
+		var contentItem = component.$dockerContainer.parent;
+		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
 	function init() {
@@ -15943,13 +16028,18 @@ mblowfish.provider('$mbLayout', function() {
 	}
 
 	function dockerActiveContentItemChanged(e) {
-		var frame = e.container.$frame;
-		location.url(frame.url);
+		if (!e.isComponent) {
+			return;
+		}
 		try {
+			var frame = e.container.$frame;
+			location.url(frame.url);
 			if (rootScope.$$phase !== '$digest') {
 				rootScope.$apply();
 			}
-		} catch (e) { }
+		} catch (e) {
+			// TODO: add loger
+		}
 	}
 
 	function onDockerInitialised() {
@@ -16009,12 +16099,10 @@ mblowfish.provider('$mbLayout', function() {
 		var component;
 		if (state.isView) {
 			var $mbView = injector.get('$mbView');
-			component = $mbView.get(state.url);
+			component = $mbView.get(state.url, state);
 		} else {
 			var $mbEditor = injector.get('$mbEditor');
-			component = $mbEditor.fetch(
-				state.url, // path
-				state);    // parameters
+			component = $mbEditor.fetch(state.url, state);
 		}
 		if (_.isUndefined(component)) {
 			$mbEditor = injector.get('$mbEditor');
@@ -16051,6 +16139,7 @@ mblowfish.provider('$mbLayout', function() {
 				} catch (e) { }
 			});
 		});
+		component.$dockerContainer = editor;
 		return component.render({
 			$dockerContainer: editor,
 			$element: element,
@@ -16071,55 +16160,41 @@ mblowfish.provider('$mbLayout', function() {
 		return docker.root;
 	}
 
-	function openDockerContent(component, state, anchor) {
-		if (component.isEditor) {
+	/*
+	Converts a route into a docker content and open 
+	
+	if the related content exist set foucous and return
+	
+	id on content is the route address.
+	 */
+	function openDockerContent(route, state, anchor) {
+		var dockerContent = getDockerContentById(route.url);
+		if (dockerContent) {
+			// dockerContent.setFocuse4
+			dockerContent.parent.setActiveContentItem(dockerContent);
+			return;
+		}
+		// TODO: support wizard with route
+		if (route.isEditor) {
 			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
 
-
-		if (component.isView) {
-			var $mbView = injector.get('$mbView');
-			component = $mbView.fetch(
-				component.url,   // path
-				state,           // state
-				anchor);        // anchor
-		} else {
-			var $mbEditor = injector.get('$mbEditor');
-			component = $mbEditor.fetch(
-				component.url,    // path
-				state,           // state
-				anchor);        // anchor
-		}
-
-		if (_.isUndefined(component)) {
-			// TODO: maso, 2020: support undefined view
-			return;
-		}
-		// discannect all resrouces
-		if (component.isVisible()) {
-			return component.setFocus();
-		}
-
 		var anchorContent = getDockerContentById(anchor) || getDockerRootContent().contentItems[0];
-		// TODO: maso, 2020: load component info to load later
-		var contentConfig = {
-			//Non ReactJS
+		// Convert to docker component and append
+		return anchorContent.addChild({
+			id: route.url,
 			type: 'component',
 			componentName: 'component',
 			componentState: _.assign({}, state, {
-				url: component.url,
-				isEditor: component.isEditor,
-				isView: component.isView,
+				url: route.url,
+				isEditor: route.isEditor,
+				isView: route.isView,
 			}),
 			//General
-			content: [],
-			id: component.url,
 			isClosable: true,
-			title: component.title,
+			title: route.title,
 			activeItemIndex: 1
-		};
-		var ret = anchorContent.addChild(contentConfig);
-		return ret;
+		});
 	}
 
 
@@ -19958,7 +20033,7 @@ mblowfish.provider('$mbWizard', function() {
 		return !_.isUndefined(wizardConfigs[wizardId]);
 	}
 
-	function openWizardWithDialog(wizard) {
+	function openWizardWithDialog(wizard, locals) {
 		// Open with dialog
 		mbDialog.show({
 			template: '<md-dialog></md-dialog>',
@@ -19967,10 +20042,10 @@ mblowfish.provider('$mbWizard', function() {
 				'ngInject';
 				$element
 					.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
-				wizard.render({
+				wizard.render(_.assign({
 					$scope: $scope,
 					$element: $element.find('md-dialog'),
-				});
+				}, locals || {}));
 
 				wizard.on('finish', function() {
 					$mdDialog.hide();
@@ -19981,16 +20056,18 @@ mblowfish.provider('$mbWizard', function() {
 				});
 			},
 		});
+		return wizard;
 	}
 
-	function openWizardWithElement(wizard, $element) {
+	function openWizardWithElement(wizard, $element, locals) {
 		// Open with in the $element
 		$element
 			.attr('dir', mbSettings.get(SETTING_LOCAL_DIRECTION, 'ltr'));
-		wizard.render({
+		wizard.render(_.assign({
 			$scope: rootScope.$new(),
 			$element: $element,
-		});
+		}, locals || {}));
+		return wizard;
 	}
 
 	/**
@@ -20001,7 +20078,8 @@ mblowfish.provider('$mbWizard', function() {
 	@param wizardId {string} The id of the wizard
 	@param $element {JqueryDOM} the place to render the wizard
 	 */
-	function openWizard(wizardId, $element) {
+	function openWizard(wizardId, $event) {
+		var $element = $event.locals.$element;
 		var wizardConfig = getWizard(wizardId);
 		var wizard = new Wizard(_.assign({}, wizardConfig));
 		wizard.pages = [];
@@ -20013,11 +20091,9 @@ mblowfish.provider('$mbWizard', function() {
 			wizard.pages.push(page);
 		});
 		if (_.isUndefined($element)) {
-			openWizardWithDialog(wizard);
-		} else {
-			openWizardWithElement(wizard, $element);
+			return openWizardWithDialog(wizard, $event.locals);
 		}
-		return wizard;
+		return openWizardWithElement(wizard, $element, $event.locals);
 	}
 
 	/**
@@ -20065,7 +20141,16 @@ mblowfish.provider('$mbWizard', function() {
 		addWizard: addWizard,
 		getWizard: getWizard,
 		hasWizard: hasWizard,
-		openWizard: openWizard,
+		openWizard: function(id, $element) {
+			var $event = {
+				locals: {}
+			};
+			if ($element) {
+				$event.locals.$element = $element;
+			}
+			return openWizard(id, $event)
+		},
+		open: openWizard,
 
 		addWizardPage: addWizardPage,
 		getWizardPage: getWizardPage,
@@ -20142,11 +20227,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> </div>"
-  );
-
-
   $templateCache.put('views/directives/mb-dynamic-tabs.html',
     "<div layout=column> <md-tabs md-selected=pageIndex> <md-tab ng-repeat=\"tab in mbTabs\"> <span mb-translate>{{tab.title}}</span> </md-tab> </md-tabs> <div id=mb-dynamic-tabs-select-resource-children> </div> </div>"
   );
@@ -20164,11 +20244,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('views/directives/mb-preference-page.html',
     "<div id=mb-preference-body layout=row layout-margin flex> </div>"
-  );
-
-
-  $templateCache.put('views/directives/mb-titled-block.html',
-    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
 
 
@@ -20323,8 +20398,18 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('scripts/directives/mb-dynamic-form.html',
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-if=\"getTypeOf(prop)==='input'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <md-input-container ng-if=\"getTypeOf(prop)==='textarea'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <textarea ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <mb-datepicker ng-if=\"getTypeOf(prop)==='datetime'\" placeholder={{::prop.title}} ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></mb-datepicker> </div>"
+  );
+
+
+  $templateCache.put('scripts/directives/mb-titled-block.html',
+    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+  );
+
+
   $templateCache.put('scripts/factories/wizard.html',
-    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
   );
 
 
@@ -20349,7 +20434,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-moduleManager/views/modules.html',
-    "<form ng-cloak flex> <md-toolbar class=\"content-sidenavs-toolbar wb-layer-tool-bottom\" layout=row layout-align=\"space-around center\"> <md-button class=md-icon-button ng-click=ctrl.addModule($event)> <mb-icon>add</mb-icon> </md-button> </md-toolbar> <md-dialog-content layout=row flex> <md-content flex> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete>delete</mb-icon> </md-list-item> </md-list> </md-content> </md-dialog-content> </form>"
+    "<md-content> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules track by $index\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <md-menu> <md-button class=md-icon-button ng-click=\"ctrl.openMenu($mdMenu, $event);\" aria-label=\"remove attachment\"> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"ctrl.deleteModule(item, $event)\" arial-lable=\"delete module\"> <mb-icon>delete</mb-icon> <span translate>Delete</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-list-item> </md-list> </md-content>"
   );
 
 

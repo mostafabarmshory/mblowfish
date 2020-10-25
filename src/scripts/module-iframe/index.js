@@ -19,18 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+mblowfish.addConstants({
+	//------------------------------------------------------------
+	// Resources Types
+	//------------------------------------------------------------
+	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
 
+	//------------------------------------------------------------
+	// Stoer Paths
+	//------------------------------------------------------------
+	//	SDP_LINKS_SP: '/sdp/links',
 
-/**
- @ngdoc Editor
- @name MbIFrameContainerCtrl
- @description A page preview editor
- 
- */
-angular.module('mblowfish-core').controller('MbIFrameContainerCtrl', function($sce, $state) {
+	//------------------------------------------------------------
+	// Views
+	//------------------------------------------------------------
+	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
 
-	// Load secure path
-	this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
+	//------------------------------------------------------------
+	// ACTIONS
+	//------------------------------------------------------------
+	IFRAME_URL_OPEN_ACTION: 'iframe.url.open',
 
+	//------------------------------------------------------------
+	// wizards
+	//------------------------------------------------------------
+	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
 });
 

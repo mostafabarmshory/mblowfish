@@ -110,8 +110,10 @@ mblowfish.provider('$mbLayout', function() {
 		}
 	}
 
-	function setFocus(frame) {
-		// TODO:
+	function setFocus(component) {
+		//		setActiveContentItem
+		var contentItem = component.$dockerContainer.parent;
+		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
 	function init() {
@@ -202,13 +204,18 @@ mblowfish.provider('$mbLayout', function() {
 	}
 
 	function dockerActiveContentItemChanged(e) {
-		var frame = e.container.$frame;
-		location.url(frame.url);
+		if (!e.isComponent) {
+			return;
+		}
 		try {
+			var frame = e.container.$frame;
+			location.url(frame.url);
 			if (rootScope.$$phase !== '$digest') {
 				rootScope.$apply();
 			}
-		} catch (e) { }
+		} catch (e) {
+			// TODO: add loger
+		}
 	}
 
 	function onDockerInitialised() {
@@ -268,12 +275,10 @@ mblowfish.provider('$mbLayout', function() {
 		var component;
 		if (state.isView) {
 			var $mbView = injector.get('$mbView');
-			component = $mbView.get(state.url);
+			component = $mbView.get(state.url, state);
 		} else {
 			var $mbEditor = injector.get('$mbEditor');
-			component = $mbEditor.fetch(
-				state.url, // path
-				state);    // parameters
+			component = $mbEditor.fetch(state.url, state);
 		}
 		if (_.isUndefined(component)) {
 			$mbEditor = injector.get('$mbEditor');
@@ -310,6 +315,7 @@ mblowfish.provider('$mbLayout', function() {
 				} catch (e) { }
 			});
 		});
+		component.$dockerContainer = editor;
 		return component.render({
 			$dockerContainer: editor,
 			$element: element,
@@ -330,55 +336,41 @@ mblowfish.provider('$mbLayout', function() {
 		return docker.root;
 	}
 
-	function openDockerContent(component, state, anchor) {
-		if (component.isEditor) {
+	/*
+	Converts a route into a docker content and open 
+	
+	if the related content exist set foucous and return
+	
+	id on content is the route address.
+	 */
+	function openDockerContent(route, state, anchor) {
+		var dockerContent = getDockerContentById(route.url);
+		if (dockerContent) {
+			// dockerContent.setFocuse4
+			dockerContent.parent.setActiveContentItem(dockerContent);
+			return;
+		}
+		// TODO: support wizard with route
+		if (route.isEditor) {
 			anchor = anchor || DOCKER_COMPONENT_EDITOR_ID;
 		}
 
-
-		if (component.isView) {
-			var $mbView = injector.get('$mbView');
-			component = $mbView.fetch(
-				component.url,   // path
-				state,           // state
-				anchor);        // anchor
-		} else {
-			var $mbEditor = injector.get('$mbEditor');
-			component = $mbEditor.fetch(
-				component.url,    // path
-				state,           // state
-				anchor);        // anchor
-		}
-
-		if (_.isUndefined(component)) {
-			// TODO: maso, 2020: support undefined view
-			return;
-		}
-		// discannect all resrouces
-		if (component.isVisible()) {
-			return component.setFocus();
-		}
-
 		var anchorContent = getDockerContentById(anchor) || getDockerRootContent().contentItems[0];
-		// TODO: maso, 2020: load component info to load later
-		var contentConfig = {
-			//Non ReactJS
+		// Convert to docker component and append
+		return anchorContent.addChild({
+			id: route.url,
 			type: 'component',
 			componentName: 'component',
 			componentState: _.assign({}, state, {
-				url: component.url,
-				isEditor: component.isEditor,
-				isView: component.isView,
+				url: route.url,
+				isEditor: route.isEditor,
+				isView: route.isView,
 			}),
 			//General
-			content: [],
-			id: component.url,
 			isClosable: true,
-			title: component.title,
+			title: route.title,
 			activeItemIndex: 1
-		};
-		var ret = anchorContent.addChild(contentConfig);
-		return ret;
+		});
 	}
 
 

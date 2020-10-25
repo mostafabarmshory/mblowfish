@@ -124,7 +124,7 @@ mblowfish.factory('MbContainer', function(
 		this.$handler = true;
 		// If there is no root element, then we create a new one
 		if (_.isUndefined(locals.$element)) {
-			locals.$element = angualr.element('<div></div>');
+			locals.$element = angular.element('<div></div>');
 		}
 
 		// If there is no root element, then we create a new one

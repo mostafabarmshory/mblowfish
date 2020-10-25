@@ -23,7 +23,6 @@
  */
 
 
-angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mbDynamicForm
@@ -31,51 +30,65 @@ angular.module('mblowfish-core')
  * 
  * Each property will be managed by an indevisual property editor.
  */
-.directive('mbDynamicForm', function ($mbResource) {
+mblowfish.directive('mbDynamicForm', function($mbResource) {
+	'ngInject';
+	/**
+	 * Adding preloader.
+	 * 
+	 * @param scope
+	 * @param element
+	 * @param attr
+	 * @param ctrls
+	 * @returns
+	 */
+	function postLink(scope, element, attrs, ctrls) {
+		// Load ngModel
+		var ngModelCtrl = ctrls[0];
+		scope.values = {};
+		ngModelCtrl.$render = function() {
+			scope.values = ngModelCtrl.$viewValue || {};
+		};
 
-    /**
-     * Adding preloader.
-     * 
-     * @param scope
-     * @param element
-     * @param attr
-     * @param ctrls
-     * @returns
-     */
-    function postLink(scope, element, attrs, ctrls) {
-        // Load ngModel
-        var ngModelCtrl = ctrls[0];
-        scope.values = {};
-        ngModelCtrl.$render = function () {
-            scope.values = ngModelCtrl.$viewValue || {};
-        };
+		scope.modelChanged = function(key, value) {
+			scope.values[key] = value;
+			ngModelCtrl.$setViewValue(scope.values);
+		};
 
-        scope.modelChanged = function (key, value) {
-            scope.values[key] = value;
-            ngModelCtrl.$setViewValue(scope.values);
-        };
+		scope.hasResource = function(prop) {
+			return $mbResource.hasPageFor(prop.name);
+		};
 
-        scope.hasResource = function(prop){
-            return $mbResource.hasPageFor(prop.name);
-        };
-        
-        scope.setValueFor = function(prop){
-            return $mbResource.get(prop.name, {
-                data: prop.defaultValue
-            })
-            .then(function(value){
-                scope.modelChanged(prop.name, value);
-            });
-        };
-    }
+		scope.setValueFor = function(prop) {
+			return $mbResource
+				.get(prop.name, {
+					data: prop.defaultValue
+				})
+				.then(function(value) {
+					scope.modelChanged(prop.name, value);
+				});
+		};
 
-    return {
-        restrict: 'E',
-        require: ['ngModel'],
-        templateUrl: 'views/directives/mb-dynamic-form.html',
-        scope: {
-            mbParameters: '='
-        },
-        link: postLink
-    };
+		/**
+		Maps property to a element type.
+		 */
+		scope.getTypeOf = function(prop) {
+			var type = 'input';
+			if (prop.type === 'String' && prop.name === 'description') {
+				type = 'textarea';
+			} else if (prop.type === 'Datetime') {
+				type = 'datetime';
+			}
+			return type;
+		};
+	}
+
+	return {
+		restrict: 'E',
+		require: ['ngModel'],
+		templateUrl: 'scripts/directives/mb-dynamic-form.html',
+		scope: {
+			mbParameters: '='
+		},
+		link: postLink
+	};
 });

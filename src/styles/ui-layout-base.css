@@ -19,6 +19,10 @@
 	position: relative
 }
 
+.lm_content>*:not(:first-child) { 
+	flex-grow: 1;
+} 
+
 .lm_dragging,
 .lm_dragging * {
 	cursor: move !important;
