@@ -9254,6 +9254,10 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
 		};
 
+		this.openMenu = function($mdMenu, $event) {
+			return $mdMenu.open($event);
+		};
+
 		var ctrl = this;
 		this.addEventHandler(MB_MODULE_SP, function() {
 			ctrl.loadModules();
@@ -20430,7 +20434,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-moduleManager/views/modules.html',
-    "<md-content> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules track by $index\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <mb-icon class=\"md-secondary md-icon-button\" ng-click=\"ctrl.deleteModule(item, $event)\" id=action-delete> delete</mb-icon> </md-list-item> </md-list> </md-content>"
+    "<md-content> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules track by $index\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <md-menu> <md-button class=md-icon-button ng-click=\"ctrl.openMenu($mdMenu, $event);\" aria-label=\"remove attachment\"> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"ctrl.deleteModule(item, $event)\" arial-lable=\"delete module\"> <mb-icon>delete</mb-icon> <span translate>Delete</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-list-item> </md-list> </md-content>"
   );
 
 

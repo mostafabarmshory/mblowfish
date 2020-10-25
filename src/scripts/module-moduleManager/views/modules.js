@@ -52,6 +52,10 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
 		};
 
+		this.openMenu = function($mdMenu, $event) {
+			return $mdMenu.open($event);
+		};
+
 		var ctrl = this;
 		this.addEventHandler(MB_MODULE_SP, function() {
 			ctrl.loadModules();
