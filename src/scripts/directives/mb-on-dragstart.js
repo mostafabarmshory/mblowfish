@@ -23,18 +23,18 @@
 
 /**
  * @ngdoc Directives
- * @name wb-on-dragstart
+ * @name mb-on-dragstart
  * @description Call an action on dragstart
  * 
  */
-mblowfish.directive('wbOnDragstart', function() {
+mblowfish.directive('mbOnDragstart', function() {
 	return {
 		restrict: 'A',
 		link: function(scope, element, attrs) {
-			element.bind('dragstart', function(event, data) {
+			element.on('dragstart', function(event, data) {
 				// call the function that was passed
-				if (attrs.wbOnDragstart) {
-					scope.$eval(attrs.wbOnDragstart, {
+				if (attrs.mbOnDragstart) {
+					scope.$eval(attrs.mbOnDragstart, {
 						$event: event,
 						$element: element,
 						$data: data

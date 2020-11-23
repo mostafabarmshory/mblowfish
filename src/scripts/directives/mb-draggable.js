@@ -23,24 +23,22 @@
 
 /**
  * @ngdoc Directives
- * @name wb-on-dragstart
+ * @name mb-draggable
  * @description Call an action on dragstart
  * 
  */
-mblowfish.directive('wbOnDragstart', function() {
+mblowfish.directive('mbDraggable', function() {
 	return {
 		restrict: 'A',
 		link: function(scope, element, attrs) {
-			element.bind('dragstart', function(event, data) {
-				// call the function that was passed
-				if (attrs.wbOnDragstart) {
-					scope.$eval(attrs.wbOnDragstart, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
+			var flag = true;
+			if (attrs.mbDraggable) {
+				flag = scope.$eval(attrs.mbDraggable, {
+					$event: {},
+					$element: element
+				});
+			}
+			element.attr('draggable', flag);
 		}
 	};
 });
