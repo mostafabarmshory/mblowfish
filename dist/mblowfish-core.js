@@ -1272,17 +1272,14 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-		'ngAnimate',
-		'ngAria',
+//		'ngAnimate',
+//		'ngAria',
 		'ngCookies',
-		'ngMaterial',
 		'ngMessages',
 		'ngSanitize',
-		//	AM-WB
-		//		'am-wb-core',
-		//	Others
+		
+		'ngMaterial',
 		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
-
 		'ng-appcache',//
 		'angular-material-persian-datepicker',
 	])
