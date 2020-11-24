@@ -21,24 +21,35 @@
  */
 
 
+
 /**
  * @ngdoc Directives
- * @name wb-on-enter
- * @description Call an action on ENTER
+ * @name mb-on-load
+ * @description Call an action on load
+ * 
+ * This directive is used to run an action on load of an element. For exmaple
+ * use to show alert on load of image:
  * 
  * ```
- * <input
- *  wb-on-enter="toast('ESC')">
+ * <img
+ * 	mb-on-load="toast('image is loaded')"
+ * 	href="image/path">
  * ```
  */
-mblowfish.directive('wbOnEnter', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keypress', function(e) {
-			if (e.keyCode === 13) {
-				scope.$eval(attr.wbOnEnter, {
-					$event: e
-				});
-			}
-		});
+mblowfish.directive('mbOnLoad', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('load', function(event, data) {
+				// call the function that was passed
+				if (attrs.mbOnLoad) {
+					scope.$eval(attrs.mbOnLoad, {
+						$event: event,
+						$element: element,
+						$data: data
+					});
+				}
+			});
+		}
 	};
 });

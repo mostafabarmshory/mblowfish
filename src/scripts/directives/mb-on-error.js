@@ -24,23 +24,29 @@
 
 /**
  * @ngdoc Directives
- * @name wb-on-esc
- * @description Call an action on ESC
+ * @name mb-on-error
+ * @description Call an action on error
+ * 
+ * This directive is used to run an action on error of an element
  * 
  * ```
- * <input
- *  wb-on-esc="toast('ESC')">
+ * <img
+ * 	mb-on-error="toast('image is not loaded')"
+ * 	href="image/path">
  * ```
  */
-mblowfish.directive('wbOnEsc', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keydown', function(e) {
-			if (e.keyCode === 27) {
-				scope.$eval(attr.wbOnEsc, {
-					$event: e
-				});
-			}
-		});
+mblowfish.directive('mbOnError', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('error', function(e) {
+				// call the function that was passed
+				if (attrs.mbOnError) {
+					scope.$eval(attrs.mbOnError, {
+						$event: e
+					});
+				}
+			});
+		}
 	};
 });
-

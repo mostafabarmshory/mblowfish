@@ -5344,6 +5344,206 @@ mblowfish.directive('mbOnDragstart', function() {
  */
 
 
+/**
+ * @ngdoc Directives
+ * @name mb-on-enter
+ * @description Call an action on ENTER
+ * 
+ * ```
+ * <input
+ *  mb-on-enter="toast('ESC')">
+ * ```
+ */
+mblowfish.directive('mbOnEnter', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keypress', function(e) {
+			if (e.keyCode === 13) {
+				scope.$eval(attr.mbOnEnter, {
+					$event: e
+				});
+			}
+		});
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-error
+ * @description Call an action on error
+ * 
+ * This directive is used to run an action on error of an element
+ * 
+ * ```
+ * <img
+ * 	mb-on-error="toast('image is not loaded')"
+ * 	href="image/path">
+ * ```
+ */
+mblowfish.directive('mbOnError', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('error', function(e) {
+				// call the function that was passed
+				if (attrs.mbOnError) {
+					scope.$eval(attrs.mbOnError, {
+						$event: e
+					});
+				}
+			});
+		}
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-esc
+ * @description Call an action on ESC
+ * 
+ * ```
+ * <input
+ *  mb-on-esc="toast('ESC')">
+ * ```
+ */
+mblowfish.directive('mbOnEsc', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keydown', function(e) {
+			if (e.keyCode === 27) {
+				scope.$eval(attr.mbOnEsc, {
+					$event: e
+				});
+			}
+		});
+	};
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-load
+ * @description Call an action on load
+ * 
+ * This directive is used to run an action on load of an element. For exmaple
+ * use to show alert on load of image:
+ * 
+ * ```
+ * <img
+ * 	mb-on-load="toast('image is loaded')"
+ * 	href="image/path">
+ * ```
+ */
+mblowfish.directive('mbOnLoad', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('load', function(event, data) {
+				// call the function that was passed
+				if (attrs.mbOnLoad) {
+					scope.$eval(attrs.mbOnLoad, {
+						$event: event,
+						$element: element,
+						$data: data
+					});
+				}
+			});
+		}
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
 angular.module('mblowfish-core')
 
 /**
@@ -5523,6 +5723,145 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 		},
 		link: postLink,
 		templateUrl: 'scripts/directives/mb-titled-block.html'
+	};
+});
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc directive
+@name mb-toolbar-group
+@description An ancher to load a list of toolbars
+
+This is used to add a toolbar into the view.
+
+It is not possible to add a toolbar with aa specific url into the view more than one time.
+
+@example
+	<mb-toolbar-group
+		mb-url="/app/main"
+		mb-default="true"
+		mb-toolbars="['/app/main', '/app/editor/save', '/app/print']">
+	</mb-toolbar-group>
+
+
+ */
+mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
+
+
+	function link($scope, $element, $attr, $ctrl) {
+		// 0- init UI
+		$element.empty();
+		$mbTheming($element);
+
+		// 1- load toolbars
+		var toolbarIds = $scope.$eval($attr.mbToolbars);
+		_.forEach(toolbarIds, function(toolbarId) {
+			var toolbar = $mbToolbar.getToolbar(toolbarId);
+			if (toolbar) {
+				$ctrl.addToolbar(toolbar);
+			} else {
+				// TODO: maso, 2020: add a log to show the error
+			}
+		})
+
+		// 2- register toolbar group
+		$mbToolbar.addToolbarGroup($attr.mbUrl, $ctrl);
+		if (!_.isUndefined($attr.mbDefault)) {
+			$mbToolbar.setMainToolbarGroup($ctrl);
+		}
+
+		$scope.$on('$destroy', function() {
+			$ctrl.destroy();
+		});
+	}
+
+	return {
+		restrict: 'E',
+		replace: false,
+		priority: 400,
+		require: 'mbToolbarGroup',
+		/* @ngInject */
+		controller: function($scope, $element) {
+			this.handlers = {};
+
+			this.addToolbar = function(toolbar) {
+				if (_.isString(toolbar)) {
+					toolbar = $mbToolbar.getToolbar(toolbar);
+				}
+				if (!_.isUndefined(this.handlers[toolbar.url])) {
+					// FIXME: log and throw exception: the toolbar is added befor
+					return;
+				}
+				// reserve a postions
+				var element = angular.element('<mb-toolbar><mb-toolbar-content></mb-toolbar-content></mb-toolbar>');
+				element.attr('id', toolbar.url);
+				if (toolbar.float) {
+					element.addClass(toolbar.float);
+				}
+				$element.append(element);
+
+				// render toolbar
+				var ctrl = this;
+				toolbar.render({
+					$rootScope: $scope,
+					$toolbarGroup: ctrl,
+					$element: element.find('mb-toolbar-content')
+				}).then(function(handler) {
+					ctrl.handlers[toolbar.url] = handler;
+				});
+				return this;
+			};
+
+			this.removeToolbar = function(toolbar) {
+				var url = toolbar;
+				if (toolbar instanceof MbToolbar) {
+					url = toolbar.url;
+				}
+				if (_.isUndefined(this.handler[url])) {
+					// TODO: maso, 2020: toolbar not exist, add a warning log
+					return this;
+				}
+				var handler = this.handler[url];
+				delete this.handler[url];
+				handler.destroy();
+				return this;
+			};
+
+			this.destoy = function() {
+				var handlers = this.handlers;
+				_.forEach(handlers, function(handler) {
+					handler.destroy();
+				});
+				delete this.handler;
+				$element.remove();
+				// FIXME: maso, 2020: check if the scope is destroyed before
+				$scope.$destroy();
+			};
+		},
+		controllerAs: 'ctrl',
+		link: link
 	};
 });
 
@@ -5889,392 +6228,6 @@ mblowfish.directive('ngSrcError', function() {
 		}
 	};
 });
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc directive
-@name mb-toolbar-group
-@description An ancher to load a list of toolbars
-
-This is used to add a toolbar into the view.
-
-It is not possible to add a toolbar with aa specific url into the view more than one time.
-
-@example
-	<mb-toolbar-group
-		mb-url="/app/main"
-		mb-default="true"
-		mb-toolbars="['/app/main', '/app/editor/save', '/app/print']">
-	</mb-toolbar-group>
-
-
- */
-mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
-
-
-	function link($scope, $element, $attr, $ctrl) {
-		// 0- init UI
-		$element.empty();
-		$mbTheming($element);
-
-		// 1- load toolbars
-		var toolbarIds = $scope.$eval($attr.mbToolbars);
-		_.forEach(toolbarIds, function(toolbarId) {
-			var toolbar = $mbToolbar.getToolbar(toolbarId);
-			if (toolbar) {
-				$ctrl.addToolbar(toolbar);
-			} else {
-				// TODO: maso, 2020: add a log to show the error
-			}
-		})
-
-		// 2- register toolbar group
-		$mbToolbar.addToolbarGroup($attr.mbUrl, $ctrl);
-		if (!_.isUndefined($attr.mbDefault)) {
-			$mbToolbar.setMainToolbarGroup($ctrl);
-		}
-
-		$scope.$on('$destroy', function() {
-			$ctrl.destroy();
-		});
-	}
-
-	return {
-		restrict: 'E',
-		replace: false,
-		priority: 400,
-		require: 'mbToolbarGroup',
-		/* @ngInject */
-		controller: function($scope, $element) {
-			this.handlers = {};
-
-			this.addToolbar = function(toolbar) {
-				if (_.isString(toolbar)) {
-					toolbar = $mbToolbar.getToolbar(toolbar);
-				}
-				if (!_.isUndefined(this.handlers[toolbar.url])) {
-					// FIXME: log and throw exception: the toolbar is added befor
-					return;
-				}
-				// reserve a postions
-				var element = angular.element('<mb-toolbar><mb-toolbar-content></mb-toolbar-content></mb-toolbar>');
-				element.attr('id', toolbar.url);
-				if (toolbar.float) {
-					element.addClass(toolbar.float);
-				}
-				$element.append(element);
-
-				// render toolbar
-				var ctrl = this;
-				toolbar.render({
-					$rootScope: $scope,
-					$toolbarGroup: ctrl,
-					$element: element.find('mb-toolbar-content')
-				}).then(function(handler) {
-					ctrl.handlers[toolbar.url] = handler;
-				});
-				return this;
-			};
-
-			this.removeToolbar = function(toolbar) {
-				var url = toolbar;
-				if (toolbar instanceof MbToolbar) {
-					url = toolbar.url;
-				}
-				if (_.isUndefined(this.handler[url])) {
-					// TODO: maso, 2020: toolbar not exist, add a warning log
-					return this;
-				}
-				var handler = this.handler[url];
-				delete this.handler[url];
-				handler.destroy();
-				return this;
-			};
-
-			this.destoy = function() {
-				var handlers = this.handlers;
-				_.forEach(handlers, function(handler) {
-					handler.destroy();
-				});
-				delete this.handler;
-				$element.remove();
-				// FIXME: maso, 2020: check if the scope is destroyed before
-				$scope.$destroy();
-			};
-		},
-		controllerAs: 'ctrl',
-		link: link
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-dragstart
- * @description Call an action on dragstart
- * 
- */
-mblowfish.directive('wbOnDragstart', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('dragstart', function(event, data) {
-				// call the function that was passed
-				if (attrs.wbOnDragstart) {
-					scope.$eval(attrs.wbOnDragstart, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
-		}
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-enter
- * @description Call an action on ENTER
- * 
- * ```
- * <input
- *  wb-on-enter="toast('ESC')">
- * ```
- */
-mblowfish.directive('wbOnEnter', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keypress', function(e) {
-			if (e.keyCode === 13) {
-				scope.$eval(attr.wbOnEnter, {
-					$event: e
-				});
-			}
-		});
-	};
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-error
- * @description Call an action on error
- * 
- * This directive is used to run an action on error of an element
- * 
- * ```
- * <img
- * 	wb-on-error="toast('image is not loaded')"
- * 	href="image/path">
- * ```
- */
-mblowfish.directive('wbOnError', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('error', function(e) {
-				// call the function that was passed
-				if (attrs.wbOnError) {
-					scope.$eval(attrs.wbOnError, {
-						$event: e
-					});
-				}
-			});
-		}
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-esc
- * @description Call an action on ESC
- * 
- * ```
- * <input
- *  wb-on-esc="toast('ESC')">
- * ```
- */
-mblowfish.directive('wbOnEsc', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keydown', function(e) {
-			if (e.keyCode === 27) {
-				scope.$eval(attr.wbOnEsc, {
-					$event: e
-				});
-			}
-		});
-	};
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-load
- * @description Call an action on load
- * 
- * This directive is used to run an action on load of an element. For exmaple
- * use to show alert on load of image:
- * 
- * ```
- * <img
- * 	wb-on-load="toast('image is loaded')"
- * 	href="image/path">
- * ```
- */
-mblowfish.directive('wbOnLoad', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('load', function(event, data) {
-				// call the function that was passed
-				if (attrs.wbOnLoad) {
-					scope.$eval(attrs.wbOnLoad, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
-		}
-	};
-});
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -20323,7 +20276,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save($event) wb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input mb-on-enter=ctrlInline.save($event) mb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
@@ -20529,7 +20482,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-navigator/views/navigator.html',
-    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
+    "<md-content> <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content>"
   );
 
 }]);

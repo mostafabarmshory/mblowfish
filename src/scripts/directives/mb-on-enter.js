@@ -23,24 +23,22 @@
 
 /**
  * @ngdoc Directives
- * @name wb-on-dragstart
- * @description Call an action on dragstart
+ * @name mb-on-enter
+ * @description Call an action on ENTER
  * 
+ * ```
+ * <input
+ *  mb-on-enter="toast('ESC')">
+ * ```
  */
-mblowfish.directive('wbOnDragstart', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('dragstart', function(event, data) {
-				// call the function that was passed
-				if (attrs.wbOnDragstart) {
-					scope.$eval(attrs.wbOnDragstart, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
-		}
+mblowfish.directive('mbOnEnter', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keypress', function(e) {
+			if (e.keyCode === 13) {
+				scope.$eval(attr.mbOnEnter, {
+					$event: e
+				});
+			}
+		});
 	};
 });

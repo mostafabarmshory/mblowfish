@@ -24,32 +24,23 @@
 
 /**
  * @ngdoc Directives
- * @name wb-on-load
- * @description Call an action on load
- * 
- * This directive is used to run an action on load of an element. For exmaple
- * use to show alert on load of image:
+ * @name mb-on-esc
+ * @description Call an action on ESC
  * 
  * ```
- * <img
- * 	wb-on-load="toast('image is loaded')"
- * 	href="image/path">
+ * <input
+ *  mb-on-esc="toast('ESC')">
  * ```
  */
-mblowfish.directive('wbOnLoad', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('load', function(event, data) {
-				// call the function that was passed
-				if (attrs.wbOnLoad) {
-					scope.$eval(attrs.wbOnLoad, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
-		}
+mblowfish.directive('mbOnEsc', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keydown', function(e) {
+			if (e.keyCode === 27) {
+				scope.$eval(attr.mbOnEsc, {
+					$event: e
+				});
+			}
+		});
 	};
 });
+
