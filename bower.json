@@ -16,22 +16,23 @@
 		"mustache.js": "2.3.x",
 		"moment": "^2.24.0",
 		
-		"angular-animate": "1.7.x",
-		"angular-aria": "1.7.x",
-		"angular-cookies": "1.7.x",
-		"angular-messages": "1.7.x",
+		"angular-animate": "1.8.x",
+		"angular-aria": "1.8.x",
+		"angular-cookies": "1.8.x",
+		"angular-messages": "1.8.x",
+		"angular-sanitize": "1.8.x",
+
 		"angular-material": "1.1.x",
-		"angular-sanitize": "1.7.x",
 		"golden-layout": "^1.5.9",
 		"ng-appcache": "2.0.x",
 		"lf-ng-md-file-input": "1.5.x",
 		"angular-material-persian-datepicker": "1.2.x"
 	},
 	"resolutions": {
-		"angular": "1.7.x"
+		"angular": "1.8.x"
 	},
 	"devDependencies": {
-		"angular-mocks": "1.7.x"
+		"angular-mocks": "1.8.x"
 	},
 	"backend": {
 		"host": "test.viraweb123.ir"
