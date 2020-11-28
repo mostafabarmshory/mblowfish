@@ -87,9 +87,7 @@
 	<!-- injector:js -->
 	<script src="scripts/app.js"></script>
 	<script src="scripts/demo-index.js"></script>
-	<script src="scripts/module-common/index.js"></script>
 	<script src="scripts/module-help/index.js"></script>
-	<script src="scripts/module-iframe/index.js"></script>
 	<script src="scripts/module-layouts/index.js"></script>
 	<script src="scripts/module-moduleManager/index.js"></script>
 	<script src="scripts/module-navigator/index.js"></script>
@@ -97,6 +95,7 @@
 	<script src="scripts/module-translate/index.js"></script>
 	<script src="scripts/module-ui/index.js"></script>
 	<script src="libs/moment-jalaali.js"></script>
+	<script src="scripts/angular-hack-appcache.js"></script>
 	<script src="scripts/angular-hack-configs.js"></script>
 	<script src="scripts/angular-hack-icons-configs.js"></script>
 	<script src="scripts/angular-hack-theme-configs.js"></script>
@@ -153,11 +152,7 @@
 	<script src="scripts/factories/wizard.js"></script>
 	<script src="scripts/filters/crypto-md5.js"></script>
 	<script src="scripts/filters/html-unsafe.js"></script>
-	<script src="scripts/module-common/appcache.js"></script>
-	<script src="scripts/module-common/hack-window.js"></script>
 	<script src="scripts/module-help/services/help.js"></script>
-	<script src="scripts/module-iframe/actions/open-url.js"></script>
-	<script src="scripts/module-iframe/editors/browser.js"></script>
 	<script src="scripts/module-layouts/actions/load-layout.js"></script>
 	<script src="scripts/module-layouts/actions/save-current-layout.js"></script>
 	<script src="scripts/module-layouts/components/layouts-toolbar.js"></script>
@@ -177,7 +172,6 @@
 	<script src="scripts/module-preferences/actions/preferences-show.js"></script>
 	<script src="scripts/module-preferences/editors/preference.js"></script>
 	<script src="scripts/module-preferences/views/preferences.js"></script>
-	<script src="scripts/module-preload/preload-component-ctrl.js"></script>
 	<script src="scripts/module-translate/directives/translate-attr.js"></script>
 	<script src="scripts/module-translate/directives/translate-cloak.js"></script>
 	<script src="scripts/module-translate/directives/translate-directive.js"></script>
@@ -200,6 +194,7 @@
 	<script src="scripts/module-translate/services/translate-sanitization.js"></script>
 	<script src="scripts/module-translate/services/translation.js"></script>
 	<script src="scripts/module-translate/views/languages-ctrl.js"></script>
+	<script src="scripts/module-ui/actions/open-url.js"></script>
 	<script src="scripts/module-ui/directives/mb-badge.js"></script>
 	<script src="scripts/module-ui/directives/mb-button.js"></script>
 	<script src="scripts/module-ui/directives/mb-color-picker-alpha.js"></script>
@@ -211,10 +206,14 @@
 	<script src="scripts/module-ui/directives/mb-polor-picker-spectrum.js"></script>
 	<script src="scripts/module-ui/directives/mb-table.js"></script>
 	<script src="scripts/module-ui/directives/mb-titled-block.js"></script>
+	<script src="scripts/module-ui/editors/browser.js"></script>
 	<script src="scripts/module-ui/factories/MbColor.js"></script>
 	<script src="scripts/module-ui/factories/MbColorGradientCanvas.js"></script>
 	<script src="scripts/module-ui/factories/MbColorPicker.js"></script>
 	<script src="scripts/module-ui/factories/MbColorPickerHistory.js"></script>
+	<script src="scripts/module-ui/resources/file.js"></script>
+	<script src="scripts/module-ui/resources/files.js"></script>
+	<script src="scripts/module-ui/resources/url.js"></script>
 	<script src="scripts/module-ui/services/color-palette.js"></script>
 	<script src="scripts/module-ui/services/colors.js"></script>
 	<script src="scripts/module-ui/services/icon.js"></script>

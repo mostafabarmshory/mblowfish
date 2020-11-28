@@ -1599,465 +1599,6 @@ mblowfish.addConstants({
 	SETTING_LOCAL_TIMEZONE: 'local.timezone',
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-//	$preferences.newPage('update', {
-//		templateUrl: 'views/preferences/mb-update.html',
-//		title: 'Update application',
-//		description: 'Settings of updating process and how to update the application.',
-//		icon: 'autorenew'
-//	});
-
-/*
- * Init application resources
- */
-mblowfish.config(function($mbResourceProvider) {
-
-	$mbResourceProvider
-		.addPage('wb-url', {
-			title: 'URL',
-			icon: 'link',
-			templateUrl: 'views/resources/wb-url.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				$scope.url = $resource.getValue();
-				if (!_.isString($scope.url)) {
-					$scope.url = '';
-				}
-				function setUrl(url) {
-					$resource.setValue(url);
-				}
-				_.assign(ctrl, {
-					$style: $style,
-					setUrl: setUrl
-				});
-			},
-			controllerAs: 'ctrl',
-			tags: [
-				'url',
-				'image-url',
-				'vedio-url',
-				'audio-url',
-				'page-url',
-				'avatar-url',
-				'thumbnail-url'
-			]
-		})
-		.addPage('local-file', {
-			icon: 'file_upload',
-			label: 'Local file',
-			templateUrl: 'views/resources/mb-local-file.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				function setFile(files) {
-					var val;
-					if (angular.isArray(files) && files.length) {
-						val = files[0].lfFile;
-					}
-					$resource.setValue(val);
-				}
-				$scope.files = [];
-				$scope.$watch('files.length', function() {
-					setFile($scope.files);
-				});
-				_.assign(ctrl, {
-					$style: $style,
-					setFile: setFile
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['file']
-		})
-		.addPage('local-files', {
-			icon: 'file_upload',
-			label: 'Local files',
-			templateUrl: 'views/resources/mb-local-files.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				function setFiles(files) {
-					var vals = [];
-					_.forEach(files, function(file) {
-						vals.push(file.lfFile);
-					});
-					$resource.setValue(vals);
-				}
-				$scope.files = [];
-				$scope.$watch('files.length', function() {
-					setFiles($scope.files);
-				});
-				_.assign(ctrl, {
-					$style: $style,
-					setFiles: setFiles
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['files']
-		});
-	//		.addPage({
-	//			type: 'script',
-	//			icon: 'script',
-	//			label: 'Script',
-	//			templateUrl: 'views/resources/wb-event-code-editor.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope, $window, $element) {
-	//				var ctrl = this;
-	//				this.value = $scope.value || {
-	//					code: '',
-	//					language: 'javascript',
-	//					languages: [{
-	//						text: 'HTML/XML',
-	//						value: 'markup'
-	//					},
-	//					{
-	//						text: 'JavaScript',
-	//						value: 'javascript'
-	//					},
-	//					{
-	//						text: 'CSS',
-	//						value: 'css'
-	//					}]
-	//				};
-	//				this.setCode = function(code) {
-	//					this.value.code = code;
-	//					$scope.$parent.setValue(this.value);
-	//				};
-	//
-	//				this.setLanguage = function(language) {
-	//					this.value.code = language;
-	//					$scope.$parent.setValue(this.value);
-	//				};
-	//
-	//				this.setEditor = function(editor) {
-	//					this.editor = editor;
-	//					editor.setOptions({
-	//						enableBasicAutocompletion: true,
-	//						enableLiveAutocompletion: true,
-	//						showPrintMargin: false,
-	//						maxLines: Infinity,
-	//						fontSize: '100%'
-	//					});
-	//					$scope.editor = editor;
-	//					//              editor.setTheme('resources/libs/ace/theme/chrome');
-	//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
-	//					editor.setValue(ctrl.value.code || '');
-	//					editor.on('change', function() {
-	//						ctrl.setCode(editor.getValue());
-	//					});
-	//				};
-	//
-	//				//          var ctrl = this;
-	//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-	//					.then(function() {
-	//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-	//					});
-	//			},
-	//			controllerAs: 'ctrl',
-	//			tags: ['code', 'script']
-	//		});
-
-	//	function getDomain() {
-	//		return $location.protocol() + //
-	//			'://' + //
-	//			$location.host() + //
-	//			(($location.port() ? ':' + $location.port() : ''));
-	//	}
-	//
-	//	//  TODO: maso, 2018: replace with class
-	//	function getSelection() {
-	//		if (!this.__selections) {
-	//			this.__selections = angular.isArray(this.value) ? this.value : [];
-	//		}
-	//		return this.__selections;
-	//	}
-	//
-	//	function getIndexOf(list, item) {
-	//		if (!angular.isDefined(item.id)) {
-	//			return list.indexOf(item);
-	//		}
-	//		for (var i = 0; i < list.length; i++) {
-	//			if (list[i].id === item.id) {
-	//				return i;
-	//			}
-	//		}
-	//	}
-	//
-	//	function setSelected(item, selected) {
-	//		var selectionList = this.getSelection();
-	//		var index = getIndexOf(selectionList, item);
-	//		if (selected) {
-	//			// add to selection
-	//			if (index >= 0) {
-	//				return;
-	//			}
-	//			selectionList.push(item);
-	//		} else {
-	//			// remove from selection
-	//			if (index > -1) {
-	//				selectionList.splice(index, 1);
-	//			}
-	//		}
-	//	}
-	//
-	//	function isSelected(item) {
-	//		var selectionList = this.getSelection();
-	//		return getIndexOf(selectionList, item) >= 0;
-	//	}
-	//
-	//
-	//	/**
-	//	 * @ngdoc Resources
-	//	 * @name Account
-	//	 * @description Get an account from resource
-	//	 *
-	//	 * Enable user to select an account
-	//	 */
-	//	$mbResourceProvider
-	//		.addPage({
-	//			label: 'Account',
-	//			type: 'account',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = false;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item) {
-	//					$scope.$parent.setValue(item);
-	//					$scope.$parent.answer();
-	//				};
-	//				this.isSelected = function(item) {
-	//					return item === this.value || item.id === this.value.id;
-	//				};
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['account']
-	//		})
-	//		.addPage({
-	//			label: 'Account',
-	//			type: 'account id',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = false;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item) {
-	//					$scope.$parent.setValue(item.id);
-	//					$scope.$parent.answer();
-	//				};
-	//				this.isSelected = function(item) {
-	//					return item.id === this.value;
-	//				};
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['account_id', 'owner_id']
-	//		})
-	//		.addPage({
-	//			label: 'Accounts',
-	//			type: 'account-list',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = true;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item, selected) {
-	//					this._setSelected(item, selected);
-	//					$scope.$parent.setValue(this.getSelection());
-	//				};
-	//				this._setSelected = setSelected;
-	//				this.isSelected = isSelected;
-	//				this.getSelection = getSelection;
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['accounts', '/user/accounts']
-	//		})
-	//		.addPage({
-	//			label: 'Role List',
-	//			type: 'role-list',
-	//			templateUrl: 'views/resources/mb-roles.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = true;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item, selected) {
-	//					this._setSelected(item, selected);
-	//					$scope.$parent.setValue(this.getSelection());
-	//				};
-	//				this._setSelected = setSelected;
-	//				this.isSelected = isSelected;
-	//				this.getSelection = getSelection;
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['roles', '/user/roles']
-	//		})
-	//		.addPage({
-	//		label: 'Group List',
-	//		type: 'group-list',
-	//		templateUrl: 'views/resources/mb-groups.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//			// TODO: maso, 2018: load selected item
-	//			$scope.multi = true;
-	//			this.value = $scope.value;
-	//			this.setSelected = function(item, selected) {
-	//				this._setSelected(item, selected);
-	//				$scope.$parent.setValue(this.getSelection());
-	//			};
-	//			this._setSelected = setSelected;
-	//			this.isSelected = isSelected;
-	//			this.getSelection = getSelection;
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 8,
-	//		tags: ['groups']
-	//	})
-	//	.addPage({
-	//		type: 'local-file',
-	//		icon: 'file_upload',
-	//		label: 'Local file',
-	//		templateUrl: 'views/resources/mb-local-file.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope, $q, style) {
-	//			var ctrl = this;
-	//			$scope.style = style;
-	//			$scope.answer = function() {
-	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
-	//					return $q.resolve(ctrl.files[0].lfFile);
-	//				}
-	//				return $q.reject('No file selected');
-	//			};
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 1,
-	//		tags: ['local-file']
-	//	});
-	//
-	//
-	//
-	//	//-------------------------------------------------------------//
-	//	// CMS:
-	//	//
-	//	// - Term Taxonomies
-	//	//-------------------------------------------------------------//
-	//	$mbResource.addPage({
-	//		label: 'Term Taxonomies',
-	//		type: '/cms/term-taxonomies',
-	//		templateUrl: 'views/resources/mb-term-taxonomies.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//			$scope.multi = true;
-	//			this.value = $scope.value;
-	//			this.setSelected = function(item, selected) {
-	//				this._setSelected(item, selected);
-	//				$scope.$parent.setValue(this.getSelection());
-	//			};
-	//			this._setSelected = setSelected;
-	//			this.isSelected = isSelected;
-	//			this.getSelection = getSelection;
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 8,
-	//		tags: ['/cms/term-taxonomies']
-	//	});
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-mblowfish.addConstants({
-	//------------------------------------------------------------
-	// Resources Types
-	//------------------------------------------------------------
-	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
-
-	//------------------------------------------------------------
-	// Stoer Paths
-	//------------------------------------------------------------
-	//	SDP_LINKS_SP: '/sdp/links',
-
-	//------------------------------------------------------------
-	// Views
-	//------------------------------------------------------------
-	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
-
-	//------------------------------------------------------------
-	// ACTIONS
-	//------------------------------------------------------------
-	IFRAME_URL_OPEN_ACTION: 'iframe.url.open',
-
-	//------------------------------------------------------------
-	// wizards
-	//------------------------------------------------------------
-	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
-});
-
 
 /*
 Desktop module is used to manage local/remote desktop.
@@ -2316,7 +1857,117 @@ function watchAttribute(scope, attribute, valueCallback, changeCallback) {
 	}
 	valueCallback(scope.$eval(attribute));
 }
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.addConstants({
+	//------------------------------------------------------------
+	// Resources Types
+	//------------------------------------------------------------
+	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
 
+	//------------------------------------------------------------
+	// Stoer Paths
+	//------------------------------------------------------------
+	//	SDP_LINKS_SP: '/sdp/links',
+
+	//------------------------------------------------------------
+	// Views
+	//------------------------------------------------------------
+	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
+
+	//------------------------------------------------------------
+	// ACTIONS
+	//------------------------------------------------------------
+	UI_URL_OPEN_ACTION: 'iframe.url.open',
+
+	//------------------------------------------------------------
+	// wizards
+	//------------------------------------------------------------
+	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.run(function(appcache, $window) {
+
+	/*
+	 * Reload the page
+	 * 
+	 * @deprecated use page service
+	 */
+	function reload() {
+		$window.location.reload();
+	}
+
+	/*
+	 * Reload the application
+	 */
+	function updateApplication() {
+		var setting = {};
+		if (setting.showMessage) {
+			if (setting.autoReload) {
+				alert('Application is update. Page will be reload automatically.')//
+					.then(reload);
+			} else {
+				confirm('Application is update. Reload the page for new version?')//
+					.then(reload);
+			}
+		} else {
+			toast('Application is updated.');
+		}
+	}
+
+	// Check update
+	function doUpdate() {
+		appcache
+			.swapCache()//
+			.then(updateApplication());
+	}
+
+	appcache
+		.checkUpdate()
+		.then(doUpdate);
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3544,7 +3195,7 @@ mblowfish.config(function($mdThemingProvider) {
 
 
 
-mblowfish.run(function($window, $q, $rootScope) {
+mblowfish.run(function($window, $q, $rootScope, $notification) {
 
 	var libs = {};
 	var styles = {};
@@ -3743,6 +3394,13 @@ mblowfish.run(function($window, $q, $rootScope) {
 			metaElement.attr(property, data[property]);
 		}
 	};
+
+
+	// Hadi 1396-12-22: update alerts
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -8178,98 +7836,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-mblowfish.run(function(appcache, $window) {
-
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
-
-	// Check update
-	function doUpdate() {
-		appcache
-			.swapCache()//
-			.then(updateApplication());
-	}
-
-	appcache
-		.checkUpdate()
-		.then(doUpdate);
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-mblowfish.run(function($notification) {
-	// Hadi 1396-12-22: update alerts
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 
 
 /**
@@ -8428,43 +7994,6 @@ mblowfish.service('$help', function ($q, $rootScope, /*$mbTranslate,*/ $injector
 //    };
 });
 
-mblowfish.addAction(IFRAME_URL_OPEN_ACTION, {
-	title: 'Open URL',
-	description: 'Open a url',
-	icon: 'open_in_browser',
-	/* @ngInject */
-	action: function($location) {
-		$window
-			.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
-			.then(function(input) {
-				$location.url('/mb/iframe/' + input);
-			});
-	}
-});
-
-
-//
-//  $mbEditor: manages all editor of an application. An editor has a dynamic
-// address and there may be multiple instance of it at the same time but with
-// different parameter.
-//
-// There are serveral editor registered here to cover some of our system 
-// functionalities such as:
-//
-// - Open a new URL
-//
-mblowfish.editor('/mb/iframe/:url*', {
-	title: 'Browser',
-	description: 'Open external page',
-	controllerAs: 'ctrl',
-	template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
-	groups: ['Utilities'],
-	controllerAs: 'ctrl',
-	controller: function($sce, $state) {
-		// Load secure path
-		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
-	}
-});
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 	title: 'Load Layout',
 	icon: 'launch',
@@ -9063,11 +8592,6 @@ mblowfish.addView('/preferences', {
 	groups: ['Utilities']
 });
 
-
-
-mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
-
-});
 
 /**
 @ngdoc directive
@@ -13324,6 +12848,28 @@ mblowfish.controller('MbLanguagesCtrl', function(
 	};
 
 });
+mblowfish.addAction(UI_URL_OPEN_ACTION, {
+	title: 'Open URL',
+	description: 'Open a url',
+	icon: 'open_in_browser',
+	action: function($location, $event, $q) {
+		'ngInject';
+		var values = $event.values;
+		if (!values) {
+			values = $window
+				.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
+				.then(function(url) {
+					values = [url];
+				});
+		}
+		$q.when(values)
+			.then(function() {
+				_.forEach(values, function(url) {
+					$location.url('/mb/iframe/' + url);
+				});
+			});
+	}
+});
 /* 
  * The MIT License (MIT)
  * 
@@ -13563,7 +13109,7 @@ mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
  *  <mb-button class="md-raised"> Raised Button </mb-button>
  *  <mb-button ng-disabled="true"> Disabled Button </mb-button>
  *  <mb-button>
- *    <md-icon md-svg-src="your/icon.svg"></md-icon>
+ *    <mb-icon mb-svg-src="your/icon.svg"></mb-icon>
  *    Register Now
  *  </mb-button>
  * </hljs>
@@ -13572,15 +13118,15 @@ mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
  *
  * <hljs lang="html">
  *  <mb-button class="md-fab" aria-label="FAB">
- *    <md-icon md-svg-src="your/icon.svg"></md-icon>
+ *    <mb-icon mb-svg-src="your/icon.svg"></mb-icon>
  *  </mb-button>
  *  <!-- mini-FAB -->
  *  <mb-button class="md-fab md-mini" aria-label="Mini FAB">
- *    <md-icon md-svg-src="your/icon.svg"></md-icon>
+ *    <mb-icon mb-svg-src="your/icon.svg"></mb-icon>
  *  </mb-button>
  *  <!-- Button with SVG Icon -->
- *  <mb-button class="md-icon-button" aria-label="Custom Icon Button">
- *    <md-icon md-svg-icon="path/to/your.svg"></md-icon>
+ *  <mb-button class="mb-icon-button" aria-label="Custom Icon Button">
+ *    <mb-icon mb-svg-icon="path/to/your.svg"></mb-icon>
  *  </mb-button>
  * </hljs>
  */
@@ -13685,9 +13231,12 @@ mblowfish.directive('a', function($mdTheming) {
 
 
 
-mblowfish.directive('mbColorPickerContainer', function($compile, $timeout, $mbColorPalette, colorHistory, MbColor) {
+mblowfish.directive('mbColorPickerAlpha', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('alpha');
+});
+mblowfish.directive('mbColorPickerContainer', function($timeout, $mbColorPalette, MbColorPickerHistory, MbColor) {
 	return {
-		templateUrl: 'views/mbColorPickerContainer.tpl.html',
+		templateUrl: 'scripts/module-ui/directives/mb-color-picker-container.html',
 		scope: {
 			value: '=?',
 			default: '@',
@@ -13759,7 +13308,7 @@ mblowfish.directive('mbColorPickerContainer', function($compile, $timeout, $mbCo
 			}
 			$scope.color = new MbColor($scope.value || $scope.default); // Set initial color
 			$scope.alpha = $scope.color.getAlpha();
-			$scope.history = colorHistory;
+			$scope.history = MbColorPickerHistory;
 			$scope.materialFamily = [];
 
 			$scope.whichPane = getTabIndex($scope.mbColorDefaultTab);
@@ -13967,6 +13516,9 @@ mblowfish.directive('mbColorPickerContainer', function($compile, $timeout, $mbCo
 	};
 });
 
+mblowfish.directive('mbColorPickerHue', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('hue');
+});
 mblowfish.directive('mbColorPicker', function() {
 
 	return {
@@ -14006,7 +13558,7 @@ mblowfish.directive('mbColorPicker', function() {
 			mbColorHsl: '=?',
 			mbColorDefaultTab: '=?'
 		},
-		controller: function($scope, $element, $attrs, $mdDialog, $mbColorPicker) {
+		controller: function($scope, $element, $attrs, $mdDialog, MbColorPicker) {
 			'ngInject';
 			var didJustClose = false;
 
@@ -14082,7 +13634,7 @@ mblowfish.directive('mbColorPicker', function() {
 				//	dateClick = Date.now();
 				//	console.log( "CLICK OPEN", dateClick, $scope );
 
-				$mbColorPicker.show({
+				MbColorPicker.show({
 					value: $scope.value,
 					defaultValue: $scope.default,
 					random: $scope.random,
@@ -14485,10 +14037,10 @@ mblowfish.directive('mdIconFloat', function($mdTheming) {
 			.querySelector(RIGHT_SELECTORS);
 
 		if (leftIcon) {
-			tElement.addClass('md-icon-left');
+			tElement.addClass('mb-icon-left');
 		}
 		if (rightIcon) {
-			tElement.addClass('md-icon-right');
+			tElement.addClass('mb-icon-right');
 		}
 
 		return function postLink(scope, element) {
@@ -14502,6 +14054,9 @@ mblowfish.directive('mdIconFloat', function($mdTheming) {
 	};
 });
 
+mblowfish.directive('mbColorPickerSpectrum', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('spectrum');
+});
 /* 
  * The MIT License (MIT)
  * 
@@ -14603,14 +14158,29 @@ mblowfish.directive('mbTitledBlock', function($mbActions) {
 	};
 });
 
-mblowfish.directive('mbColorPickerAlpha', function(MbColorGradientCanvas) {
-	return new MbColorGradientCanvas('alpha');
-});
-mblowfish.directive('mbColorPickerHue', function(MbColorGradientCanvas) {
-	return new MbColorGradientCanvas('hue');
-});
-mblowfish.directive('mbColorPickerSpectrum', function(MbColorGradientCanvas) {
-	return new MbColorGradientCanvas('spectrum');
+
+
+//
+//  $mbEditor: manages all editor of an application. An editor has a dynamic
+// address and there may be multiple instance of it at the same time but with
+// different parameter.
+//
+// There are serveral editor registered here to cover some of our system 
+// functionalities such as:
+//
+// - Open a new URL
+//
+mblowfish.editor('/mb/iframe/:url*', {
+	title: 'Browser',
+	description: 'Open external page',
+	controllerAs: 'ctrl',
+	template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
+	groups: ['Utilities'],
+	controllerAs: 'ctrl',
+	controller: function($sce, $state) {
+		// Load secure path
+		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
+	}
 });
 mblowfish.factory('MbColor', function() {
 	var trimLeft = /^\s+/,
@@ -16125,7 +15695,7 @@ mblowfish.factory('MbColorGradientCanvas', function() {
 	};
 });
 
-mblowfish.factory('MbColorPicker', function($q, $mdDialog, colorHistory, MbColor) {
+mblowfish.factory('MbColorPicker', function($mdDialog, MbColorPickerHistory, MbColor) {
 	var dialog;
 
 	return {
@@ -16156,7 +15726,7 @@ mblowfish.factory('MbColorPicker', function($q, $mdDialog, colorHistory, MbColor
 			options.mbColorAlphaChannel = (!options.mbColorRgb && !options.mbColorHsl) ? false : options.mbColorAlphaChannel;
 
 			dialog = $mdDialog.show({
-				templateUrl: 'views/mbColorPickerDialog.tpl.html',
+				templateUrl: 'scripts/module-ui/factories/MbColorPicker.html',
 				hasBackdrop: options.hasBackdrop,
 				clickOutsideToClose: options.clickOutsideToClose,
 
@@ -16207,7 +15777,7 @@ mblowfish.factory('MbColorPicker', function($q, $mdDialog, colorHistory, MbColor
 			});
 
 			dialog.then(function(value) {
-				colorHistory.add(new MbColor(value));
+				MbColorPickerHistory.add(new MbColor(value));
 			}, function() { });
 
 			return dialog;
@@ -16282,6 +15852,98 @@ mblowfish.factory('MbColorPickerHistory', function($injector, MbColor) {
 	};
 });
 
+
+mblowfish.resource('local-file', {
+	icon: 'file_upload',
+	label: 'Local file',
+	templateUrl: 'scripts/module-ui/resources/file.html',
+	controller: function($scope, $resource, $style) {
+		'ngInject';
+		var ctrl = this;
+		function setFile(files) {
+			var val;
+			if (angular.isArray(files) && files.length) {
+				val = files[0].lfFile;
+			}
+			$resource.setValue(val);
+		}
+		$scope.files = [];
+		$scope.$watch('files.length', function() {
+			setFile($scope.files);
+		});
+		_.assign(ctrl, {
+			$style: $style,
+			setFile: setFile
+		});
+	},
+	controllerAs: 'ctrl',
+	priority: 1,
+	tags: ['file']
+});
+mblowfish.resource('local-files', {
+	icon: 'file_upload',
+	label: 'Local files',
+	templateUrl: 'scripts/module-ui/resources/files.html',
+	controller: function($scope, $resource, $style) {
+		'ngInject';
+		var ctrl = this;
+		function setFiles(files) {
+			var vals = [];
+			_.forEach(files, function(file) {
+				vals.push(file.lfFile);
+			});
+			$resource.setValue(vals);
+		}
+		$scope.files = [];
+		$scope.$watch('files.length', function() {
+			setFiles($scope.files);
+		});
+		_.assign(ctrl, {
+			$style: $style,
+			setFiles: setFiles
+		});
+	},
+	controllerAs: 'ctrl',
+	priority: 1,
+	tags: ['files']
+});
+mblowfish.resource('wb-url', {
+	title: 'URL',
+	icon: 'link',
+	templateUrl: 'scripts/module-ui/resources/url.html',
+	controller: function($scope, $resource, $style) {
+		'ngInject';
+		var ctrl = this;
+		$scope.url = $resource.getValue();
+		if (!_.isString($scope.url)) {
+			$scope.url = '';
+		}
+		function setUrl(url) {
+			$resource.setValue(url);
+		}
+		_.assign(ctrl, {
+			$style: $style,
+			setUrl: setUrl
+		});
+	},
+	controllerAs: 'ctrl',
+	tags: [
+		'url',
+		'image-url',
+		'vedio-url',
+		'audio-url',
+		'page-url',
+		'avatar-url',
+		'thumbnail-url'
+	]
+});
+mblowfish.provider('$mbColorPalette', function() {
+	return {
+		$get: function($mdColorPalette) {
+			return $mdColorPalette;
+		}
+	};
+});
 
 
 /**
@@ -17281,7 +16943,7 @@ mblowfish.provider('$mbApplication', function() {
 	var preloadingComponent;
 	var preloadingComponentConfig = {
 		templateUrl: 'views/mb-preloading-default.html',
-		controller: 'MbApplicationPreloadingContainerCtrl',
+		controller: function(){},
 		controllerAs: 'ctrl',
 	};
 
@@ -23172,33 +22834,13 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/resources/mb-local-file.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '.*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=\"upload file\" progress preview drag flex> </lf-ng-md-file-input> </div>"
-  );
-
-
-  $templateCache.put('views/resources/mb-local-files.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag multiple flex> </lf-ng-md-file-input> </div>"
-  );
-
-
   $templateCache.put('views/resources/mb-sidenav.html',
     ""
   );
 
 
-  $templateCache.put('views/resources/mb-term-taxonomies.html',
-    "<div ng-controller=\"MbSeenCmsTermTaxonomiesCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, taxonomy, term{id, name, metas{key,value}}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"termTaxonomy in ctrl.items track by termTaxonomy.id\" ng-click=\"multi || resourceCtrl.selectRole(termTaxonomy)\" class=md-3-line> <mb-icon>label</mb-icon> <div class=md-list-item-text layout=column> <h3>{{termTaxonomy.term.name}}</h3> <p>{{termTaxonomy.description}}</p> <p>{{termTaxonomy.taxonomy}}</p> </div> <md-checkbox class=md-secondary ng-init=\"termTaxonomy.selected = resourceCtrl.isSelected(termTaxonomy)\" ng-model=termTaxonomy.selected ng-click=\"resourceCtrl.setSelected(termTaxonomy, termTaxonomy.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
   $templateCache.put('views/resources/wb-event-code-editor.html',
     "<div layout=column layout-fill> <md-toolbar> <div class=md-toolbar-tools layout=row> <span flex></span> <md-select ng-model=value.language ng-change=ctrl.setLanguage(value.language) class=md-no-underline> <md-option ng-repeat=\"l in value.languages track by $index\" ng-value=l.value> {{l.text}} </md-option> </md-select> </div> </md-toolbar> <md-content flex> <div style=\"min-height: 100%; min-width: 100%\" index=0 id=am-wb-resources-script-editor> </div> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/resources/wb-url.html',
-    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
   );
 
 
@@ -23253,17 +22895,37 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-ui/directives/mb-color-picker-container.html',
-    "<div class=\"mb-color-picker-container in\" layout=column> <div class=mb-color-picker-arrow ng-style=\"{'border-bottom-color': color.toRgbString() }\"></div> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-class=\"{'dark': !color.isDark() || color.getAlpha() < .45}\" flex=1 layout=column> <div class=mb-color-picker-result ng-style=\"{'background': color.toRgbString()}\" flex=100 layout=column layout-fill layout-align=\"center center\" ng-click=\"focusPreviewInput( $event )\">  <div flex layout=row layout-align=\"center center\"> <input class=mb-color-picker-preview-input ng-model=value ng-focus=previewFocus($event); ng-blur=previewBlur() ng-change=changeValue() ng-keypress=previewKeyDown($event) layout-fill> </div> <div class=mb-color-picker-tabs style=\"width: 100%\"> <md-tabs md-selected=type md-stretch-tabs=always md-no-bar md-no-ink md-no-pagination=true> <md-tab ng-if=mbColorHex label=Hex ng-disabled=\"color.getAlpha() !== 1\" md-ink-ripple=#ffffff></md-tab> <md-tab ng-if=mbColorRgb label=RGB></md-tab> <md-tab ng-if=mbColorHsl label=HSL></md-tab>  </md-tabs> </div> </div> </div> <div class=\"mb-color-picker-tabs mb-color-picker-colors\"> <md-tabs md-stretch-tabs=always md-align-tabs=bottom md-selected=whichPane md-no-pagination> <md-tab ng-if=mbColorSpectrum> <md-tab-label> <md-icon md-svg-icon=gradient.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=row layout-align=space-between style=\"height: 255px\"> <div mb-color-picker-spectrum></div> <div mb-color-picker-hue ng-class=\"{'mb-color-picker-wide': !mbColorAlphaChannel}\"></div> <div mb-color-picker-alpha class=mb-color-picker-checkered-bg ng-if=mbColorAlphaChannel></div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorSliders> <md-tab-label> <md-icon md-svg-icon=tune.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=column flex=100 layout-fill layout-align=\"space-between start center\" class=mb-color-picker-sliders> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>R</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._r aria-label=red class=red-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._r aria-label=red aria-controls=red-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>G</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._g aria-label=green class=green-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._g aria-label=green aria-controls=green-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>B</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._b aria-label=blue class=blue-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._b aria-label=blue aria-controls=blue-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill ng-if=!mbColorAlphaChannel> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>A</span> </div> <md-slider flex=65 min=0 max=1 step=.01 ng-model=color._a aria-label=alpha class=md-primary></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=1 step=.01 type=number ng-model=color._a aria-label=alpha aria-controls=alpha-slider> </div> </div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorGenericPalette> <md-tab-label> <md-icon md-svg-icon=view_module.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=column layout-align=\"space-between start center\" flex class=mb-color-picker-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorMaterialPalette> <md-tab-label> <md-icon md-svg-icon=view_headline.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=column layout-fill flex class=mb-color-picker-material-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorHistory> <md-tab-label> <md-icon md-svg-icon=history.svg></md-icon> </md-tab-label> <md-tab-body layout=row layout-fill> <div layout=column flex layout-align=\"space-between start\" layout-wrap layout-fill class=mb-color-picker-history> <div layout=row flex=80 layout-align=\"space-between start start\" layout-wrap layout-fill> <div flex=10 ng-repeat=\"historyColor in history.get() track by $index\"> <div ng-style=\"{'background': historyColor.toRgbString()}\" ng-click=setPaletteColor($event)></div> </div> </div> <md-button flex-end ng-click=history.reset() class=md-mini aria-label=\"Clear History\"> <md-icon md-svg-icon=clear_all.svg></md-icon> </md-button> </div> </md-tab-body> </md-tab> </md-tabs> </div> </div>"
+    "<div class=\"mb-color-picker-container in\" layout=column> <div class=mb-color-picker-arrow ng-style=\"{'border-bottom-color': color.toRgbString() }\"></div> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-class=\"{'dark': !color.isDark() || color.getAlpha() < .45}\" flex=1 layout=column> <div class=mb-color-picker-result ng-style=\"{'background': color.toRgbString()}\" flex=100 layout=column layout-fill layout-align=\"center center\" ng-click=\"focusPreviewInput( $event )\">  <div flex layout=row layout-align=\"center center\"> <input class=mb-color-picker-preview-input ng-model=value ng-focus=previewFocus($event); ng-blur=previewBlur() ng-change=changeValue() ng-keypress=previewKeyDown($event) layout-fill> </div> <div class=mb-color-picker-tabs style=\"width: 100%\"> <md-tabs md-selected=type md-stretch-tabs=always md-no-bar md-no-ink md-no-pagination=true> <md-tab ng-if=mbColorHex label=Hex ng-disabled=\"color.getAlpha() !== 1\" md-ink-ripple=#ffffff> </md-tab> <md-tab ng-if=mbColorRgb label=RGB></md-tab> <md-tab ng-if=mbColorHsl label=HSL></md-tab>  </md-tabs> </div> </div> </div> <div class=\"mb-color-picker-tabs mb-color-picker-colors\"> <md-tabs md-stretch-tabs=always md-align-tabs=bottom md-selected=whichPane md-no-pagination> <md-tab ng-if=mbColorSpectrum> <md-tab-label> <mb-icon>gradient</mb-icon> </md-tab-label> <md-tab-body> <div layout=row layout-align=space-between style=\"height: 255px\"> <div mb-color-picker-spectrum></div> <div mb-color-picker-hue ng-class=\"{'mb-color-picker-wide': !mbColorAlphaChannel}\"></div> <div mb-color-picker-alpha class=mb-color-picker-checkered-bg ng-if=mbColorAlphaChannel> </div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorSliders> <md-tab-label> <mb-icon>tune</mb-icon> </md-tab-label> <md-tab-body> <div layout=column flex=100 layout-fill layout-align=\"space-between start center\" class=mb-color-picker-sliders> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>R</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._r aria-label=red class=red-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._r aria-label=red aria-controls=red-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>G</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._g aria-label=green class=green-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._g aria-label=green aria-controls=green-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>B</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._b aria-label=blue class=blue-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._b aria-label=blue aria-controls=blue-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill ng-if=!mbColorAlphaChannel> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>A</span> </div> <md-slider flex=65 min=0 max=1 step=.01 ng-model=color._a aria-label=alpha class=md-primary></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=1 step=.01 type=number ng-model=color._a aria-label=alpha aria-controls=alpha-slider> </div> </div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorGenericPalette> <md-tab-label> <mb-icon>view_module</mb-icon> </md-tab-label> <md-tab-body> <div layout=column layout-align=\"space-between start center\" flex class=mb-color-picker-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorMaterialPalette> <md-tab-label> <mb-icon>view_headline</mb-icon> </md-tab-label> <md-tab-body> <div layout=column layout-fill flex class=mb-color-picker-material-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorHistory> <md-tab-label> <mb-icon>history</mb-icon> </md-tab-label> <md-tab-body layout=row layout-fill> <div layout=column flex layout-align=\"space-between start\" layout-wrap layout-fill class=mb-color-picker-history> <div layout=row flex=80 layout-align=\"space-between start start\" layout-wrap layout-fill> <div flex=10 ng-repeat=\"historyColor in history.get() track by $index\"> <div ng-style=\"{'background': historyColor.toRgbString()}\" ng-click=setPaletteColor($event)></div> </div> </div> <md-button flex-end ng-click=history.reset() class=md-mini aria-label=\"Clear History\"> <mb-icon>clear_all</mb-icon> </md-button> </div> </md-tab-body> </md-tab> </md-tabs> </div> </div>"
   );
 
 
   $templateCache.put('scripts/module-ui/directives/mb-color-picker.html',
-    "<div class=mb-color-picker-input-container layout=row> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-click=showColorPicker($event) ng-if=mbColorPreview> <div class=mb-color-picker-result ng-style=\"{background: value}\"> </div> </div> <md-input-container flex> <label> <md-icon ng-if=icon>{{icon}}</md-icon> <span translate=\"\">{{label}}</span> </label> <input type=input ng-model=value class=mb-color-picker-input ng-mousedown=\"(openOnInput || !mbColorPreview) && showColorPicker($event)\"> </md-input-container> <mb-button class=\"md-icon-button mb-color-picker-clear\" ng-if=\"mbColorClearButton && value\" ng-click=clearValue(); aria-label=\"Clear Color\"> <mb-icon>clear</mb-icon> </mb-button> </div>"
+    "<div class=mb-color-picker-input-container layout=row> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-click=showColorPicker($event) ng-if=mbColorPreview> <div class=mb-color-picker-result ng-style=\"{background: value}\"> </div> </div> <md-input-container flex> <label> <mb-icon ng-if=icon>{{icon}}</mb-icon> <span translate=\"\">{{label}}</span> </label> <input type=input ng-model=value class=mb-color-picker-input ng-mousedown=\"(openOnInput || !mbColorPreview) && showColorPicker($event)\"> </md-input-container> <mb-button class=\"mb-icon-button mb-color-picker-clear\" ng-if=\"mbColorClearButton && value\" ng-click=clearValue(); aria-label=\"Clear Color\"> <mb-icon>clear</mb-icon> </mb-button> </div>"
   );
 
 
   $templateCache.put('scripts/module-ui/directives/mb-titled-block.html',
-    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=mb-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/factories/MbColorPicker.html',
+    "<md-dialog class=mb-color-picker-dialog> <div mb-color-picker-container value=value default random={{random}} ok=ok mb-color-alpha-channel=mbColorAlphaChannel mb-color-spectrum=mbColorSpectrum mb-color-sliders=mbColorSliders mb-color-generic-palette=mbColorGenericPalette mb-color-material-palette=mbColorMaterialPalette mb-color-history=mbColorHistory mb-color-hex=mbColorHex mb-color-rgb=mbColorRgb mb-color-hsl=mbColorHsl mb-color-default-tab=mbColorDefaultTab></div> <md-actions layout=row> <md-button class=md-mini ng-click=close() style=\"width: 50%\">Cancel</md-button> <md-button class=md-mini ng-click=ok() style=\"width: 50%\">Select</md-button> </md-actions> </md-dialog>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/resources/file.html',
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '.*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=\"upload file\" progress preview drag flex> </lf-ng-md-file-input> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/resources/files.html',
+    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag multiple flex> </lf-ng-md-file-input> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/resources/url.html',
+    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
   );
 
 }]);

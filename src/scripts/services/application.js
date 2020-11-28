@@ -163,7 +163,7 @@ mblowfish.provider('$mbApplication', function() {
 	var preloadingComponent;
 	var preloadingComponentConfig = {
 		templateUrl: 'views/mb-preloading-default.html',
-		controller: 'MbApplicationPreloadingContainerCtrl',
+		controller: function(){},
 		controllerAs: 'ctrl',
 	};
 
