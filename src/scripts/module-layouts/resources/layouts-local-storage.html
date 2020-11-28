@@ -1,7 +1,7 @@
 <md-list ng-cloak>
 	<md-list-item 
+		mb-colors="ctrl.isSelected(layoutName) ? {background:'accent'} : {}" 
 		ng-repeat="layoutName in ctrl.layouts"
-		md-colors="ctrl.isSelected(layoutName) ? {background:'accent'} : {}" 
 		ng-click="ctrl.setSelected(layoutName)">
 		<p> {{ ::layoutName }} </p>
 		<mb-icon 

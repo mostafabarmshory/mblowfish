@@ -1,0 +1,32 @@
+<div 
+	class="mb-color-picker-input-container" 
+	layout="row">
+	<div 
+		class="mb-color-picker-preview mb-color-picker-checkered-bg" 
+		ng-click="showColorPicker($event)" 
+		ng-if="mbColorPreview">
+		<div 
+			class="mb-color-picker-result" 
+			ng-style="{background: value}">
+		</div>
+	</div>
+	<md-input-container 
+		flex>
+		<label>
+			<mb-icon ng-if="icon">{{icon}}</mb-icon>
+			<span translate="">{{label}}</span>
+		</label>
+		<input 
+			type="input" 
+			ng-model="value" 
+			class='mb-color-picker-input'  
+			ng-mousedown="(openOnInput || !mbColorPreview) && showColorPicker($event)"/>
+	</md-input-container>
+	<mb-button 
+		class="mb-icon-button mb-color-picker-clear" 
+		ng-if="mbColorClearButton && value" 
+		ng-click="clearValue();" 
+		aria-label="Clear Color">
+		<mb-icon>clear</mb-icon>
+	</mb-button>
+</div>

@@ -89,7 +89,7 @@ mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
 
 mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
 
-	// XXX: maso, 2020: replace with md-color
+	// XXX: maso, 2020: replace with mb-color
 	function __badge_toRGB(color) {
 		var split = (color || '').split('-');
 		if (split.length < 2) {

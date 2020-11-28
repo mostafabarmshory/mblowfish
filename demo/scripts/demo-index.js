@@ -175,19 +175,19 @@ mblowfish
 			}]);
 
 
-		//
-		// $mbAction: manages all actions
-		//
-		$mbSidenavProvider
-			.addSidenav('/app/navigator', {
-				title: 'Navigator',
-				description: 'Navigate all path and routs of the pandel',
-				controller: 'MbNavigatorCtrl',
-				controllerAs: 'ctrl',
-				templateUrl: 'views/mb-navigator.html',
-				//		locked: '$mdMedia("min-width: 333px");',
-				position: 'start'
-			});
+//		//
+//		// $mbAction: manages all actions
+//		//
+//		$mbSidenavProvider
+//			.addSidenav('/app/navigator', {
+//				title: 'Navigator',
+//				description: 'Navigate all path and routs of the pandel',
+//				controller: 'MbNavigatorCtrl',
+//				controllerAs: 'ctrl',
+//				templateUrl: 'views/mb-navigator.html',
+//				//		locked: '$mdMedia("min-width: 333px");',
+//				position: 'start'
+//			});
 		//
 		//  $mbView: manages all views of an application. you can add a new view 
 		// dynamically.

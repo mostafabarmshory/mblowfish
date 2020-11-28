@@ -2316,6 +2316,7 @@ function watchAttribute(scope, attribute, valueCallback, changeCallback) {
 	}
 	valueCallback(scope.$eval(attribute));
 }
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -3935,189 +3936,6 @@ mblowfish.controller('MbDynamicFormDialogCtrl', function($scope, $mdDialog, $sch
  * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name mb-badge
- * @description Display a badge on items
- * 
- */
-mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
-
-	// XXX: maso, 2020: replace with md color
-	function __badge_toRGB(color) {
-		var split = (color || '').split('-');
-		if (split.length < 2) {
-			split.push('500');
-		}
-
-		var hueA = split[1] || '800'; // '800'
-		var colorR = split[0] || 'primary'; // 'warn'
-
-		var theme = $mdTheming.THEMES['default'];
-		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
-		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-		return 'rgb(' + colorValue.join(',') + ')';
-	}
-
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-
-		function style(where, color) {
-			if (color) {
-				element.css(where, __badge_toRGB(color));
-			}
-		}
-		//		function getPosition(){
-		//		return {
-		//		top: element.prop('offsetTop'),
-		//		left: element.prop('offsetLeft'),
-		//		width: element.prop('offsetWidth'),
-		//		height: element.prop('offsetHeight')
-		//		};
-		//		}
-		scope.$watch(function() {
-			return attributes.mbBadgeColor;
-		}, function(value) {
-			style('color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadgeFill;
-		}, function(value) {
-			style('background-color', value);
-		});
-	}
-
-	return {
-		restrict: 'E',
-		replace: true,
-		transclude: true,
-		link: postLink,
-		template: function(/*element, attributes*/) {
-			return '<div class="mb-badge" ng-transclude></div>';
-		}
-	};
-});
-
-mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
-
-	// XXX: maso, 2020: replace with md-color
-	function __badge_toRGB(color) {
-		var split = (color || '').split('-');
-		if (split.length < 2) {
-			split.push('500');
-		}
-
-		var hueA = split[1] || '800'; // '800'
-		var colorR = split[0] || 'primary'; // 'warn'
-
-		var theme = $mdTheming.THEMES['default'];
-		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
-		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-		return 'rgb(' + colorValue.join(',') + ')';
-	}
-
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-		//
-		var parent = element.parent();
-		var bg = angular.element('<div></div>');
-		var link = $compile(bg);
-		var badge = link(scope);
-
-		var offset = parseInt(attributes.mdBadgeOffset);
-		if (isNaN(offset)) {
-			offset = 10;
-		}
-
-		function style(where, color) {
-			if (color) {
-				badge.css(where, __badge_toRGB(color));
-			}
-		}
-		function getPosition() {
-			return {
-				top: element.prop('offsetTop'),
-				left: element.prop('offsetLeft'),
-				width: element.prop('offsetWidth'),
-				height: element.prop('offsetHeight')
-			};
-		}
-
-		function position(value) {
-			var top = element.prop('offsetTop');
-			badge.css({
-				'display': attributes.mbBadge && top ? 'initial' : 'none',
-				'left': value.left + value.width - 20 + offset + 'px',
-				'top': value.top + value.height - 20 + offset + 'px'
-			});
-		}
-
-		//		function update () {
-		//		position(getPosition());
-		//		}
-
-		badge.addClass('mb-badge');
-		badge.css('position', 'absolute');
-		parent.append(badge);
-		scope.$watch(function() {
-			return attributes.mbBadgeColor;
-		}, function(value) {
-			style('color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadgeFill;
-		}, function(value) {
-			style('background-color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadge;
-		}, function(value) {
-			badge.text(value);
-			badge.css('display', value ? 'initial' : 'none');
-		});
-
-		scope.$watch(getPosition, function(value) {
-			position(value);
-		}, true);
-
-		//		angular.element($window)
-		//		.bind('resize', function(){
-		//		update();
-		//		});
-	}
-	return {
-		priority: 100,
-		restrict: 'A',
-		link: postLink
-	};
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -4731,193 +4549,6 @@ angular.module('mblowfish-core')
         link: postLink
     };
 });
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Directives
-@name mb-icon
-@description Icon for MBlowfish
-
- */
-mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
-	// FORMAT
-	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
-	// REPLACE FORMAT
-	var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
-
-	// optimize pars
-	Mustache.parse(template);
-	Mustache.parse(replaceTemplate);
-
-	var shapes = $mbIcon.getShapes();
-
-	function postLink(scope, element, attr, ctrls, transclude) {
-		// icon information
-		var icon = {
-			name: 'help',
-			viewbox: '0 0 24 24',
-			size: 24,
-		};
-		// Counter
-		var renderCount = 0;
-
-
-		/*
-		 * Sets icon and render the shape
-		 */
-		function setIcon(iconName) {
-			var tempIcon = _.clone(icon);
-			// icon
-			if (iconName !== undefined) {
-				tempIcon.name = iconName;
-				// Check for material-design-icons style name, and extract icon / size
-				var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
-				if (ss !== null) {
-					tempIcon.name = ss[1];
-					tempIcon.size = ss[2];
-				}
-			}
-
-			render(tempIcon);
-		}
-
-		//        function setViewBox(viewBox){
-		//            // viewBox
-		//            if (attr.viewBox !== undefined) {
-		//                viewBox = attr.viewBox;
-		//            } else {
-		//                viewBox = $mbIcon.getViewBox(icon) ? $mbIcon.getViewBox(icon) : '0 0 24 24';
-		//            }
-		//            render();
-		//            return viewBox;
-		//        }
-
-		function setSize(newsize) {
-			if (newsize === icon.size) {
-				return;
-			}
-			var tempIcon = _.clone(icon);
-			tempIcon.size = newsize;
-			render(tempIcon);
-		}
-
-		function render(newIcon) {
-			// check for new changes
-			if (renderCount && newIcon.name === icon.name &&
-				newIcon.size === icon.size &&
-				newIcon.viewbox === icon.viewbox) {
-				return;
-			}
-			newIcon.shape = shapes[newIcon.name];
-			if (renderCount && window.SVGMorpheus) {
-				// this block will succeed if SVGMorpheus is available
-				var options = JSON.parse(attr.options || '{}');
-				element.html(Mustache.render(replaceTemplate, {
-					icon: newIcon,
-					old: icon
-				}));
-				new SVGMorpheus(element.children()[0]).to(newIcon, options);
-			} else {
-				element.html(Mustache.render(template, {
-					icon: newIcon
-				}));
-			}
-
-			icon = newIcon;
-			renderCount++;
-		}
-
-		// watch for any changes
-		if (attr.icon !== undefined) {
-			attr.$observe('icon', setIcon);
-		} else if (attr.mbIconName !== undefined) {
-			attr.$observe('mbIconName', setIcon);
-		} else {
-			transclude(scope, function(clone) {
-				var text = clone.text();
-				if (text && text.trim()) {
-					scope.$watch(function() {
-						return $interpolate(text.trim())(scope);
-					}, setIcon);
-				}
-			});
-		}
-		if (attr.size !== undefined) {
-			attr.$observe('size', setSize);
-		}
-	}
-
-	return {
-		restrict: 'E',
-		transclude: true,
-		link: postLink,
-		replace: false
-	};
-});
-
-mblowfish.directive('mdIconFloat', function($mdTheming) {
-
-	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
-		'MD-SELECT'];
-
-	var LEFT_SELECTORS = INPUT_TAGS.reduce(
-		function(selectors, isel) {
-			return selectors.concat(['mb-icon ~ ' + isel, '.mb-icon ~ ' + isel]);
-		}, []).join(',');
-
-	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
-		function(selectors, isel) {
-			return selectors.concat([isel + ' ~ mb-icon', isel + ' ~ .mb-icon']);
-		}, []).join(',');
-
-	function compile(tElement) {
-		// Check for both a left & right icon
-		var leftIcon = tElement[0]
-			.querySelector(LEFT_SELECTORS);
-		var rightIcon = tElement[0]
-			.querySelector(RIGHT_SELECTORS);
-
-		if (leftIcon) {
-			tElement.addClass('md-icon-left');
-		}
-		if (rightIcon) {
-			tElement.addClass('md-icon-right');
-		}
-
-		return function postLink(scope, element) {
-			$mdTheming(element);
-		};
-	}
-
-	return {
-		restrict: 'C',
-		compile: compile
-	};
-});
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5660,66 +5291,6 @@ mblowfish.directive('mbSidenavs', function($mbSidenav) {
 		link: function($scope, $element) {
 			$mbSidenav.setRootElement($element);
 		}
-	};
-});
-
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Directives
-@name mb-titled-block
-@descritpion Title block
-
-
- */
-mblowfish.directive('mbTitledBlock', function($mbActions) {
-
-	function postLink(scope) {
-		scope.$evalAction = function(item) {
-			if (item.expression) {
-				return scope.$parent.$eval(item.expression);
-			}
-			if (item.actionId) {
-				return $mbActions.exec(item.actionId);
-			}
-			if (angular.isFunction(item.action)) {
-				item.action();
-			}
-		}
-	}
-	return {
-		replace: false,
-		restrict: 'E',
-		transclude: true,
-		scope: {
-			mbTitle: '@?',
-			mbIcon: '@?',
-			mbProgress: '<?',
-			mbMoreActions: '='
-		},
-		link: postLink,
-		templateUrl: 'scripts/directives/mb-titled-block.html'
 	};
 });
 
@@ -7153,6 +6724,31 @@ mblowfish.factory('MbContainer', function(
 		delete this.$handler;
 	};
 
+	/**
+	Sets title fo the frame.
+	
+	The title is displate on the top of each frame. It can be changed dynamically.
+	
+	@see #getTitle
+	 */
+	MbContainer.prototype.setTitle = function(title) {
+		this.title = title;
+		if (!this.$handler || !this.$handler.$dockerContainer) {
+			return;
+		}
+		// TODO: maso, 2020: the layout syste must detect the changes and update the
+		// visual aspects
+		this.$handler.$dockerContainer.setTitle(title);
+		return this;
+	};
+
+	/**
+	Gets current title of the frame
+	 */
+	MbContainer.prototype.getTitle = function() {
+		return this.title;
+	};
+
 	return MbContainer;
 });
 
@@ -7351,17 +6947,6 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 	MbFrame.prototype.getMenu = function() {
 		return this.menu;
-	};
-
-	MbFrame.prototype.setTitle = function(title) {
-		switch ($mbLayout.getMode()) {
-			case 'docker':
-				this.$handler.$dockerContainer.setTitle(title);
-				break;
-			default:
-				// TODO: support mobile layout
-				break;
-		}
 	};
 
 	/**
@@ -13739,6 +13324,3306 @@ mblowfish.controller('MbLanguagesCtrl', function(
 	};
 
 });
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-badge
+ * @description Display a badge on items
+ * 
+ */
+mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
+
+	// XXX: maso, 2020: replace with md color
+	function __badge_toRGB(color) {
+		var split = (color || '').split('-');
+		if (split.length < 2) {
+			split.push('500');
+		}
+
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+
+		function style(where, color) {
+			if (color) {
+				element.css(where, __badge_toRGB(color));
+			}
+		}
+		//		function getPosition(){
+		//		return {
+		//		top: element.prop('offsetTop'),
+		//		left: element.prop('offsetLeft'),
+		//		width: element.prop('offsetWidth'),
+		//		height: element.prop('offsetHeight')
+		//		};
+		//		}
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value) {
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value) {
+			style('background-color', value);
+		});
+	}
+
+	return {
+		restrict: 'E',
+		replace: true,
+		transclude: true,
+		link: postLink,
+		template: function(/*element, attributes*/) {
+			return '<div class="mb-badge" ng-transclude></div>';
+		}
+	};
+});
+
+mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
+
+	// XXX: maso, 2020: replace with mb-color
+	function __badge_toRGB(color) {
+		var split = (color || '').split('-');
+		if (split.length < 2) {
+			split.push('500');
+		}
+
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		//
+		var parent = element.parent();
+		var bg = angular.element('<div></div>');
+		var link = $compile(bg);
+		var badge = link(scope);
+
+		var offset = parseInt(attributes.mdBadgeOffset);
+		if (isNaN(offset)) {
+			offset = 10;
+		}
+
+		function style(where, color) {
+			if (color) {
+				badge.css(where, __badge_toRGB(color));
+			}
+		}
+		function getPosition() {
+			return {
+				top: element.prop('offsetTop'),
+				left: element.prop('offsetLeft'),
+				width: element.prop('offsetWidth'),
+				height: element.prop('offsetHeight')
+			};
+		}
+
+		function position(value) {
+			var top = element.prop('offsetTop');
+			badge.css({
+				'display': attributes.mbBadge && top ? 'initial' : 'none',
+				'left': value.left + value.width - 20 + offset + 'px',
+				'top': value.top + value.height - 20 + offset + 'px'
+			});
+		}
+
+		//		function update () {
+		//		position(getPosition());
+		//		}
+
+		badge.addClass('mb-badge');
+		badge.css('position', 'absolute');
+		parent.append(badge);
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value) {
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value) {
+			style('background-color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadge;
+		}, function(value) {
+			badge.text(value);
+			badge.css('display', value ? 'initial' : 'none');
+		});
+
+		scope.$watch(getPosition, function(value) {
+			position(value);
+		}, true);
+
+		//		angular.element($window)
+		//		.bind('resize', function(){
+		//		update();
+		//		});
+	}
+	return {
+		priority: 100,
+		restrict: 'A',
+		link: postLink
+	};
+});
+
+/**
+ * @ngdoc directive
+ * @name mbButton
+ * @module material.components.button
+ *
+ * @restrict E
+ *
+ * @description
+ * `<mb-button>` is a button directive with optional ink ripples (default enabled).
+ *
+ * If you supply a `href` or `ng-href` attribute, it will become an `<a>` element. Otherwise, it
+ * will become a `<button>` element. As per the
+ * [Material Design specifications](https://material.google.com/style/color.html#color-color-palette)
+ * the FAB button background is filled with the accent color [by default]. The primary color palette
+ * may be used with the `md-primary` class.
+ *
+ * Developers can also change the color palette of the button, by using the following classes
+ * - `md-primary`
+ * - `md-accent`
+ * - `md-warn`
+ *
+ * See for example
+ *
+ * <hljs lang="html">
+ *   <mb-button class="md-primary">Primary Button</mb-button>
+ * </hljs>
+ *
+ * Button can be also raised, which means that they will use the current color palette to fill the button.
+ *
+ * <hljs lang="html">
+ *   <mb-button class="md-accent md-raised">Raised and Accent Button</mb-button>
+ * </hljs>
+ *
+ * It is also possible to disable the focus effect on the button, by using the following markup.
+ *
+ * <hljs lang="html">
+ *   <mb-button class="md-no-focus">No Focus Style</mb-button>
+ * </hljs>
+ *
+ * @param {string=} aria-label Adds alternative text to button for accessibility, useful for icon buttons.
+ * If no default text is found, a warning will be logged.
+ * @param {boolean=} md-no-ink If present, disable ink ripple effects.
+ * @param {string=} md-ripple-size Overrides the default ripple size logic. Options: `full`, `partial`, `auto`.
+ * @param {expression=} ng-disabled Disable the button when the expression is truthy.
+ * @param {expression=} ng-blur Expression evaluated when focus is removed from the button.
+ *
+ * @usage
+ *
+ * Regular buttons:
+ *
+ * <hljs lang="html">
+ *  <mb-button> Flat Button </mb-button>
+ *  <mb-button href="http://google.com"> Flat link </mb-button>
+ *  <mb-button class="md-raised"> Raised Button </mb-button>
+ *  <mb-button ng-disabled="true"> Disabled Button </mb-button>
+ *  <mb-button>
+ *    <md-icon md-svg-src="your/icon.svg"></md-icon>
+ *    Register Now
+ *  </mb-button>
+ * </hljs>
+ *
+ * FAB buttons:
+ *
+ * <hljs lang="html">
+ *  <mb-button class="md-fab" aria-label="FAB">
+ *    <md-icon md-svg-src="your/icon.svg"></md-icon>
+ *  </mb-button>
+ *  <!-- mini-FAB -->
+ *  <mb-button class="md-fab md-mini" aria-label="Mini FAB">
+ *    <md-icon md-svg-src="your/icon.svg"></md-icon>
+ *  </mb-button>
+ *  <!-- Button with SVG Icon -->
+ *  <mb-button class="md-icon-button" aria-label="Custom Icon Button">
+ *    <md-icon md-svg-icon="path/to/your.svg"></md-icon>
+ *  </mb-button>
+ * </hljs>
+ */
+mblowfish.directive('mbButton', function($mdButtonInkRipple, $mdTheming, $mdAria, $mdInteraction) {
+
+	return {
+		restrict: 'EA',
+		replace: true,
+		transclude: true,
+		template: getTemplate,
+		link: postLink
+	};
+
+	function isAnchor(attr) {
+		return angular.isDefined(attr.href) || angular.isDefined(attr.ngHref) || angular.isDefined(attr.ngLink) || angular.isDefined(attr.uiSref);
+	}
+
+	function getTemplate(element, attr) {
+		if (isAnchor(attr)) {
+			return '<a class="mb-button" ng-transclude></a>';
+		} else {
+			// If buttons don't have type="button", they will submit forms automatically.
+			var btnType = (typeof attr.type === 'undefined') ? 'button' : attr.type;
+			return '<button class="mb-button" type="' + btnType + '" ng-transclude></button>';
+		}
+	}
+
+	function postLink(scope, element, attr) {
+		$mdTheming(element);
+		$mdButtonInkRipple.attach(scope, element);
+
+		// Use async expect to support possible bindings in the button label
+		$mdAria.expectWithoutText(element, 'aria-label');
+
+		// For anchor elements, we have to set tabindex manually when the element is disabled.
+		// We don't do this for md-nav-bar anchors as the component manages its own tabindex values.
+		if (isAnchor(attr) && angular.isDefined(attr.ngDisabled) &&
+			!element.hasClass('_md-nav-button')) {
+			scope.$watch(attr.ngDisabled, function(isDisabled) {
+				element.attr('tabindex', isDisabled ? -1 : 0);
+			});
+		}
+
+		// disabling click event when disabled is true
+		element.on('click', function(e) {
+			if (attr.disabled === true) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		});
+
+		if (!element.hasClass('md-no-focus')) {
+
+			element.on('focus', function() {
+
+				// Only show the focus effect when being focused through keyboard interaction or programmatically
+				if (!$mdInteraction.isUserInvoked() || $mdInteraction.getLastInteractionType() === 'keyboard') {
+					element.addClass('md-focused');
+				}
+
+			});
+
+			element.on('blur', function() {
+				element.removeClass('md-focused');
+			});
+		}
+
+	}
+
+});
+
+
+/**
+ * @private
+ * @restrict E
+ *
+ * @description
+ * `a` is an anchor directive used to inherit theme colors for md-primary, md-accent, etc.
+ *
+ * @usage
+ *
+ * <hljs lang="html">
+ *  <md-content md-theme="myTheme">
+ *    <a href="#chapter1" class="mb-accent"></a>
+ *  </md-content>
+ * </hljs>
+
+
+TODO: maso, 2020: active when angular material is remvoed
+mblowfish.directive('a', function($mdTheming) {
+	return {
+		restrict: 'E',
+		link: function postLink(scope, element) {
+			// Make sure to inherit theme so stand-alone anchors
+			// support theme colors for md-primary, md-accent, etc.
+			$mdTheming(element);
+		}
+	};
+});
+
+ */
+
+
+
+mblowfish.directive('mbColorPickerContainer', function($compile, $timeout, $mbColorPalette, colorHistory, MbColor) {
+	return {
+		templateUrl: 'views/mbColorPickerContainer.tpl.html',
+		scope: {
+			value: '=?',
+			default: '@',
+			random: '@',
+			ok: '=?',
+			mbColorAlphaChannel: '=',
+			mbColorSpectrum: '=',
+			mbColorSliders: '=',
+			mbColorGenericPalette: '=',
+			mbColorMaterialPalette: '=',
+			mbColorHistory: '=',
+			mbColorHex: '=',
+			mbColorRgb: '=',
+			mbColorHsl: '=',
+			mbColorDefaultTab: '='
+		},
+		controller: function($scope, $element/*, $attrs*/) {
+			//	console.log( "mbColorPickerContainer Controller", Date.now() - dateClick, $scope );
+
+			function getTabIndex(tab) {
+				var index = 0;
+				if (tab && typeof (tab) === 'string') {
+					/* DOM isn't fast enough for this
+
+					var tabs = $element[0].querySelector('.mb-color-picker-colors').getElementsByTagName( 'md-tab' );
+					console.log( tabs.length );
+					 */
+					var tabName = 'mbColor' + tab.slice(0, 1).toUpperCase() + tab.slice(1);
+					var tabs = ['mbColorSpectrum', 'mbColorSliders', 'mbColorGenericPalette', 'mbColorMaterialPalette', 'mbColorHistory'];
+					for (var x = 0; x < tabs.length; x++) {
+						//console.log(  tabs[x]('ng-if') );
+						//if ( tabs[x].getAttribute('ng-if') == tabName ) {
+						if (tabs[x] === tabName) {
+							if ($scope[tabName]) {
+								index = x;
+								break;
+							}
+						}
+					}
+				} else if (tab && typeof (tab) === 'number') {
+					index = tab;
+				}
+
+				return index;
+			}
+
+			///////////////////////////////////
+			// Variables
+			///////////////////////////////////
+			//				var container = angular.element( $element[0].querySelector('.mb-color-picker-container') );
+			//				var resultSpan = angular.element( container[0].querySelector('.mb-color-picker-result') );
+			var previewInput = angular.element($element[0].querySelector('.mb-color-picker-preview-input'));
+
+			var outputFn = [
+				'toHexString',
+				'toRgbString',
+				'toHslString'
+			];
+
+
+
+			$scope.default = $scope.default ? $scope.default : $scope.random ? MbColor.random() : 'rgb(255,255,255)';
+			if ($scope.value.search('#') >= 0) {
+				$scope.type = 0;
+			} else if ($scope.value.search('rgb') >= 0) {
+				$scope.type = 1;
+			} else if ($scope.value.search('hsl') >= 0) {
+				$scope.type = 2;
+			}
+			$scope.color = new MbColor($scope.value || $scope.default); // Set initial color
+			$scope.alpha = $scope.color.getAlpha();
+			$scope.history = colorHistory;
+			$scope.materialFamily = [];
+
+			$scope.whichPane = getTabIndex($scope.mbColorDefaultTab);
+			$scope.inputFocus = false;
+
+			// Colors for the palette screen
+			///////////////////////////////////
+			//				var steps = 9;
+			//				var freq = 2 * Math.PI/steps;
+
+			$scope.palette = [
+				['rgb(255, 204, 204)', 'rgb(255, 230, 204)', 'rgb(255, 255, 204)', 'rgb(204, 255, 204)', 'rgb(204, 255, 230)', 'rgb(204, 255, 255)', 'rgb(204, 230, 255)', 'rgb(204, 204, 255)', 'rgb(230, 204, 255)', 'rgb(255, 204, 255)'],
+				['rgb(255, 153, 153)', 'rgb(255, 204, 153)', 'rgb(255, 255, 153)', 'rgb(153, 255, 153)', 'rgb(153, 255, 204)', 'rgb(153, 255, 255)', 'rgb(153, 204, 255)', 'rgb(153, 153, 255)', 'rgb(204, 153, 255)', 'rgb(255, 153, 255)'],
+				['rgb(255, 102, 102)', 'rgb(255, 179, 102)', 'rgb(255, 255, 102)', 'rgb(102, 255, 102)', 'rgb(102, 255, 179)', 'rgb(102, 255, 255)', 'rgb(102, 179, 255)', 'rgb(102, 102, 255)', 'rgb(179, 102, 255)', 'rgb(255, 102, 255)'],
+				['rgb(255, 51, 51)', 'rgb(255, 153, 51)', 'rgb(255, 255, 51)', 'rgb(51, 255, 51)', 'rgb(51, 255, 153)', 'rgb(51, 255, 255)', 'rgb(51, 153, 255)', 'rgb(51, 51, 255)', 'rgb(153, 51, 255)', 'rgb(255, 51, 255)'],
+				['rgb(255, 0, 0)', 'rgb(255, 128, 0)', 'rgb(255, 255, 0)', 'rgb(0, 255, 0)', 'rgb(0, 255, 128)', 'rgb(0, 255, 255)', 'rgb(0, 128, 255)', 'rgb(0, 0, 255)', 'rgb(128, 0, 255)', 'rgb(255, 0, 255)'],
+				['rgb(245, 0, 0)', 'rgb(245, 123, 0)', 'rgb(245, 245, 0)', 'rgb(0, 245, 0)', 'rgb(0, 245, 123)', 'rgb(0, 245, 245)', 'rgb(0, 123, 245)', 'rgb(0, 0, 245)', 'rgb(123, 0, 245)', 'rgb(245, 0, 245)'],
+				['rgb(214, 0, 0)', 'rgb(214, 108, 0)', 'rgb(214, 214, 0)', 'rgb(0, 214, 0)', 'rgb(0, 214, 108)', 'rgb(0, 214, 214)', 'rgb(0, 108, 214)', 'rgb(0, 0, 214)', 'rgb(108, 0, 214)', 'rgb(214, 0, 214)'],
+				['rgb(163, 0, 0)', 'rgb(163, 82, 0)', 'rgb(163, 163, 0)', 'rgb(0, 163, 0)', 'rgb(0, 163, 82)', 'rgb(0, 163, 163)', 'rgb(0, 82, 163)', 'rgb(0, 0, 163)', 'rgb(82, 0, 163)', 'rgb(163, 0, 163)'],
+				['rgb(92, 0, 0)', 'rgb(92, 46, 0)', 'rgb(92, 92, 0)', 'rgb(0, 92, 0)', 'rgb(0, 92, 46)', 'rgb(0, 92, 92)', 'rgb(0, 46, 92)', 'rgb(0, 0, 92)', 'rgb(46, 0, 92)', 'rgb(92, 0, 92)'],
+				['rgb(255, 255, 255)', 'rgb(205, 205, 205)', 'rgb(178, 178, 178)', 'rgb(153, 153, 153)', 'rgb(127, 127, 127)', 'rgb(102, 102, 102)', 'rgb(76, 76, 76)', 'rgb(51, 51, 51)', 'rgb(25, 25, 25)', 'rgb(0, 0, 0)']
+			];
+
+			$scope.materialPalette = $mbColorPalette;
+
+			///////////////////////////////////
+			// Functions
+			///////////////////////////////////
+			$scope.isDark = function isDark(color) {
+				if (angular.isArray(color)) {
+					return new MbColor({ r: color[0], g: color[1], b: color[2] }).isDark();
+				} else {
+					return new MbColor(color).isDark();
+				}
+
+			};
+			$scope.previewFocus = function() {
+				$scope.inputFocus = true;
+				$timeout(function() {
+					previewInput[0].setSelectionRange(0, previewInput[0].value.length);
+				});
+			};
+			$scope.previewUnfocus = function() {
+				$scope.inputFocus = false;
+				previewInput[0].blur();
+			};
+
+			$scope.previewBlur = function() {
+				$scope.inputFocus = false;
+				$scope.setValue();
+			};
+
+			$scope.previewKeyDown = function($event) {
+				if ($event.keyCode === 13 && angular.isFunction($scope.ok)) {
+					$scope.ok();
+				}
+			};
+
+			$scope.setPaletteColor = function(event) {
+				$timeout(function() {
+					$scope.color = new MbColor(event.target.style.backgroundColor);
+				});
+			};
+
+			$scope.setValue = function setValue() {
+				// Set the value if available
+				if ($scope.color && $scope.color && outputFn[$scope.type] && $scope.color.toRgbString() !== 'rgba(0, 0, 0, 0)') {
+					$scope.value = $scope.color[outputFn[$scope.type]]();
+				}
+			};
+
+			$scope.changeValue = function changeValue() {
+				$scope.color = new MbColor($scope.value);
+				$scope.$broadcast('mbColorPicker:colorSet', { color: $scope.color });
+			};
+
+
+			///////////////////////////////////
+			// Watches and Events
+			///////////////////////////////////
+			$scope.$watch('color._a', function(newValue) {
+				$scope.color.setAlpha(newValue);
+			}, true);
+
+			$scope.$watch('whichPane', function( /*newValue*/) {
+				// 0 - spectrum selector
+				// 1 - sliders
+				// 2 - palette
+				$scope.$broadcast('mbColorPicker:colorSet', { color: $scope.color });
+
+			});
+
+			$scope.$watch('type', function() {
+				previewInput.removeClass('switch');
+				$timeout(function() {
+					previewInput.addClass('switch');
+				});
+			});
+
+			$scope.$watchGroup(['color.toRgbString()', 'type'], function( /*newValue*/) {
+				if (!$scope.inputFocus) {
+					$scope.setValue();
+				}
+			});
+
+
+			///////////////////////////////////
+			// INIT
+			// Let all the other directives initialize
+			///////////////////////////////////
+			//	console.log( 'mbColorPickerContainer Controller PRE Timeout', Date.now() - dateClick );
+			$timeout(function() {
+				//		console.log( 'mbColorPickerContainer Controller Timeout', Date.now() - dateClick );
+				$scope.$broadcast('mbColorPicker:colorSet', { color: $scope.color });
+				previewInput.focus();
+				$scope.previewFocus();
+			});
+		},
+		link: function(scope, element/*, attrs*/) {
+
+			//				var tabs = element[0].getElementsByTagName( 'md-tab' );
+			/*
+			Replicating these structure without ng-repeats
+
+			<div ng-repeat='row in palette track by $index' flex='15'  layout-align='space-between' layout='row'  layout-fill>
+				<div ng-repeat='col in row track by $index' flex='10' style='height: 25.5px;' ng-style='{'background': col};' ng-click='setPaletteColor($event)'></div>
+			</div>
+
+			<div ng-repeat='(key, value) in materialColors'>
+				<div ng-style='{'background': 'rgb('+value['500'].value[0]+','+value['500'].value[1]+','+value['500'].value[2]+')', height: '75px'}' class='mb-color-picker-material-title' ng-class='{'dark': isDark( value['500'].value )}' ng-click="setPaletteColor($event)">
+					<span>{{key}}</span>
+				</div>
+				<div ng-repeat="(label, color) in value track by $index" ng-style="{'background': 'rgb('+color.value[0]+','+color.value[1]+','+color.value[2]+')', height: '33px'}" class="mb-color-picker-with-label" ng-class="{'dark': isDark( color.value )}" ng-click="setPaletteColor($event)">
+					<span>{{label}}</span>
+				</div>
+			</div>
+			 */
+
+
+			function createDOM() {
+				var paletteContainer = angular.element(element[0].querySelector('.mb-color-picker-palette'));
+				var materialContainer = angular.element(element[0].querySelector('.mb-color-picker-material-palette'));
+				var paletteRow = angular.element('<div class="flex-15 layout-fill layout-row layout-align-space-between" layout-align="space-between" layout="row" layout-fill"></div>');
+				var paletteCell = angular.element('<div class="flex-10"></div>');
+
+				var materialTitle = angular.element('<div class="mb-color-picker-material-title"></div>');
+				var materialRow = angular.element('<div class="mb-color-picker-with-label"></div>');
+
+
+
+				angular.forEach(scope.palette, function(value/*, key*/) {
+					var row = paletteRow.clone();
+					angular.forEach(value, function(color) {
+						var cell = paletteCell.clone();
+						cell.css({
+							height: '25.5px',
+							backgroundColor: color
+						});
+						cell.bind('click', scope.setPaletteColor);
+						row.append(cell);
+					});
+
+					paletteContainer.append(row);
+				});
+
+				angular.forEach(scope.materialPalette, function(value, key) {
+					var title = materialTitle.clone();
+					title.html('<span>' + key.replace('-', ' ') + '</span>');
+					title.css({
+						height: '75px',
+						backgroundColor: 'rgb(' + value['500'].value[0] + ',' + value['500'].value[1] + ',' + value['500'].value[2] + ')'
+					});
+					if (scope.isDark(value['500'].value)) {
+						title.addClass('dark');
+					}
+
+					materialContainer.append(title);
+
+					angular.forEach(value, function(color, label) {
+
+						var row = materialRow.clone();
+						row.css({
+							height: '33px',
+							backgroundColor: 'rgb(' + color.value[0] + ',' + color.value[1] + ',' + color.value[2] + ')'
+						});
+						if (scope.isDark(color.value)) {
+							row.addClass('dark');
+						}
+
+						row.html('<span>' + label + '</span>');
+						row.bind('click', scope.setPaletteColor);
+						materialContainer.append(row);
+					});
+
+
+				});
+			}
+
+
+
+			$timeout(function() {
+				createDOM();
+			});
+		}
+	};
+});
+
+mblowfish.directive('mbColorPicker', function() {
+
+	return {
+		templateUrl: 'scripts/module-ui/directives/mb-color-picker.html',
+
+		// Added required controller ngModel
+		require: '^ngModel',
+		scope: {
+			options: '=mbColorPicker',
+
+			// Input options
+			type: '@',
+			label: '@?',
+			icon: '@?',
+			random: '@?',
+			default: '@?',
+
+			// Dialog Options
+			openOnInput: '=?',
+			hasBackdrop: '=?',
+			clickOutsideToClose: '=?',
+			skipHide: '=?',
+			preserveScope: '=?',
+
+			// Advanced options
+			mbColorClearButton: '=?',
+			mbColorPreview: '=?',
+
+			mbColorAlphaChannel: '=?',
+			mbColorSpectrum: '=?',
+			mbColorSliders: '=?',
+			mbColorGenericPalette: '=?',
+			mbColorMaterialPalette: '=?',
+			mbColorHistory: '=?',
+			mbColorHex: '=?',
+			mbColorRgb: '=?',
+			mbColorHsl: '=?',
+			mbColorDefaultTab: '=?'
+		},
+		controller: function($scope, $element, $attrs, $mdDialog, $mbColorPicker) {
+			'ngInject';
+			var didJustClose = false;
+
+			// Merge Options Object with scope.  Scope will take precedence much like css vs style attribute.
+			if ($scope.options !== undefined) {
+				for (var opt in $scope.options) {
+					if ($scope.options.hasOwnProperty(opt)) {
+						var scopeKey;
+						//if ( $scope.hasOwnProperty( opt ) ) { // Removing this because optional scope properties are not added to the scope.
+						scopeKey = opt;
+						//} else
+						if ($scope.hasOwnProperty('mbColor' + opt.slice(0, 1).toUpperCase() + opt.slice(1))) {
+							scopeKey = 'mbColor' + opt.slice(0, 1).toUpperCase() + opt.slice(1);
+						}
+						if (scopeKey && ($scope[scopeKey] === undefined || $scope[scopeKey] === '')) {
+							$scope[scopeKey] = $scope.options[opt];
+						}
+					}
+				}
+			}
+
+			// Get ngModelController from the current element
+			var ngModel = $element.controller('ngModel');
+
+			// Quick function for updating the local 'value' on scope
+			var updateValue = function(val) {
+				$scope.value = val || ngModel.$viewValue || '';
+			};
+
+			// Defaults
+			// Everything is enabled by default.
+			$scope.mbColorClearButton = $scope.mbColorClearButton === undefined ? true : $scope.mbColorClearButton;
+			$scope.mbColorPreview = $scope.mbColorPreview === undefined ? true : $scope.mbColorPreview;
+
+			$scope.mbColorAlphaChannel = $scope.mbColorAlphaChannel === undefined ? true : $scope.mbColorAlphaChannel;
+			$scope.mbColorSpectrum = $scope.mbColorSpectrum === undefined ? true : $scope.mbColorSpectrum;
+			$scope.mbColorSliders = $scope.mbColorSliders === undefined ? true : $scope.mbColorSliders;
+			$scope.mbColorGenericPalette = $scope.mbColorGenericPalette === undefined ? true : $scope.mbColorGenericPalette;
+			$scope.mbColorMaterialPalette = $scope.mbColorMaterialPalette === undefined ? true : $scope.mbColorMaterialPalette;
+			$scope.mbColorHistory = $scope.mbColorHistory === undefined ? true : $scope.mbColorHistory;
+			$scope.mbColorHex = $scope.mbColorHex === undefined ? true : $scope.mbColorHex;
+			$scope.mbColorRgb = $scope.mbColorRgb === undefined ? true : $scope.mbColorRgb;
+			$scope.mbColorHsl = $scope.mbColorHsl === undefined ? true : $scope.mbColorHsl;
+			// Set the starting value
+			updateValue();
+
+			// Keep an eye on changes
+			$scope.$watch(function() {
+				return ngModel.$modelValue;
+			}, function(newVal) {
+				updateValue(newVal);
+			});
+
+			// Watch for updates to value and set them on the model
+			$scope.$watch('value', function(newVal, oldVal) {
+				if (newVal === '' || typeof newVal === 'undefined' || !newVal) {
+					$scope.clearValue();
+				}
+				if (newVal !== oldVal) {
+					ngModel.$setViewValue(newVal);
+				}
+			});
+
+			// The only other ngModel changes
+
+			$scope.clearValue = function clearValue() {
+				ngModel.$setViewValue('');
+			};
+			$scope.showColorPicker = function showColorPicker($event) {
+				if (didJustClose) {
+					return;
+				}
+				//	dateClick = Date.now();
+				//	console.log( "CLICK OPEN", dateClick, $scope );
+
+				$mbColorPicker.show({
+					value: $scope.value,
+					defaultValue: $scope.default,
+					random: $scope.random,
+					clickOutsideToClose: $scope.clickOutsideToClose,
+					hasBackdrop: $scope.hasBackdrop,
+					skipHide: $scope.skipHide,
+					preserveScope: $scope.preserveScope,
+
+					mbColorAlphaChannel: $scope.mbColorAlphaChannel,
+					mbColorSpectrum: $scope.mbColorSpectrum,
+					mbColorSliders: $scope.mbColorSliders,
+					mbColorGenericPalette: $scope.mbColorGenericPalette,
+					mbColorMaterialPalette: $scope.mbColorMaterialPalette,
+					mbColorHistory: $scope.mbColorHistory,
+					mbColorHex: $scope.mbColorHex,
+					mbColorRgb: $scope.mbColorRgb,
+					mbColorHsl: $scope.mbColorHsl,
+					mbColorDefaultTab: $scope.mbColorDefaultTab,
+
+					$event: $event
+
+				}).then(function(color) {
+					$scope.value = color;
+				});
+			};
+		},
+		compile: function(element, attrs) {
+
+			//attrs.value = attrs.value || "#ff0000";
+			attrs.type = attrs.type !== undefined ? attrs.type : 0;
+
+		}
+	};
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @ngdoc directive
+ * @name mbColors
+ * @module material.components.colors
+ *
+ * @restrict A
+ *
+ * @description
+ * `mbColors` directive will apply the theme-based color expression as RGBA CSS style values.
+ *
+ *   The format will be similar to the colors defined in the Sass files:
+ *
+ *   ## `[?theme]-[palette]-[?hue]-[?opacity]`
+ *   - [theme]    - default value is the default theme
+ *   - [palette]  - can be either palette name or primary/accent/warn/background
+ *   - [hue]      - default is 500 (hue-x can be used with primary/accent/warn/background)
+ *   - [opacity]  - default is 1
+ *
+ *
+ *   > `?` indicates optional parameter
+ *
+ * @usage
+ * <hljs lang="html">
+ *   <div mb-colors="{background: 'myTheme-accent-900-0.43'}">
+ *     <div mb-colors="{color: 'red-A100', 'border-color': 'primary-600'}">
+ *       <span>Color demo</span>
+ *     </div>
+ *   </div>
+ * </hljs>
+ *
+ * The `mbColors` directive will automatically watch for changes in the expression if it recognizes
+ * an interpolation expression or a function. For performance options, you can use `::` prefix to
+ * the `mb-colors` expression to indicate a one-time data binding.
+ *
+ * <hljs lang="html">
+ *   <md-card mb-colors="::{background: '{{theme}}-primary-700'}">
+ *   </md-card>
+ * </hljs>
+ */
+
+mblowfish.directive('mbColors', function($mbColors, $mdUtil, $log, $parse) {
+	var STATIC_COLOR_EXPRESSION = /^{((\s|,)*?["'a-zA-Z-]+?\s*?:\s*?('|")[a-zA-Z0-9-.]*('|"))+\s*}$/;
+	return {
+		restrict: 'A',
+		require: ['^?mdTheme'],
+		compile: function(tElem, tAttrs) {
+			var shouldWatch = shouldColorsWatch();
+
+			return function(scope, element, attrs, ctrl) {
+				var mdThemeController = ctrl[0];
+
+				var lastColors = {};
+
+				/**
+				 * @param {string=} theme
+				 * @return {Object} colors found in the specified theme
+				 */
+				var parseColors = function(theme) {
+					if (typeof theme !== 'string') {
+						theme = '';
+					}
+
+					if (!attrs.mbColors) {
+						attrs.mbColors = '{}';
+					}
+
+					/**
+					 * Json.parse() does not work because the keys are not quoted;
+					 * use $parse to convert to a hash map
+					 */
+					var colors = $parse(attrs.mbColors)(scope);
+
+					/**
+					 * If mdTheme is defined higher up the DOM tree,
+					 * we add mdTheme's theme to the colors which don't specify a theme.
+					 *
+					 * @example
+					 * <hljs lang="html">
+					 *   <div md-theme="myTheme">
+					 *     <div mb-colors="{background: 'primary-600'}">
+					 *       <span mb-colors="{background: 'mySecondTheme-accent-200'}">Color demo</span>
+					 *     </div>
+					 *   </div>
+					 * </hljs>
+					 *
+					 * 'primary-600' will be changed to 'myTheme-primary-600',
+					 * but 'mySecondTheme-accent-200' will not be changed since it has a theme defined.
+					 */
+					if (mdThemeController) {
+						Object.keys(colors).forEach(function(prop) {
+							var color = colors[prop];
+							if (!$mbColors.hasTheme(color)) {
+								colors[prop] = (theme || mdThemeController.$mdTheme) + '-' + color;
+							}
+						});
+					}
+
+					cleanElement(colors);
+
+					return colors;
+				};
+
+				/**
+				 * @param {Object} colors
+				 */
+				var cleanElement = function(colors) {
+					if (!angular.equals(colors, lastColors)) {
+						var keys = Object.keys(lastColors);
+
+						if (lastColors.background && !keys.color) {
+							keys.push('color');
+						}
+
+						keys.forEach(function(key) {
+							element.css(key, '');
+						});
+					}
+
+					lastColors = colors;
+				};
+
+				/**
+				 * Registering for mgTheme changes and asking mdTheme controller run our callback whenever
+				 * a theme changes.
+				 */
+				var unregisterChanges = angular.noop;
+
+				if (mdThemeController) {
+					unregisterChanges = mdThemeController.registerChanges(function(theme) {
+						$mbColors.applyThemeColors(element, parseColors(theme));
+					});
+				}
+
+				scope.$on('$destroy', function() {
+					unregisterChanges();
+				});
+
+				try {
+					if (shouldWatch) {
+						scope.$watch(parseColors, angular.bind(this,
+							$mbColors.applyThemeColors, element
+						), true);
+					}
+					else {
+						$mbColors.applyThemeColors(element, parseColors());
+					}
+
+				}
+				catch (e) {
+					$log.error(e.message);
+				}
+
+			};
+
+			/**
+			 * @return {boolean}
+			 */
+			function shouldColorsWatch() {
+				// Simulate 1x binding and mark mbColorsWatch == false
+				var rawColorExpression = tAttrs.mbColors;
+				var bindOnce = rawColorExpression.indexOf('::') > -1;
+				var isStatic = bindOnce ? true : STATIC_COLOR_EXPRESSION.test(tAttrs.mbColors);
+
+				// Remove it for the postLink...
+				tAttrs.mbColors = rawColorExpression.replace('::', '');
+
+				var hasWatchAttr = angular.isDefined(tAttrs.mbColorsWatch);
+
+				return (bindOnce || isStatic) ? false :
+					hasWatchAttr ? $mdUtil.parseAttributeBoolean(tAttrs.mbColorsWatch) : true;
+			}
+		}
+	};
+});
+
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Directives
+@name mb-icon
+@description Icon for MBlowfish
+
+ */
+mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
+	// FORMAT
+	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
+	// REPLACE FORMAT
+	var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
+
+	// optimize pars
+	Mustache.parse(template);
+	Mustache.parse(replaceTemplate);
+
+	var shapes = $mbIcon.getShapes();
+
+	function postLink(scope, element, attr, ctrls, transclude) {
+		// icon information
+		var icon = {
+			name: 'help',
+			viewbox: '0 0 24 24',
+			size: 24,
+		};
+		// Counter
+		var renderCount = 0;
+
+
+		/*
+		 * Sets icon and render the shape
+		 */
+		function setIcon(iconName) {
+			var tempIcon = _.clone(icon);
+			// icon
+			if (iconName !== undefined) {
+				tempIcon.name = iconName;
+				// Check for material-design-icons style name, and extract icon / size
+				var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
+				if (ss !== null) {
+					tempIcon.name = ss[1];
+					tempIcon.size = ss[2];
+				}
+			}
+
+			render(tempIcon);
+		}
+
+		//        function setViewBox(viewBox){
+		//            // viewBox
+		//            if (attr.viewBox !== undefined) {
+		//                viewBox = attr.viewBox;
+		//            } else {
+		//                viewBox = $mbIcon.getViewBox(icon) ? $mbIcon.getViewBox(icon) : '0 0 24 24';
+		//            }
+		//            render();
+		//            return viewBox;
+		//        }
+
+		function setSize(newsize) {
+			if (newsize === icon.size) {
+				return;
+			}
+			var tempIcon = _.clone(icon);
+			tempIcon.size = newsize;
+			render(tempIcon);
+		}
+
+		function render(newIcon) {
+			// check for new changes
+			if (renderCount && newIcon.name === icon.name &&
+				newIcon.size === icon.size &&
+				newIcon.viewbox === icon.viewbox) {
+				return;
+			}
+			newIcon.shape = shapes[newIcon.name];
+			if (renderCount && window.SVGMorpheus) {
+				// this block will succeed if SVGMorpheus is available
+				var options = JSON.parse(attr.options || '{}');
+				element.html(Mustache.render(replaceTemplate, {
+					icon: newIcon,
+					old: icon
+				}));
+				new SVGMorpheus(element.children()[0]).to(newIcon, options);
+			} else {
+				element.html(Mustache.render(template, {
+					icon: newIcon
+				}));
+			}
+
+			icon = newIcon;
+			renderCount++;
+		}
+
+		// watch for any changes
+		if (attr.icon !== undefined) {
+			attr.$observe('icon', setIcon);
+		} else if (attr.mbIconName !== undefined) {
+			attr.$observe('mbIconName', setIcon);
+		} else {
+			transclude(scope, function(clone) {
+				var text = clone.text();
+				if (text && text.trim()) {
+					scope.$watch(function() {
+						return $interpolate(text.trim())(scope);
+					}, setIcon);
+				}
+			});
+		}
+		if (attr.size !== undefined) {
+			attr.$observe('size', setSize);
+		}
+	}
+
+	return {
+		restrict: 'E',
+		transclude: true,
+		link: postLink,
+		replace: false
+	};
+});
+
+mblowfish.directive('mdIconFloat', function($mdTheming) {
+
+	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
+		'MD-SELECT'];
+
+	var LEFT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat(['mb-icon ~ ' + isel, '.mb-icon ~ ' + isel]);
+		}, []).join(',');
+
+	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat([isel + ' ~ mb-icon', isel + ' ~ .mb-icon']);
+		}, []).join(',');
+
+	function compile(tElement) {
+		// Check for both a left & right icon
+		var leftIcon = tElement[0]
+			.querySelector(LEFT_SELECTORS);
+		var rightIcon = tElement[0]
+			.querySelector(RIGHT_SELECTORS);
+
+		if (leftIcon) {
+			tElement.addClass('md-icon-left');
+		}
+		if (rightIcon) {
+			tElement.addClass('md-icon-right');
+		}
+
+		return function postLink(scope, element) {
+			$mdTheming(element);
+		};
+	}
+
+	return {
+		restrict: 'C',
+		compile: compile
+	};
+});
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.directive('mbTable', function($mdTheming) {
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		element.addClass('mb-table');
+	}
+
+	return {
+		restrict: 'AC',
+		replace: false,
+		transclude: false,
+		scope: false,
+		link: postLink,
+	};
+});
+
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Directives
+@name mb-titled-block
+@descritpion Title block
+
+
+ */
+mblowfish.directive('mbTitledBlock', function($mbActions) {
+
+	function postLink(scope) {
+		scope.$evalAction = function(item) {
+			if (item.expression) {
+				return scope.$parent.$eval(item.expression);
+			}
+			if (item.actionId) {
+				return $mbActions.exec(item.actionId);
+			}
+			if (angular.isFunction(item.action)) {
+				item.action();
+			}
+		}
+	}
+	return {
+		replace: false,
+		restrict: 'E',
+		transclude: true,
+		scope: {
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?',
+			mbMoreActions: '='
+		},
+		link: postLink,
+		templateUrl: 'scripts/module-ui/directives/mb-titled-block.html'
+	};
+});
+
+mblowfish.directive('mbColorPickerAlpha', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('alpha');
+});
+mblowfish.directive('mbColorPickerHue', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('hue');
+});
+mblowfish.directive('mbColorPickerSpectrum', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('spectrum');
+});
+mblowfish.factory('MbColor', function() {
+	var trimLeft = /^\s+/,
+		trimRight = /\s+$/,
+		tinyCounter = 0,
+		mathRound = Math.round,
+		mathMin = Math.min,
+		mathMax = Math.max,
+		mathRandom = Math.random;
+
+	function tinycolor(color, opts) {
+		color = (color) ? color : '';
+		opts = opts || {};
+
+		// If input is already a tinycolor, return itself
+		if (color instanceof tinycolor) {
+			return color;
+		}
+		// If we are called as a function, call using new instead
+		if (!(this instanceof tinycolor)) {
+			return new tinycolor(color, opts);
+		}
+
+		var rgb = inputToRGB(color);
+		this._originalInput = color,
+			this._r = rgb.r,
+			this._g = rgb.g,
+			this._b = rgb.b,
+			this._a = rgb.a,
+			this._roundA = mathRound(100 * this._a) / 100,
+			this._format = opts.format || rgb.format;
+		this._gradientType = opts.gradientType;
+
+		// Don't let the range of [0,255] come back in [0,1].
+		// Potentially lose a little bit of precision here, but will fix issues where
+		// .5 gets interpreted as half of the total, instead of half of 1
+		// If it was supposed to be 128, this was already taken care of by `inputToRgb`
+		if (this._r < 1) { this._r = mathRound(this._r); }
+		if (this._g < 1) { this._g = mathRound(this._g); }
+		if (this._b < 1) { this._b = mathRound(this._b); }
+
+		this._ok = rgb.ok;
+		this._tc_id = tinyCounter++;
+	}
+
+	tinycolor.prototype = {
+		isDark: function() {
+			return this.getBrightness() < 128;
+		},
+		isLight: function() {
+			return !this.isDark();
+		},
+		isValid: function() {
+			return this._ok;
+		},
+		getOriginalInput: function() {
+			return this._originalInput;
+		},
+		getFormat: function() {
+			return this._format;
+		},
+		getAlpha: function() {
+			return this._a;
+		},
+		getBrightness: function() {
+			//http://www.w3.org/TR/AERT#color-contrast
+			var rgb = this.toRgb();
+			return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+		},
+		getLuminance: function() {
+			//http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+			var rgb = this.toRgb();
+			var RsRGB, GsRGB, BsRGB, R, G, B;
+			RsRGB = rgb.r / 255;
+			GsRGB = rgb.g / 255;
+			BsRGB = rgb.b / 255;
+
+			if (RsRGB <= 0.03928) { R = RsRGB / 12.92; } else { R = Math.pow(((RsRGB + 0.055) / 1.055), 2.4); }
+			if (GsRGB <= 0.03928) { G = GsRGB / 12.92; } else { G = Math.pow(((GsRGB + 0.055) / 1.055), 2.4); }
+			if (BsRGB <= 0.03928) { B = BsRGB / 12.92; } else { B = Math.pow(((BsRGB + 0.055) / 1.055), 2.4); }
+			return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
+		},
+		setAlpha: function(value) {
+			this._a = boundAlpha(value);
+			this._roundA = mathRound(100 * this._a) / 100;
+			return this;
+		},
+		toHsv: function() {
+			var hsv = rgbToHsv(this._r, this._g, this._b);
+			return { h: hsv.h * 360, s: hsv.s, v: hsv.v, a: this._a };
+		},
+		toHsvString: function() {
+			var hsv = rgbToHsv(this._r, this._g, this._b);
+			var h = mathRound(hsv.h * 360), s = mathRound(hsv.s * 100), v = mathRound(hsv.v * 100);
+			return (this._a == 1) ?
+				"hsv(" + h + ", " + s + "%, " + v + "%)" :
+				"hsva(" + h + ", " + s + "%, " + v + "%, " + this._roundA + ")";
+		},
+		toHsl: function() {
+			var hsl = rgbToHsl(this._r, this._g, this._b);
+			return { h: hsl.h * 360, s: hsl.s, l: hsl.l, a: this._a };
+		},
+		toHslString: function() {
+			var hsl = rgbToHsl(this._r, this._g, this._b);
+			var h = mathRound(hsl.h * 360), s = mathRound(hsl.s * 100), l = mathRound(hsl.l * 100);
+			return (this._a == 1) ?
+				"hsl(" + h + ", " + s + "%, " + l + "%)" :
+				"hsla(" + h + ", " + s + "%, " + l + "%, " + this._roundA + ")";
+		},
+		toHex: function(allow3Char) {
+			return rgbToHex(this._r, this._g, this._b, allow3Char);
+		},
+		toHexString: function(allow3Char) {
+			return '#' + this.toHex(allow3Char);
+		},
+		toHex8: function(allow4Char) {
+			return rgbaToHex(this._r, this._g, this._b, this._a, allow4Char);
+		},
+		toHex8String: function(allow4Char) {
+			return '#' + this.toHex8(allow4Char);
+		},
+		toRgb: function() {
+			return { r: mathRound(this._r), g: mathRound(this._g), b: mathRound(this._b), a: this._a };
+		},
+		toRgbString: function() {
+			return (this._a == 1) ?
+				"rgb(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ")" :
+				"rgba(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ", " + this._roundA + ")";
+		},
+		toPercentageRgb: function() {
+			return { r: mathRound(bound01(this._r, 255) * 100) + "%", g: mathRound(bound01(this._g, 255) * 100) + "%", b: mathRound(bound01(this._b, 255) * 100) + "%", a: this._a };
+		},
+		toPercentageRgbString: function() {
+			return (this._a == 1) ?
+				"rgb(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%)" :
+				"rgba(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%, " + this._roundA + ")";
+		},
+		toName: function() {
+			if (this._a === 0) {
+				return "transparent";
+			}
+
+			if (this._a < 1) {
+				return false;
+			}
+
+			return hexNames[rgbToHex(this._r, this._g, this._b, true)] || false;
+		},
+		toFilter: function(secondColor) {
+			var hex8String = '#' + rgbaToArgbHex(this._r, this._g, this._b, this._a);
+			var secondHex8String = hex8String;
+			var gradientType = this._gradientType ? "GradientType = 1, " : "";
+
+			if (secondColor) {
+				var s = tinycolor(secondColor);
+				secondHex8String = '#' + rgbaToArgbHex(s._r, s._g, s._b, s._a);
+			}
+
+			return "progid:DXImageTransform.Microsoft.gradient(" + gradientType + "startColorstr=" + hex8String + ",endColorstr=" + secondHex8String + ")";
+		},
+		toString: function(format) {
+			var formatSet = !!format;
+			format = format || this._format;
+
+			var formattedString = false;
+			var hasAlpha = this._a < 1 && this._a >= 0;
+			var needsAlphaFormat = !formatSet && hasAlpha && (format === "hex" || format === "hex6" || format === "hex3" || format === "hex4" || format === "hex8" || format === "name");
+
+			if (needsAlphaFormat) {
+				// Special case for "transparent", all other non-alpha formats
+				// will return rgba when there is transparency.
+				if (format === "name" && this._a === 0) {
+					return this.toName();
+				}
+				return this.toRgbString();
+			}
+			if (format === "rgb") {
+				formattedString = this.toRgbString();
+			}
+			if (format === "prgb") {
+				formattedString = this.toPercentageRgbString();
+			}
+			if (format === "hex" || format === "hex6") {
+				formattedString = this.toHexString();
+			}
+			if (format === "hex3") {
+				formattedString = this.toHexString(true);
+			}
+			if (format === "hex4") {
+				formattedString = this.toHex8String(true);
+			}
+			if (format === "hex8") {
+				formattedString = this.toHex8String();
+			}
+			if (format === "name") {
+				formattedString = this.toName();
+			}
+			if (format === "hsl") {
+				formattedString = this.toHslString();
+			}
+			if (format === "hsv") {
+				formattedString = this.toHsvString();
+			}
+
+			return formattedString || this.toHexString();
+		},
+		clone: function() {
+			return tinycolor(this.toString());
+		},
+
+		_applyModification: function(fn, args) {
+			var color = fn.apply(null, [this].concat([].slice.call(args)));
+			this._r = color._r;
+			this._g = color._g;
+			this._b = color._b;
+			this.setAlpha(color._a);
+			return this;
+		},
+		lighten: function() {
+			return this._applyModification(lighten, arguments);
+		},
+		brighten: function() {
+			return this._applyModification(brighten, arguments);
+		},
+		darken: function() {
+			return this._applyModification(darken, arguments);
+		},
+		desaturate: function() {
+			return this._applyModification(desaturate, arguments);
+		},
+		saturate: function() {
+			return this._applyModification(saturate, arguments);
+		},
+		greyscale: function() {
+			return this._applyModification(greyscale, arguments);
+		},
+		spin: function() {
+			return this._applyModification(spin, arguments);
+		},
+
+		_applyCombination: function(fn, args) {
+			return fn.apply(null, [this].concat([].slice.call(args)));
+		},
+		analogous: function() {
+			return this._applyCombination(analogous, arguments);
+		},
+		complement: function() {
+			return this._applyCombination(complement, arguments);
+		},
+		monochromatic: function() {
+			return this._applyCombination(monochromatic, arguments);
+		},
+		splitcomplement: function() {
+			return this._applyCombination(splitcomplement, arguments);
+		},
+		triad: function() {
+			return this._applyCombination(triad, arguments);
+		},
+		tetrad: function() {
+			return this._applyCombination(tetrad, arguments);
+		}
+	};
+
+	// If input is an object, force 1 into "1.0" to handle ratios properly
+	// String input requires "1.0" as input, so 1 will be treated as 1
+	tinycolor.fromRatio = function(color, opts) {
+		if (typeof color == "object") {
+			var newColor = {};
+			for (var i in color) {
+				if (color.hasOwnProperty(i)) {
+					if (i === "a") {
+						newColor[i] = color[i];
+					}
+					else {
+						newColor[i] = convertToPercentage(color[i]);
+					}
+				}
+			}
+			color = newColor;
+		}
+
+		return tinycolor(color, opts);
+	};
+
+	// Given a string or object, convert that input to RGB
+	// Possible string inputs:
+	//
+	//     "red"
+	//     "#f00" or "f00"
+	//     "#ff0000" or "ff0000"
+	//     "#ff000000" or "ff000000"
+	//     "rgb 255 0 0" or "rgb (255, 0, 0)"
+	//     "rgb 1.0 0 0" or "rgb (1, 0, 0)"
+	//     "rgba (255, 0, 0, 1)" or "rgba 255, 0, 0, 1"
+	//     "rgba (1.0, 0, 0, 1)" or "rgba 1.0, 0, 0, 1"
+	//     "hsl(0, 100%, 50%)" or "hsl 0 100% 50%"
+	//     "hsla(0, 100%, 50%, 1)" or "hsla 0 100% 50%, 1"
+	//     "hsv(0, 100%, 100%)" or "hsv 0 100% 100%"
+	//
+	function inputToRGB(color) {
+
+		var rgb = { r: 0, g: 0, b: 0 };
+		var a = 1;
+		var s = null;
+		var v = null;
+		var l = null;
+		var ok = false;
+		var format = false;
+
+		if (typeof color == "string") {
+			color = stringInputToObject(color);
+		}
+
+		if (typeof color == "object") {
+			if (isValidCSSUnit(color.r) && isValidCSSUnit(color.g) && isValidCSSUnit(color.b)) {
+				rgb = rgbToRgb(color.r, color.g, color.b);
+				ok = true;
+				format = String(color.r).substr(-1) === "%" ? "prgb" : "rgb";
+			}
+			else if (isValidCSSUnit(color.h) && isValidCSSUnit(color.s) && isValidCSSUnit(color.v)) {
+				s = convertToPercentage(color.s);
+				v = convertToPercentage(color.v);
+				rgb = hsvToRgb(color.h, s, v);
+				ok = true;
+				format = "hsv";
+			}
+			else if (isValidCSSUnit(color.h) && isValidCSSUnit(color.s) && isValidCSSUnit(color.l)) {
+				s = convertToPercentage(color.s);
+				l = convertToPercentage(color.l);
+				rgb = hslToRgb(color.h, s, l);
+				ok = true;
+				format = "hsl";
+			}
+
+			if (color.hasOwnProperty("a")) {
+				a = color.a;
+			}
+		}
+
+		a = boundAlpha(a);
+
+		return {
+			ok: ok,
+			format: color.format || format,
+			r: mathMin(255, mathMax(rgb.r, 0)),
+			g: mathMin(255, mathMax(rgb.g, 0)),
+			b: mathMin(255, mathMax(rgb.b, 0)),
+			a: a
+		};
+	}
+
+
+	// Conversion Functions
+	// --------------------
+
+	// `rgbToHsl`, `rgbToHsv`, `hslToRgb`, `hsvToRgb` modified from:
+	// <http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript>
+
+	// `rgbToRgb`
+	// Handle bounds / percentage checking to conform to CSS color spec
+	// <http://www.w3.org/TR/css3-color/>
+	// *Assumes:* r, g, b in [0, 255] or [0, 1]
+	// *Returns:* { r, g, b } in [0, 255]
+	function rgbToRgb(r, g, b) {
+		return {
+			r: bound01(r, 255) * 255,
+			g: bound01(g, 255) * 255,
+			b: bound01(b, 255) * 255
+		};
+	}
+
+	// `rgbToHsl`
+	// Converts an RGB color value to HSL.
+	// *Assumes:* r, g, and b are contained in [0, 255] or [0, 1]
+	// *Returns:* { h, s, l } in [0,1]
+	function rgbToHsl(r, g, b) {
+
+		r = bound01(r, 255);
+		g = bound01(g, 255);
+		b = bound01(b, 255);
+
+		var max = mathMax(r, g, b), min = mathMin(r, g, b);
+		var h, s, l = (max + min) / 2;
+
+		if (max == min) {
+			h = s = 0; // achromatic
+		}
+		else {
+			var d = max - min;
+			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+			switch (max) {
+				case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+				case g: h = (b - r) / d + 2; break;
+				case b: h = (r - g) / d + 4; break;
+			}
+
+			h /= 6;
+		}
+
+		return { h: h, s: s, l: l };
+	}
+
+	// `hslToRgb`
+	// Converts an HSL color value to RGB.
+	// *Assumes:* h is contained in [0, 1] or [0, 360] and s and l are contained [0, 1] or [0, 100]
+	// *Returns:* { r, g, b } in the set [0, 255]
+	function hslToRgb(h, s, l) {
+		var r, g, b;
+
+		h = bound01(h, 360);
+		s = bound01(s, 100);
+		l = bound01(l, 100);
+
+		function hue2rgb(p, q, t) {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		}
+
+		if (s === 0) {
+			r = g = b = l; // achromatic
+		}
+		else {
+			var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+			var p = 2 * l - q;
+			r = hue2rgb(p, q, h + 1 / 3);
+			g = hue2rgb(p, q, h);
+			b = hue2rgb(p, q, h - 1 / 3);
+		}
+
+		return { r: r * 255, g: g * 255, b: b * 255 };
+	}
+
+	// `rgbToHsv`
+	// Converts an RGB color value to HSV
+	// *Assumes:* r, g, and b are contained in the set [0, 255] or [0, 1]
+	// *Returns:* { h, s, v } in [0,1]
+	function rgbToHsv(r, g, b) {
+
+		r = bound01(r, 255);
+		g = bound01(g, 255);
+		b = bound01(b, 255);
+
+		var max = mathMax(r, g, b), min = mathMin(r, g, b);
+		var h, s, v = max;
+
+		var d = max - min;
+		s = max === 0 ? 0 : d / max;
+
+		if (max == min) {
+			h = 0; // achromatic
+		}
+		else {
+			switch (max) {
+				case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+				case g: h = (b - r) / d + 2; break;
+				case b: h = (r - g) / d + 4; break;
+			}
+			h /= 6;
+		}
+		return { h: h, s: s, v: v };
+	}
+
+	// `hsvToRgb`
+	// Converts an HSV color value to RGB.
+	// *Assumes:* h is contained in [0, 1] or [0, 360] and s and v are contained in [0, 1] or [0, 100]
+	// *Returns:* { r, g, b } in the set [0, 255]
+	function hsvToRgb(h, s, v) {
+
+		h = bound01(h, 360) * 6;
+		s = bound01(s, 100);
+		v = bound01(v, 100);
+
+		var i = Math.floor(h),
+			f = h - i,
+			p = v * (1 - s),
+			q = v * (1 - f * s),
+			t = v * (1 - (1 - f) * s),
+			mod = i % 6,
+			r = [v, q, p, p, t, v][mod],
+			g = [t, v, v, q, p, p][mod],
+			b = [p, p, t, v, v, q][mod];
+
+		return { r: r * 255, g: g * 255, b: b * 255 };
+	}
+
+	// `rgbToHex`
+	// Converts an RGB color to hex
+	// Assumes r, g, and b are contained in the set [0, 255]
+	// Returns a 3 or 6 character hex
+	function rgbToHex(r, g, b, allow3Char) {
+
+		var hex = [
+			pad2(mathRound(r).toString(16)),
+			pad2(mathRound(g).toString(16)),
+			pad2(mathRound(b).toString(16))
+		];
+
+		// Return a 3 character hex if possible
+		if (allow3Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1)) {
+			return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+		}
+
+		return hex.join("");
+	}
+
+	// `rgbaToHex`
+	// Converts an RGBA color plus alpha transparency to hex
+	// Assumes r, g, b are contained in the set [0, 255] and
+	// a in [0, 1]. Returns a 4 or 8 character rgba hex
+	function rgbaToHex(r, g, b, a, allow4Char) {
+
+		var hex = [
+			pad2(mathRound(r).toString(16)),
+			pad2(mathRound(g).toString(16)),
+			pad2(mathRound(b).toString(16)),
+			pad2(convertDecimalToHex(a))
+		];
+
+		// Return a 4 character hex if possible
+		if (allow4Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1) && hex[3].charAt(0) == hex[3].charAt(1)) {
+			return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0) + hex[3].charAt(0);
+		}
+
+		return hex.join("");
+	}
+
+	// `rgbaToArgbHex`
+	// Converts an RGBA color to an ARGB Hex8 string
+	// Rarely used, but required for "toFilter()"
+	function rgbaToArgbHex(r, g, b, a) {
+
+		var hex = [
+			pad2(convertDecimalToHex(a)),
+			pad2(mathRound(r).toString(16)),
+			pad2(mathRound(g).toString(16)),
+			pad2(mathRound(b).toString(16))
+		];
+
+		return hex.join("");
+	}
+
+	// `equals`
+	// Can be called with any tinycolor input
+	tinycolor.equals = function(color1, color2) {
+		if (!color1 || !color2) { return false; }
+		return tinycolor(color1).toRgbString() == tinycolor(color2).toRgbString();
+	};
+
+	tinycolor.random = function() {
+		return tinycolor.fromRatio({
+			r: mathRandom(),
+			g: mathRandom(),
+			b: mathRandom()
+		});
+	};
+
+
+	// Modification Functions
+	// ----------------------
+	// Thanks to less.js for some of the basics here
+	// <https://github.com/cloudhead/less.js/blob/master/lib/less/functions.js>
+
+	function desaturate(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.s -= amount / 100;
+		hsl.s = clamp01(hsl.s);
+		return tinycolor(hsl);
+	}
+
+	function saturate(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.s += amount / 100;
+		hsl.s = clamp01(hsl.s);
+		return tinycolor(hsl);
+	}
+
+	function greyscale(color) {
+		return tinycolor(color).desaturate(100);
+	}
+
+	function lighten(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.l += amount / 100;
+		hsl.l = clamp01(hsl.l);
+		return tinycolor(hsl);
+	}
+
+	function brighten(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var rgb = tinycolor(color).toRgb();
+		rgb.r = mathMax(0, mathMin(255, rgb.r - mathRound(255 * - (amount / 100))));
+		rgb.g = mathMax(0, mathMin(255, rgb.g - mathRound(255 * - (amount / 100))));
+		rgb.b = mathMax(0, mathMin(255, rgb.b - mathRound(255 * - (amount / 100))));
+		return tinycolor(rgb);
+	}
+
+	function darken(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.l -= amount / 100;
+		hsl.l = clamp01(hsl.l);
+		return tinycolor(hsl);
+	}
+
+	// Spin takes a positive or negative amount within [-360, 360] indicating the change of hue.
+	// Values outside of this range will be wrapped into this range.
+	function spin(color, amount) {
+		var hsl = tinycolor(color).toHsl();
+		var hue = (hsl.h + amount) % 360;
+		hsl.h = hue < 0 ? 360 + hue : hue;
+		return tinycolor(hsl);
+	}
+
+	// Combination Functions
+	// ---------------------
+	// Thanks to jQuery xColor for some of the ideas behind these
+	// <https://github.com/infusion/jQuery-xcolor/blob/master/jquery.xcolor.js>
+
+	function complement(color) {
+		var hsl = tinycolor(color).toHsl();
+		hsl.h = (hsl.h + 180) % 360;
+		return tinycolor(hsl);
+	}
+
+	function triad(color) {
+		var hsl = tinycolor(color).toHsl();
+		var h = hsl.h;
+		return [
+			tinycolor(color),
+			tinycolor({ h: (h + 120) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 240) % 360, s: hsl.s, l: hsl.l })
+		];
+	}
+
+	function tetrad(color) {
+		var hsl = tinycolor(color).toHsl();
+		var h = hsl.h;
+		return [
+			tinycolor(color),
+			tinycolor({ h: (h + 90) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 180) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 270) % 360, s: hsl.s, l: hsl.l })
+		];
+	}
+
+	function splitcomplement(color) {
+		var hsl = tinycolor(color).toHsl();
+		var h = hsl.h;
+		return [
+			tinycolor(color),
+			tinycolor({ h: (h + 72) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 216) % 360, s: hsl.s, l: hsl.l })
+		];
+	}
+
+	function analogous(color, results, slices) {
+		results = results || 6;
+		slices = slices || 30;
+
+		var hsl = tinycolor(color).toHsl();
+		var part = 360 / slices;
+		var ret = [tinycolor(color)];
+
+		for (hsl.h = ((hsl.h - (part * results >> 1)) + 720) % 360; --results;) {
+			hsl.h = (hsl.h + part) % 360;
+			ret.push(tinycolor(hsl));
+		}
+		return ret;
+	}
+
+	function monochromatic(color, results) {
+		results = results || 6;
+		var hsv = tinycolor(color).toHsv();
+		var h = hsv.h, s = hsv.s, v = hsv.v;
+		var ret = [];
+		var modification = 1 / results;
+
+		while (results--) {
+			ret.push(tinycolor({ h: h, s: s, v: v }));
+			v = (v + modification) % 1;
+		}
+
+		return ret;
+	}
+
+	// Utility Functions
+	// ---------------------
+
+	tinycolor.mix = function(color1, color2, amount) {
+		amount = (amount === 0) ? 0 : (amount || 50);
+
+		var rgb1 = tinycolor(color1).toRgb();
+		var rgb2 = tinycolor(color2).toRgb();
+
+		var p = amount / 100;
+
+		var rgba = {
+			r: ((rgb2.r - rgb1.r) * p) + rgb1.r,
+			g: ((rgb2.g - rgb1.g) * p) + rgb1.g,
+			b: ((rgb2.b - rgb1.b) * p) + rgb1.b,
+			a: ((rgb2.a - rgb1.a) * p) + rgb1.a
+		};
+
+		return tinycolor(rgba);
+	};
+
+
+	// Readability Functions
+	// ---------------------
+	// <http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef (WCAG Version 2)
+
+	// `contrast`
+	// Analyze the 2 colors and returns the color contrast defined by (WCAG Version 2)
+	tinycolor.readability = function(color1, color2) {
+		var c1 = tinycolor(color1);
+		var c2 = tinycolor(color2);
+		return (Math.max(c1.getLuminance(), c2.getLuminance()) + 0.05) / (Math.min(c1.getLuminance(), c2.getLuminance()) + 0.05);
+	};
+
+	// `isReadable`
+	// Ensure that foreground and background color combinations meet WCAG2 guidelines.
+	// The third argument is an optional Object.
+	//      the 'level' property states 'AA' or 'AAA' - if missing or invalid, it defaults to 'AA';
+	//      the 'size' property states 'large' or 'small' - if missing or invalid, it defaults to 'small'.
+	// If the entire object is absent, isReadable defaults to {level:"AA",size:"small"}.
+
+	// *Example*
+	//    tinycolor.isReadable("#000", "#111") => false
+	//    tinycolor.isReadable("#000", "#111",{level:"AA",size:"large"}) => false
+	tinycolor.isReadable = function(color1, color2, wcag2) {
+		var readability = tinycolor.readability(color1, color2);
+		var wcag2Parms, out;
+
+		out = false;
+
+		wcag2Parms = validateWCAG2Parms(wcag2);
+		switch (wcag2Parms.level + wcag2Parms.size) {
+			case "AAsmall":
+			case "AAAlarge":
+				out = readability >= 4.5;
+				break;
+			case "AAlarge":
+				out = readability >= 3;
+				break;
+			case "AAAsmall":
+				out = readability >= 7;
+				break;
+		}
+		return out;
+
+	};
+
+	// `mostReadable`
+	// Given a base color and a list of possible foreground or background
+	// colors for that base, returns the most readable color.
+	// Optionally returns Black or White if the most readable color is unreadable.
+	// *Example*
+	//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:false}).toHexString(); // "#112255"
+	//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:true}).toHexString();  // "#ffffff"
+	//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"large"}).toHexString(); // "#faf3f3"
+	//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"small"}).toHexString(); // "#ffffff"
+	tinycolor.mostReadable = function(baseColor, colorList, args) {
+		var bestColor = null;
+		var bestScore = 0;
+		var readability;
+		var includeFallbackColors, level, size;
+		args = args || {};
+		includeFallbackColors = args.includeFallbackColors;
+		level = args.level;
+		size = args.size;
+
+		for (var i = 0; i < colorList.length; i++) {
+			readability = tinycolor.readability(baseColor, colorList[i]);
+			if (readability > bestScore) {
+				bestScore = readability;
+				bestColor = tinycolor(colorList[i]);
+			}
+		}
+
+		if (tinycolor.isReadable(baseColor, bestColor, { "level": level, "size": size }) || !includeFallbackColors) {
+			return bestColor;
+		}
+		else {
+			args.includeFallbackColors = false;
+			return tinycolor.mostReadable(baseColor, ["#fff", "#000"], args);
+		}
+	};
+
+
+	// Big List of Colors
+	// ------------------
+	// <http://www.w3.org/TR/css3-color/#svg-color>
+	var names = tinycolor.names = {
+		aliceblue: "f0f8ff",
+		antiquewhite: "faebd7",
+		aqua: "0ff",
+		aquamarine: "7fffd4",
+		azure: "f0ffff",
+		beige: "f5f5dc",
+		bisque: "ffe4c4",
+		black: "000",
+		blanchedalmond: "ffebcd",
+		blue: "00f",
+		blueviolet: "8a2be2",
+		brown: "a52a2a",
+		burlywood: "deb887",
+		burntsienna: "ea7e5d",
+		cadetblue: "5f9ea0",
+		chartreuse: "7fff00",
+		chocolate: "d2691e",
+		coral: "ff7f50",
+		cornflowerblue: "6495ed",
+		cornsilk: "fff8dc",
+		crimson: "dc143c",
+		cyan: "0ff",
+		darkblue: "00008b",
+		darkcyan: "008b8b",
+		darkgoldenrod: "b8860b",
+		darkgray: "a9a9a9",
+		darkgreen: "006400",
+		darkgrey: "a9a9a9",
+		darkkhaki: "bdb76b",
+		darkmagenta: "8b008b",
+		darkolivegreen: "556b2f",
+		darkorange: "ff8c00",
+		darkorchid: "9932cc",
+		darkred: "8b0000",
+		darksalmon: "e9967a",
+		darkseagreen: "8fbc8f",
+		darkslateblue: "483d8b",
+		darkslategray: "2f4f4f",
+		darkslategrey: "2f4f4f",
+		darkturquoise: "00ced1",
+		darkviolet: "9400d3",
+		deeppink: "ff1493",
+		deepskyblue: "00bfff",
+		dimgray: "696969",
+		dimgrey: "696969",
+		dodgerblue: "1e90ff",
+		firebrick: "b22222",
+		floralwhite: "fffaf0",
+		forestgreen: "228b22",
+		fuchsia: "f0f",
+		gainsboro: "dcdcdc",
+		ghostwhite: "f8f8ff",
+		gold: "ffd700",
+		goldenrod: "daa520",
+		gray: "808080",
+		green: "008000",
+		greenyellow: "adff2f",
+		grey: "808080",
+		honeydew: "f0fff0",
+		hotpink: "ff69b4",
+		indianred: "cd5c5c",
+		indigo: "4b0082",
+		ivory: "fffff0",
+		khaki: "f0e68c",
+		lavender: "e6e6fa",
+		lavenderblush: "fff0f5",
+		lawngreen: "7cfc00",
+		lemonchiffon: "fffacd",
+		lightblue: "add8e6",
+		lightcoral: "f08080",
+		lightcyan: "e0ffff",
+		lightgoldenrodyellow: "fafad2",
+		lightgray: "d3d3d3",
+		lightgreen: "90ee90",
+		lightgrey: "d3d3d3",
+		lightpink: "ffb6c1",
+		lightsalmon: "ffa07a",
+		lightseagreen: "20b2aa",
+		lightskyblue: "87cefa",
+		lightslategray: "789",
+		lightslategrey: "789",
+		lightsteelblue: "b0c4de",
+		lightyellow: "ffffe0",
+		lime: "0f0",
+		limegreen: "32cd32",
+		linen: "faf0e6",
+		magenta: "f0f",
+		maroon: "800000",
+		mediumaquamarine: "66cdaa",
+		mediumblue: "0000cd",
+		mediumorchid: "ba55d3",
+		mediumpurple: "9370db",
+		mediumseagreen: "3cb371",
+		mediumslateblue: "7b68ee",
+		mediumspringgreen: "00fa9a",
+		mediumturquoise: "48d1cc",
+		mediumvioletred: "c71585",
+		midnightblue: "191970",
+		mintcream: "f5fffa",
+		mistyrose: "ffe4e1",
+		moccasin: "ffe4b5",
+		navajowhite: "ffdead",
+		navy: "000080",
+		oldlace: "fdf5e6",
+		olive: "808000",
+		olivedrab: "6b8e23",
+		orange: "ffa500",
+		orangered: "ff4500",
+		orchid: "da70d6",
+		palegoldenrod: "eee8aa",
+		palegreen: "98fb98",
+		paleturquoise: "afeeee",
+		palevioletred: "db7093",
+		papayawhip: "ffefd5",
+		peachpuff: "ffdab9",
+		peru: "cd853f",
+		pink: "ffc0cb",
+		plum: "dda0dd",
+		powderblue: "b0e0e6",
+		purple: "800080",
+		rebeccapurple: "663399",
+		red: "f00",
+		rosybrown: "bc8f8f",
+		royalblue: "4169e1",
+		saddlebrown: "8b4513",
+		salmon: "fa8072",
+		sandybrown: "f4a460",
+		seagreen: "2e8b57",
+		seashell: "fff5ee",
+		sienna: "a0522d",
+		silver: "c0c0c0",
+		skyblue: "87ceeb",
+		slateblue: "6a5acd",
+		slategray: "708090",
+		slategrey: "708090",
+		snow: "fffafa",
+		springgreen: "00ff7f",
+		steelblue: "4682b4",
+		tan: "d2b48c",
+		teal: "008080",
+		thistle: "d8bfd8",
+		tomato: "ff6347",
+		turquoise: "40e0d0",
+		violet: "ee82ee",
+		wheat: "f5deb3",
+		white: "fff",
+		whitesmoke: "f5f5f5",
+		yellow: "ff0",
+		yellowgreen: "9acd32"
+	};
+
+	// Make it easy to access colors via `hexNames[hex]`
+	var hexNames = tinycolor.hexNames = flip(names);
+
+
+	// Utilities
+	// ---------
+
+	// `{ 'name1': 'val1' }` becomes `{ 'val1': 'name1' }`
+	function flip(o) {
+		var flipped = {};
+		for (var i in o) {
+			if (o.hasOwnProperty(i)) {
+				flipped[o[i]] = i;
+			}
+		}
+		return flipped;
+	}
+
+	// Return a valid alpha value [0,1] with all invalid values being set to 1
+	function boundAlpha(a) {
+		a = parseFloat(a);
+
+		if (isNaN(a) || a < 0 || a > 1) {
+			a = 1;
+		}
+
+		return a;
+	}
+
+	// Take input from [0, n] and return it as [0, 1]
+	function bound01(n, max) {
+		if (isOnePointZero(n)) { n = "100%"; }
+
+		var processPercent = isPercentage(n);
+		n = mathMin(max, mathMax(0, parseFloat(n)));
+
+		// Automatically convert percentage into number
+		if (processPercent) {
+			n = parseInt(n * max, 10) / 100;
+		}
+
+		// Handle floating point rounding errors
+		if ((Math.abs(n - max) < 0.000001)) {
+			return 1;
+		}
+
+		// Convert into [0, 1] range if it isn't already
+		return (n % max) / parseFloat(max);
+	}
+
+	// Force a number between 0 and 1
+	function clamp01(val) {
+		return mathMin(1, mathMax(0, val));
+	}
+
+	// Parse a base-16 hex value into a base-10 integer
+	function parseIntFromHex(val) {
+		return parseInt(val, 16);
+	}
+
+	// Need to handle 1.0 as 100%, since once it is a number, there is no difference between it and 1
+	// <http://stackoverflow.com/questions/7422072/javascript-how-to-detect-number-as-a-decimal-including-1-0>
+	function isOnePointZero(n) {
+		return typeof n == "string" && n.indexOf('.') != -1 && parseFloat(n) === 1;
+	}
+
+	// Check to see if string passed in is a percentage
+	function isPercentage(n) {
+		return typeof n === "string" && n.indexOf('%') != -1;
+	}
+
+	// Force a hex value to have 2 characters
+	function pad2(c) {
+		return c.length == 1 ? '0' + c : '' + c;
+	}
+
+	// Replace a decimal with it's percentage value
+	function convertToPercentage(n) {
+		if (n <= 1) {
+			n = (n * 100) + "%";
+		}
+
+		return n;
+	}
+
+	// Converts a decimal to a hex value
+	function convertDecimalToHex(d) {
+		return Math.round(parseFloat(d) * 255).toString(16);
+	}
+	// Converts a hex value to a decimal
+	function convertHexToDecimal(h) {
+		return (parseIntFromHex(h) / 255);
+	}
+
+	var matchers = (function() {
+
+		// <http://www.w3.org/TR/css3-values/#integers>
+		var CSS_INTEGER = "[-\\+]?\\d+%?";
+
+		// <http://www.w3.org/TR/css3-values/#number-value>
+		var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+
+		// Allow positive/negative integer/number.  Don't capture the either/or, just the entire outcome.
+		var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+
+		// Actual matching.
+		// Parentheses and commas are optional, but not required.
+		// Whitespace can take the place of commas or opening paren
+		var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+		var PERMISSIVE_MATCH4 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+
+		return {
+			CSS_UNIT: new RegExp(CSS_UNIT),
+			rgb: new RegExp("rgb" + PERMISSIVE_MATCH3),
+			rgba: new RegExp("rgba" + PERMISSIVE_MATCH4),
+			hsl: new RegExp("hsl" + PERMISSIVE_MATCH3),
+			hsla: new RegExp("hsla" + PERMISSIVE_MATCH4),
+			hsv: new RegExp("hsv" + PERMISSIVE_MATCH3),
+			hsva: new RegExp("hsva" + PERMISSIVE_MATCH4),
+			hex3: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+			hex6: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+			hex4: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+			hex8: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/
+		};
+	})();
+
+	// `isValidCSSUnit`
+	// Take in a single string / number and check to see if it looks like a CSS unit
+	// (see `matchers` above for definition).
+	function isValidCSSUnit(color) {
+		return !!matchers.CSS_UNIT.exec(color);
+	}
+
+	// `stringInputToObject`
+	// Permissive string parsing.  Take in a number of formats, and output an object
+	// based on detected format.  Returns `{ r, g, b }` or `{ h, s, l }` or `{ h, s, v}`
+	function stringInputToObject(color) {
+
+		color = color.replace(trimLeft, '').replace(trimRight, '').toLowerCase();
+		var named = false;
+		if (names[color]) {
+			color = names[color];
+			named = true;
+		}
+		else if (color == 'transparent') {
+			return { r: 0, g: 0, b: 0, a: 0, format: "name" };
+		}
+
+		// Try to match string input using regular expressions.
+		// Keep most of the number bounding out of this function - don't worry about [0,1] or [0,100] or [0,360]
+		// Just return an object and let the conversion functions handle that.
+		// This way the result will be the same whether the tinycolor is initialized with string or object.
+		var match;
+		if ((match = matchers.rgb.exec(color))) {
+			return { r: match[1], g: match[2], b: match[3] };
+		}
+		if ((match = matchers.rgba.exec(color))) {
+			return { r: match[1], g: match[2], b: match[3], a: match[4] };
+		}
+		if ((match = matchers.hsl.exec(color))) {
+			return { h: match[1], s: match[2], l: match[3] };
+		}
+		if ((match = matchers.hsla.exec(color))) {
+			return { h: match[1], s: match[2], l: match[3], a: match[4] };
+		}
+		if ((match = matchers.hsv.exec(color))) {
+			return { h: match[1], s: match[2], v: match[3] };
+		}
+		if ((match = matchers.hsva.exec(color))) {
+			return { h: match[1], s: match[2], v: match[3], a: match[4] };
+		}
+		if ((match = matchers.hex8.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1]),
+				g: parseIntFromHex(match[2]),
+				b: parseIntFromHex(match[3]),
+				a: convertHexToDecimal(match[4]),
+				format: named ? "name" : "hex8"
+			};
+		}
+		if ((match = matchers.hex6.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1]),
+				g: parseIntFromHex(match[2]),
+				b: parseIntFromHex(match[3]),
+				format: named ? "name" : "hex"
+			};
+		}
+		if ((match = matchers.hex4.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1] + '' + match[1]),
+				g: parseIntFromHex(match[2] + '' + match[2]),
+				b: parseIntFromHex(match[3] + '' + match[3]),
+				a: convertHexToDecimal(match[4] + '' + match[4]),
+				format: named ? "name" : "hex8"
+			};
+		}
+		if ((match = matchers.hex3.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1] + '' + match[1]),
+				g: parseIntFromHex(match[2] + '' + match[2]),
+				b: parseIntFromHex(match[3] + '' + match[3]),
+				format: named ? "name" : "hex"
+			};
+		}
+
+		return false;
+	}
+
+	function validateWCAG2Parms(parms) {
+		// return valid WCAG2 parms for isReadable.
+		// If input parms are invalid, return {"level":"AA", "size":"small"}
+		var level, size;
+		parms = parms || { "level": "AA", "size": "small" };
+		level = (parms.level || "AA").toUpperCase();
+		size = (parms.size || "small").toLowerCase();
+		if (level !== "AA" && level !== "AAA") {
+			level = "AA";
+		}
+		if (size !== "small" && size !== "large") {
+			size = "small";
+		}
+		return { "level": level, "size": size };
+	}
+
+	return tinycolor;
+});
+
+mblowfish.factory('MbColorGradientCanvas', function() {
+
+	var canvasTypes = {
+		hue: {
+			getColorByPoint: function(x, y) {
+				var imageData = this.getImageData(x, y);
+				this.setMarkerCenter(y);
+
+				var hsl = new MbColor({ r: imageData[0], g: imageData[1], b: imageData[2] });
+				return hsl.toHsl().h;
+			},
+			draw: function() {
+				this.$element.css({ 'height': this.height + 'px' });
+
+				this.canvas.height = this.height;
+				this.canvas.width = this.height;
+
+				// Create gradient
+				var hueGrd = this.context.createLinearGradient(90, 0.000, 90, this.height);
+
+				// Add colors
+				hueGrd.addColorStop(0.01, 'rgba(255, 0, 0, 1.000)');
+				hueGrd.addColorStop(0.167, 'rgba(255, 0, 255, 1.000)');
+				hueGrd.addColorStop(0.333, 'rgba(0, 0, 255, 1.000)');
+				hueGrd.addColorStop(0.500, 'rgba(0, 255, 255, 1.000)');
+				hueGrd.addColorStop(0.666, 'rgba(0, 255, 0, 1.000)');
+				hueGrd.addColorStop(0.828, 'rgba(255, 255, 0, 1.000)');
+				hueGrd.addColorStop(0.999, 'rgba(255, 0, 0, 1.000)');
+
+				// Fill with gradient
+				this.context.fillStyle = hueGrd;
+				this.context.fillRect(0, 0, this.canvas.width, this.height);
+			}
+		},
+		alpha: {
+			getColorByPoint: function(x, y) {
+				var imageData = this.getImageData(x, y);
+				this.setMarkerCenter(y);
+
+				return imageData[3] / 255;
+			},
+			draw: function() {
+				this.$element.css({ 'height': this.height + 'px' });
+
+				this.canvas.height = this.height;
+				this.canvas.width = this.height;
+
+				// Create gradient
+				var hueGrd = this.context.createLinearGradient(90, 0.000, 90, this.height);
+
+				// Add colors
+				hueGrd.addColorStop(0.01, 'rgba(' + this.currentColor.r + ',' + this.currentColor.g + ',' + this.currentColor.b + ', 1.000)');
+				hueGrd.addColorStop(0.99, 'rgba(' + this.currentColor.r + ',' + this.currentColor.g + ',' + this.currentColor.b + ', 0.000)');
+
+				// Fill with gradient
+				this.context.fillStyle = hueGrd;
+				this.context.fillRect(-1, -1, this.canvas.width + 2, this.height + 2);
+			},
+			extra: function() {
+				this.$scope.$on('mbColorPicker:spectrumColorChange', angular.bind(this, function(e, args) {
+					this.currentColor = args.color;
+					this.draw();
+				}));
+			}
+		},
+		spectrum: {
+			getColorByPoint: function(x, y) {
+
+				var imageData = this.getImageData(x, y);
+				this.setMarkerCenter(x, y);
+
+				return {
+					r: imageData[0],
+					g: imageData[1],
+					b: imageData[2]
+				};
+			},
+			draw: function() {
+				this.canvas.height = this.height;
+				this.canvas.width = this.height;
+				this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+				// Odd bug prevented selecting min, max ranges from all gradients.
+				// Start at 0.01, end at 0.99 and stretch it to 1px larger in each direction
+
+				// White gradient
+				var whiteGrd = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
+
+
+				whiteGrd.addColorStop(0.01, 'rgba(255, 255, 255, 1.000)');
+				whiteGrd.addColorStop(0.99, 'rgba(255, 255, 255, 0.000)');
+
+				// Black Gradient
+				var blackGrd = this.context.createLinearGradient(0, 0, 0, this.canvas.height);
+
+
+				blackGrd.addColorStop(0.01, 'rgba(0, 0, 0, 0.000)');
+				blackGrd.addColorStop(0.99, 'rgba(0, 0, 0, 1.000)');
+
+				// Fill with solid
+				this.context.fillStyle = 'hsl( ' + this.currentHue + ', 100%, 50%)';
+				this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+				// Fill with white
+				// Odd bug prevented selecting min, max ranges from all gradients
+				this.context.fillStyle = whiteGrd;
+				this.context.fillRect(-1, -1, this.canvas.width + 2, this.canvas.height + 2);
+
+				// Fill with black
+				// Odd bug prevented selecting min, max ranges from all gradients
+				this.context.fillStyle = blackGrd;
+				this.context.fillRect(-1, -1, this.canvas.width + 2, this.canvas.height + 2);
+			},
+			extra: function() {
+				this.$scope.$on('mbColorPicker:spectrumHueChange', angular.bind(this, function(e, args) {
+					this.currentHue = args.hue;
+					this.draw();
+					var markerPos = this.getMarkerCenter();
+					var color = this.getColorByPoint(markerPos.x, markerPos.y);
+					this.setColor(color);
+
+				}));
+			}
+		}
+
+	};
+
+
+	function GradientCanvas(type, restrictX) {
+
+		this.type = type;
+		this.restrictX = restrictX;
+		this.offset = {
+			x: null,
+			y: null
+		};
+		this.height = 255;
+
+		this.$scope = null;
+		this.$element = null;
+
+		this.get = angular.bind(this, function($temp_scope, $temp_element/*, $temp_attrs*/) {
+			////////////////////////////
+			// Variables
+			////////////////////////////
+
+			this.$scope = $temp_scope;
+			this.$element = $temp_element;
+
+
+			this.canvas = this.$element.children()[0];
+			this.marker = this.$element.children()[1];
+			this.context = this.canvas.getContext('2d');
+			this.currentColor = this.$scope.color.toRgb();
+			this.currentHue = this.$scope.color.toHsv().h;
+			////////////////////////////
+			// Watchers, Observes, Events
+			////////////////////////////
+
+			//$scope.$watch( function() { return color.getRgb(); }, hslObserver, true );
+
+
+			this.$element.on('touchstart mousedown', angular.bind(this, this.onMouseDown));
+			this.$scope.$on('mbColorPicker:colorSet', angular.bind(this, this.onColorSet));
+			if (this.extra) {
+				this.extra();
+			}
+			////////////////////////////
+			// init
+			////////////////////////////
+
+			this.draw();
+		});
+
+		//return angular.bind( this, this.get );
+
+	}
+
+	GradientCanvas.prototype.$window = angular.element(window);
+
+	GradientCanvas.prototype.getColorByMouse = function(e) {
+
+		var te = e.touches && e.touches[0];
+
+		var pageX = te && te.pageX || e.pageX;
+		var pageY = te && te.pageY || e.pageY;
+
+		var x = Math.round(pageX - this.offset.x);
+		var y = Math.round(pageY - this.offset.y);
+
+		return this.getColorByPoint(x, y);
+	};
+
+	GradientCanvas.prototype.setMarkerCenter = function(x, y) {
+		var xOffset = -1 * this.marker.offsetWidth / 2;
+		var yOffset = -1 * this.marker.offsetHeight / 2;
+		var xAdjusted, xFinal, yAdjusted, yFinal;
+
+		if (y === undefined) {
+			yAdjusted = x + yOffset;
+			yFinal = Math.round(Math.max(Math.min(this.height - 1 + yOffset, yAdjusted), yOffset));
+
+			xFinal = 0;
+		} else {
+			xAdjusted = x + xOffset;
+			yAdjusted = y + yOffset;
+
+			xFinal = Math.floor(Math.max(Math.min(this.height + xOffset, xAdjusted), xOffset));
+			yFinal = Math.floor(Math.max(Math.min(this.height + yOffset, yAdjusted), yOffset));
+			// Debug output
+			// console.log( "Raw: ", x+','+y, "Adjusted: ", xAdjusted + ',' + yAdjusted, "Final: ", xFinal + ',' + yFinal );
+		}
+
+
+
+		angular.element(this.marker).css({ 'left': xFinal + 'px' });
+		angular.element(this.marker).css({ 'top': yFinal + 'px' });
+	};
+
+	GradientCanvas.prototype.getMarkerCenter = function() {
+		var returnObj = {
+			x: this.marker.offsetLeft + (Math.floor(this.marker.offsetWidth / 2)),
+			y: this.marker.offsetTop + (Math.floor(this.marker.offsetHeight / 2))
+		};
+		return returnObj;
+	};
+
+	GradientCanvas.prototype.getImageData = function(x, y) {
+		x = Math.max(0, Math.min(x, this.canvas.width - 1));
+		y = Math.max(0, Math.min(y, this.canvas.height - 1));
+
+		var imageData = this.context.getImageData(x, y, 1, 1).data;
+		return imageData;
+	};
+
+	GradientCanvas.prototype.onMouseDown = function(e) {
+		// Prevent highlighting
+		e.preventDefault();
+		e.stopImmediatePropagation();
+
+		this.$scope.previewUnfocus();
+
+		this.$element.css({ 'cursor': 'none' });
+
+		this.offset.x = this.canvas.getBoundingClientRect().left;
+		this.offset.y = this.canvas.getBoundingClientRect().top;
+
+		var fn = angular.bind(this, function(e) {
+			switch (this.type) {
+				case 'hue':
+					var hue = this.getColorByMouse(e);
+					this.$scope.$broadcast('mbColorPicker:spectrumHueChange', { hue: hue });
+					break;
+				case 'alpha':
+					var alpha = this.getColorByMouse(e);
+					this.$scope.color.setAlpha(alpha);
+					this.$scope.alpha = alpha;
+					this.$scope.$apply();
+					break;
+				case 'spectrum':
+					var color = this.getColorByMouse(e);
+					this.setColor(color);
+					break;
+			}
+		});
+
+		this.$window.on('touchmove mousemove', fn);
+		this.$window.one('touchend mouseup', angular.bind(this, function(/*e*/) {
+			this.$window.off('touchmove mousemove', fn);
+			this.$element.css({ 'cursor': 'crosshair' });
+		}));
+
+		// Set the color
+		fn(e);
+	};
+
+	GradientCanvas.prototype.setColor = function(color) {
+
+		this.$scope.color._r = color.r;
+		this.$scope.color._g = color.g;
+		this.$scope.color._b = color.b;
+		this.$scope.$apply();
+		this.$scope.$broadcast('mbColorPicker:spectrumColorChange', { color: color });
+	};
+
+	GradientCanvas.prototype.onColorSet = function(e, args) {
+		var hsv;
+		switch (this.type) {
+			case 'hue': {
+				hsv = this.$scope.color.toHsv();
+				this.setMarkerCenter(this.canvas.height - (this.canvas.height * (hsv.h / 360)));
+				break;
+			}
+			case 'alpha': {
+				this.currentColor = args.color.toRgb();
+				this.draw();
+
+				var alpha = args.color.getAlpha();
+				var pos = this.canvas.height - (this.canvas.height * alpha);
+
+				this.setMarkerCenter(pos);
+				break;
+			}
+			case 'spectrum': {
+				hsv = args.color.toHsv();
+				this.currentHue = hsv.h;
+				this.draw();
+
+				var posX = this.canvas.width * hsv.s;
+				var posY = this.canvas.height - (this.canvas.height * hsv.v);
+
+				this.setMarkerCenter(posX, posY);
+				break;
+			}
+		}
+
+	};
+
+
+
+
+
+	return function gradientCanvas(type) {
+		var canvas = new GradientCanvas(type, type !== 'spectrum');
+		canvas = angular.merge(canvas, canvasTypes[type]);
+		return {
+			template: '<canvas width="100%" height="100%"></canvas><div class="mb-color-picker-marker"></div>',
+			link: canvas.get,
+			controller: function() {
+				//	console.log( "mbColorPickerAlpha Controller", Date.now() - dateClick );
+			}
+		};
+	};
+});
+
+mblowfish.factory('MbColorPicker', function($q, $mdDialog, colorHistory, MbColor) {
+	var dialog;
+
+	return {
+		show: function(options) {
+			if (options === undefined) {
+				options = {};
+			}
+			//console.log( 'DIALOG OPTIONS', options );
+			// Defaults
+			// Dialog Properties
+			options.hasBackdrop = options.hasBackdrop === undefined ? true : options.hasBackdrop;
+			options.clickOutsideToClose = options.clickOutsideToClose === undefined ? true : options.clickOutsideToClose;
+			options.defaultValue = options.defaultValue === undefined ? '#FFFFFF' : options.defaultValue;
+			options.focusOnOpen = options.focusOnOpen === undefined ? false : options.focusOnOpen;
+			options.preserveScope = options.preserveScope === undefined ? true : options.preserveScope;
+			options.skipHide = options.skipHide === undefined ? true : options.skipHide;
+
+			// mbColorPicker Properties
+			options.mbColorAlphaChannel = options.mbColorAlphaChannel === undefined ? false : options.mbColorAlphaChannel;
+			options.mbColorSpectrum = options.mbColorSpectrum === undefined ? true : options.mbColorSpectrum;
+			options.mbColorSliders = options.mbColorSliders === undefined ? true : options.mbColorSliders;
+			options.mbColorGenericPalette = options.mbColorGenericPalette === undefined ? true : options.mbColorGenericPalette;
+			options.mbColorMaterialPalette = options.mbColorMaterialPalette === undefined ? true : options.mbColorMaterialPalette;
+			options.mbColorHistory = options.mbColorHistory === undefined ? true : options.mbColorHistory;
+			options.mbColorRgb = options.mbColorRgb === undefined ? true : options.mbColorRgb;
+			options.mbColorHsl = options.mbColorHsl === undefined ? true : options.mbColorHsl;
+			options.mbColorHex = ((options.mbColorHex === undefined) || (!options.mbColorRgb && !options.mbColorHsl)) ? true : options.mbColorHex;
+			options.mbColorAlphaChannel = (!options.mbColorRgb && !options.mbColorHsl) ? false : options.mbColorAlphaChannel;
+
+			dialog = $mdDialog.show({
+				templateUrl: 'views/mbColorPickerDialog.tpl.html',
+				hasBackdrop: options.hasBackdrop,
+				clickOutsideToClose: options.clickOutsideToClose,
+
+				controller: ['$scope', 'options', function($scope, options) {
+					//console.log( "DIALOG CONTROLLER OPEN", Date.now() - dateClick );
+					$scope.close = function close() {
+						$mdDialog.cancel();
+					};
+					$scope.ok = function ok() {
+						$mdDialog.hide($scope.value);
+					};
+					$scope.hide = $scope.ok;
+
+
+
+					$scope.value = options.value;
+					$scope.default = options.defaultValue;
+					$scope.random = options.random;
+
+					$scope.mbColorAlphaChannel = options.mbColorAlphaChannel;
+					$scope.mbColorSpectrum = options.mbColorSpectrum;
+					$scope.mbColorSliders = options.mbColorSliders;
+					$scope.mbColorGenericPalette = options.mbColorGenericPalette;
+					$scope.mbColorMaterialPalette = options.mbColorMaterialPalette;
+					$scope.mbColorHistory = options.mbColorHistory;
+					$scope.mbColorHex = options.mbColorHex;
+					$scope.mbColorRgb = options.mbColorRgb;
+					$scope.mbColorHsl = options.mbColorHsl;
+					$scope.mbColorDefaultTab = options.mbColorDefaultTab;
+
+				}],
+
+				locals: {
+					options: options
+				},
+				preserveScope: options.preserveScope,
+				skipHide: options.skipHide,
+
+				targetEvent: options.$event,
+				focusOnOpen: options.focusOnOpen,
+				autoWrap: false,
+				onShowing: function() {
+					//		console.log( "DIALOG OPEN START", Date.now() - dateClick );
+				},
+				onComplete: function() {
+					//		console.log( "DIALOG OPEN COMPLETE", Date.now() - dateClick );
+				}
+			});
+
+			dialog.then(function(value) {
+				colorHistory.add(new MbColor(value));
+			}, function() { });
+
+			return dialog;
+		},
+		hide: function() {
+			return dialog.hide();
+		},
+		cancel: function() {
+			return dialog.cancel();
+		}
+	};
+});
+mblowfish.factory('MbColorPickerHistory', function($injector, MbColor) {
+
+	var history = [];
+	var strHistory = [];
+
+	var $cookies = false;
+	try {
+		$cookies = $injector.get('$cookies');
+	} catch (e) {
+		// Handler error
+	}
+
+	if ($cookies) {
+		var tmpHistory = $cookies.getObject('mbColorPickerHistory') || [];
+		for (var i = 0; i < tmpHistory.length; i++) {
+			history.push(new MbColor(tmpHistory[i]));
+			strHistory.push(tmpHistory[i]);
+		}
+	}
+
+	var length = 40;
+
+	return {
+		length: function() {
+			if (arguments[0]) {
+				length = arguments[0];
+			} else {
+				return history.length;
+			}
+		},
+		add: function(color) {
+			for (var x = 0; x < history.length; x++) {
+				if (history[x].toRgbString() === color.toRgbString()) {
+					history.splice(x, 1);
+					strHistory.splice(x, 1);
+				}
+			}
+
+			history.unshift(color);
+			strHistory.unshift(color.toRgbString());
+
+			if (history.length > length) {
+				history.pop();
+				strHistory.pop();
+			}
+			if ($cookies) {
+				$cookies.putObject('mbColorPickerHistory', strHistory);
+			}
+		},
+		get: function() {
+			return history;
+		},
+		reset: function() {
+			history = [];
+			strHistory = [];
+			if ($cookies) {
+				$cookies.putObject('mbColorPickerHistory', strHistory);
+			}
+		}
+	};
+});
+
+
+
+/**
+ * @ngdoc service
+ * @name $mbColors
+ * @module material.components.colors
+ *
+ * @description
+ * By default, defining a theme does not make its colors available for applying to non AngularJS
+ * Material elements. The `$mbColors` service is used by the `mb-color` directive to convert a
+ * set of color expressions to RGBA values and then apply those values to the element as CSS
+ * property values.
+ *
+ * @usage
+ * Getting a color based on a theme
+ *
+ *  <hljs lang="js">
+ *    angular.controller('myCtrl', function ($mbColors) {
+ *      var color = $mbColors.getThemeColor('myTheme-primary-900-0.5');
+ *      ...
+ *    });
+ *  </hljs>
+ *
+ * Applying a color from a palette to an element
+ * <hljs lang="js">
+ *   app.directive('myDirective', function($mbColors) {
+ *     return {
+ *       ...
+ *       link: function (scope, elem) {
+ *         $mbColors.applyThemeColors(elem, {color: 'red-A200-0.2'});
+ *       }
+ *    }
+ *   });
+ * </hljs>
+ */
+mblowfish.service('$mbColors', function($mdTheming, $mdUtil, $log) {
+	var colorPalettes = null;
+	colorPalettes = colorPalettes || Object.keys($mdTheming.PALETTES);
+
+	// Publish service instance
+	return {
+		applyThemeColors: applyThemeColors,
+		getThemeColor: getThemeColor,
+		hasTheme: hasTheme
+	};
+
+	// ********************************************
+	// Internal Methods
+	// ********************************************
+
+    /**
+     * @ngdoc method
+     * @name $mbColors#applyThemeColors
+     *
+     * @description
+     * Lookup a set of colors by hue, theme, and palette, then apply those colors
+     * with the provided opacity (via `rgba()`) to the specified CSS property.
+     *
+     * @param {angular.element} element the element to apply the styles to
+     * @param {Object} colorExpression Keys are CSS properties and values are strings representing
+     * the `theme-palette-hue-opacity` of the desired color. For example:
+     * `{'color': 'red-A200-0.3', 'background-color': 'myTheme-primary-700-0.8'}`. Theme, hue, and
+     * opacity are optional.
+     */
+	function applyThemeColors(element, colorExpression) {
+		try {
+			if (colorExpression) {
+				// Assign the calculate RGBA color values directly as inline CSS
+				element.css(interpolateColors(colorExpression));
+			}
+		} catch (e) {
+			$log.error(e.message);
+		}
+	}
+
+    /**
+     * @ngdoc method
+     * @name $mbColors#getThemeColor
+     *
+     * @description
+     * Get a parsed RGBA color using a string representing the `theme-palette-hue-opacity` of the
+     * desired color.
+     *
+     * @param {string} expression color expression like `'red-A200-0.3'` or
+     *  `'myTheme-primary-700-0.8'`. Theme, hue, and opacity are optional.
+     * @returns {string} a CSS color value like `rgba(211, 47, 47, 0.8)`
+     */
+	function getThemeColor(expression) {
+		var color = extractColorOptions(expression);
+
+		return parseColor(color);
+	}
+
+    /**
+     * Return the parsed color
+     * @param {{hue: *, theme: any, palette: *, opacity: (*|string|number)}} color hash map of color
+     *  definitions
+     * @param {boolean=} contrast whether use contrast color for foreground. Defaults to false.
+     * @returns {string} rgba color string
+     */
+	function parseColor(color, contrast) {
+		contrast = contrast || false;
+		var rgbValues = $mdTheming.PALETTES[color.palette][color.hue];
+
+		rgbValues = contrast ? rgbValues.contrast : rgbValues.value;
+
+		return $mdUtil.supplant('rgba({0}, {1}, {2}, {3})',
+			[rgbValues[0], rgbValues[1], rgbValues[2], rgbValues[3] || color.opacity]
+		);
+	}
+
+    /**
+     * Convert the color expression into an object with scope-interpolated values
+     * Then calculate the rgba() values based on the theme color parts
+     * @param {Object} themeColors json object, keys are css properties and values are string of
+     * the wanted color, for example: `{color: 'red-A200-0.3'}`.
+     * @return {Object} Hashmap of CSS properties with associated `rgba()` string values
+     */
+	function interpolateColors(themeColors) {
+		var rgbColors = {};
+
+		var hasColorProperty = themeColors.hasOwnProperty('color');
+
+		angular.forEach(themeColors, function(value, key) {
+			var color = extractColorOptions(value);
+			var hasBackground = key.indexOf('background') > -1;
+
+			rgbColors[key] = parseColor(color);
+			if (hasBackground && !hasColorProperty) {
+				rgbColors.color = parseColor(color, true);
+			}
+		});
+
+		return rgbColors;
+	}
+
+    /**
+     * Check if expression has defined theme
+     * For instance:
+     *   'myTheme-primary' => true
+     *   'red-800' => false
+     * @param {string} expression color expression like 'red-800', 'red-A200-0.3',
+     *   'myTheme-primary', or 'myTheme-primary-400'
+     * @return {boolean} true if the expression has a theme part, false otherwise.
+     */
+	function hasTheme(expression) {
+		return angular.isDefined($mdTheming.THEMES[expression.split('-')[0]]);
+	}
+
+    /**
+     * For the evaluated expression, extract the color parts into a hash map
+     * @param {string} expression color expression like 'red-800', 'red-A200-0.3',
+     *   'myTheme-primary', or 'myTheme-primary-400'
+     * @returns {{hue: *, theme: any, palette: *, opacity: (*|string|number)}}
+     */
+	function extractColorOptions(expression) {
+		var parts = expression.split('-');
+		var hasTheme = angular.isDefined($mdTheming.THEMES[parts[0]]);
+		var theme = hasTheme ? parts.splice(0, 1)[0] : $mdTheming.defaultTheme();
+
+		return {
+			theme: theme,
+			palette: extractPalette(parts, theme),
+			hue: extractHue(parts, theme),
+			opacity: parts[2] || 1
+		};
+	}
+
+    /**
+     * Calculate the theme palette name
+     * @param {Array} parts
+     * @param {string} theme name
+     * @return {string}
+     */
+	function extractPalette(parts, theme) {
+		// If the next section is one of the palettes we assume it's a two word palette
+		// Two word palette can be also written in camelCase, forming camelCase to dash-case
+
+		var isTwoWord = parts.length > 1 && colorPalettes.indexOf(parts[1]) !== -1;
+		var palette = parts[0].replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+		if (isTwoWord) palette = parts[0] + '-' + parts.splice(1, 1);
+
+		if (colorPalettes.indexOf(palette) === -1) {
+			// If the palette is not in the palette list it's one of primary/accent/warn/background
+			var scheme = $mdTheming.THEMES[theme].colors[palette];
+			if (!scheme) {
+				throw new Error($mdUtil.supplant(
+					'mbColors: couldn\'t find \'{palette}\' in the palettes.',
+					{ palette: palette }));
+			}
+			palette = scheme.name;
+		}
+
+		return palette;
+	}
+
+    /**
+     * @param {Array} parts
+     * @param {string} theme name
+     * @return {*}
+     */
+	function extractHue(parts, theme) {
+		var themeColors = $mdTheming.THEMES[theme].colors;
+
+		if (parts[1] === 'hue') {
+			var hueNumber = parseInt(parts.splice(2, 1)[0], 10);
+
+			if (hueNumber < 1 || hueNumber > 3) {
+				throw new Error($mdUtil.supplant(
+					'mbColors: \'hue-{hueNumber}\' is not a valid hue, can be only \'hue-1\', \'hue-2\' and \'hue-3\'',
+					{ hueNumber: hueNumber }));
+			}
+			parts[1] = 'hue-' + hueNumber;
+
+			if (!(parts[0] in themeColors)) {
+				throw new Error($mdUtil.supplant(
+					'mbColors: \'hue-x\' can only be used with [{availableThemes}], but was used with \'{usedTheme}\'',
+					{
+						availableThemes: Object.keys(themeColors).join(', '),
+						usedTheme: parts[0]
+					}));
+			}
+
+			return themeColors[parts[0]].hues[parts[1]];
+		}
+
+		return parts[1] || themeColors[parts[0] in themeColors ? parts[0] : 'primary'].hues['default'];
+	}
+});
+
+/*
+ * angular-material-icons v0.7.1
+ * (c) 2014 Klar Systems
+ * License: MIT
+ */
+
+/**
+ * @ngdoc Services
+ * @name $mbIconService
+ * @description Manage icons to use in the view
+ * 
+ *  All icons will be managed
+ */
+mblowfish.provider('$mbIcon', function() {
+
+	var provider, service;
+
+	var shapes = {};
+	var viewBoxes = {};
+	var size = 24;
+
+	service = {
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
+	};
+
+	provider = {
+		$get: $mbIconFactory,
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
+	};
+
+	return provider;
+
+	function addShape(name, shape) {
+		shapes[name] = shape;
+
+		return provider; // chainable function
+	}
+
+	function addShapes(newShapes) {
+		shapes = angular.extend(shapes, newShapes);
+
+		return provider; // chainable function
+	}
+
+	function addViewBox(name, viewBox) {
+		viewBoxes[name] = viewBox;
+
+		return provider; // chainable function
+	}
+
+	function addViewBoxes(newViewBoxes) {
+		viewBoxes = angular.extend(viewBoxes, newViewBoxes);
+
+		return provider; // chainable function
+	}
+
+	function getShape(name) {
+		return shapes[name] || shapes['help'];
+	}
+
+	function getShapes() {
+		return shapes;
+	}
+
+	function getViewBox(name) {
+		return viewBoxes[name] || '0 0 24 24';
+	}
+
+	function getViewBoxes() {
+		return viewBoxes;
+	}
+
+	function setSize(newSize) {
+		size = newSize || 24;
+	}
+
+	function getSize() {
+		return size;
+	}
+
+	function $mbIconFactory() {
+		return service;
+	}
+});
+
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -15662,117 +18547,6 @@ mblowfish.provider('$mbEditor', function() {
 		}
 	};
 	return provider;
-});
-
-/*
- * angular-material-icons v0.7.1
- * (c) 2014 Klar Systems
- * License: MIT
- */
-
-/**
- * @ngdoc Services
- * @name $mbIconService
- * @description Manage icons to use in the view
- * 
- *  All icons will be managed
- */
-mblowfish.provider('$mbIcon', function() {
-
-	var provider, service;
-
-	var shapes = {};
-	var viewBoxes = {};
-	var size = 24;
-
-	service = {
-		getShape: getShape,
-		getShapes: getShapes,
-		getViewBox: getViewBox,
-		getViewBoxes: getViewBoxes,
-		getSize: getSize,
-		setShape: addShape,
-		setShapes: addShapes,
-		setViewBox: addViewBox,
-		setViewBoxes: addViewBoxes,
-		setSize: setSize,
-		addShape: addShape,
-		addShapes: addShapes,
-		addViewBox: addViewBox,
-		addViewBoxes: addViewBoxes
-	};
-
-	provider = {
-		$get: $mbIconFactory,
-		getShape: getShape,
-		getShapes: getShapes,
-		getViewBox: getViewBox,
-		getViewBoxes: getViewBoxes,
-		getSize: getSize,
-		setShape: addShape,
-		setShapes: addShapes,
-		setViewBox: addViewBox,
-		setViewBoxes: addViewBoxes,
-		setSize: setSize,
-		addShape: addShape,
-		addShapes: addShapes,
-		addViewBox: addViewBox,
-		addViewBoxes: addViewBoxes
-	};
-
-	return provider;
-
-	function addShape(name, shape) {
-		shapes[name] = shape;
-
-		return provider; // chainable function
-	}
-
-	function addShapes(newShapes) {
-		shapes = angular.extend(shapes, newShapes);
-
-		return provider; // chainable function
-	}
-
-	function addViewBox(name, viewBox) {
-		viewBoxes[name] = viewBox;
-
-		return provider; // chainable function
-	}
-
-	function addViewBoxes(newViewBoxes) {
-		viewBoxes = angular.extend(viewBoxes, newViewBoxes);
-
-		return provider; // chainable function
-	}
-
-	function getShape(name) {
-		return shapes[name] || shapes['help'];
-	}
-
-	function getShapes() {
-		return shapes;
-	}
-
-	function getViewBox(name) {
-		return viewBoxes[name] || '0 0 24 24';
-	}
-
-	function getViewBoxes() {
-		return viewBoxes;
-	}
-
-	function setSize(newSize) {
-		size = newSize || 24;
-	}
-
-	function getSize() {
-		return size;
-	}
-
-	function $mbIconFactory() {
-		return service;
-	}
 });
 
 /* 
@@ -20258,7 +23032,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" md-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" mb-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
   );
 
 
@@ -20273,12 +23047,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input mb-on-enter=ctrlInline.save($event) mb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" mb-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom mb-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" mb-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom mb-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input mb-on-enter=ctrlInline.save($event) mb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500> <span mb-translate>home</span> </md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> <span mb-translate>{{::menu.title}} </span></md-button> </div> </div>"
+    "<div class=mb-navigation-path-bar mb-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500> <span mb-translate>home</span> </md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> <span mb-translate>{{::menu.title}} </span></md-button> </div> </div>"
   );
 
 
@@ -20333,7 +23107,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-branding-header-toolbar.html',
-    " <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar>"
+    " <md-toolbar layout=row layout-padding mb-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar>"
   );
 
 
@@ -20348,7 +23122,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-view-login.html',
-    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'|translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'|translate}}</md-button>      </div> </form> </div> </div>"
+    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary mb-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span mb-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'|translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'|translate}}</md-button>      </div> </form> </div> </div>"
   );
 
 
@@ -20443,13 +23217,8 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('scripts/directives/mb-titled-block.html',
-    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
-  );
-
-
   $templateCache.put('scripts/factories/wizard.html',
-    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage mb-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
   );
 
 
@@ -20464,7 +23233,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-layouts/resources/layouts-local-storage.html',
-    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> <mb-icon class=md-secondary ng-click=\"ctrl.deleteLayout(layoutName, $event)\" aria-label=\"Delete layout\">delete</mb-icon> </md-list-item> </md-list>"
+    "<md-list ng-cloak> <md-list-item mb-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-repeat=\"layoutName in ctrl.layouts\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> <mb-icon class=md-secondary ng-click=\"ctrl.deleteLayout(layoutName, $event)\" aria-label=\"Delete layout\">delete</mb-icon> </md-list-item> </md-list>"
   );
 
 
@@ -20480,6 +23249,21 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/module-navigator/views/navigator.html',
     "<md-content> <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-color-picker-container.html',
+    "<div class=\"mb-color-picker-container in\" layout=column> <div class=mb-color-picker-arrow ng-style=\"{'border-bottom-color': color.toRgbString() }\"></div> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-class=\"{'dark': !color.isDark() || color.getAlpha() < .45}\" flex=1 layout=column> <div class=mb-color-picker-result ng-style=\"{'background': color.toRgbString()}\" flex=100 layout=column layout-fill layout-align=\"center center\" ng-click=\"focusPreviewInput( $event )\">  <div flex layout=row layout-align=\"center center\"> <input class=mb-color-picker-preview-input ng-model=value ng-focus=previewFocus($event); ng-blur=previewBlur() ng-change=changeValue() ng-keypress=previewKeyDown($event) layout-fill> </div> <div class=mb-color-picker-tabs style=\"width: 100%\"> <md-tabs md-selected=type md-stretch-tabs=always md-no-bar md-no-ink md-no-pagination=true> <md-tab ng-if=mbColorHex label=Hex ng-disabled=\"color.getAlpha() !== 1\" md-ink-ripple=#ffffff></md-tab> <md-tab ng-if=mbColorRgb label=RGB></md-tab> <md-tab ng-if=mbColorHsl label=HSL></md-tab>  </md-tabs> </div> </div> </div> <div class=\"mb-color-picker-tabs mb-color-picker-colors\"> <md-tabs md-stretch-tabs=always md-align-tabs=bottom md-selected=whichPane md-no-pagination> <md-tab ng-if=mbColorSpectrum> <md-tab-label> <md-icon md-svg-icon=gradient.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=row layout-align=space-between style=\"height: 255px\"> <div mb-color-picker-spectrum></div> <div mb-color-picker-hue ng-class=\"{'mb-color-picker-wide': !mbColorAlphaChannel}\"></div> <div mb-color-picker-alpha class=mb-color-picker-checkered-bg ng-if=mbColorAlphaChannel></div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorSliders> <md-tab-label> <md-icon md-svg-icon=tune.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=column flex=100 layout-fill layout-align=\"space-between start center\" class=mb-color-picker-sliders> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>R</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._r aria-label=red class=red-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._r aria-label=red aria-controls=red-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>G</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._g aria-label=green class=green-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._g aria-label=green aria-controls=green-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>B</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._b aria-label=blue class=blue-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._b aria-label=blue aria-controls=blue-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill ng-if=!mbColorAlphaChannel> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>A</span> </div> <md-slider flex=65 min=0 max=1 step=.01 ng-model=color._a aria-label=alpha class=md-primary></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=1 step=.01 type=number ng-model=color._a aria-label=alpha aria-controls=alpha-slider> </div> </div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorGenericPalette> <md-tab-label> <md-icon md-svg-icon=view_module.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=column layout-align=\"space-between start center\" flex class=mb-color-picker-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorMaterialPalette> <md-tab-label> <md-icon md-svg-icon=view_headline.svg></md-icon> </md-tab-label> <md-tab-body> <div layout=column layout-fill flex class=mb-color-picker-material-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorHistory> <md-tab-label> <md-icon md-svg-icon=history.svg></md-icon> </md-tab-label> <md-tab-body layout=row layout-fill> <div layout=column flex layout-align=\"space-between start\" layout-wrap layout-fill class=mb-color-picker-history> <div layout=row flex=80 layout-align=\"space-between start start\" layout-wrap layout-fill> <div flex=10 ng-repeat=\"historyColor in history.get() track by $index\"> <div ng-style=\"{'background': historyColor.toRgbString()}\" ng-click=setPaletteColor($event)></div> </div> </div> <md-button flex-end ng-click=history.reset() class=md-mini aria-label=\"Clear History\"> <md-icon md-svg-icon=clear_all.svg></md-icon> </md-button> </div> </md-tab-body> </md-tab> </md-tabs> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-color-picker.html',
+    "<div class=mb-color-picker-input-container layout=row> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-click=showColorPicker($event) ng-if=mbColorPreview> <div class=mb-color-picker-result ng-style=\"{background: value}\"> </div> </div> <md-input-container flex> <label> <md-icon ng-if=icon>{{icon}}</md-icon> <span translate=\"\">{{label}}</span> </label> <input type=input ng-model=value class=mb-color-picker-input ng-mousedown=\"(openOnInput || !mbColorPreview) && showColorPicker($event)\"> </md-input-container> <mb-button class=\"md-icon-button mb-color-picker-clear\" ng-if=\"mbColorClearButton && value\" ng-click=clearValue(); aria-label=\"Clear Color\"> <mb-icon>clear</mb-icon> </mb-button> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-titled-block.html',
+    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
 
 }]);

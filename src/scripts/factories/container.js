@@ -174,5 +174,30 @@ mblowfish.factory('MbContainer', function(
 		delete this.$handler;
 	};
 
+	/**
+	Sets title fo the frame.
+	
+	The title is displate on the top of each frame. It can be changed dynamically.
+	
+	@see #getTitle
+	 */
+	MbContainer.prototype.setTitle = function(title) {
+		this.title = title;
+		if (!this.$handler || !this.$handler.$dockerContainer) {
+			return;
+		}
+		// TODO: maso, 2020: the layout syste must detect the changes and update the
+		// visual aspects
+		this.$handler.$dockerContainer.setTitle(title);
+		return this;
+	};
+
+	/**
+	Gets current title of the frame
+	 */
+	MbContainer.prototype.getTitle = function() {
+		return this.title;
+	};
+
 	return MbContainer;
 });

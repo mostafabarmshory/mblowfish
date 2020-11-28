@@ -168,10 +168,10 @@ mblowfish.directive('mdIconFloat', function($mdTheming) {
 			.querySelector(RIGHT_SELECTORS);
 
 		if (leftIcon) {
-			tElement.addClass('md-icon-left');
+			tElement.addClass('mb-icon-left');
 		}
 		if (rightIcon) {
-			tElement.addClass('md-icon-right');
+			tElement.addClass('mb-icon-right');
 		}
 
 		return function postLink(scope, element) {

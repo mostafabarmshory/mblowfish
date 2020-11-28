@@ -64,17 +64,6 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 		return this.menu;
 	};
 
-	MbFrame.prototype.setTitle = function(title) {
-		switch ($mbLayout.getMode()) {
-			case 'docker':
-				this.$handler.$dockerContainer.setTitle(title);
-				break;
-			default:
-				// TODO: support mobile layout
-				break;
-		}
-	};
-
 	/**
 	Close the frame
 	

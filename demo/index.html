@@ -27,6 +27,9 @@
 	<link rel="stylesheet" href="scripts/factories/action.css">
 	<link rel="stylesheet" href="scripts/factories/frame.css">
 	<link rel="stylesheet" href="scripts/factories/wizard.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-button.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-color-picker.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-table.css">
 	<link rel="stylesheet" href="styles/angular-material-common.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-button.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-icon.css">
@@ -92,6 +95,7 @@
 	<script src="scripts/module-navigator/index.js"></script>
 	<script src="scripts/module-preferences/index.js"></script>
 	<script src="scripts/module-translate/index.js"></script>
+	<script src="scripts/module-ui/index.js"></script>
 	<script src="libs/moment-jalaali.js"></script>
 	<script src="scripts/angular-hack-configs.js"></script>
 	<script src="scripts/angular-hack-icons-configs.js"></script>
@@ -100,7 +104,6 @@
 	<script src="scripts/controllers/abstract-ctrl.js"></script>
 	<script src="scripts/controllers/dialog-default-ctrl.js"></script>
 	<script src="scripts/controllers/dynamic-form-dialog-ctrl.js"></script>
-	<script src="scripts/directives/mb-badge.js"></script>
 	<script src="scripts/directives/mb-captcha.js"></script>
 	<script src="scripts/directives/mb-compare-to.js"></script>
 	<script src="scripts/directives/mb-context-menu.js"></script>
@@ -109,7 +112,6 @@
 	<script src="scripts/directives/mb-dynamic-form.js"></script>
 	<script src="scripts/directives/mb-dynamic-tabs.js"></script>
 	<script src="scripts/directives/mb-error-messages.js"></script>
-	<script src="scripts/directives/mb-icon.js"></script>
 	<script src="scripts/directives/mb-infinateScroll.js"></script>
 	<script src="scripts/directives/mb-inline.js"></script>
 	<script src="scripts/directives/mb-local.js"></script>
@@ -121,7 +123,6 @@
 	<script src="scripts/directives/mb-on-load.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-sidenav.js"></script>
-	<script src="scripts/directives/mb-titled-block.js"></script>
 	<script src="scripts/directives/mb-toolbar-group.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
 	<script src="scripts/directives/mb-view.js"></script>
@@ -199,6 +200,24 @@
 	<script src="scripts/module-translate/services/translate-sanitization.js"></script>
 	<script src="scripts/module-translate/services/translation.js"></script>
 	<script src="scripts/module-translate/views/languages-ctrl.js"></script>
+	<script src="scripts/module-ui/directives/mb-badge.js"></script>
+	<script src="scripts/module-ui/directives/mb-button.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker-alpha.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker-container.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker-hue.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker.js"></script>
+	<script src="scripts/module-ui/directives/mb-colors.js"></script>
+	<script src="scripts/module-ui/directives/mb-icon.js"></script>
+	<script src="scripts/module-ui/directives/mb-polor-picker-spectrum.js"></script>
+	<script src="scripts/module-ui/directives/mb-table.js"></script>
+	<script src="scripts/module-ui/directives/mb-titled-block.js"></script>
+	<script src="scripts/module-ui/factories/MbColor.js"></script>
+	<script src="scripts/module-ui/factories/MbColorGradientCanvas.js"></script>
+	<script src="scripts/module-ui/factories/MbColorPicker.js"></script>
+	<script src="scripts/module-ui/factories/MbColorPickerHistory.js"></script>
+	<script src="scripts/module-ui/services/color-palette.js"></script>
+	<script src="scripts/module-ui/services/colors.js"></script>
+	<script src="scripts/module-ui/services/icon.js"></script>
 	<script src="scripts/services/account.js"></script>
 	<script src="scripts/services/actions.js"></script>
 	<script src="scripts/services/application.js"></script>
@@ -210,7 +229,6 @@
 	<script src="scripts/services/dispatcher.js"></script>
 	<script src="scripts/services/dynamic-form.js"></script>
 	<script src="scripts/services/editor.js"></script>
-	<script src="scripts/services/icon.js"></script>
 	<script src="scripts/services/job.js"></script>
 	<script src="scripts/services/layout.js"></script>
 	<script src="scripts/services/local.js"></script>
@@ -255,6 +273,7 @@
 	<script src="scripts/test-factories/layout-provider-default.js"></script>
 	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/test-views/resource.js"></script>
+	<script src="scripts/views/ui-color-view.js"></script>
 	<script src="scripts/wizards/holidayCarPage.js"></script>
 	<script src="scripts/wizards/holidayFinalPage.js"></script>
 	<script src="scripts/wizards/holidayLocationPage.js"></script>

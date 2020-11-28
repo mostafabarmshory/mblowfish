@@ -89,6 +89,8 @@ module.exports = function(config) {
 				file: 'lcov.info'
 			}, {
 				type: 'text-summary'
+			}, {
+				type: 'html'
 			}]
 		},
 

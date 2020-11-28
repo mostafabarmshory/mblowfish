@@ -1,0 +1,238 @@
+button.mb-button::-moz-focus-inner {
+	border: 0; 
+}
+
+.mb-button {
+	display: inline-block;
+	position: relative;
+	cursor: pointer;
+	
+	/** Alignment adjustments */
+	min-height: 36px;
+	min-width: 88px;
+	line-height: 36px;
+	vertical-align: middle;
+	align-items: center;
+	text-align: center;
+	border-radius: 2px;
+	box-sizing: border-box;
+	
+	/* Reset default button appearance */
+	user-select: none;
+	outline: none;
+	border: 0;
+	
+	/** Custom styling for button */
+	padding: 0 6px;
+	margin: 6px 8px;
+	background: transparent;
+	color: currentColor;
+	white-space: nowrap;
+
+	/* Uppercase text content */
+	text-transform: uppercase;
+	font-weight: 500;
+	font-size: 14px;
+	font-style: inherit;
+	font-variant: inherit;
+	font-family: inherit;
+	text-decoration: none;
+	overflow: hidden;
+	transition: box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.md-dense > .md-button:not(.md-dense-disabled),
+.md-dense :not(.md-dense-disabled) .md-button:not(.md-dense-disabled) {
+	min-height: 32px; 
+}
+
+.md-dense > .mb-button:not(.md-dense-disabled),
+.md-dense :not(.md-dense-disabled) .mb-button:not(.md-dense-disabled) {
+	line-height: 32px; 
+}
+
+.md-dense > .mb-button:not(.md-dense-disabled),
+.md-dense :not(.md-dense-disabled) .mb-button:not(.md-dense-disabled) {
+	font-size: 13px;
+}
+
+.mb-button:focus {
+	outline: none; 
+}
+
+.mb-button:hover,
+.mb-button:focus {
+	text-decoration: none; 
+}
+
+.mb-button.ng-hide, 
+.mb-button.ng-leave {
+	transition: none; 
+}
+
+.mb-button.md-cornered {
+	border-radius: 0; 
+}
+
+.mb-button.mb-icon {
+	padding: 0;
+	background: none; 
+}
+
+.mb-button.md-raised:not([disabled]) {
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26); 
+}
+
+.mb-button.mb-icon-button {
+	margin: 0 6px;
+	height: 40px;
+	min-width: 0;
+	line-height: 24px;
+	padding: 8px;
+	width: 40px;
+	border-radius: 50%;
+}
+
+.mb-button.md-fab {
+	z-index: 20;
+	line-height: 56px;
+	min-width: 0;
+	width: 56px;
+	height: 56px;
+	vertical-align: middle;
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+	border-radius: 50%;
+	background-clip: padding-box;
+	overflow: hidden;
+	transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
+	transition-property: background-color, box-shadow, -webkit-transform;
+	transition-property: background-color, box-shadow, transform;
+	transition-property: background-color, box-shadow, transform, -webkit-transform; 
+}
+
+.mb-button.md-fab.md-fab-bottom-right {
+	top: auto;
+	right: 20px;
+	bottom: 20px;
+	left: auto;
+	position: absolute; 
+}
+
+.mb-button.md-fab.md-fab-bottom-left {
+	top: auto;
+	right: auto;
+	bottom: 20px;
+	left: 20px;
+	position: absolute; 
+}
+
+.mb-button.md-fab.md-fab-top-right {
+	top: 20px;
+	right: 20px;
+	bottom: auto;
+	left: auto;
+	position: absolute; 
+}
+
+.mb-button.md-fab.md-fab-top-left {
+	top: 20px;
+	right: auto;
+	bottom: auto;
+	left: 20px;
+	position: absolute; 
+}
+
+.mb-button.md-fab.md-mini {
+	line-height: 40px;
+	width: 40px;
+	height: 40px; 
+}
+
+.mb-button.md-fab.ng-hide, 
+.mb-button.md-fab.ng-leave {
+	transition: none; 
+}
+
+.mb-button:not([disabled]).md-raised.md-focused,
+.mb-button:not([disabled]).md-fab.md-focused {
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26); 
+}
+
+.mb-button:not([disabled]).md-raised:active,
+.mb-button:not([disabled]).md-fab:active {
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4);
+}
+
+.mb-button .md-ripple-container {
+	border-radius: inherit;
+	background-clip: padding-box;
+	overflow: hidden;
+	-webkit-transform: translateZ(0); 
+}
+
+.mb-button.mb-icon-button mb-icon,
+button.mb-button.md-fab mb-icon {
+  display: block; 
+}
+
+.md-toast-open-top .mb-button.md-fab-top-left,
+.md-toast-open-top .mb-button.md-fab-top-right {
+	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+	transform: translate3d(0, 42px, 0); 
+}
+
+.md-toast-open-top .mb-button.md-fab-top-left:not([disabled]).md-focused,
+.md-toast-open-top .mb-button.md-fab-top-left:not([disabled]):hover,
+.md-toast-open-top .mb-button.md-fab-top-right:not([disabled]).md-focused,
+.md-toast-open-top .mb-button.md-fab-top-right:not([disabled]):hover {
+	transform: translate3d(0, 41px, 0); 
+}
+
+.md-toast-open-bottom .mb-button.md-fab-bottom-left,
+.md-toast-open-bottom .mb-button.md-fab-bottom-right {
+	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+	transform: translate3d(0, -42px, 0); 
+}
+
+.md-toast-open-bottom .mb-button.md-fab-bottom-left:not([disabled]).md-focused,
+.md-toast-open-bottom .mb-button.md-fab-bottom-left:not([disabled]):hover,
+.md-toast-open-bottom .mb-button.md-fab-bottom-right:not([disabled]).md-focused,
+.md-toast-open-bottom .mb-button.md-fab-bottom-right:not([disabled]):hover {
+	transform: translate3d(0, -43px, 0); 
+}
+
+.mb-button-group {
+	display: flex;
+	flex: 1;
+	width: 100%; 
+}
+
+
+.mb-button-group > .mb-button {
+	flex: 1;
+	display: block;
+	overflow: hidden;
+	width: 0;
+	border-width: 1px 0px 1px 1px;
+	border-radius: 0;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap; 
+}
+
+.mb-button-group > .mb-button:first-child {
+	border-radius: 2px 0px 0px 2px; 
+}
+
+.mb-button-group > .mb-button:last-child {
+	border-right-width: 1px;
+	border-radius: 0px 2px 2px 0px; 
+}
+
+@media screen and (-ms-high-contrast: active) {
+	.mb-button.md-raised,
+	.mb-button.md-fab {
+		border: 1px solid #fff; 
+	} 
+}
+

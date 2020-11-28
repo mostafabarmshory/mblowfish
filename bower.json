@@ -20,14 +20,15 @@
 		"angular-messages": "1.8.x",
 		"angular-sanitize": "1.8.x",
 
-		"angular-material": "1.1.x",
+		"angular-material": "1.2.x",
 		"golden-layout": "^1.5.9",
 		"ng-appcache": "2.0.x",
 		"lf-ng-md-file-input": "1.5.x",
 		"angular-material-persian-datepicker": "1.2.x"
 	},
 	"resolutions": {
-		"angular": "1.8.x"
+		"angular": "1.8.x",
+		"angular-material": "1.2.x"
 	},
 	"devDependencies": {
 		"angular-mocks": "1.8.x"
