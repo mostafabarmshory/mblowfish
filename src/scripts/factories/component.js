@@ -51,7 +51,7 @@ view, or an editor.
 @tutorial ui-component-action
  */
 mblowfish.factory('MbComponent', function(
-	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming,
+	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming, $injector,
 	/* Mblowfish */ $mbUiUtil) {
 
 	/*
@@ -119,7 +119,7 @@ mblowfish.factory('MbComponent', function(
 	MbComponent.prototype.render = function(locals) {
 		var cmp = this;
 		this.visible = true;
-		return $q.when(this.getTemplate(), function(template) {
+		return $q.when(this.getTemplate(locals), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
 			var $scope = rootScope.$new(false);
 			var $element = locals.$element;
@@ -139,6 +139,17 @@ mblowfish.factory('MbComponent', function(
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
 			link($scope);
+			if (_.isFunction(cmp.hide)) {
+				$scope.$watch(function() {
+					return $injector.invoke(cmp.hide, cmp, locals);
+				}, function(value) {
+					if (value) {
+						$element.hide();
+					} else {
+						$element.show();
+					}
+				});
+			}
 			cmp.$binds.push({
 				$controller: $ctrl,
 				$element: $element,

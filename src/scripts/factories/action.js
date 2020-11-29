@@ -37,8 +37,8 @@ system.
  */
 mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 
-	/* @ngInject */
 	var defaultActionController = function($element, $action) {
+		'ngInject';
 		$element.on('click', function($event) {
 			$action.exec($event);
 		});
@@ -79,23 +79,33 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 		return $q.reject();
 	};
 
-	Action.prototype.render = function(locals) {
+
+	/**
+	Gets template of the component
+	
+	Template is a HTML text which is used to build a view of the component.
+	
+	@returns {promisse} To resolve the template value
+	@memberof MbAction
+	 */
+	Action.prototype.getTemplate = function(locals) {
 		// find parent type
-		var parent;
+		//		var parent;
 		var parentType;
 		if (locals.$toolbar) {
 			parentType = 'toolbar';
-			parent = locals.$toolbar;
+			//			parent = locals.$toolbar;
 		} else if (locals.$menu) {
 			parentType = 'menu';
-			parent = locals.$menu;
+			//			parent = locals.$menu;
 		}
 
 		var html;
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>'+(this.description || this.title)+'</spam></md-tooltip>'+
+					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':
 				// XXX
@@ -103,11 +113,11 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 			default:
 			// TODO: maso, 2020 log error
 		}
+		return html;
+	}
 
-		var element = locals.$element;
-		element.html(html);
-		element.addClass('mbAction')
-
+	Action.prototype.render = function(locals) {
+		locals.$element.addClass('mbAction');
 		locals.$action = this;
 		return MbComponent.prototype.render.call(this, locals);
 	};

@@ -149,20 +149,20 @@ md-list-item .md-list-item-inner > div.md-primary > mb-icon,
 md-list-item .md-list-item-inner > div.md-secondary > mb-icon,
 md-list-item .md-list-item-inner > mb-icon:first-child,
 md-list-item .md-list-item-inner > mb-icon.md-secondary {
-    width: 24px;
-    margin-top: 16px;
-    margin-bottom: 12px;
+    /* width: 24px; */
+    margin-top: 8px;
+    margin-bottom: 8px;
     box-sizing: content-box;
 }
 
 [dir=rtl] md-list-item > mb-icon:first-child,
 [dir=rtl] md-list-item .md-list-item-inner > mb-icon:first-child {
-    margin-left: 32px;
+    margin-left: 16px;
 }
 
 [dir=ltr] md-list-item > mb-icon:first-child,
 [dir=ltr] md-list-item .md-list-item-inner > mb-icon:first-child {
-    margin-right: 32px;
+    margin-right: 16px;
 }
 
 md-list-item.md-2-line > mb-icon:first-child,

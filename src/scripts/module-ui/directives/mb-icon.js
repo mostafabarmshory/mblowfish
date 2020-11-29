@@ -135,6 +135,9 @@ mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
 		if (attr.size !== undefined) {
 			attr.$observe('size', setSize);
 		}
+		if (attr.mbSize !== undefined) {
+			attr.$observe('mbSize', setSize);
+		}
 	}
 
 	return {
