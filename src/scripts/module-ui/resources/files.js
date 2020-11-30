@@ -6,16 +6,9 @@ mblowfish.resource('local-files', {
 		'ngInject';
 		var ctrl = this;
 		function setFiles(files) {
-			var vals = [];
-			_.forEach(files, function(file) {
-				vals.push(file.lfFile);
-			});
-			$resource.setValue(vals);
+			$resource.setValue(files);
 		}
 		$scope.files = [];
-		$scope.$watch('files.length', function() {
-			setFiles($scope.files);
-		});
 		_.assign(ctrl, {
 			$style: $style,
 			setFiles: setFiles

@@ -22,8 +22,8 @@
 
 		"angular-material": "1.2.x",
 		"golden-layout": "^1.5.9",
+
 		"ng-appcache": "2.0.x",
-		"lf-ng-md-file-input": "1.5.x",
 		"angular-material-persian-datepicker": "1.2.x"
 	},
 	"resolutions": {

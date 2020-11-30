@@ -8,14 +8,11 @@ mblowfish.resource('local-file', {
 		function setFile(files) {
 			var val;
 			if (angular.isArray(files) && files.length) {
-				val = files[0].lfFile;
+				val = files[0];
 			}
 			$resource.setValue(val);
 		}
 		$scope.files = [];
-		$scope.$watch('files.length', function() {
-			setFile($scope.files);
-		});
 		_.assign(ctrl, {
 			$style: $style,
 			setFile: setFile

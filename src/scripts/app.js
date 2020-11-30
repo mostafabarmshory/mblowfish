@@ -51,14 +51,13 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-//		'ngAnimate',
-//		'ngAria',
+		//		'ngAnimate',
+		//		'ngAria',
 		'ngCookies',
 		'ngMessages',
 		'ngSanitize',
-		
+
 		'ngMaterial',
-		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 		'ng-appcache',//
 		'angular-material-persian-datepicker',
 	])
@@ -376,4 +375,10 @@ mblowfish.addConstants({
 	SETTING_LOCAL_DIRECTION: 'local.direction',
 	SETTING_LOCAL_CALENDAR: 'local.calendar',
 	SETTING_LOCAL_TIMEZONE: 'local.timezone',
+});
+
+mblowfish.factory('$exceptionHandler', function($log) {
+	return function myExceptionHandler(exception, cause) {
+		$log.warn(exception, cause);
+	};
 });

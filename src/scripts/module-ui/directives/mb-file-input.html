@@ -1,0 +1,117 @@
+<div
+	layout="column" 
+	class="mb-file-input">
+	<div
+		layout="column"
+		class="mb-file-input-preview-container"
+		ng-class="{'disabled':isDisabled}"
+		ng-show="isDrag || (isPreview && mbFiles.length)">
+		<div class="mb-file-input-drag">
+			<div 
+				layout="row"
+				layout-align="center center"
+				class="mb-file-input-drag-text-container"
+				ng-show="(!mbFiles.length || !isPreview) && isDrag">
+				<div 
+					class="mb-file-input-drag-text"
+					mb-translate>{{strCaptionDragAndDrop}}</div>
+			</div>
+			<div 
+				class="mb-file-input-thumbnails" 
+				ng-if="isPreview">
+				<div 
+					class="mb-file-input-frame" 
+					ng-repeat="mbFile in mbFiles" 
+					ng-click="onFileClick(mbFile)">
+					<div 
+						class="mb-file-input-x"
+						aria-label="remove {{mbFile.mbFileName}}" 
+						ng-click="removeFile(mbFile,$event)">&times;</div>
+					<mb-file 
+						ng-model="mbFile" 
+						mb-unknow-class="strUnknowIconCls">
+					</mb-file>
+					<div class="mb-file-input-frame-footer">
+						<div
+							class="mb-file-input-frame-caption"
+							mb-translate>{{::mbFile.mbFileName}}</div>
+					</div>
+				</div>
+			</div>
+			<div class="clearfix" style="clear:both"></div>
+		</div>
+		<div
+			layout="row">
+			<span flex></span>
+			<md-button 
+				aria-label="browse" 
+				class="md-icon-button" 
+				ng-disabled="isDisabled" 
+				ng-click="openDialog($event)">
+				<mb-icon>add</mb-icon>
+			</md-button>
+			<md-button
+				aria-label="remove all files"
+				class="md-icon-button"
+				ng-click="removeAllFiles($event)"
+				ng-hide="!mbFiles.length || !isPreview">
+				<mb-icon>clear_all</mb-icon>
+			</md-button>
+		</div>
+	</div>
+	<div 
+		layout="row" 
+		class="mb-file-input-container" >
+		<div 
+			class="mb-file-input-caption" 
+			layout="row" 
+			layout-align="start center" 
+			flex 
+			ng-class="{'disabled':isDisabled}" >
+			<mb-icon></mb-icon>
+			<div flex 
+				class="mb-file-input-caption-text-default" 
+				ng-show="!mbFiles.length"
+				mb-translate>{{strCaptionPlaceholder}}</div>
+			<div flex 
+				class="mb-file-input-caption-text" 
+				ng-hide="!mbFiles.length">
+				<span ng-if="isCustomCaption">{{strCaption}}</span>
+				<span ng-if="!isCustomCaption">{{ mbFiles.length == 1 ? mbFiles[0].mbFileName : mbFiles.length+" files selected" }}</span>
+			</div>
+			<md-progress-linear 
+				md-mode="determinate" 
+				value="{{floatProgress}}" 
+				ng-show="intLoading && isProgress">
+			</md-progress-linear>
+		</div>
+		<md-button aria-label="remove all files" 
+			ng-disabled="isDisabled" 
+			ng-click="removeAllFiles()" 
+			ng-hide="!mbFiles.length || intLoading" 
+			class="md-raised mb-file-input-button mb-file-input-button-remove" 
+			ng-class="strRemoveButtonCls">
+			<mb-icon>delete</mb-icon>
+			<!--<span>{{strCaptionRemove}}</span>-->
+		</md-button>
+		<md-button 
+			aria-label="submit" 
+			ng-disabled="isDisabled" 
+			class="md-raised md-warn mb-file-input-button mb-file-input-button-submit" 
+			ng-click="onSubmitClick()" 
+			ng-class="strSubmitButtonCls" 
+			ng-show="mbFiles.length && !intLoading && isSubmit">
+			<mb-icon>send</mb-icon> 
+			<!--<span>{{strCaptionSubmit}}</span>-->
+		</md-button>
+		<md-button 
+			aria-label="browse" 
+			class="md-raised mb-file-input-button mb-file-input-button-brower" 
+			ng-disabled="isDisabled" 
+			ng-click="openDialog($event)" 
+			ng-class="strBrowseButtonCls">
+			<mb-icon>more_horiz</mb-icon>
+			<!--<span>{{strCaptionBrowse}}</span>-->
+		</md-button>
+	</div>
+</div>

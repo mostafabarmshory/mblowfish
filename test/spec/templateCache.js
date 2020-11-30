@@ -173,7 +173,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-language-upload.html',
-    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <lf-ng-md-file-input name=files lf-files=files lf-required lf-maxcount=5 lf-filesize=10MB lf-totalsize=20MB drag preview> </lf-ng-md-file-input> </form>"
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <mb-file-input name=files ng-file=files mb-required mb-file-max=5 mb-file-min=1 mb-file-size=10MB mb-file-size-total=20MB mb-drag mb-preview> </mb-file-input> </form>"
   );
 
 
@@ -247,6 +247,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('scripts/module-ui/directives/mb-file-input.html',
+    "<div layout=column class=mb-file-input> <div layout=column class=mb-file-input-preview-container ng-class=\"{'disabled':isDisabled}\" ng-show=\"isDrag || (isPreview && mbFiles.length)\"> <div class=mb-file-input-drag> <div layout=row layout-align=\"center center\" class=mb-file-input-drag-text-container ng-show=\"(!mbFiles.length || !isPreview) && isDrag\"> <div class=mb-file-input-drag-text mb-translate>{{strCaptionDragAndDrop}}</div> </div> <div class=mb-file-input-thumbnails ng-if=isPreview> <div class=mb-file-input-frame ng-repeat=\"mbFile in mbFiles\" ng-click=onFileClick(mbFile)> <div class=mb-file-input-x aria-label=\"remove {{mbFile.mbFileName}}\" ng-click=removeFile(mbFile,$event)>&times;</div> <mb-file ng-model=mbFile mb-unknow-class=strUnknowIconCls> </mb-file> <div class=mb-file-input-frame-footer> <div class=mb-file-input-frame-caption mb-translate>{{::mbFile.mbFileName}}</div> </div> </div> </div> <div class=clearfix style=clear:both></div> </div> <div layout=row> <span flex></span> <md-button aria-label=browse class=md-icon-button ng-disabled=isDisabled ng-click=openDialog($event)> <mb-icon>add</mb-icon> </md-button> <md-button aria-label=\"remove all files\" class=md-icon-button ng-click=removeAllFiles($event) ng-hide=\"!mbFiles.length || !isPreview\"> <mb-icon>clear_all</mb-icon> </md-button> </div> </div> <div layout=row class=mb-file-input-container> <div class=mb-file-input-caption layout=row layout-align=\"start center\" flex ng-class=\"{'disabled':isDisabled}\"> <mb-icon></mb-icon> <div flex class=mb-file-input-caption-text-default ng-show=!mbFiles.length mb-translate>{{strCaptionPlaceholder}}</div> <div flex class=mb-file-input-caption-text ng-hide=!mbFiles.length> <span ng-if=isCustomCaption>{{strCaption}}</span> <span ng-if=!isCustomCaption>{{ mbFiles.length == 1 ? mbFiles[0].mbFileName : mbFiles.length+\" files selected\" }}</span> </div> <md-progress-linear md-mode=determinate value={{floatProgress}} ng-show=\"intLoading && isProgress\"> </md-progress-linear> </div> <md-button aria-label=\"remove all files\" ng-disabled=isDisabled ng-click=removeAllFiles() ng-hide=\"!mbFiles.length || intLoading\" class=\"md-raised mb-file-input-button mb-file-input-button-remove\" ng-class=strRemoveButtonCls> <mb-icon>delete</mb-icon>  </md-button> <md-button aria-label=submit ng-disabled=isDisabled class=\"md-raised md-warn mb-file-input-button mb-file-input-button-submit\" ng-click=onSubmitClick() ng-class=strSubmitButtonCls ng-show=\"mbFiles.length && !intLoading && isSubmit\"> <mb-icon>send</mb-icon>  </md-button> <md-button aria-label=browse class=\"md-raised mb-file-input-button mb-file-input-button-brower\" ng-disabled=isDisabled ng-click=openDialog($event) ng-class=strBrowseButtonCls> <mb-icon>more_horiz</mb-icon>  </md-button> </div> </div>"
+  );
+
+
   $templateCache.put('scripts/module-ui/directives/mb-titled-block.html',
     "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=mb-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
@@ -258,12 +263,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-ui/resources/file.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '.*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=\"upload file\" progress preview drag flex> </lf-ng-md-file-input> </div>"
+    "<mb-file-input ng-model=files ng-change=ctrl.setFiles(files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag> </mb-file-input>"
   );
 
 
   $templateCache.put('scripts/module-ui/resources/files.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag multiple flex> </lf-ng-md-file-input> </div>"
+    "<mb-file-input ng-model=files ng-change=ctrl.setFiles(files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag mb-multiple> </mb-file-input>"
   );
 
 

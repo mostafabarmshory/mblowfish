@@ -18,7 +18,6 @@
 	<!-- build:css({.tmp/serve,src}) styles/vendor.css -->
 	<!-- bower:css -->
 	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
-	<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
 	<!-- endbower -->
 	<!-- endbuild -->
 	
@@ -29,6 +28,7 @@
 	<link rel="stylesheet" href="scripts/factories/wizard.css">
 	<link rel="stylesheet" href="scripts/module-ui/directives/mb-button.css">
 	<link rel="stylesheet" href="scripts/module-ui/directives/mb-color-picker.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-file-input.css">
 	<link rel="stylesheet" href="scripts/module-ui/directives/mb-table.css">
 	<link rel="stylesheet" href="styles/angular-material-common.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-button.css">
@@ -38,7 +38,6 @@
 	<link rel="stylesheet" href="styles/core.css">
 	<link rel="stylesheet" href="styles/demo-theme.css">
 	<link rel="stylesheet" href="styles/dialogs.css">
-	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
 	<link rel="stylesheet" href="styles/infinate-scroll.css">
 	<link rel="stylesheet" href="styles/inline.css">
 	<link rel="stylesheet" href="styles/md-expansion-panel .css">
@@ -76,7 +75,6 @@
 	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/golden-layout/dist/goldenlayout.min.js"></script>
 	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
-	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
@@ -201,8 +199,16 @@
 	<script src="scripts/module-ui/directives/mb-color-picker-hue.js"></script>
 	<script src="scripts/module-ui/directives/mb-color-picker.js"></script>
 	<script src="scripts/module-ui/directives/mb-colors.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-input.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-mimetype.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-size-total.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-size.js"></script>
+	<script src="scripts/module-ui/directives/mb-file.js"></script>
 	<script src="scripts/module-ui/directives/mb-icon.js"></script>
+	<script src="scripts/module-ui/directives/mb-max-length.js"></script>
+	<script src="scripts/module-ui/directives/mb-min-length.js"></script>
 	<script src="scripts/module-ui/directives/mb-polor-picker-spectrum.js"></script>
+	<script src="scripts/module-ui/directives/mb-required.js"></script>
 	<script src="scripts/module-ui/directives/mb-table.js"></script>
 	<script src="scripts/module-ui/directives/mb-titled-block.js"></script>
 	<script src="scripts/module-ui/editors/browser.js"></script>
@@ -210,6 +216,7 @@
 	<script src="scripts/module-ui/factories/MbColorGradientCanvas.js"></script>
 	<script src="scripts/module-ui/factories/MbColorPicker.js"></script>
 	<script src="scripts/module-ui/factories/MbColorPickerHistory.js"></script>
+	<script src="scripts/module-ui/filters/mbTrusted.js"></script>
 	<script src="scripts/module-ui/resources/file.js"></script>
 	<script src="scripts/module-ui/resources/files.js"></script>
 	<script src="scripts/module-ui/resources/url.js"></script>
@@ -272,6 +279,7 @@
 	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/test-views/resource.js"></script>
 	<script src="scripts/views/ui-color-view.js"></script>
+	<script src="scripts/views/ui-file-view.js"></script>
 	<script src="scripts/wizards/holidayCarPage.js"></script>
 	<script src="scripts/wizards/holidayFinalPage.js"></script>
 	<script src="scripts/wizards/holidayLocationPage.js"></script>

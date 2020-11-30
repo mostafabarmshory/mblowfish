@@ -622,6 +622,239 @@ mb-color-picker .mb-color-picker-input-container .mb-color-picker-clear,
   background-position: 0 0, 4px 4px;
 }
 
+.mb-file-input {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.mb-file-input .mb-file-input-preview-container {
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-moz-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+	box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+	border: 1px solid #ddd;
+	padding: 5px;
+	margin-bottom: 10px;
+}
+
+.mb-file-input .mb-file-input-preview-container.disabled {
+	background-color: rgba(0, 0, 0, 0.03);
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-x {
+	float: none;
+	text-align: right;
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-x:focus {
+	outline: none;
+	border: 0;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-drag {
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	border: 2px dashed #DDD;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-drag-hover {
+	border: 2px dashed #ffffff;
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-drag-text-container {
+	height: 200px;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-drag-text-container .mb-file-input-drag-text {
+	font-size: x-large !important;;
+	font-weight: bold !important;
+	color: rgba(0, 0, 0, 0.3);
+	padding: 10px;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame {
+	-moz-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+	box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+	display: table;
+	margin: 8px;
+	height: 160px;
+	border: 1px solid #ddd;
+	padding: 6px;
+	float: left;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame:focus {
+	outline: none;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame > img {
+	height: 160px;
+	max-width: 100%;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame > video {
+	height: 160px;
+	max-width: 100%;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame > audio {
+	height: 160px;
+	max-width: 100%;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame > object {
+	height: 160px;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame > object .mb-file-input-preview-default {
+	height: 160px;
+	width: 160px;
+	text-align: left;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame > object .mb-file-input-preview-default .mb-file-input-preview-icon {
+	width: 80%;
+	height: 80%;
+	margin-top: 10%;
+	margin-left: 10%;
+	background-size: cover;
+}
+
+.mb-file-input .mb-file-input-preview-container .mb-file-input-frame .mb-file-input-frame-caption {
+	margin: 0px auto 0px auto;
+	width: 160px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding-top: 4px;
+	font-size: 11px;
+	color: #777;
+}
+
+.mb-file-input .mb-file-input-container {
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-moz-box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.2);
+	background-color: #FFFFFF;
+	overflow: hidden;
+	z-index: 3;
+}
+
+.mb-file-input .mb-file-input-container .mb-file-input-caption {
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0;
+	border-radius: 0 0 0 0;
+	position: relative;
+	overflow: hidden;
+	z-index: 2;
+	padding: 0px 8px 0px 8px;
+}
+
+.mb-file-input .mb-file-input-container .mb-file-input-caption.disabled {
+	background-color: rgba(0, 0, 0, 0.03);
+}
+
+.mb-file-input .mb-file-input-container .mb-file-input-caption .mb-file-input-caption-text {
+	margin-left: 8px;
+	font-weight: 400;
+}
+
+.mb-file-input .mb-file-input-container .mb-file-input-caption .mb-file-input-caption-text-default {
+	margin-left: 8px;
+	color: rgba(0, 0, 0, 0.4);
+	font-weight: 400;
+}
+
+.mb-file-input .mb-file-input-container md-progress-linear {
+	position: absolute;
+	bottom: 0%;
+	left: 0%;
+}
+
+.mb-file-input .mb-file-input-container .lf-icon {
+	background-size: cover;
+}
+
+.mb-file-input .mb-file-input-container .md-raised {
+	z-index: 2;
+}
+
+.mb-file-input .mb-file-input-container .md-raised.mb-file-input-button {
+	display: inline-block;
+	vertical-align: middle;
+	*vertical-align: auto;
+	*zoom: 1;
+	*display: inline;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-moz-border-radius: none;
+	-webkit-border-radius: none;
+	border-radius: none;
+	margin: 0px;
+	padding: 0px 8px 0px 8px;
+	min-height: initial;
+	min-width: 100px;
+}
+
+.mb-file-input .mb-file-input-container .md-raised.mb-file-input-button.mb-file-input-button-submit {
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0;
+	border-radius: 0 0 0 0;
+}
+
+.mb-file-input .mb-file-input-container .md-raised.mb-file-input-button.mb-file-input-button-brower {
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0;
+	border-radius: 0 0 0 0;
+}
+
+.mb-file-input .mb-file-input-container .md-raised.mb-file-input-button.mb-file-input-button-remove {
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0;
+	border-radius: 0 0 0 0;
+}
+
+.mb-file-input .mb-file-input-container .md-raised.mb-file-input-button .mb-file-input-tag {
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+	opacity: 0;
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	min-width: 100%;
+	min-height: 100%;
+	background: none repeat scroll 0 0 transparent;
+	cursor: inherit;
+}
+
+.mb-file-input .mb-file-input-container .md-raised .mb-file-input-tag {
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+	opacity: 0;
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	min-width: 100%;
+	min-height: 100%;
+	background: none repeat scroll 0 0 transparent;
+	cursor: inherit;
+}
+
+
+
 table.mb-table {
 	border: 1px solid #FFFFFF;
 	width: auto;
@@ -831,13 +1064,6 @@ md-toolbar {
 		border-radius: 8px;
 	}
 }
-.lf-ng-md-file-input .lf-ng-md-file-input-preview-container .lf-ng-md-file-input-drag-text-container .lf-ng-md-file-input-drag-text {
-  font-size: x-large !important;;
-  font-weight: bold !important;
-  color: rgba(0, 0, 0, 0.3);
-  padding: 10px;
-}
-
 /*
  *  This class is add to the domes where you are interested to adding
  * infinate scroll.

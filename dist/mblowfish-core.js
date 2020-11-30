@@ -1272,14 +1272,13 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-//		'ngAnimate',
-//		'ngAria',
+		//		'ngAnimate',
+		//		'ngAria',
 		'ngCookies',
 		'ngMessages',
 		'ngSanitize',
-		
+
 		'ngMaterial',
-		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 		'ng-appcache',//
 		'angular-material-persian-datepicker',
 	])
@@ -1597,6 +1596,12 @@ mblowfish.addConstants({
 	SETTING_LOCAL_DIRECTION: 'local.direction',
 	SETTING_LOCAL_CALENDAR: 'local.calendar',
 	SETTING_LOCAL_TIMEZONE: 'local.timezone',
+});
+
+mblowfish.factory('$exceptionHandler', function($log) {
+	return function myExceptionHandler(exception, cause) {
+		$log.warn(exception, cause);
+	};
 });
 
 
@@ -6022,7 +6027,7 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<md-tooltip><spam mb-translate>'+(this.description || this.title)+'</spam></md-tooltip>'+
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>'+(this.description || this.title)+'</spam></md-tooltip>'+
 					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':
@@ -13889,6 +13894,619 @@ mblowfish.directive('mbColors', function($mbColors, $mdUtil, $log, $parse) {
 });
 
 
+
+mblowfish.directive('mbFileInput', function($q, $timeout) {
+
+	function genLfObjId() {
+		return 'mbobjyxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		});
+	};
+
+	function parseFileType(file) {
+		var type = file.type;
+		var name = file.name;
+		if (isImageType(type, name)) {
+			return "image";
+		} else if (isVideoType(type, name)) {
+			return "video";
+		} else if (isAudioType(type, name)) {
+			return "audio";
+		}
+		return "object";
+	};
+
+	function isImageType(type, name) {
+		return (type.match('image.*') || name.match(/\.(gif|png|jpe?g)$/i)) ? true : false;
+	};
+
+	function isVideoType(type, name) {
+		return (type.match('video.*') || name.match(/\.(og?|mp4|webm|3gp)$/i)) ? true : false;
+	};
+
+	function isAudioType(type, name) {
+		return (type.match('audio.*') || name.match(/\.(ogg|mp3|wav)$/i)) ? true : false;
+	};
+
+	function genmbFileObj(file) {
+		file.key = genLfObjId();
+		file.media = parseFileType(file);
+		file.isRemote = false;
+		file.url = URL.createObjectURL(file);
+		// Old data type
+		//		var mbFileObj = {
+		//			key: genLfObjId(),
+		//			mbFile: file,
+		//			mbFileName: file.name,
+		//			mbFileType: file.type,
+		//			mbTagType: parseFileType(file),
+		//			mbDataUrl: window.URL.createObjectURL(file),
+		//			isRemote: false
+		//		};
+		return file;
+	}
+
+	var genRemotembFileObj = function(url, fileName, fileType) {
+		return {
+			key: genLfObjId(),
+			//			"mbFile": void 0,
+			name: fileName,
+			type: fileType,
+			media: parseFileType({
+				name: fileName,
+				type: fileType
+			}),
+			url: url,
+			isRemote: true
+		};
+	}
+
+	return {
+		restrict: 'E',
+		templateUrl: 'scripts/module-ui/directives/mb-file-input.html',
+		replace: true,
+		require: 'ngModel',
+		scope: {
+			mbApi: '=?',
+			//			mbOption: '=?',
+			mbCaption: '@?',
+			mbPlaceholder: '@?',
+			mbDragAndDropLabel: '@?',
+			mbBrowseLabel: '@?',
+			mbRemoveLabel: '@?',
+			mbSubmitLabel: '@?',
+			mbAccept: '@?',
+			// events
+			mbOnFileClick: '=?',
+			mbOnSubmitClick: '=?',
+			mbOnFileRemove: '=?',
+		},
+
+		link: function(scope, element, attrs, ngModel) {
+
+			/*
+			Working with date model. All data models fetch from ngModel
+			
+			hre is old model
+			scope.mbFiles = [];
+			scope[attrs.ngModel] = scope.mbFiles;
+			
+			*/
+			ngModel.$render = function() {
+				scope.mbFiles = ngModel.$modelValue || [];
+			};
+
+
+			var elDragview = angular.element(element[0].querySelector('.mb-file-input-drag'));
+			var elThumbnails = angular.element(element[0].querySelector('.mb-file-input-thumbnails'));
+			var intFilesCount = 0;
+			loadView();
+			loadLabels();
+			loadApi();
+
+			/*
+			Opens file dialog to select a file
+			*/
+			scope.openDialog = function(event/*, el*/) {
+				event.preventDefault();
+				event.stopPropagation();
+				// open file
+				var input = document.createElement('input')
+				if (scope.isMutiple) {
+					input.setAttribute('multiple', '');
+				}
+				input.setAttribute('accept', scope.mbAccept || '');
+				input.setAttribute('aria-label', scope.strAriaLabel || 'input file');
+				input.setAttribute('type', 'file');
+				// IE10/11 Addition
+				input.style.display = 'none';
+				input.setAttribute('id', 'mb-file-hidden-file');
+				document.body.appendChild(input);
+
+				input.addEventListener('change', function() {
+					onFileChanged(input.files)
+					document.body.removeChild(input)
+				});
+
+				// Simluate click event
+				var evt = document.createEvent('MouseEvents');
+				evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+				input.dispatchEvent(evt);
+			};
+
+			scope.removeAllFilesWithoutVaildate = function() {
+				scope.mbFiles.length = 0;
+				elThumbnails.empty();
+			};
+
+			scope.removeAllFiles = function(/*event*/) {
+				scope.removeAllFilesWithoutVaildate();
+			};
+
+			scope.removeFileByName = function(name/*, event*/) {
+				scope.mbFiles.every(function(obj, idx) {
+					if (obj.mbFileName == name) {
+						scope.mbFiles.splice(idx, 1);
+						return false;
+					}
+					return true;
+				});
+			};
+
+			scope.removeFile = function(mbFile) {
+				scope.mbFiles.every(function(obj, idx) {
+					if (obj.key == mbFile.key) {
+						if (angular.isFunction(scope.mbOnFileRemove)) {
+							scope.mbOnFileRemove(obj, idx);
+						}
+						scope.mbFiles.splice(idx, 1);
+						return false;
+					}
+					return true;
+				});
+			};
+
+			//call back function
+			scope.onFileClick = function(mbFile) {
+				if (_.isFunction(scope.mbOnFileClick)) {
+					scope.mbFiles.every(function(obj, idx) {
+						if (obj.key == mbFile.key) {
+							scope.mbOnFileClick(obj, idx);
+							return false;
+						} else {
+							return true;
+						}
+					});
+				}
+			};
+
+			scope.onSubmitClick = function() {
+				if (angular.isFunction(scope.mbOnSubmitClick)) {
+					scope.mbOnSubmitClick(scope.mbFiles);
+				}
+			};
+
+			elDragview.bind('dragover', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				if (!scope.isDrag) {
+					return;
+				}
+				elDragview.addClass('mb-file-input-drag-hover');
+			});
+
+			elDragview.bind('dragleave', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				if (!scope.isDrag) {
+					return;
+				}
+				elDragview.removeClass('mb-file-input-drag-hover');
+			});
+
+			elDragview.bind("drop", function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				if (/*scope.isDisabled || */!scope.isDrag) {
+					return;
+				}
+				elDragview.removeClass('mb-file-input-drag-hover');
+				if (angular.isObject(e.originalEvent)) {
+					e = e.originalEvent;
+				}
+				var files = e.target.files || e.dataTransfer.files;
+				var i = 0;
+				var lfAccept = scope.mbAccept.replace(/,/g, '|');
+				var regexp = new RegExp(lfAccept, "i");
+				var regFiles = [];
+				angular.forEach(files, function(file) {
+					if (file.type.match(regexp)) {
+						regFiles.push(file);
+					}
+				});
+				onFileChanged(regFiles);
+			});
+
+			function loadApi() {
+				scope.mbApi = new function() {
+					var self = this;
+					self.removeAll = function() {
+						scope.removeAllFiles();
+					};
+
+					self.removeByName = function(name) {
+						scope.removeFileByName(name);
+					};
+
+					self.addRemoteFile = function(url, name, type) {
+						var obj = genRemotembFileObj(url, name, type);
+						scope.mbFiles.push(obj);
+					};
+				};
+			}
+			function loadView() {
+				scope.intLoading = 0;
+				scope.floatProgress = 0;
+				scope.isCustomCaption = false;
+
+				scope.isPreview = angular.isDefined(attrs.mbPreview);
+				scope.isDrag = angular.isDefined(attrs.mbDrag);
+				scope.isMutiple = angular.isDefined(attrs.mbMultiple);
+				scope.isProgress = angular.isDefined(attrs.mbProgress);
+				scope.isSubmit = angular.isDefined(attrs.mbSubmit);
+				//				scope.accept = scope.mbAccept || '';
+			}
+
+			function loadLabels() {
+				scope.strCaption = '';
+				scope.strCaptionPlaceholder = 'Select file';
+				scope.strCaptionDragAndDrop = 'Drag & drop files here...';
+				scope.strCaptionBrowse = 'Browse';
+				scope.strCaptionRemove = 'Remove';
+				scope.strCaptionSubmit = 'Submit';
+				scope.strAriaLabel = '';
+
+				if (angular.isDefined(attrs.ariaLabel)) {
+					scope.strAriaLabel = attrs.ariaLabel;
+				}
+
+				if (angular.isDefined(attrs.mbPlaceholder)) {
+					scope.$watch('mbPlaceholder', function(newVal) {
+						scope.strCaptionPlaceholder = newVal;
+					});
+				}
+
+				if (angular.isDefined(attrs.mbCaption)) {
+					scope.isCustomCaption = true;
+					scope.$watch('mbCaption', function(newVal) {
+						scope.strCaption = newVal;
+					});
+				}
+				if (scope.mbDragAndDropLabel) {
+					scope.strCaptionDragAndDrop = scope.mbDragAndDropLabel;
+				}
+				if (scope.mbBrowseLabel) {
+					scope.strCaptionBrowse = scope.mbBrowseLabel;
+				}
+				if (scope.mbRemoveLabel) {
+					scope.strCaptionRemove = scope.mbRemoveLabel;
+				}
+				if (scope.mbSubmitLabel) {
+					scope.strCaptionSubmit = scope.mbSubmitLabel;
+				}
+			}
+
+			function onFileChanged(files) {
+				if (files.length <= 0) {
+					return;
+				}
+				scope.floatProgress = 0;
+				if (scope.isMutiple) {
+					intFilesCount = files.length;
+					scope.intLoading = intFilesCount;
+					for (var i = 0; i < files.length; i++) {
+						var file = files[i];
+						setTimeout(readFile(file), i * 100);
+					}
+				} else {
+					intFilesCount = 1;
+					scope.intLoading = intFilesCount;
+					for (var i = 0; i < files.length; i++) {
+						var file = files[i];
+						scope.removeAllFilesWithoutVaildate();
+						readFile(file);
+						break;
+					}
+				}
+			}
+
+			function readFile(file) {
+				readAsDataURL(file).then(function(/*result*/) {
+					var isFileAreadyExist = false;
+					scope.mbFiles.every(function(mbFile) {
+						if (mbFile.isRemote) {
+							return true;
+						}
+						if (mbFile.name !== undefined && mbFile.name == file.name) {
+							if (mbFile.size == file.size) {
+								if (mbFile.lastModified == file.lastModified) {
+									isFileAreadyExist = true;
+								}
+							}
+							return false;
+						} else {
+							return true;
+						}
+					});
+
+					if (!isFileAreadyExist) {
+						var obj = genmbFileObj(file);
+						scope.mbFiles.push(obj);
+					}
+				}, function(/*error*/) { }, function(/*notify*/) { });
+			};
+
+			/*
+			Read remote data from URL
+			*/
+			function readAsDataURL(file, index) {
+				var deferred = $q.defer();
+				var reader = new FileReader();
+				reader.onloadstart = function() {
+					deferred.notify(0);
+				};
+				reader.onload = function(/*event*/) { };
+				reader.onloadend = function(/*event*/) {
+					deferred.resolve({
+						'index': index,
+						'result': reader.result
+					});
+					scope.intLoading--;
+					scope.floatProgress = (intFilesCount - scope.intLoading) / intFilesCount * 100;
+				};
+				reader.onerror = function(/*event*/) {
+					deferred.reject(reader.result);
+					scope.intLoading--;
+					scope.floatProgress = (intFilesCount - scope.intLoading) / intFilesCount * 100;
+				};
+				reader.onprogress = function(event) {
+					deferred.notify(event.loaded / event.total);
+				};
+				reader.readAsArrayBuffer(file);
+				return deferred.promise;
+			};
+		}
+	};
+});
+
+
+
+// NOTE: ng-disabled add disabled attribute to the elemtn. CSS must be used to disabele the view
+// 1. to define desiabe
+//			scope.isDisabled = false;
+//			if (angular.isDefined(attrs.ngDisabled)) {
+//				scope.$watch('ngDisabled', function(isDisabled) {
+//					scope.isDisabled = isDisabled;
+//				});
+//			}
+
+// NOTE: vies must mainpulate via CSS and theme
+//			scope.strBrowseIconCls = "lf-browse";
+//			scope.strRemoveIconCls = "lf-remove";
+//			scope.strCaptionIconCls = "lf-caption";
+//			scope.strSubmitIconCls = "lf-submit";
+//			scope.strUnknowIconCls = "lf-unknow";
+//
+//			scope.strBrowseButtonCls = "md-primary";
+//			scope.strRemoveButtonCls = "";
+//			scope.strSubmitButtonCls = "md-accent";
+//			if (angular.isDefined(attrs.mbOption)) {
+//				if (angular.isObject(scope.mbOption)) {
+//					if (scope.mbOption.hasOwnProperty('browseIconCls')) {
+//						scope.strBrowseIconCls = scope.mbOption.browseIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('removeIconCls')) {
+//						scope.strRemoveIconCls = scope.mbOption.removeIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('captionIconCls')) {
+//						scope.strCaptionIconCls = scope.mbOption.captionIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('unknowIconCls')) {
+//						scope.strUnknowIconCls = scope.mbOption.unknowIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('submitIconCls')) {
+//						scope.strSubmitIconCls = scope.mbOption.submitIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('strBrowseButtonCls')) {
+//						scope.strBrowseButtonCls = scope.mbOption.strBrowseButtonCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('strRemoveButtonCls')) {
+//						scope.strRemoveButtonCls = scope.mbOption.strRemoveButtonCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('strSubmitButtonCls')) {
+//						scope.strSubmitButtonCls = scope.mbOption.strSubmitButtonCls;
+//					}
+//				}
+//			}
+
+
+mblowfish.directive('mbFileMimetype', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var reg;
+			attrs.$observe('mbFileMimetype', function(value) {
+				reg = new RegExp(value.replace(/,/g, '|'), "i");
+				ctrl.$validate();
+			});
+			ctrl.$validators.filemimetype = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				var boolValid = true;
+				modelValue.every(function(obj) {
+					if (obj.type.match(reg)) {
+						return true;
+					} else {
+						boolValid = false;
+						return false;
+					}
+				});
+				return boolValid;
+			};
+		}
+	}
+});
+
+
+mblowfish.directive('mbFileSizeTotal', function() {
+	var sizes = ['Byte', 'KB', 'MB'];
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbFileSizeTotal', function(value) {
+				var reg = /^[1-9][0-9]*(Byte|KB|MB)$/;
+				if (!reg.test(value)) {
+					intMax = -1;
+				} else {
+					var unit = value.match(reg)[1];
+					var number = value.substring(0, value.indexOf(unit));
+					sizes.every(function(obj, idx) {
+						if (unit === obj) {
+							intMax = parseInt(number) * Math.pow(1024, idx);
+							return false;
+						} else {
+							return true;
+						}
+					});
+				}
+				ctrl.$validate();
+			});
+			ctrl.$validators.filesizetotal = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				var intTotal = 0;
+				angular.forEach(modelValue, function(obj) {
+					intTotal = intTotal + obj.size;
+				});
+				return intTotal < intMax;
+			};
+		}
+	}
+});
+mblowfish.directive('mbFileSize', function() {
+	var sizes = ['Byte', 'KB', 'MB'];
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbFileSize', function(value) {
+				var reg = /^[1-9][0-9]*(Byte|KB|MB)$/;
+				if (!reg.test(value)) {
+					intMax = -1;
+				} else {
+					var unit = value.match(reg)[1];
+					var number = value.substring(0, value.indexOf(unit));
+					sizes.every(function(obj, idx) {
+						if (unit === obj) {
+							intMax = parseInt(number) * Math.pow(1024, idx);
+							return false;
+						} else {
+							return true;
+						}
+					});
+				}
+				ctrl.$validate();
+			});
+			ctrl.$validators.filesize = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				var boolValid = true;
+				modelValue.every(function(obj) {
+					if (obj.size > intMax) {
+						boolValid = false;
+						return false;
+					} else {
+						return true;
+					}
+				});
+				return boolValid;
+			};
+		}
+	}
+});
+mblowfish.directive('mbFile', function() {
+	return {
+		restrict: 'E',
+		scope: false,
+		require: 'ngModel',
+		link: function(scope, element, attr, ngModel) {
+			function render() {
+				if (!ngModel.$modelValue) {
+					return;
+				}
+				var mbFile = ngModel.$modelValue;
+				var src = URL.createObjectURL(mbFile);
+				switch (mbFile.media) {
+					case 'image': {
+						element.replaceWith(
+							'<img src="' + src + '" />'
+						);
+						break;
+					}
+					case 'video': {
+						element.replaceWith(
+							'<video controls>' +
+							'<source src="' + src + '"">' +
+							'</video>'
+						);
+						break;
+					}
+					case 'audio': {
+						element.replaceWith(
+							'<audio controls>' +
+							'<source src="' + src + '"">' +
+							'</audio>'
+						);
+						break;
+					}
+					default: {
+						var fileType = mbFile.type || 'unknown/unknown';
+						var unKnowClass = attr.mbUnknowClass || 'mb-file-unknow';
+						element.replaceWith(
+							'<object type="' + fileType + '" data="' + src + '">' +
+							'<div class="mb-file-input-preview-default">' +
+							'<md-icon class="mb-file-input-preview-icon ' + unKnowClass + '"></md-icon>' +
+							'</div>' +
+							'</object>'
+						);
+					}
+				}
+			}
+			ngModel.$render = render;
+		}
+	};
+});
+
+
+
+
 /* 
  * The MIT License (MIT)
  * 
@@ -14079,8 +14697,83 @@ mblowfish.directive('mdIconFloat', function($mdTheming) {
 	};
 });
 
+/**
+
+Text model with array validation and transformation. Sets the size validation error if not a valid number.
+ */
+mblowfish.directive('mbMaxLength', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbMaxLength', function(value) {
+				var intVal = parseInt(value, 10);
+				intMax = isNaN(intVal) ? -1 : intVal;
+				ctrl.$validate();
+			});
+			ctrl.$validators.maxlength = function(modelValue, viewValue) {
+				if (!modelValue) {
+					return false;
+				}
+				return modelValue.length <= intMax;
+			};
+		}
+	}
+});
+
+/**
+
+Text model with array validation and transformation. Sets the size validation error if not a valid number.
+ */
+mblowfish.directive('mbMinLength', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbMinLength', function(value) {
+				var intVal = parseInt(value, 10);
+				intMax = isNaN(intVal) ? -1 : intVal;
+				ctrl.$validate();
+			});
+			ctrl.$validators.minlength = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				return modelValue.length >= intMax;
+			};
+		}
+	}
+});
+
 mblowfish.directive('mbColorPickerSpectrum', function(MbColorGradientCanvas) {
 	return new MbColorGradientCanvas('spectrum');
+});
+
+// TODO:  maso, 2020: must replaced with ngRequried
+mblowfish.directive('mbRequired', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			ctrl.$validators.required = function(modelValue, viewValue) {
+				if (!modelValue) {
+					return false;
+				}
+				return modelValue.length > 0;
+			};
+		}
+	}
 });
 /* 
  * The MIT License (MIT)
@@ -15878,6 +16571,14 @@ mblowfish.factory('MbColorPickerHistory', function($injector, MbColor) {
 });
 
 
+
+mblowfish.filter('mbTrusted', function($sce) {
+	'ngInject';
+	return function(url) {
+		return $sce.trustAsResourceUrl(url);
+	};
+});
+
 mblowfish.resource('local-file', {
 	icon: 'file_upload',
 	label: 'Local file',
@@ -15888,14 +16589,11 @@ mblowfish.resource('local-file', {
 		function setFile(files) {
 			var val;
 			if (angular.isArray(files) && files.length) {
-				val = files[0].lfFile;
+				val = files[0];
 			}
 			$resource.setValue(val);
 		}
 		$scope.files = [];
-		$scope.$watch('files.length', function() {
-			setFile($scope.files);
-		});
 		_.assign(ctrl, {
 			$style: $style,
 			setFile: setFile
@@ -15913,16 +16611,9 @@ mblowfish.resource('local-files', {
 		'ngInject';
 		var ctrl = this;
 		function setFiles(files) {
-			var vals = [];
-			_.forEach(files, function(file) {
-				vals.push(file.lfFile);
-			});
-			$resource.setValue(vals);
+			$resource.setValue(files);
 		}
 		$scope.files = [];
-		$scope.$watch('files.length', function() {
-			setFiles($scope.files);
-		});
 		_.assign(ctrl, {
 			$style: $style,
 			setFiles: setFiles
@@ -22855,7 +23546,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-language-upload.html',
-    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <lf-ng-md-file-input name=files lf-files=files lf-required lf-maxcount=5 lf-filesize=10MB lf-totalsize=20MB drag preview> </lf-ng-md-file-input> </form>"
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <mb-file-input name=files ng-file=files mb-required mb-file-max=5 mb-file-min=1 mb-file-size=10MB mb-file-size-total=20MB mb-drag mb-preview> </mb-file-input> </form>"
   );
 
 
@@ -22929,6 +23620,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('scripts/module-ui/directives/mb-file-input.html',
+    "<div layout=column class=mb-file-input> <div layout=column class=mb-file-input-preview-container ng-class=\"{'disabled':isDisabled}\" ng-show=\"isDrag || (isPreview && mbFiles.length)\"> <div class=mb-file-input-drag> <div layout=row layout-align=\"center center\" class=mb-file-input-drag-text-container ng-show=\"(!mbFiles.length || !isPreview) && isDrag\"> <div class=mb-file-input-drag-text mb-translate>{{strCaptionDragAndDrop}}</div> </div> <div class=mb-file-input-thumbnails ng-if=isPreview> <div class=mb-file-input-frame ng-repeat=\"mbFile in mbFiles\" ng-click=onFileClick(mbFile)> <div class=mb-file-input-x aria-label=\"remove {{mbFile.mbFileName}}\" ng-click=removeFile(mbFile,$event)>&times;</div> <mb-file ng-model=mbFile mb-unknow-class=strUnknowIconCls> </mb-file> <div class=mb-file-input-frame-footer> <div class=mb-file-input-frame-caption mb-translate>{{::mbFile.mbFileName}}</div> </div> </div> </div> <div class=clearfix style=clear:both></div> </div> <div layout=row> <span flex></span> <md-button aria-label=browse class=md-icon-button ng-disabled=isDisabled ng-click=openDialog($event)> <mb-icon>add</mb-icon> </md-button> <md-button aria-label=\"remove all files\" class=md-icon-button ng-click=removeAllFiles($event) ng-hide=\"!mbFiles.length || !isPreview\"> <mb-icon>clear_all</mb-icon> </md-button> </div> </div> <div layout=row class=mb-file-input-container> <div class=mb-file-input-caption layout=row layout-align=\"start center\" flex ng-class=\"{'disabled':isDisabled}\"> <mb-icon></mb-icon> <div flex class=mb-file-input-caption-text-default ng-show=!mbFiles.length mb-translate>{{strCaptionPlaceholder}}</div> <div flex class=mb-file-input-caption-text ng-hide=!mbFiles.length> <span ng-if=isCustomCaption>{{strCaption}}</span> <span ng-if=!isCustomCaption>{{ mbFiles.length == 1 ? mbFiles[0].mbFileName : mbFiles.length+\" files selected\" }}</span> </div> <md-progress-linear md-mode=determinate value={{floatProgress}} ng-show=\"intLoading && isProgress\"> </md-progress-linear> </div> <md-button aria-label=\"remove all files\" ng-disabled=isDisabled ng-click=removeAllFiles() ng-hide=\"!mbFiles.length || intLoading\" class=\"md-raised mb-file-input-button mb-file-input-button-remove\" ng-class=strRemoveButtonCls> <mb-icon>delete</mb-icon>  </md-button> <md-button aria-label=submit ng-disabled=isDisabled class=\"md-raised md-warn mb-file-input-button mb-file-input-button-submit\" ng-click=onSubmitClick() ng-class=strSubmitButtonCls ng-show=\"mbFiles.length && !intLoading && isSubmit\"> <mb-icon>send</mb-icon>  </md-button> <md-button aria-label=browse class=\"md-raised mb-file-input-button mb-file-input-button-brower\" ng-disabled=isDisabled ng-click=openDialog($event) ng-class=strBrowseButtonCls> <mb-icon>more_horiz</mb-icon>  </md-button> </div> </div>"
+  );
+
+
   $templateCache.put('scripts/module-ui/directives/mb-titled-block.html',
     "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=mb-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
   );
@@ -22940,12 +23636,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-ui/resources/file.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '.*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=\"upload file\" progress preview drag flex> </lf-ng-md-file-input> </div>"
+    "<mb-file-input ng-model=files ng-change=ctrl.setFiles(files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag> </mb-file-input>"
   );
 
 
   $templateCache.put('scripts/module-ui/resources/files.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag multiple flex> </lf-ng-md-file-input> </div>"
+    "<mb-file-input ng-model=files ng-change=ctrl.setFiles(files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag mb-multiple> </mb-file-input>"
   );
 
 
