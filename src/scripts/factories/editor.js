@@ -51,21 +51,18 @@ mblowfish.factory('MbEditor', function(MbFrame) {
 
 
 	MbEditor.prototype.updateTitle = function() {
-		return MbFrame.prototype.setTitle.call(this, (this.isDerty() ? '*' : '') + this.title);
+		return MbFrame.prototype.setTitle.call(this, (this.isDerty() ? '*' : ' ') + this.originTitle);
 	}
 
 	MbEditor.prototype.setTitle = function(title) {
-		if (this.title === title) {
+		if (this.originTitle === title) {
 			return this;
 		}
-		this.title = title;
+		this.originTitle = title;
 		return this.updateTitle();
 	};
 
 	MbEditor.prototype.setDerty = function(derty) {
-		if (this.derty === derty) {
-			return;
-		};
 		this.derty = derty;
 		return this.updateTitle();
 	};
