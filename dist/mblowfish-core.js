@@ -21095,6 +21095,7 @@ mblowfish.controller('ResourceDialogCtrl', function(
 			$element: target,
 			$scope: $scope.$new(false),
 			$style: $style,
+			$options: $options,
 			$value: value,
 			$resource: ctrl,
 			$keepRootElement: true, // Do not remove element
