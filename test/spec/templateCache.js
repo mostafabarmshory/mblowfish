@@ -213,7 +213,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-layouts/components/layouts-toolbar.html',
-    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
+    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=\"ctrl.openMenu($mdMenu, $event)\" aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-divider ng-if=ctrl.layouts.length></md-menu-divider>  <md-menu-item ng-repeat=\"layout in ctrl.layouts\"> <md-button ng-click=\"ctrl.loadLayout($event, layout)\" mb-translate>{{::layout}}</md-button> </md-menu-item> <md-menu-divider ng-if=ctrl.layouts.length></md-menu-divider> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
   );
 
 

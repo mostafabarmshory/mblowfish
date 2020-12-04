@@ -59,8 +59,7 @@ mblowfish.provider('$mbLayout', function() {
 		dockerBodyElement,
 		dockerPanelElement,
 		dockerViewElement,
-		rootElement,// Root element of the layout system
-		mode = 'docker';// layout mode
+		rootElement;// Root element of the layout system
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -85,29 +84,14 @@ mblowfish.provider('$mbLayout', function() {
 	 */
 	function open(frame, state, anchor) {
 		var result;
-		switch (mode) {
-			case 'docker':
-				result = openDockerContent(frame, state, anchor);
-				break;
-			default:
-				result = openMobileView(frame, state, anchor);
-				break;
-		}
+		result = openDockerContent(frame, state, anchor);
 		return result;
 	}
 
 	function reload(element) {
 		rootElement = element;
-		switch (mode) {
-			case 'docker':
-				destroyDockerLayout();
-				loadDockerLayout();
-				break;
-			default:
-				destroyMobileView();
-				loadMobileView();
-				break;
-		}
+		destroyDockerLayout();
+		loadDockerLayout();
 	}
 
 	function setFocus(component) {
@@ -116,24 +100,6 @@ mblowfish.provider('$mbLayout', function() {
 		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
-	function init() {
-		switch (mode) {
-			case 'docker':
-				initDockerLayout();
-				break;
-			default:
-				initMobileView();
-				break;
-		}
-	}
-
-	//-----------------------------------------------------------------------------------
-	// Mobile Layout
-	//-----------------------------------------------------------------------------------
-	function initMobileView() { }
-	function destroyMobileView() { }
-	function loadMobileView() { }
-	function openMobileView(/*component, anchor*/) { }
 
 
 	//-----------------------------------------------------------------------------------
@@ -148,9 +114,18 @@ mblowfish.provider('$mbLayout', function() {
 	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
 	var DOCKER_VIEW_CLASS = 'mb_docker_view';
 
-	function initDockerLayout() {
+	function init() {
 		restorDockerState();
 		//loadDockerLayout();
+	}
+
+	function getLayouts() {
+		var layouts = [];
+		for (var i = 0; i < layoutProviders.length; i++) {
+			var layoutProvider = layoutProviders[i];
+			layouts = _.concat(layouts, layoutProvider.list());
+		}
+		return layouts;
 	}
 
 	function setLayout(name) {
@@ -161,6 +136,9 @@ mblowfish.provider('$mbLayout', function() {
 		storeDockerState();
 	}
 
+	/*
+	TODO: maso, 2020: support lazye load
+	*/
 	function getDockerLayout(name) {
 		for (var i = 0; i < layoutProviders.length; i++) {
 			var layoutProvider = layoutProviders[i];
@@ -382,20 +360,23 @@ mblowfish.provider('$mbLayout', function() {
 		reload: reload,
 		open: open,
 		setFocus: setFocus,
+
 		setLayout: setLayout,
+		getLayouts: getLayouts,
 		getCurrentLayout: function() {
 			return docker.toConfig();
 		},
-		getMode: function() {
-			return mode;
-		},
+		//		getMode: function() {
+		//			return mode;
+		//		},
 	}
 	provider = {
 		providers: [],
-		setMode: function(appMode) {
-			mode = appMode;
-			return provider;
-		},
+		//		setMode: function(/*appMode*/) {
+		//			// not supported anymore
+		////			mode = appMode;
+		//			return provider;
+		//		},
 		addProvider: function(providerFactoryName) {
 			provider.providers.push(providerFactoryName);
 			return provider;

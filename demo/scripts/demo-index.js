@@ -99,9 +99,7 @@ mblowfish
 		// system to manage views, editors and etc. You are free to add layouts dynamically
 		// at runtime.
 		//
-		// $mbLayoutProvider.setMode('auto');
 		$mbLayoutProvider
-			.setMode('docker')
 			.addProvider('MbLayoutsLayoutProviderLocal')
 			.addProvider('DemoLayoutProviderDefault')
 			.setDefalutLayout('default');

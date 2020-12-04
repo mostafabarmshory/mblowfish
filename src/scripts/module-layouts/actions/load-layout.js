@@ -1,8 +1,8 @@
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 	title: 'Load Layout',
 	icon: 'launch',
-	/* @ngInject */
 	action: function($event, $mbLayout, $mbResource) {
+		'ngInject';
 		function loadLayout(layoutName) {
 			$mbLayout.setLayout(layoutName);
 		}
