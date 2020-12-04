@@ -8108,7 +8108,7 @@ mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
 
 		this.loadLayout = function($event, layout) {
 			if (layout) {
-				$event.values = [layouts];
+				$event.values = [layout];
 			}
 			return $mbActions.exec(MB_LAYOUTS_LOAD_ACTION, $event);
 		};

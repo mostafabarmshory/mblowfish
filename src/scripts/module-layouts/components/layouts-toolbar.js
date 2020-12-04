@@ -3,6 +3,7 @@ mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
 	controllerAs: 'ctrl',
 	controller: function($mbActions, $mbLayout) {
 		'ngInject';
+		this.layouts = $mbLayout.getLayouts();
 
 		this.saveAs = function($event) {
 			return $mbActions.exec(MB_LAYOUTS_SAVE_CURRENT_ACTION, $event);
@@ -10,7 +11,7 @@ mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
 
 		this.loadLayout = function($event, layout) {
 			if (layout) {
-				$event.values = [layouts];
+				$event.values = [layout];
 			}
 			return $mbActions.exec(MB_LAYOUTS_LOAD_ACTION, $event);
 		};
