@@ -22,4 +22,5 @@
 
 mblowfish.addConstants({
 	MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION: 'mb.navigator.sidenav.tiggle',
+	MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION: 'mb.navigator.cmdline.tiggle'
 });

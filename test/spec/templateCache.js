@@ -232,6 +232,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('scripts/module-navigator/actions/command-line-display.html',
+    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</p> </md-list-item> </md-list> </md-content> </md-bottom-sheet>"
+  );
+
+
   $templateCache.put('scripts/module-navigator/views/navigator.html',
     "<md-content> <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content>"
   );

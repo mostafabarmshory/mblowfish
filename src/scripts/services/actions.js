@@ -1,27 +1,3 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
 /**
 @ngdoc Services
 @name $mbActions
@@ -31,6 +7,17 @@ Controllers and views can access actions which is registered by an
 applications. This service is responsible to manage global actions.
 
 Note: if an action added at the configuration then there is no event.
+
+## Short keys
+
+You may assign a shortkey to each action. When users press a key and the event is not handled by views, editors
+or ..., then the action service handls the event.
+
+The short key service is enabled by default. to disable the service:
+
+```javascript
+$mbActionsProvider.setShortkeysEnabled(false);
+```
 
  */
 mblowfish.provider('$mbActions', function() {
@@ -43,7 +30,10 @@ mblowfish.provider('$mbActions', function() {
 		q,
 		Action,
 		service,
-		provider;
+		provider,
+		shortkeysEnabled,
+		injector,
+		location;
 
 	/*
 	All storage and variables
@@ -52,48 +42,91 @@ mblowfish.provider('$mbActions', function() {
 		configs = {
 			items: {}
 		},
-		actions = {};
+		actions = {},
+		actionHotkeyMap;
 
 	function addAction(actionId, action) {
+		// update actions liste
 		if (!(action instanceof Action)) {
 			action = new Action(action);
 		}
 		actions[actionId] = action;
 		action.id = actionId;
 		mbComponent.addComponent(actionId, action);
+
+		// Update shortkeys
+		actionHotkeyMap.add(action);
 		return service;
 	}
 
 	function removeAction(acctionId) {
+		var action = actions[acctionId];
+		if (!action) {
+			return service;
+		}
+		// remove action
 		mbComponent.removeComponent(actionId);
 		delete actions[acctionId];
+
+		// remove shortkey
+		actionHotkeyMap.remove(action);
 		return service;
 	}
 
 	function getAction(actionId) {
-		return actions[actionId];
+		if (actionId instanceof Action) {
+			return actionId;
+		} else if (_.isString(actionId)) {
+			return actions[actionId];
+		}
 	}
 
 	function getActions() {
 		return actions;
-	};
-
+	}
 
 	function exec(actionId, $event) {
 		$event = $event || {
 			stopPropagation: function() { },
 			preventDefault: function() { },
-		}; // TODO: amso, 2020: crate an action event
-		var action = this.getAction(actionId);
+		};
+		// run list of actions
+		if (_.isArray(actionId)) {
+			// XXX: maso, 2020: select an action and run
+			return exec(actionId[0], $event);
+		}
+		// TODO: amso, 2020: crate an action event
+		var action = getAction(actionId);
 		if (!action) {
 			// TODO: maso, 2020: add an alert system to manage all errors and notifications
 			alert('Action \'' + actionId + '\' not found!');
 			return q.reject();
 		}
-		// TODO: maso, 2020: run action inside the actions service
-		return action.exec($event);
+		// Check if action is alias
+		if (action.alias || _.isString(action.actionId)) {
+			var actionId = action.actionId || action.alias;
+			return exec(actionId, $event);
+		}
+		// Runs action function
+		if (action.action) {
+			return q.when(injector.invoke(action.action, this, {
+				$event: $event
+			}));
+		}
+		// To support action url
+		if (action.url) {
+			return location.url(action.url);
+		}
+		// TODO: maso, 2020: log to show the error
+		return q.reject({
+			message: 'Action \'' + action.id + '\' is not executable!?'
+		});
 	};
 
+	/*
+	Loads all action
+	
+	*/
 	function loadActions() {
 		// Load actions
 		var items = configs.items || {};
@@ -103,6 +136,12 @@ mblowfish.provider('$mbActions', function() {
 		});
 	}
 
+	/*
+	Find related action to the event and execute it.
+	*/
+	function handleKeyEvent($event) {
+		actionHotkeyMap.exec($event);
+	}
 
 	service = {
 		addAction: addAction,
@@ -110,20 +149,30 @@ mblowfish.provider('$mbActions', function() {
 		getAction: getAction,
 		getActions: getActions,
 		exec: exec,
+		handleKeyEvent: handleKeyEvent,
+		isShortkeysEnabled: function() {
+			return setShortkeysEnabled;
+		}
 	};
 
 	provider = {
 		/* @ngInject */
 		$get: function(
-        /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, $mbComponent, MbAction, $q) {
+        /* angularjs */ $window, $injector, $q, $location,
+        /* mb        */ $mbDispatcher, $mbComponent, MbAction, MbActionHotkeyMap) {
 			dispatcher = $mbDispatcher;
 			mbComponent = $mbComponent;
 			window = $window;
 			q = $q;
+			injector = $injector;
+			location = $location;
 			Action = MbAction;
+			actionHotkeyMap = new MbActionHotkeyMap();
 
 			loadActions();
+			if (shortkeysEnabled) {
+				document.onkeydown = handleKeyEvent;
+			}
 
 			return service;
 		},
@@ -133,6 +182,10 @@ mblowfish.provider('$mbActions', function() {
 				actionsConfig.items = _.merge(configs.items, actionsConfig.items);
 			}
 			configs = actionsConfig;
+			return provider;
+		},
+		setShortkeysEnabled: function(flag) {
+			shortkeysEnabled = flag;
 			return provider;
 		},
 		addAction: function(actionId, actionConfig) {

@@ -23,6 +23,7 @@
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 	title: 'Delete local module',
 	icon: 'view_module',
+	demon: true,
 	action: function($window, $mbModules, $event) {
 		'ngInject';
 		return $window

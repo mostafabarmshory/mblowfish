@@ -1,12 +1,12 @@
 
 mblowfish.action('demo.alert', {
-	icon: 'face',
-	title: 'Add local module',
+	icon: 'add',
+	title: 'Add new window module',
 	description: 'Adds new module into the application.',
-	hotkey: 'alt+r',
+	hotkey: 'ctrl+z',
 	action: function($window, $event) {
 		'ngInject';
-		$window.alert('Alert action is called (alt+r)!?');
+		$window.alert('New dialog is opened!?');
 		$event.stopPropagation();
 		$event.preventDefault();
 	}

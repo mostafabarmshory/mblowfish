@@ -1704,6 +1704,7 @@ mblowfish.run(function($mbToolbar) {
 
 mblowfish.addConstants({
 	MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION: 'mb.navigator.sidenav.tiggle',
+	MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION: 'mb.navigator.cmdline.tiggle'
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -5922,28 +5923,130 @@ angular.module('mblowfish-core').factory('MbActionGroup', function($injector, $n
 	return ActionGroup;
 });
 
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
+/**
+@ngdoc Factories
+@name MbActionHotkeyMap
+@description Maps hotkey to actions
+
+
+
+
+ */
+mblowfish.factory('MbActionHotkeyMap', function($mbHotkey, $injector) {
+
+	//---------------------------------------
+	// Utility
+	//---------------------------------------
+	function findActions(map, event) {
+		var result = false;
+		_.forEach(map, function(actions) {
+			if (actions.isHotkey(event)) {
+				result = actions;
+				return false;
+			}
+		});
+		return result;
+	}
+
+
+	//---------------------------------------
+	// Factory
+	//---------------------------------------
+	function ActionHotkeyMap() {
+		this.map = {};
+	};
+
+	/**
+	Executes the action
+	 */
+	ActionHotkeyMap.prototype.add = function(action) {
+		var hotkey = action.hotkey;
+		if (_.isUndefined(hotkey)) {
+			return this;
+		}
+
+		var actions = this.map[hotkey];
+		if (_.isUndefined(actions)) {
+			this.map[hotkey] = actions = [];
+			actions.isHotkey = $mbHotkey.isHotkey(hotkey);
+		}
+
+		var index = actions.indexOf(action);
+		if (index < 0) {
+			actions.push(action);
+		}
+		// TODO: log the action is added before
+		return this;
+	};
+
+	ActionHotkeyMap.prototype.remove = function(action) {
+		var hotkey = action.hotkey;
+		if (_.isUndefined(hotkey)) {
+			return this;
+		}
+		var actions = this.map[hotkey];
+		if (_.isUndefined(actions)) {
+			return this;
+		}
+
+		var index = actions.indexOf(action);
+		if (index > -1) {
+			actions.splice(index, 1);
+		}
+		return this;
+	};
+
+	/**
+	Checks if there is an action related to the event or not
+	
+	@memberof MbActionHotkeyMap
+	@param Event $evetn a key event 
+	@returns true if there is an action
+	 */
+	ActionHotkeyMap.prototype.has = function($event) {
+		var actions = findActions(this.map, $event);
+		return !_.isUndefined(actions) && actions.length > 0;
+	};
+
+
+	/**
+	Finds list of related actions to the $event
+	
+	@memberof MbActionHotkeyMap
+	@param Event $evetn a key event 
+	@returns list of actions or undefiend
+	 */
+	ActionHotkeyMap.prototype.get = function($event) {
+		var actions = findActions(this.map, $event);
+		if (actions !== false && actions.length > 0) {
+			return actions;
+		}
+		return false;
+	};
+
+
+	/**
+	Finds related action and execute it.
+	
+	If there is no related action, then false returned.
+	
+	@memberof MbActionHotkeyMap
+	@params $event a key event to handle
+	@returns false|promise to execute the actions
+	 */
+	ActionHotkeyMap.prototype.exec = function($event) {
+		var actions = findActions(this.map, $event);
+		if (!actions || actions.length <= 0) {
+			return false;
+		}
+
+		var $mbActions = $injector.get('$mbActions');
+		return $mbActions.exec(actions, $event);
+	};
+
+	return ActionHotkeyMap;
+});
 
 /**
 @ngdoc Factories
@@ -5959,7 +6062,7 @@ system.
 
 @tutorial core-action-callById
  */
-mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
+mblowfish.factory('MbAction', function($injector, MbComponent, $q) {
 
 	var defaultActionController = function($element, $action) {
 		'ngInject';
@@ -5983,24 +6086,12 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 	// Circle derives from Shape
 	Action.prototype = Object.create(MbComponent.prototype);
 
+	/**
+	Executes the action
+	 */
 	Action.prototype.exec = function($event) {
-		if (this.alias || _.isString(this.actionId)) {
-			var actionId = this.actionId || this.id;
-			var $actions = $injector.get('$mbActions');
-			return $actions.exec(actionId, $event);
-		}
-		if (this.action) {
-			var result = $injector.invoke(this.action, this, {
-				$event: $event
-			});
-			return $q.when(result);
-		}
-		if (this.url) {
-			return $location.url(this.url);
-		}
-		// TODO: maso, 2020: log to show the error
-		alert('Action \'' + this.id + '\' is not executable!?');
-		return $q.reject();
+		var $actions = $injector.get('$mbActions');
+		return $actions.exec(this, $event);
 	};
 
 
@@ -6028,7 +6119,7 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<md-tooltip md-delay="1000"><spam mb-translate>'+(this.description || this.title)+'</spam></md-tooltip>'+
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + (this.description || this.title) + '</spam></md-tooltip>' +
 					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':
@@ -8101,6 +8192,7 @@ mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
 	controllerAs: 'ctrl',
 	controller: function($mbActions, $mbLayout) {
 		'ngInject';
+		this.layouts = $mbLayout.getLayouts();
 
 		this.saveAs = function($event) {
 			return $mbActions.exec(MB_LAYOUTS_SAVE_CURRENT_ACTION, $event);
@@ -8303,6 +8395,7 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 	title: 'Delete local module',
 	icon: 'view_module',
+	demon: true,
 	action: function($window, $mbModules, $event) {
 		'ngInject';
 		return $window
@@ -8483,6 +8576,47 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 		});
 
 		ctrl.loadModules();
+	}
+});
+
+mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
+	icon: 'viwe',
+	title: 'Navigator: Open Command Line',
+	description: 'Open command line to run an action.',
+	hotkey: 'F1',
+	demon: true,
+	action: function($mdBottomSheet, $event, $mbActions) {
+		'ngInject';
+
+		$mdBottomSheet.show({
+			templateUrl: 'scripts/module-navigator/actions/command-line-display.html',
+			clickOutsideToClose: true,
+			/* @ngInject */
+			controller: function($scope, $mdBottomSheet) {
+				var actions = $mbActions.getActions()
+				$scope.actions = actions;
+
+				/*
+				 * Create filter function for a query string
+				 */
+				function createFilterFor(query) {
+					var lowercaseQuery = query.toLowerCase();
+					return function filterFn(action) {
+						return action.title && action.title.toLowerCase().indexOf(lowercaseQuery) >= 0;
+					};
+				}
+
+				$scope.search = function(query) {
+					$scope.actions = query ? _.filter(actions, createFilterFor(query)) : actions;
+				};
+
+				$scope.runAction = function(action) {
+					$mdBottomSheet.hide($mbActions.exec(action));
+				};
+			}
+		});
+		$event.preventDefault();
+		$event.stopPropagation();
 	}
 });
 
@@ -17040,29 +17174,6 @@ mblowfish.provider('$mbIcon', function() {
 	}
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
 /**
 @ngdoc Services
 @name $mbAccount
@@ -17386,30 +17497,6 @@ mblowfish.provider('$mbAccount', function() {
 	};
 	return provider;
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
 /**
 @ngdoc Services
 @name $mbActions
@@ -17419,6 +17506,17 @@ Controllers and views can access actions which is registered by an
 applications. This service is responsible to manage global actions.
 
 Note: if an action added at the configuration then there is no event.
+
+## Short keys
+
+You may assign a shortkey to each action. When users press a key and the event is not handled by views, editors
+or ..., then the action service handls the event.
+
+The short key service is enabled by default. to disable the service:
+
+```javascript
+$mbActionsProvider.setShortkeysEnabled(false);
+```
 
  */
 mblowfish.provider('$mbActions', function() {
@@ -17431,7 +17529,10 @@ mblowfish.provider('$mbActions', function() {
 		q,
 		Action,
 		service,
-		provider;
+		provider,
+		shortkeysEnabled,
+		injector,
+		location;
 
 	/*
 	All storage and variables
@@ -17440,48 +17541,91 @@ mblowfish.provider('$mbActions', function() {
 		configs = {
 			items: {}
 		},
-		actions = {};
+		actions = {},
+		actionHotkeyMap;
 
 	function addAction(actionId, action) {
+		// update actions liste
 		if (!(action instanceof Action)) {
 			action = new Action(action);
 		}
 		actions[actionId] = action;
 		action.id = actionId;
 		mbComponent.addComponent(actionId, action);
+
+		// Update shortkeys
+		actionHotkeyMap.add(action);
 		return service;
 	}
 
 	function removeAction(acctionId) {
+		var action = actions[acctionId];
+		if (!action) {
+			return service;
+		}
+		// remove action
 		mbComponent.removeComponent(actionId);
 		delete actions[acctionId];
+
+		// remove shortkey
+		actionHotkeyMap.remove(action);
 		return service;
 	}
 
 	function getAction(actionId) {
-		return actions[actionId];
+		if (actionId instanceof Action) {
+			return actionId;
+		} else if (_.isString(actionId)) {
+			return actions[actionId];
+		}
 	}
 
 	function getActions() {
 		return actions;
-	};
-
+	}
 
 	function exec(actionId, $event) {
 		$event = $event || {
 			stopPropagation: function() { },
 			preventDefault: function() { },
-		}; // TODO: amso, 2020: crate an action event
-		var action = this.getAction(actionId);
+		};
+		// run list of actions
+		if (_.isArray(actionId)) {
+			// XXX: maso, 2020: select an action and run
+			return exec(actionId[0], $event);
+		}
+		// TODO: amso, 2020: crate an action event
+		var action = getAction(actionId);
 		if (!action) {
 			// TODO: maso, 2020: add an alert system to manage all errors and notifications
 			alert('Action \'' + actionId + '\' not found!');
 			return q.reject();
 		}
-		// TODO: maso, 2020: run action inside the actions service
-		return action.exec($event);
+		// Check if action is alias
+		if (action.alias || _.isString(action.actionId)) {
+			var actionId = action.actionId || action.alias;
+			return exec(actionId, $event);
+		}
+		// Runs action function
+		if (action.action) {
+			return q.when(injector.invoke(action.action, this, {
+				$event: $event
+			}));
+		}
+		// To support action url
+		if (action.url) {
+			return location.url(action.url);
+		}
+		// TODO: maso, 2020: log to show the error
+		return q.reject({
+			message: 'Action \'' + action.id + '\' is not executable!?'
+		});
 	};
 
+	/*
+	Loads all action
+	
+	*/
 	function loadActions() {
 		// Load actions
 		var items = configs.items || {};
@@ -17491,6 +17635,12 @@ mblowfish.provider('$mbActions', function() {
 		});
 	}
 
+	/*
+	Find related action to the event and execute it.
+	*/
+	function handleKeyEvent($event) {
+		actionHotkeyMap.exec($event);
+	}
 
 	service = {
 		addAction: addAction,
@@ -17498,20 +17648,30 @@ mblowfish.provider('$mbActions', function() {
 		getAction: getAction,
 		getActions: getActions,
 		exec: exec,
+		handleKeyEvent: handleKeyEvent,
+		isShortkeysEnabled: function() {
+			return setShortkeysEnabled;
+		}
 	};
 
 	provider = {
 		/* @ngInject */
 		$get: function(
-        /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, $mbComponent, MbAction, $q) {
+        /* angularjs */ $window, $injector, $q, $location,
+        /* mb        */ $mbDispatcher, $mbComponent, MbAction, MbActionHotkeyMap) {
 			dispatcher = $mbDispatcher;
 			mbComponent = $mbComponent;
 			window = $window;
 			q = $q;
+			injector = $injector;
+			location = $location;
 			Action = MbAction;
+			actionHotkeyMap = new MbActionHotkeyMap();
 
 			loadActions();
+			if (shortkeysEnabled) {
+				document.onkeydown = handleKeyEvent;
+			}
 
 			return service;
 		},
@@ -17521,6 +17681,10 @@ mblowfish.provider('$mbActions', function() {
 				actionsConfig.items = _.merge(configs.items, actionsConfig.items);
 			}
 			configs = actionsConfig;
+			return provider;
+		},
+		setShortkeysEnabled: function(flag) {
+			shortkeysEnabled = flag;
 			return provider;
 		},
 		addAction: function(actionId, actionConfig) {
@@ -18941,6 +19105,343 @@ mblowfish.provider('$mbEditor', function() {
 	return provider;
 });
 
+/**
+
+A simple way to check whether a browser event matches a hotkey.
+
+Features
+
+- Uses a simple, natural syntax for expressing hotkeys—mod+s, cmd+alt+space, etc.
+- Accepts mod for the classic "cmd on Mac, ctrl on Windows" use case.
+- Can use either event.which (default) or event.key to work regardless of keyboard layout.
+- Can be curried to reduce parsing and increase performance when needed.
+- Is very lightweight, weighing in at < 1kb minified and gzipped.
+
+
+## Example
+
+The most basic usage...
+
+	function onKeyDown(e) {
+	  if ($mbHotkey.isHotkey('mod+s', e)) {
+	    ...
+	  }
+	}
+
+Or, you can curry the hotkey string for better performance, since it is only parsed once...
+
+
+	var isSaveHotkey = $mbHotkey.isHotkey('mod+s')
+	function onKeyDown(e) {
+	  if (isSaveHotkey(e)) {
+	    ...
+	  }
+	}
+
+## Why?
+
+There are tons of hotkey libraries, but they're often coupled to the view layer, or they bind events 
+globally, or all kinds of weird things. You don't really want them to bind the events for you, you 
+can do that yourself.
+
+Instead, you want to just check whether a single event matches a hotkey. And you want to define your 
+hotkeys in the standard-but-non-trivial-to-parse syntax that everyone knows.
+
+But most libraries don't expose their parsing logic. And even for the ones that do expose their hotkey 
+parsing logic, pulling in an entire library just to check a hotkey string is overkill.
+
+So this is a simple and lightweight hotkey checker!
+
+
+## API
+
+	isHotkey('mod+s')(event)
+	isHotkey('mod+s', { byKey: true })(event)
+	
+	isHotkey('mod+s', event)
+	isHotkey('mod+s', { byKey: true }, event)
+
+You can either pass hotkey, [options], event in which case the hotkey will be parsed and compared 
+immediately. Or you can passed just hotkey, [options] to receive a curried checking function that 
+you can re-use for multiple events.
+
+	isHotkey('mod+a')
+	isHotkey('Control+S')
+	isHotkey('cmd+opt+d')
+	itHotkey('Meta+DownArrow')
+	itHotkey('cmd+down')
+
+The API is case-insentive, and has all of the conveniences you'd expect—cmd vs. Meta, opt vs. Alt, 
+down vs. DownArrow, etc.
+
+It also accepts mod for the classic "cmd on Mac, ctrl on Windows" use case.
+
+	isHotkey('mod+s')(event)
+	isHotkey('mod+s', { byKey: true })(event)
+	
+	isCodeHotkey('mod+s', event)
+	isKeyHotkey('mod+s', event)
+
+By default the hotkey string is checked using event.which. But you can also pass in byKey: true to 
+compare using the KeyboardEvent.key API, which stays the same regardless of keyboard layout.
+
+Or to reduce the noise if you are defining lots of hotkeys, you can use the isCodeHotkey and 
+isKeyHotkey helpers that are exported.
+
+	toKeyName('cmd') // "meta"
+	toKeyName('a') // "a"
+	
+	toKeyCode('shift') // 16
+	toKeyCode('a') // 65
+
+You can also use the exposed toKeyName and toKeyCode helpers, in case you want to add the same level 
+of convenience to your own APIs.
+
+	const hotkey = parseHotkey('mod+s', { byKey: true })
+	const passes = compareHotkey(hotkey, event)
+
+You can also go even more low-level with the exposed parseHotkey and compareHotkey functions, which are 
+what the default isHotkey export uses under the covers, in case you have more advanced needs.
+
+
+ */
+mblowfish.provider('$mbHotkey', function() {
+
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var
+		service,
+		provider;
+
+
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+	var IS_MAC = (
+		typeof window != 'undefined' &&
+		/Mac|iPod|iPhone|iPad/.test(window.navigator.platform)
+	)
+
+	var MODIFIERS = {
+		alt: 'altKey',
+		control: 'ctrlKey',
+		meta: 'metaKey',
+		shift: 'shiftKey',
+	}
+
+	var ALIASES = {
+		add: '+',
+		break: 'pause',
+		cmd: 'meta',
+		command: 'meta',
+		ctl: 'control',
+		ctrl: 'control',
+		del: 'delete',
+		down: 'arrowdown',
+		esc: 'escape',
+		ins: 'insert',
+		left: 'arrowleft',
+		mod: IS_MAC ? 'meta' : 'control',
+		opt: 'alt',
+		option: 'alt',
+		return: 'enter',
+		right: 'arrowright',
+		space: ' ',
+		spacebar: ' ',
+		up: 'arrowup',
+		win: 'meta',
+		windows: 'meta',
+	}
+
+	var CODES = {
+		backspace: 8,
+		tab: 9,
+		enter: 13,
+		shift: 16,
+		control: 17,
+		alt: 18,
+		pause: 19,
+		capslock: 20,
+		escape: 27,
+		' ': 32,
+		pageup: 33,
+		pagedown: 34,
+		end: 35,
+		home: 36,
+		arrowleft: 37,
+		arrowup: 38,
+		arrowright: 39,
+		arrowdown: 40,
+		insert: 45,
+		delete: 46,
+		meta: 91,
+		numlock: 144,
+		scrolllock: 145,
+		';': 186,
+		'=': 187,
+		',': 188,
+		'-': 189,
+		'.': 190,
+		'/': 191,
+		'`': 192,
+		'[': 219,
+		'\\': 220,
+		']': 221,
+		'\'': 222,
+	}
+
+	for (var f = 1; f < 20; f++) {
+		CODES['f' + f] = 111 + f
+	}
+
+
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+	function isHotkey(hotkey, options, event) {
+		if (options && !('byKey' in options)) {
+			event = options
+			options = null
+		}
+		if (!Array.isArray(hotkey)) {
+			hotkey = [hotkey]
+		}
+		var array = hotkey.map(function(string) {
+			return parseHotkey(string, options);
+		});
+		var check = function(e) {
+			return array.some(function(object) {
+				return compareHotkey(object, e);
+			});
+		};
+		var ret = event == null ? check : check(event)
+		return ret
+	}
+
+	function isCodeHotkey(hotkey, event) {
+		return isHotkey(hotkey, event)
+	}
+
+	function isKeyHotkey(hotkey, event) {
+		return isHotkey(hotkey, { byKey: true }, event)
+	}
+
+
+	function parseHotkey(hotkey, options) {
+		var byKey = options && options.byKey
+		var ret = {}
+
+		// Special case to handle the `+` key since we use it as a separator.
+		hotkey = hotkey.replace('++', '+add')
+		var values = hotkey.split('+')
+		var length = values.length;
+
+		// Ensure that all the modifiers are set to false unless the hotkey has them.
+		for (var k in MODIFIERS) {
+			ret[MODIFIERS[k]] = false
+		}
+
+		for (var value of values) {
+			var optional = value.endsWith('?') && value.length > 1;
+
+			if (optional) {
+				value = value.slice(0, -1)
+			}
+
+			var name = toKeyName(value)
+			var modifier = MODIFIERS[name]
+
+			if (value.length > 1 && !modifier && !ALIASES[value] && !CODES[name]) {
+				throw new TypeError(`Unknown modifier: "${value}"`)
+			}
+
+			if (length === 1 || !modifier) {
+				if (byKey) {
+					ret.key = name
+				} else {
+					ret.which = toKeyCode(value)
+				}
+			}
+
+			if (modifier) {
+				ret[modifier] = optional ? null : true
+			}
+		}
+
+		return ret
+	}
+
+	/**
+	 * Compare.
+	 */
+
+	function compareHotkey(object, event) {
+		for (var key in object) {
+			var expected = object[key];
+			var actual;
+
+			if (expected == null) {
+				continue;
+			}
+
+			if (key === 'key' && event.key != null) {
+				actual = event.key.toLowerCase();
+			} else if (key === 'which') {
+				actual = expected === 91 && event.which === 93 ? 91 : event.which;
+			} else {
+				actual = event[key];
+			}
+
+			if (actual == null && expected === false) {
+				continue;
+			}
+
+			if (actual !== expected) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Utils.
+	 */
+
+	function toKeyCode(name) {
+		name = toKeyName(name);
+		const code = CODES[name] || name.toUpperCase().charCodeAt(0);
+		return code;
+	}
+
+	function toKeyName(name) {
+		name = name.toLowerCase();
+		name = ALIASES[name] || name;
+		return name;
+	}
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
+	service = {
+		isHotkey: isHotkey,
+		isCodeHotkey: isCodeHotkey,
+		isKeyHotkey: isKeyHotkey,
+		parseHotkey: parseHotkey,
+		compareHotkey: compareHotkey,
+		toKeyCode: toKeyCode,
+		toKeyName: toKeyName
+	};
+	provider = {
+		$get: function() {
+			'ngInject';
+			return service;
+		}
+	};
+	return provider;
+})
 /* 
  * The MIT License (MIT)
  * 
@@ -23598,6 +24099,11 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/module-moduleManager/views/modules.html',
     "<md-content> <md-list style=\"width: 100%\"> <md-list-item class=md-3-line ng-repeat=\"item in ctrl.modules track by $index\" ng-click=\"ctrl.editModule(item, $event)\"> <mb-icon ng-if=\"item.type == 'css'\">style</mb-icon> <mb-icon ng-if=\"item.type == 'js'\">tune</mb-icon> <div class=md-list-item-text layout=column> <h3>{{ item.title }}</h3> <h4>{{ item.url }}</h4> <p> Load: {{ item.load }}</p> </div> <md-menu> <md-button class=md-icon-button ng-click=\"ctrl.openMenu($mdMenu, $event);\" aria-label=\"remove attachment\"> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item> <md-button ng-click=\"ctrl.deleteModule(item, $event)\" arial-lable=\"delete module\"> <mb-icon>delete</mb-icon> <span translate>Delete</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-list-item> </md-list> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-navigator/actions/command-line-display.html',
+    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</p> </md-list-item> </md-list> </md-content> </md-bottom-sheet>"
   );
 
 

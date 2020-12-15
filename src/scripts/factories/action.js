@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
 /**
 @ngdoc Factories
 @name MbAction
@@ -35,7 +12,7 @@ system.
 
 @tutorial core-action-callById
  */
-mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
+mblowfish.factory('MbAction', function($injector, MbComponent, $q) {
 
 	var defaultActionController = function($element, $action) {
 		'ngInject';
@@ -59,24 +36,12 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 	// Circle derives from Shape
 	Action.prototype = Object.create(MbComponent.prototype);
 
+	/**
+	Executes the action
+	 */
 	Action.prototype.exec = function($event) {
-		if (this.alias || _.isString(this.actionId)) {
-			var actionId = this.actionId || this.id;
-			var $actions = $injector.get('$mbActions');
-			return $actions.exec(actionId, $event);
-		}
-		if (this.action) {
-			var result = $injector.invoke(this.action, this, {
-				$event: $event
-			});
-			return $q.when(result);
-		}
-		if (this.url) {
-			return $location.url(this.url);
-		}
-		// TODO: maso, 2020: log to show the error
-		alert('Action \'' + this.id + '\' is not executable!?');
-		return $q.reject();
+		var $actions = $injector.get('$mbActions');
+		return $actions.exec(this, $event);
 	};
 
 
@@ -104,7 +69,7 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<md-tooltip md-delay="1000"><spam mb-translate>'+(this.description || this.title)+'</spam></md-tooltip>'+
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + (this.description || this.title) + '</spam></md-tooltip>' +
 					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':

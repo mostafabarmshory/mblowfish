@@ -31,7 +31,7 @@ mblowfish
 		$mbSidenavProvider, $mbSettingsProvider, $mbViewProvider,
 		$mbAccountProvider, $mbComponentProvider,
 		$mbTranslateProvider, $mbTranslateSanitizationProvider,
-		$mbStorageProvider, $locationProvider) {
+		$mbStorageProvider, $mbActionsProvider, $locationProvider) {
 		$mbAccountProvider
 			.addAuthenticationProvider('DemoMemoryAuthenticationProvider');
 		//
@@ -173,9 +173,12 @@ mblowfish
 			}]);
 
 
-//		//
-//		// $mbAction: manages all actions
-//		//
+		//
+		// $mbAction: manages all actions
+		//
+		$mbActionsProvider
+			.setShortkeysEnabled(true);
+
 //		$mbSidenavProvider
 //			.addSidenav('/app/navigator', {
 //				title: 'Navigator',
