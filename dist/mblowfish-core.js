@@ -6724,16 +6724,6 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
-//		var toolbar = new MbToolbar({
-//			url: configs.url,
-//			//isToolbar: false,
-//			//isView: false,
-//			//isEditor: false,
-//			//isMenu: false,
-//			controller: function() { },
-//			controllerAs: 'toolbarCtrl'
-//		});
-//		$mbToolbar.addToolbar(configs.url);
 		this.toolbar = $mbToolbar.getToolbar(configs.url);
 
 		// 2- create and register frame menu
@@ -6766,14 +6756,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 	@memberof MbFrame
 	 */
 	MbFrame.prototype.close = function() {
-		switch ($mbLayout.getMode()) {
-			case 'docker':
-				this.$handler.$dockerContainer.close();
-				break;
-			default:
-				// TODO: support mobile layout
-				break;
-		}
+		this.$handler.$dockerContainer.close();
 	};
 
 	MbFrame.prototype.setFocus = function() {

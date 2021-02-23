@@ -64,14 +64,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 	@memberof MbFrame
 	 */
 	MbFrame.prototype.close = function() {
-		switch ($mbLayout.getMode()) {
-			case 'docker':
-				this.$handler.$dockerContainer.close();
-				break;
-			default:
-				// TODO: support mobile layout
-				break;
-		}
+		this.$handler.$dockerContainer.close();
 	};
 
 	MbFrame.prototype.setFocus = function() {
