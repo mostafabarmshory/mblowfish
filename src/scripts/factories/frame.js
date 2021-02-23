@@ -32,17 +32,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
-		var toolbar = new MbToolbar({
-			url: configs.url,
-			//isToolbar: false,
-			//isView: false,
-			//isEditor: false,
-			//isMenu: false,
-			controller: function() { },
-			controllerAs: 'toolbarCtrl'
-		});
-		$mbToolbar.addToolbar(configs.url, toolbar);
-		this.toolbar = toolbar;
+		this.toolbar = $mbToolbar.getToolbar(configs.url);
 
 		// 2- create and register frame menu
 		this.menu = undefined;
