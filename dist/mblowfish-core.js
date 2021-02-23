@@ -8580,10 +8580,10 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 });
 
 mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
-	icon: 'viwe',
+	icon: 'call_to_action',
 	title: 'Navigator: Open Command Line',
 	description: 'Open command line to run an action.',
-	hotkey: 'F1',
+	hotkey: 'F2',
 	demon: true,
 	action: function($mdBottomSheet, $event, $mbActions) {
 		'ngInject';
@@ -24103,7 +24103,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-navigator/actions/command-line-display.html',
-    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</p> </md-list-item> </md-list> </md-content> </md-bottom-sheet>"
+    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</p> </md-list-item> </md-list> </md-content> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> </md-bottom-sheet>"
   );
 
 

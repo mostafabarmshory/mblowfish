@@ -1,9 +1,9 @@
 
 mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
-	icon: 'viwe',
+	icon: 'call_to_action',
 	title: 'Navigator: Open Command Line',
 	description: 'Open command line to run an action.',
-	hotkey: 'F1',
+	hotkey: 'F2',
 	demon: true,
 	action: function($mdBottomSheet, $event, $mbActions) {
 		'ngInject';
