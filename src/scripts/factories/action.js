@@ -69,7 +69,10 @@ mblowfish.factory('MbAction', function($injector, MbComponent, $q) {
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + (this.description || this.title) + '</spam></md-tooltip>' +
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + 
+				(this.description || this.title) + 
+				(this.hotkey? ' ('+this.hotkey+')' : '') +
+				'</spam></md-tooltip>' +
 					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':

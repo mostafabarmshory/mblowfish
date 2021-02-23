@@ -1,6 +1,8 @@
 
 mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
-	title: 'Import modules',
+	group: 'Module',
+	title: 'Import',
+	descriptions: 'Imports modules into the local dashboard',
 	icon: 'cloud_upload',
 	action: function($mbModules, $mbDispatcher, $rootScope) {
 		'ngInject';

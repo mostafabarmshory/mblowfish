@@ -1,8 +1,9 @@
 mblowfish.addAction(UI_URL_OPEN_ACTION, {
+	group: 'UI',
 	title: 'Open URL',
 	description: 'Open a url',
 	icon: 'open_in_browser',
-	action: function($location, $event, $q) {
+	action: function($location, $event, $q, $window) {
 		'ngInject';
 		var values = $event.values;
 		if (!values) {

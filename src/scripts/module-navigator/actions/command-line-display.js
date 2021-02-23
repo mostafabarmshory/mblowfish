@@ -1,8 +1,9 @@
 
 mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
 	icon: 'call_to_action',
-	title: 'Navigator: Open Command Line',
-	description: 'Open command line to run an action.',
+	group: 'Navigator',
+	title: 'Open Command Line',
+	description: 'Open command line to run an action',
 	hotkey: 'F2',
 	demon: true,
 	action: function($mdBottomSheet, $event, $mbActions) {

@@ -22,7 +22,9 @@
 
 mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 	icon: 'add',
-	title: 'Add local module',
+	group: 'Module',
+	title: 'Add new module',
+	description: 'Adds a new local module to the dashboard',
 	action: function($mbResource, $mbModules) {
 		'ngInject';
 		return $mbResource

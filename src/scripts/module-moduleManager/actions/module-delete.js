@@ -21,6 +21,7 @@
  */
 
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	group: 'Module',
 	title: 'Delete local module',
 	icon: 'view_module',
 	demon: true,

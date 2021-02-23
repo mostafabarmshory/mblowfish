@@ -6119,7 +6119,10 @@ mblowfish.factory('MbAction', function($injector, MbComponent, $q) {
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + (this.description || this.title) + '</spam></md-tooltip>' +
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + 
+				(this.description || this.title) + 
+				(this.hotkey? ' ('+this.hotkey+')' : '') +
+				'</spam></md-tooltip>' +
 					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':
@@ -8141,7 +8144,9 @@ mblowfish.service('$help', function ($q, $rootScope, /*$mbTranslate,*/ $injector
 });
 
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
-	title: 'Load Layout',
+	group: 'Layout',
+	title: 'Load',
+	description: 'Loads a layout from the stored layouts',
 	icon: 'launch',
 	action: function($event, $mbLayout, $mbResource) {
 		'ngInject';
@@ -8167,7 +8172,9 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 	}
 })
 mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
-	title: 'Save Layout',
+	group: 'Layout',
+	title: 'Save',
+	description: 'Saves the current layout',
 	icon: 'save',
 	action: function($mbLayout, $mbLayoutsLocalStorage) {
 		'ngInject';
@@ -8356,7 +8363,9 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
 
 mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 	icon: 'add',
-	title: 'Add local module',
+	group: 'Module',
+	title: 'Add new module',
+	description: 'Adds a new local module to the dashboard',
 	action: function($mbResource, $mbModules) {
 		'ngInject';
 		return $mbResource
@@ -8393,6 +8402,7 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
  */
 
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	group: 'Module',
 	title: 'Delete local module',
 	icon: 'view_module',
 	demon: true,
@@ -8407,9 +8417,10 @@ mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 			});
 	}
 });
-
 mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
-	title: 'Export modules',
+	group: 'Module',
+	title: 'Export',
+	descriptions: 'Export modules from the local',
 	icon: 'cloud_download',
 	action: function($mbModules) {
 		'ngInject';
@@ -8431,7 +8442,9 @@ mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
 });
 
 mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
-	title: 'Import modules',
+	group: 'Module',
+	title: 'Import',
+	descriptions: 'Imports modules into the local dashboard',
 	icon: 'cloud_upload',
 	action: function($mbModules, $mbDispatcher, $rootScope) {
 		'ngInject';
@@ -8581,8 +8594,9 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 
 mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
 	icon: 'call_to_action',
-	title: 'Navigator: Open Command Line',
-	description: 'Open command line to run an action.',
+	group: 'Navigator',
+	title: 'Open Command Line',
+	description: 'Open command line to run an action',
 	hotkey: 'F2',
 	demon: true,
 	action: function($mdBottomSheet, $event, $mbActions) {
@@ -8621,8 +8635,9 @@ mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
 });
 
 mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
-	title: 'Navigator',
-	description: 'Tooble Navigator Sidenav',
+	group: 'Navigator',
+	title: 'Open Sidenav',
+	description: 'Opens the Navigator Sidenav and display list of views',
 	icon: 'menu',
 	/* @ngInject */
 	action: function($mbSidenav) {
@@ -8676,7 +8691,8 @@ mblowfish.addView('/mb/ui/views/navigator/', {
 
 
 mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
-	title: 'Preferences',
+	group: 'Preferences',
+	title: 'Preferences list',
 	icon: 'settings',
 	/* @ngInject */
 	action: function($location) {
@@ -13048,10 +13064,11 @@ mblowfish.controller('MbLanguagesCtrl', function(
 
 });
 mblowfish.addAction(UI_URL_OPEN_ACTION, {
+	group: 'UI',
 	title: 'Open URL',
 	description: 'Open a url',
 	icon: 'open_in_browser',
-	action: function($location, $event, $q) {
+	action: function($location, $event, $q, $window) {
 		'ngInject';
 		var values = $event.values;
 		if (!values) {
@@ -24103,7 +24120,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-navigator/actions/command-line-display.html',
-    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</p> </md-list-item> </md-list> </md-content> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> </md-bottom-sheet>"
+    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p> <span ng-if=action.group>{{ ::action.group }} -</span> <span md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</span> </p> </md-list-item> </md-list> </md-content> </md-bottom-sheet>"
   );
 
 

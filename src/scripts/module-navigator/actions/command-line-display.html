@@ -27,9 +27,12 @@
 				<mb-icon 
 					ng-if="action.icon"
 					class="md-avatar-icon">{{::action.icon}}</mb-icon>
-				<p 
-					md-highlight-text="query"
-					class="md-inline-list-icon-label">{{ ::action.title }}</p>
+				<p>
+					<span ng-if="action.group">{{ ::action.group }} -</span>
+					<span 
+						md-highlight-text="query"
+						class="md-inline-list-icon-label">{{ ::action.title }}</span>
+				</p>
 			</md-list-item>
 		</md-list>
 	</md-content>

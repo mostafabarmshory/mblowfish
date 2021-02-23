@@ -1,6 +1,7 @@
-
 mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
-	title: 'Export modules',
+	group: 'Module',
+	title: 'Export',
+	descriptions: 'Export modules from the local',
 	icon: 'cloud_download',
 	action: function($mbModules) {
 		'ngInject';
