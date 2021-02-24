@@ -1272,17 +1272,13 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-		'ngAnimate',
-		'ngAria',
+		//		'ngAnimate',
+		//		'ngAria',
 		'ngCookies',
-		'ngMaterial',
 		'ngMessages',
 		'ngSanitize',
-		//	AM-WB
-		//		'am-wb-core',
-		//	Others
-		'lfNgMdFileInput', // https://github.com/shuyu/angular-material-fileinput
 
+		'ngMaterial',
 		'ng-appcache',//
 		'angular-material-persian-datepicker',
 	])
@@ -1602,463 +1598,10 @@ mblowfish.addConstants({
 	SETTING_LOCAL_TIMEZONE: 'local.timezone',
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-//	$preferences.newPage('update', {
-//		templateUrl: 'views/preferences/mb-update.html',
-//		title: 'Update application',
-//		description: 'Settings of updating process and how to update the application.',
-//		icon: 'autorenew'
-//	});
-
-/*
- * Init application resources
- */
-mblowfish.config(function($mbResourceProvider) {
-
-	$mbResourceProvider
-		.addPage('wb-url', {
-			title: 'URL',
-			icon: 'link',
-			templateUrl: 'views/resources/wb-url.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				$scope.url = $resource.getValue();
-				if (!_.isString($scope.url)) {
-					$scope.url = '';
-				}
-				function setUrl(url) {
-					$resource.setValue(url);
-				}
-				_.assign(ctrl, {
-					$style: $style,
-					setUrl: setUrl
-				});
-			},
-			controllerAs: 'ctrl',
-			tags: [
-				'url',
-				'image-url',
-				'vedio-url',
-				'audio-url',
-				'page-url',
-				'avatar-url',
-				'thumbnail-url'
-			]
-		})
-		.addPage('local-file', {
-			icon: 'file_upload',
-			label: 'Local file',
-			templateUrl: 'views/resources/mb-local-file.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				function setFile(files) {
-					var val;
-					if (angular.isArray(files) && files.length) {
-						val = files[0].lfFile;
-					}
-					$resource.setValue(val);
-				}
-				$scope.files = [];
-				$scope.$watch('files.length', function() {
-					setFile($scope.files);
-				});
-				_.assign(ctrl, {
-					$style: $style,
-					setFile: setFile
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['file']
-		})
-		.addPage('local-files', {
-			icon: 'file_upload',
-			label: 'Local files',
-			templateUrl: 'views/resources/mb-local-files.html',
-			/*@ngInject*/
-			controller: function($scope, $resource, $style) {
-				var ctrl = this;
-				function setFiles(files) {
-					var vals = [];
-					_.forEach(files, function(file) {
-						vals.push(file.lfFile);
-					});
-					$resource.setValue(vals);
-				}
-				$scope.files = [];
-				$scope.$watch('files.length', function() {
-					setFiles($scope.files);
-				});
-				_.assign(ctrl, {
-					$style: $style,
-					setFiles: setFiles
-				});
-			},
-			controllerAs: 'ctrl',
-			priority: 1,
-			tags: ['files']
-		});
-	//		.addPage({
-	//			type: 'script',
-	//			icon: 'script',
-	//			label: 'Script',
-	//			templateUrl: 'views/resources/wb-event-code-editor.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope, $window, $element) {
-	//				var ctrl = this;
-	//				this.value = $scope.value || {
-	//					code: '',
-	//					language: 'javascript',
-	//					languages: [{
-	//						text: 'HTML/XML',
-	//						value: 'markup'
-	//					},
-	//					{
-	//						text: 'JavaScript',
-	//						value: 'javascript'
-	//					},
-	//					{
-	//						text: 'CSS',
-	//						value: 'css'
-	//					}]
-	//				};
-	//				this.setCode = function(code) {
-	//					this.value.code = code;
-	//					$scope.$parent.setValue(this.value);
-	//				};
-	//
-	//				this.setLanguage = function(language) {
-	//					this.value.code = language;
-	//					$scope.$parent.setValue(this.value);
-	//				};
-	//
-	//				this.setEditor = function(editor) {
-	//					this.editor = editor;
-	//					editor.setOptions({
-	//						enableBasicAutocompletion: true,
-	//						enableLiveAutocompletion: true,
-	//						showPrintMargin: false,
-	//						maxLines: Infinity,
-	//						fontSize: '100%'
-	//					});
-	//					$scope.editor = editor;
-	//					//              editor.setTheme('resources/libs/ace/theme/chrome');
-	//					//              editor.session.setMode('resources/libs/ace/mode/javascript');
-	//					editor.setValue(ctrl.value.code || '');
-	//					editor.on('change', function() {
-	//						ctrl.setCode(editor.getValue());
-	//					});
-	//				};
-	//
-	//				//          var ctrl = this;
-	//				$window.loadLibrary('//cdn.viraweb123.ir/api/v2/cdn/libs/ace@1.4.8/src-min/ace.js')
-	//					.then(function() {
-	//						ctrl.setEditor(ace.edit($element.find('div#am-wb-resources-script-editor')[0]));
-	//					});
-	//			},
-	//			controllerAs: 'ctrl',
-	//			tags: ['code', 'script']
-	//		});
-
-	//	function getDomain() {
-	//		return $location.protocol() + //
-	//			'://' + //
-	//			$location.host() + //
-	//			(($location.port() ? ':' + $location.port() : ''));
-	//	}
-	//
-	//	//  TODO: maso, 2018: replace with class
-	//	function getSelection() {
-	//		if (!this.__selections) {
-	//			this.__selections = angular.isArray(this.value) ? this.value : [];
-	//		}
-	//		return this.__selections;
-	//	}
-	//
-	//	function getIndexOf(list, item) {
-	//		if (!angular.isDefined(item.id)) {
-	//			return list.indexOf(item);
-	//		}
-	//		for (var i = 0; i < list.length; i++) {
-	//			if (list[i].id === item.id) {
-	//				return i;
-	//			}
-	//		}
-	//	}
-	//
-	//	function setSelected(item, selected) {
-	//		var selectionList = this.getSelection();
-	//		var index = getIndexOf(selectionList, item);
-	//		if (selected) {
-	//			// add to selection
-	//			if (index >= 0) {
-	//				return;
-	//			}
-	//			selectionList.push(item);
-	//		} else {
-	//			// remove from selection
-	//			if (index > -1) {
-	//				selectionList.splice(index, 1);
-	//			}
-	//		}
-	//	}
-	//
-	//	function isSelected(item) {
-	//		var selectionList = this.getSelection();
-	//		return getIndexOf(selectionList, item) >= 0;
-	//	}
-	//
-	//
-	//	/**
-	//	 * @ngdoc Resources
-	//	 * @name Account
-	//	 * @description Get an account from resource
-	//	 *
-	//	 * Enable user to select an account
-	//	 */
-	//	$mbResourceProvider
-	//		.addPage({
-	//			label: 'Account',
-	//			type: 'account',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = false;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item) {
-	//					$scope.$parent.setValue(item);
-	//					$scope.$parent.answer();
-	//				};
-	//				this.isSelected = function(item) {
-	//					return item === this.value || item.id === this.value.id;
-	//				};
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['account']
-	//		})
-	//		.addPage({
-	//			label: 'Account',
-	//			type: 'account id',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = false;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item) {
-	//					$scope.$parent.setValue(item.id);
-	//					$scope.$parent.answer();
-	//				};
-	//				this.isSelected = function(item) {
-	//					return item.id === this.value;
-	//				};
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['account_id', 'owner_id']
-	//		})
-	//		.addPage({
-	//			label: 'Accounts',
-	//			type: 'account-list',
-	//			templateUrl: 'views/resources/mb-accounts.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = true;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item, selected) {
-	//					this._setSelected(item, selected);
-	//					$scope.$parent.setValue(this.getSelection());
-	//				};
-	//				this._setSelected = setSelected;
-	//				this.isSelected = isSelected;
-	//				this.getSelection = getSelection;
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['accounts', '/user/accounts']
-	//		})
-	//		.addPage({
-	//			label: 'Role List',
-	//			type: 'role-list',
-	//			templateUrl: 'views/resources/mb-roles.html',
-	//			/*
-	//			 * @ngInject
-	//			 */
-	//			controller: function($scope) {
-	//				// TODO: maso, 2018: load selected item
-	//				$scope.multi = true;
-	//				this.value = $scope.value;
-	//				this.setSelected = function(item, selected) {
-	//					this._setSelected(item, selected);
-	//					$scope.$parent.setValue(this.getSelection());
-	//				};
-	//				this._setSelected = setSelected;
-	//				this.isSelected = isSelected;
-	//				this.getSelection = getSelection;
-	//			},
-	//			controllerAs: 'resourceCtrl',
-	//			priority: 8,
-	//			tags: ['roles', '/user/roles']
-	//		})
-	//		.addPage({
-	//		label: 'Group List',
-	//		type: 'group-list',
-	//		templateUrl: 'views/resources/mb-groups.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//			// TODO: maso, 2018: load selected item
-	//			$scope.multi = true;
-	//			this.value = $scope.value;
-	//			this.setSelected = function(item, selected) {
-	//				this._setSelected(item, selected);
-	//				$scope.$parent.setValue(this.getSelection());
-	//			};
-	//			this._setSelected = setSelected;
-	//			this.isSelected = isSelected;
-	//			this.getSelection = getSelection;
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 8,
-	//		tags: ['groups']
-	//	})
-	//	.addPage({
-	//		type: 'local-file',
-	//		icon: 'file_upload',
-	//		label: 'Local file',
-	//		templateUrl: 'views/resources/mb-local-file.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope, $q, style) {
-	//			var ctrl = this;
-	//			$scope.style = style;
-	//			$scope.answer = function() {
-	//				if (angular.isArray(ctrl.files) && ctrl.files.length) {
-	//					return $q.resolve(ctrl.files[0].lfFile);
-	//				}
-	//				return $q.reject('No file selected');
-	//			};
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 1,
-	//		tags: ['local-file']
-	//	});
-	//
-	//
-	//
-	//	//-------------------------------------------------------------//
-	//	// CMS:
-	//	//
-	//	// - Term Taxonomies
-	//	//-------------------------------------------------------------//
-	//	$mbResource.addPage({
-	//		label: 'Term Taxonomies',
-	//		type: '/cms/term-taxonomies',
-	//		templateUrl: 'views/resources/mb-term-taxonomies.html',
-	//		/*
-	//		 * @ngInject
-	//		 */
-	//		controller: function($scope) {
-	//			$scope.multi = true;
-	//			this.value = $scope.value;
-	//			this.setSelected = function(item, selected) {
-	//				this._setSelected(item, selected);
-	//				$scope.$parent.setValue(this.getSelection());
-	//			};
-	//			this._setSelected = setSelected;
-	//			this.isSelected = isSelected;
-	//			this.getSelection = getSelection;
-	//		},
-	//		controllerAs: 'resourceCtrl',
-	//		priority: 8,
-	//		tags: ['/cms/term-taxonomies']
-	//	});
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-mblowfish.addConstants({
-	//------------------------------------------------------------
-	// Resources Types
-	//------------------------------------------------------------
-	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
-
-	//------------------------------------------------------------
-	// Stoer Paths
-	//------------------------------------------------------------
-	//	SDP_LINKS_SP: '/sdp/links',
-
-	//------------------------------------------------------------
-	// Views
-	//------------------------------------------------------------
-	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
-
-	//------------------------------------------------------------
-	// ACTIONS
-	//------------------------------------------------------------
-	IFRAME_URL_OPEN_ACTION: 'iframe.url.open',
-
-	//------------------------------------------------------------
-	// wizards
-	//------------------------------------------------------------
-	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
+mblowfish.factory('$exceptionHandler', function($log) {
+	return function myExceptionHandler(exception, cause) {
+		$log.warn(exception, cause);
+	};
 });
 
 
@@ -2074,6 +1617,7 @@ mblowfish.addConstants({
 
 	MB_LAYOUTS_SAVE_CURRENT_ACTION: 'mb.layouts.save.current', // save current layout as new desktop
 	MB_LAYOUTS_LOAD_ACTION: 'mb.layouts.load',
+	MB_LAYOUTS_THEME_SWITECH_ACTION: 'layouts.theme.switch'
 });
 
 /*
@@ -2161,6 +1705,7 @@ mblowfish.run(function($mbToolbar) {
 
 mblowfish.addConstants({
 	MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION: 'mb.navigator.sidenav.tiggle',
+	MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION: 'mb.navigator.cmdline.tiggle'
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -2319,6 +1864,117 @@ function watchAttribute(scope, attribute, valueCallback, changeCallback) {
 	}
 	valueCallback(scope.$eval(attribute));
 }
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+mblowfish.addConstants({
+	//------------------------------------------------------------
+	// Resources Types
+	//------------------------------------------------------------
+	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
+
+	//------------------------------------------------------------
+	// Stoer Paths
+	//------------------------------------------------------------
+	//	SDP_LINKS_SP: '/sdp/links',
+
+	//------------------------------------------------------------
+	// Views
+	//------------------------------------------------------------
+	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
+
+	//------------------------------------------------------------
+	// ACTIONS
+	//------------------------------------------------------------
+	UI_URL_OPEN_ACTION: 'iframe.url.open',
+
+	//------------------------------------------------------------
+	// wizards
+	//------------------------------------------------------------
+	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.run(function(appcache, $window) {
+
+	/*
+	 * Reload the page
+	 * 
+	 * @deprecated use page service
+	 */
+	function reload() {
+		$window.location.reload();
+	}
+
+	/*
+	 * Reload the application
+	 */
+	function updateApplication() {
+		var setting = {};
+		if (setting.showMessage) {
+			if (setting.autoReload) {
+				alert('Application is update. Page will be reload automatically.')//
+					.then(reload);
+			} else {
+				confirm('Application is update. Reload the page for new version?')//
+					.then(reload);
+			}
+		} else {
+			toast('Application is updated.');
+		}
+	}
+
+	// Check update
+	function doUpdate() {
+		appcache
+			.swapCache()//
+			.then(updateApplication());
+	}
+
+	appcache
+		.checkUpdate()
+		.then(doUpdate);
+});
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -2564,6 +2220,7 @@ mblowfish.config(function($mbIconProvider) {
 		'power_settings_new': '<path d="M13 3h-2v10h2V3z"/><path d="M17.83 5.17l-1.42 1.42A6.92 6.92 0 0 1 19 12c0 3.87-3.13 7-7 7A6.995 6.995 0 0 1 7.58 6.58L6.17 5.17A8.932 8.932 0 0 0 3 12a9 9 0 0 0 18 0c0-2.74-1.23-5.18-3.17-6.83z"/>',
 		'pregnant_woman': '<path d="M9 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm7 9c-.01-1.34-.83-2.51-2-3 0-1.66-1.34-3-3-3s-3 1.34-3 3v7h2v5h3v-5h3v-4z"/>',
 		'print': '<path d="M19 12c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-3 7H8v-5h8v5zm3-11H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3z"/><path d="M18 3H6v4h12V3z"/>',
+		'preview': '<g><rect fill="none" height="24" width="24"/><path d="M19,3H5C3.89,3,3,3.9,3,5v14c0,1.1,0.89,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.11,3,19,3z M19,19H5V7h14V19z M13.5,13 c0,0.83-0.67,1.5-1.5,1.5s-1.5-0.67-1.5-1.5c0-0.83,0.67-1.5,1.5-1.5S13.5,12.17,13.5,13z M12,9c-2.73,0-5.06,1.66-6,4 c0.94,2.34,3.27,4,6,4s5.06-1.66,6-4C17.06,10.66,14.73,9,12,9z M12,15.5c-1.38,0-2.5-1.12-2.5-2.5c0-1.38,1.12-2.5,2.5-2.5 c1.38,0,2.5,1.12,2.5,2.5C14.5,14.38,13.38,15.5,12,15.5z"/></g>',
 		'query_builder': '<path d="M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-.01-18C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2z"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>',
 		'question_answer': '<path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1z"/><path d="M17 12V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/>',
 		'receipt': '<path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z"/>',
@@ -2870,6 +2527,7 @@ mblowfish.config(function($mbIconProvider) {
 		'network_cell': '<path fill-opacity=".3" d="M2 22h20V2z"/><path d="M17 7L2 22h15z"/>',
 		'network_wifi': '<path fill-opacity=".3" d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"/><path d="M3.53 10.95l8.46 10.54.01.01.01-.01 8.46-10.54C20.04 10.62 16.81 8 12 8c-4.81 0-8.04 2.62-8.47 2.95z"/>',
 		'nfc': '<path d="M20 20H4V4h16v16zm0-18H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/><path d="M18 6h-5c-1.1 0-2 .9-2 2v2.28c-.6.35-1 .98-1 1.72 0 1.1.9 2 2 2s2-.9 2-2c0-.74-.4-1.38-1-1.72V8h3v8H8V8h2V6H6v12h12V6z"/>',
+		'dark_mode': '<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24"><rect fill="none" height="24" width="24"/><path d="M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36c-0.98,1.37-2.58,2.26-4.4,2.26 c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"/></svg>',
 		'screen_lock_landscape': '<path d="M19 17H5V7h14v10zm2-12H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/><path d="M10.8 10c0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2v1h-2.4v-1zm-.8 6h4c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1v-1c0-1.11-.9-2-2-2-1.11 0-2 .9-2 2v1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1z"/>',
 		'screen_lock_portrait': '<path d="M10.8 10c0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2v1h-2.4v-1zm-.8 6h4c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1v-1c0-1.11-.9-2-2-2-1.11 0-2 .9-2 2v1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1z"/><path d="M17 19H7V5h10v14zm0-18H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2z"/>',
 		'screen_lock_rotation': '<path d="M23.25 12.77l-2.57-2.57-1.41 1.41 2.22 2.22-5.66 5.66L4.51 8.17l5.66-5.66 2.1 2.1 1.41-1.41L11.23.75c-.59-.59-1.54-.59-2.12 0L2.75 7.11c-.59.59-.59 1.54 0 2.12l12.02 12.02c.59.59 1.54.59 2.12 0l6.36-6.36c.59-.59.59-1.54 0-2.12z"/><path d="M8.47 20.48C5.2 18.94 2.86 15.76 2.5 12H1c.51 6.16 5.66 11 11.95 11l.66-.03-3.81-3.82-1.33 1.33z"/><path d="M16.8 2.5c0-.94.76-1.7 1.7-1.7s1.7.76 1.7 1.7V3h-3.4v-.5zM16 9h5c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1v-.5C21 1.12 19.88 0 18.5 0S16 1.12 16 2.5V3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1z"/>',
@@ -3190,6 +2848,7 @@ mblowfish.config(function($mbIconProvider) {
 		//
 		'add_location': '<path d="M12 2C8.14 2 5 5.14 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.86-3.14-7-7-7zm4 8h-3v3h-2v-3H8V8h3V5h2v3h3v2z"/>',
 		'beenhere': '<path d="M19 1H5c-1.1 0-1.99.9-1.99 2L3 15.93c0 .69.35 1.3.88 1.66L12 23l8.11-5.41c.53-.36.88-.97.88-1.66L21 3c0-1.1-.9-2-2-2zm-9 15l-5-5 1.41-1.41L10 13.17l7.59-7.59L19 7l-9 9z"/>',
+		'category': '<path d="M0 0h24v24H0z" fill="none"/><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/>',
 		'directions': '<path d="M21.71 11.29l-9-9c-.39-.39-1.02-.39-1.41 0l-9 9c-.39.39-.39 1.02 0 1.41l9 9c.39.39 1.02.39 1.41 0l9-9c.39-.38.39-1.01 0-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>',
 		'directions_bike': '<path d="M16 4.8c.99 0 1.8-.81 1.8-1.8s-.81-1.8-1.8-1.8c-1 0-1.8.81-1.8 1.8S15 4.8 16 4.8z"/><path d="M19 20.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm0-8.5c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/><path d="M14.8 10H19V8.2h-3.2l-1.93-3.27c-.3-.5-.84-.83-1.46-.83-.47 0-.89.19-1.2.5l-3.7 3.7c-.32.3-.51.73-.51 1.2 0 .63.33 1.16.85 1.47L11.2 13v5H13v-6.48l-2.25-1.67 2.32-2.33L14.8 10z"/><path d="M5 20.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zM5 12c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/>',
 		'directions_bus': '<path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>',
@@ -3538,7 +3197,9 @@ mblowfish.config(function($mdThemingProvider) {
 			'default': '700'
 		})//
 		.warnPalette('red')
-		.backgroundPalette('grey')
+		.backgroundPalette('grey', {
+			'default': '800'
+		})
 		.dark();
 
 	$mdThemingProvider.alwaysWatchTheme(true);
@@ -3546,7 +3207,7 @@ mblowfish.config(function($mdThemingProvider) {
 
 
 
-mblowfish.run(function($window, $q, $rootScope) {
+mblowfish.run(function($window, $q, $rootScope, $notification) {
 
 	var libs = {};
 	var styles = {};
@@ -3745,6 +3406,13 @@ mblowfish.run(function($window, $q, $rootScope) {
 			metaElement.attr(property, data[property]);
 		}
 	};
+
+
+	// Hadi 1396-12-22: update alerts
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
 });
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
@@ -3929,189 +3597,6 @@ mblowfish.controller('MbDynamicFormDialogCtrl', function($scope, $mdDialog, $sch
 	};
 	$scope.answer = function(a) {
 		$mdDialog.hide(a);
-	};
-});
-
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name mb-badge
- * @description Display a badge on items
- * 
- */
-mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
-
-	// XXX: maso, 2020: replace with md color
-	function __badge_toRGB(color) {
-		var split = (color || '').split('-');
-		if (split.length < 2) {
-			split.push('500');
-		}
-
-		var hueA = split[1] || '800'; // '800'
-		var colorR = split[0] || 'primary'; // 'warn'
-
-		var theme = $mdTheming.THEMES['default'];
-		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
-		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-		return 'rgb(' + colorValue.join(',') + ')';
-	}
-
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-
-		function style(where, color) {
-			if (color) {
-				element.css(where, __badge_toRGB(color));
-			}
-		}
-		//		function getPosition(){
-		//		return {
-		//		top: element.prop('offsetTop'),
-		//		left: element.prop('offsetLeft'),
-		//		width: element.prop('offsetWidth'),
-		//		height: element.prop('offsetHeight')
-		//		};
-		//		}
-		scope.$watch(function() {
-			return attributes.mbBadgeColor;
-		}, function(value) {
-			style('color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadgeFill;
-		}, function(value) {
-			style('background-color', value);
-		});
-	}
-
-	return {
-		restrict: 'E',
-		replace: true,
-		transclude: true,
-		link: postLink,
-		template: function(/*element, attributes*/) {
-			return '<div class="mb-badge" ng-transclude></div>';
-		}
-	};
-});
-
-mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
-
-	// XXX: maso, 2020: replace with md-color
-	function __badge_toRGB(color) {
-		var split = (color || '').split('-');
-		if (split.length < 2) {
-			split.push('500');
-		}
-
-		var hueA = split[1] || '800'; // '800'
-		var colorR = split[0] || 'primary'; // 'warn'
-
-		var theme = $mdTheming.THEMES['default'];
-		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
-		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
-		return 'rgb(' + colorValue.join(',') + ')';
-	}
-
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-		//
-		var parent = element.parent();
-		var bg = angular.element('<div></div>');
-		var link = $compile(bg);
-		var badge = link(scope);
-
-		var offset = parseInt(attributes.mdBadgeOffset);
-		if (isNaN(offset)) {
-			offset = 10;
-		}
-
-		function style(where, color) {
-			if (color) {
-				badge.css(where, __badge_toRGB(color));
-			}
-		}
-		function getPosition() {
-			return {
-				top: element.prop('offsetTop'),
-				left: element.prop('offsetLeft'),
-				width: element.prop('offsetWidth'),
-				height: element.prop('offsetHeight')
-			};
-		}
-
-		function position(value) {
-			var top = element.prop('offsetTop');
-			badge.css({
-				'display': attributes.mbBadge && top ? 'initial' : 'none',
-				'left': value.left + value.width - 20 + offset + 'px',
-				'top': value.top + value.height - 20 + offset + 'px'
-			});
-		}
-
-		//		function update () {
-		//		position(getPosition());
-		//		}
-
-		badge.addClass('mb-badge');
-		badge.css('position', 'absolute');
-		parent.append(badge);
-		scope.$watch(function() {
-			return attributes.mbBadgeColor;
-		}, function(value) {
-			style('color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadgeFill;
-		}, function(value) {
-			style('background-color', value);
-		});
-		scope.$watch(function() {
-			return attributes.mbBadge;
-		}, function(value) {
-			badge.text(value);
-			badge.css('display', value ? 'initial' : 'none');
-		});
-
-		scope.$watch(getPosition, function(value) {
-			position(value);
-		}, true);
-
-		//		angular.element($window)
-		//		.bind('resize', function(){
-		//		update();
-		//		});
-	}
-	return {
-		priority: 100,
-		restrict: 'A',
-		link: postLink
 	};
 });
 
@@ -4393,6 +3878,51 @@ mblowfish.directive('mbDatepicker', function($mdUtil, $rootScope) {
 		link: postLink
 	};
 });
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-draggable
+ * @description Call an action on dragstart
+ * 
+ */
+mblowfish.directive('mbDraggable', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			var flag = true;
+			if (attrs.mbDraggable) {
+				flag = scope.$eval(attrs.mbDraggable, {
+					$event: {},
+					$element: element
+				});
+			}
+			element.attr('draggable', flag);
+		}
+	};
+});
+
 /* 
  * The MIT License (MIT)
  * 
@@ -4453,10 +3983,11 @@ mblowfish.directive('mbDynamicForm', function($mbResource) {
 			return $mbResource.hasPageFor(prop.name);
 		};
 
-		scope.setValueFor = function(prop) {
+		scope.setValueFor = function(prop, $event) {
 			return $mbResource
 				.get(prop.name, {
-					data: prop.defaultValue
+					data: prop.defaultValue,
+					targetEvent:$event
 				})
 				.then(function(value) {
 					scope.modelChanged(prop.name, value);
@@ -4689,193 +4220,6 @@ angular.module('mblowfish-core')
         link: postLink
     };
 });
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc Directives
-@name mb-icon
-@description Icon for MBlowfish
-
- */
-mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
-	// FORMAT
-	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
-	// REPLACE FORMAT
-	var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
-
-	// optimize pars
-	Mustache.parse(template);
-	Mustache.parse(replaceTemplate);
-
-	var shapes = $mbIcon.getShapes();
-
-	function postLink(scope, element, attr, ctrls, transclude) {
-		// icon information
-		var icon = {
-			name: 'help',
-			viewbox: '0 0 24 24',
-			size: 24,
-		};
-		// Counter
-		var renderCount = 0;
-
-
-		/*
-		 * Sets icon and render the shape
-		 */
-		function setIcon(iconName) {
-			var tempIcon = _.clone(icon);
-			// icon
-			if (iconName !== undefined) {
-				tempIcon.name = iconName;
-				// Check for material-design-icons style name, and extract icon / size
-				var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
-				if (ss !== null) {
-					tempIcon.name = ss[1];
-					tempIcon.size = ss[2];
-				}
-			}
-
-			render(tempIcon);
-		}
-
-		//        function setViewBox(viewBox){
-		//            // viewBox
-		//            if (attr.viewBox !== undefined) {
-		//                viewBox = attr.viewBox;
-		//            } else {
-		//                viewBox = $mbIcon.getViewBox(icon) ? $mbIcon.getViewBox(icon) : '0 0 24 24';
-		//            }
-		//            render();
-		//            return viewBox;
-		//        }
-
-		function setSize(newsize) {
-			if (newsize === icon.size) {
-				return;
-			}
-			var tempIcon = _.clone(icon);
-			tempIcon.size = newsize;
-			render(tempIcon);
-		}
-
-		function render(newIcon) {
-			// check for new changes
-			if (renderCount && newIcon.name === icon.name &&
-				newIcon.size === icon.size &&
-				newIcon.viewbox === icon.viewbox) {
-				return;
-			}
-			newIcon.shape = shapes[newIcon.name];
-			if (renderCount && window.SVGMorpheus) {
-				// this block will succeed if SVGMorpheus is available
-				var options = JSON.parse(attr.options || '{}');
-				element.html(Mustache.render(replaceTemplate, {
-					icon: newIcon,
-					old: icon
-				}));
-				new SVGMorpheus(element.children()[0]).to(newIcon, options);
-			} else {
-				element.html(Mustache.render(template, {
-					icon: newIcon
-				}));
-			}
-
-			icon = newIcon;
-			renderCount++;
-		}
-
-		// watch for any changes
-		if (attr.icon !== undefined) {
-			attr.$observe('icon', setIcon);
-		} else if (attr.mbIconName !== undefined) {
-			attr.$observe('mbIconName', setIcon);
-		} else {
-			transclude(scope, function(clone) {
-				var text = clone.text();
-				if (text && text.trim()) {
-					scope.$watch(function() {
-						return $interpolate(text.trim())(scope);
-					}, setIcon);
-				}
-			});
-		}
-		if (attr.size !== undefined) {
-			attr.$observe('size', setSize);
-		}
-	}
-
-	return {
-		restrict: 'E',
-		transclude: true,
-		link: postLink,
-		replace: false
-	};
-});
-
-mblowfish.directive('mdIconFloat', function($mdTheming) {
-
-	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
-		'MD-SELECT'];
-
-	var LEFT_SELECTORS = INPUT_TAGS.reduce(
-		function(selectors, isel) {
-			return selectors.concat(['mb-icon ~ ' + isel, '.mb-icon ~ ' + isel]);
-		}, []).join(',');
-
-	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
-		function(selectors, isel) {
-			return selectors.concat([isel + ' ~ mb-icon', isel + ' ~ .mb-icon']);
-		}, []).join(',');
-
-	function compile(tElement) {
-		// Check for both a left & right icon
-		var leftIcon = tElement[0]
-			.querySelector(LEFT_SELECTORS);
-		var rightIcon = tElement[0]
-			.querySelector(RIGHT_SELECTORS);
-
-		if (leftIcon) {
-			tElement.addClass('md-icon-left');
-		}
-		if (rightIcon) {
-			tElement.addClass('md-icon-right');
-		}
-
-		return function postLink(scope, element) {
-			$mdTheming(element);
-		};
-	}
-
-	return {
-		restrict: 'C',
-		compile: compile
-	};
-});
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -5252,6 +4596,253 @@ angular.module('mblowfish-core')
  */
 
 
+/**
+ * @ngdoc Directives
+ * @name mb-on-dragstart
+ * @description Call an action on dragstart
+ * 
+ */
+mblowfish.directive('mbOnDragstart', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.on('dragstart', function(event, data) {
+				// call the function that was passed
+				if (attrs.mbOnDragstart) {
+					scope.$eval(attrs.mbOnDragstart, {
+						$event: event,
+						$element: element,
+						$data: data
+					});
+				}
+			});
+		}
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-enter
+ * @description Call an action on ENTER
+ * 
+ * ```
+ * <input
+ *  mb-on-enter="toast('ESC')">
+ * ```
+ */
+mblowfish.directive('mbOnEnter', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keypress', function(e) {
+			if (e.keyCode === 13) {
+				scope.$eval(attr.mbOnEnter, {
+					$event: e
+				});
+			}
+		});
+	};
+});
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-error
+ * @description Call an action on error
+ * 
+ * This directive is used to run an action on error of an element
+ * 
+ * ```
+ * <img
+ * 	mb-on-error="toast('image is not loaded')"
+ * 	href="image/path">
+ * ```
+ */
+mblowfish.directive('mbOnError', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('error', function(e) {
+				// call the function that was passed
+				if (attrs.mbOnError) {
+					scope.$eval(attrs.mbOnError, {
+						$event: e
+					});
+				}
+			});
+		}
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-esc
+ * @description Call an action on ESC
+ * 
+ * ```
+ * <input
+ *  mb-on-esc="toast('ESC')">
+ * ```
+ */
+mblowfish.directive('mbOnEsc', function() {
+	return function(scope, elm, attr) {
+		elm.bind('keydown', function(e) {
+			if (e.keyCode === 27) {
+				scope.$eval(attr.mbOnEsc, {
+					$event: e
+				});
+			}
+		});
+	};
+});
+
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-on-load
+ * @description Call an action on load
+ * 
+ * This directive is used to run an action on load of an element. For exmaple
+ * use to show alert on load of image:
+ * 
+ * ```
+ * <img
+ * 	mb-on-load="toast('image is loaded')"
+ * 	href="image/path">
+ * ```
+ */
+mblowfish.directive('mbOnLoad', function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('load', function(event, data) {
+				// call the function that was passed
+				if (attrs.mbOnLoad) {
+					scope.$eval(attrs.mbOnLoad, {
+						$event: event,
+						$element: element,
+						$data: data
+					});
+				}
+			});
+		}
+	};
+});
+
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
 angular.module('mblowfish-core')
 
 /**
@@ -5376,17 +4967,17 @@ mblowfish.directive('mbSidenavs', function($mbSidenav) {
 
 /*
  * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -5398,39 +4989,118 @@ mblowfish.directive('mbSidenavs', function($mbSidenav) {
 
 
 /**
-@ngdoc Directives
-@name mb-titled-block
-@descritpion Title block
+@ngdoc directive
+@name mb-toolbar-group
+@description An ancher to load a list of toolbars
+
+This is used to add a toolbar into the view.
+
+It is not possible to add a toolbar with aa specific url into the view more than one time.
+
+@example
+	<mb-toolbar-group
+		mb-url="/app/main"
+		mb-default="true"
+		mb-toolbars="['/app/main', '/app/editor/save', '/app/print']">
+	</mb-toolbar-group>
 
 
  */
-mblowfish.directive('mbTitledBlock', function($mbActions) {
+mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
 
-	function postLink(scope) {
-		scope.$evalAction = function(item) {
-			if (item.expression) {
-				return scope.$parent.$eval(item.expression);
+
+	function link($scope, $element, $attr, $ctrl) {
+		// 0- init UI
+		$element.empty();
+		$mbTheming($element);
+
+		// 1- load toolbars
+		var toolbarIds = $scope.$eval($attr.mbToolbars);
+		_.forEach(toolbarIds, function(toolbarId) {
+			var toolbar = $mbToolbar.getToolbar(toolbarId);
+			if (toolbar) {
+				$ctrl.addToolbar(toolbar);
+			} else {
+				// TODO: maso, 2020: add a log to show the error
 			}
-			if (item.actionId) {
-				return $mbActions.exec(item.actionId);
-			}
-			if (angular.isFunction(item.action)) {
-				item.action();
-			}
+		})
+
+		// 2- register toolbar group
+		$mbToolbar.addToolbarGroup($attr.mbUrl, $ctrl);
+		if (!_.isUndefined($attr.mbDefault)) {
+			$mbToolbar.setMainToolbarGroup($ctrl);
 		}
+
+		$scope.$on('$destroy', function() {
+			$ctrl.destroy();
+		});
 	}
+
 	return {
-		replace: false,
 		restrict: 'E',
-		transclude: true,
-		scope: {
-			mbTitle: '@?',
-			mbIcon: '@?',
-			mbProgress: '<?',
-			mbMoreActions: '='
+		replace: false,
+		priority: 400,
+		require: 'mbToolbarGroup',
+		/* @ngInject */
+		controller: function($scope, $element) {
+			this.handlers = {};
+
+			this.addToolbar = function(toolbar) {
+				if (_.isString(toolbar)) {
+					toolbar = $mbToolbar.getToolbar(toolbar);
+				}
+				if (!_.isUndefined(this.handlers[toolbar.url])) {
+					// FIXME: log and throw exception: the toolbar is added befor
+					return;
+				}
+				// reserve a postions
+				var element = angular.element('<mb-toolbar><mb-toolbar-content></mb-toolbar-content></mb-toolbar>');
+				element.attr('id', toolbar.url);
+				if (toolbar.float) {
+					element.addClass(toolbar.float);
+				}
+				$element.append(element);
+
+				// render toolbar
+				var ctrl = this;
+				toolbar.render({
+					$rootScope: $scope,
+					$toolbarGroup: ctrl,
+					$element: element.find('mb-toolbar-content')
+				}).then(function(handler) {
+					ctrl.handlers[toolbar.url] = handler;
+				});
+				return this;
+			};
+
+			this.removeToolbar = function(toolbar) {
+				var url = toolbar;
+				if (toolbar instanceof MbToolbar) {
+					url = toolbar.url;
+				}
+				if (_.isUndefined(this.handler[url])) {
+					// TODO: maso, 2020: toolbar not exist, add a warning log
+					return this;
+				}
+				var handler = this.handler[url];
+				delete this.handler[url];
+				handler.destroy();
+				return this;
+			};
+
+			this.destoy = function() {
+				var handlers = this.handlers;
+				_.forEach(handlers, function(handler) {
+					handler.destroy();
+				});
+				delete this.handler;
+				$element.remove();
+				// FIXME: maso, 2020: check if the scope is destroyed before
+				$scope.$destroy();
+			};
 		},
-		link: postLink,
-		templateUrl: 'scripts/directives/mb-titled-block.html'
+		controllerAs: 'ctrl',
+		link: link
 	};
 });
 
@@ -5797,394 +5467,6 @@ mblowfish.directive('ngSrcError', function() {
 		}
 	};
 });
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
-@ngdoc directive
-@name mb-toolbar-group
-@description An ancher to load a list of toolbars
-
-This is used to add a toolbar into the view.
-
-It is not possible to add a toolbar with aa specific url into the view more than one time.
-
-@example
-	<mb-toolbar-group
-		mb-url="/app/main"
-		mb-default="true"
-		mb-toolbars="['/app/main', '/app/editor/save', '/app/print']">
-	</mb-toolbar-group>
-
-
- */
-mblowfish.directive('mbToolbarGroup', function($mbToolbar, $mbTheming) {
-
-
-	function link($scope, $element, $attr, $ctrl) {
-		// 0- init UI
-		$element.empty();
-		$mbTheming($element);
-
-		// 1- load toolbars
-		var toolbarIds = $scope.$eval($attr.mbToolbars);
-		_.forEach(toolbarIds, function(toolbarId) {
-			var toolbar = $mbToolbar.getToolbar(toolbarId);
-			if (toolbar) {
-				$ctrl.addToolbar(toolbar);
-			} else {
-				// TODO: maso, 2020: add a log to show the error
-			}
-		})
-
-		// 2- register toolbar group
-		$mbToolbar.addToolbarGroup($attr.mbUrl, $ctrl);
-		if (!_.isUndefined($attr.mbDefault)) {
-			$mbToolbar.setMainToolbarGroup($ctrl);
-		}
-
-		$scope.$on('$destroy', function() {
-			$ctrl.destroy();
-		});
-	}
-
-	return {
-		restrict: 'E',
-		replace: false,
-		priority: 400,
-		require: 'mbToolbarGroup',
-		/* @ngInject */
-		controller: function($scope, $element) {
-			this.handlers = {};
-
-			this.addToolbar = function(toolbar) {
-				if (_.isString(toolbar)) {
-					toolbar = $mbToolbar.getToolbar(toolbar);
-				}
-				if (!_.isUndefined(this.handlers[toolbar.url])) {
-					// FIXME: log and throw exception: the toolbar is added befor
-					return;
-				}
-				// reserve a postions
-				var element = angular.element('<mb-toolbar><mb-toolbar-content></mb-toolbar-content></mb-toolbar>');
-				element.attr('id', toolbar.url);
-				if (toolbar.float) {
-					element.addClass(toolbar.float);
-				}
-				$element.append(element);
-
-				// render toolbar
-				var ctrl = this;
-				toolbar.render({
-					$rootScope: $scope,
-					$toolbarGroup: ctrl,
-					$element: element.find('mb-toolbar-content')
-				}).then(function(handler) {
-					ctrl.handlers[toolbar.url] = handler;
-				});
-				return this;
-			};
-
-			this.removeToolbar = function(toolbar) {
-				var url = toolbar;
-				if (toolbar instanceof MbToolbar) {
-					url = toolbar.url;
-				}
-				if (_.isUndefined(this.handler[url])) {
-					// TODO: maso, 2020: toolbar not exist, add a warning log
-					return this;
-				}
-				var handler = this.handler[url];
-				delete this.handler[url];
-				handler.destroy();
-				return this;
-			};
-
-			this.destoy = function() {
-				var handlers = this.handlers;
-				_.forEach(handlers, function(handler) {
-					handler.destroy();
-				});
-				delete this.handler;
-				$element.remove();
-				// FIXME: maso, 2020: check if the scope is destroyed before
-				$scope.$destroy();
-			};
-		},
-		controllerAs: 'ctrl',
-		link: link
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-angular.module('mblowfish-core')
-
-/**
- * @ngdoc Directives
- * @name wb-on-dragstart
- * @description Call an action on dragstart
- * 
- */
-.directive('wbOnDragstart', function() {
-    return {
-        restrict : 'A',
-        link : function(scope, element, attrs) {
-            element.bind('dragstart', function(event, data) {
-                // call the function that was passed
-                if (attrs.wbOnDragstart) {
-                    scope.$eval(attrs.wbOnDragstart, {
-                        $event: event,
-                        $element: element,
-                        $data: data
-                    });
-                }
-            });
-        }
-    };
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-enter
- * @description Call an action on ENTER
- * 
- * ```
- * <input
- *  wb-on-enter="toast('ESC')">
- * ```
- */
-mblowfish.directive('wbOnEnter', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keypress', function(e) {
-			if (e.keyCode === 13) {
-				scope.$eval(attr.wbOnEnter, {
-					$event: e
-				});
-			}
-		});
-	};
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-error
- * @description Call an action on error
- * 
- * This directive is used to run an action on error of an element
- * 
- * ```
- * <img
- * 	wb-on-error="toast('image is not loaded')"
- * 	href="image/path">
- * ```
- */
-mblowfish.directive('wbOnError', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('error', function(e) {
-				// call the function that was passed
-				if (attrs.wbOnError) {
-					scope.$eval(attrs.wbOnError, {
-						$event: e
-					});
-				}
-			});
-		}
-	};
-});
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-esc
- * @description Call an action on ESC
- * 
- * ```
- * <input
- *  wb-on-esc="toast('ESC')">
- * ```
- */
-mblowfish.directive('wbOnEsc', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keydown', function(e) {
-			if (e.keyCode === 27) {
-				scope.$eval(attr.wbOnEsc, {
-					$event: e
-				});
-			}
-		});
-	};
-});
-
-
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
-/**
- * @ngdoc Directives
- * @name wb-on-load
- * @description Call an action on load
- * 
- * This directive is used to run an action on load of an element. For exmaple
- * use to show alert on load of image:
- * 
- * ```
- * <img
- * 	wb-on-load="toast('image is loaded')"
- * 	href="image/path">
- * ```
- */
-mblowfish.directive('wbOnLoad', function() {
-	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.bind('load', function(event, data) {
-				// call the function that was passed
-				if (attrs.wbOnLoad) {
-					scope.$eval(attrs.wbOnLoad, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
-		}
-	};
-});
-
 /*
  * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
@@ -6646,28 +5928,130 @@ angular.module('mblowfish-core').factory('MbActionGroup', function($injector, $n
 	return ActionGroup;
 });
 
-/*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
+/**
+@ngdoc Factories
+@name MbActionHotkeyMap
+@description Maps hotkey to actions
+
+
+
+
+ */
+mblowfish.factory('MbActionHotkeyMap', function($mbHotkey, $injector) {
+
+	//---------------------------------------
+	// Utility
+	//---------------------------------------
+	function findActions(map, event) {
+		var result = false;
+		_.forEach(map, function(actions) {
+			if (actions.isHotkey(event)) {
+				result = actions;
+				return false;
+			}
+		});
+		return result;
+	}
+
+
+	//---------------------------------------
+	// Factory
+	//---------------------------------------
+	function ActionHotkeyMap() {
+		this.map = {};
+	};
+
+	/**
+	Executes the action
+	 */
+	ActionHotkeyMap.prototype.add = function(action) {
+		var hotkey = action.hotkey;
+		if (_.isUndefined(hotkey)) {
+			return this;
+		}
+
+		var actions = this.map[hotkey];
+		if (_.isUndefined(actions)) {
+			this.map[hotkey] = actions = [];
+			actions.isHotkey = $mbHotkey.isHotkey(hotkey);
+		}
+
+		var index = actions.indexOf(action);
+		if (index < 0) {
+			actions.push(action);
+		}
+		// TODO: log the action is added before
+		return this;
+	};
+
+	ActionHotkeyMap.prototype.remove = function(action) {
+		var hotkey = action.hotkey;
+		if (_.isUndefined(hotkey)) {
+			return this;
+		}
+		var actions = this.map[hotkey];
+		if (_.isUndefined(actions)) {
+			return this;
+		}
+
+		var index = actions.indexOf(action);
+		if (index > -1) {
+			actions.splice(index, 1);
+		}
+		return this;
+	};
+
+	/**
+	Checks if there is an action related to the event or not
+	
+	@memberof MbActionHotkeyMap
+	@param Event $evetn a key event 
+	@returns true if there is an action
+	 */
+	ActionHotkeyMap.prototype.has = function($event) {
+		var actions = findActions(this.map, $event);
+		return !_.isUndefined(actions) && actions.length > 0;
+	};
+
+
+	/**
+	Finds list of related actions to the $event
+	
+	@memberof MbActionHotkeyMap
+	@param Event $evetn a key event 
+	@returns list of actions or undefiend
+	 */
+	ActionHotkeyMap.prototype.get = function($event) {
+		var actions = findActions(this.map, $event);
+		if (actions !== false && actions.length > 0) {
+			return actions;
+		}
+		return false;
+	};
+
+
+	/**
+	Finds related action and execute it.
+	
+	If there is no related action, then false returned.
+	
+	@memberof MbActionHotkeyMap
+	@params $event a key event to handle
+	@returns false|promise to execute the actions
+	 */
+	ActionHotkeyMap.prototype.exec = function($event) {
+		var actions = findActions(this.map, $event);
+		if (!actions || actions.length <= 0) {
+			return false;
+		}
+
+		var $mbActions = $injector.get('$mbActions');
+		return $mbActions.exec(actions, $event);
+	};
+
+	return ActionHotkeyMap;
+});
 
 /**
 @ngdoc Factories
@@ -6683,10 +6067,10 @@ system.
 
 @tutorial core-action-callById
  */
-mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
+mblowfish.factory('MbAction', function($injector, MbComponent, $q) {
 
-	/* @ngInject */
 	var defaultActionController = function($element, $action) {
+		'ngInject';
 		$element.on('click', function($event) {
 			$action.exec($event);
 		});
@@ -6707,43 +6091,44 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 	// Circle derives from Shape
 	Action.prototype = Object.create(MbComponent.prototype);
 
+	/**
+	Executes the action
+	 */
 	Action.prototype.exec = function($event) {
-		if (this.alias || _.isString(this.actionId)) {
-			var actionId = this.actionId || this.id;
-			var $actions = $injector.get('$mbActions');
-			return $actions.exec(actionId, $event);
-		}
-		if (this.action) {
-			var result = $injector.invoke(this.action, this, {
-				$event: $event
-			});
-			return $q.when(result);
-		}
-		if (this.url) {
-			return $location.url(this.url);
-		}
-		// TODO: maso, 2020: log to show the error
-		alert('Action \'' + this.id + '\' is not executable!?');
-		return $q.reject();
+		var $actions = $injector.get('$mbActions');
+		return $actions.exec(this, $event);
 	};
 
-	Action.prototype.render = function(locals) {
+
+	/**
+	Gets template of the component
+	
+	Template is a HTML text which is used to build a view of the component.
+	
+	@returns {promisse} To resolve the template value
+	@memberof MbAction
+	 */
+	Action.prototype.getTemplate = function(locals) {
 		// find parent type
-		var parent;
+		//		var parent;
 		var parentType;
 		if (locals.$toolbar) {
 			parentType = 'toolbar';
-			parent = locals.$toolbar;
+			//			parent = locals.$toolbar;
 		} else if (locals.$menu) {
 			parentType = 'menu';
-			parent = locals.$menu;
+			//			parent = locals.$menu;
 		}
 
 		var html;
 
 		switch (parentType) {
 			case 'toolbar':
-				html = '<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
+				html = '<md-tooltip md-delay="1000"><spam mb-translate>' + 
+				(this.description || this.title) + 
+				(this.hotkey? ' ('+this.hotkey+')' : '') +
+				'</spam></md-tooltip>' +
+					'<mb-icon size="16">' + (this.icon || 'close') + '</mb-icon>';
 				break;
 			case 'menu':
 				// XXX
@@ -6751,11 +6136,11 @@ mblowfish.factory('MbAction', function($injector, $location, MbComponent, $q) {
 			default:
 			// TODO: maso, 2020 log error
 		}
+		return html;
+	}
 
-		var element = locals.$element;
-		element.html(html);
-		element.addClass('mbAction')
-
+	Action.prototype.render = function(locals) {
+		locals.$element.addClass('mbAction');
 		locals.$action = this;
 		return MbComponent.prototype.render.call(this, locals);
 	};
@@ -6816,7 +6201,7 @@ view, or an editor.
 @tutorial ui-component-action
  */
 mblowfish.factory('MbComponent', function(
-	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming,
+	/* Angularjs */ $rootScope, $compile, $controller, $q, $mbTheming, $injector,
 	/* Mblowfish */ $mbUiUtil) {
 
 	/*
@@ -6884,7 +6269,7 @@ mblowfish.factory('MbComponent', function(
 	MbComponent.prototype.render = function(locals) {
 		var cmp = this;
 		this.visible = true;
-		return $q.when(this.getTemplate(), function(template) {
+		return $q.when(this.getTemplate(locals), function(template) {
 			var rootScope = cmp.rootScope || $rootScope;
 			var $scope = rootScope.$new(false);
 			var $element = locals.$element;
@@ -6904,6 +6289,17 @@ mblowfish.factory('MbComponent', function(
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
 			link($scope);
+			if (_.isFunction(cmp.hide)) {
+				$scope.$watch(function() {
+					return $injector.invoke(cmp.hide, cmp, locals);
+				}, function(value) {
+					if (value) {
+						$element.hide();
+					} else {
+						$element.show();
+					}
+				});
+			}
 			cmp.$binds.push({
 				$controller: $ctrl,
 				$element: $element,
@@ -7113,6 +6509,31 @@ mblowfish.factory('MbContainer', function(
 		delete this.$handler;
 	};
 
+	/**
+	Sets title fo the frame.
+	
+	The title is displate on the top of each frame. It can be changed dynamically.
+	
+	@see #getTitle
+	 */
+	MbContainer.prototype.setTitle = function(title) {
+		this.title = title;
+		if (!this.$handler || !this.$handler.$dockerContainer) {
+			return;
+		}
+		// TODO: maso, 2020: the layout syste must detect the changes and update the
+		// visual aspects
+		this.$handler.$dockerContainer.setTitle(title);
+		return this;
+	};
+
+	/**
+	Gets current title of the frame
+	 */
+	MbContainer.prototype.getTitle = function() {
+		return this.title;
+	};
+
 	return MbContainer;
 });
 
@@ -7143,13 +6564,18 @@ mblowfish.factory('MbContainer', function(
 /**
 @ngdoc Factories
 @name MbEditor
-@description An action item
+@description An editor
+
+An editor is used to edit an item in the framework.
+
+The editor is called derty if there is an unstored change in the item.
 
  */
-angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
+mblowfish.factory('MbEditor', function(MbFrame) {
 
 	function MbEditor(configs) {
 		MbFrame.call(this, configs);
+		this.derty = false;
 		return this;
 	};
 	// Circle derives from Shape
@@ -7162,7 +6588,29 @@ angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
 		// add othere services to push
 		return MbFrame.prototype.render.call(this, locals);
 	};
-	
+
+
+	MbEditor.prototype.updateTitle = function() {
+		return MbFrame.prototype.setTitle.call(this, (this.isDerty() ? '*' : ' ') + this.originTitle);
+	}
+
+	MbEditor.prototype.setTitle = function(title) {
+		if (this.originTitle === title) {
+			return this;
+		}
+		this.originTitle = title;
+		return this.updateTitle();
+	};
+
+	MbEditor.prototype.setDerty = function(derty) {
+		this.derty = derty;
+		return this.updateTitle();
+	};
+
+	MbEditor.prototype.isDerty = function() {
+		return this.derty;
+	};
+
 	return MbEditor;
 });
 
@@ -7281,17 +6729,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 
 	function MbFrame(configs) {
 		// 1- create and register frame toolbar
-		var toolbar = new MbToolbar({
-			url: configs.url,
-			//isToolbar: false,
-			//isView: false,
-			//isEditor: false,
-			//isMenu: false,
-			controller: function() { },
-			controllerAs: 'toolbarCtrl'
-		});
-		$mbToolbar.addToolbar(configs.url, toolbar);
-		this.toolbar = toolbar;
+		this.toolbar = $mbToolbar.getToolbar(configs.url);
 
 		// 2- create and register frame menu
 		this.menu = undefined;
@@ -7313,17 +6751,6 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 		return this.menu;
 	};
 
-	MbFrame.prototype.setTitle = function(title) {
-		switch ($mbLayout.getMode()) {
-			case 'docker':
-				this.$handler.$dockerContainer.setTitle(title);
-				break;
-			default:
-				// TODO: support mobile layout
-				break;
-		}
-	};
-
 	/**
 	Close the frame
 	
@@ -7334,14 +6761,7 @@ mblowfish.factory('MbFrame', function($mbUiUtil, MbContainer, $mbLayout, MbToolb
 	@memberof MbFrame
 	 */
 	MbFrame.prototype.close = function() {
-		switch ($mbLayout.getMode()) {
-			case 'docker':
-				this.$handler.$dockerContainer.close();
-				break;
-			default:
-				// TODO: support mobile layout
-				break;
-		}
+		this.$handler.$dockerContainer.close();
 	};
 
 	MbFrame.prototype.setFocus = function() {
@@ -8553,98 +7973,6 @@ angular.module('mblowfish-core')
  * SOFTWARE.
  */
 
-mblowfish.run(function(appcache, $window) {
-
-	/*
-	 * Reload the page
-	 * 
-	 * @deprecated use page service
-	 */
-	function reload() {
-		$window.location.reload();
-	}
-
-	/*
-	 * Reload the application
-	 */
-	function updateApplication() {
-		var setting = {};
-		if (setting.showMessage) {
-			if (setting.autoReload) {
-				alert('Application is update. Page will be reload automatically.')//
-					.then(reload);
-			} else {
-				confirm('Application is update. Reload the page for new version?')//
-					.then(reload);
-			}
-		} else {
-			toast('Application is updated.');
-		}
-	}
-
-	// Check update
-	function doUpdate() {
-		appcache
-			.swapCache()//
-			.then(updateApplication());
-	}
-
-	appcache
-		.checkUpdate()
-		.then(doUpdate);
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-mblowfish.run(function($notification) {
-	// Hadi 1396-12-22: update alerts
-	window.alert = $notification.alert;
-	window.confirm = $notification.confirm;
-	window.prompt = $notification.prompt;
-	window.toast = $notification.toast;
-});
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 
 
 /**
@@ -8803,48 +8131,13 @@ mblowfish.service('$help', function ($q, $rootScope, /*$mbTranslate,*/ $injector
 //    };
 });
 
-mblowfish.addAction(IFRAME_URL_OPEN_ACTION, {
-	title: 'Open URL',
-	description: 'Open a url',
-	icon: 'open_in_browser',
-	/* @ngInject */
-	action: function($location) {
-		$window
-			.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
-			.then(function(input) {
-				$location.url('/mb/iframe/' + input);
-			});
-	}
-});
-
-
-//
-//  $mbEditor: manages all editor of an application. An editor has a dynamic
-// address and there may be multiple instance of it at the same time but with
-// different parameter.
-//
-// There are serveral editor registered here to cover some of our system 
-// functionalities such as:
-//
-// - Open a new URL
-//
-mblowfish.editor('/mb/iframe/:url*', {
-	title: 'Browser',
-	description: 'Open external page',
-	controllerAs: 'ctrl',
-	template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
-	groups: ['Utilities'],
-	controllerAs: 'ctrl',
-	controller: function($sce, $state) {
-		// Load secure path
-		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
-	}
-});
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
-	title: 'Load Layout',
+	group: 'Layout',
+	title: 'Load',
+	description: 'Loads a layout from the stored layouts',
 	icon: 'launch',
-	/* @ngInject */
 	action: function($event, $mbLayout, $mbResource) {
+		'ngInject';
 		function loadLayout(layoutName) {
 			$mbLayout.setLayout(layoutName);
 		}
@@ -8856,7 +8149,8 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 					title: 'Select layout',
 					$style: {
 						multi: false
-					}
+					},
+					targetEvent: $event
 				})
 				.then(function(values) {
 					loadLayout(values[0]);
@@ -8867,10 +8161,12 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 	}
 })
 mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
-	title: 'Save Layout',
+	group: 'Layout',
+	title: 'Save',
+	description: 'Saves the current layout',
 	icon: 'save',
-	/* @ngInject */
 	action: function($mbLayout, $mbLayoutsLocalStorage) {
+		'ngInject';
 		function saveAs(layoutId) {
 			$mbLayoutsLocalStorage.createLayout(layoutId, $mbLayout.getCurrentLayout());
 		}
@@ -8887,17 +8183,44 @@ mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
 			});
 	}
 })
+mblowfish.addAction(MB_LAYOUTS_THEME_SWITECH_ACTION, {
+	group: 'Layout',
+	title: 'Switch darck mode',
+	description: 'Switch to the darck mode',
+	icon: 'dark_mode',
+	action: function($mbSettings) {
+		'ngInject';
+		var theme = $mbSettings.get('theme');
+		if(theme === 'dark'){
+			theme = 'default';
+		} else {
+			theme = 'dark';
+		}
+		$mbSettings.set('theme', theme);
+	}
+})
 mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
 	templateUrl: 'scripts/module-layouts/components/layouts-toolbar.html',
 	controllerAs: 'ctrl',
-	/* @ngInject */
-	controller: function($mbActions){
-		this.saveAs = function($event){
-			$mbActions.exec(MB_LAYOUTS_SAVE_CURRENT_ACTION, $event);
-		}
-		this.loadLayout = function($event){
-			$mbActions.exec(MB_LAYOUTS_LOAD_ACTION, $event);
-		}
+	controller: function($mbActions, $mbLayout) {
+		'ngInject';
+		this.layouts = $mbLayout.getLayouts();
+
+		this.saveAs = function($event) {
+			return $mbActions.exec(MB_LAYOUTS_SAVE_CURRENT_ACTION, $event);
+		};
+
+		this.loadLayout = function($event, layout) {
+			if (layout) {
+				$event.values = [layout];
+			}
+			return $mbActions.exec(MB_LAYOUTS_LOAD_ACTION, $event);
+		};
+
+		this.openMenu = function($mdMenu, $event) {
+			this.layouts = $mbLayout.getLayouts();
+			$mdMenu.open($event);
+		};
 	}
 });
 
@@ -9045,12 +8368,15 @@ mblowfish.provider('$mbLayoutsLocalStorage', function() {
 
 mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 	icon: 'add',
-	title: 'Add local module',
-	action: function($mbResource, $mbModules) {
+	group: 'Module',
+	title: 'Add new module',
+	description: 'Adds a new local module to the dashboard',
+	action: function($mbResource, $mbModules, $event) {
 		'ngInject';
 		return $mbResource
 			.get(MB_MODULE_RT, {
 				style: {},
+				targetEvent:$event,
 			})
 			.then(function(modules) {
 				_.forEach(modules, function(m) {
@@ -9082,8 +8408,10 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
  */
 
 mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+	group: 'Module',
 	title: 'Delete local module',
 	icon: 'view_module',
+	demon: true,
 	action: function($window, $mbModules, $event) {
 		'ngInject';
 		return $window
@@ -9095,9 +8423,10 @@ mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 			});
 	}
 });
-
 mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
-	title: 'Export modules',
+	group: 'Module',
+	title: 'Export',
+	descriptions: 'Export modules from the local',
 	icon: 'cloud_download',
 	action: function($mbModules) {
 		'ngInject';
@@ -9119,7 +8448,9 @@ mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
 });
 
 mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
-	title: 'Import modules',
+	group: 'Module',
+	title: 'Import',
+	descriptions: 'Imports modules into the local dashboard',
 	icon: 'cloud_upload',
 	action: function($mbModules, $mbDispatcher, $rootScope) {
 		'ngInject';
@@ -9267,9 +8598,52 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 	}
 });
 
+mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
+	icon: 'call_to_action',
+	group: 'Navigator',
+	title: 'Open Command Line',
+	description: 'Open command line to run an action',
+	hotkey: 'F2',
+	demon: true,
+	action: function($mdBottomSheet, $event, $mbActions) {
+		'ngInject';
+
+		$mdBottomSheet.show({
+			templateUrl: 'scripts/module-navigator/actions/command-line-display.html',
+			clickOutsideToClose: true,
+			/* @ngInject */
+			controller: function($scope, $mdBottomSheet) {
+				var actions = $mbActions.getActions()
+				$scope.actions = actions;
+
+				/*
+				 * Create filter function for a query string
+				 */
+				function createFilterFor(query) {
+					var lowercaseQuery = query.toLowerCase();
+					return function filterFn(action) {
+						return action.title && action.title.toLowerCase().indexOf(lowercaseQuery) >= 0;
+					};
+				}
+
+				$scope.search = function(query) {
+					$scope.actions = query ? _.filter(actions, createFilterFor(query)) : actions;
+				};
+
+				$scope.runAction = function(action) {
+					$mdBottomSheet.hide($mbActions.exec(action));
+				};
+			}
+		});
+		$event.preventDefault();
+		$event.stopPropagation();
+	}
+});
+
 mblowfish.addAction(MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, {
-	title: 'Navigator',
-	description: 'Tooble Navigator Sidenav',
+	group: 'Navigator',
+	title: 'Open Sidenav',
+	description: 'Opens the Navigator Sidenav and display list of views',
 	icon: 'menu',
 	/* @ngInject */
 	action: function($mbSidenav) {
@@ -9323,7 +8697,8 @@ mblowfish.addView('/mb/ui/views/navigator/', {
 
 
 mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
-	title: 'Preferences',
+	group: 'Preferences',
+	title: 'Preferences list',
 	icon: 'settings',
 	/* @ngInject */
 	action: function($location) {
@@ -9438,11 +8813,6 @@ mblowfish.addView('/preferences', {
 	groups: ['Utilities']
 });
 
-
-
-mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
-
-});
 
 /**
 @ngdoc directive
@@ -13615,9 +12985,10 @@ mblowfish.controller('MbLanguagesCtrl', function(
 	 * @memberof MbLanguagesCtrl
 	 * @return {promise} to add language
 	 */
-	this.addLanguage = function() {
+	this.addLanguage = function($event) {
 		$mbResource.get('/app/languages', {
-			// TODO:
+			// TODO:,
+			targetEvent: $event
 		}).then(function(language) {
 			language.map = language.map || {};
 			return $language.newLanguage(language);
@@ -13699,8 +13070,33 @@ mblowfish.controller('MbLanguagesCtrl', function(
 	};
 
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+mblowfish.addAction(UI_URL_OPEN_ACTION, {
+	group: 'UI',
+	title: 'Open URL',
+	description: 'Open a url',
+	icon: 'open_in_browser',
+	action: function($location, $event, $q, $window) {
+		'ngInject';
+		var values = $event.values;
+		if (!values) {
+			values = $window
+				.prompt('Enter the URL.', 'https://viraweb123.ir/wb/')
+				.then(function(url) {
+					values = [url];
+				});
+		}
+		$q.when(values)
+			.then(function() {
+				_.forEach(values, function(url) {
+					$location.url('/mb/iframe/' + url);
+				});
+			});
+	}
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -13721,6 +13117,4119 @@ mblowfish.controller('MbLanguagesCtrl', function(
  * SOFTWARE.
  */
 
+
+
+/**
+ * @ngdoc Directives
+ * @name mb-badge
+ * @description Display a badge on items
+ * 
+ */
+mblowfish.directive('mbBadge', function($mdTheming, $rootScope) {
+
+	// XXX: maso, 2020: replace with md color
+	function __badge_toRGB(color) {
+		var split = (color || '').split('-');
+		if (split.length < 2) {
+			split.push('500');
+		}
+
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+
+		function style(where, color) {
+			if (color) {
+				element.css(where, __badge_toRGB(color));
+			}
+		}
+		//		function getPosition(){
+		//		return {
+		//		top: element.prop('offsetTop'),
+		//		left: element.prop('offsetLeft'),
+		//		width: element.prop('offsetWidth'),
+		//		height: element.prop('offsetHeight')
+		//		};
+		//		}
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value) {
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value) {
+			style('background-color', value);
+		});
+	}
+
+	return {
+		restrict: 'E',
+		replace: true,
+		transclude: true,
+		link: postLink,
+		template: function(/*element, attributes*/) {
+			return '<div class="mb-badge" ng-transclude></div>';
+		}
+	};
+});
+
+mblowfish.directive('mbBadge', function($mdTheming, $compile, $rootScope) {
+
+	// XXX: maso, 2020: replace with mb-color
+	function __badge_toRGB(color) {
+		var split = (color || '').split('-');
+		if (split.length < 2) {
+			split.push('500');
+		}
+
+		var hueA = split[1] || '800'; // '800'
+		var colorR = split[0] || 'primary'; // 'warn'
+
+		var theme = $mdTheming.THEMES['default'];
+		var colorA = theme.colors[colorR] ? theme.colors[colorR].name : colorR;
+		var colorValue = $mdTheming.PALETTES[colorA][hueA] ? $mdTheming.PALETTES[colorA][hueA].value : $mdTheming.PALETTES[colorA]['500'].value;
+		return 'rgb(' + colorValue.join(',') + ')';
+	}
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		//
+		var parent = element.parent();
+		var bg = angular.element('<div></div>');
+		var link = $compile(bg);
+		var badge = link(scope);
+
+		var offset = parseInt(attributes.mdBadgeOffset);
+		if (isNaN(offset)) {
+			offset = 10;
+		}
+
+		function style(where, color) {
+			if (color) {
+				badge.css(where, __badge_toRGB(color));
+			}
+		}
+		function getPosition() {
+			return {
+				top: element.prop('offsetTop'),
+				left: element.prop('offsetLeft'),
+				width: element.prop('offsetWidth'),
+				height: element.prop('offsetHeight')
+			};
+		}
+
+		function position(value) {
+			var top = element.prop('offsetTop');
+			badge.css({
+				'display': attributes.mbBadge && top ? 'initial' : 'none',
+				'left': value.left + value.width - 20 + offset + 'px',
+				'top': value.top + value.height - 20 + offset + 'px'
+			});
+		}
+
+		//		function update () {
+		//		position(getPosition());
+		//		}
+
+		badge.addClass('mb-badge');
+		badge.css('position', 'absolute');
+		parent.append(badge);
+		scope.$watch(function() {
+			return attributes.mbBadgeColor;
+		}, function(value) {
+			style('color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadgeFill;
+		}, function(value) {
+			style('background-color', value);
+		});
+		scope.$watch(function() {
+			return attributes.mbBadge;
+		}, function(value) {
+			badge.text(value);
+			badge.css('display', value ? 'initial' : 'none');
+		});
+
+		scope.$watch(getPosition, function(value) {
+			position(value);
+		}, true);
+
+		//		angular.element($window)
+		//		.bind('resize', function(){
+		//		update();
+		//		});
+	}
+	return {
+		priority: 100,
+		restrict: 'A',
+		link: postLink
+	};
+});
+
+/**
+ * @ngdoc directive
+ * @name mbButton
+ * @module material.components.button
+ *
+ * @restrict E
+ *
+ * @description
+ * `<mb-button>` is a button directive with optional ink ripples (default enabled).
+ *
+ * If you supply a `href` or `ng-href` attribute, it will become an `<a>` element. Otherwise, it
+ * will become a `<button>` element. As per the
+ * [Material Design specifications](https://material.google.com/style/color.html#color-color-palette)
+ * the FAB button background is filled with the accent color [by default]. The primary color palette
+ * may be used with the `md-primary` class.
+ *
+ * Developers can also change the color palette of the button, by using the following classes
+ * - `md-primary`
+ * - `md-accent`
+ * - `md-warn`
+ *
+ * See for example
+ *
+ * <hljs lang="html">
+ *   <mb-button class="md-primary">Primary Button</mb-button>
+ * </hljs>
+ *
+ * Button can be also raised, which means that they will use the current color palette to fill the button.
+ *
+ * <hljs lang="html">
+ *   <mb-button class="md-accent md-raised">Raised and Accent Button</mb-button>
+ * </hljs>
+ *
+ * It is also possible to disable the focus effect on the button, by using the following markup.
+ *
+ * <hljs lang="html">
+ *   <mb-button class="md-no-focus">No Focus Style</mb-button>
+ * </hljs>
+ *
+ * @param {string=} aria-label Adds alternative text to button for accessibility, useful for icon buttons.
+ * If no default text is found, a warning will be logged.
+ * @param {boolean=} md-no-ink If present, disable ink ripple effects.
+ * @param {string=} md-ripple-size Overrides the default ripple size logic. Options: `full`, `partial`, `auto`.
+ * @param {expression=} ng-disabled Disable the button when the expression is truthy.
+ * @param {expression=} ng-blur Expression evaluated when focus is removed from the button.
+ *
+ * @usage
+ *
+ * Regular buttons:
+ *
+ * <hljs lang="html">
+ *  <mb-button> Flat Button </mb-button>
+ *  <mb-button href="http://google.com"> Flat link </mb-button>
+ *  <mb-button class="md-raised"> Raised Button </mb-button>
+ *  <mb-button ng-disabled="true"> Disabled Button </mb-button>
+ *  <mb-button>
+ *    <mb-icon mb-svg-src="your/icon.svg"></mb-icon>
+ *    Register Now
+ *  </mb-button>
+ * </hljs>
+ *
+ * FAB buttons:
+ *
+ * <hljs lang="html">
+ *  <mb-button class="md-fab" aria-label="FAB">
+ *    <mb-icon mb-svg-src="your/icon.svg"></mb-icon>
+ *  </mb-button>
+ *  <!-- mini-FAB -->
+ *  <mb-button class="md-fab md-mini" aria-label="Mini FAB">
+ *    <mb-icon mb-svg-src="your/icon.svg"></mb-icon>
+ *  </mb-button>
+ *  <!-- Button with SVG Icon -->
+ *  <mb-button class="mb-icon-button" aria-label="Custom Icon Button">
+ *    <mb-icon mb-svg-icon="path/to/your.svg"></mb-icon>
+ *  </mb-button>
+ * </hljs>
+ */
+mblowfish.directive('mbButton', function($mdButtonInkRipple, $mdTheming, $mdAria, $mdInteraction) {
+
+	return {
+		restrict: 'EA',
+		replace: true,
+		transclude: true,
+		template: getTemplate,
+		link: postLink
+	};
+
+	function isAnchor(attr) {
+		return angular.isDefined(attr.href) || angular.isDefined(attr.ngHref) || angular.isDefined(attr.ngLink) || angular.isDefined(attr.uiSref);
+	}
+
+	function getTemplate(element, attr) {
+		if (isAnchor(attr)) {
+			return '<a class="mb-button" ng-transclude></a>';
+		} else {
+			// If buttons don't have type="button", they will submit forms automatically.
+			var btnType = (typeof attr.type === 'undefined') ? 'button' : attr.type;
+			return '<button class="mb-button" type="' + btnType + '" ng-transclude></button>';
+		}
+	}
+
+	function postLink(scope, element, attr) {
+		$mdTheming(element);
+		$mdButtonInkRipple.attach(scope, element);
+
+		// Use async expect to support possible bindings in the button label
+		$mdAria.expectWithoutText(element, 'aria-label');
+
+		// For anchor elements, we have to set tabindex manually when the element is disabled.
+		// We don't do this for md-nav-bar anchors as the component manages its own tabindex values.
+		if (isAnchor(attr) && angular.isDefined(attr.ngDisabled) &&
+			!element.hasClass('_md-nav-button')) {
+			scope.$watch(attr.ngDisabled, function(isDisabled) {
+				element.attr('tabindex', isDisabled ? -1 : 0);
+			});
+		}
+
+		// disabling click event when disabled is true
+		element.on('click', function(e) {
+			if (attr.disabled === true) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+			}
+		});
+
+		if (!element.hasClass('md-no-focus')) {
+
+			element.on('focus', function() {
+
+				// Only show the focus effect when being focused through keyboard interaction or programmatically
+				if (!$mdInteraction.isUserInvoked() || $mdInteraction.getLastInteractionType() === 'keyboard') {
+					element.addClass('md-focused');
+				}
+
+			});
+
+			element.on('blur', function() {
+				element.removeClass('md-focused');
+			});
+		}
+
+	}
+
+});
+
+
+/**
+ * @private
+ * @restrict E
+ *
+ * @description
+ * `a` is an anchor directive used to inherit theme colors for md-primary, md-accent, etc.
+ *
+ * @usage
+ *
+ * <hljs lang="html">
+ *  <md-content md-theme="myTheme">
+ *    <a href="#chapter1" class="mb-accent"></a>
+ *  </md-content>
+ * </hljs>
+
+
+TODO: maso, 2020: active when angular material is remvoed
+mblowfish.directive('a', function($mdTheming) {
+	return {
+		restrict: 'E',
+		link: function postLink(scope, element) {
+			// Make sure to inherit theme so stand-alone anchors
+			// support theme colors for md-primary, md-accent, etc.
+			$mdTheming(element);
+		}
+	};
+});
+
+ */
+
+
+
+mblowfish.directive('mbColorPickerAlpha', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('alpha');
+});
+mblowfish.directive('mbColorPickerContainer', function($timeout, $mbColorPalette, MbColorPickerHistory, MbColor) {
+	return {
+		templateUrl: 'scripts/module-ui/directives/mb-color-picker-container.html',
+		scope: {
+			value: '=?',
+			default: '@',
+			random: '@',
+			ok: '=?',
+			mbColorAlphaChannel: '=',
+			mbColorSpectrum: '=',
+			mbColorSliders: '=',
+			mbColorGenericPalette: '=',
+			mbColorMaterialPalette: '=',
+			mbColorHistory: '=',
+			mbColorHex: '=',
+			mbColorRgb: '=',
+			mbColorHsl: '=',
+			mbColorDefaultTab: '='
+		},
+		controller: function($scope, $element/*, $attrs*/) {
+			//	console.log( "mbColorPickerContainer Controller", Date.now() - dateClick, $scope );
+
+			function getTabIndex(tab) {
+				var index = 0;
+				if (tab && typeof (tab) === 'string') {
+					/* DOM isn't fast enough for this
+
+					var tabs = $element[0].querySelector('.mb-color-picker-colors').getElementsByTagName( 'md-tab' );
+					console.log( tabs.length );
+					 */
+					var tabName = 'mbColor' + tab.slice(0, 1).toUpperCase() + tab.slice(1);
+					var tabs = ['mbColorSpectrum', 'mbColorSliders', 'mbColorGenericPalette', 'mbColorMaterialPalette', 'mbColorHistory'];
+					for (var x = 0; x < tabs.length; x++) {
+						//console.log(  tabs[x]('ng-if') );
+						//if ( tabs[x].getAttribute('ng-if') == tabName ) {
+						if (tabs[x] === tabName) {
+							if ($scope[tabName]) {
+								index = x;
+								break;
+							}
+						}
+					}
+				} else if (tab && typeof (tab) === 'number') {
+					index = tab;
+				}
+
+				return index;
+			}
+
+			///////////////////////////////////
+			// Variables
+			///////////////////////////////////
+			//				var container = angular.element( $element[0].querySelector('.mb-color-picker-container') );
+			//				var resultSpan = angular.element( container[0].querySelector('.mb-color-picker-result') );
+			var previewInput = angular.element($element[0].querySelector('.mb-color-picker-preview-input'));
+
+			var outputFn = [
+				'toHexString',
+				'toRgbString',
+				'toHslString'
+			];
+
+
+
+			$scope.default = $scope.default ? $scope.default : $scope.random ? MbColor.random() : 'rgb(255,255,255)';
+			if ($scope.value.search('#') >= 0) {
+				$scope.type = 0;
+			} else if ($scope.value.search('rgb') >= 0) {
+				$scope.type = 1;
+			} else if ($scope.value.search('hsl') >= 0) {
+				$scope.type = 2;
+			}
+			$scope.color = new MbColor($scope.value || $scope.default); // Set initial color
+			$scope.alpha = $scope.color.getAlpha();
+			$scope.history = MbColorPickerHistory;
+			$scope.materialFamily = [];
+
+			$scope.whichPane = getTabIndex($scope.mbColorDefaultTab);
+			$scope.inputFocus = false;
+
+			// Colors for the palette screen
+			///////////////////////////////////
+			//				var steps = 9;
+			//				var freq = 2 * Math.PI/steps;
+
+			$scope.palette = [
+				['rgb(255, 204, 204)', 'rgb(255, 230, 204)', 'rgb(255, 255, 204)', 'rgb(204, 255, 204)', 'rgb(204, 255, 230)', 'rgb(204, 255, 255)', 'rgb(204, 230, 255)', 'rgb(204, 204, 255)', 'rgb(230, 204, 255)', 'rgb(255, 204, 255)'],
+				['rgb(255, 153, 153)', 'rgb(255, 204, 153)', 'rgb(255, 255, 153)', 'rgb(153, 255, 153)', 'rgb(153, 255, 204)', 'rgb(153, 255, 255)', 'rgb(153, 204, 255)', 'rgb(153, 153, 255)', 'rgb(204, 153, 255)', 'rgb(255, 153, 255)'],
+				['rgb(255, 102, 102)', 'rgb(255, 179, 102)', 'rgb(255, 255, 102)', 'rgb(102, 255, 102)', 'rgb(102, 255, 179)', 'rgb(102, 255, 255)', 'rgb(102, 179, 255)', 'rgb(102, 102, 255)', 'rgb(179, 102, 255)', 'rgb(255, 102, 255)'],
+				['rgb(255, 51, 51)', 'rgb(255, 153, 51)', 'rgb(255, 255, 51)', 'rgb(51, 255, 51)', 'rgb(51, 255, 153)', 'rgb(51, 255, 255)', 'rgb(51, 153, 255)', 'rgb(51, 51, 255)', 'rgb(153, 51, 255)', 'rgb(255, 51, 255)'],
+				['rgb(255, 0, 0)', 'rgb(255, 128, 0)', 'rgb(255, 255, 0)', 'rgb(0, 255, 0)', 'rgb(0, 255, 128)', 'rgb(0, 255, 255)', 'rgb(0, 128, 255)', 'rgb(0, 0, 255)', 'rgb(128, 0, 255)', 'rgb(255, 0, 255)'],
+				['rgb(245, 0, 0)', 'rgb(245, 123, 0)', 'rgb(245, 245, 0)', 'rgb(0, 245, 0)', 'rgb(0, 245, 123)', 'rgb(0, 245, 245)', 'rgb(0, 123, 245)', 'rgb(0, 0, 245)', 'rgb(123, 0, 245)', 'rgb(245, 0, 245)'],
+				['rgb(214, 0, 0)', 'rgb(214, 108, 0)', 'rgb(214, 214, 0)', 'rgb(0, 214, 0)', 'rgb(0, 214, 108)', 'rgb(0, 214, 214)', 'rgb(0, 108, 214)', 'rgb(0, 0, 214)', 'rgb(108, 0, 214)', 'rgb(214, 0, 214)'],
+				['rgb(163, 0, 0)', 'rgb(163, 82, 0)', 'rgb(163, 163, 0)', 'rgb(0, 163, 0)', 'rgb(0, 163, 82)', 'rgb(0, 163, 163)', 'rgb(0, 82, 163)', 'rgb(0, 0, 163)', 'rgb(82, 0, 163)', 'rgb(163, 0, 163)'],
+				['rgb(92, 0, 0)', 'rgb(92, 46, 0)', 'rgb(92, 92, 0)', 'rgb(0, 92, 0)', 'rgb(0, 92, 46)', 'rgb(0, 92, 92)', 'rgb(0, 46, 92)', 'rgb(0, 0, 92)', 'rgb(46, 0, 92)', 'rgb(92, 0, 92)'],
+				['rgb(255, 255, 255)', 'rgb(205, 205, 205)', 'rgb(178, 178, 178)', 'rgb(153, 153, 153)', 'rgb(127, 127, 127)', 'rgb(102, 102, 102)', 'rgb(76, 76, 76)', 'rgb(51, 51, 51)', 'rgb(25, 25, 25)', 'rgb(0, 0, 0)']
+			];
+
+			$scope.materialPalette = $mbColorPalette;
+
+			///////////////////////////////////
+			// Functions
+			///////////////////////////////////
+			$scope.isDark = function isDark(color) {
+				if (angular.isArray(color)) {
+					return new MbColor({ r: color[0], g: color[1], b: color[2] }).isDark();
+				} else {
+					return new MbColor(color).isDark();
+				}
+
+			};
+			$scope.previewFocus = function() {
+				$scope.inputFocus = true;
+				$timeout(function() {
+					previewInput[0].setSelectionRange(0, previewInput[0].value.length);
+				});
+			};
+			$scope.previewUnfocus = function() {
+				$scope.inputFocus = false;
+				previewInput[0].blur();
+			};
+
+			$scope.previewBlur = function() {
+				$scope.inputFocus = false;
+				$scope.setValue();
+			};
+
+			$scope.previewKeyDown = function($event) {
+				if ($event.keyCode === 13 && angular.isFunction($scope.ok)) {
+					$scope.ok();
+				}
+			};
+
+			$scope.setPaletteColor = function(event) {
+				$timeout(function() {
+					$scope.color = new MbColor(event.target.style.backgroundColor);
+				});
+			};
+
+			$scope.setValue = function setValue() {
+				// Set the value if available
+				if ($scope.color && $scope.color && outputFn[$scope.type] && $scope.color.toRgbString() !== 'rgba(0, 0, 0, 0)') {
+					$scope.value = $scope.color[outputFn[$scope.type]]();
+				}
+			};
+
+			$scope.changeValue = function changeValue() {
+				$scope.color = new MbColor($scope.value);
+				$scope.$broadcast('mbColorPicker:colorSet', { color: $scope.color });
+			};
+
+
+			///////////////////////////////////
+			// Watches and Events
+			///////////////////////////////////
+			$scope.$watch('color._a', function(newValue) {
+				$scope.color.setAlpha(newValue);
+			}, true);
+
+			$scope.$watch('whichPane', function( /*newValue*/) {
+				// 0 - spectrum selector
+				// 1 - sliders
+				// 2 - palette
+				$scope.$broadcast('mbColorPicker:colorSet', { color: $scope.color });
+
+			});
+
+			$scope.$watch('type', function() {
+				previewInput.removeClass('switch');
+				$timeout(function() {
+					previewInput.addClass('switch');
+				});
+			});
+
+			$scope.$watchGroup(['color.toRgbString()', 'type'], function( /*newValue*/) {
+				if (!$scope.inputFocus) {
+					$scope.setValue();
+				}
+			});
+
+
+			///////////////////////////////////
+			// INIT
+			// Let all the other directives initialize
+			///////////////////////////////////
+			//	console.log( 'mbColorPickerContainer Controller PRE Timeout', Date.now() - dateClick );
+			$timeout(function() {
+				//		console.log( 'mbColorPickerContainer Controller Timeout', Date.now() - dateClick );
+				$scope.$broadcast('mbColorPicker:colorSet', { color: $scope.color });
+				previewInput.focus();
+				$scope.previewFocus();
+			});
+		},
+		link: function(scope, element/*, attrs*/) {
+
+			//				var tabs = element[0].getElementsByTagName( 'md-tab' );
+			/*
+			Replicating these structure without ng-repeats
+
+			<div ng-repeat='row in palette track by $index' flex='15'  layout-align='space-between' layout='row'  layout-fill>
+				<div ng-repeat='col in row track by $index' flex='10' style='height: 25.5px;' ng-style='{'background': col};' ng-click='setPaletteColor($event)'></div>
+			</div>
+
+			<div ng-repeat='(key, value) in materialColors'>
+				<div ng-style='{'background': 'rgb('+value['500'].value[0]+','+value['500'].value[1]+','+value['500'].value[2]+')', height: '75px'}' class='mb-color-picker-material-title' ng-class='{'dark': isDark( value['500'].value )}' ng-click="setPaletteColor($event)">
+					<span>{{key}}</span>
+				</div>
+				<div ng-repeat="(label, color) in value track by $index" ng-style="{'background': 'rgb('+color.value[0]+','+color.value[1]+','+color.value[2]+')', height: '33px'}" class="mb-color-picker-with-label" ng-class="{'dark': isDark( color.value )}" ng-click="setPaletteColor($event)">
+					<span>{{label}}</span>
+				</div>
+			</div>
+			 */
+
+
+			function createDOM() {
+				var paletteContainer = angular.element(element[0].querySelector('.mb-color-picker-palette'));
+				var materialContainer = angular.element(element[0].querySelector('.mb-color-picker-material-palette'));
+				var paletteRow = angular.element('<div class="flex-15 layout-fill layout-row layout-align-space-between" layout-align="space-between" layout="row" layout-fill"></div>');
+				var paletteCell = angular.element('<div class="flex-10"></div>');
+
+				var materialTitle = angular.element('<div class="mb-color-picker-material-title"></div>');
+				var materialRow = angular.element('<div class="mb-color-picker-with-label"></div>');
+
+
+
+				angular.forEach(scope.palette, function(value/*, key*/) {
+					var row = paletteRow.clone();
+					angular.forEach(value, function(color) {
+						var cell = paletteCell.clone();
+						cell.css({
+							height: '25.5px',
+							backgroundColor: color
+						});
+						cell.bind('click', scope.setPaletteColor);
+						row.append(cell);
+					});
+
+					paletteContainer.append(row);
+				});
+
+				angular.forEach(scope.materialPalette, function(value, key) {
+					var title = materialTitle.clone();
+					title.html('<span>' + key.replace('-', ' ') + '</span>');
+					title.css({
+						height: '75px',
+						backgroundColor: 'rgb(' + value['500'].value[0] + ',' + value['500'].value[1] + ',' + value['500'].value[2] + ')'
+					});
+					if (scope.isDark(value['500'].value)) {
+						title.addClass('dark');
+					}
+
+					materialContainer.append(title);
+
+					angular.forEach(value, function(color, label) {
+
+						var row = materialRow.clone();
+						row.css({
+							height: '33px',
+							backgroundColor: 'rgb(' + color.value[0] + ',' + color.value[1] + ',' + color.value[2] + ')'
+						});
+						if (scope.isDark(color.value)) {
+							row.addClass('dark');
+						}
+
+						row.html('<span>' + label + '</span>');
+						row.bind('click', scope.setPaletteColor);
+						materialContainer.append(row);
+					});
+
+
+				});
+			}
+
+
+
+			$timeout(function() {
+				createDOM();
+			});
+		}
+	};
+});
+
+mblowfish.directive('mbColorPickerHue', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('hue');
+});
+mblowfish.directive('mbColorPicker', function() {
+
+	return {
+		templateUrl: 'scripts/module-ui/directives/mb-color-picker.html',
+
+		// Added required controller ngModel
+		require: '^ngModel',
+		scope: {
+			options: '=mbColorPicker',
+
+			// Input options
+			type: '@',
+			label: '@?',
+			icon: '@?',
+			random: '@?',
+			default: '@?',
+
+			// Dialog Options
+			openOnInput: '=?',
+			hasBackdrop: '=?',
+			clickOutsideToClose: '=?',
+			skipHide: '=?',
+			preserveScope: '=?',
+
+			// Advanced options
+			mbColorClearButton: '=?',
+			mbColorPreview: '=?',
+
+			mbColorAlphaChannel: '=?',
+			mbColorSpectrum: '=?',
+			mbColorSliders: '=?',
+			mbColorGenericPalette: '=?',
+			mbColorMaterialPalette: '=?',
+			mbColorHistory: '=?',
+			mbColorHex: '=?',
+			mbColorRgb: '=?',
+			mbColorHsl: '=?',
+			mbColorDefaultTab: '=?'
+		},
+		controller: function($scope, $element, $attrs, $mdDialog, MbColorPicker) {
+			'ngInject';
+			var didJustClose = false;
+
+			// Merge Options Object with scope.  Scope will take precedence much like css vs style attribute.
+			if ($scope.options !== undefined) {
+				for (var opt in $scope.options) {
+					if ($scope.options.hasOwnProperty(opt)) {
+						var scopeKey;
+						//if ( $scope.hasOwnProperty( opt ) ) { // Removing this because optional scope properties are not added to the scope.
+						scopeKey = opt;
+						//} else
+						if ($scope.hasOwnProperty('mbColor' + opt.slice(0, 1).toUpperCase() + opt.slice(1))) {
+							scopeKey = 'mbColor' + opt.slice(0, 1).toUpperCase() + opt.slice(1);
+						}
+						if (scopeKey && ($scope[scopeKey] === undefined || $scope[scopeKey] === '')) {
+							$scope[scopeKey] = $scope.options[opt];
+						}
+					}
+				}
+			}
+
+			// Get ngModelController from the current element
+			var ngModel = $element.controller('ngModel');
+
+			// Quick function for updating the local 'value' on scope
+			var updateValue = function(val) {
+				$scope.value = val || ngModel.$viewValue || '';
+			};
+
+			// Defaults
+			// Everything is enabled by default.
+			$scope.mbColorClearButton = $scope.mbColorClearButton === undefined ? true : $scope.mbColorClearButton;
+			$scope.mbColorPreview = $scope.mbColorPreview === undefined ? true : $scope.mbColorPreview;
+
+			$scope.mbColorAlphaChannel = $scope.mbColorAlphaChannel === undefined ? true : $scope.mbColorAlphaChannel;
+			$scope.mbColorSpectrum = $scope.mbColorSpectrum === undefined ? true : $scope.mbColorSpectrum;
+			$scope.mbColorSliders = $scope.mbColorSliders === undefined ? true : $scope.mbColorSliders;
+			$scope.mbColorGenericPalette = $scope.mbColorGenericPalette === undefined ? true : $scope.mbColorGenericPalette;
+			$scope.mbColorMaterialPalette = $scope.mbColorMaterialPalette === undefined ? true : $scope.mbColorMaterialPalette;
+			$scope.mbColorHistory = $scope.mbColorHistory === undefined ? true : $scope.mbColorHistory;
+			$scope.mbColorHex = $scope.mbColorHex === undefined ? true : $scope.mbColorHex;
+			$scope.mbColorRgb = $scope.mbColorRgb === undefined ? true : $scope.mbColorRgb;
+			$scope.mbColorHsl = $scope.mbColorHsl === undefined ? true : $scope.mbColorHsl;
+			// Set the starting value
+			updateValue();
+
+			// Keep an eye on changes
+			$scope.$watch(function() {
+				return ngModel.$modelValue;
+			}, function(newVal) {
+				updateValue(newVal);
+			});
+
+			// Watch for updates to value and set them on the model
+			$scope.$watch('value', function(newVal, oldVal) {
+				if (newVal === '' || typeof newVal === 'undefined' || !newVal) {
+					$scope.clearValue();
+				}
+				if (newVal !== oldVal) {
+					ngModel.$setViewValue(newVal);
+				}
+			});
+
+			// The only other ngModel changes
+
+			$scope.clearValue = function clearValue() {
+				ngModel.$setViewValue('');
+			};
+			$scope.showColorPicker = function showColorPicker($event) {
+				if (didJustClose) {
+					return;
+				}
+				//	dateClick = Date.now();
+				//	console.log( "CLICK OPEN", dateClick, $scope );
+
+				MbColorPicker.show({
+					value: $scope.value,
+					defaultValue: $scope.default,
+					random: $scope.random,
+					clickOutsideToClose: $scope.clickOutsideToClose,
+					hasBackdrop: $scope.hasBackdrop,
+					skipHide: $scope.skipHide,
+					preserveScope: $scope.preserveScope,
+
+					mbColorAlphaChannel: $scope.mbColorAlphaChannel,
+					mbColorSpectrum: $scope.mbColorSpectrum,
+					mbColorSliders: $scope.mbColorSliders,
+					mbColorGenericPalette: $scope.mbColorGenericPalette,
+					mbColorMaterialPalette: $scope.mbColorMaterialPalette,
+					mbColorHistory: $scope.mbColorHistory,
+					mbColorHex: $scope.mbColorHex,
+					mbColorRgb: $scope.mbColorRgb,
+					mbColorHsl: $scope.mbColorHsl,
+					mbColorDefaultTab: $scope.mbColorDefaultTab,
+
+					$event: $event
+
+				}).then(function(color) {
+					$scope.value = color;
+				});
+			};
+		},
+		compile: function(element, attrs) {
+
+			//attrs.value = attrs.value || "#ff0000";
+			attrs.type = attrs.type !== undefined ? attrs.type : 0;
+
+		}
+	};
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * @ngdoc directive
+ * @name mbColors
+ * @module material.components.colors
+ *
+ * @restrict A
+ *
+ * @description
+ * `mbColors` directive will apply the theme-based color expression as RGBA CSS style values.
+ *
+ *   The format will be similar to the colors defined in the Sass files:
+ *
+ *   ## `[?theme]-[palette]-[?hue]-[?opacity]`
+ *   - [theme]    - default value is the default theme
+ *   - [palette]  - can be either palette name or primary/accent/warn/background
+ *   - [hue]      - default is 500 (hue-x can be used with primary/accent/warn/background)
+ *   - [opacity]  - default is 1
+ *
+ *
+ *   > `?` indicates optional parameter
+ *
+ * @usage
+ * <hljs lang="html">
+ *   <div mb-colors="{background: 'myTheme-accent-900-0.43'}">
+ *     <div mb-colors="{color: 'red-A100', 'border-color': 'primary-600'}">
+ *       <span>Color demo</span>
+ *     </div>
+ *   </div>
+ * </hljs>
+ *
+ * The `mbColors` directive will automatically watch for changes in the expression if it recognizes
+ * an interpolation expression or a function. For performance options, you can use `::` prefix to
+ * the `mb-colors` expression to indicate a one-time data binding.
+ *
+ * <hljs lang="html">
+ *   <md-card mb-colors="::{background: '{{theme}}-primary-700'}">
+ *   </md-card>
+ * </hljs>
+ */
+
+mblowfish.directive('mbColors', function($mbColors, $mdUtil, $log, $parse) {
+	var STATIC_COLOR_EXPRESSION = /^{((\s|,)*?["'a-zA-Z-]+?\s*?:\s*?('|")[a-zA-Z0-9-.]*('|"))+\s*}$/;
+	return {
+		restrict: 'A',
+		require: ['^?mdTheme'],
+		compile: function(tElem, tAttrs) {
+			var shouldWatch = shouldColorsWatch();
+
+			return function(scope, element, attrs, ctrl) {
+				var mdThemeController = ctrl[0];
+
+				var lastColors = {};
+
+				/**
+				 * @param {string=} theme
+				 * @return {Object} colors found in the specified theme
+				 */
+				var parseColors = function(theme) {
+					if (typeof theme !== 'string') {
+						theme = '';
+					}
+
+					if (!attrs.mbColors) {
+						attrs.mbColors = '{}';
+					}
+
+					/**
+					 * Json.parse() does not work because the keys are not quoted;
+					 * use $parse to convert to a hash map
+					 */
+					var colors = $parse(attrs.mbColors)(scope);
+
+					/**
+					 * If mdTheme is defined higher up the DOM tree,
+					 * we add mdTheme's theme to the colors which don't specify a theme.
+					 *
+					 * @example
+					 * <hljs lang="html">
+					 *   <div md-theme="myTheme">
+					 *     <div mb-colors="{background: 'primary-600'}">
+					 *       <span mb-colors="{background: 'mySecondTheme-accent-200'}">Color demo</span>
+					 *     </div>
+					 *   </div>
+					 * </hljs>
+					 *
+					 * 'primary-600' will be changed to 'myTheme-primary-600',
+					 * but 'mySecondTheme-accent-200' will not be changed since it has a theme defined.
+					 */
+					if (mdThemeController) {
+						Object.keys(colors).forEach(function(prop) {
+							var color = colors[prop];
+							if (!$mbColors.hasTheme(color)) {
+								colors[prop] = (theme || mdThemeController.$mdTheme) + '-' + color;
+							}
+						});
+					}
+
+					cleanElement(colors);
+
+					return colors;
+				};
+
+				/**
+				 * @param {Object} colors
+				 */
+				var cleanElement = function(colors) {
+					if (!angular.equals(colors, lastColors)) {
+						var keys = Object.keys(lastColors);
+
+						if (lastColors.background && !keys.color) {
+							keys.push('color');
+						}
+
+						keys.forEach(function(key) {
+							element.css(key, '');
+						});
+					}
+
+					lastColors = colors;
+				};
+
+				/**
+				 * Registering for mgTheme changes and asking mdTheme controller run our callback whenever
+				 * a theme changes.
+				 */
+				var unregisterChanges = angular.noop;
+
+				if (mdThemeController) {
+					unregisterChanges = mdThemeController.registerChanges(function(theme) {
+						$mbColors.applyThemeColors(element, parseColors(theme));
+					});
+				}
+
+				scope.$on('$destroy', function() {
+					unregisterChanges();
+				});
+
+				try {
+					if (shouldWatch) {
+						scope.$watch(parseColors, angular.bind(this,
+							$mbColors.applyThemeColors, element
+						), true);
+					}
+					else {
+						$mbColors.applyThemeColors(element, parseColors());
+					}
+
+				}
+				catch (e) {
+					$log.error(e.message);
+				}
+
+			};
+
+			/**
+			 * @return {boolean}
+			 */
+			function shouldColorsWatch() {
+				// Simulate 1x binding and mark mbColorsWatch == false
+				var rawColorExpression = tAttrs.mbColors;
+				var bindOnce = rawColorExpression.indexOf('::') > -1;
+				var isStatic = bindOnce ? true : STATIC_COLOR_EXPRESSION.test(tAttrs.mbColors);
+
+				// Remove it for the postLink...
+				tAttrs.mbColors = rawColorExpression.replace('::', '');
+
+				var hasWatchAttr = angular.isDefined(tAttrs.mbColorsWatch);
+
+				return (bindOnce || isStatic) ? false :
+					hasWatchAttr ? $mdUtil.parseAttributeBoolean(tAttrs.mbColorsWatch) : true;
+			}
+		}
+	};
+});
+
+
+
+mblowfish.directive('mbFileInput', function($q, $timeout) {
+
+	function genLfObjId() {
+		return 'mbobjyxxxxxxxx'.replace(/[xy]/g, function(c) {
+			var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		});
+	};
+
+	function parseFileType(file) {
+		var type = file.type;
+		var name = file.name;
+		if (isImageType(type, name)) {
+			return "image";
+		} else if (isVideoType(type, name)) {
+			return "video";
+		} else if (isAudioType(type, name)) {
+			return "audio";
+		}
+		return "object";
+	};
+
+	function isImageType(type, name) {
+		return (type.match('image.*') || name.match(/\.(gif|png|jpe?g)$/i)) ? true : false;
+	};
+
+	function isVideoType(type, name) {
+		return (type.match('video.*') || name.match(/\.(og?|mp4|webm|3gp)$/i)) ? true : false;
+	};
+
+	function isAudioType(type, name) {
+		return (type.match('audio.*') || name.match(/\.(ogg|mp3|wav)$/i)) ? true : false;
+	};
+
+	function genmbFileObj(file) {
+		file.key = genLfObjId();
+		file.media = parseFileType(file);
+		file.isRemote = false;
+		file.url = URL.createObjectURL(file);
+		// Old data type
+		//		var mbFileObj = {
+		//			key: genLfObjId(),
+		//			mbFile: file,
+		//			mbFileName: file.name,
+		//			mbFileType: file.type,
+		//			mbTagType: parseFileType(file),
+		//			mbDataUrl: window.URL.createObjectURL(file),
+		//			isRemote: false
+		//		};
+		return file;
+	}
+
+	var genRemotembFileObj = function(url, fileName, fileType) {
+		return {
+			key: genLfObjId(),
+			//			"mbFile": void 0,
+			name: fileName,
+			type: fileType,
+			media: parseFileType({
+				name: fileName,
+				type: fileType
+			}),
+			url: url,
+			isRemote: true
+		};
+	}
+
+	return {
+		restrict: 'E',
+		templateUrl: 'scripts/module-ui/directives/mb-file-input.html',
+		replace: true,
+		require: 'ngModel',
+		scope: {
+			mbApi: '=?',
+			//			mbOption: '=?',
+			mbCaption: '@?',
+			mbPlaceholder: '@?',
+			mbDragAndDropLabel: '@?',
+			mbBrowseLabel: '@?',
+			mbRemoveLabel: '@?',
+			mbSubmitLabel: '@?',
+			mbAccept: '@?',
+			// events
+			mbOnFileClick: '=?',
+			mbOnSubmitClick: '=?',
+			mbOnFileRemove: '=?',
+		},
+
+		link: function(scope, element, attrs, ngModel) {
+
+			/*
+			Working with date model. All data models fetch from ngModel
+			
+			hre is old model
+			scope.mbFiles = [];
+			scope[attrs.ngModel] = scope.mbFiles;
+			
+			*/
+			ngModel.$render = function() {
+				scope.mbFiles = ngModel.$modelValue || [];
+			};
+
+
+			var elDragview = angular.element(element[0].querySelector('.mb-file-input-drag'));
+			var elThumbnails = angular.element(element[0].querySelector('.mb-file-input-thumbnails'));
+			var intFilesCount = 0;
+			loadView();
+			loadLabels();
+			loadApi();
+
+			/*
+			Opens file dialog to select a file
+			*/
+			scope.openDialog = function(event/*, el*/) {
+				event.preventDefault();
+				event.stopPropagation();
+				// open file
+				var input = document.createElement('input')
+				if (scope.isMutiple) {
+					input.setAttribute('multiple', '');
+				}
+				input.setAttribute('accept', scope.mbAccept || '');
+				input.setAttribute('aria-label', scope.strAriaLabel || 'input file');
+				input.setAttribute('type', 'file');
+				// IE10/11 Addition
+				input.style.display = 'none';
+				input.setAttribute('id', 'mb-file-hidden-file');
+				document.body.appendChild(input);
+
+				input.addEventListener('change', function() {
+					onFileChanged(input.files)
+					document.body.removeChild(input)
+				});
+
+				// Simluate click event
+				var evt = document.createEvent('MouseEvents');
+				evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+				input.dispatchEvent(evt);
+			};
+
+			/*
+			 * Remove all files and update the ngModel
+			 */
+			scope.removeAllFilesWithoutVaildate = function() {
+				removeAllFiles();
+			};
+
+			scope.removeAllFiles = function(/*event*/) {
+				scope.removeAllFilesWithoutVaildate();
+			};
+
+			/*
+			 * Remove a file by name
+			 */
+			scope.removeFileByName = function(name/*, event*/) {
+				scope.mbFiles.every(function(obj, idx) {
+					if (obj.name == name) {
+						scope.mbFiles.splice(idx, 1);
+						// TODO: update ngModel
+						return false;
+					}
+					return true;
+				});
+			};
+
+
+			/*
+			 * Remove an specific file
+			 */
+			scope.removeFile = function(mbFile) {
+				scope.mbFiles.every(function(obj, idx) {
+					if (obj.key == mbFile.key) {
+						if (angular.isFunction(scope.mbOnFileRemove)) {
+							scope.mbOnFileRemove(obj, idx);
+						}
+						removeFileByIndex(idx);
+						return false;
+					}
+					return true;
+				});
+			};
+
+			//call back function
+			scope.onFileClick = function(mbFile) {
+				if (_.isFunction(scope.mbOnFileClick)) {
+					scope.mbFiles.every(function(obj, idx) {
+						if (obj.key == mbFile.key) {
+							scope.mbOnFileClick(obj, idx);
+							return false;
+						} else {
+							return true;
+						}
+					});
+				}
+			};
+
+			scope.onSubmitClick = function() {
+				if (angular.isFunction(scope.mbOnSubmitClick)) {
+					scope.mbOnSubmitClick(scope.mbFiles);
+				}
+			};
+
+			elDragview.bind('dragover', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				if (!scope.isDrag) {
+					return;
+				}
+				elDragview.addClass('mb-file-input-drag-hover');
+			});
+
+			elDragview.bind('dragleave', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				if (!scope.isDrag) {
+					return;
+				}
+				elDragview.removeClass('mb-file-input-drag-hover');
+			});
+
+			elDragview.bind("drop", function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				if (/*scope.isDisabled || */!scope.isDrag) {
+					return;
+				}
+				elDragview.removeClass('mb-file-input-drag-hover');
+				if (angular.isObject(e.originalEvent)) {
+					e = e.originalEvent;
+				}
+				var files = e.target.files || e.dataTransfer.files;
+				var i = 0;
+				var lfAccept = scope.mbAccept.replace(/,/g, '|');
+				var regexp = new RegExp(lfAccept, "i");
+				var regFiles = [];
+				angular.forEach(files, function(file) {
+					if (file.type.match(regexp)) {
+						regFiles.push(file);
+					}
+				});
+				onFileChanged(regFiles);
+			});
+
+			function loadApi() {
+				scope.mbApi = new function() {
+					var self = this;
+					self.removeAll = function() {
+						scope.removeAllFiles();
+					};
+
+					self.removeByName = function(name) {
+						scope.removeFileByName(name);
+					};
+
+					self.addRemoteFile = function(url, name, type) {
+						var obj = genRemotembFileObj(url, name, type);
+						addFile(obj);
+					};
+				};
+			}
+			function loadView() {
+				scope.intLoading = 0;
+				scope.floatProgress = 0;
+				scope.isCustomCaption = false;
+
+				scope.isPreview = angular.isDefined(attrs.mbPreview);
+				scope.isDrag = angular.isDefined(attrs.mbDrag);
+				scope.isMutiple = angular.isDefined(attrs.mbMultiple);
+				scope.isProgress = angular.isDefined(attrs.mbProgress);
+				scope.isSubmit = angular.isDefined(attrs.mbSubmit);
+				//				scope.accept = scope.mbAccept || '';
+			}
+
+			function loadLabels() {
+				scope.strCaption = '';
+				scope.strCaptionPlaceholder = 'Select file';
+				scope.strCaptionDragAndDrop = 'Drag & drop files here...';
+				scope.strCaptionBrowse = 'Browse';
+				scope.strCaptionRemove = 'Remove';
+				scope.strCaptionSubmit = 'Submit';
+				scope.strAriaLabel = '';
+
+				if (angular.isDefined(attrs.ariaLabel)) {
+					scope.strAriaLabel = attrs.ariaLabel;
+				}
+
+				if (angular.isDefined(attrs.mbPlaceholder)) {
+					scope.$watch('mbPlaceholder', function(newVal) {
+						scope.strCaptionPlaceholder = newVal;
+					});
+				}
+
+				if (angular.isDefined(attrs.mbCaption)) {
+					scope.isCustomCaption = true;
+					scope.$watch('mbCaption', function(newVal) {
+						scope.strCaption = newVal;
+					});
+				}
+				if (scope.mbDragAndDropLabel) {
+					scope.strCaptionDragAndDrop = scope.mbDragAndDropLabel;
+				}
+				if (scope.mbBrowseLabel) {
+					scope.strCaptionBrowse = scope.mbBrowseLabel;
+				}
+				if (scope.mbRemoveLabel) {
+					scope.strCaptionRemove = scope.mbRemoveLabel;
+				}
+				if (scope.mbSubmitLabel) {
+					scope.strCaptionSubmit = scope.mbSubmitLabel;
+				}
+			}
+
+			function onFileChanged(files) {
+				if (files.length <= 0) {
+					return;
+				}
+				scope.floatProgress = 0;
+				if (scope.isMutiple) {
+					intFilesCount = files.length;
+					scope.intLoading = intFilesCount;
+					for (var i = 0; i < files.length; i++) {
+						var file = files[i];
+						setTimeout(readFile(file), i * 100);
+					}
+				} else {
+					intFilesCount = 1;
+					scope.intLoading = intFilesCount;
+					for (var i = 0; i < files.length; i++) {
+						var file = files[i];
+						scope.removeAllFilesWithoutVaildate();
+						readFile(file);
+						break;
+					}
+				}
+			}
+
+			function readFile(file) {
+				readAsDataURL(file).then(function(/*result*/) {
+					var isFileAreadyExist = false;
+					scope.mbFiles.every(function(mbFile) {
+						if (mbFile.isRemote) {
+							return true;
+						}
+						if (mbFile.name !== undefined && mbFile.name == file.name) {
+							if (mbFile.size == file.size) {
+								if (mbFile.lastModified == file.lastModified) {
+									isFileAreadyExist = true;
+								}
+							}
+							return false;
+						} else {
+							return true;
+						}
+					});
+
+					if (!isFileAreadyExist) {
+						var obj = genmbFileObj(file);
+						addFile(obj);
+					}
+				}, function(/*error*/) { }, function(/*notify*/) { });
+			};
+			
+			
+			function removeAllFiles(){
+				scope.mbFiles.length = 0;
+				elThumbnails.empty();
+				pushModelChange();
+			}
+
+			function removeFileByIndex(idx) {
+				scope.mbFiles.splice(idx, 1);
+				pushModelChange();
+			}
+
+			function addFile(file) {
+				scope.mbFiles.push(file);
+				pushModelChange();
+			}
+
+			function pushModelChange(){
+				// update ngModel
+				ngModel.$setViewValue(_.clone(scope.mbFiles));
+				ngModel.$commitViewValue();
+			}
+			
+			/*
+			Read remote data from URL
+			*/
+			function readAsDataURL(file, index) {
+				var deferred = $q.defer();
+				var reader = new FileReader();
+				reader.onloadstart = function() {
+					deferred.notify(0);
+				};
+				reader.onload = function(/*event*/) { };
+				reader.onloadend = function(/*event*/) {
+					deferred.resolve({
+						'index': index,
+						'result': reader.result
+					});
+					scope.intLoading--;
+					scope.floatProgress = (intFilesCount - scope.intLoading) / intFilesCount * 100;
+				};
+				reader.onerror = function(/*event*/) {
+					deferred.reject(reader.result);
+					scope.intLoading--;
+					scope.floatProgress = (intFilesCount - scope.intLoading) / intFilesCount * 100;
+				};
+				reader.onprogress = function(event) {
+					deferred.notify(event.loaded / event.total);
+				};
+				reader.readAsArrayBuffer(file);
+				return deferred.promise;
+			};
+		}
+	};
+});
+
+
+
+// NOTE: ng-disabled add disabled attribute to the elemtn. CSS must be used to disabele the view
+// 1. to define desiabe
+//			scope.isDisabled = false;
+//			if (angular.isDefined(attrs.ngDisabled)) {
+//				scope.$watch('ngDisabled', function(isDisabled) {
+//					scope.isDisabled = isDisabled;
+//				});
+//			}
+
+// NOTE: vies must mainpulate via CSS and theme
+//			scope.strBrowseIconCls = "lf-browse";
+//			scope.strRemoveIconCls = "lf-remove";
+//			scope.strCaptionIconCls = "lf-caption";
+//			scope.strSubmitIconCls = "lf-submit";
+//			scope.strUnknowIconCls = "lf-unknow";
+//
+//			scope.strBrowseButtonCls = "md-primary";
+//			scope.strRemoveButtonCls = "";
+//			scope.strSubmitButtonCls = "md-accent";
+//			if (angular.isDefined(attrs.mbOption)) {
+//				if (angular.isObject(scope.mbOption)) {
+//					if (scope.mbOption.hasOwnProperty('browseIconCls')) {
+//						scope.strBrowseIconCls = scope.mbOption.browseIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('removeIconCls')) {
+//						scope.strRemoveIconCls = scope.mbOption.removeIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('captionIconCls')) {
+//						scope.strCaptionIconCls = scope.mbOption.captionIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('unknowIconCls')) {
+//						scope.strUnknowIconCls = scope.mbOption.unknowIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('submitIconCls')) {
+//						scope.strSubmitIconCls = scope.mbOption.submitIconCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('strBrowseButtonCls')) {
+//						scope.strBrowseButtonCls = scope.mbOption.strBrowseButtonCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('strRemoveButtonCls')) {
+//						scope.strRemoveButtonCls = scope.mbOption.strRemoveButtonCls;
+//					}
+//					if (scope.mbOption.hasOwnProperty('strSubmitButtonCls')) {
+//						scope.strSubmitButtonCls = scope.mbOption.strSubmitButtonCls;
+//					}
+//				}
+//			}
+
+
+mblowfish.directive('mbFileMimetype', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var reg;
+			attrs.$observe('mbFileMimetype', function(value) {
+				reg = new RegExp(value.replace(/,/g, '|'), "i");
+				ctrl.$validate();
+			});
+			ctrl.$validators.filemimetype = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				var boolValid = true;
+				modelValue.every(function(obj) {
+					if (obj.type.match(reg)) {
+						return true;
+					} else {
+						boolValid = false;
+						return false;
+					}
+				});
+				return boolValid;
+			};
+		}
+	}
+});
+
+
+mblowfish.directive('mbFileSizeTotal', function() {
+	var sizes = ['Byte', 'KB', 'MB'];
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbFileSizeTotal', function(value) {
+				var reg = /^[1-9][0-9]*(Byte|KB|MB)$/;
+				if (!reg.test(value)) {
+					intMax = -1;
+				} else {
+					var unit = value.match(reg)[1];
+					var number = value.substring(0, value.indexOf(unit));
+					sizes.every(function(obj, idx) {
+						if (unit === obj) {
+							intMax = parseInt(number) * Math.pow(1024, idx);
+							return false;
+						} else {
+							return true;
+						}
+					});
+				}
+				ctrl.$validate();
+			});
+			ctrl.$validators.filesizetotal = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				var intTotal = 0;
+				angular.forEach(modelValue, function(obj) {
+					intTotal = intTotal + obj.size;
+				});
+				return intTotal < intMax;
+			};
+		}
+	}
+});
+mblowfish.directive('mbFileSize', function() {
+	var sizes = ['Byte', 'KB', 'MB'];
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbFileSize', function(value) {
+				var reg = /^[1-9][0-9]*(Byte|KB|MB)$/;
+				if (!reg.test(value)) {
+					intMax = -1;
+				} else {
+					var unit = value.match(reg)[1];
+					var number = value.substring(0, value.indexOf(unit));
+					sizes.every(function(obj, idx) {
+						if (unit === obj) {
+							intMax = parseInt(number) * Math.pow(1024, idx);
+							return false;
+						} else {
+							return true;
+						}
+					});
+				}
+				ctrl.$validate();
+			});
+			ctrl.$validators.filesize = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				var boolValid = true;
+				modelValue.every(function(obj) {
+					if (obj.size > intMax) {
+						boolValid = false;
+						return false;
+					} else {
+						return true;
+					}
+				});
+				return boolValid;
+			};
+		}
+	}
+});
+mblowfish.directive('mbFile', function() {
+	return {
+		restrict: 'E',
+		scope: false,
+		require: 'ngModel',
+		link: function(scope, element, attr, ngModel) {
+			function render() {
+				if (!ngModel.$modelValue) {
+					return;
+				}
+				var mbFile = ngModel.$modelValue;
+				var src = URL.createObjectURL(mbFile);
+				switch (mbFile.media) {
+					case 'image': {
+						element.replaceWith(
+							'<img src="' + src + '" />'
+						);
+						break;
+					}
+					case 'video': {
+						element.replaceWith(
+							'<video controls>' +
+							'<source src="' + src + '"">' +
+							'</video>'
+						);
+						break;
+					}
+					case 'audio': {
+						element.replaceWith(
+							'<audio controls>' +
+							'<source src="' + src + '"">' +
+							'</audio>'
+						);
+						break;
+					}
+					default: {
+						var fileType = mbFile.type || 'unknown/unknown';
+						var unKnowClass = attr.mbUnknowClass || 'mb-file-unknow';
+						element.replaceWith(
+							'<object type="' + fileType + '" data="' + src + '">' +
+							'<div class="mb-file-input-preview-default">' +
+							'<md-icon class="mb-file-input-preview-icon ' + unKnowClass + '"></md-icon>' +
+							'</div>' +
+							'</object>'
+						);
+					}
+				}
+			}
+			ngModel.$render = render;
+		}
+	};
+});
+
+
+
+
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Directives
+@name mb-icon
+@description Icon for MBlowfish
+
+ */
+mblowfish.directive('mbIcon', function($mbIcon, $interpolate) {
+	// FORMAT
+	var template = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}">{{{icon.shape}}}</svg>';
+	// REPLACE FORMAT
+	var replaceTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="{{icon.viewbox}}" width="{{icon.size}}" height="{{icon.size}}"><g id="{{icon.name}}" style="display:none">{{{icon.shape}}}</g><g id="{{old.name}}" style="display:none">{{{old.shape}}}</g></svg>';
+
+	// optimize pars
+	Mustache.parse(template);
+	Mustache.parse(replaceTemplate);
+
+	var shapes = $mbIcon.getShapes();
+
+	function postLink(scope, element, attr, ctrls, transclude) {
+		// icon information
+		var icon = {
+			name: 'help',
+			viewbox: '0 0 24 24',
+			size: 24,
+		};
+		// Counter
+		var renderCount = 0;
+
+
+		/*
+		 * Sets icon and render the shape
+		 */
+		function setIcon(iconName) {
+			var tempIcon = _.clone(icon);
+			// icon
+			if (iconName !== undefined) {
+				tempIcon.name = iconName;
+				// Check for material-design-icons style name, and extract icon / size
+				var ss = iconName.match(/ic_(.*)_([0-9]+)px.svg/m);
+				if (ss !== null) {
+					tempIcon.name = ss[1];
+					tempIcon.size = ss[2];
+				}
+			}
+
+			render(tempIcon);
+		}
+
+		//        function setViewBox(viewBox){
+		//            // viewBox
+		//            if (attr.viewBox !== undefined) {
+		//                viewBox = attr.viewBox;
+		//            } else {
+		//                viewBox = $mbIcon.getViewBox(icon) ? $mbIcon.getViewBox(icon) : '0 0 24 24';
+		//            }
+		//            render();
+		//            return viewBox;
+		//        }
+
+		function setSize(newsize) {
+			if (newsize === icon.size) {
+				return;
+			}
+			var tempIcon = _.clone(icon);
+			tempIcon.size = newsize;
+			render(tempIcon);
+		}
+
+		function render(newIcon) {
+			// check for new changes
+			if (renderCount && newIcon.name === icon.name &&
+				newIcon.size === icon.size &&
+				newIcon.viewbox === icon.viewbox) {
+				return;
+			}
+			newIcon.shape = shapes[newIcon.name];
+			if (renderCount && window.SVGMorpheus) {
+				// this block will succeed if SVGMorpheus is available
+				var options = JSON.parse(attr.options || '{}');
+				element.html(Mustache.render(replaceTemplate, {
+					icon: newIcon,
+					old: icon
+				}));
+				new SVGMorpheus(element.children()[0]).to(newIcon, options);
+			} else {
+				element.html(Mustache.render(template, {
+					icon: newIcon
+				}));
+			}
+
+			icon = newIcon;
+			renderCount++;
+		}
+
+		// watch for any changes
+		if (attr.icon !== undefined) {
+			attr.$observe('icon', setIcon);
+		} else if (attr.mbIconName !== undefined) {
+			attr.$observe('mbIconName', setIcon);
+		} else {
+			transclude(scope, function(clone) {
+				var text = clone.text();
+				if (text && text.trim()) {
+					scope.$watch(function() {
+						return $interpolate(text.trim())(scope);
+					}, setIcon);
+				}
+			});
+		}
+		if (attr.size !== undefined) {
+			attr.$observe('size', setSize);
+		}
+		if (attr.mbSize !== undefined) {
+			attr.$observe('mbSize', setSize);
+		}
+	}
+
+	return {
+		restrict: 'E',
+		transclude: true,
+		link: postLink,
+		replace: false
+	};
+});
+
+mblowfish.directive('mdIconFloat', function($mdTheming) {
+
+	var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT',
+		'MD-SELECT'];
+
+	var LEFT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat(['mb-icon ~ ' + isel, '.mb-icon ~ ' + isel]);
+		}, []).join(',');
+
+	var RIGHT_SELECTORS = INPUT_TAGS.reduce(
+		function(selectors, isel) {
+			return selectors.concat([isel + ' ~ mb-icon', isel + ' ~ .mb-icon']);
+		}, []).join(',');
+
+	function compile(tElement) {
+		// Check for both a left & right icon
+		var leftIcon = tElement[0]
+			.querySelector(LEFT_SELECTORS);
+		var rightIcon = tElement[0]
+			.querySelector(RIGHT_SELECTORS);
+
+		if (leftIcon) {
+			tElement.addClass('mb-icon-left');
+		}
+		if (rightIcon) {
+			tElement.addClass('mb-icon-right');
+		}
+
+		return function postLink(scope, element) {
+			$mdTheming(element);
+		};
+	}
+
+	return {
+		restrict: 'C',
+		compile: compile
+	};
+});
+
+/**
+
+Text model with array validation and transformation. Sets the size validation error if not a valid number.
+ */
+mblowfish.directive('mbMaxLength', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbMaxLength', function(value) {
+				var intVal = parseInt(value, 10);
+				intMax = isNaN(intVal) ? -1 : intVal;
+				ctrl.$validate();
+			});
+			ctrl.$validators.maxlength = function(modelValue, viewValue) {
+				if (!modelValue) {
+					return false;
+				}
+				return modelValue.length <= intMax;
+			};
+		}
+	}
+});
+
+/**
+
+Text model with array validation and transformation. Sets the size validation error if not a valid number.
+ */
+mblowfish.directive('mbMinLength', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			var intMax = -1;
+			attrs.$observe('mbMinLength', function(value) {
+				var intVal = parseInt(value, 10);
+				intMax = isNaN(intVal) ? -1 : intVal;
+				ctrl.$validate();
+			});
+			ctrl.$validators.minlength = function(modelValue) {
+				if (!modelValue) {
+					return false;
+				}
+				return modelValue.length >= intMax;
+			};
+		}
+	}
+});
+
+mblowfish.directive('mbColorPickerSpectrum', function(MbColorGradientCanvas) {
+	return new MbColorGradientCanvas('spectrum');
+});
+
+// TODO:  maso, 2020: must replaced with ngRequried
+mblowfish.directive('mbRequired', function() {
+	return {
+		restrict: "A",
+		require: "ngModel",
+		link: function(scope, element, attrs, ctrl) {
+			if (!ctrl) {
+				return;
+			}
+			ctrl.$validators.required = function(modelValue, viewValue) {
+				if (!modelValue) {
+					return false;
+				}
+				return modelValue.length > 0;
+			};
+		}
+	}
+});
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+mblowfish.directive('mbTable', function($mdTheming) {
+
+	function postLink(scope, element, attributes) {
+		$mdTheming(element);
+		element.addClass('mb-table');
+	}
+
+	return {
+		restrict: 'AC',
+		replace: false,
+		transclude: false,
+		scope: false,
+		link: postLink,
+	};
+});
+
+
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+
+/**
+@ngdoc Directives
+@name mb-titled-block
+@descritpion Title block
+
+
+ */
+mblowfish.directive('mbTitledBlock', function($mbActions) {
+
+	function postLink(scope) {
+		scope.$evalAction = function(item) {
+			if (item.expression) {
+				return scope.$parent.$eval(item.expression);
+			}
+			if (item.actionId) {
+				return $mbActions.exec(item.actionId);
+			}
+			if (angular.isFunction(item.action)) {
+				item.action();
+			}
+		}
+	}
+	return {
+		replace: false,
+		restrict: 'E',
+		transclude: true,
+		scope: {
+			mbTitle: '@?',
+			mbIcon: '@?',
+			mbProgress: '<?',
+			mbMoreActions: '='
+		},
+		link: postLink,
+		templateUrl: 'scripts/module-ui/directives/mb-titled-block.html'
+	};
+});
+
+
+
+//
+//  $mbEditor: manages all editor of an application. An editor has a dynamic
+// address and there may be multiple instance of it at the same time but with
+// different parameter.
+//
+// There are serveral editor registered here to cover some of our system 
+// functionalities such as:
+//
+// - Open a new URL
+//
+mblowfish.editor('/mb/iframe/:url*', {
+	title: 'Browser',
+	description: 'Open external page',
+	controllerAs: 'ctrl',
+	template: '<iframe class="mb-module-iframe" ng-src="{{ctrl.currentContenttUrl}}"></iframe>',
+	groups: ['Utilities'],
+	controllerAs: 'ctrl',
+	controller: function($sce, $state) {
+		// Load secure path
+		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
+	}
+});
+mblowfish.factory('MbColor', function() {
+	var trimLeft = /^\s+/,
+		trimRight = /\s+$/,
+		tinyCounter = 0,
+		mathRound = Math.round,
+		mathMin = Math.min,
+		mathMax = Math.max,
+		mathRandom = Math.random;
+
+	function tinycolor(color, opts) {
+		color = (color) ? color : '';
+		opts = opts || {};
+
+		// If input is already a tinycolor, return itself
+		if (color instanceof tinycolor) {
+			return color;
+		}
+		// If we are called as a function, call using new instead
+		if (!(this instanceof tinycolor)) {
+			return new tinycolor(color, opts);
+		}
+
+		var rgb = inputToRGB(color);
+		this._originalInput = color,
+			this._r = rgb.r,
+			this._g = rgb.g,
+			this._b = rgb.b,
+			this._a = rgb.a,
+			this._roundA = mathRound(100 * this._a) / 100,
+			this._format = opts.format || rgb.format;
+		this._gradientType = opts.gradientType;
+
+		// Don't let the range of [0,255] come back in [0,1].
+		// Potentially lose a little bit of precision here, but will fix issues where
+		// .5 gets interpreted as half of the total, instead of half of 1
+		// If it was supposed to be 128, this was already taken care of by `inputToRgb`
+		if (this._r < 1) { this._r = mathRound(this._r); }
+		if (this._g < 1) { this._g = mathRound(this._g); }
+		if (this._b < 1) { this._b = mathRound(this._b); }
+
+		this._ok = rgb.ok;
+		this._tc_id = tinyCounter++;
+	}
+
+	tinycolor.prototype = {
+		isDark: function() {
+			return this.getBrightness() < 128;
+		},
+		isLight: function() {
+			return !this.isDark();
+		},
+		isValid: function() {
+			return this._ok;
+		},
+		getOriginalInput: function() {
+			return this._originalInput;
+		},
+		getFormat: function() {
+			return this._format;
+		},
+		getAlpha: function() {
+			return this._a;
+		},
+		getBrightness: function() {
+			//http://www.w3.org/TR/AERT#color-contrast
+			var rgb = this.toRgb();
+			return (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+		},
+		getLuminance: function() {
+			//http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+			var rgb = this.toRgb();
+			var RsRGB, GsRGB, BsRGB, R, G, B;
+			RsRGB = rgb.r / 255;
+			GsRGB = rgb.g / 255;
+			BsRGB = rgb.b / 255;
+
+			if (RsRGB <= 0.03928) { R = RsRGB / 12.92; } else { R = Math.pow(((RsRGB + 0.055) / 1.055), 2.4); }
+			if (GsRGB <= 0.03928) { G = GsRGB / 12.92; } else { G = Math.pow(((GsRGB + 0.055) / 1.055), 2.4); }
+			if (BsRGB <= 0.03928) { B = BsRGB / 12.92; } else { B = Math.pow(((BsRGB + 0.055) / 1.055), 2.4); }
+			return (0.2126 * R) + (0.7152 * G) + (0.0722 * B);
+		},
+		setAlpha: function(value) {
+			this._a = boundAlpha(value);
+			this._roundA = mathRound(100 * this._a) / 100;
+			return this;
+		},
+		toHsv: function() {
+			var hsv = rgbToHsv(this._r, this._g, this._b);
+			return { h: hsv.h * 360, s: hsv.s, v: hsv.v, a: this._a };
+		},
+		toHsvString: function() {
+			var hsv = rgbToHsv(this._r, this._g, this._b);
+			var h = mathRound(hsv.h * 360), s = mathRound(hsv.s * 100), v = mathRound(hsv.v * 100);
+			return (this._a == 1) ?
+				"hsv(" + h + ", " + s + "%, " + v + "%)" :
+				"hsva(" + h + ", " + s + "%, " + v + "%, " + this._roundA + ")";
+		},
+		toHsl: function() {
+			var hsl = rgbToHsl(this._r, this._g, this._b);
+			return { h: hsl.h * 360, s: hsl.s, l: hsl.l, a: this._a };
+		},
+		toHslString: function() {
+			var hsl = rgbToHsl(this._r, this._g, this._b);
+			var h = mathRound(hsl.h * 360), s = mathRound(hsl.s * 100), l = mathRound(hsl.l * 100);
+			return (this._a == 1) ?
+				"hsl(" + h + ", " + s + "%, " + l + "%)" :
+				"hsla(" + h + ", " + s + "%, " + l + "%, " + this._roundA + ")";
+		},
+		toHex: function(allow3Char) {
+			return rgbToHex(this._r, this._g, this._b, allow3Char);
+		},
+		toHexString: function(allow3Char) {
+			return '#' + this.toHex(allow3Char);
+		},
+		toHex8: function(allow4Char) {
+			return rgbaToHex(this._r, this._g, this._b, this._a, allow4Char);
+		},
+		toHex8String: function(allow4Char) {
+			return '#' + this.toHex8(allow4Char);
+		},
+		toRgb: function() {
+			return { r: mathRound(this._r), g: mathRound(this._g), b: mathRound(this._b), a: this._a };
+		},
+		toRgbString: function() {
+			return (this._a == 1) ?
+				"rgb(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ")" :
+				"rgba(" + mathRound(this._r) + ", " + mathRound(this._g) + ", " + mathRound(this._b) + ", " + this._roundA + ")";
+		},
+		toPercentageRgb: function() {
+			return { r: mathRound(bound01(this._r, 255) * 100) + "%", g: mathRound(bound01(this._g, 255) * 100) + "%", b: mathRound(bound01(this._b, 255) * 100) + "%", a: this._a };
+		},
+		toPercentageRgbString: function() {
+			return (this._a == 1) ?
+				"rgb(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%)" :
+				"rgba(" + mathRound(bound01(this._r, 255) * 100) + "%, " + mathRound(bound01(this._g, 255) * 100) + "%, " + mathRound(bound01(this._b, 255) * 100) + "%, " + this._roundA + ")";
+		},
+		toName: function() {
+			if (this._a === 0) {
+				return "transparent";
+			}
+
+			if (this._a < 1) {
+				return false;
+			}
+
+			return hexNames[rgbToHex(this._r, this._g, this._b, true)] || false;
+		},
+		toFilter: function(secondColor) {
+			var hex8String = '#' + rgbaToArgbHex(this._r, this._g, this._b, this._a);
+			var secondHex8String = hex8String;
+			var gradientType = this._gradientType ? "GradientType = 1, " : "";
+
+			if (secondColor) {
+				var s = tinycolor(secondColor);
+				secondHex8String = '#' + rgbaToArgbHex(s._r, s._g, s._b, s._a);
+			}
+
+			return "progid:DXImageTransform.Microsoft.gradient(" + gradientType + "startColorstr=" + hex8String + ",endColorstr=" + secondHex8String + ")";
+		},
+		toString: function(format) {
+			var formatSet = !!format;
+			format = format || this._format;
+
+			var formattedString = false;
+			var hasAlpha = this._a < 1 && this._a >= 0;
+			var needsAlphaFormat = !formatSet && hasAlpha && (format === "hex" || format === "hex6" || format === "hex3" || format === "hex4" || format === "hex8" || format === "name");
+
+			if (needsAlphaFormat) {
+				// Special case for "transparent", all other non-alpha formats
+				// will return rgba when there is transparency.
+				if (format === "name" && this._a === 0) {
+					return this.toName();
+				}
+				return this.toRgbString();
+			}
+			if (format === "rgb") {
+				formattedString = this.toRgbString();
+			}
+			if (format === "prgb") {
+				formattedString = this.toPercentageRgbString();
+			}
+			if (format === "hex" || format === "hex6") {
+				formattedString = this.toHexString();
+			}
+			if (format === "hex3") {
+				formattedString = this.toHexString(true);
+			}
+			if (format === "hex4") {
+				formattedString = this.toHex8String(true);
+			}
+			if (format === "hex8") {
+				formattedString = this.toHex8String();
+			}
+			if (format === "name") {
+				formattedString = this.toName();
+			}
+			if (format === "hsl") {
+				formattedString = this.toHslString();
+			}
+			if (format === "hsv") {
+				formattedString = this.toHsvString();
+			}
+
+			return formattedString || this.toHexString();
+		},
+		clone: function() {
+			return tinycolor(this.toString());
+		},
+
+		_applyModification: function(fn, args) {
+			var color = fn.apply(null, [this].concat([].slice.call(args)));
+			this._r = color._r;
+			this._g = color._g;
+			this._b = color._b;
+			this.setAlpha(color._a);
+			return this;
+		},
+		lighten: function() {
+			return this._applyModification(lighten, arguments);
+		},
+		brighten: function() {
+			return this._applyModification(brighten, arguments);
+		},
+		darken: function() {
+			return this._applyModification(darken, arguments);
+		},
+		desaturate: function() {
+			return this._applyModification(desaturate, arguments);
+		},
+		saturate: function() {
+			return this._applyModification(saturate, arguments);
+		},
+		greyscale: function() {
+			return this._applyModification(greyscale, arguments);
+		},
+		spin: function() {
+			return this._applyModification(spin, arguments);
+		},
+
+		_applyCombination: function(fn, args) {
+			return fn.apply(null, [this].concat([].slice.call(args)));
+		},
+		analogous: function() {
+			return this._applyCombination(analogous, arguments);
+		},
+		complement: function() {
+			return this._applyCombination(complement, arguments);
+		},
+		monochromatic: function() {
+			return this._applyCombination(monochromatic, arguments);
+		},
+		splitcomplement: function() {
+			return this._applyCombination(splitcomplement, arguments);
+		},
+		triad: function() {
+			return this._applyCombination(triad, arguments);
+		},
+		tetrad: function() {
+			return this._applyCombination(tetrad, arguments);
+		}
+	};
+
+	// If input is an object, force 1 into "1.0" to handle ratios properly
+	// String input requires "1.0" as input, so 1 will be treated as 1
+	tinycolor.fromRatio = function(color, opts) {
+		if (typeof color == "object") {
+			var newColor = {};
+			for (var i in color) {
+				if (color.hasOwnProperty(i)) {
+					if (i === "a") {
+						newColor[i] = color[i];
+					}
+					else {
+						newColor[i] = convertToPercentage(color[i]);
+					}
+				}
+			}
+			color = newColor;
+		}
+
+		return tinycolor(color, opts);
+	};
+
+	// Given a string or object, convert that input to RGB
+	// Possible string inputs:
+	//
+	//     "red"
+	//     "#f00" or "f00"
+	//     "#ff0000" or "ff0000"
+	//     "#ff000000" or "ff000000"
+	//     "rgb 255 0 0" or "rgb (255, 0, 0)"
+	//     "rgb 1.0 0 0" or "rgb (1, 0, 0)"
+	//     "rgba (255, 0, 0, 1)" or "rgba 255, 0, 0, 1"
+	//     "rgba (1.0, 0, 0, 1)" or "rgba 1.0, 0, 0, 1"
+	//     "hsl(0, 100%, 50%)" or "hsl 0 100% 50%"
+	//     "hsla(0, 100%, 50%, 1)" or "hsla 0 100% 50%, 1"
+	//     "hsv(0, 100%, 100%)" or "hsv 0 100% 100%"
+	//
+	function inputToRGB(color) {
+
+		var rgb = { r: 0, g: 0, b: 0 };
+		var a = 1;
+		var s = null;
+		var v = null;
+		var l = null;
+		var ok = false;
+		var format = false;
+
+		if (typeof color == "string") {
+			color = stringInputToObject(color);
+		}
+
+		if (typeof color == "object") {
+			if (isValidCSSUnit(color.r) && isValidCSSUnit(color.g) && isValidCSSUnit(color.b)) {
+				rgb = rgbToRgb(color.r, color.g, color.b);
+				ok = true;
+				format = String(color.r).substr(-1) === "%" ? "prgb" : "rgb";
+			}
+			else if (isValidCSSUnit(color.h) && isValidCSSUnit(color.s) && isValidCSSUnit(color.v)) {
+				s = convertToPercentage(color.s);
+				v = convertToPercentage(color.v);
+				rgb = hsvToRgb(color.h, s, v);
+				ok = true;
+				format = "hsv";
+			}
+			else if (isValidCSSUnit(color.h) && isValidCSSUnit(color.s) && isValidCSSUnit(color.l)) {
+				s = convertToPercentage(color.s);
+				l = convertToPercentage(color.l);
+				rgb = hslToRgb(color.h, s, l);
+				ok = true;
+				format = "hsl";
+			}
+
+			if (color.hasOwnProperty("a")) {
+				a = color.a;
+			}
+		}
+
+		a = boundAlpha(a);
+
+		return {
+			ok: ok,
+			format: color.format || format,
+			r: mathMin(255, mathMax(rgb.r, 0)),
+			g: mathMin(255, mathMax(rgb.g, 0)),
+			b: mathMin(255, mathMax(rgb.b, 0)),
+			a: a
+		};
+	}
+
+
+	// Conversion Functions
+	// --------------------
+
+	// `rgbToHsl`, `rgbToHsv`, `hslToRgb`, `hsvToRgb` modified from:
+	// <http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript>
+
+	// `rgbToRgb`
+	// Handle bounds / percentage checking to conform to CSS color spec
+	// <http://www.w3.org/TR/css3-color/>
+	// *Assumes:* r, g, b in [0, 255] or [0, 1]
+	// *Returns:* { r, g, b } in [0, 255]
+	function rgbToRgb(r, g, b) {
+		return {
+			r: bound01(r, 255) * 255,
+			g: bound01(g, 255) * 255,
+			b: bound01(b, 255) * 255
+		};
+	}
+
+	// `rgbToHsl`
+	// Converts an RGB color value to HSL.
+	// *Assumes:* r, g, and b are contained in [0, 255] or [0, 1]
+	// *Returns:* { h, s, l } in [0,1]
+	function rgbToHsl(r, g, b) {
+
+		r = bound01(r, 255);
+		g = bound01(g, 255);
+		b = bound01(b, 255);
+
+		var max = mathMax(r, g, b), min = mathMin(r, g, b);
+		var h, s, l = (max + min) / 2;
+
+		if (max == min) {
+			h = s = 0; // achromatic
+		}
+		else {
+			var d = max - min;
+			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+			switch (max) {
+				case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+				case g: h = (b - r) / d + 2; break;
+				case b: h = (r - g) / d + 4; break;
+			}
+
+			h /= 6;
+		}
+
+		return { h: h, s: s, l: l };
+	}
+
+	// `hslToRgb`
+	// Converts an HSL color value to RGB.
+	// *Assumes:* h is contained in [0, 1] or [0, 360] and s and l are contained [0, 1] or [0, 100]
+	// *Returns:* { r, g, b } in the set [0, 255]
+	function hslToRgb(h, s, l) {
+		var r, g, b;
+
+		h = bound01(h, 360);
+		s = bound01(s, 100);
+		l = bound01(l, 100);
+
+		function hue2rgb(p, q, t) {
+			if (t < 0) t += 1;
+			if (t > 1) t -= 1;
+			if (t < 1 / 6) return p + (q - p) * 6 * t;
+			if (t < 1 / 2) return q;
+			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+			return p;
+		}
+
+		if (s === 0) {
+			r = g = b = l; // achromatic
+		}
+		else {
+			var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+			var p = 2 * l - q;
+			r = hue2rgb(p, q, h + 1 / 3);
+			g = hue2rgb(p, q, h);
+			b = hue2rgb(p, q, h - 1 / 3);
+		}
+
+		return { r: r * 255, g: g * 255, b: b * 255 };
+	}
+
+	// `rgbToHsv`
+	// Converts an RGB color value to HSV
+	// *Assumes:* r, g, and b are contained in the set [0, 255] or [0, 1]
+	// *Returns:* { h, s, v } in [0,1]
+	function rgbToHsv(r, g, b) {
+
+		r = bound01(r, 255);
+		g = bound01(g, 255);
+		b = bound01(b, 255);
+
+		var max = mathMax(r, g, b), min = mathMin(r, g, b);
+		var h, s, v = max;
+
+		var d = max - min;
+		s = max === 0 ? 0 : d / max;
+
+		if (max == min) {
+			h = 0; // achromatic
+		}
+		else {
+			switch (max) {
+				case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+				case g: h = (b - r) / d + 2; break;
+				case b: h = (r - g) / d + 4; break;
+			}
+			h /= 6;
+		}
+		return { h: h, s: s, v: v };
+	}
+
+	// `hsvToRgb`
+	// Converts an HSV color value to RGB.
+	// *Assumes:* h is contained in [0, 1] or [0, 360] and s and v are contained in [0, 1] or [0, 100]
+	// *Returns:* { r, g, b } in the set [0, 255]
+	function hsvToRgb(h, s, v) {
+
+		h = bound01(h, 360) * 6;
+		s = bound01(s, 100);
+		v = bound01(v, 100);
+
+		var i = Math.floor(h),
+			f = h - i,
+			p = v * (1 - s),
+			q = v * (1 - f * s),
+			t = v * (1 - (1 - f) * s),
+			mod = i % 6,
+			r = [v, q, p, p, t, v][mod],
+			g = [t, v, v, q, p, p][mod],
+			b = [p, p, t, v, v, q][mod];
+
+		return { r: r * 255, g: g * 255, b: b * 255 };
+	}
+
+	// `rgbToHex`
+	// Converts an RGB color to hex
+	// Assumes r, g, and b are contained in the set [0, 255]
+	// Returns a 3 or 6 character hex
+	function rgbToHex(r, g, b, allow3Char) {
+
+		var hex = [
+			pad2(mathRound(r).toString(16)),
+			pad2(mathRound(g).toString(16)),
+			pad2(mathRound(b).toString(16))
+		];
+
+		// Return a 3 character hex if possible
+		if (allow3Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1)) {
+			return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0);
+		}
+
+		return hex.join("");
+	}
+
+	// `rgbaToHex`
+	// Converts an RGBA color plus alpha transparency to hex
+	// Assumes r, g, b are contained in the set [0, 255] and
+	// a in [0, 1]. Returns a 4 or 8 character rgba hex
+	function rgbaToHex(r, g, b, a, allow4Char) {
+
+		var hex = [
+			pad2(mathRound(r).toString(16)),
+			pad2(mathRound(g).toString(16)),
+			pad2(mathRound(b).toString(16)),
+			pad2(convertDecimalToHex(a))
+		];
+
+		// Return a 4 character hex if possible
+		if (allow4Char && hex[0].charAt(0) == hex[0].charAt(1) && hex[1].charAt(0) == hex[1].charAt(1) && hex[2].charAt(0) == hex[2].charAt(1) && hex[3].charAt(0) == hex[3].charAt(1)) {
+			return hex[0].charAt(0) + hex[1].charAt(0) + hex[2].charAt(0) + hex[3].charAt(0);
+		}
+
+		return hex.join("");
+	}
+
+	// `rgbaToArgbHex`
+	// Converts an RGBA color to an ARGB Hex8 string
+	// Rarely used, but required for "toFilter()"
+	function rgbaToArgbHex(r, g, b, a) {
+
+		var hex = [
+			pad2(convertDecimalToHex(a)),
+			pad2(mathRound(r).toString(16)),
+			pad2(mathRound(g).toString(16)),
+			pad2(mathRound(b).toString(16))
+		];
+
+		return hex.join("");
+	}
+
+	// `equals`
+	// Can be called with any tinycolor input
+	tinycolor.equals = function(color1, color2) {
+		if (!color1 || !color2) { return false; }
+		return tinycolor(color1).toRgbString() == tinycolor(color2).toRgbString();
+	};
+
+	tinycolor.random = function() {
+		return tinycolor.fromRatio({
+			r: mathRandom(),
+			g: mathRandom(),
+			b: mathRandom()
+		});
+	};
+
+
+	// Modification Functions
+	// ----------------------
+	// Thanks to less.js for some of the basics here
+	// <https://github.com/cloudhead/less.js/blob/master/lib/less/functions.js>
+
+	function desaturate(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.s -= amount / 100;
+		hsl.s = clamp01(hsl.s);
+		return tinycolor(hsl);
+	}
+
+	function saturate(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.s += amount / 100;
+		hsl.s = clamp01(hsl.s);
+		return tinycolor(hsl);
+	}
+
+	function greyscale(color) {
+		return tinycolor(color).desaturate(100);
+	}
+
+	function lighten(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.l += amount / 100;
+		hsl.l = clamp01(hsl.l);
+		return tinycolor(hsl);
+	}
+
+	function brighten(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var rgb = tinycolor(color).toRgb();
+		rgb.r = mathMax(0, mathMin(255, rgb.r - mathRound(255 * - (amount / 100))));
+		rgb.g = mathMax(0, mathMin(255, rgb.g - mathRound(255 * - (amount / 100))));
+		rgb.b = mathMax(0, mathMin(255, rgb.b - mathRound(255 * - (amount / 100))));
+		return tinycolor(rgb);
+	}
+
+	function darken(color, amount) {
+		amount = (amount === 0) ? 0 : (amount || 10);
+		var hsl = tinycolor(color).toHsl();
+		hsl.l -= amount / 100;
+		hsl.l = clamp01(hsl.l);
+		return tinycolor(hsl);
+	}
+
+	// Spin takes a positive or negative amount within [-360, 360] indicating the change of hue.
+	// Values outside of this range will be wrapped into this range.
+	function spin(color, amount) {
+		var hsl = tinycolor(color).toHsl();
+		var hue = (hsl.h + amount) % 360;
+		hsl.h = hue < 0 ? 360 + hue : hue;
+		return tinycolor(hsl);
+	}
+
+	// Combination Functions
+	// ---------------------
+	// Thanks to jQuery xColor for some of the ideas behind these
+	// <https://github.com/infusion/jQuery-xcolor/blob/master/jquery.xcolor.js>
+
+	function complement(color) {
+		var hsl = tinycolor(color).toHsl();
+		hsl.h = (hsl.h + 180) % 360;
+		return tinycolor(hsl);
+	}
+
+	function triad(color) {
+		var hsl = tinycolor(color).toHsl();
+		var h = hsl.h;
+		return [
+			tinycolor(color),
+			tinycolor({ h: (h + 120) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 240) % 360, s: hsl.s, l: hsl.l })
+		];
+	}
+
+	function tetrad(color) {
+		var hsl = tinycolor(color).toHsl();
+		var h = hsl.h;
+		return [
+			tinycolor(color),
+			tinycolor({ h: (h + 90) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 180) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 270) % 360, s: hsl.s, l: hsl.l })
+		];
+	}
+
+	function splitcomplement(color) {
+		var hsl = tinycolor(color).toHsl();
+		var h = hsl.h;
+		return [
+			tinycolor(color),
+			tinycolor({ h: (h + 72) % 360, s: hsl.s, l: hsl.l }),
+			tinycolor({ h: (h + 216) % 360, s: hsl.s, l: hsl.l })
+		];
+	}
+
+	function analogous(color, results, slices) {
+		results = results || 6;
+		slices = slices || 30;
+
+		var hsl = tinycolor(color).toHsl();
+		var part = 360 / slices;
+		var ret = [tinycolor(color)];
+
+		for (hsl.h = ((hsl.h - (part * results >> 1)) + 720) % 360; --results;) {
+			hsl.h = (hsl.h + part) % 360;
+			ret.push(tinycolor(hsl));
+		}
+		return ret;
+	}
+
+	function monochromatic(color, results) {
+		results = results || 6;
+		var hsv = tinycolor(color).toHsv();
+		var h = hsv.h, s = hsv.s, v = hsv.v;
+		var ret = [];
+		var modification = 1 / results;
+
+		while (results--) {
+			ret.push(tinycolor({ h: h, s: s, v: v }));
+			v = (v + modification) % 1;
+		}
+
+		return ret;
+	}
+
+	// Utility Functions
+	// ---------------------
+
+	tinycolor.mix = function(color1, color2, amount) {
+		amount = (amount === 0) ? 0 : (amount || 50);
+
+		var rgb1 = tinycolor(color1).toRgb();
+		var rgb2 = tinycolor(color2).toRgb();
+
+		var p = amount / 100;
+
+		var rgba = {
+			r: ((rgb2.r - rgb1.r) * p) + rgb1.r,
+			g: ((rgb2.g - rgb1.g) * p) + rgb1.g,
+			b: ((rgb2.b - rgb1.b) * p) + rgb1.b,
+			a: ((rgb2.a - rgb1.a) * p) + rgb1.a
+		};
+
+		return tinycolor(rgba);
+	};
+
+
+	// Readability Functions
+	// ---------------------
+	// <http://www.w3.org/TR/2008/REC-WCAG20-20081211/#contrast-ratiodef (WCAG Version 2)
+
+	// `contrast`
+	// Analyze the 2 colors and returns the color contrast defined by (WCAG Version 2)
+	tinycolor.readability = function(color1, color2) {
+		var c1 = tinycolor(color1);
+		var c2 = tinycolor(color2);
+		return (Math.max(c1.getLuminance(), c2.getLuminance()) + 0.05) / (Math.min(c1.getLuminance(), c2.getLuminance()) + 0.05);
+	};
+
+	// `isReadable`
+	// Ensure that foreground and background color combinations meet WCAG2 guidelines.
+	// The third argument is an optional Object.
+	//      the 'level' property states 'AA' or 'AAA' - if missing or invalid, it defaults to 'AA';
+	//      the 'size' property states 'large' or 'small' - if missing or invalid, it defaults to 'small'.
+	// If the entire object is absent, isReadable defaults to {level:"AA",size:"small"}.
+
+	// *Example*
+	//    tinycolor.isReadable("#000", "#111") => false
+	//    tinycolor.isReadable("#000", "#111",{level:"AA",size:"large"}) => false
+	tinycolor.isReadable = function(color1, color2, wcag2) {
+		var readability = tinycolor.readability(color1, color2);
+		var wcag2Parms, out;
+
+		out = false;
+
+		wcag2Parms = validateWCAG2Parms(wcag2);
+		switch (wcag2Parms.level + wcag2Parms.size) {
+			case "AAsmall":
+			case "AAAlarge":
+				out = readability >= 4.5;
+				break;
+			case "AAlarge":
+				out = readability >= 3;
+				break;
+			case "AAAsmall":
+				out = readability >= 7;
+				break;
+		}
+		return out;
+
+	};
+
+	// `mostReadable`
+	// Given a base color and a list of possible foreground or background
+	// colors for that base, returns the most readable color.
+	// Optionally returns Black or White if the most readable color is unreadable.
+	// *Example*
+	//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:false}).toHexString(); // "#112255"
+	//    tinycolor.mostReadable(tinycolor.mostReadable("#123", ["#124", "#125"],{includeFallbackColors:true}).toHexString();  // "#ffffff"
+	//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"large"}).toHexString(); // "#faf3f3"
+	//    tinycolor.mostReadable("#a8015a", ["#faf3f3"],{includeFallbackColors:true,level:"AAA",size:"small"}).toHexString(); // "#ffffff"
+	tinycolor.mostReadable = function(baseColor, colorList, args) {
+		var bestColor = null;
+		var bestScore = 0;
+		var readability;
+		var includeFallbackColors, level, size;
+		args = args || {};
+		includeFallbackColors = args.includeFallbackColors;
+		level = args.level;
+		size = args.size;
+
+		for (var i = 0; i < colorList.length; i++) {
+			readability = tinycolor.readability(baseColor, colorList[i]);
+			if (readability > bestScore) {
+				bestScore = readability;
+				bestColor = tinycolor(colorList[i]);
+			}
+		}
+
+		if (tinycolor.isReadable(baseColor, bestColor, { "level": level, "size": size }) || !includeFallbackColors) {
+			return bestColor;
+		}
+		else {
+			args.includeFallbackColors = false;
+			return tinycolor.mostReadable(baseColor, ["#fff", "#000"], args);
+		}
+	};
+
+
+	// Big List of Colors
+	// ------------------
+	// <http://www.w3.org/TR/css3-color/#svg-color>
+	var names = tinycolor.names = {
+		aliceblue: "f0f8ff",
+		antiquewhite: "faebd7",
+		aqua: "0ff",
+		aquamarine: "7fffd4",
+		azure: "f0ffff",
+		beige: "f5f5dc",
+		bisque: "ffe4c4",
+		black: "000",
+		blanchedalmond: "ffebcd",
+		blue: "00f",
+		blueviolet: "8a2be2",
+		brown: "a52a2a",
+		burlywood: "deb887",
+		burntsienna: "ea7e5d",
+		cadetblue: "5f9ea0",
+		chartreuse: "7fff00",
+		chocolate: "d2691e",
+		coral: "ff7f50",
+		cornflowerblue: "6495ed",
+		cornsilk: "fff8dc",
+		crimson: "dc143c",
+		cyan: "0ff",
+		darkblue: "00008b",
+		darkcyan: "008b8b",
+		darkgoldenrod: "b8860b",
+		darkgray: "a9a9a9",
+		darkgreen: "006400",
+		darkgrey: "a9a9a9",
+		darkkhaki: "bdb76b",
+		darkmagenta: "8b008b",
+		darkolivegreen: "556b2f",
+		darkorange: "ff8c00",
+		darkorchid: "9932cc",
+		darkred: "8b0000",
+		darksalmon: "e9967a",
+		darkseagreen: "8fbc8f",
+		darkslateblue: "483d8b",
+		darkslategray: "2f4f4f",
+		darkslategrey: "2f4f4f",
+		darkturquoise: "00ced1",
+		darkviolet: "9400d3",
+		deeppink: "ff1493",
+		deepskyblue: "00bfff",
+		dimgray: "696969",
+		dimgrey: "696969",
+		dodgerblue: "1e90ff",
+		firebrick: "b22222",
+		floralwhite: "fffaf0",
+		forestgreen: "228b22",
+		fuchsia: "f0f",
+		gainsboro: "dcdcdc",
+		ghostwhite: "f8f8ff",
+		gold: "ffd700",
+		goldenrod: "daa520",
+		gray: "808080",
+		green: "008000",
+		greenyellow: "adff2f",
+		grey: "808080",
+		honeydew: "f0fff0",
+		hotpink: "ff69b4",
+		indianred: "cd5c5c",
+		indigo: "4b0082",
+		ivory: "fffff0",
+		khaki: "f0e68c",
+		lavender: "e6e6fa",
+		lavenderblush: "fff0f5",
+		lawngreen: "7cfc00",
+		lemonchiffon: "fffacd",
+		lightblue: "add8e6",
+		lightcoral: "f08080",
+		lightcyan: "e0ffff",
+		lightgoldenrodyellow: "fafad2",
+		lightgray: "d3d3d3",
+		lightgreen: "90ee90",
+		lightgrey: "d3d3d3",
+		lightpink: "ffb6c1",
+		lightsalmon: "ffa07a",
+		lightseagreen: "20b2aa",
+		lightskyblue: "87cefa",
+		lightslategray: "789",
+		lightslategrey: "789",
+		lightsteelblue: "b0c4de",
+		lightyellow: "ffffe0",
+		lime: "0f0",
+		limegreen: "32cd32",
+		linen: "faf0e6",
+		magenta: "f0f",
+		maroon: "800000",
+		mediumaquamarine: "66cdaa",
+		mediumblue: "0000cd",
+		mediumorchid: "ba55d3",
+		mediumpurple: "9370db",
+		mediumseagreen: "3cb371",
+		mediumslateblue: "7b68ee",
+		mediumspringgreen: "00fa9a",
+		mediumturquoise: "48d1cc",
+		mediumvioletred: "c71585",
+		midnightblue: "191970",
+		mintcream: "f5fffa",
+		mistyrose: "ffe4e1",
+		moccasin: "ffe4b5",
+		navajowhite: "ffdead",
+		navy: "000080",
+		oldlace: "fdf5e6",
+		olive: "808000",
+		olivedrab: "6b8e23",
+		orange: "ffa500",
+		orangered: "ff4500",
+		orchid: "da70d6",
+		palegoldenrod: "eee8aa",
+		palegreen: "98fb98",
+		paleturquoise: "afeeee",
+		palevioletred: "db7093",
+		papayawhip: "ffefd5",
+		peachpuff: "ffdab9",
+		peru: "cd853f",
+		pink: "ffc0cb",
+		plum: "dda0dd",
+		powderblue: "b0e0e6",
+		purple: "800080",
+		rebeccapurple: "663399",
+		red: "f00",
+		rosybrown: "bc8f8f",
+		royalblue: "4169e1",
+		saddlebrown: "8b4513",
+		salmon: "fa8072",
+		sandybrown: "f4a460",
+		seagreen: "2e8b57",
+		seashell: "fff5ee",
+		sienna: "a0522d",
+		silver: "c0c0c0",
+		skyblue: "87ceeb",
+		slateblue: "6a5acd",
+		slategray: "708090",
+		slategrey: "708090",
+		snow: "fffafa",
+		springgreen: "00ff7f",
+		steelblue: "4682b4",
+		tan: "d2b48c",
+		teal: "008080",
+		thistle: "d8bfd8",
+		tomato: "ff6347",
+		turquoise: "40e0d0",
+		violet: "ee82ee",
+		wheat: "f5deb3",
+		white: "fff",
+		whitesmoke: "f5f5f5",
+		yellow: "ff0",
+		yellowgreen: "9acd32"
+	};
+
+	// Make it easy to access colors via `hexNames[hex]`
+	var hexNames = tinycolor.hexNames = flip(names);
+
+
+	// Utilities
+	// ---------
+
+	// `{ 'name1': 'val1' }` becomes `{ 'val1': 'name1' }`
+	function flip(o) {
+		var flipped = {};
+		for (var i in o) {
+			if (o.hasOwnProperty(i)) {
+				flipped[o[i]] = i;
+			}
+		}
+		return flipped;
+	}
+
+	// Return a valid alpha value [0,1] with all invalid values being set to 1
+	function boundAlpha(a) {
+		a = parseFloat(a);
+
+		if (isNaN(a) || a < 0 || a > 1) {
+			a = 1;
+		}
+
+		return a;
+	}
+
+	// Take input from [0, n] and return it as [0, 1]
+	function bound01(n, max) {
+		if (isOnePointZero(n)) { n = "100%"; }
+
+		var processPercent = isPercentage(n);
+		n = mathMin(max, mathMax(0, parseFloat(n)));
+
+		// Automatically convert percentage into number
+		if (processPercent) {
+			n = parseInt(n * max, 10) / 100;
+		}
+
+		// Handle floating point rounding errors
+		if ((Math.abs(n - max) < 0.000001)) {
+			return 1;
+		}
+
+		// Convert into [0, 1] range if it isn't already
+		return (n % max) / parseFloat(max);
+	}
+
+	// Force a number between 0 and 1
+	function clamp01(val) {
+		return mathMin(1, mathMax(0, val));
+	}
+
+	// Parse a base-16 hex value into a base-10 integer
+	function parseIntFromHex(val) {
+		return parseInt(val, 16);
+	}
+
+	// Need to handle 1.0 as 100%, since once it is a number, there is no difference between it and 1
+	// <http://stackoverflow.com/questions/7422072/javascript-how-to-detect-number-as-a-decimal-including-1-0>
+	function isOnePointZero(n) {
+		return typeof n == "string" && n.indexOf('.') != -1 && parseFloat(n) === 1;
+	}
+
+	// Check to see if string passed in is a percentage
+	function isPercentage(n) {
+		return typeof n === "string" && n.indexOf('%') != -1;
+	}
+
+	// Force a hex value to have 2 characters
+	function pad2(c) {
+		return c.length == 1 ? '0' + c : '' + c;
+	}
+
+	// Replace a decimal with it's percentage value
+	function convertToPercentage(n) {
+		if (n <= 1) {
+			n = (n * 100) + "%";
+		}
+
+		return n;
+	}
+
+	// Converts a decimal to a hex value
+	function convertDecimalToHex(d) {
+		return Math.round(parseFloat(d) * 255).toString(16);
+	}
+	// Converts a hex value to a decimal
+	function convertHexToDecimal(h) {
+		return (parseIntFromHex(h) / 255);
+	}
+
+	var matchers = (function() {
+
+		// <http://www.w3.org/TR/css3-values/#integers>
+		var CSS_INTEGER = "[-\\+]?\\d+%?";
+
+		// <http://www.w3.org/TR/css3-values/#number-value>
+		var CSS_NUMBER = "[-\\+]?\\d*\\.\\d+%?";
+
+		// Allow positive/negative integer/number.  Don't capture the either/or, just the entire outcome.
+		var CSS_UNIT = "(?:" + CSS_NUMBER + ")|(?:" + CSS_INTEGER + ")";
+
+		// Actual matching.
+		// Parentheses and commas are optional, but not required.
+		// Whitespace can take the place of commas or opening paren
+		var PERMISSIVE_MATCH3 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+		var PERMISSIVE_MATCH4 = "[\\s|\\(]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")[,|\\s]+(" + CSS_UNIT + ")\\s*\\)?";
+
+		return {
+			CSS_UNIT: new RegExp(CSS_UNIT),
+			rgb: new RegExp("rgb" + PERMISSIVE_MATCH3),
+			rgba: new RegExp("rgba" + PERMISSIVE_MATCH4),
+			hsl: new RegExp("hsl" + PERMISSIVE_MATCH3),
+			hsla: new RegExp("hsla" + PERMISSIVE_MATCH4),
+			hsv: new RegExp("hsv" + PERMISSIVE_MATCH3),
+			hsva: new RegExp("hsva" + PERMISSIVE_MATCH4),
+			hex3: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+			hex6: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+			hex4: /^#?([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})([0-9a-fA-F]{1})$/,
+			hex8: /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/
+		};
+	})();
+
+	// `isValidCSSUnit`
+	// Take in a single string / number and check to see if it looks like a CSS unit
+	// (see `matchers` above for definition).
+	function isValidCSSUnit(color) {
+		return !!matchers.CSS_UNIT.exec(color);
+	}
+
+	// `stringInputToObject`
+	// Permissive string parsing.  Take in a number of formats, and output an object
+	// based on detected format.  Returns `{ r, g, b }` or `{ h, s, l }` or `{ h, s, v}`
+	function stringInputToObject(color) {
+
+		color = color.replace(trimLeft, '').replace(trimRight, '').toLowerCase();
+		var named = false;
+		if (names[color]) {
+			color = names[color];
+			named = true;
+		}
+		else if (color == 'transparent') {
+			return { r: 0, g: 0, b: 0, a: 0, format: "name" };
+		}
+
+		// Try to match string input using regular expressions.
+		// Keep most of the number bounding out of this function - don't worry about [0,1] or [0,100] or [0,360]
+		// Just return an object and let the conversion functions handle that.
+		// This way the result will be the same whether the tinycolor is initialized with string or object.
+		var match;
+		if ((match = matchers.rgb.exec(color))) {
+			return { r: match[1], g: match[2], b: match[3] };
+		}
+		if ((match = matchers.rgba.exec(color))) {
+			return { r: match[1], g: match[2], b: match[3], a: match[4] };
+		}
+		if ((match = matchers.hsl.exec(color))) {
+			return { h: match[1], s: match[2], l: match[3] };
+		}
+		if ((match = matchers.hsla.exec(color))) {
+			return { h: match[1], s: match[2], l: match[3], a: match[4] };
+		}
+		if ((match = matchers.hsv.exec(color))) {
+			return { h: match[1], s: match[2], v: match[3] };
+		}
+		if ((match = matchers.hsva.exec(color))) {
+			return { h: match[1], s: match[2], v: match[3], a: match[4] };
+		}
+		if ((match = matchers.hex8.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1]),
+				g: parseIntFromHex(match[2]),
+				b: parseIntFromHex(match[3]),
+				a: convertHexToDecimal(match[4]),
+				format: named ? "name" : "hex8"
+			};
+		}
+		if ((match = matchers.hex6.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1]),
+				g: parseIntFromHex(match[2]),
+				b: parseIntFromHex(match[3]),
+				format: named ? "name" : "hex"
+			};
+		}
+		if ((match = matchers.hex4.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1] + '' + match[1]),
+				g: parseIntFromHex(match[2] + '' + match[2]),
+				b: parseIntFromHex(match[3] + '' + match[3]),
+				a: convertHexToDecimal(match[4] + '' + match[4]),
+				format: named ? "name" : "hex8"
+			};
+		}
+		if ((match = matchers.hex3.exec(color))) {
+			return {
+				r: parseIntFromHex(match[1] + '' + match[1]),
+				g: parseIntFromHex(match[2] + '' + match[2]),
+				b: parseIntFromHex(match[3] + '' + match[3]),
+				format: named ? "name" : "hex"
+			};
+		}
+
+		return false;
+	}
+
+	function validateWCAG2Parms(parms) {
+		// return valid WCAG2 parms for isReadable.
+		// If input parms are invalid, return {"level":"AA", "size":"small"}
+		var level, size;
+		parms = parms || { "level": "AA", "size": "small" };
+		level = (parms.level || "AA").toUpperCase();
+		size = (parms.size || "small").toLowerCase();
+		if (level !== "AA" && level !== "AAA") {
+			level = "AA";
+		}
+		if (size !== "small" && size !== "large") {
+			size = "small";
+		}
+		return { "level": level, "size": size };
+	}
+
+	return tinycolor;
+});
+
+mblowfish.factory('MbColorGradientCanvas', function() {
+
+	var canvasTypes = {
+		hue: {
+			getColorByPoint: function(x, y) {
+				var imageData = this.getImageData(x, y);
+				this.setMarkerCenter(y);
+
+				var hsl = new MbColor({ r: imageData[0], g: imageData[1], b: imageData[2] });
+				return hsl.toHsl().h;
+			},
+			draw: function() {
+				this.$element.css({ 'height': this.height + 'px' });
+
+				this.canvas.height = this.height;
+				this.canvas.width = this.height;
+
+				// Create gradient
+				var hueGrd = this.context.createLinearGradient(90, 0.000, 90, this.height);
+
+				// Add colors
+				hueGrd.addColorStop(0.01, 'rgba(255, 0, 0, 1.000)');
+				hueGrd.addColorStop(0.167, 'rgba(255, 0, 255, 1.000)');
+				hueGrd.addColorStop(0.333, 'rgba(0, 0, 255, 1.000)');
+				hueGrd.addColorStop(0.500, 'rgba(0, 255, 255, 1.000)');
+				hueGrd.addColorStop(0.666, 'rgba(0, 255, 0, 1.000)');
+				hueGrd.addColorStop(0.828, 'rgba(255, 255, 0, 1.000)');
+				hueGrd.addColorStop(0.999, 'rgba(255, 0, 0, 1.000)');
+
+				// Fill with gradient
+				this.context.fillStyle = hueGrd;
+				this.context.fillRect(0, 0, this.canvas.width, this.height);
+			}
+		},
+		alpha: {
+			getColorByPoint: function(x, y) {
+				var imageData = this.getImageData(x, y);
+				this.setMarkerCenter(y);
+
+				return imageData[3] / 255;
+			},
+			draw: function() {
+				this.$element.css({ 'height': this.height + 'px' });
+
+				this.canvas.height = this.height;
+				this.canvas.width = this.height;
+
+				// Create gradient
+				var hueGrd = this.context.createLinearGradient(90, 0.000, 90, this.height);
+
+				// Add colors
+				hueGrd.addColorStop(0.01, 'rgba(' + this.currentColor.r + ',' + this.currentColor.g + ',' + this.currentColor.b + ', 1.000)');
+				hueGrd.addColorStop(0.99, 'rgba(' + this.currentColor.r + ',' + this.currentColor.g + ',' + this.currentColor.b + ', 0.000)');
+
+				// Fill with gradient
+				this.context.fillStyle = hueGrd;
+				this.context.fillRect(-1, -1, this.canvas.width + 2, this.height + 2);
+			},
+			extra: function() {
+				this.$scope.$on('mbColorPicker:spectrumColorChange', angular.bind(this, function(e, args) {
+					this.currentColor = args.color;
+					this.draw();
+				}));
+			}
+		},
+		spectrum: {
+			getColorByPoint: function(x, y) {
+
+				var imageData = this.getImageData(x, y);
+				this.setMarkerCenter(x, y);
+
+				return {
+					r: imageData[0],
+					g: imageData[1],
+					b: imageData[2]
+				};
+			},
+			draw: function() {
+				this.canvas.height = this.height;
+				this.canvas.width = this.height;
+				this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+				// Odd bug prevented selecting min, max ranges from all gradients.
+				// Start at 0.01, end at 0.99 and stretch it to 1px larger in each direction
+
+				// White gradient
+				var whiteGrd = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
+
+
+				whiteGrd.addColorStop(0.01, 'rgba(255, 255, 255, 1.000)');
+				whiteGrd.addColorStop(0.99, 'rgba(255, 255, 255, 0.000)');
+
+				// Black Gradient
+				var blackGrd = this.context.createLinearGradient(0, 0, 0, this.canvas.height);
+
+
+				blackGrd.addColorStop(0.01, 'rgba(0, 0, 0, 0.000)');
+				blackGrd.addColorStop(0.99, 'rgba(0, 0, 0, 1.000)');
+
+				// Fill with solid
+				this.context.fillStyle = 'hsl( ' + this.currentHue + ', 100%, 50%)';
+				this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+				// Fill with white
+				// Odd bug prevented selecting min, max ranges from all gradients
+				this.context.fillStyle = whiteGrd;
+				this.context.fillRect(-1, -1, this.canvas.width + 2, this.canvas.height + 2);
+
+				// Fill with black
+				// Odd bug prevented selecting min, max ranges from all gradients
+				this.context.fillStyle = blackGrd;
+				this.context.fillRect(-1, -1, this.canvas.width + 2, this.canvas.height + 2);
+			},
+			extra: function() {
+				this.$scope.$on('mbColorPicker:spectrumHueChange', angular.bind(this, function(e, args) {
+					this.currentHue = args.hue;
+					this.draw();
+					var markerPos = this.getMarkerCenter();
+					var color = this.getColorByPoint(markerPos.x, markerPos.y);
+					this.setColor(color);
+
+				}));
+			}
+		}
+
+	};
+
+
+	function GradientCanvas(type, restrictX) {
+
+		this.type = type;
+		this.restrictX = restrictX;
+		this.offset = {
+			x: null,
+			y: null
+		};
+		this.height = 255;
+
+		this.$scope = null;
+		this.$element = null;
+
+		this.get = angular.bind(this, function($temp_scope, $temp_element/*, $temp_attrs*/) {
+			////////////////////////////
+			// Variables
+			////////////////////////////
+
+			this.$scope = $temp_scope;
+			this.$element = $temp_element;
+
+
+			this.canvas = this.$element.children()[0];
+			this.marker = this.$element.children()[1];
+			this.context = this.canvas.getContext('2d');
+			this.currentColor = this.$scope.color.toRgb();
+			this.currentHue = this.$scope.color.toHsv().h;
+			////////////////////////////
+			// Watchers, Observes, Events
+			////////////////////////////
+
+			//$scope.$watch( function() { return color.getRgb(); }, hslObserver, true );
+
+
+			this.$element.on('touchstart mousedown', angular.bind(this, this.onMouseDown));
+			this.$scope.$on('mbColorPicker:colorSet', angular.bind(this, this.onColorSet));
+			if (this.extra) {
+				this.extra();
+			}
+			////////////////////////////
+			// init
+			////////////////////////////
+
+			this.draw();
+		});
+
+		//return angular.bind( this, this.get );
+
+	}
+
+	GradientCanvas.prototype.$window = angular.element(window);
+
+	GradientCanvas.prototype.getColorByMouse = function(e) {
+
+		var te = e.touches && e.touches[0];
+
+		var pageX = te && te.pageX || e.pageX;
+		var pageY = te && te.pageY || e.pageY;
+
+		var x = Math.round(pageX - this.offset.x);
+		var y = Math.round(pageY - this.offset.y);
+
+		return this.getColorByPoint(x, y);
+	};
+
+	GradientCanvas.prototype.setMarkerCenter = function(x, y) {
+		var xOffset = -1 * this.marker.offsetWidth / 2;
+		var yOffset = -1 * this.marker.offsetHeight / 2;
+		var xAdjusted, xFinal, yAdjusted, yFinal;
+
+		if (y === undefined) {
+			yAdjusted = x + yOffset;
+			yFinal = Math.round(Math.max(Math.min(this.height - 1 + yOffset, yAdjusted), yOffset));
+
+			xFinal = 0;
+		} else {
+			xAdjusted = x + xOffset;
+			yAdjusted = y + yOffset;
+
+			xFinal = Math.floor(Math.max(Math.min(this.height + xOffset, xAdjusted), xOffset));
+			yFinal = Math.floor(Math.max(Math.min(this.height + yOffset, yAdjusted), yOffset));
+			// Debug output
+			// console.log( "Raw: ", x+','+y, "Adjusted: ", xAdjusted + ',' + yAdjusted, "Final: ", xFinal + ',' + yFinal );
+		}
+
+
+
+		angular.element(this.marker).css({ 'left': xFinal + 'px' });
+		angular.element(this.marker).css({ 'top': yFinal + 'px' });
+	};
+
+	GradientCanvas.prototype.getMarkerCenter = function() {
+		var returnObj = {
+			x: this.marker.offsetLeft + (Math.floor(this.marker.offsetWidth / 2)),
+			y: this.marker.offsetTop + (Math.floor(this.marker.offsetHeight / 2))
+		};
+		return returnObj;
+	};
+
+	GradientCanvas.prototype.getImageData = function(x, y) {
+		x = Math.max(0, Math.min(x, this.canvas.width - 1));
+		y = Math.max(0, Math.min(y, this.canvas.height - 1));
+
+		var imageData = this.context.getImageData(x, y, 1, 1).data;
+		return imageData;
+	};
+
+	GradientCanvas.prototype.onMouseDown = function(e) {
+		// Prevent highlighting
+		e.preventDefault();
+		e.stopImmediatePropagation();
+
+		this.$scope.previewUnfocus();
+
+		this.$element.css({ 'cursor': 'none' });
+
+		this.offset.x = this.canvas.getBoundingClientRect().left;
+		this.offset.y = this.canvas.getBoundingClientRect().top;
+
+		var fn = angular.bind(this, function(e) {
+			switch (this.type) {
+				case 'hue':
+					var hue = this.getColorByMouse(e);
+					this.$scope.$broadcast('mbColorPicker:spectrumHueChange', { hue: hue });
+					break;
+				case 'alpha':
+					var alpha = this.getColorByMouse(e);
+					this.$scope.color.setAlpha(alpha);
+					this.$scope.alpha = alpha;
+					this.$scope.$apply();
+					break;
+				case 'spectrum':
+					var color = this.getColorByMouse(e);
+					this.setColor(color);
+					break;
+			}
+		});
+
+		this.$window.on('touchmove mousemove', fn);
+		this.$window.one('touchend mouseup', angular.bind(this, function(/*e*/) {
+			this.$window.off('touchmove mousemove', fn);
+			this.$element.css({ 'cursor': 'crosshair' });
+		}));
+
+		// Set the color
+		fn(e);
+	};
+
+	GradientCanvas.prototype.setColor = function(color) {
+
+		this.$scope.color._r = color.r;
+		this.$scope.color._g = color.g;
+		this.$scope.color._b = color.b;
+		this.$scope.$apply();
+		this.$scope.$broadcast('mbColorPicker:spectrumColorChange', { color: color });
+	};
+
+	GradientCanvas.prototype.onColorSet = function(e, args) {
+		var hsv;
+		switch (this.type) {
+			case 'hue': {
+				hsv = this.$scope.color.toHsv();
+				this.setMarkerCenter(this.canvas.height - (this.canvas.height * (hsv.h / 360)));
+				break;
+			}
+			case 'alpha': {
+				this.currentColor = args.color.toRgb();
+				this.draw();
+
+				var alpha = args.color.getAlpha();
+				var pos = this.canvas.height - (this.canvas.height * alpha);
+
+				this.setMarkerCenter(pos);
+				break;
+			}
+			case 'spectrum': {
+				hsv = args.color.toHsv();
+				this.currentHue = hsv.h;
+				this.draw();
+
+				var posX = this.canvas.width * hsv.s;
+				var posY = this.canvas.height - (this.canvas.height * hsv.v);
+
+				this.setMarkerCenter(posX, posY);
+				break;
+			}
+		}
+
+	};
+
+
+
+
+
+	return function gradientCanvas(type) {
+		var canvas = new GradientCanvas(type, type !== 'spectrum');
+		canvas = angular.merge(canvas, canvasTypes[type]);
+		return {
+			template: '<canvas width="100%" height="100%"></canvas><div class="mb-color-picker-marker"></div>',
+			link: canvas.get,
+			controller: function() {
+				//	console.log( "mbColorPickerAlpha Controller", Date.now() - dateClick );
+			}
+		};
+	};
+});
+
+mblowfish.factory('MbColorPicker', function($mdDialog, MbColorPickerHistory, MbColor) {
+	var dialog;
+
+	return {
+		show: function(options) {
+			if (options === undefined) {
+				options = {};
+			}
+			//console.log( 'DIALOG OPTIONS', options );
+			// Defaults
+			// Dialog Properties
+			options.hasBackdrop = options.hasBackdrop === undefined ? true : options.hasBackdrop;
+			options.clickOutsideToClose = options.clickOutsideToClose === undefined ? true : options.clickOutsideToClose;
+			options.defaultValue = options.defaultValue === undefined ? '#FFFFFF' : options.defaultValue;
+			options.focusOnOpen = options.focusOnOpen === undefined ? false : options.focusOnOpen;
+			options.preserveScope = options.preserveScope === undefined ? true : options.preserveScope;
+			options.skipHide = options.skipHide === undefined ? true : options.skipHide;
+
+			// mbColorPicker Properties
+			options.mbColorAlphaChannel = options.mbColorAlphaChannel === undefined ? false : options.mbColorAlphaChannel;
+			options.mbColorSpectrum = options.mbColorSpectrum === undefined ? true : options.mbColorSpectrum;
+			options.mbColorSliders = options.mbColorSliders === undefined ? true : options.mbColorSliders;
+			options.mbColorGenericPalette = options.mbColorGenericPalette === undefined ? true : options.mbColorGenericPalette;
+			options.mbColorMaterialPalette = options.mbColorMaterialPalette === undefined ? true : options.mbColorMaterialPalette;
+			options.mbColorHistory = options.mbColorHistory === undefined ? true : options.mbColorHistory;
+			options.mbColorRgb = options.mbColorRgb === undefined ? true : options.mbColorRgb;
+			options.mbColorHsl = options.mbColorHsl === undefined ? true : options.mbColorHsl;
+			options.mbColorHex = ((options.mbColorHex === undefined) || (!options.mbColorRgb && !options.mbColorHsl)) ? true : options.mbColorHex;
+			options.mbColorAlphaChannel = (!options.mbColorRgb && !options.mbColorHsl) ? false : options.mbColorAlphaChannel;
+
+			dialog = $mdDialog.show({
+				templateUrl: 'scripts/module-ui/factories/MbColorPicker.html',
+				hasBackdrop: options.hasBackdrop,
+				clickOutsideToClose: options.clickOutsideToClose,
+
+				controller: ['$scope', 'options', function($scope, options) {
+					//console.log( "DIALOG CONTROLLER OPEN", Date.now() - dateClick );
+					$scope.close = function close() {
+						$mdDialog.cancel();
+					};
+					$scope.ok = function ok() {
+						$mdDialog.hide($scope.value);
+					};
+					$scope.hide = $scope.ok;
+
+
+
+					$scope.value = options.value;
+					$scope.default = options.defaultValue;
+					$scope.random = options.random;
+
+					$scope.mbColorAlphaChannel = options.mbColorAlphaChannel;
+					$scope.mbColorSpectrum = options.mbColorSpectrum;
+					$scope.mbColorSliders = options.mbColorSliders;
+					$scope.mbColorGenericPalette = options.mbColorGenericPalette;
+					$scope.mbColorMaterialPalette = options.mbColorMaterialPalette;
+					$scope.mbColorHistory = options.mbColorHistory;
+					$scope.mbColorHex = options.mbColorHex;
+					$scope.mbColorRgb = options.mbColorRgb;
+					$scope.mbColorHsl = options.mbColorHsl;
+					$scope.mbColorDefaultTab = options.mbColorDefaultTab;
+
+				}],
+
+				locals: {
+					options: options
+				},
+				preserveScope: options.preserveScope,
+				skipHide: options.skipHide,
+
+				targetEvent: options.$event,
+				focusOnOpen: options.focusOnOpen,
+				autoWrap: false,
+				onShowing: function() {
+					//		console.log( "DIALOG OPEN START", Date.now() - dateClick );
+				},
+				onComplete: function() {
+					//		console.log( "DIALOG OPEN COMPLETE", Date.now() - dateClick );
+				}
+			});
+
+			dialog.then(function(value) {
+				MbColorPickerHistory.add(new MbColor(value));
+			}, function() { });
+
+			return dialog;
+		},
+		hide: function() {
+			return dialog.hide();
+		},
+		cancel: function() {
+			return dialog.cancel();
+		}
+	};
+});
+mblowfish.factory('MbColorPickerHistory', function($injector, MbColor) {
+
+	var history = [];
+	var strHistory = [];
+
+	var $cookies = false;
+	try {
+		$cookies = $injector.get('$cookies');
+	} catch (e) {
+		// Handler error
+	}
+
+	if ($cookies) {
+		var tmpHistory = $cookies.getObject('mbColorPickerHistory') || [];
+		for (var i = 0; i < tmpHistory.length; i++) {
+			history.push(new MbColor(tmpHistory[i]));
+			strHistory.push(tmpHistory[i]);
+		}
+	}
+
+	var length = 40;
+
+	return {
+		length: function() {
+			if (arguments[0]) {
+				length = arguments[0];
+			} else {
+				return history.length;
+			}
+		},
+		add: function(color) {
+			for (var x = 0; x < history.length; x++) {
+				if (history[x].toRgbString() === color.toRgbString()) {
+					history.splice(x, 1);
+					strHistory.splice(x, 1);
+				}
+			}
+
+			history.unshift(color);
+			strHistory.unshift(color.toRgbString());
+
+			if (history.length > length) {
+				history.pop();
+				strHistory.pop();
+			}
+			if ($cookies) {
+				$cookies.putObject('mbColorPickerHistory', strHistory);
+			}
+		},
+		get: function() {
+			return history;
+		},
+		reset: function() {
+			history = [];
+			strHistory = [];
+			if ($cookies) {
+				$cookies.putObject('mbColorPickerHistory', strHistory);
+			}
+		}
+	};
+});
+
+
+
+mblowfish.filter('mbTrusted', function($sce) {
+	'ngInject';
+	return function(url) {
+		return $sce.trustAsResourceUrl(url);
+	};
+});
+
+mblowfish.resource('local-file', {
+	icon: 'file_upload',
+	label: 'Local file',
+	templateUrl: 'scripts/module-ui/resources/file.html',
+	controller: function($scope, $resource, $style) {
+		'ngInject';
+		var ctrl = this;
+		function setFile(files) {
+			var val;
+			if (angular.isArray(files) && files.length) {
+				val = files[0];
+			}
+			$resource.setValue(val);
+		}
+		ctrl.files = [];
+		_.assign(ctrl, {
+			$style: $style,
+			setFile: setFile
+		});
+	},
+	controllerAs: 'ctrl',
+	priority: 1,
+	tags: ['file']
+});
+mblowfish.resource('local-files', {
+	icon: 'file_upload',
+	label: 'Local files',
+	templateUrl: 'scripts/module-ui/resources/files.html',
+	controller: function($resource, $style) {
+		'ngInject';
+		var ctrl = this;
+		function setFiles(files) {
+			$resource.setValue(files);
+		}
+		ctrl.files = [];
+		_.assign(ctrl, {
+			$style: $style,
+			setFiles: setFiles
+		});
+	},
+	controllerAs: 'ctrl',
+	priority: 1,
+	tags: ['files']
+});
+mblowfish.resource('wb-url', {
+	title: 'URL',
+	icon: 'link',
+	templateUrl: 'scripts/module-ui/resources/url.html',
+	controller: function($scope, $resource, $style) {
+		'ngInject';
+		var ctrl = this;
+		$scope.url = $resource.getValue();
+		if (!_.isString($scope.url)) {
+			$scope.url = '';
+		}
+		function setUrl(url) {
+			$resource.setValue(url);
+		}
+		_.assign(ctrl, {
+			$style: $style,
+			setUrl: setUrl
+		});
+	},
+	controllerAs: 'ctrl',
+	tags: [
+		'url',
+		'image-url',
+		'vedio-url',
+		'audio-url',
+		'page-url',
+		'avatar-url',
+		'thumbnail-url'
+	]
+});
+mblowfish.provider('$mbColorPalette', function() {
+	return {
+		$get: function($mdColorPalette) {
+			return $mdColorPalette;
+		}
+	};
+});
+
+
+/**
+ * @ngdoc service
+ * @name $mbColors
+ * @module material.components.colors
+ *
+ * @description
+ * By default, defining a theme does not make its colors available for applying to non AngularJS
+ * Material elements. The `$mbColors` service is used by the `mb-color` directive to convert a
+ * set of color expressions to RGBA values and then apply those values to the element as CSS
+ * property values.
+ *
+ * @usage
+ * Getting a color based on a theme
+ *
+ *  <hljs lang="js">
+ *    angular.controller('myCtrl', function ($mbColors) {
+ *      var color = $mbColors.getThemeColor('myTheme-primary-900-0.5');
+ *      ...
+ *    });
+ *  </hljs>
+ *
+ * Applying a color from a palette to an element
+ * <hljs lang="js">
+ *   app.directive('myDirective', function($mbColors) {
+ *     return {
+ *       ...
+ *       link: function (scope, elem) {
+ *         $mbColors.applyThemeColors(elem, {color: 'red-A200-0.2'});
+ *       }
+ *    }
+ *   });
+ * </hljs>
+ */
+mblowfish.service('$mbColors', function($mdTheming, $mdUtil, $log) {
+	var colorPalettes = null;
+	colorPalettes = colorPalettes || Object.keys($mdTheming.PALETTES);
+
+	// Publish service instance
+	return {
+		applyThemeColors: applyThemeColors,
+		getThemeColor: getThemeColor,
+		hasTheme: hasTheme
+	};
+
+	// ********************************************
+	// Internal Methods
+	// ********************************************
+
+    /**
+     * @ngdoc method
+     * @name $mbColors#applyThemeColors
+     *
+     * @description
+     * Lookup a set of colors by hue, theme, and palette, then apply those colors
+     * with the provided opacity (via `rgba()`) to the specified CSS property.
+     *
+     * @param {angular.element} element the element to apply the styles to
+     * @param {Object} colorExpression Keys are CSS properties and values are strings representing
+     * the `theme-palette-hue-opacity` of the desired color. For example:
+     * `{'color': 'red-A200-0.3', 'background-color': 'myTheme-primary-700-0.8'}`. Theme, hue, and
+     * opacity are optional.
+     */
+	function applyThemeColors(element, colorExpression) {
+		try {
+			if (colorExpression) {
+				// Assign the calculate RGBA color values directly as inline CSS
+				element.css(interpolateColors(colorExpression));
+			}
+		} catch (e) {
+			$log.error(e.message);
+		}
+	}
+
+    /**
+     * @ngdoc method
+     * @name $mbColors#getThemeColor
+     *
+     * @description
+     * Get a parsed RGBA color using a string representing the `theme-palette-hue-opacity` of the
+     * desired color.
+     *
+     * @param {string} expression color expression like `'red-A200-0.3'` or
+     *  `'myTheme-primary-700-0.8'`. Theme, hue, and opacity are optional.
+     * @returns {string} a CSS color value like `rgba(211, 47, 47, 0.8)`
+     */
+	function getThemeColor(expression) {
+		var color = extractColorOptions(expression);
+
+		return parseColor(color);
+	}
+
+    /**
+     * Return the parsed color
+     * @param {{hue: *, theme: any, palette: *, opacity: (*|string|number)}} color hash map of color
+     *  definitions
+     * @param {boolean=} contrast whether use contrast color for foreground. Defaults to false.
+     * @returns {string} rgba color string
+     */
+	function parseColor(color, contrast) {
+		contrast = contrast || false;
+		var rgbValues = $mdTheming.PALETTES[color.palette][color.hue];
+
+		rgbValues = contrast ? rgbValues.contrast : rgbValues.value;
+
+		return $mdUtil.supplant('rgba({0}, {1}, {2}, {3})',
+			[rgbValues[0], rgbValues[1], rgbValues[2], rgbValues[3] || color.opacity]
+		);
+	}
+
+    /**
+     * Convert the color expression into an object with scope-interpolated values
+     * Then calculate the rgba() values based on the theme color parts
+     * @param {Object} themeColors json object, keys are css properties and values are string of
+     * the wanted color, for example: `{color: 'red-A200-0.3'}`.
+     * @return {Object} Hashmap of CSS properties with associated `rgba()` string values
+     */
+	function interpolateColors(themeColors) {
+		var rgbColors = {};
+
+		var hasColorProperty = themeColors.hasOwnProperty('color');
+
+		angular.forEach(themeColors, function(value, key) {
+			var color = extractColorOptions(value);
+			var hasBackground = key.indexOf('background') > -1;
+
+			rgbColors[key] = parseColor(color);
+			if (hasBackground && !hasColorProperty) {
+				rgbColors.color = parseColor(color, true);
+			}
+		});
+
+		return rgbColors;
+	}
+
+    /**
+     * Check if expression has defined theme
+     * For instance:
+     *   'myTheme-primary' => true
+     *   'red-800' => false
+     * @param {string} expression color expression like 'red-800', 'red-A200-0.3',
+     *   'myTheme-primary', or 'myTheme-primary-400'
+     * @return {boolean} true if the expression has a theme part, false otherwise.
+     */
+	function hasTheme(expression) {
+		return angular.isDefined($mdTheming.THEMES[expression.split('-')[0]]);
+	}
+
+    /**
+     * For the evaluated expression, extract the color parts into a hash map
+     * @param {string} expression color expression like 'red-800', 'red-A200-0.3',
+     *   'myTheme-primary', or 'myTheme-primary-400'
+     * @returns {{hue: *, theme: any, palette: *, opacity: (*|string|number)}}
+     */
+	function extractColorOptions(expression) {
+		var parts = expression.split('-');
+		var hasTheme = angular.isDefined($mdTheming.THEMES[parts[0]]);
+		var theme = hasTheme ? parts.splice(0, 1)[0] : $mdTheming.defaultTheme();
+
+		return {
+			theme: theme,
+			palette: extractPalette(parts, theme),
+			hue: extractHue(parts, theme),
+			opacity: parts[2] || 1
+		};
+	}
+
+    /**
+     * Calculate the theme palette name
+     * @param {Array} parts
+     * @param {string} theme name
+     * @return {string}
+     */
+	function extractPalette(parts, theme) {
+		// If the next section is one of the palettes we assume it's a two word palette
+		// Two word palette can be also written in camelCase, forming camelCase to dash-case
+
+		var isTwoWord = parts.length > 1 && colorPalettes.indexOf(parts[1]) !== -1;
+		var palette = parts[0].replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+		if (isTwoWord) palette = parts[0] + '-' + parts.splice(1, 1);
+
+		if (colorPalettes.indexOf(palette) === -1) {
+			// If the palette is not in the palette list it's one of primary/accent/warn/background
+			var scheme = $mdTheming.THEMES[theme].colors[palette];
+			if (!scheme) {
+				throw new Error($mdUtil.supplant(
+					'mbColors: couldn\'t find \'{palette}\' in the palettes.',
+					{ palette: palette }));
+			}
+			palette = scheme.name;
+		}
+
+		return palette;
+	}
+
+    /**
+     * @param {Array} parts
+     * @param {string} theme name
+     * @return {*}
+     */
+	function extractHue(parts, theme) {
+		var themeColors = $mdTheming.THEMES[theme].colors;
+
+		if (parts[1] === 'hue') {
+			var hueNumber = parseInt(parts.splice(2, 1)[0], 10);
+
+			if (hueNumber < 1 || hueNumber > 3) {
+				throw new Error($mdUtil.supplant(
+					'mbColors: \'hue-{hueNumber}\' is not a valid hue, can be only \'hue-1\', \'hue-2\' and \'hue-3\'',
+					{ hueNumber: hueNumber }));
+			}
+			parts[1] = 'hue-' + hueNumber;
+
+			if (!(parts[0] in themeColors)) {
+				throw new Error($mdUtil.supplant(
+					'mbColors: \'hue-x\' can only be used with [{availableThemes}], but was used with \'{usedTheme}\'',
+					{
+						availableThemes: Object.keys(themeColors).join(', '),
+						usedTheme: parts[0]
+					}));
+			}
+
+			return themeColors[parts[0]].hues[parts[1]];
+		}
+
+		return parts[1] || themeColors[parts[0] in themeColors ? parts[0] : 'primary'].hues['default'];
+	}
+});
+
+/*
+ * angular-material-icons v0.7.1
+ * (c) 2014 Klar Systems
+ * License: MIT
+ */
+
+/**
+ * @ngdoc Services
+ * @name $mbIconService
+ * @description Manage icons to use in the view
+ * 
+ *  All icons will be managed
+ */
+mblowfish.provider('$mbIcon', function() {
+
+	var provider, service;
+
+	var shapes = {};
+	var viewBoxes = {};
+	var size = 24;
+
+	service = {
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
+	};
+
+	provider = {
+		$get: $mbIconFactory,
+		getShape: getShape,
+		getShapes: getShapes,
+		getViewBox: getViewBox,
+		getViewBoxes: getViewBoxes,
+		getSize: getSize,
+		setShape: addShape,
+		setShapes: addShapes,
+		setViewBox: addViewBox,
+		setViewBoxes: addViewBoxes,
+		setSize: setSize,
+		addShape: addShape,
+		addShapes: addShapes,
+		addViewBox: addViewBox,
+		addViewBoxes: addViewBoxes
+	};
+
+	return provider;
+
+	function addShape(name, shape) {
+		shapes[name] = shape;
+
+		return provider; // chainable function
+	}
+
+	function addShapes(newShapes) {
+		shapes = angular.extend(shapes, newShapes);
+
+		return provider; // chainable function
+	}
+
+	function addViewBox(name, viewBox) {
+		viewBoxes[name] = viewBox;
+
+		return provider; // chainable function
+	}
+
+	function addViewBoxes(newViewBoxes) {
+		viewBoxes = angular.extend(viewBoxes, newViewBoxes);
+
+		return provider; // chainable function
+	}
+
+	function getShape(name) {
+		return shapes[name] || shapes['help'];
+	}
+
+	function getShapes() {
+		return shapes;
+	}
+
+	function getViewBox(name) {
+		return viewBoxes[name] || '0 0 24 24';
+	}
+
+	function getViewBoxes() {
+		return viewBoxes;
+	}
+
+	function setSize(newSize) {
+		size = newSize || 24;
+	}
+
+	function getSize() {
+		return size;
+	}
+
+	function $mbIconFactory() {
+		return service;
+	}
+});
 
 /**
 @ngdoc Services
@@ -14045,30 +17554,6 @@ mblowfish.provider('$mbAccount', function() {
 	};
 	return provider;
 });
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
 /**
 @ngdoc Services
 @name $mbActions
@@ -14078,6 +17563,17 @@ Controllers and views can access actions which is registered by an
 applications. This service is responsible to manage global actions.
 
 Note: if an action added at the configuration then there is no event.
+
+## Short keys
+
+You may assign a shortkey to each action. When users press a key and the event is not handled by views, editors
+or ..., then the action service handls the event.
+
+The short key service is enabled by default. to disable the service:
+
+```javascript
+$mbActionsProvider.setShortkeysEnabled(false);
+```
 
  */
 mblowfish.provider('$mbActions', function() {
@@ -14090,7 +17586,10 @@ mblowfish.provider('$mbActions', function() {
 		q,
 		Action,
 		service,
-		provider;
+		provider,
+		shortkeysEnabled,
+		injector,
+		location;
 
 	/*
 	All storage and variables
@@ -14099,48 +17598,91 @@ mblowfish.provider('$mbActions', function() {
 		configs = {
 			items: {}
 		},
-		actions = {};
+		actions = {},
+		actionHotkeyMap;
 
 	function addAction(actionId, action) {
+		// update actions liste
 		if (!(action instanceof Action)) {
 			action = new Action(action);
 		}
 		actions[actionId] = action;
 		action.id = actionId;
 		mbComponent.addComponent(actionId, action);
+
+		// Update shortkeys
+		actionHotkeyMap.add(action);
 		return service;
 	}
 
 	function removeAction(acctionId) {
+		var action = actions[acctionId];
+		if (!action) {
+			return service;
+		}
+		// remove action
 		mbComponent.removeComponent(actionId);
 		delete actions[acctionId];
+
+		// remove shortkey
+		actionHotkeyMap.remove(action);
 		return service;
 	}
 
 	function getAction(actionId) {
-		return actions[actionId];
+		if (actionId instanceof Action) {
+			return actionId;
+		} else if (_.isString(actionId)) {
+			return actions[actionId];
+		}
 	}
 
 	function getActions() {
 		return actions;
-	};
-
+	}
 
 	function exec(actionId, $event) {
 		$event = $event || {
 			stopPropagation: function() { },
 			preventDefault: function() { },
-		}; // TODO: amso, 2020: crate an action event
-		var action = this.getAction(actionId);
+		};
+		// run list of actions
+		if (_.isArray(actionId)) {
+			// XXX: maso, 2020: select an action and run
+			return exec(actionId[0], $event);
+		}
+		// TODO: amso, 2020: crate an action event
+		var action = getAction(actionId);
 		if (!action) {
 			// TODO: maso, 2020: add an alert system to manage all errors and notifications
 			alert('Action \'' + actionId + '\' not found!');
 			return q.reject();
 		}
-		// TODO: maso, 2020: run action inside the actions service
-		return action.exec($event);
+		// Check if action is alias
+		if (action.alias || _.isString(action.actionId)) {
+			var actionId = action.actionId || action.alias;
+			return exec(actionId, $event);
+		}
+		// Runs action function
+		if (action.action) {
+			return q.when(injector.invoke(action.action, this, {
+				$event: $event
+			}));
+		}
+		// To support action url
+		if (action.url) {
+			return location.url(action.url);
+		}
+		// TODO: maso, 2020: log to show the error
+		return q.reject({
+			message: 'Action \'' + action.id + '\' is not executable!?'
+		});
 	};
 
+	/*
+	Loads all action
+	
+	*/
 	function loadActions() {
 		// Load actions
 		var items = configs.items || {};
@@ -14150,6 +17692,12 @@ mblowfish.provider('$mbActions', function() {
 		});
 	}
 
+	/*
+	Find related action to the event and execute it.
+	*/
+	function handleKeyEvent($event) {
+		actionHotkeyMap.exec($event);
+	}
 
 	service = {
 		addAction: addAction,
@@ -14157,20 +17705,30 @@ mblowfish.provider('$mbActions', function() {
 		getAction: getAction,
 		getActions: getActions,
 		exec: exec,
+		handleKeyEvent: handleKeyEvent,
+		isShortkeysEnabled: function() {
+			return setShortkeysEnabled;
+		}
 	};
 
 	provider = {
 		/* @ngInject */
 		$get: function(
-        /* angularjs */ $window,
-        /* mb        */ $mbDispatcher, $mbComponent, MbAction, $q) {
+        /* angularjs */ $window, $injector, $q, $location,
+        /* mb        */ $mbDispatcher, $mbComponent, MbAction, MbActionHotkeyMap) {
 			dispatcher = $mbDispatcher;
 			mbComponent = $mbComponent;
 			window = $window;
 			q = $q;
+			injector = $injector;
+			location = $location;
 			Action = MbAction;
+			actionHotkeyMap = new MbActionHotkeyMap();
 
 			loadActions();
+			if (shortkeysEnabled) {
+				document.onkeydown = handleKeyEvent;
+			}
 
 			return service;
 		},
@@ -14180,6 +17738,10 @@ mblowfish.provider('$mbActions', function() {
 				actionsConfig.items = _.merge(configs.items, actionsConfig.items);
 			}
 			configs = actionsConfig;
+			return provider;
+		},
+		setShortkeysEnabled: function(flag) {
+			shortkeysEnabled = flag;
 			return provider;
 		},
 		addAction: function(actionId, actionConfig) {
@@ -14356,7 +17918,7 @@ mblowfish.provider('$mbApplication', function() {
 	var preloadingComponent;
 	var preloadingComponentConfig = {
 		templateUrl: 'views/mb-preloading-default.html',
-		controller: 'MbApplicationPreloadingContainerCtrl',
+		controller: function(){},
 		controllerAs: 'ctrl',
 	};
 
@@ -14902,30 +18464,6 @@ angular.module('mblowfish-core').service('$mbCrypto', function() {
 	return this;
 });
 
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-
-
 /**
 @ngdoc Services
 @name $mbDialog
@@ -14955,8 +18493,8 @@ mblowfish.provider('$mbDialog', function() {
 	// End
 	//--------------------------------------------------------
 	provider = {
-		/* @ngInject */
 		$get: function($mdDialog) {
+			'ngInject';
 			return $mdDialog;
 		}
 	}
@@ -15624,117 +19162,343 @@ mblowfish.provider('$mbEditor', function() {
 	return provider;
 });
 
-/*
- * angular-material-icons v0.7.1
- * (c) 2014 Klar Systems
- * License: MIT
- */
-
 /**
- * @ngdoc Services
- * @name $mbIconService
- * @description Manage icons to use in the view
- * 
- *  All icons will be managed
+
+A simple way to check whether a browser event matches a hotkey.
+
+Features
+
+- Uses a simple, natural syntax for expressing hotkeys—mod+s, cmd+alt+space, etc.
+- Accepts mod for the classic "cmd on Mac, ctrl on Windows" use case.
+- Can use either event.which (default) or event.key to work regardless of keyboard layout.
+- Can be curried to reduce parsing and increase performance when needed.
+- Is very lightweight, weighing in at < 1kb minified and gzipped.
+
+
+## Example
+
+The most basic usage...
+
+	function onKeyDown(e) {
+	  if ($mbHotkey.isHotkey('mod+s', e)) {
+	    ...
+	  }
+	}
+
+Or, you can curry the hotkey string for better performance, since it is only parsed once...
+
+
+	var isSaveHotkey = $mbHotkey.isHotkey('mod+s')
+	function onKeyDown(e) {
+	  if (isSaveHotkey(e)) {
+	    ...
+	  }
+	}
+
+## Why?
+
+There are tons of hotkey libraries, but they're often coupled to the view layer, or they bind events 
+globally, or all kinds of weird things. You don't really want them to bind the events for you, you 
+can do that yourself.
+
+Instead, you want to just check whether a single event matches a hotkey. And you want to define your 
+hotkeys in the standard-but-non-trivial-to-parse syntax that everyone knows.
+
+But most libraries don't expose their parsing logic. And even for the ones that do expose their hotkey 
+parsing logic, pulling in an entire library just to check a hotkey string is overkill.
+
+So this is a simple and lightweight hotkey checker!
+
+
+## API
+
+	isHotkey('mod+s')(event)
+	isHotkey('mod+s', { byKey: true })(event)
+	
+	isHotkey('mod+s', event)
+	isHotkey('mod+s', { byKey: true }, event)
+
+You can either pass hotkey, [options], event in which case the hotkey will be parsed and compared 
+immediately. Or you can passed just hotkey, [options] to receive a curried checking function that 
+you can re-use for multiple events.
+
+	isHotkey('mod+a')
+	isHotkey('Control+S')
+	isHotkey('cmd+opt+d')
+	itHotkey('Meta+DownArrow')
+	itHotkey('cmd+down')
+
+The API is case-insentive, and has all of the conveniences you'd expect—cmd vs. Meta, opt vs. Alt, 
+down vs. DownArrow, etc.
+
+It also accepts mod for the classic "cmd on Mac, ctrl on Windows" use case.
+
+	isHotkey('mod+s')(event)
+	isHotkey('mod+s', { byKey: true })(event)
+	
+	isCodeHotkey('mod+s', event)
+	isKeyHotkey('mod+s', event)
+
+By default the hotkey string is checked using event.which. But you can also pass in byKey: true to 
+compare using the KeyboardEvent.key API, which stays the same regardless of keyboard layout.
+
+Or to reduce the noise if you are defining lots of hotkeys, you can use the isCodeHotkey and 
+isKeyHotkey helpers that are exported.
+
+	toKeyName('cmd') // "meta"
+	toKeyName('a') // "a"
+	
+	toKeyCode('shift') // 16
+	toKeyCode('a') // 65
+
+You can also use the exposed toKeyName and toKeyCode helpers, in case you want to add the same level 
+of convenience to your own APIs.
+
+	const hotkey = parseHotkey('mod+s', { byKey: true })
+	const passes = compareHotkey(hotkey, event)
+
+You can also go even more low-level with the exposed parseHotkey and compareHotkey functions, which are 
+what the default isHotkey export uses under the covers, in case you have more advanced needs.
+
+
  */
-mblowfish.provider('$mbIcon', function() {
+mblowfish.provider('$mbHotkey', function() {
 
-	var provider, service;
+	//---------------------------------------
+	// Services
+	//---------------------------------------
+	var
+		service,
+		provider;
 
-	var shapes = {};
-	var viewBoxes = {};
-	var size = 24;
 
+	//---------------------------------------
+	// variables
+	//---------------------------------------
+	var IS_MAC = (
+		typeof window != 'undefined' &&
+		/Mac|iPod|iPhone|iPad/.test(window.navigator.platform)
+	)
+
+	var MODIFIERS = {
+		alt: 'altKey',
+		control: 'ctrlKey',
+		meta: 'metaKey',
+		shift: 'shiftKey',
+	}
+
+	var ALIASES = {
+		add: '+',
+		break: 'pause',
+		cmd: 'meta',
+		command: 'meta',
+		ctl: 'control',
+		ctrl: 'control',
+		del: 'delete',
+		down: 'arrowdown',
+		esc: 'escape',
+		ins: 'insert',
+		left: 'arrowleft',
+		mod: IS_MAC ? 'meta' : 'control',
+		opt: 'alt',
+		option: 'alt',
+		return: 'enter',
+		right: 'arrowright',
+		space: ' ',
+		spacebar: ' ',
+		up: 'arrowup',
+		win: 'meta',
+		windows: 'meta',
+	}
+
+	var CODES = {
+		backspace: 8,
+		tab: 9,
+		enter: 13,
+		shift: 16,
+		control: 17,
+		alt: 18,
+		pause: 19,
+		capslock: 20,
+		escape: 27,
+		' ': 32,
+		pageup: 33,
+		pagedown: 34,
+		end: 35,
+		home: 36,
+		arrowleft: 37,
+		arrowup: 38,
+		arrowright: 39,
+		arrowdown: 40,
+		insert: 45,
+		delete: 46,
+		meta: 91,
+		numlock: 144,
+		scrolllock: 145,
+		';': 186,
+		'=': 187,
+		',': 188,
+		'-': 189,
+		'.': 190,
+		'/': 191,
+		'`': 192,
+		'[': 219,
+		'\\': 220,
+		']': 221,
+		'\'': 222,
+	}
+
+	for (var f = 1; f < 20; f++) {
+		CODES['f' + f] = 111 + f
+	}
+
+
+
+	//---------------------------------------
+	// functions
+	//---------------------------------------
+	function isHotkey(hotkey, options, event) {
+		if (options && !('byKey' in options)) {
+			event = options
+			options = null
+		}
+		if (!Array.isArray(hotkey)) {
+			hotkey = [hotkey]
+		}
+		var array = hotkey.map(function(string) {
+			return parseHotkey(string, options);
+		});
+		var check = function(e) {
+			return array.some(function(object) {
+				return compareHotkey(object, e);
+			});
+		};
+		var ret = event == null ? check : check(event)
+		return ret
+	}
+
+	function isCodeHotkey(hotkey, event) {
+		return isHotkey(hotkey, event)
+	}
+
+	function isKeyHotkey(hotkey, event) {
+		return isHotkey(hotkey, { byKey: true }, event)
+	}
+
+
+	function parseHotkey(hotkey, options) {
+		var byKey = options && options.byKey
+		var ret = {}
+
+		// Special case to handle the `+` key since we use it as a separator.
+		hotkey = hotkey.replace('++', '+add')
+		var values = hotkey.split('+')
+		var length = values.length;
+
+		// Ensure that all the modifiers are set to false unless the hotkey has them.
+		for (var k in MODIFIERS) {
+			ret[MODIFIERS[k]] = false
+		}
+
+		for (var value of values) {
+			var optional = value.endsWith('?') && value.length > 1;
+
+			if (optional) {
+				value = value.slice(0, -1)
+			}
+
+			var name = toKeyName(value)
+			var modifier = MODIFIERS[name]
+
+			if (value.length > 1 && !modifier && !ALIASES[value] && !CODES[name]) {
+				throw new TypeError(`Unknown modifier: "${value}"`)
+			}
+
+			if (length === 1 || !modifier) {
+				if (byKey) {
+					ret.key = name
+				} else {
+					ret.which = toKeyCode(value)
+				}
+			}
+
+			if (modifier) {
+				ret[modifier] = optional ? null : true
+			}
+		}
+
+		return ret
+	}
+
+	/**
+	 * Compare.
+	 */
+
+	function compareHotkey(object, event) {
+		for (var key in object) {
+			var expected = object[key];
+			var actual;
+
+			if (expected == null) {
+				continue;
+			}
+
+			if (key === 'key' && event.key != null) {
+				actual = event.key.toLowerCase();
+			} else if (key === 'which') {
+				actual = expected === 91 && event.which === 93 ? 91 : event.which;
+			} else {
+				actual = event[key];
+			}
+
+			if (actual == null && expected === false) {
+				continue;
+			}
+
+			if (actual !== expected) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Utils.
+	 */
+
+	function toKeyCode(name) {
+		name = toKeyName(name);
+		const code = CODES[name] || name.toUpperCase().charCodeAt(0);
+		return code;
+	}
+
+	function toKeyName(name) {
+		name = name.toLowerCase();
+		name = ALIASES[name] || name;
+		return name;
+	}
+
+	//---------------------------------------
+	// End
+	//---------------------------------------
 	service = {
-		getShape: getShape,
-		getShapes: getShapes,
-		getViewBox: getViewBox,
-		getViewBoxes: getViewBoxes,
-		getSize: getSize,
-		setShape: addShape,
-		setShapes: addShapes,
-		setViewBox: addViewBox,
-		setViewBoxes: addViewBoxes,
-		setSize: setSize,
-		addShape: addShape,
-		addShapes: addShapes,
-		addViewBox: addViewBox,
-		addViewBoxes: addViewBoxes
+		isHotkey: isHotkey,
+		isCodeHotkey: isCodeHotkey,
+		isKeyHotkey: isKeyHotkey,
+		parseHotkey: parseHotkey,
+		compareHotkey: compareHotkey,
+		toKeyCode: toKeyCode,
+		toKeyName: toKeyName
 	};
-
 	provider = {
-		$get: $mbIconFactory,
-		getShape: getShape,
-		getShapes: getShapes,
-		getViewBox: getViewBox,
-		getViewBoxes: getViewBoxes,
-		getSize: getSize,
-		setShape: addShape,
-		setShapes: addShapes,
-		setViewBox: addViewBox,
-		setViewBoxes: addViewBoxes,
-		setSize: setSize,
-		addShape: addShape,
-		addShapes: addShapes,
-		addViewBox: addViewBox,
-		addViewBoxes: addViewBoxes
+		$get: function() {
+			'ngInject';
+			return service;
+		}
 	};
-
 	return provider;
-
-	function addShape(name, shape) {
-		shapes[name] = shape;
-
-		return provider; // chainable function
-	}
-
-	function addShapes(newShapes) {
-		shapes = angular.extend(shapes, newShapes);
-
-		return provider; // chainable function
-	}
-
-	function addViewBox(name, viewBox) {
-		viewBoxes[name] = viewBox;
-
-		return provider; // chainable function
-	}
-
-	function addViewBoxes(newViewBoxes) {
-		viewBoxes = angular.extend(viewBoxes, newViewBoxes);
-
-		return provider; // chainable function
-	}
-
-	function getShape(name) {
-		return shapes[name] || shapes['help'];
-	}
-
-	function getShapes() {
-		return shapes;
-	}
-
-	function getViewBox(name) {
-		return viewBoxes[name] || '0 0 24 24';
-	}
-
-	function getViewBoxes() {
-		return viewBoxes;
-	}
-
-	function setSize(newSize) {
-		size = newSize || 24;
-	}
-
-	function getSize() {
-		return size;
-	}
-
-	function $mbIconFactory() {
-		return service;
-	}
-});
-
+})
 /* 
  * The MIT License (MIT)
  * 
@@ -15870,7 +19634,8 @@ mblowfish.provider('$mbLayout', function() {
 		injector,// = $injector;
 		mbStorage, // = $mbStorage
 		mbSettings,
-		location;
+		mbLog,
+		location, mbTheming;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
@@ -15883,8 +19648,7 @@ mblowfish.provider('$mbLayout', function() {
 		dockerBodyElement,
 		dockerPanelElement,
 		dockerViewElement,
-		rootElement,// Root element of the layout system
-		mode = 'docker';// layout mode
+		rootElement;// Root element of the layout system
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -15909,29 +19673,14 @@ mblowfish.provider('$mbLayout', function() {
 	 */
 	function open(frame, state, anchor) {
 		var result;
-		switch (mode) {
-			case 'docker':
-				result = openDockerContent(frame, state, anchor);
-				break;
-			default:
-				result = openMobileView(frame, state, anchor);
-				break;
-		}
+		result = openDockerContent(frame, state, anchor);
 		return result;
 	}
 
 	function reload(element) {
 		rootElement = element;
-		switch (mode) {
-			case 'docker':
-				destroyDockerLayout();
-				loadDockerLayout();
-				break;
-			default:
-				destroyMobileView();
-				loadMobileView();
-				break;
-		}
+		destroyDockerLayout();
+		loadDockerLayout();
 	}
 
 	function setFocus(component) {
@@ -15940,24 +19689,6 @@ mblowfish.provider('$mbLayout', function() {
 		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
-	function init() {
-		switch (mode) {
-			case 'docker':
-				initDockerLayout();
-				break;
-			default:
-				initMobileView();
-				break;
-		}
-	}
-
-	//-----------------------------------------------------------------------------------
-	// Mobile Layout
-	//-----------------------------------------------------------------------------------
-	function initMobileView() { }
-	function destroyMobileView() { }
-	function loadMobileView() { }
-	function openMobileView(/*component, anchor*/) { }
 
 
 	//-----------------------------------------------------------------------------------
@@ -15972,9 +19703,13 @@ mblowfish.provider('$mbLayout', function() {
 	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
 	var DOCKER_VIEW_CLASS = 'mb_docker_view';
 
-	function initDockerLayout() {
-		restorDockerState();
-		//loadDockerLayout();
+	function getLayouts() {
+		var layouts = [];
+		for (var i = 0; i < layoutProviders.length; i++) {
+			var layoutProvider = layoutProviders[i];
+			layouts = _.concat(layouts, layoutProvider.list());
+		}
+		return layouts;
 	}
 
 	function setLayout(name) {
@@ -15985,6 +19720,9 @@ mblowfish.provider('$mbLayout', function() {
 		storeDockerState();
 	}
 
+	/*
+	TODO: maso, 2020: support lazye load
+	*/
 	function getDockerLayout(name) {
 		for (var i = 0; i < layoutProviders.length; i++) {
 			var layoutProvider = layoutProviders[i];
@@ -16013,7 +19751,9 @@ mblowfish.provider('$mbLayout', function() {
 			docker.off('componentCreated', dockerComponentCreate);
 			docker.off('stateChanged', onDockerStateChanged);
 			docker.off('activeContentItemChanged', dockerActiveContentItemChanged);
-		} catch (ex) { }
+		} catch (ex) {
+			mbLog.error(ex);
+		}
 		_.forEach(frames, function(frame) {
 			frame.destroy();
 		});
@@ -16028,37 +19768,19 @@ mblowfish.provider('$mbLayout', function() {
 	}
 
 	function dockerActiveContentItemChanged(e) {
-		if (!e.isComponent) {
-			return;
-		}
 		try {
-			var frame = e.container.$frame;
-			location.url(frame.url);
+			location.url(e.instance.id);
 			if (rootScope.$$phase !== '$digest') {
 				rootScope.$apply();
 			}
 		} catch (e) {
-			// TODO: add loger
+			mbLog.error(e);
 		}
 	}
 
-	function onDockerInitialised() {
-		// link element
-		var link = compile(dockerBodyElement.contents());
-		link(rootScope);
-	}
 
-	function dockerStackCreated(stack) {
-		// link element
-		var link = compile(stack.element);
-		link(rootScope);
-	}
 
-	function dockerComponentCreate(component) {
-		// link element
-		var link = compile(component.element);
-		link(rootScope);
-	}
+
 
 	function loadDockerLayout() {
 		// load element
@@ -16076,13 +19798,20 @@ mblowfish.provider('$mbLayout', function() {
 		docker = new GoldenLayout(currentLayout, dockerViewElement);
 		docker.registerComponent('component', loadComponent);
 
-		docker.on('initialised', onDockerInitialised);
-		docker.on('stackCreated', dockerStackCreated);
-		docker.on('componentCreated', dockerComponentCreate);
+		docker.on('initialised', function() {
+			var link = compile(docker.root.element);
+			link(rootScope);
+		});
+		////		docker.on('componentCreated', onDockerInitialised);
+		////		docker.on('rowCreated', applyAngolar);
+		////		docker.on('columnCreated', applyAngolar);
+		////		docker.on('stackCreated', applyAngolar);
+		////		docker.on('tabCreated', decorateItem);
 		try {
 			docker.init();
 		} catch (e) {
-			setLayout(defaultLayoutName);
+			mbLog.error(e);
+			//			setLayout(defaultLayoutName);
 		}
 		docker.on('stateChanged', onDockerStateChanged);
 		docker.on('activeContentItemChanged', dockerActiveContentItemChanged);
@@ -16104,7 +19833,13 @@ mblowfish.provider('$mbLayout', function() {
 			var $mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(state.url, state);
 		}
+
+		// No frame found
 		if (_.isUndefined(component)) {
+			mbLob({
+				message: 'No frame found with the givern url',
+				frame: editor
+			});
 			$mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(
 				'/ui/notfound/' + state.url, // path
@@ -16113,7 +19848,8 @@ mblowfish.provider('$mbLayout', function() {
 
 		// discannect all resrouces
 		if (component.isVisible()) {
-			return component.setFocus();
+			// It is draged to new location
+			return component;
 		}
 
 		// load element
@@ -16128,9 +19864,9 @@ mblowfish.provider('$mbLayout', function() {
 				frames.splice(index, 1);
 			}
 		});
-		editor.$frame = component;
-		editor.on('tab', function() {
-			editor.tab.element.on('click', function() {
+		editor.on('tab', function(tab) {
+			// component.$glTab = $tab;
+			tab.element.on('click', function() {
 				location.url(component.url);
 				try {
 					if (rootScope.$$phase !== '$digest') {
@@ -16140,12 +19876,12 @@ mblowfish.provider('$mbLayout', function() {
 			});
 		});
 		component.$dockerContainer = editor;
-		return component.render({
+		component.render({
 			$dockerContainer: editor,
 			$element: element,
 			$state: state
 		});
-		// TODO: maso,2020: dispatc view is loaded
+		return component;
 	}
 
 	function getDockerContentById(id) {
@@ -16206,20 +19942,15 @@ mblowfish.provider('$mbLayout', function() {
 		reload: reload,
 		open: open,
 		setFocus: setFocus,
+
 		setLayout: setLayout,
+		getLayouts: getLayouts,
 		getCurrentLayout: function() {
 			return docker.toConfig();
-		},
-		getMode: function() {
-			return mode;
 		},
 	}
 	provider = {
 		providers: [],
-		setMode: function(appMode) {
-			mode = appMode;
-			return provider;
-		},
 		addProvider: function(providerFactoryName) {
 			provider.providers.push(providerFactoryName);
 			return provider;
@@ -16230,8 +19961,8 @@ mblowfish.provider('$mbLayout', function() {
 		},
 		/* @ngInject */
 		$get: function(
-			/* Angularjs */ $compile, $rootScope, $injector, $location,
-			/* MblowFish */ $mbStorage, $mbSettings) {
+			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
+			/* MblowFish */ $mbStorage, $mbSettings, $mbLog) {
 			//
 			// 1- Init layouts
 			//
@@ -16239,48 +19970,41 @@ mblowfish.provider('$mbLayout', function() {
 			rootScope = rootScope || $rootScope;
 			compile = $compile;
 			injector = $injector;
+			mbTheming = $mbTheming;
 
 			mbStorage = $mbStorage;
 			mbSettings = $mbSettings;
+			mbLog = $mbLog;
 
-			//
-			// 3- Initialize the laytout
-			//
-			_.forEach(provider.providers, function(providerName) {
-				var Provider = $injector.get(providerName);
-				var pro = new Provider();
-				layoutProviders.push(pro);
-			});
-			init();
+			try {
+				//
+				// 3- Initialize the laytout
+				//
+				_.forEach(provider.providers, function(providerName) {
+					var Provider = $injector.get(providerName);
+					var pro = new Provider();
+					layoutProviders.push(pro);
+				});
+				restorDockerState();
+				//loadDockerLayout();
+			} catch (ex) {
+				mbLog.error(ex);
+			}
 			return service;
 		}
 	};
 	return provider;
 });
 
-(function() {
-	var mlDirectiveItems = [
-		'lmGoldenlayout',
-		'lmContent',
-		'lmSplitter',
-		'lmStack',
-		'lmHeader',
-		'lmControls',
-		'lmMaximised',
-		'lmTransitionIndicator'
-	];
-	_.forEach(mlDirectiveItems, function(directiveName) {
-		mblowfish.directive(directiveName, function($mbTheming) {
-			'ngInject';
-			return {
-				restrict: 'C',
-				link: function($scope, $element) {
-					$mbTheming($element);
-				}
-			};
-		});
-	});
-})();
+mblowfish.directive('lmGoldenlayout', function($mbTheming) {
+	'ngInject';
+	return {
+		restrict: 'C',
+		link: function($scope, $element) {
+			$mbTheming($element);
+		}
+	};
+});
 
 
 /* 
@@ -17689,8 +21413,8 @@ mblowfish.provider('$mbResource', function() {
 	var provider;
 	var service;
 
-	var rootScope;
-	var mbDialog;
+	var mbDialog,
+		rootElement;
 
 
 
@@ -17752,12 +21476,13 @@ mblowfish.provider('$mbResource', function() {
 			option = {};
 		}
 		var pages = getPages(tag);
-		var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
+		var tmplUrl = pages.length > 1 ? 'scripts/services/resource-multi.html' : 'scripts/services/resource-single.html';
 		return mbDialog.show({
 			controller: 'ResourceDialogCtrl',
 			controllerAs: 'ctrl',
 			templateUrl: tmplUrl,
-			parent: angular.element(document.body),
+			parent: rootElement,
+			targetEvent: option.targetEvent,
 			clickOutsideToClose: false,
 			fullscreen: true,
 			multiple: true,
@@ -17789,8 +21514,9 @@ mblowfish.provider('$mbResource', function() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($mbDialog) {
+		$get: function($mbDialog, $rootElement) {
 			mbDialog = $mbDialog;
+			rootElement = $rootElement;
 			return service;
 		},
 		addPage: addPage
@@ -17900,6 +21626,7 @@ mblowfish.controller('ResourceDialogCtrl', function(
 			$element: target,
 			$scope: $scope.$new(false),
 			$style: $style,
+			$options: $options,
 			$value: value,
 			$resource: ctrl,
 			$keepRootElement: true, // Do not remove element
@@ -18863,6 +22590,7 @@ mblowfish.provider('$mbSettings', function() {
 	 */
 	function load() {
 		settings = mbStorage[MB_SETTINGS_SP] || {};
+		rootScope.settings = settings;
 	}
 
 	function get(key, defaultValue) {
@@ -20212,16 +23940,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/dialogs/wb-select-resource-single-page.html',
-    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
-  );
-
-
-  $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" md-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
-  );
-
-
   $templateCache.put('views/directives/mb-captcha.html',
     "<div>  <div vc-recaptcha ng-model=ctrl.captchaValue theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.key lang=\"app.captcha.language || 'fa'\"> </div>  </div>"
   );
@@ -20233,12 +23951,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/directives/mb-inline.html',
-    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" md-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom md-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input wb-on-enter=ctrlInline.save($event) wb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
+    "<div style=\"cursor: pointer\" ng-switch=mbInlineType>  <div ng-switch-when=image class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" mb-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateImage($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom mb-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateImage($event)> <mb-icon>photo_camera </mb-icon></md-button> </div> </div>  <div ng-switch-when=file class=overlay-parent ng-class=\"{'my-editable' : $parent.mbInlineEnable}\" mb-colors=\"::{borderColor: 'primary-100'}\" style=\"overflow: hidden\" ng-click=ctrlInline.updateFile($event) ng-transclude> <div ng-show=$parent.mbInlineEnable layout=row layout-align=\"center center\" class=overlay-bottom mb-colors=\"{backgroundColor: 'primary-700'}\"> <md-button class=md-icon-button aria-label=\"Change image\" ng-click=ctrlInline.updateFile($event)> <mb-icon>file </mb-icon></md-button> </div> </div>  <div ng-switch-when=datetime> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div> <div ng-switch-when=date> <mb-datepicker ng-show=ctrlInline.editMode ng-model=ctrlInline.model ng-change=ctrlInline.save($event) mb-date-format=YYYY-MM-DD mb-placeholder=\"Click to set date\" mb-hide-icons=calendar> </mb-datepicker> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel($event)>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save($event)>save</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit($event) flex></ng-transclude> </div>                                                                                                                                           <div ng-switch-default> <input mb-on-enter=ctrlInline.save($event) mb-on-esc=ctrlInline.cancel($event) ng-model=ctrlInline.model ng-show=ctrlInline.editMode> <button ng-if=\"mbInlineCancelButton && ctrlInline.editMode\" ng-click=ctrlInline.cancel()>cancel</button> <button ng-if=\"mbInlineSaveButton && ctrlInline.editMode\" ng-click=ctrlInline.save()>save</button> <button ng-if=\"ctrlInline.editMode && ctrlInline.hasPageFor()\" ng-click=ctrlInline.setFromResource($event)>...</button> <ng-transclude ng-hide=ctrlInline.editMode ng-click=ctrlInline.edit() flex></ng-transclude> </div>  <div ng-messages=error.message> <div ng-message=error class=md-input-message-animation style=\"margin: 0px\">{{error.message}}</div> </div> </div>"
   );
 
 
   $templateCache.put('views/directives/mb-navigation-bar.html',
-    "<div class=mb-navigation-path-bar md-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500> <span mb-translate>home</span> </md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> <span mb-translate>{{::menu.title}} </span></md-button> </div> </div>"
+    "<div class=mb-navigation-path-bar mb-colors=\"{'background-color': 'primary'}\" layout=row> <div layout=row> <md-button ng-click=goToHome() aria-label=Home class=\"mb-navigation-path-bar-item mb-navigation-path-bar-item-home\"> <md-tooltip ng-if=menu.tooltip md-delay=1500> <span mb-translate>home</span> </md-tooltip> <mb-icon>home</mb-icon> </md-button> </div> <div layout=row data-ng-repeat=\"menu in pathMenu.items | orderBy:['-priority']\"> <mb-icon>{{app.dir==='rtl' ? 'chevron_left' : 'chevron_right'}}</mb-icon> <md-button ng-show=isVisible(menu) ng-href={{menu.url}} ng-click=menu.exec($event); class=mb-navigation-path-bar-item> <md-tooltip ng-if=menu.tooltip md-delay=1500>{{menu.description}}</md-tooltip> <mb-icon ng-if=menu.icon>{{menu.icon}}</mb-icon> <span mb-translate>{{::menu.title}} </span></md-button> </div> </div>"
   );
 
 
@@ -20293,7 +24011,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-branding-header-toolbar.html',
-    " <md-toolbar layout=row layout-padding md-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar>"
+    " <md-toolbar layout=row layout-padding mb-colors=\"{backgroundColor: 'primary-100'}\">  <img style=\"max-width: 50%\" height=160 ng-show=app.config.logo ng-src=\"{{app.config.logo}}\"> <div> <h3>{{app.config.title}}</h3> <p>{{ app.config.description | limitTo: 250 }}{{app.config.description.length > 250 ? '...' : ''}}</p> </div> </md-toolbar>"
   );
 
 
@@ -20308,7 +24026,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/partials/mb-view-login.html',
-    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary md-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span md-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'|translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'|translate}}</md-button>      </div> </form> </div> </div>"
+    "<div ng-if=\"status === 'login'\" layout=row layout-aligne=none layout-align-gt-sm=\"center center\" ng-controller=MbAccountCtrl flex> <div md-whiteframe=3 flex=100 flex-gt-sm=50 layout=column mb-preloading=ctrl.loadUser>  <ng-include src=\"'views/partials/mb-branding-header-toolbar.html'\"></ng-include> <md-progress-linear ng-disabled=\"!(ctrl.loginProcess || ctrl.logoutProcess)\" style=\"margin: 0px; padding: 0px\" md-mode=indeterminate class=md-primary mb-color> </md-progress-linear>  <div style=\"text-align: center\" layout-margin ng-show=\"!ctrl.loginProcess && ctrl.loginState === 'fail'\"> <p><span mb-colors=\"{color:'warn'}\" mb-translate>{{loginMessage}}</span></p> </div> <form name=ctrl.myForm ng-submit=login(credit) layout=column layout-padding> <md-input-container> <label mb-translate>Username</label> <input ng-model=credit.login name=username required> <div ng-messages=ctrl.myForm.username.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container> <md-input-container> <label mb-translate>Password</label> <input ng-model=credit.password type=password name=password required> <div ng-messages=ctrl.myForm.password.$error> <div ng-message=required mb-translate>This field is required.</div> </div> </md-input-container>  <div vc-recaptcha ng-if=\"__tenant.settings['captcha.engine'] === 'recaptcha'\" key=\"__tenant.settings['captcha.engine.recaptcha.key']\" ng-model=credit.g_recaptcha_response theme=\"__app.configs.captcha.theme || 'light'\" type=\"__app.configs.captcha.type || 'image'\" lang=\"__app.setting.local || __app.config.local || 'en'\"> </div> <input hide type=\"submit\"> <div layout=column layout-align=none layout-gt-xs=row layout-align-gt-xs=\"end center\" layout-margin> <a href=users/reset-password style=\"text-decoration: none\" ui-sref=forget flex-order=1 flex-order-gt-xs=-1>{{'forgot your password?'|translate}}</a> <md-button ng-disabled=ctrl.myForm.$invalid flex-order=-1 flex-order-gt-xs=1 class=\"md-primary md-raised\" ng-click=login(credit)>{{'login'|translate}}</md-button>      </div> </form> </div> </div>"
   );
 
 
@@ -20354,17 +24072,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('views/resources/mb-language-upload.html',
-    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <lf-ng-md-file-input name=files lf-files=files lf-required lf-maxcount=5 lf-filesize=10MB lf-totalsize=20MB drag preview> </lf-ng-md-file-input> </form>"
-  );
-
-
-  $templateCache.put('views/resources/mb-local-file.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '.*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=\"upload file\" progress preview drag flex> </lf-ng-md-file-input> </div>"
-  );
-
-
-  $templateCache.put('views/resources/mb-local-files.html',
-    "<div layout=column layout-padding flex> <lf-ng-md-file-input lf-files=files ng-change=ctrl.setFiles(files) accept=\"{{ctrl.$style.accept || '*'}}\" lf-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file' | translate)}}\" lf-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse' | translate)}}\" lf-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash' | translate)}}\" aria-label=fileupload progress preview drag multiple flex> </lf-ng-md-file-input> </div>"
+    "<form layout-margin layout=column ng-submit=$event.preventDefault() name=searchForm> <mb-file-input name=files ng-file=files mb-required mb-file-max=5 mb-file-min=1 mb-file-size=10MB mb-file-size-total=20MB mb-drag mb-preview> </mb-file-input> </form>"
   );
 
 
@@ -20373,18 +24081,8 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/resources/mb-term-taxonomies.html',
-    "<div ng-controller=\"MbSeenCmsTermTaxonomiesCtrl as ctrl\" ng-init=\"ctrl.setDataQuery('{id, taxonomy, term{id, name, metas{key,value}}}')\" mb-preloading=\"ctrl.state === 'busy'\" layout=column flex> <mb-pagination-bar mb-model=ctrl.queryParameter mb-properties=ctrl.properties mb-reload=ctrl.reload() mb-more-actions=ctrl.getActions()> </mb-pagination-bar> <md-content mb-infinate-scroll=ctrl.loadNextPage() layout=column flex> <md-list flex> <md-list-item ng-repeat=\"termTaxonomy in ctrl.items track by termTaxonomy.id\" ng-click=\"multi || resourceCtrl.selectRole(termTaxonomy)\" class=md-3-line> <mb-icon>label</mb-icon> <div class=md-list-item-text layout=column> <h3>{{termTaxonomy.term.name}}</h3> <p>{{termTaxonomy.description}}</p> <p>{{termTaxonomy.taxonomy}}</p> </div> <md-checkbox class=md-secondary ng-init=\"termTaxonomy.selected = resourceCtrl.isSelected(termTaxonomy)\" ng-model=termTaxonomy.selected ng-click=\"resourceCtrl.setSelected(termTaxonomy, termTaxonomy.selected)\"> </md-checkbox> <md-divider md-inset></md-divider> </md-list-item> </md-list> </md-content> </div>"
-  );
-
-
   $templateCache.put('views/resources/wb-event-code-editor.html',
     "<div layout=column layout-fill> <md-toolbar> <div class=md-toolbar-tools layout=row> <span flex></span> <md-select ng-model=value.language ng-change=ctrl.setLanguage(value.language) class=md-no-underline> <md-option ng-repeat=\"l in value.languages track by $index\" ng-value=l.value> {{l.text}} </md-option> </md-select> </div> </md-toolbar> <md-content flex> <div style=\"min-height: 100%; min-width: 100%\" index=0 id=am-wb-resources-script-editor> </div> </md-content> </div>"
-  );
-
-
-  $templateCache.put('views/resources/wb-url.html',
-    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
   );
 
 
@@ -20399,17 +24097,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-if=\"getTypeOf(prop)==='input'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <md-input-container ng-if=\"getTypeOf(prop)==='textarea'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <textarea ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <mb-datepicker ng-if=\"getTypeOf(prop)==='datetime'\" placeholder={{::prop.title}} ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></mb-datepicker> </div>"
-  );
-
-
-  $templateCache.put('scripts/directives/mb-titled-block.html',
-    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <md-button class=md-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </md-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-if=\"getTypeOf(prop)==='input'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values`[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=\"setValueFor(prop, $event)\">more_horiz</mb-icon>  </md-input-container> <md-input-container ng-if=\"getTypeOf(prop)==='textarea'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <textarea ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=\"setValueFor(prop, $event)\">more_horiz</mb-icon>  </md-input-container> <mb-datepicker ng-if=\"getTypeOf(prop)==='datetime'\" placeholder={{::prop.title}} ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></mb-datepicker> </div>"
   );
 
 
   $templateCache.put('scripts/factories/wizard.html',
-    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage md-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
+    "<div class=mb-wizard> <div id=header> <div id=text> <h2 id=title>{{ctrl.title}}</h2> <p id=message>{{ctrl.description}}</p> <div id=error-message ng-if=ctrl.errorMessage mb-colors=\"{color: 'accent'}\"> <mb-icon>error</mb-icon> <span>{{ctrl.errorMessage}}</span> </div> </div> <img id=image ng-src=\"{{ctrl.image || 'images/logo.svg'}}\" ng-src-error=images/logo.svg> </div> <md-content id=body></md-content> <div id=actions> <md-button class=md-icon-button id=help ng-show=!ctrl.helpDisabled ng-click=ctrl.openHelp($event) aria-disabled=Help> <mb-icon>help</mb-icon> </md-button> <span id=spacer></span> <md-button class=md-raised id=back ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.backPage($event) ng-disabled=ctrl.backDisabled aria-label=Back> <span translate>Back</span> </md-button> <md-button class=md-raised id=next ng-show=\"ctrl.getPageCount() > 1\" ng-click=ctrl.nextPage($event) ng-disabled=ctrl.nextDisabled aria-label=Next> <span translate>Next</span> </md-button> <md-button class=\"md-raised md-accent\" id=cancel ng-click=ctrl.cancelWizard($event) aria-label=Cancel> <span translate>Cancel</span> </md-button> <md-button class=\"md-raised md-primary\" id=finish ng-click=ctrl.finishWizard($event) ng-disabled=ctrl.finishDisabled aria-label=Finish> <span translate>Finish</span> </md-button> </div> </div>"
   );
 
 
@@ -20419,12 +24112,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-layouts/components/layouts-toolbar.html',
-    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=$mdOpenMenu() aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
+    "<md-menu class=amd-account-toolbar> <mb-icon class=anchor ng-click=\"ctrl.openMenu($mdMenu, $event)\" aria-label=\"Open menu\" size=16 style=\"padding: 4px\">dashboard</mb-icon> <md-menu-content width=3>  <md-menu-item> <md-button ng-click=ctrl.saveAs($event) mb-translate>Save Current Layout As</md-button> </md-menu-item> <md-menu-divider ng-if=ctrl.layouts.length></md-menu-divider>  <md-menu-item ng-repeat=\"layout in ctrl.layouts\"> <md-button ng-click=\"ctrl.loadLayout($event, layout)\" mb-translate>{{::layout}}</md-button> </md-menu-item> <md-menu-divider ng-if=ctrl.layouts.length></md-menu-divider> <md-menu-item> <md-button ng-click=ctrl.loadLayout($event) mb-translate>Load Layout</md-button> </md-menu-item> </md-menu-content> </md-menu>"
   );
 
 
   $templateCache.put('scripts/module-layouts/resources/layouts-local-storage.html',
-    "<md-list ng-cloak> <md-list-item ng-repeat=\"layoutName in ctrl.layouts\" md-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> <mb-icon class=md-secondary ng-click=\"ctrl.deleteLayout(layoutName, $event)\" aria-label=\"Delete layout\">delete</mb-icon> </md-list-item> </md-list>"
+    "<md-list ng-cloak> <md-list-item mb-colors=\"ctrl.isSelected(layoutName) ? {background:'accent'} : {}\" ng-repeat=\"layoutName in ctrl.layouts\" ng-click=ctrl.setSelected(layoutName)> <p> {{ ::layoutName }} </p> <mb-icon class=md-secondary ng-click=\"ctrl.deleteLayout(layoutName, $event)\" aria-label=\"Delete layout\">delete</mb-icon> </md-list-item> </md-list>"
   );
 
 
@@ -20438,8 +24131,63 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
+  $templateCache.put('scripts/module-navigator/actions/command-line-display.html',
+    "<md-bottom-sheet class=\"md-list md-has-header\" layout=column style=\"max-height: 100vh\"> <div ng-cloak> <md-input-container class=\"md-icon-float md-icon-left md-block\"> <label mb-translate>Search</label> <mb-icon>search</mb-icon> <input ng-model=query ng-change=search(query) md-autofocus> </md-input-container> </div> <md-content flex> <md-list ng-cloak> <md-list-item ng-repeat=\"action in actions\" ng-click=\"runAction(action, $event)\" ng-show=!action.demon class=md-offset> <mb-icon ng-if=action.icon class=md-avatar-icon>{{::action.icon}}</mb-icon> <p> <span ng-if=action.group>{{ ::action.group }} -</span> <span md-highlight-text=query class=md-inline-list-icon-label>{{ ::action.title }}</span> </p> </md-list-item> </md-list> </md-content> </md-bottom-sheet>"
+  );
+
+
   $templateCache.put('scripts/module-navigator/views/navigator.html',
-    "<div layout=column> <md-toolbar class=\"md-whiteframe-z2 mb-navigation-top-toolbar\" layout=column layout-align=\"start center\"> <img width=128px height=128px ng-show=app.config.logo ng-src={{app.config.logo}} ng-src-error=images/logo.svg style=\"min-height: 128px; min-width: 128px\"> <strong>{{app.config.title}}</strong> <p style=\"text-align: center\">{{ app.config.description | limitTo: 100 }}{{app.config.description.length > 150 ? '...' : ''}}</p> </md-toolbar> <md-content class=mb-sidenav-main-menu flex>  <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content> </div>"
+    "<md-content> <md-list> <md-subheader ng-repeat-start=\"group in groups\" class=md-no-sticky>{{::group.title}}</md-subheader> <md-list-item ng-repeat=\"(url, item) in group.items\" ng-href=./{{::url}}> <mb-icon>{{::(item.icon || 'layers')}}</mb-icon> <p mb-translate>{{::item.title}}</p> </md-list-item> <md-divider ng-repeat-end></md-divider> </md-list> </md-content>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-color-picker-container.html',
+    "<div class=\"mb-color-picker-container in\" layout=column> <div class=mb-color-picker-arrow ng-style=\"{'border-bottom-color': color.toRgbString() }\"></div> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-class=\"{'dark': !color.isDark() || color.getAlpha() < .45}\" flex=1 layout=column> <div class=mb-color-picker-result ng-style=\"{'background': color.toRgbString()}\" flex=100 layout=column layout-fill layout-align=\"center center\" ng-click=\"focusPreviewInput( $event )\">  <div flex layout=row layout-align=\"center center\"> <input class=mb-color-picker-preview-input ng-model=value ng-focus=previewFocus($event); ng-blur=previewBlur() ng-change=changeValue() ng-keypress=previewKeyDown($event) layout-fill> </div> <div class=mb-color-picker-tabs style=\"width: 100%\"> <md-tabs md-selected=type md-stretch-tabs=always md-no-bar md-no-ink md-no-pagination=true> <md-tab ng-if=mbColorHex label=Hex ng-disabled=\"color.getAlpha() !== 1\" md-ink-ripple=#ffffff> </md-tab> <md-tab ng-if=mbColorRgb label=RGB></md-tab> <md-tab ng-if=mbColorHsl label=HSL></md-tab>  </md-tabs> </div> </div> </div> <div class=\"mb-color-picker-tabs mb-color-picker-colors\"> <md-tabs md-stretch-tabs=always md-align-tabs=bottom md-selected=whichPane md-no-pagination> <md-tab ng-if=mbColorSpectrum> <md-tab-label> <mb-icon>gradient</mb-icon> </md-tab-label> <md-tab-body> <div layout=row layout-align=space-between style=\"height: 255px\"> <div mb-color-picker-spectrum></div> <div mb-color-picker-hue ng-class=\"{'mb-color-picker-wide': !mbColorAlphaChannel}\"></div> <div mb-color-picker-alpha class=mb-color-picker-checkered-bg ng-if=mbColorAlphaChannel> </div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorSliders> <md-tab-label> <mb-icon>tune</mb-icon> </md-tab-label> <md-tab-body> <div layout=column flex=100 layout-fill layout-align=\"space-between start center\" class=mb-color-picker-sliders> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>R</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._r aria-label=red class=red-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._r aria-label=red aria-controls=red-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>G</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._g aria-label=green class=green-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._g aria-label=green aria-controls=green-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>B</span> </div> <md-slider flex=65 min=0 max=255 ng-model=color._b aria-label=blue class=blue-slider></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=255 type=number ng-model=color._b aria-label=blue aria-controls=blue-slider> </div> </div> <div layout=row layout-align=\"start center\" layout-wrap flex layout-fill ng-if=!mbColorAlphaChannel> <div flex=10 layout layout-align=\"center center\"> <span class=md-body-1>A</span> </div> <md-slider flex=65 min=0 max=1 step=.01 ng-model=color._a aria-label=alpha class=md-primary></md-slider> <span flex></span> <div flex=20 layout layout-align=\"center center\"> <input style=\"width: 100%\" min=0 max=1 step=.01 type=number ng-model=color._a aria-label=alpha aria-controls=alpha-slider> </div> </div> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorGenericPalette> <md-tab-label> <mb-icon>view_module</mb-icon> </md-tab-label> <md-tab-body> <div layout=column layout-align=\"space-between start center\" flex class=mb-color-picker-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorMaterialPalette> <md-tab-label> <mb-icon>view_headline</mb-icon> </md-tab-label> <md-tab-body> <div layout=column layout-fill flex class=mb-color-picker-material-palette> </div> </md-tab-body> </md-tab> <md-tab ng-if=mbColorHistory> <md-tab-label> <mb-icon>history</mb-icon> </md-tab-label> <md-tab-body layout=row layout-fill> <div layout=column flex layout-align=\"space-between start\" layout-wrap layout-fill class=mb-color-picker-history> <div layout=row flex=80 layout-align=\"space-between start start\" layout-wrap layout-fill> <div flex=10 ng-repeat=\"historyColor in history.get() track by $index\"> <div ng-style=\"{'background': historyColor.toRgbString()}\" ng-click=setPaletteColor($event)></div> </div> </div> <md-button flex-end ng-click=history.reset() class=md-mini aria-label=\"Clear History\"> <mb-icon>clear_all</mb-icon> </md-button> </div> </md-tab-body> </md-tab> </md-tabs> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-color-picker.html',
+    "<div class=mb-color-picker-input-container layout=row> <div class=\"mb-color-picker-preview mb-color-picker-checkered-bg\" ng-click=showColorPicker($event) ng-if=mbColorPreview> <div class=mb-color-picker-result ng-style=\"{background: value}\"> </div> </div> <md-input-container flex> <label> <mb-icon ng-if=icon>{{icon}}</mb-icon> <span translate=\"\">{{label}}</span> </label> <input type=input ng-model=value class=mb-color-picker-input ng-mousedown=\"(openOnInput || !mbColorPreview) && showColorPicker($event)\"> </md-input-container> <mb-button class=\"mb-icon-button mb-color-picker-clear\" ng-if=\"mbColorClearButton && value\" ng-click=clearValue(); aria-label=\"Clear Color\"> <mb-icon>clear</mb-icon> </mb-button> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-file-input.html',
+    "<div layout=column class=mb-file-input> <div layout=column class=mb-file-input-preview-container ng-class=\"{'disabled':isDisabled}\" ng-show=\"isDrag || (isPreview && mbFiles.length)\"> <div class=mb-file-input-drag> <div layout=row layout-align=\"center center\" class=mb-file-input-drag-text-container ng-show=\"(!mbFiles.length || !isPreview) && isDrag\"> <div class=mb-file-input-drag-text mb-translate>{{strCaptionDragAndDrop}}</div> </div> <div class=mb-file-input-thumbnails ng-if=isPreview> <div class=mb-file-input-frame ng-repeat=\"mbFile in mbFiles\" ng-click=onFileClick(mbFile)> <div class=mb-file-input-x aria-label=\"remove {{mbFile.mbFileName}}\" ng-click=removeFile(mbFile,$event)>&times;</div> <mb-file ng-model=mbFile mb-unknow-class=strUnknowIconCls> </mb-file> <div class=mb-file-input-frame-footer> <div class=mb-file-input-frame-caption mb-translate>{{::mbFile.mbFileName}}</div> </div> </div> </div> <div class=clearfix style=clear:both></div> </div> <div layout=row> <span flex></span> <md-button aria-label=browse class=md-icon-button ng-disabled=isDisabled ng-click=openDialog($event)> <mb-icon>add</mb-icon> </md-button> <md-button aria-label=\"remove all files\" class=md-icon-button ng-click=removeAllFiles($event) ng-hide=\"!mbFiles.length || !isPreview\"> <mb-icon>clear_all</mb-icon> </md-button> </div> </div> <div layout=row class=mb-file-input-container> <div class=mb-file-input-caption layout=row layout-align=\"start center\" flex ng-class=\"{'disabled':isDisabled}\"> <mb-icon></mb-icon> <div flex class=mb-file-input-caption-text-default ng-show=!mbFiles.length mb-translate>{{strCaptionPlaceholder}}</div> <div flex class=mb-file-input-caption-text ng-hide=!mbFiles.length> <span ng-if=isCustomCaption>{{strCaption}}</span> <span ng-if=!isCustomCaption>{{ mbFiles.length == 1 ? mbFiles[0].mbFileName : mbFiles.length+\" files selected\" }}</span> </div> <md-progress-linear md-mode=determinate value={{floatProgress}} ng-show=\"intLoading && isProgress\"> </md-progress-linear> </div> <md-button aria-label=\"remove all files\" ng-disabled=isDisabled ng-click=removeAllFiles() ng-hide=\"!mbFiles.length || intLoading\" class=\"md-raised mb-file-input-button mb-file-input-button-remove\" ng-class=strRemoveButtonCls> <mb-icon>delete</mb-icon>  </md-button> <md-button aria-label=submit ng-disabled=isDisabled class=\"md-raised md-warn mb-file-input-button mb-file-input-button-submit\" ng-click=onSubmitClick() ng-class=strSubmitButtonCls ng-show=\"mbFiles.length && !intLoading && isSubmit\"> <mb-icon>send</mb-icon>  </md-button> <md-button aria-label=browse class=\"md-raised mb-file-input-button mb-file-input-button-brower\" ng-disabled=isDisabled ng-click=openDialog($event) ng-class=strBrowseButtonCls> <mb-icon>more_horiz</mb-icon>  </md-button> </div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/directives/mb-titled-block.html',
+    "<div class=\"md-whiteframe-2dp mb-titled-block\"> <md-toolbar class=md-hue-1 layout=row style=\"border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px\"> <div layout=row layout-align=\"start center\" class=md-toolbar-tools> <mb-icon size=24px style=\"margin: 0;padding: 0px\" ng-if=mbIcon>{{::mbIcon}}</mb-icon> <h3 mb-translate=\"\" style=\"margin-left: 8px; margin-right: 8px\">{{::mbTitle}}</h3> </div> <md-menu layout-align=\"end center\" ng-show=mbMoreActions.length> <mb-button class=mb-icon-button aria-label=Menu ng-click=$mdMenu.open($event)> <mb-icon>more_vert</mb-icon> </mb-button> <md-menu-content width=4> <md-menu-item ng-repeat=\"item in mbMoreActions\"> <md-button ng-click=$evalAction(item) aria-label={{::item.title}}> <mb-icon ng-show=item.icon>{{::item.icon}}</mb-icon> <span mb-translate=\"\">{{::item.title}}</span> </md-button> </md-menu-item> </md-menu-content> </md-menu> </md-toolbar> <md-progress-linear ng-style=\"{'visibility': mbProgress?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <div flex ng-transclude style=\"padding: 16px\"></div> </div>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/factories/MbColorPicker.html',
+    "<md-dialog class=mb-color-picker-dialog> <div mb-color-picker-container value=value default random={{random}} ok=ok mb-color-alpha-channel=mbColorAlphaChannel mb-color-spectrum=mbColorSpectrum mb-color-sliders=mbColorSliders mb-color-generic-palette=mbColorGenericPalette mb-color-material-palette=mbColorMaterialPalette mb-color-history=mbColorHistory mb-color-hex=mbColorHex mb-color-rgb=mbColorRgb mb-color-hsl=mbColorHsl mb-color-default-tab=mbColorDefaultTab></div> <md-actions layout=row> <md-button class=md-mini ng-click=close() style=\"width: 50%\">Cancel</md-button> <md-button class=md-mini ng-click=ok() style=\"width: 50%\">Select</md-button> </md-actions> </md-dialog>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/resources/file.html',
+    "<mb-file-input ng-model=ctrl.files ng-change=ctrl.setFile(ctrl.files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag> </mb-file-input>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/resources/files.html',
+    "<mb-file-input ng-model=ctrl.files ng-change=ctrl.setFiles(ctrl.files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag mb-multiple> </mb-file-input>"
+  );
+
+
+  $templateCache.put('scripts/module-ui/resources/url.html',
+    "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
+  );
+
+
+  $templateCache.put('scripts/services/resource-multi.html',
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <md-content ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" mb-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </md-content> </md-dialog>"
+  );
+
+
+  $templateCache.put('scripts/services/resource-single.html',
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <md-content ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </md-content> </md-dialog>"
   );
 
 }]);

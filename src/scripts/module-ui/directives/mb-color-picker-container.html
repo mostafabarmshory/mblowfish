@@ -1,0 +1,140 @@
+<div class="mb-color-picker-container in" layout="column">
+	<div class="mb-color-picker-arrow" ng-style="{'border-bottom-color': color.toRgbString() }"></div>
+	<div class="mb-color-picker-preview mb-color-picker-checkered-bg"
+		ng-class="{'dark': !color.isDark() || color.getAlpha() < .45}" flex="1" layout="column">
+		<div class="mb-color-picker-result" ng-style="{'background': color.toRgbString()}" flex="100" layout="column"
+			layout-fill layout-align="center center" ng-click="focusPreviewInput( $event )">
+			<!--<span flex  layout="column" layout-align="center center">{{value}}</span>-->
+			<div flex layout="row" layout-align="center center">
+				<input class="mb-color-picker-preview-input" type="text" ng-model="value"
+					ng-focus="previewFocus($event);" ng-blur="previewBlur()" ng-change="changeValue()"
+					ng-keypress="previewKeyDown($event)" layout-fill />
+			</div>
+			<div class="mb-color-picker-tabs" style="width: 100%">
+				<md-tabs md-selected="type" md-stretch-tabs="always" md-no-bar md-no-ink md-no-pagination="true">
+					<md-tab ng-if="mbColorHex" label="Hex" ng-disabled="color.getAlpha() !== 1" md-ink-ripple="#ffffff">
+					</md-tab>
+					<md-tab ng-if="mbColorRgb" label="RGB"></md-tab>
+					<md-tab ng-if="mbColorHsl" label="HSL"></md-tab>
+					<!--<md-tab label="HSV"></md-tab>
+					<md-tab label="VEC"></md-tab>-->
+				</md-tabs>
+			</div>
+		</div>
+	</div>
+	<div class="mb-color-picker-tabs mb-color-picker-colors">
+		<md-tabs md-stretch-tabs="always" md-align-tabs="bottom" md-selected="whichPane" md-no-pagination>
+			<md-tab ng-if="mbColorSpectrum">
+				<md-tab-label>
+					<mb-icon>gradient</mb-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<div layout="row" layout-align="space-between" style="height: 255px">
+						<div mb-color-picker-spectrum></div>
+						<div mb-color-picker-hue ng-class="{'mb-color-picker-wide': !mbColorAlphaChannel}"></div>
+						<div mb-color-picker-alpha class="mb-color-picker-checkered-bg" ng-if="mbColorAlphaChannel">
+						</div>
+					</div>
+				</md-tab-body>
+			</md-tab>
+			<md-tab ng-if="mbColorSliders">
+				<md-tab-label>
+					<mb-icon>tune</mb-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<div layout="column" flex="100" layout-fill layout-align="space-between start center"
+						class="mb-color-picker-sliders">
+						<div layout="row" layout-align="start center" layout-wrap flex layout-fill>
+							<div flex="10" layout layout-align="center center">
+								<span class="md-body-1">R</span>
+							</div>
+							<md-slider flex="65" min="0" max="255" ng-model="color._r" aria-label="red"
+								class="red-slider"></md-slider>
+							<span flex></span>
+							<div flex="20" layout layout-align="center center">
+								<input style="width: 100%;" min="0" max="255" type="number" ng-model="color._r"
+									aria-label="red" aria-controls="red-slider">
+							</div>
+						</div>
+						<div layout="row" layout-align="start center" layout-wrap flex layout-fill>
+							<div flex="10" layout layout-align="center center">
+								<span class="md-body-1">G</span>
+							</div>
+							<md-slider flex="65" min="0" max="255" ng-model="color._g" aria-label="green"
+								class="green-slider"></md-slider>
+							<span flex></span>
+							<div flex="20" layout layout-align="center center">
+								<input style="width: 100%;" min="0" max="255" type="number" ng-model="color._g"
+									aria-label="green" aria-controls="green-slider">
+							</div>
+						</div>
+						<div layout="row" layout-align="start center" layout-wrap flex layout-fill>
+							<div flex="10" layout layout-align="center center">
+								<span class="md-body-1">B</span>
+							</div>
+							<md-slider flex="65" min="0" max="255" ng-model="color._b" aria-label="blue"
+								class="blue-slider"></md-slider>
+							<span flex></span>
+							<div flex="20" layout layout-align="center center">
+								<input style="width: 100%;" min="0" max="255" type="number" ng-model="color._b"
+									aria-label="blue" aria-controls="blue-slider">
+							</div>
+						</div>
+						<div layout="row" layout-align="start center" layout-wrap flex layout-fill
+							ng-if="!mbColorAlphaChannel">
+							<div flex="10" layout layout-align="center center">
+								<span class="md-body-1">A</span>
+							</div>
+							<md-slider flex="65" min="0" max="1" step=".01" ng-model="color._a" aria-label="alpha"
+								class="md-primary"></md-slider>
+							<span flex></span>
+							<div flex="20" layout layout-align="center center">
+								<input style="width: 100%;" min="0" max="1" step=".01" type="number" ng-model="color._a"
+									aria-label="alpha" aria-controls="alpha-slider">
+							</div>
+						</div>
+					</div>
+				</md-tab-body>
+			</md-tab>
+			<md-tab ng-if="mbColorGenericPalette">
+				<md-tab-label>
+					<mb-icon>view_module</mb-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<div layout="column" layout-align="space-between start center" flex class="mb-color-picker-palette">
+
+					</div>
+				</md-tab-body>
+			</md-tab>
+			<md-tab ng-if="mbColorMaterialPalette">
+				<md-tab-label>
+					<mb-icon>view_headline</mb-icon>
+				</md-tab-label>
+				<md-tab-body>
+					<div layout="column" layout-fill flex class="mb-color-picker-material-palette">
+
+					</div>
+				</md-tab-body>
+			</md-tab>
+			<md-tab ng-if="mbColorHistory">
+				<md-tab-label>
+					<mb-icon>history</mb-icon>
+				</md-tab-label>
+				<md-tab-body layout="row" layout-fill>
+					<div layout="column" flex layout-align="space-between start" layout-wrap layout-fill
+						class="mb-color-picker-history">
+						<div layout="row" flex="80" layout-align="space-between start start" layout-wrap layout-fill>
+							<div flex="10" ng-repeat="historyColor in history.get() track by $index">
+								<div ng-style="{'background': historyColor.toRgbString()}"
+									ng-click="setPaletteColor($event)"></div>
+							</div>
+						</div>
+						<md-button flex-end ng-click="history.reset()" class="md-mini" aria-label="Clear History">
+							<mb-icon>clear_all</mb-icon>
+						</md-button>
+					</div>
+				</md-tab-body>
+			</md-tab>
+		</md-tabs>
+	</div>
+</div>

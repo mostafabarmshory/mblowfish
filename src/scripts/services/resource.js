@@ -42,8 +42,8 @@ mblowfish.provider('$mbResource', function() {
 	var provider;
 	var service;
 
-	var rootScope;
-	var mbDialog;
+	var mbDialog,
+		rootElement;
 
 
 
@@ -105,12 +105,13 @@ mblowfish.provider('$mbResource', function() {
 			option = {};
 		}
 		var pages = getPages(tag);
-		var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
+		var tmplUrl = pages.length > 1 ? 'scripts/services/resource-multi.html' : 'scripts/services/resource-single.html';
 		return mbDialog.show({
 			controller: 'ResourceDialogCtrl',
 			controllerAs: 'ctrl',
 			templateUrl: tmplUrl,
-			parent: angular.element(document.body),
+			parent: rootElement,
+			targetEvent: option.targetEvent,
 			clickOutsideToClose: false,
 			fullscreen: true,
 			multiple: true,
@@ -142,8 +143,9 @@ mblowfish.provider('$mbResource', function() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($mbDialog) {
+		$get: function($mbDialog, $rootElement) {
 			mbDialog = $mbDialog;
+			rootElement = $rootElement;
 			return service;
 		},
 		addPage: addPage
@@ -253,6 +255,7 @@ mblowfish.controller('ResourceDialogCtrl', function(
 			$element: target,
 			$scope: $scope.$new(false),
 			$style: $style,
+			$options: $options,
 			$value: value,
 			$resource: ctrl,
 			$keepRootElement: true, // Do not remove element

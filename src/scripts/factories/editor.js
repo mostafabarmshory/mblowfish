@@ -24,13 +24,18 @@
 /**
 @ngdoc Factories
 @name MbEditor
-@description An action item
+@description An editor
+
+An editor is used to edit an item in the framework.
+
+The editor is called derty if there is an unstored change in the item.
 
  */
-angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
+mblowfish.factory('MbEditor', function(MbFrame) {
 
 	function MbEditor(configs) {
 		MbFrame.call(this, configs);
+		this.derty = false;
 		return this;
 	};
 	// Circle derives from Shape
@@ -43,6 +48,28 @@ angular.module('mblowfish-core').factory('MbEditor', function(MbFrame) {
 		// add othere services to push
 		return MbFrame.prototype.render.call(this, locals);
 	};
-	
+
+
+	MbEditor.prototype.updateTitle = function() {
+		return MbFrame.prototype.setTitle.call(this, (this.isDerty() ? '*' : ' ') + this.originTitle);
+	}
+
+	MbEditor.prototype.setTitle = function(title) {
+		if (this.originTitle === title) {
+			return this;
+		}
+		this.originTitle = title;
+		return this.updateTitle();
+	};
+
+	MbEditor.prototype.setDerty = function(derty) {
+		this.derty = derty;
+		return this.updateTitle();
+	};
+
+	MbEditor.prototype.isDerty = function() {
+		return this.derty;
+	};
+
 	return MbEditor;
 });

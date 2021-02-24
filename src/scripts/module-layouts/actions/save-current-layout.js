@@ -1,8 +1,10 @@
 mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
-	title: 'Save Layout',
+	group: 'Layout',
+	title: 'Save',
+	description: 'Saves the current layout',
 	icon: 'save',
-	/* @ngInject */
 	action: function($mbLayout, $mbLayoutsLocalStorage) {
+		'ngInject';
 		function saveAs(layoutId) {
 			$mbLayoutsLocalStorage.createLayout(layoutId, $mbLayout.getCurrentLayout());
 		}

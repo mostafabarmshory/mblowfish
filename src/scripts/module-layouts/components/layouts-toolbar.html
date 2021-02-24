@@ -2,7 +2,7 @@
 	class="amd-account-toolbar">
 	<mb-icon
 		class="anchor"
-		ng-click="$mdOpenMenu()" 
+		ng-click="ctrl.openMenu($mdMenu, $event)" 
 		aria-label="Open menu"
 		size="16"
 		style="padding: 4px;">dashboard</mb-icon>
@@ -13,6 +13,15 @@
 				ng-click="ctrl.saveAs($event)"
 				mb-translate>Save Current Layout As</md-button>
 		</md-menu-item>
+		<md-menu-divider ng-if="ctrl.layouts.length"></md-menu-divider>
+		<!-- maso, 2020: current layouts. -->
+		<md-menu-item
+			ng-repeat="layout in ctrl.layouts">
+			<md-button 
+				ng-click="ctrl.loadLayout($event, layout)"
+				mb-translate>{{::layout}}</md-button>
+		</md-menu-item>
+		<md-menu-divider ng-if="ctrl.layouts.length"></md-menu-divider>
 		<md-menu-item>
 			<md-button 
 				ng-click="ctrl.loadLayout($event)"

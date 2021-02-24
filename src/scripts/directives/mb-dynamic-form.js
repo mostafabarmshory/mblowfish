@@ -58,10 +58,11 @@ mblowfish.directive('mbDynamicForm', function($mbResource) {
 			return $mbResource.hasPageFor(prop.name);
 		};
 
-		scope.setValueFor = function(prop) {
+		scope.setValueFor = function(prop, $event) {
 			return $mbResource
 				.get(prop.name, {
-					data: prop.defaultValue
+					data: prop.defaultValue,
+					targetEvent:$event
 				})
 				.then(function(value) {
 					scope.modelChanged(prop.name, value);

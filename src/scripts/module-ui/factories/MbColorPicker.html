@@ -1,0 +1,22 @@
+<md-dialog class="mb-color-picker-dialog">
+	<div mb-color-picker-container
+		value="value"
+		default="{{defaultValue}}"
+		random="{{random}}"
+		ok="ok"
+		mb-color-alpha-channel="mbColorAlphaChannel"
+		mb-color-spectrum="mbColorSpectrum"
+		mb-color-sliders="mbColorSliders"
+		mb-color-generic-palette="mbColorGenericPalette"
+		mb-color-material-palette="mbColorMaterialPalette"
+		mb-color-history="mbColorHistory"
+		mb-color-hex="mbColorHex"
+		mb-color-rgb="mbColorRgb"
+		mb-color-hsl="mbColorHsl"
+		mb-color-default-tab="mbColorDefaultTab"
+	></div>
+	<md-actions layout="row">
+		<md-button class="md-mini" ng-click="close()" style="width: 50%;">Cancel</md-button>
+		<md-button class="md-mini" ng-click="ok()" style="width: 50%;">Select</md-button>
+	</md-actions>
+</md-dialog>

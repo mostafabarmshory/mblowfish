@@ -36,7 +36,9 @@ mblowfish.config(function($mdThemingProvider) {
 			'default': '700'
 		})//
 		.warnPalette('red')
-		.backgroundPalette('grey')
+		.backgroundPalette('grey', {
+			'default': '800'
+		})
 		.dark();
 
 	$mdThemingProvider.alwaysWatchTheme(true);

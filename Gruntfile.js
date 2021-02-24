@@ -743,6 +743,7 @@ module.exports = function(grunt) {
 		'clean', //
 		'wiredep', //
 		'injector', //
+		'ngtemplates:test', //
 		'concurrent:server', //
 		'postcss', //
 		'karma:debug' //

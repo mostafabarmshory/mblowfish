@@ -1,5 +1,6 @@
 mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
-	title: 'Preferences',
+	group: 'Preferences',
+	title: 'Preferences list',
 	icon: 'settings',
 	/* @ngInject */
 	action: function($location) {

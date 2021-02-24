@@ -1,6 +1,6 @@
 
 
-mblowfish.run(function($window, $q, $rootScope) {
+mblowfish.run(function($window, $q, $rootScope, $notification) {
 
 	var libs = {};
 	var styles = {};
@@ -199,4 +199,11 @@ mblowfish.run(function($window, $q, $rootScope) {
 			metaElement.attr(property, data[property]);
 		}
 	};
+
+
+	// Hadi 1396-12-22: update alerts
+	window.alert = $notification.alert;
+	window.confirm = $notification.confirm;
+	window.prompt = $notification.prompt;
+	window.toast = $notification.toast;
 });

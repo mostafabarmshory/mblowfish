@@ -1,5 +1,0 @@
-
-
-mblowfish.controller('MbApplicationPreloadingContainerCtrl', function() {
-
-});

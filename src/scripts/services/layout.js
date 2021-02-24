@@ -46,7 +46,8 @@ mblowfish.provider('$mbLayout', function() {
 		injector,// = $injector;
 		mbStorage, // = $mbStorage
 		mbSettings,
-		location;
+		mbLog,
+		location, mbTheming;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
@@ -59,8 +60,7 @@ mblowfish.provider('$mbLayout', function() {
 		dockerBodyElement,
 		dockerPanelElement,
 		dockerViewElement,
-		rootElement,// Root element of the layout system
-		mode = 'docker';// layout mode
+		rootElement;// Root element of the layout system
 
 	//-----------------------------------------------------------------------------------
 	// Global functions
@@ -85,29 +85,14 @@ mblowfish.provider('$mbLayout', function() {
 	 */
 	function open(frame, state, anchor) {
 		var result;
-		switch (mode) {
-			case 'docker':
-				result = openDockerContent(frame, state, anchor);
-				break;
-			default:
-				result = openMobileView(frame, state, anchor);
-				break;
-		}
+		result = openDockerContent(frame, state, anchor);
 		return result;
 	}
 
 	function reload(element) {
 		rootElement = element;
-		switch (mode) {
-			case 'docker':
-				destroyDockerLayout();
-				loadDockerLayout();
-				break;
-			default:
-				destroyMobileView();
-				loadMobileView();
-				break;
-		}
+		destroyDockerLayout();
+		loadDockerLayout();
 	}
 
 	function setFocus(component) {
@@ -116,24 +101,6 @@ mblowfish.provider('$mbLayout', function() {
 		contentItem.parent.setActiveContentItem(contentItem);
 	}
 
-	function init() {
-		switch (mode) {
-			case 'docker':
-				initDockerLayout();
-				break;
-			default:
-				initMobileView();
-				break;
-		}
-	}
-
-	//-----------------------------------------------------------------------------------
-	// Mobile Layout
-	//-----------------------------------------------------------------------------------
-	function initMobileView() { }
-	function destroyMobileView() { }
-	function loadMobileView() { }
-	function openMobileView(/*component, anchor*/) { }
 
 
 	//-----------------------------------------------------------------------------------
@@ -148,9 +115,13 @@ mblowfish.provider('$mbLayout', function() {
 	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
 	var DOCKER_VIEW_CLASS = 'mb_docker_view';
 
-	function initDockerLayout() {
-		restorDockerState();
-		//loadDockerLayout();
+	function getLayouts() {
+		var layouts = [];
+		for (var i = 0; i < layoutProviders.length; i++) {
+			var layoutProvider = layoutProviders[i];
+			layouts = _.concat(layouts, layoutProvider.list());
+		}
+		return layouts;
 	}
 
 	function setLayout(name) {
@@ -161,6 +132,9 @@ mblowfish.provider('$mbLayout', function() {
 		storeDockerState();
 	}
 
+	/*
+	TODO: maso, 2020: support lazye load
+	*/
 	function getDockerLayout(name) {
 		for (var i = 0; i < layoutProviders.length; i++) {
 			var layoutProvider = layoutProviders[i];
@@ -189,7 +163,9 @@ mblowfish.provider('$mbLayout', function() {
 			docker.off('componentCreated', dockerComponentCreate);
 			docker.off('stateChanged', onDockerStateChanged);
 			docker.off('activeContentItemChanged', dockerActiveContentItemChanged);
-		} catch (ex) { }
+		} catch (ex) {
+			mbLog.error(ex);
+		}
 		_.forEach(frames, function(frame) {
 			frame.destroy();
 		});
@@ -204,37 +180,19 @@ mblowfish.provider('$mbLayout', function() {
 	}
 
 	function dockerActiveContentItemChanged(e) {
-		if (!e.isComponent) {
-			return;
-		}
 		try {
-			var frame = e.container.$frame;
-			location.url(frame.url);
+			location.url(e.instance.id);
 			if (rootScope.$$phase !== '$digest') {
 				rootScope.$apply();
 			}
 		} catch (e) {
-			// TODO: add loger
+			mbLog.error(e);
 		}
 	}
 
-	function onDockerInitialised() {
-		// link element
-		var link = compile(dockerBodyElement.contents());
-		link(rootScope);
-	}
 
-	function dockerStackCreated(stack) {
-		// link element
-		var link = compile(stack.element);
-		link(rootScope);
-	}
 
-	function dockerComponentCreate(component) {
-		// link element
-		var link = compile(component.element);
-		link(rootScope);
-	}
+
 
 	function loadDockerLayout() {
 		// load element
@@ -252,13 +210,20 @@ mblowfish.provider('$mbLayout', function() {
 		docker = new GoldenLayout(currentLayout, dockerViewElement);
 		docker.registerComponent('component', loadComponent);
 
-		docker.on('initialised', onDockerInitialised);
-		docker.on('stackCreated', dockerStackCreated);
-		docker.on('componentCreated', dockerComponentCreate);
+		docker.on('initialised', function() {
+			var link = compile(docker.root.element);
+			link(rootScope);
+		});
+		////		docker.on('componentCreated', onDockerInitialised);
+		////		docker.on('rowCreated', applyAngolar);
+		////		docker.on('columnCreated', applyAngolar);
+		////		docker.on('stackCreated', applyAngolar);
+		////		docker.on('tabCreated', decorateItem);
 		try {
 			docker.init();
 		} catch (e) {
-			setLayout(defaultLayoutName);
+			mbLog.error(e);
+			//			setLayout(defaultLayoutName);
 		}
 		docker.on('stateChanged', onDockerStateChanged);
 		docker.on('activeContentItemChanged', dockerActiveContentItemChanged);
@@ -280,7 +245,13 @@ mblowfish.provider('$mbLayout', function() {
 			var $mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(state.url, state);
 		}
+
+		// No frame found
 		if (_.isUndefined(component)) {
+			mbLob({
+				message: 'No frame found with the givern url',
+				frame: editor
+			});
 			$mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(
 				'/ui/notfound/' + state.url, // path
@@ -289,7 +260,8 @@ mblowfish.provider('$mbLayout', function() {
 
 		// discannect all resrouces
 		if (component.isVisible()) {
-			return component.setFocus();
+			// It is draged to new location
+			return component;
 		}
 
 		// load element
@@ -304,9 +276,9 @@ mblowfish.provider('$mbLayout', function() {
 				frames.splice(index, 1);
 			}
 		});
-		editor.$frame = component;
-		editor.on('tab', function() {
-			editor.tab.element.on('click', function() {
+		editor.on('tab', function(tab) {
+			// component.$glTab = $tab;
+			tab.element.on('click', function() {
 				location.url(component.url);
 				try {
 					if (rootScope.$$phase !== '$digest') {
@@ -316,12 +288,12 @@ mblowfish.provider('$mbLayout', function() {
 			});
 		});
 		component.$dockerContainer = editor;
-		return component.render({
+		component.render({
 			$dockerContainer: editor,
 			$element: element,
 			$state: state
 		});
-		// TODO: maso,2020: dispatc view is loaded
+		return component;
 	}
 
 	function getDockerContentById(id) {
@@ -382,20 +354,15 @@ mblowfish.provider('$mbLayout', function() {
 		reload: reload,
 		open: open,
 		setFocus: setFocus,
+
 		setLayout: setLayout,
+		getLayouts: getLayouts,
 		getCurrentLayout: function() {
 			return docker.toConfig();
-		},
-		getMode: function() {
-			return mode;
 		},
 	}
 	provider = {
 		providers: [],
-		setMode: function(appMode) {
-			mode = appMode;
-			return provider;
-		},
 		addProvider: function(providerFactoryName) {
 			provider.providers.push(providerFactoryName);
 			return provider;
@@ -406,8 +373,8 @@ mblowfish.provider('$mbLayout', function() {
 		},
 		/* @ngInject */
 		$get: function(
-			/* Angularjs */ $compile, $rootScope, $injector, $location,
-			/* MblowFish */ $mbStorage, $mbSettings) {
+			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
+			/* MblowFish */ $mbStorage, $mbSettings, $mbLog) {
 			//
 			// 1- Init layouts
 			//
@@ -415,46 +382,39 @@ mblowfish.provider('$mbLayout', function() {
 			rootScope = rootScope || $rootScope;
 			compile = $compile;
 			injector = $injector;
+			mbTheming = $mbTheming;
 
 			mbStorage = $mbStorage;
 			mbSettings = $mbSettings;
+			mbLog = $mbLog;
 
-			//
-			// 3- Initialize the laytout
-			//
-			_.forEach(provider.providers, function(providerName) {
-				var Provider = $injector.get(providerName);
-				var pro = new Provider();
-				layoutProviders.push(pro);
-			});
-			init();
+			try {
+				//
+				// 3- Initialize the laytout
+				//
+				_.forEach(provider.providers, function(providerName) {
+					var Provider = $injector.get(providerName);
+					var pro = new Provider();
+					layoutProviders.push(pro);
+				});
+				restorDockerState();
+				//loadDockerLayout();
+			} catch (ex) {
+				mbLog.error(ex);
+			}
 			return service;
 		}
 	};
 	return provider;
 });
 
-(function() {
-	var mlDirectiveItems = [
-		'lmGoldenlayout',
-		'lmContent',
-		'lmSplitter',
-		'lmStack',
-		'lmHeader',
-		'lmControls',
-		'lmMaximised',
-		'lmTransitionIndicator'
-	];
-	_.forEach(mlDirectiveItems, function(directiveName) {
-		mblowfish.directive(directiveName, function($mbTheming) {
-			'ngInject';
-			return {
-				restrict: 'C',
-				link: function($scope, $element) {
-					$mbTheming($element);
-				}
-			};
-		});
-	});
-})();
+mblowfish.directive('lmGoldenlayout', function($mbTheming) {
+	'ngInject';
+	return {
+		restrict: 'C',
+		link: function($scope, $element) {
+			$mbTheming($element);
+		}
+	};
+});
 

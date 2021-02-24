@@ -1,8 +1,10 @@
 mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
-	title: 'Load Layout',
+	group: 'Layout',
+	title: 'Load',
+	description: 'Loads a layout from the stored layouts',
 	icon: 'launch',
-	/* @ngInject */
 	action: function($event, $mbLayout, $mbResource) {
+		'ngInject';
 		function loadLayout(layoutName) {
 			$mbLayout.setLayout(layoutName);
 		}
@@ -14,7 +16,8 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 					title: 'Select layout',
 					$style: {
 						multi: false
-					}
+					},
+					targetEvent: $event
 				})
 				.then(function(values) {
 					loadLayout(values[0]);

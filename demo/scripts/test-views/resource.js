@@ -33,12 +33,13 @@ mblowfish.controller('TestResoucesCtrl', function($scope, $mbResource) {
 
 	var ctrl = this;
 
-	function selectFile() {
+	function selectFile($event) {
 		$mbResource
 			.get('file', {
 				$style: {
 					accept: '.*',
-				}
+				},
+				targetEvent:$event
 			})
 			.then(function(file) {
 				$scope.file = file;
@@ -46,12 +47,13 @@ mblowfish.controller('TestResoucesCtrl', function($scope, $mbResource) {
 	}
 
 
-	function selectFiles() {
+	function selectFiles($event) {
 		$mbResource
 			.get('files', {
 				$style: {
 					accept: '.*',
-				}
+				},
+				targetEvent:$event
 			})
 			.then(function(files) {
 				$scope.files = files;

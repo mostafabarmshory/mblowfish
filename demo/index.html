@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<html 
-	dir="{{__app.dir}}"
-	md-theme="{{ __app.setting.theme || __app.config.theme || 'default'}}"
-	md-theme-watch>
+<html>
 <head>
 	<title>MBlowfis - Advanced Online IDE</title>
 	<meta charset="utf-8">
@@ -18,7 +15,6 @@
 	<!-- build:css({.tmp/serve,src}) styles/vendor.css -->
 	<!-- bower:css -->
 	<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
-	<link rel="stylesheet" href="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css" />
 	<!-- endbower -->
 	<!-- endbuild -->
 	
@@ -27,16 +23,18 @@
 	<link rel="stylesheet" href="scripts/factories/action.css">
 	<link rel="stylesheet" href="scripts/factories/frame.css">
 	<link rel="stylesheet" href="scripts/factories/wizard.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-button.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-color-picker.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-file-input.css">
+	<link rel="stylesheet" href="scripts/module-ui/directives/mb-table.css">
 	<link rel="stylesheet" href="styles/angular-material-common.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-button.css">
-	<link rel="stylesheet" href="styles/angular-material-hack-icon.css">
 	<link rel="stylesheet" href="styles/angular-material-hack-toolbar.css">
 	<link rel="stylesheet" href="styles/badge.css">
 	<link rel="stylesheet" href="styles/container.css">
 	<link rel="stylesheet" href="styles/core.css">
 	<link rel="stylesheet" href="styles/demo-theme.css">
 	<link rel="stylesheet" href="styles/dialogs.css">
-	<link rel="stylesheet" href="styles/hack-lf-md-file-input.css">
 	<link rel="stylesheet" href="styles/infinate-scroll.css">
 	<link rel="stylesheet" href="styles/inline.css">
 	<link rel="stylesheet" href="styles/md-expansion-panel .css">
@@ -66,15 +64,14 @@
 	<script src="bower_components/mustache.js/mustache.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
-	<script src="bower_components/angular-animate/angular-animate.js"></script>
-	<script src="bower_components/angular-aria/angular-aria.js"></script>
 	<script src="bower_components/angular-cookies/angular-cookies.js"></script>
 	<script src="bower_components/angular-messages/angular-messages.js"></script>
-	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.js"></script>
+	<script src="bower_components/angular-aria/angular-aria.js"></script>
+	<script src="bower_components/angular-material/angular-material.js"></script>
 	<script src="bower_components/golden-layout/dist/goldenlayout.min.js"></script>
 	<script src="bower_components/ng-appcache/dist/appcache.js"></script>
-	<script src="bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js"></script>
 	<script src="bower_components/angular-material-persian-datepicker/dist/datePicker.min.js"></script>
 	<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 	<!-- endbower -->
@@ -84,15 +81,15 @@
 	<!-- injector:js -->
 	<script src="scripts/app.js"></script>
 	<script src="scripts/demo-index.js"></script>
-	<script src="scripts/module-common/index.js"></script>
 	<script src="scripts/module-help/index.js"></script>
-	<script src="scripts/module-iframe/index.js"></script>
 	<script src="scripts/module-layouts/index.js"></script>
 	<script src="scripts/module-moduleManager/index.js"></script>
 	<script src="scripts/module-navigator/index.js"></script>
 	<script src="scripts/module-preferences/index.js"></script>
 	<script src="scripts/module-translate/index.js"></script>
+	<script src="scripts/module-ui/index.js"></script>
 	<script src="libs/moment-jalaali.js"></script>
+	<script src="scripts/angular-hack-appcache.js"></script>
 	<script src="scripts/angular-hack-configs.js"></script>
 	<script src="scripts/angular-hack-icons-configs.js"></script>
 	<script src="scripts/angular-hack-theme-configs.js"></script>
@@ -100,34 +97,33 @@
 	<script src="scripts/controllers/abstract-ctrl.js"></script>
 	<script src="scripts/controllers/dialog-default-ctrl.js"></script>
 	<script src="scripts/controllers/dynamic-form-dialog-ctrl.js"></script>
-	<script src="scripts/directives/mb-badge.js"></script>
 	<script src="scripts/directives/mb-captcha.js"></script>
 	<script src="scripts/directives/mb-compare-to.js"></script>
 	<script src="scripts/directives/mb-context-menu.js"></script>
 	<script src="scripts/directives/mb-datepicker.js"></script>
+	<script src="scripts/directives/mb-draggable.js"></script>
 	<script src="scripts/directives/mb-dynamic-form.js"></script>
 	<script src="scripts/directives/mb-dynamic-tabs.js"></script>
 	<script src="scripts/directives/mb-error-messages.js"></script>
-	<script src="scripts/directives/mb-icon.js"></script>
 	<script src="scripts/directives/mb-infinateScroll.js"></script>
 	<script src="scripts/directives/mb-inline.js"></script>
 	<script src="scripts/directives/mb-local.js"></script>
 	<script src="scripts/directives/mb-navigation-bar.js"></script>
+	<script src="scripts/directives/mb-on-dragstart.js"></script>
+	<script src="scripts/directives/mb-on-enter.js"></script>
+	<script src="scripts/directives/mb-on-error.js"></script>
+	<script src="scripts/directives/mb-on-esc.js"></script>
+	<script src="scripts/directives/mb-on-load.js"></script>
 	<script src="scripts/directives/mb-preloading.js"></script>
 	<script src="scripts/directives/mb-sidenav.js"></script>
-	<script src="scripts/directives/mb-titled-block.js"></script>
+	<script src="scripts/directives/mb-toolbar-group.js"></script>
 	<script src="scripts/directives/mb-user-toolbar.js"></script>
 	<script src="scripts/directives/mb-view.js"></script>
 	<script src="scripts/directives/ng-src-error.js"></script>
-	<script src="scripts/directives/toolbar-group-directive.js"></script>
-	<script src="scripts/directives/wb-on-dragstart.js"></script>
-	<script src="scripts/directives/wb-on-enter.js"></script>
-	<script src="scripts/directives/wb-on-error.js"></script>
-	<script src="scripts/directives/wb-on-esc.js"></script>
-	<script src="scripts/directives/wb-on-load.js"></script>
 	<script src="scripts/factories/account-authentication-provider.js"></script>
 	<script src="scripts/factories/account-authentication.js"></script>
 	<script src="scripts/factories/action-group.js"></script>
+	<script src="scripts/factories/action-hotkey-map.js"></script>
 	<script src="scripts/factories/action.js"></script>
 	<script src="scripts/factories/component.js"></script>
 	<script src="scripts/factories/container.js"></script>
@@ -151,13 +147,10 @@
 	<script src="scripts/factories/wizard.js"></script>
 	<script src="scripts/filters/crypto-md5.js"></script>
 	<script src="scripts/filters/html-unsafe.js"></script>
-	<script src="scripts/module-common/appcache.js"></script>
-	<script src="scripts/module-common/hack-window.js"></script>
 	<script src="scripts/module-help/services/help.js"></script>
-	<script src="scripts/module-iframe/actions/open-url.js"></script>
-	<script src="scripts/module-iframe/editors/browser.js"></script>
 	<script src="scripts/module-layouts/actions/load-layout.js"></script>
 	<script src="scripts/module-layouts/actions/save-current-layout.js"></script>
+	<script src="scripts/module-layouts/actions/theme-switch.js"></script>
 	<script src="scripts/module-layouts/components/layouts-toolbar.js"></script>
 	<script src="scripts/module-layouts/factories/layout-provider-local.js"></script>
 	<script src="scripts/module-layouts/resources/layouts-local-storage.js"></script>
@@ -168,6 +161,7 @@
 	<script src="scripts/module-moduleManager/actions/module-import.js"></script>
 	<script src="scripts/module-moduleManager/resources/module-manual.js"></script>
 	<script src="scripts/module-moduleManager/views/modules.js"></script>
+	<script src="scripts/module-navigator/actions/command-line-display.js"></script>
 	<script src="scripts/module-navigator/actions/navigator-toggle.js"></script>
 	<script src="scripts/module-navigator/controllers/navigator.js"></script>
 	<script src="scripts/module-navigator/sidenavs/navigator.js"></script>
@@ -175,7 +169,6 @@
 	<script src="scripts/module-preferences/actions/preferences-show.js"></script>
 	<script src="scripts/module-preferences/editors/preference.js"></script>
 	<script src="scripts/module-preferences/views/preferences.js"></script>
-	<script src="scripts/module-preload/preload-component-ctrl.js"></script>
 	<script src="scripts/module-translate/directives/translate-attr.js"></script>
 	<script src="scripts/module-translate/directives/translate-cloak.js"></script>
 	<script src="scripts/module-translate/directives/translate-directive.js"></script>
@@ -198,6 +191,38 @@
 	<script src="scripts/module-translate/services/translate-sanitization.js"></script>
 	<script src="scripts/module-translate/services/translation.js"></script>
 	<script src="scripts/module-translate/views/languages-ctrl.js"></script>
+	<script src="scripts/module-ui/actions/open-url.js"></script>
+	<script src="scripts/module-ui/directives/mb-badge.js"></script>
+	<script src="scripts/module-ui/directives/mb-button.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker-alpha.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker-container.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker-hue.js"></script>
+	<script src="scripts/module-ui/directives/mb-color-picker.js"></script>
+	<script src="scripts/module-ui/directives/mb-colors.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-input.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-mimetype.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-size-total.js"></script>
+	<script src="scripts/module-ui/directives/mb-file-size.js"></script>
+	<script src="scripts/module-ui/directives/mb-file.js"></script>
+	<script src="scripts/module-ui/directives/mb-icon.js"></script>
+	<script src="scripts/module-ui/directives/mb-max-length.js"></script>
+	<script src="scripts/module-ui/directives/mb-min-length.js"></script>
+	<script src="scripts/module-ui/directives/mb-polor-picker-spectrum.js"></script>
+	<script src="scripts/module-ui/directives/mb-required.js"></script>
+	<script src="scripts/module-ui/directives/mb-table.js"></script>
+	<script src="scripts/module-ui/directives/mb-titled-block.js"></script>
+	<script src="scripts/module-ui/editors/browser.js"></script>
+	<script src="scripts/module-ui/factories/MbColor.js"></script>
+	<script src="scripts/module-ui/factories/MbColorGradientCanvas.js"></script>
+	<script src="scripts/module-ui/factories/MbColorPicker.js"></script>
+	<script src="scripts/module-ui/factories/MbColorPickerHistory.js"></script>
+	<script src="scripts/module-ui/filters/mbTrusted.js"></script>
+	<script src="scripts/module-ui/resources/file.js"></script>
+	<script src="scripts/module-ui/resources/files.js"></script>
+	<script src="scripts/module-ui/resources/url.js"></script>
+	<script src="scripts/module-ui/services/color-palette.js"></script>
+	<script src="scripts/module-ui/services/colors.js"></script>
+	<script src="scripts/module-ui/services/icon.js"></script>
 	<script src="scripts/services/account.js"></script>
 	<script src="scripts/services/actions.js"></script>
 	<script src="scripts/services/application.js"></script>
@@ -209,7 +234,7 @@
 	<script src="scripts/services/dispatcher.js"></script>
 	<script src="scripts/services/dynamic-form.js"></script>
 	<script src="scripts/services/editor.js"></script>
-	<script src="scripts/services/icon.js"></script>
+	<script src="scripts/services/hotkey.js"></script>
 	<script src="scripts/services/job.js"></script>
 	<script src="scripts/services/layout.js"></script>
 	<script src="scripts/services/local.js"></script>
@@ -235,6 +260,7 @@
 	<script src="scripts/services/wizard.js"></script>
 	<script src="scripts/test-actions/alert.js"></script>
 	<script src="scripts/test-actions/navigator-sidenav-toogle.js"></script>
+	<script src="scripts/test-actions/new-object.js"></script>
 	<script src="scripts/test-actions/travel-create.js"></script>
 	<script src="scripts/test-controller/dynamic-form.js"></script>
 	<script src="scripts/test-controller/help.js"></script>
@@ -254,6 +280,8 @@
 	<script src="scripts/test-factories/layout-provider-default.js"></script>
 	<script src="scripts/test-views/demo-explorer.js"></script>
 	<script src="scripts/test-views/resource.js"></script>
+	<script src="scripts/views/ui-color-view.js"></script>
+	<script src="scripts/views/ui-file-view.js"></script>
 	<script src="scripts/wizards/holidayCarPage.js"></script>
 	<script src="scripts/wizards/holidayFinalPage.js"></script>
 	<script src="scripts/wizards/holidayLocationPage.js"></script>
@@ -267,6 +295,9 @@
 
 </head>
 <body 
+	dir="{{__app.dir}}"
+	md-theme="{{ settings.theme || 'default'}}"
+	md-theme-watch
 	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"
 	mb-sidenavs>
 	<main>
