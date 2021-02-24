@@ -55,9 +55,10 @@ mblowfish.controller('MbLanguagesCtrl', function(
 	 * @memberof MbLanguagesCtrl
 	 * @return {promise} to add language
 	 */
-	this.addLanguage = function() {
+	this.addLanguage = function($event) {
 		$mbResource.get('/app/languages', {
-			// TODO:
+			// TODO:,
+			targetEvent: $event
 		}).then(function(language) {
 			language.map = language.map || {};
 			return $language.newLanguage(language);

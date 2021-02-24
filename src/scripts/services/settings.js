@@ -53,6 +53,7 @@ mblowfish.provider('$mbSettings', function() {
 	 */
 	function load() {
 		settings = mbStorage[MB_SETTINGS_SP] || {};
+		rootScope.settings = settings;
 	}
 
 	function get(key, defaultValue) {

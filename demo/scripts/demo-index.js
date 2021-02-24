@@ -32,6 +32,8 @@ mblowfish
 		$mbAccountProvider, $mbComponentProvider,
 		$mbTranslateProvider, $mbTranslateSanitizationProvider,
 		$mbStorageProvider, $mbActionsProvider, $locationProvider) {
+
+
 		$mbAccountProvider
 			.addAuthenticationProvider('DemoMemoryAuthenticationProvider');
 		//
@@ -116,7 +118,8 @@ mblowfish
 				'User': 'کاربر',
 			})
 			.preferredLanguage('fa')
-			.useMissingTranslationHandlerLog();
+			//			.useMissingTranslationHandlerLog()
+			;
 		$mbTranslateSanitizationProvider
 			.useStrategy(['sanitize']);
 
@@ -147,13 +150,15 @@ mblowfish
 					'mb.app.navigator.toggle',
 					'demo.alert',
 					MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION,
-					'demo.travel.create'
+					'demo.travel.create',
+					MB_LAYOUTS_THEME_SWITECH_ACTION,
 				]
 			}, {
 				url: '/app',
 				float: 'left',
 				items: [
 					MB_PREFERENCES_SHOW_ACTION,
+					MB_LAYOUTS_THEME_SWITECH_ACTION,
 				]
 			}, {
 				url: '/app/account',
@@ -163,6 +168,7 @@ mblowfish
 					'test.component.id',
 					//				MB_ACCOUNT_LOGIN_ACTION,
 					//				MB_ACCOUNT_LOGOUT_ACTION,
+					MB_LAYOUTS_THEME_SWITECH_ACTION,
 				]
 			}, {
 				url: '/app/layouts',
@@ -179,16 +185,16 @@ mblowfish
 		$mbActionsProvider
 			.setShortkeysEnabled(true);
 
-//		$mbSidenavProvider
-//			.addSidenav('/app/navigator', {
-//				title: 'Navigator',
-//				description: 'Navigate all path and routs of the pandel',
-//				controller: 'MbNavigatorCtrl',
-//				controllerAs: 'ctrl',
-//				templateUrl: 'views/mb-navigator.html',
-//				//		locked: '$mdMedia("min-width: 333px");',
-//				position: 'start'
-//			});
+		//		$mbSidenavProvider
+		//			.addSidenav('/app/navigator', {
+		//				title: 'Navigator',
+		//				description: 'Navigate all path and routs of the pandel',
+		//				controller: 'MbNavigatorCtrl',
+		//				controllerAs: 'ctrl',
+		//				templateUrl: 'views/mb-navigator.html',
+		//				//		locked: '$mdMedia("min-width: 333px");',
+		//				position: 'start'
+		//			});
 		//
 		//  $mbView: manages all views of an application. you can add a new view 
 		// dynamically.

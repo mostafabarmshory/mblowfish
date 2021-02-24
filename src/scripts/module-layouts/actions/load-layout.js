@@ -16,7 +16,8 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 					title: 'Select layout',
 					$style: {
 						multi: false
-					}
+					},
+					targetEvent: $event
 				})
 				.then(function(values) {
 					loadLayout(values[0]);

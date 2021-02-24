@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<html 
-	dir="{{__app.dir}}"
-	md-theme="{{ __app.setting.theme || __app.config.theme || 'default'}}"
-	md-theme-watch>
+<html>
 <head>
 	<title>MBlowfis - Advanced Online IDE</title>
 	<meta charset="utf-8">
@@ -153,6 +150,7 @@
 	<script src="scripts/module-help/services/help.js"></script>
 	<script src="scripts/module-layouts/actions/load-layout.js"></script>
 	<script src="scripts/module-layouts/actions/save-current-layout.js"></script>
+	<script src="scripts/module-layouts/actions/theme-switch.js"></script>
 	<script src="scripts/module-layouts/components/layouts-toolbar.js"></script>
 	<script src="scripts/module-layouts/factories/layout-provider-local.js"></script>
 	<script src="scripts/module-layouts/resources/layouts-local-storage.js"></script>
@@ -297,6 +295,9 @@
 
 </head>
 <body 
+	dir="{{__app.dir}}"
+	md-theme="{{ settings.theme || 'default'}}"
+	md-theme-watch
 	ng-class="{'mb-rtl-direction': __app.dir=='rtl', 'mb-ltr-direction': __app.dir!='rtl'}"
 	mb-sidenavs>
 	<main>
