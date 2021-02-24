@@ -14207,32 +14207,42 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 				input.dispatchEvent(evt);
 			};
 
+			/*
+			 * Remove all files and update the ngModel
+			 */
 			scope.removeAllFilesWithoutVaildate = function() {
-				scope.mbFiles.length = 0;
-				elThumbnails.empty();
+				removeAllFiles();
 			};
 
 			scope.removeAllFiles = function(/*event*/) {
 				scope.removeAllFilesWithoutVaildate();
 			};
 
+			/*
+			 * Remove a file by name
+			 */
 			scope.removeFileByName = function(name/*, event*/) {
 				scope.mbFiles.every(function(obj, idx) {
-					if (obj.mbFileName == name) {
+					if (obj.name == name) {
 						scope.mbFiles.splice(idx, 1);
+						// TODO: update ngModel
 						return false;
 					}
 					return true;
 				});
 			};
 
+
+			/*
+			 * Remove an specific file
+			 */
 			scope.removeFile = function(mbFile) {
 				scope.mbFiles.every(function(obj, idx) {
 					if (obj.key == mbFile.key) {
 						if (angular.isFunction(scope.mbOnFileRemove)) {
 							scope.mbOnFileRemove(obj, idx);
 						}
-						scope.mbFiles.splice(idx, 1);
+						removeFileByIndex(idx);
 						return false;
 					}
 					return true;
@@ -14313,7 +14323,7 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 
 					self.addRemoteFile = function(url, name, type) {
 						var obj = genRemotembFileObj(url, name, type);
-						scope.mbFiles.push(obj);
+						addFile(obj);
 					};
 				};
 			}
@@ -14414,11 +14424,34 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 
 					if (!isFileAreadyExist) {
 						var obj = genmbFileObj(file);
-						scope.mbFiles.push(obj);
+						addFile(obj);
 					}
 				}, function(/*error*/) { }, function(/*notify*/) { });
 			};
+			
+			
+			function removeAllFiles(){
+				scope.mbFiles.length = 0;
+				elThumbnails.empty();
+				pushModelChange();
+			}
 
+			function removeFileByIndex(idx) {
+				scope.mbFiles.splice(idx, 1);
+				pushModelChange();
+			}
+
+			function addFile(file) {
+				scope.mbFiles.push(file);
+				pushModelChange();
+			}
+
+			function pushModelChange(){
+				// update ngModel
+				ngModel.$setViewValue(_.clone(scope.mbFiles));
+				ngModel.$commitViewValue();
+			}
+			
 			/*
 			Read remote data from URL
 			*/
@@ -16765,7 +16798,7 @@ mblowfish.resource('local-file', {
 			}
 			$resource.setValue(val);
 		}
-		$scope.files = [];
+		ctrl.files = [];
 		_.assign(ctrl, {
 			$style: $style,
 			setFile: setFile
@@ -16779,13 +16812,13 @@ mblowfish.resource('local-files', {
 	icon: 'file_upload',
 	label: 'Local files',
 	templateUrl: 'scripts/module-ui/resources/files.html',
-	controller: function($scope, $resource, $style) {
+	controller: function($resource, $style) {
 		'ngInject';
 		var ctrl = this;
 		function setFiles(files) {
 			$resource.setValue(files);
 		}
-		$scope.files = [];
+		ctrl.files = [];
 		_.assign(ctrl, {
 			$style: $style,
 			setFiles: setFiles
@@ -24138,12 +24171,12 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/module-ui/resources/file.html',
-    "<mb-file-input ng-model=files ng-change=ctrl.setFiles(files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag> </mb-file-input>"
+    "<mb-file-input ng-model=ctrl.files ng-change=ctrl.setFile(ctrl.files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag> </mb-file-input>"
   );
 
 
   $templateCache.put('scripts/module-ui/resources/files.html',
-    "<mb-file-input ng-model=files ng-change=ctrl.setFiles(files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag mb-multiple> </mb-file-input>"
+    "<mb-file-input ng-model=ctrl.files ng-change=ctrl.setFiles(ctrl.files) aria-label=\"upload file\" mb-accept=\"{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}\" mb-drag-and-drop-label=\"{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}\" mb-browse-label=\"{{::(ctrl.$style.browseLabel || 'Browse')}}\" mb-remove-label=\"{{::(ctrl.$style.removeLabel || 'Trash')}}\" mb-progress mb-preview mb-drag mb-multiple> </mb-file-input>"
   );
 
 

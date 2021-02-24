@@ -12,7 +12,7 @@ mblowfish.resource('local-file', {
 			}
 			$resource.setValue(val);
 		}
-		$scope.files = [];
+		ctrl.files = [];
 		_.assign(ctrl, {
 			$style: $style,
 			setFile: setFile

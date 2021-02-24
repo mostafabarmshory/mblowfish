@@ -2,13 +2,13 @@ mblowfish.resource('local-files', {
 	icon: 'file_upload',
 	label: 'Local files',
 	templateUrl: 'scripts/module-ui/resources/files.html',
-	controller: function($scope, $resource, $style) {
+	controller: function($resource, $style) {
 		'ngInject';
 		var ctrl = this;
 		function setFiles(files) {
 			$resource.setValue(files);
 		}
-		$scope.files = [];
+		ctrl.files = [];
 		_.assign(ctrl, {
 			$style: $style,
 			setFiles: setFiles

@@ -1,8 +1,8 @@
 <mb-file-input
-	ng-model="files"
-	ng-change="ctrl.setFiles(files)"
+	ng-model="ctrl.files"
+	ng-change="ctrl.setFile(ctrl.files)"
 	aria-label="upload file"
-		mb-accept="{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}"
+	mb-accept="{{ctrl.$style.accept || 'audio/*,video/*,image/*,text/*,application/*'}}"
 	mb-drag-and-drop-label="{{::(ctrl.$style.dragAndDropLabel || 'Drag and Drop file')}}"
 	mb-browse-label="{{::(ctrl.$style.browseLabel || 'Browse')}}"
 	mb-remove-label="{{::(ctrl.$style.removeLabel || 'Trash')}}"

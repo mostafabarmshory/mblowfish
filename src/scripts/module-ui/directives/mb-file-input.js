@@ -139,32 +139,42 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 				input.dispatchEvent(evt);
 			};
 
+			/*
+			 * Remove all files and update the ngModel
+			 */
 			scope.removeAllFilesWithoutVaildate = function() {
-				scope.mbFiles.length = 0;
-				elThumbnails.empty();
+				removeAllFiles();
 			};
 
 			scope.removeAllFiles = function(/*event*/) {
 				scope.removeAllFilesWithoutVaildate();
 			};
 
+			/*
+			 * Remove a file by name
+			 */
 			scope.removeFileByName = function(name/*, event*/) {
 				scope.mbFiles.every(function(obj, idx) {
-					if (obj.mbFileName == name) {
+					if (obj.name == name) {
 						scope.mbFiles.splice(idx, 1);
+						// TODO: update ngModel
 						return false;
 					}
 					return true;
 				});
 			};
 
+
+			/*
+			 * Remove an specific file
+			 */
 			scope.removeFile = function(mbFile) {
 				scope.mbFiles.every(function(obj, idx) {
 					if (obj.key == mbFile.key) {
 						if (angular.isFunction(scope.mbOnFileRemove)) {
 							scope.mbOnFileRemove(obj, idx);
 						}
-						scope.mbFiles.splice(idx, 1);
+						removeFileByIndex(idx);
 						return false;
 					}
 					return true;
@@ -245,7 +255,7 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 
 					self.addRemoteFile = function(url, name, type) {
 						var obj = genRemotembFileObj(url, name, type);
-						scope.mbFiles.push(obj);
+						addFile(obj);
 					};
 				};
 			}
@@ -346,11 +356,34 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 
 					if (!isFileAreadyExist) {
 						var obj = genmbFileObj(file);
-						scope.mbFiles.push(obj);
+						addFile(obj);
 					}
 				}, function(/*error*/) { }, function(/*notify*/) { });
 			};
+			
+			
+			function removeAllFiles(){
+				scope.mbFiles.length = 0;
+				elThumbnails.empty();
+				pushModelChange();
+			}
 
+			function removeFileByIndex(idx) {
+				scope.mbFiles.splice(idx, 1);
+				pushModelChange();
+			}
+
+			function addFile(file) {
+				scope.mbFiles.push(file);
+				pushModelChange();
+			}
+
+			function pushModelChange(){
+				// update ngModel
+				ngModel.$setViewValue(_.clone(scope.mbFiles));
+				ngModel.$commitViewValue();
+			}
+			
 			/*
 			Read remote data from URL
 			*/
