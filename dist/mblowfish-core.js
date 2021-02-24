@@ -1617,6 +1617,7 @@ mblowfish.addConstants({
 
 	MB_LAYOUTS_SAVE_CURRENT_ACTION: 'mb.layouts.save.current', // save current layout as new desktop
 	MB_LAYOUTS_LOAD_ACTION: 'mb.layouts.load',
+	MB_LAYOUTS_THEME_SWITECH_ACTION: 'layouts.theme.switch'
 });
 
 /*
@@ -2526,6 +2527,7 @@ mblowfish.config(function($mbIconProvider) {
 		'network_cell': '<path fill-opacity=".3" d="M2 22h20V2z"/><path d="M17 7L2 22h15z"/>',
 		'network_wifi': '<path fill-opacity=".3" d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"/><path d="M3.53 10.95l8.46 10.54.01.01.01-.01 8.46-10.54C20.04 10.62 16.81 8 12 8c-4.81 0-8.04 2.62-8.47 2.95z"/>',
 		'nfc': '<path d="M20 20H4V4h16v16zm0-18H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/><path d="M18 6h-5c-1.1 0-2 .9-2 2v2.28c-.6.35-1 .98-1 1.72 0 1.1.9 2 2 2s2-.9 2-2c0-.74-.4-1.38-1-1.72V8h3v8H8V8h2V6H6v12h12V6z"/>',
+		'dark_mode': '<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24" viewBox="0 0 24 24" width="24"><rect fill="none" height="24" width="24"/><path d="M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36c-0.98,1.37-2.58,2.26-4.4,2.26 c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"/></svg>',
 		'screen_lock_landscape': '<path d="M19 17H5V7h14v10zm2-12H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/><path d="M10.8 10c0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2v1h-2.4v-1zm-.8 6h4c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1v-1c0-1.11-.9-2-2-2-1.11 0-2 .9-2 2v1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1z"/>',
 		'screen_lock_portrait': '<path d="M10.8 10c0-.66.54-1.2 1.2-1.2.66 0 1.2.54 1.2 1.2v1h-2.4v-1zm-.8 6h4c.55 0 1-.45 1-1v-3c0-.55-.45-1-1-1v-1c0-1.11-.9-2-2-2-1.11 0-2 .9-2 2v1c-.55 0-1 .45-1 1v3c0 .55.45 1 1 1z"/><path d="M17 19H7V5h10v14zm0-18H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2z"/>',
 		'screen_lock_rotation': '<path d="M23.25 12.77l-2.57-2.57-1.41 1.41 2.22 2.22-5.66 5.66L4.51 8.17l5.66-5.66 2.1 2.1 1.41-1.41L11.23.75c-.59-.59-1.54-.59-2.12 0L2.75 7.11c-.59.59-.59 1.54 0 2.12l12.02 12.02c.59.59 1.54.59 2.12 0l6.36-6.36c.59-.59.59-1.54 0-2.12z"/><path d="M8.47 20.48C5.2 18.94 2.86 15.76 2.5 12H1c.51 6.16 5.66 11 11.95 11l.66-.03-3.81-3.82-1.33 1.33z"/><path d="M16.8 2.5c0-.94.76-1.7 1.7-1.7s1.7.76 1.7 1.7V3h-3.4v-.5zM16 9h5c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1v-.5C21 1.12 19.88 0 18.5 0S16 1.12 16 2.5V3c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1z"/>',
@@ -3195,7 +3197,9 @@ mblowfish.config(function($mdThemingProvider) {
 			'default': '700'
 		})//
 		.warnPalette('red')
-		.backgroundPalette('grey')
+		.backgroundPalette('grey', {
+			'default': '800'
+		})
 		.dark();
 
 	$mdThemingProvider.alwaysWatchTheme(true);
@@ -3979,10 +3983,11 @@ mblowfish.directive('mbDynamicForm', function($mbResource) {
 			return $mbResource.hasPageFor(prop.name);
 		};
 
-		scope.setValueFor = function(prop) {
+		scope.setValueFor = function(prop, $event) {
 			return $mbResource
 				.get(prop.name, {
-					data: prop.defaultValue
+					data: prop.defaultValue,
+					targetEvent:$event
 				})
 				.then(function(value) {
 					scope.modelChanged(prop.name, value);
@@ -8144,7 +8149,8 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 					title: 'Select layout',
 					$style: {
 						multi: false
-					}
+					},
+					targetEvent: $event
 				})
 				.then(function(values) {
 					loadLayout(values[0]);
@@ -8175,6 +8181,22 @@ mblowfish.addAction(MB_LAYOUTS_SAVE_CURRENT_ACTION, {
 						});
 				}
 			});
+	}
+})
+mblowfish.addAction(MB_LAYOUTS_THEME_SWITECH_ACTION, {
+	group: 'Layout',
+	title: 'Switch darck mode',
+	description: 'Switch to the darck mode',
+	icon: 'dark_mode',
+	action: function($mbSettings) {
+		'ngInject';
+		var theme = $mbSettings.get('theme');
+		if(theme === 'dark'){
+			theme = 'default';
+		} else {
+			theme = 'dark';
+		}
+		$mbSettings.set('theme', theme);
 	}
 })
 mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
@@ -8349,11 +8371,12 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 	group: 'Module',
 	title: 'Add new module',
 	description: 'Adds a new local module to the dashboard',
-	action: function($mbResource, $mbModules) {
+	action: function($mbResource, $mbModules, $event) {
 		'ngInject';
 		return $mbResource
 			.get(MB_MODULE_RT, {
 				style: {},
+				targetEvent:$event,
 			})
 			.then(function(modules) {
 				_.forEach(modules, function(m) {
@@ -12962,9 +12985,10 @@ mblowfish.controller('MbLanguagesCtrl', function(
 	 * @memberof MbLanguagesCtrl
 	 * @return {promise} to add language
 	 */
-	this.addLanguage = function() {
+	this.addLanguage = function($event) {
 		$mbResource.get('/app/languages', {
-			// TODO:
+			// TODO:,
+			targetEvent: $event
 		}).then(function(language) {
 			language.map = language.map || {};
 			return $language.newLanguage(language);
@@ -19610,7 +19634,8 @@ mblowfish.provider('$mbLayout', function() {
 		injector,// = $injector;
 		mbStorage, // = $mbStorage
 		mbSettings,
-		location;
+		mbLog,
+		location, mbTheming;
 
 	//-----------------------------------------------------------------------------------
 	// Variables
@@ -19678,11 +19703,6 @@ mblowfish.provider('$mbLayout', function() {
 	var DOCKER_PANEL_CLASS = 'mb_docker_panel';
 	var DOCKER_VIEW_CLASS = 'mb_docker_view';
 
-	function init() {
-		restorDockerState();
-		//loadDockerLayout();
-	}
-
 	function getLayouts() {
 		var layouts = [];
 		for (var i = 0; i < layoutProviders.length; i++) {
@@ -19731,7 +19751,9 @@ mblowfish.provider('$mbLayout', function() {
 			docker.off('componentCreated', dockerComponentCreate);
 			docker.off('stateChanged', onDockerStateChanged);
 			docker.off('activeContentItemChanged', dockerActiveContentItemChanged);
-		} catch (ex) { }
+		} catch (ex) {
+			mbLog.error(ex);
+		}
 		_.forEach(frames, function(frame) {
 			frame.destroy();
 		});
@@ -19746,37 +19768,19 @@ mblowfish.provider('$mbLayout', function() {
 	}
 
 	function dockerActiveContentItemChanged(e) {
-		if (!e.isComponent) {
-			return;
-		}
 		try {
-			var frame = e.container.$frame;
-			location.url(frame.url);
+			location.url(e.instance.id);
 			if (rootScope.$$phase !== '$digest') {
 				rootScope.$apply();
 			}
 		} catch (e) {
-			// TODO: add loger
+			mbLog.error(e);
 		}
 	}
 
-	function onDockerInitialised() {
-		// link element
-		var link = compile(dockerBodyElement.contents());
-		link(rootScope);
-	}
 
-	function dockerStackCreated(stack) {
-		// link element
-		var link = compile(stack.element);
-		link(rootScope);
-	}
 
-	function dockerComponentCreate(component) {
-		// link element
-		var link = compile(component.element);
-		link(rootScope);
-	}
+
 
 	function loadDockerLayout() {
 		// load element
@@ -19794,13 +19798,20 @@ mblowfish.provider('$mbLayout', function() {
 		docker = new GoldenLayout(currentLayout, dockerViewElement);
 		docker.registerComponent('component', loadComponent);
 
-		docker.on('initialised', onDockerInitialised);
-		docker.on('stackCreated', dockerStackCreated);
-		docker.on('componentCreated', dockerComponentCreate);
+		docker.on('initialised', function() {
+			var link = compile(docker.root.element);
+			link(rootScope);
+		});
+		////		docker.on('componentCreated', onDockerInitialised);
+		////		docker.on('rowCreated', applyAngolar);
+		////		docker.on('columnCreated', applyAngolar);
+		////		docker.on('stackCreated', applyAngolar);
+		////		docker.on('tabCreated', decorateItem);
 		try {
 			docker.init();
 		} catch (e) {
-			setLayout(defaultLayoutName);
+			mbLog.error(e);
+			//			setLayout(defaultLayoutName);
 		}
 		docker.on('stateChanged', onDockerStateChanged);
 		docker.on('activeContentItemChanged', dockerActiveContentItemChanged);
@@ -19822,7 +19833,13 @@ mblowfish.provider('$mbLayout', function() {
 			var $mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(state.url, state);
 		}
+
+		// No frame found
 		if (_.isUndefined(component)) {
+			mbLob({
+				message: 'No frame found with the givern url',
+				frame: editor
+			});
 			$mbEditor = injector.get('$mbEditor');
 			component = $mbEditor.fetch(
 				'/ui/notfound/' + state.url, // path
@@ -19831,7 +19848,8 @@ mblowfish.provider('$mbLayout', function() {
 
 		// discannect all resrouces
 		if (component.isVisible()) {
-			return component.setFocus();
+			// It is draged to new location
+			return component;
 		}
 
 		// load element
@@ -19846,9 +19864,9 @@ mblowfish.provider('$mbLayout', function() {
 				frames.splice(index, 1);
 			}
 		});
-		editor.$frame = component;
-		editor.on('tab', function() {
-			editor.tab.element.on('click', function() {
+		editor.on('tab', function(tab) {
+			// component.$glTab = $tab;
+			tab.element.on('click', function() {
 				location.url(component.url);
 				try {
 					if (rootScope.$$phase !== '$digest') {
@@ -19858,12 +19876,12 @@ mblowfish.provider('$mbLayout', function() {
 			});
 		});
 		component.$dockerContainer = editor;
-		return component.render({
+		component.render({
 			$dockerContainer: editor,
 			$element: element,
 			$state: state
 		});
-		// TODO: maso,2020: dispatc view is loaded
+		return component;
 	}
 
 	function getDockerContentById(id) {
@@ -19930,17 +19948,9 @@ mblowfish.provider('$mbLayout', function() {
 		getCurrentLayout: function() {
 			return docker.toConfig();
 		},
-		//		getMode: function() {
-		//			return mode;
-		//		},
 	}
 	provider = {
 		providers: [],
-		//		setMode: function(/*appMode*/) {
-		//			// not supported anymore
-		////			mode = appMode;
-		//			return provider;
-		//		},
 		addProvider: function(providerFactoryName) {
 			provider.providers.push(providerFactoryName);
 			return provider;
@@ -19951,8 +19961,8 @@ mblowfish.provider('$mbLayout', function() {
 		},
 		/* @ngInject */
 		$get: function(
-			/* Angularjs */ $compile, $rootScope, $injector, $location,
-			/* MblowFish */ $mbStorage, $mbSettings) {
+			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
+			/* MblowFish */ $mbStorage, $mbSettings, $mbLog) {
 			//
 			// 1- Init layouts
 			//
@@ -19960,48 +19970,41 @@ mblowfish.provider('$mbLayout', function() {
 			rootScope = rootScope || $rootScope;
 			compile = $compile;
 			injector = $injector;
+			mbTheming = $mbTheming;
 
 			mbStorage = $mbStorage;
 			mbSettings = $mbSettings;
+			mbLog = $mbLog;
 
-			//
-			// 3- Initialize the laytout
-			//
-			_.forEach(provider.providers, function(providerName) {
-				var Provider = $injector.get(providerName);
-				var pro = new Provider();
-				layoutProviders.push(pro);
-			});
-			init();
+			try {
+				//
+				// 3- Initialize the laytout
+				//
+				_.forEach(provider.providers, function(providerName) {
+					var Provider = $injector.get(providerName);
+					var pro = new Provider();
+					layoutProviders.push(pro);
+				});
+				restorDockerState();
+				//loadDockerLayout();
+			} catch (ex) {
+				mbLog.error(ex);
+			}
 			return service;
 		}
 	};
 	return provider;
 });
 
-(function() {
-	var mlDirectiveItems = [
-		'lmGoldenlayout',
-		'lmContent',
-		'lmSplitter',
-		'lmStack',
-		'lmHeader',
-		'lmControls',
-		'lmMaximised',
-		'lmTransitionIndicator'
-	];
-	_.forEach(mlDirectiveItems, function(directiveName) {
-		mblowfish.directive(directiveName, function($mbTheming) {
-			'ngInject';
-			return {
-				restrict: 'C',
-				link: function($scope, $element) {
-					$mbTheming($element);
-				}
-			};
-		});
-	});
-})();
+mblowfish.directive('lmGoldenlayout', function($mbTheming) {
+	'ngInject';
+	return {
+		restrict: 'C',
+		link: function($scope, $element) {
+			$mbTheming($element);
+		}
+	};
+});
 
 
 /* 
@@ -21410,8 +21413,8 @@ mblowfish.provider('$mbResource', function() {
 	var provider;
 	var service;
 
-	var rootScope;
-	var mbDialog;
+	var mbDialog,
+		rootElement;
 
 
 
@@ -21473,12 +21476,13 @@ mblowfish.provider('$mbResource', function() {
 			option = {};
 		}
 		var pages = getPages(tag);
-		var tmplUrl = pages.length > 1 ? 'views/dialogs/wb-select-resource.html' : 'views/dialogs/wb-select-resource-single-page.html';
+		var tmplUrl = pages.length > 1 ? 'scripts/services/resource-multi.html' : 'scripts/services/resource-single.html';
 		return mbDialog.show({
 			controller: 'ResourceDialogCtrl',
 			controllerAs: 'ctrl',
 			templateUrl: tmplUrl,
-			parent: angular.element(document.body),
+			parent: rootElement,
+			targetEvent: option.targetEvent,
 			clickOutsideToClose: false,
 			fullscreen: true,
 			multiple: true,
@@ -21510,8 +21514,9 @@ mblowfish.provider('$mbResource', function() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($mbDialog) {
+		$get: function($mbDialog, $rootElement) {
 			mbDialog = $mbDialog;
+			rootElement = $rootElement;
 			return service;
 		},
 		addPage: addPage
@@ -22585,6 +22590,7 @@ mblowfish.provider('$mbSettings', function() {
 	 */
 	function load() {
 		settings = mbStorage[MB_SETTINGS_SP] || {};
+		rootScope.settings = settings;
 	}
 
 	function get(key, defaultValue) {
@@ -23934,16 +23940,6 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
   );
 
 
-  $templateCache.put('views/dialogs/wb-select-resource-single-page.html',
-    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
-  );
-
-
-  $templateCache.put('views/dialogs/wb-select-resource.html',
-    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <form ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" mb-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </form> </md-dialog>"
-  );
-
-
   $templateCache.put('views/directives/mb-captcha.html',
     "<div>  <div vc-recaptcha ng-model=ctrl.captchaValue theme=\"app.captcha.theme || 'light'\" type=\"app.captcha.type || 'image'\" key=app.captcha.key lang=\"app.captcha.language || 'fa'\"> </div>  </div>"
   );
@@ -24101,7 +24097,7 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
 
   $templateCache.put('scripts/directives/mb-dynamic-form.html',
-    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-if=\"getTypeOf(prop)==='input'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <md-input-container ng-if=\"getTypeOf(prop)==='textarea'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <textarea ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=setValueFor(prop)>more_horiz</mb-icon>  </md-input-container> <mb-datepicker ng-if=\"getTypeOf(prop)==='datetime'\" placeholder={{::prop.title}} ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></mb-datepicker> </div>"
+    "<div layout=column ng-repeat=\"prop in mbParameters track by $index\"> <md-input-container ng-if=\"getTypeOf(prop)==='input'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <input ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values`[prop.name])\"> <mb-icon ng-show=hasResource(prop) ng-click=\"setValueFor(prop, $event)\">more_horiz</mb-icon>  </md-input-container> <md-input-container ng-if=\"getTypeOf(prop)==='textarea'\" ng-show=\"prop.visible && prop.editable\" class=\"md-icon-float md-icon-right md-block\"> <label>{{::prop.title}}</label> <textarea ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></textarea> <mb-icon ng-show=hasResource(prop) ng-click=\"setValueFor(prop, $event)\">more_horiz</mb-icon>  </md-input-container> <mb-datepicker ng-if=\"getTypeOf(prop)==='datetime'\" placeholder={{::prop.title}} ng-required=\"{{prop.validators && prop.validators.indexOf('NotNull')>-1}}\" ng-model=values[prop.name] ng-change=\"modelChanged(prop.name, values[prop.name])\"></mb-datepicker> </div>"
   );
 
 
@@ -24182,6 +24178,16 @@ angular.module('mblowfish-core').run(['$templateCache', function($templateCache)
 
   $templateCache.put('scripts/module-ui/resources/url.html',
     "<div layout=column layout-padding ng-init=\"value=ctrl.getValue()\" flex> <p mb-translate>Insert a valid URL, please.</p> <md-input-container class=\"md-icon-float md-block\"> <label mb-translate>URL</label> <input ng-model=url ng-change=ctrl.setUrl(url)> </md-input-container> </div>"
+  );
+
+
+  $templateCache.put('scripts/services/resource-multi.html',
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:70%; height:70%\"> <md-content ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <md-sidenav class=md-sidenav-left md-component-id=left md-is-locked-open=true md-whiteframe=4 layout=column> <div style=\"text-align: center\"> <mb-icon size=64px ng-if=ctrl.style.icon>{{::ctrl.style.icon}}</mb-icon> <h2 style=\"text-align: center\" mb-translate>{{::ctrl.style.title}}</h2> <p style=\"text-align: center\" mb-translate>{{::ctrl.style.description}}</p> </div> <md-devider></md-devider> <md-content> <md-list style=\"padding:0px; margin: 0px\"> <md-list-item ng-repeat=\"page in ctrl.pages | orderBy:priority\" ng-click=\"ctrl.loadPage(page, $event);\" mb-colors=\"ctrl.isPageVisible(page) ? {background:'accent'} : {}\"> <mb-icon>{{::(page.icon || 'attachment')}}</mb-icon> <p mb-translate>{{::page.title}}</p> </md-list-item> </md-list> </md-content> </md-sidenav> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button aria-label=Cancel ng-click=ctrl.cancel()> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </md-content> </md-dialog>"
+  );
+
+
+  $templateCache.put('scripts/services/resource-single.html',
+    "<md-dialog mb-local aria-label=\"Select item/items\" style=\"width:50%; height:70%\"> <md-content ng-cloak layout=column flex>  <md-progress-linear ng-style=\"{'visibility': ctrl.isBusy?'visible':'hidden'}\" md-mode=indeterminate class=md-primary> </md-progress-linear> <md-dialog-content flex layout=row> <div layout=column flex> <div id=wb-select-resource-children style=\"margin: 0px; padding: 0px; overflow: auto\" layout=column flex> </div> </div> </md-dialog-content> <md-dialog-actions layout=row> <span flex></span> <md-button ng-click=ctrl.cancel() aria-label=Cancel> <span mb-translate=\"\">Close</span> </md-button> <md-button class=md-primary aria-label=Done ng-click=ctrl.answer()> <span mb-translate=\"\">Ok</span> </md-button> </md-dialog-actions> </md-content> </md-dialog>"
   );
 
 }]);
