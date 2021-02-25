@@ -124,7 +124,7 @@
 	"peerDependenciesMeta": {},
 	"optionalDependencies":{},
 	"bundledDependencies": [],
-	"flat": true,
+	"flat": false,
 	"resolutions" :{},
 	"engines": {
 		"node": ">=0.10.0"
