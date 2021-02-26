@@ -28,6 +28,9 @@ function mbActions() {
 	*/
 	var
 		q,
+		dispatcher,
+		mbComponent,
+		window,
 		Action,
 		service,
 		provider,

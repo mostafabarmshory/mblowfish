@@ -3,11 +3,14 @@ import storageSupported from './functionStorageSupported';
 import _ from 'lodash';
 import jQuery from 'jquery';
 
-import ngCookies from 'angular-cookies';
-import ngMessages from 'angular-messages';
-import ngSanitize from 'angular-sanitize';
-import ngMaterial from 'angular-material';
-import ngAnimate from 'angular-animate';
+import 'angular-cookies';
+import 'angular-messages';
+import 'angular-sanitize';
+import 'angular-material';
+import 'angular-animate';
+
+import 'angular-material/angular-material.css'
+
 
 
 
@@ -42,95 +45,95 @@ to the dashbord by addin action into it.
 var mbApplicationModule = angular
 	.module('mblowfish-core', [ //
 		//	Angular
-		//		'ngAnimate',
-		//		'ngAria',
+		'ngAnimate',
+		//				'ngAria',
 		'ngCookies',
 		'ngMessages',
 		'ngSanitize',
 
 		'ngMaterial',
-//		'ng-appcache',//
-//		'angular-material-persian-datepicker',
+		//		'ng-appcache',//
+		//		'angular-material-persian-datepicker',
 	])
 	.config(function(
-//		$mbActionsProvider, $mbViewProvider,
-//		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-//		$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider
-		) {
+		$mbActionsProvider, $mbViewProvider,
+		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
+		$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider
+	) {
 		'ngInject';
 
 		// Load actions
-//		_.forEach(actions, function(action, actionId) {
-//			$mbActionsProvider.addAction(actionId, action);
-//		});
+		_.forEach(actions, function(action, actionId) {
+			$mbActionsProvider.addAction(actionId, action);
+		});
 
 		// Load views
-//		_.forEach(views, function(view, viewId) {
-//			$mbViewProvider.addView(viewId, view);
-//		});
+		_.forEach(views, function(view, viewId) {
+			$mbViewProvider.addView(viewId, view);
+		});
 
 		// Load editors
-//		_.forEach(editors, function(editor, editorId) {
-//			$mbEditorProvider.addEditor(editorId, editor);
-//		});
+		_.forEach(editors, function(editor, editorId) {
+			$mbEditorProvider.addEditor(editorId, editor);
+		});
 
 		// Load resources
-//		_.forEach(resources, function(config, id) {
-//			$mbResourceProvider.addPage(id, config);
-//		});
+		_.forEach(resources, function(config, id) {
+			$mbResourceProvider.addPage(id, config);
+		});
 
 		// load components
-//		_.forEach(components, function(config, id) {
-//			$mbComponentProvider.addComponent(id, config);
-//		});
+		_.forEach(components, function(config, id) {
+			$mbComponentProvider.addComponent(id, config);
+		});
 
 		// load processes
-//		_.forEach(applicationProcesses, function(processList, id) {
-//			_.forEach(processList, function(process) {
-//				$mbApplicationProvider.addAction(id, process);
-//			});
-//		});
+		_.forEach(applicationProcesses, function(processList, id) {
+			_.forEach(processList, function(process) {
+				$mbApplicationProvider.addAction(id, process);
+			});
+		});
 
-//		_.forEach(preferences, function(com, id) {
-//			$mbPreferencesProvider.addPage(id, com);
-//		});
+		_.forEach(preferences, function(com, id) {
+			$mbPreferencesProvider.addPage(id, com);
+		});
 
-//		_.forEach(sidnavs, function(com, id) {
-//			$mbSidenavProvider.addSidenav(id, com);
-//		});
+		_.forEach(sidnavs, function(com, id) {
+			$mbSidenavProvider.addSidenav(id, com);
+		});
 
-//		_.forEach(wizardPages, function(wp, id) {
-//			$mbWizardProvider.addWizardPage(id, wp);
-//		});
+		_.forEach(wizardPages, function(wp, id) {
+			$mbWizardProvider.addWizardPage(id, wp);
+		});
 
-//		_.forEach(wizards, function(w, id) {
-//			$mbWizardProvider.addWizard(id, w);
-//		});
-//	})
-//	.run(function instantiateRoute($rootScope, $injector, $mbEditor) {
-//		'ngInject';
-//		$mbEditor.registerEditor('/ui/notfound/:path*', {
-//			template: '<h1>Not found</h1>'
-//		});
-//
-//		var extensions = $mblowfish.extensions;
-//		mblowfish.extensions = [];
-//
-//		/**
-//		 * Enable an extionsion
-//		 */
-//		mblowfish.addExtension = function(loader) {
-//			mblowfish.extensions.push(loader);
-//			$injector.invoke(loader);
-//		};
-//
-//		angular.forEach(extensions, function(ext) {
-//			mblowfish.addExtension(ext);
-//		});
-//
-//		_.forEach(rootScopeConstants, function(constant, id) {
-//			$rootScope[id] = constant;
-//		});
+		_.forEach(wizards, function(w, id) {
+			$mbWizardProvider.addWizard(id, w);
+		});
+	})
+	.run(function instantiateRoute($rootScope, $injector, $mbEditor) {
+		'ngInject';
+		$mbEditor.registerEditor('/ui/notfound/:path*', {
+			template: '<h1>Not found</h1>'
+		});
+
+		var extensions = mblowfish.extensions;
+		mblowfish.extensions = [];
+
+		/**
+		 * Enable an extionsion
+		 */
+		mblowfish.addExtension = function(loader) {
+			mblowfish.extensions.push(loader);
+			$injector.invoke(loader);
+		};
+
+		angular.forEach(extensions, function(ext) {
+			mblowfish.addExtension(ext);
+		});
+
+		_.forEach(rootScopeConstants, function(constant, id) {
+			$rootScope[id] = constant;
+		});
 	});
 
 

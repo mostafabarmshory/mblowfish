@@ -23,18 +23,22 @@
  */
 
 /**
- * @ngdoc Filters
- * @name wbmd5
- * @function
- * @description Hash the input
- * 
- * @example 
- ```html 
- <span>{{ 'text to hash' | wbmd5 }}</span> 
- ```
+@ngdoc Filters
+@name mbmd5
+@function
+@description Hash the input
+
+@example 
+```html 
+<span>{{ 'text to hash' | wbmd5 }}</span> 
+```
+
+@ngInject
  */
-angular.module('mblowfish-core').filter('wbmd5', function($mbCrypto) {
+function mbmd5($mbCrypto) {
 	return function(val) {
 		return $mbCrypto.md5(val + '');
 	};
-});
+}
+
+export default mbmd5;

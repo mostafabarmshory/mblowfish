@@ -266,7 +266,7 @@ function mbRoute(
 	 * @returns {*} The current value of the `eagerInstantiationEnabled` flag if used as a getter or
 	 *     itself (for chaining) if used as a setter.
 	 */
-	isEagerInstantiationEnabled = true;
+	var isEagerInstantiationEnabled = true;
 
 
 	/**
@@ -284,8 +284,8 @@ function mbRoute(
 	/***********************************************************************************
 	 * Utility
 	 ***********************************************************************************/
-	inherit = $mbUiUtil.inherit;
-	switchRouteMatcher = $mbUiUtil.switchRouteMatcher;
+	var inherit = $mbUiUtil.inherit;
+	var switchRouteMatcher = $mbUiUtil.switchRouteMatcher;
 
 	function prepareRoute($locationEvent) {
 		var lastRoute = $mbRoute.current;

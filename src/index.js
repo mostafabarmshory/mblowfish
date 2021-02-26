@@ -57,7 +57,7 @@ import mbWizard from './services/mbWizard';
 mblowfish
 	.provider('$mbAccount', mbAccount)
 	.provider('$mbActions', mbActions)
-	.provider('$mbApplicationProvider', mbApplicationProvider)
+	.provider('$mbApplication', mbApplicationProvider)
 	.service('$mbClipboard', mbClipboard)
 	.provider('$mbComponent', mbComponent)
 	.service('$mbCrypto', mbCrypto)
@@ -177,6 +177,18 @@ mblowfish
 	.directive('mbTest', mbTest)
 	;
 
+
+/****************************************************************************
+ * Filters                                                                  *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import mbmd5Filter from './filters/mbmd5';
+import mbunsafeFilter from './filters/mbunsafe';
+
+mblowfish
+	.filter('mbmd5', mbmd5Filter)
+	.filter('mbunsafe', mbunsafeFilter);
 
 /****************************************************************************
  * constants                                                               *

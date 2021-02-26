@@ -22,16 +22,18 @@
  * SOFTWARE.
  */
 
-
-angular.module('mblowfish-core')
-
 /**
- * @ngdoc Filters
- * @name wbunsafe
- * @description # unsafe Filter
+@ngdoc Filters
+@name mbunsafe
+@description # unsafe Filter
+
+@ngInject
  */
-.filter('wbunsafe', function($sce) {
+function mbunsafe($sce) {
 	return function(val) {
 		return $sce.trustAsHtml(val);
 	};
-});
+}
+
+export default mbunsafe;
+
