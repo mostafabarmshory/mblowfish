@@ -1,3 +1,5 @@
+import './mbAccount.css';
+
 /**
 @ngdoc Services
 @name $mbAccount

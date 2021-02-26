@@ -24,8 +24,9 @@ mblowfish
 			'ngInject';
 
 
-//		$mbAccountProvider
-//			.addAuthenticationProvider('DemoMemoryAuthenticationProvider');
+		$mbAccountProvider
+			.addAuthenticationProvider('DemoMemoryAuthenticationProvider');
+			
 		//
 		// Application manager
 		//
@@ -181,8 +182,8 @@ mblowfish
 			title: 'Auto action',
 			icon: 'save',
 			/* @ngInject */
-			action: function($window) {
-				$window.alert('Autoloaded action is called');
+			action: function($window, $event) {
+				$window.alert('Autoloaded action is called', $event);
 			}
 		});
 		var toolbar = $mbToolbar.getToolbar('/app/demo');

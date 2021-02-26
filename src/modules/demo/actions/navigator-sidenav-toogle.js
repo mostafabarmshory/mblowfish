@@ -1,4 +1,4 @@
-mblowfish.action('mb.app.navigator.toggle.demo', {
+export default {
 	title: 'Navigator',
 	description: 'Tooble Navigator Sidenav',
 	icon: 'menu',
@@ -8,4 +8,4 @@ mblowfish.action('mb.app.navigator.toggle.demo', {
 			.getSidenav('/app/navigator')
 			.toggle();
 	}
-});
+}

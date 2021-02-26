@@ -1,4 +1,4 @@
-mblowfish.action('demo.travel.create', {
+export default {
 	title: 'New Travel',
 	description: 'Creates new travel',
 	icon: 'card_travel',
@@ -11,4 +11,4 @@ mblowfish.action('demo.travel.create', {
 
 		alert('New travel is created:' + JSON.stringify($event.values));
 	}
-});
+}

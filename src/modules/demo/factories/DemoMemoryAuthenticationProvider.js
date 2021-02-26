@@ -17,7 +17,7 @@ export default function($q, MbAuthenticationProvider, MbAuthentication) {
 		}
 	};
 
-	DemoMemoryAuthenticationProvider = function() {
+	function DemoMemoryAuthenticationProvider() {
 		MbAuthenticationProvider.apply(this, arguments);
 	}
 	DemoMemoryAuthenticationProvider.prototype = Object.create(MbAuthenticationProvider.prototype);

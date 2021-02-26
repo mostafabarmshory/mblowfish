@@ -2,6 +2,9 @@
 import mblowfish from '../../mblowfish';
 
 import alertAction from './actions/alert';
+import navigatorToggleAction from './actions/navigator-sidenav-toogle';
+import travelCreateAction from './actions/travel-create';
+
 
 import DemoLayoutProviderDefaultFactory from './factories/DemoLayoutProviderDefault';
 import DemoMemoryAuthenticationProviderFactory from './factories/DemoMemoryAuthenticationProvider';
@@ -18,11 +21,14 @@ import uiFileView from './views/ui-file-view';
 
 mblowfish
 	.action('demo.alert', alertAction)
-	
+	.action('mb.app.navigator.toggle.demo', navigatorToggleAction)
+	.action('demo.travel.create', travelCreateAction)
+
+
 	.factory('DemoLayoutProviderDefault', DemoLayoutProviderDefaultFactory)
 	.factory('DemoMemoryAuthenticationProvider', DemoMemoryAuthenticationProviderFactory)
-	
-	
+
+
 	.view('/demo', explorerView)
 	.view('/demo/components', componentsView)
 
