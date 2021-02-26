@@ -1,17 +1,26 @@
 /**
 This is the entery point of the application?? 
  */
+import $ from "jquery";
+import _ from "lodash";
 
 import mblowfish from './mblowfish.js';
 
+import './angular-material-common.css';
+import './angular-material-hack-button.css';
+import './angular-material-hack-toolbar.css';
+import './index.css';
 
 
-mblowfish.factory('$exceptionHandler', function($log) {
-	'ngInject';
-	return function myExceptionHandler(exception, cause) {
-		$log.warn(exception, cause);
-	};
-});
+/****************************************************************************
+ * Controllers                                                                *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import MbAbstractCtrl from './controllers/MbAbstractCtrl';
+import MbDynamicFormDialogCtrl from './controllers/MbDynamicFormDialogCtrl';
+import MbNavigatorDialogCtrl from './controllers/MbNavigatorDialogCtrl';
+import MbResourceDialogCtrl from './controllers/MbResourceDialogCtrl';
 
 /****************************************************************************
  * Services                                                                *
@@ -20,7 +29,7 @@ mblowfish.factory('$exceptionHandler', function($log) {
  ****************************************************************************/
 import mbAccount from './services/mbAccount';
 import mbActions from './services/mbActions';
-import mbApplicationProvider from './services/mbApplicationProvider';
+import mbApplication from './services/mbApplication';
 import mbClipboard from './services/mbClipboard';
 import mbComponent from './services/mbComponent';
 import mbCrypto from './services/mbCrypto';
@@ -54,10 +63,121 @@ import mbUtil from './services/mbUtil';
 import mbView from './services/mbView';
 import mbWizard from './services/mbWizard';
 
+/****************************************************************************
+ * Configuration&Runs                                                       *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import angularHackThemeConfigs from './angularHackThemeConfigs';
+import angularHackConfigs from './angularHackConfigs';
+import angularHackIconsConfigs from './angularHackIconsConfigs';
+import angularHackWindowRun from './angularHackWindowRun';
+
+/****************************************************************************
+ * Factories                                                                *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import MbActionFactory from './factories/MbActionFactory';
+import MbActionGroupFactory from './factories/MbActionGroupFactory';
+import MbActionHotkeyMapFactory from './factories/MbActionHotkeyMapFactory';
+import MbAuthenticationFactory from './factories/MbAuthenticationFactory';
+import MbAuthenticationProviderFactory from './factories/MbAuthenticationProviderFactory';
+import MbComponentFactory from './factories/MbComponentFactory';
+import MbContainerFactory from './factories/MbContainerFactory';
+import MbEditorFactory from './factories/MbEditorFactory';
+import MbEventFactory from './factories/MbEventFactory';
+import MbFrameFactory from './factories/MbFrameFactory';
+import MbHttpRequestInterceptorFactory from './factories/MbHttpRequestInterceptorFactory';
+import MbJobFactory from './factories/MbJobFactory';
+import MbLayoutFactory from './factories/MbLayoutFactory';
+import MbLayoutProviderFactory from './factories/MbLayoutProviderFactory';
+import MbMenuFactory from './factories/MbMenuFactory';
+import MbMimetypeFactory from './factories/MbMimetypeFactory';
+import MbObservableObjectFactory from './factories/MbObservableObjectFactory';
+import MbSidenavFactory from './factories/MbSidenavFactory';
+import MbToolbarFactory from './factories/MbToolbarFactory';
+import MbUiHandlerFactory from './factories/MbUiHandlerFactory';
+import MbViewFactory from './factories/MbViewFactory';
+import MbWizardFactory from './factories/MbWizardFactory';
+import MbWizardPageFactory from './factories/MbWizardPageFactory';
+
+/****************************************************************************
+ * Directives                                                               *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import lmGoldenlayout from './directives/lmGoldenlayout';
+import mbToolbarGroupDirective from './directives/mbToolbarGroup';
+//import mbUserToolbarDirective from './directives/mbUserToolbar';
+import mbViewDirectiveDirective from './directives/mbView';
+
+
+/****************************************************************************
+ * Filters                                                                  *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import mbmd5Filter from './filters/mbmd5';
+import mbunsafeFilter from './filters/mbunsafe';
+
+/****************************************************************************
+ * constants                                                               *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
 mblowfish
+	// controllers
+	.controller('MbAbstractCtrl', MbAbstractCtrl)
+	.controller('MbDynamicFormDialogCtrl', MbDynamicFormDialogCtrl)
+	.controller('MbNavigatorDialogCtrl', MbNavigatorDialogCtrl)
+	.controller('MbResourceDialogCtrl', MbResourceDialogCtrl)
+
+	// directives
+	.directive('lmGoldenlayout', lmGoldenlayout)
+	.directive('mbToolbarGroup', mbToolbarGroupDirective)
+	//	.directive('mbUserToolbar', mbUserToolbarDirective)
+	.directive('mbView', mbViewDirectiveDirective)
+
+	// factories
+	.factory('MbAction', MbActionFactory)
+	.factory('MbActionGroup', MbActionGroupFactory)
+	.factory('MbActionHotkeyMap', MbActionHotkeyMapFactory)
+	.factory('MbAuthentication', MbAuthenticationFactory)
+	.factory('MbAuthenticationProvider', MbAuthenticationProviderFactory)
+	.factory('MbComponent', MbComponentFactory)
+	.factory('MbContainer', MbContainerFactory)
+	.factory('MbEditor', MbEditorFactory)
+	.factory('MbEvent', MbEventFactory)
+	.factory('MbFrame', MbFrameFactory)
+	.factory('MbHttpRequestInterceptor', MbHttpRequestInterceptorFactory)
+	.factory('MbJob', MbJobFactory)
+	.factory('MbLayout', MbLayoutFactory)
+	.factory('MbLayoutProvider', MbLayoutProviderFactory)
+	.factory('MbMenu', MbMenuFactory)
+	.factory('MbMimetype', MbMimetypeFactory)
+	.factory('MbObservableObject', MbObservableObjectFactory)
+	.factory('MbSidenav', MbSidenavFactory)
+	.factory('MbToolbar', MbToolbarFactory)
+	.factory('MbUiHandler', MbUiHandlerFactory)
+	.factory('MbView', MbViewFactory)
+	.factory('MbWizard', MbWizardFactory)
+	.factory('MbWizardPage', MbWizardPageFactory)
+	.factory('$exceptionHandler', function($log) {
+		'ngInject';
+		return function myExceptionHandler(exception, cause) {
+			$log.warn(exception, cause);
+		};
+	})
+
+	// filters
+	.filter('mbmd5', mbmd5Filter)
+	.filter('mbunsafe', mbunsafeFilter)
+
+	// Services
 	.provider('$mbAccount', mbAccount)
 	.provider('$mbActions', mbActions)
-	.provider('$mbApplication', mbApplicationProvider)
+	.provider('$mbApplication', mbApplication)
 	.service('$mbClipboard', mbClipboard)
 	.provider('$mbComponent', mbComponent)
 	.service('$mbCrypto', mbCrypto)
@@ -89,135 +209,42 @@ mblowfish
 	.service('$mbUiUtil', mbUiUtil)
 	.service('$mbUtil', mbUtil)
 	.provider('$mbView', mbView)
-	.provider('$mbWizard', mbWizard);
+	.provider('$mbWizard', mbWizard)
 
-
-
-/****************************************************************************
- * Configuration&Runs                                                       *
- *                                                                          *
- *                                                                          *
- ****************************************************************************/
-import angularHackThemeConfigs from './angularHackThemeConfigs';
-import angularHackConfigs from './angularHackConfigs';
-import angularHackIconsConfigs from './angularHackIconsConfigs';
-import angularHackWindowRun from './angularHackWindowRun';
-
-mblowfish
+	// configs
 	.config(angularHackThemeConfigs)
 	.config(angularHackConfigs)
 	.config(angularHackIconsConfigs)
-	.run(angularHackWindowRun);
+	.run(angularHackWindowRun)
+	.addConstants({
+		MB_SECURITY_ACCOUNT_SP: '/app/security/account',
 
-/****************************************************************************
- * Factories                                                                *
- *                                                                          *
- *                                                                          *
- ****************************************************************************/
-import MbActionFactory from './factories/MbActionFactory';
-import MbActionGroupFactory from './factories/MbActionGroupFactory';
-import MbActionHotkeyMapFactory from './factories/MbActionHotkeyMapFactory';
-import MbAuthenticationFactory from './factories/MbAuthenticationFactory';
-import MbAuthenticationProviderFactory from './factories/MbAuthenticationProviderFactory';
-import MbComponentFactory from './factories/MbComponentFactory';
-import MbContainerFactory from './factories/MbContainerFactory';
-import MbEditorFactory from './factories/MbEditorFactory';
-import MbEventFactory from './factories/MbEventFactory';
-import MbFrameFactory from './factories/MbFrameFactory';
-import MbHttpRequestInterceptorFactory from './factories/MbHttpRequestInterceptorFactory';
-import MbJobFactory from './factories/MbJobFactory';
-import MbLayoutFactory from './factories/MbLayoutFactory';
-import MbLayoutProviderFactory from './factories/MbLayoutProviderFactory';
-import MbMenuFactory from './factories/MbMenuFactory';
-import MbMimetypeFactory from './factories/MbMimetypeFactory';
-import MbObservableObjectFactory from './factories/MbObservableObjectFactory';
-import MbSidenavFactory from './factories/MbSidenavFactory';
-import MbToolbarFactory from './factories/MbToolbarFactory';
-import MbUiHandlerFactory from './factories/MbUiHandlerFactory';
-import MbViewFactory from './factories/MbViewFactory';
-import MbWizardFactory from './factories/MbWizardFactory';
-import MbWizardPageFactory from './factories/MbWizardPageFactory';
-
-mblowfish
-	.factory('MbAction', MbActionFactory)
-	.factory('MbActionGroup', MbActionGroupFactory)
-	.factory('MbActionHotkeyMap', MbActionHotkeyMapFactory)
-	.factory('MbAuthentication', MbAuthenticationFactory)
-	.factory('MbAuthenticationProvider', MbAuthenticationProviderFactory)
-	.factory('MbComponent', MbComponentFactory)
-	.factory('MbContainer', MbContainerFactory)
-	.factory('MbEditor', MbEditorFactory)
-	.factory('MbEvent', MbEventFactory)
-	.factory('MbFrame', MbFrameFactory)
-	.factory('MbHttpRequestInterceptor', MbHttpRequestInterceptorFactory)
-	.factory('MbJob', MbJobFactory)
-	.factory('MbLayout', MbLayoutFactory)
-	.factory('MbLayoutProvider', MbLayoutProviderFactory)
-	.factory('MbMenu', MbMenuFactory)
-	.factory('MbMimetype', MbMimetypeFactory)
-	.factory('MbObservableObject', MbObservableObjectFactory)
-	.factory('MbSidenav', MbSidenavFactory)
-	.factory('MbToolbar', MbToolbarFactory)
-	.factory('MbUiHandler', MbUiHandlerFactory)
-	.factory('MbView', MbViewFactory)
-	.factory('MbWizard', MbWizardFactory)
-	.factory('MbWizardPage', MbWizardPageFactory);
-
-
-/****************************************************************************
- * Directives                                                               *
- *                                                                          *
- *                                                                          *
- ****************************************************************************/
-import mbTest from './directives/mbTest';
-import lmGoldenlayout from './directives/lmGoldenlayout';
-
-mblowfish
-	.directive('lmGoldenlayout', lmGoldenlayout)
-	.directive('mbTest', mbTest)
-	;
-
-
-/****************************************************************************
- * Filters                                                                  *
- *                                                                          *
- *                                                                          *
- ****************************************************************************/
-import mbmd5Filter from './filters/mbmd5';
-import mbunsafeFilter from './filters/mbunsafe';
-
-mblowfish
-	.filter('mbmd5', mbmd5Filter)
-	.filter('mbunsafe', mbunsafeFilter);
-
-/****************************************************************************
- * constants                                                               *
- *                                                                          *
- *                                                                          *
- ****************************************************************************/
-mblowfish.addConstants({
-	MB_SECURITY_ACCOUNT_SP: '/app/security/account',
-
-	MB_SETTINGS_SP: '/app/settings',
-	MB_SETTINGS_ST: '/app/settings',
+		MB_SETTINGS_SP: '/app/settings',
+		MB_SETTINGS_ST: '/app/settings',
 
 
 
-	STORE_LOCAL_PATH: '/app/local',
+		STORE_LOCAL_PATH: '/app/local',
 
-	SETTING_LOCAL_LANGUAGE: 'local.language',
-	SETTING_LOCAL_DATEFORMAT: 'local.dateformat',
-	SETTING_LOCAL_DATETIMEFORMAT: 'local.datetimeformat',
-	SETTING_LOCAL_CURRENCY: 'local.currency',
-	SETTING_LOCAL_DIRECTION: 'local.direction',
-	SETTING_LOCAL_CALENDAR: 'local.calendar',
-	SETTING_LOCAL_TIMEZONE: 'local.timezone',
-});
+		SETTING_LOCAL_LANGUAGE: 'local.language',
+		SETTING_LOCAL_DATEFORMAT: 'local.dateformat',
+		SETTING_LOCAL_DATETIMEFORMAT: 'local.datetimeformat',
+		SETTING_LOCAL_CURRENCY: 'local.currency',
+		SETTING_LOCAL_DIRECTION: 'local.direction',
+		SETTING_LOCAL_CALENDAR: 'local.calendar',
+		SETTING_LOCAL_TIMEZONE: 'local.timezone',
+	});
 
 
 /*
 Modules
  */
+import './modules/help';
+import './modules/layouts';
+import './modules/moduleManager';
+import './modules/navigator';
+import './modules/preferences';
+import './modules/translate';
 import './modules/ui';
 
 export default mblowfish;

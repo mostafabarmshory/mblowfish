@@ -21,34 +21,60 @@
  */
 import mblowfish from '../../mblowfish';
 
-/*
-Services
-*/
-import mbIcon from './services/icon';
-mblowfish.addConstants({
-	//------------------------------------------------------------
-	// Resources Types
-	//------------------------------------------------------------
-	//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
+/****************************************************************************
+ * Services                                                                 *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import mbIcon from './services/mbIcon';
+import mbColorPalette from './services/mbColorPalette';
+import mbColors from './services/mbColors';
 
-	//------------------------------------------------------------
-	// Stoer Paths
-	//------------------------------------------------------------
-	//	SDP_LINKS_SP: '/sdp/links',
+/****************************************************************************
+ * Directives                                                               *
+ *                                                                          *
+ *                                                                          *
+ ****************************************************************************/
+import mbIconDirective from './directives/mbIcon';
+import mbIconFloatDirective from './directives/mbIconFloat';
 
-	//------------------------------------------------------------
-	// Views
-	//------------------------------------------------------------
-	//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
+mblowfish
+	.addConstants({
+		//------------------------------------------------------------
+		// Resources Types
+		//------------------------------------------------------------
+		//	AMD_CMS_TERMTAXONOMIES_RT: '/cms/term-taxonomies',
 
-	//------------------------------------------------------------
-	// ACTIONS
-	//------------------------------------------------------------
-	UI_URL_OPEN_ACTION: 'iframe.url.open',
+		//------------------------------------------------------------
+		// Stoer Paths
+		//------------------------------------------------------------
+		//	SDP_LINKS_SP: '/sdp/links',
 
-	//------------------------------------------------------------
-	// wizards
-	//------------------------------------------------------------
-	//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
-})
-	.provider('$mbIcon', mbIcon);
+		//------------------------------------------------------------
+		// Views
+		//------------------------------------------------------------
+		//	SDP_VIEW_DRIVES_PATH: '/sdp/storages',
+
+		//------------------------------------------------------------
+		// ACTIONS
+		//------------------------------------------------------------
+		UI_URL_OPEN_ACTION: 'iframe.url.open',
+
+		//------------------------------------------------------------
+		// wizards
+		//------------------------------------------------------------
+		//	SDP_CATEGORY_CREATE_WIZARD: '/sdp/wizards/new-category',
+	})
+
+	// Services
+	.provider('$mbIcon', mbIcon)
+	.provider('$mbColorPalette', mbColorPalette)
+	.service('$mbColors', mbColors)
+
+	// Directives
+	.directive('mbIcon', mbIconDirective)
+	.directive('mbIconFloat', mbIconFloatDirective)
+	
+
+	//<< end
+	;

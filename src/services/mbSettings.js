@@ -31,9 +31,11 @@ function mbSettings() {
 	//---------------------------------------
 	var provider;
 	var service;
-	var rootScope;
-	var mbStorage;
-	var mbDispatcherUtil;
+	
+	var rootScope,
+		q,
+		mbStorage,
+		mbDispatcherUtil;
 
 	//---------------------------------------
 	// Variables

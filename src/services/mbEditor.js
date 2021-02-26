@@ -54,7 +54,7 @@ These are injectable to an editor contrller.
 
  */
 
-function mbEditor() {
+export default function() {
 	//------------------------------------------------
 	// Services
 	//------------------------------------------------
@@ -127,7 +127,7 @@ function mbEditor() {
 		var match;
 		_.forEach(editorConfigs, function(editorConfig, name) {
 			if (!match && (params = switchRouteMatcher(url, editorConfig.route))) {
-				route = _.assign({}, editorConfig.route, {
+				var route = _.assign({}, editorConfig.route, {
 					params: angular.extend({}, inputParams, params),
 					pathParams: params
 				});
@@ -252,4 +252,3 @@ function mbEditor() {
 	return provider;
 }
 
-export default mbEditor;

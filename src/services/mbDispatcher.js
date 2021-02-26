@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+import Flux from 'flux';
 
 /**
 @ngdoc Services

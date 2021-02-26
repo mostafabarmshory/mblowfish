@@ -19,6 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import mblowfish from '../../mblowfish';
+
 mblowfish.addConstants({
 	MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
 });

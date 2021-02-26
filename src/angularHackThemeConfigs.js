@@ -31,27 +31,27 @@ We just support following thems in the current version of the mblowfish:
 @params $mdThemingProvider the theme provider from Material deainge
 @ngInject
  */
-function angularHackThemeConfigs(/*$mdThemingProvider*/) {
+function angularHackThemeConfigs($mdThemingProvider) {
 
-//	// Dark theme
-//	$mdThemingProvider
-//		.theme('dark')//
-//		.primaryPalette('grey', {
-//			'default': '900',
-//			'hue-1': '700',
-//			'hue-2': '600',
-//			'hue-3': '500'
-//		})//
-//		.accentPalette('grey', {
-//			'default': '700'
-//		})//
-//		.warnPalette('red')
-//		.backgroundPalette('grey', {
-//			'default': '800'
-//		})
-//		.dark();
-//
-//	$mdThemingProvider.alwaysWatchTheme(true);
+	// Dark theme
+	$mdThemingProvider
+		.theme('dark')//
+		.primaryPalette('grey', {
+			'default': '900',
+			'hue-1': '700',
+			'hue-2': '600',
+			'hue-3': '500'
+		})//
+		.accentPalette('grey', {
+			'default': '700'
+		})//
+		.warnPalette('red')
+		.backgroundPalette('grey', {
+			'default': '800'
+		})
+		.dark();
+
+	$mdThemingProvider.alwaysWatchTheme(true);
 }
 
 

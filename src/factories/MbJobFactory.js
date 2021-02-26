@@ -20,6 +20,10 @@
  * SOFTWARE.
  */
 
+const STATE_WORKING = 'working';
+const STATE_FAILED = 'failed';
+const STATE_SUCCESS = 'success';
+
 /**
  @ngdoc Factories
  @name MbJob
@@ -27,11 +31,7 @@
  
 @ngInject
  */
-function MbJobFactory($mbJobs, $q, $injector, $mbCrypto) {
-
-	STATE_WORKING = 'working';
-	STATE_FAILED = 'failed';
-	STATE_SUCCESS = 'success';
+export default function ($mbJobs, $q, $injector, $mbCrypto) {
 
 	function MbJob(configs) {
 		_.assign(this, configs);
@@ -71,4 +71,3 @@ function MbJobFactory($mbJobs, $q, $injector, $mbCrypto) {
 	return MbJob;
 }
 
-export default MbJobFactory;

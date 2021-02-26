@@ -1,13 +1,14 @@
+import jQuery from "jquery";
+
 import angular from 'angular';
 import storageSupported from './functionStorageSupported';
-import _ from 'lodash';
-import jQuery from 'jquery';
 
 import 'angular-cookies';
 import 'angular-messages';
 import 'angular-sanitize';
 import 'angular-material';
 import 'angular-animate';
+
 
 import 'angular-material/angular-material.css'
 
@@ -43,7 +44,7 @@ to the dashbord by addin action into it.
 
  */
 var mbApplicationModule = angular
-	.module('mblowfish-core', [ //
+	.module('mblowfishApp', [ //
 		//	Angular
 		'ngAnimate',
 		//				'ngAria',
@@ -317,7 +318,7 @@ var mblowfish = {
 	},
 	bootstrap: function(dom, modules, configs) {
 		modules = modules || [];
-		modules.push('mblowfish-core');
+		modules.push('mblowfishApp');
 		configs = configs || {};
 		angular.bootstrap(dom, modules, configs);
 		return mblowfish;

@@ -19,7 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import './mbLayout-base.css';
+import './mbLayout-docker.css';
+import './mbLayout-theme-default.css';
+import './mbLayout-theme-dark.css';
 
+import GoldenLayout from 'golden-layout';
 
 /**
 @ngdoc service
@@ -248,7 +253,7 @@ function mbLayout() {
 
 		// No frame found
 		if (_.isUndefined(component)) {
-			mbLob({
+			mbLog.warn({
 				message: 'No frame found with the givern url',
 				frame: editor
 			});
@@ -373,36 +378,36 @@ function mbLayout() {
 		},
 		/* @ngInject */
 		$get: function(
-//			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
-//			/* MblowFish */ $mbStorage, $mbSettings, $mbLog
+			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
+			/* MblowFish */ $mbStorage, $mbSettings, $mbLog
 			) {
 			//
 			// 1- Init layouts
 			//
-//			location = $location;
-//			rootScope = rootScope || $rootScope;
-//			compile = $compile;
-//			injector = $injector;
-//			mbTheming = $mbTheming;
-//
-//			mbStorage = $mbStorage;
-//			mbSettings = $mbSettings;
-//			mbLog = $mbLog;
-//
-//			try {
-//				//
-//				// 3- Initialize the laytout
-//				//
-//				_.forEach(provider.providers, function(providerName) {
-//					var Provider = $injector.get(providerName);
-//					var pro = new Provider();
-//					layoutProviders.push(pro);
-//				});
-//				restorDockerState();
-//				//loadDockerLayout();
-//			} catch (ex) {
-//				mbLog.error(ex);
-//			}
+			location = $location;
+			rootScope = rootScope || $rootScope;
+			compile = $compile;
+			injector = $injector;
+			mbTheming = $mbTheming;
+
+			mbStorage = $mbStorage;
+			mbSettings = $mbSettings;
+			mbLog = $mbLog;
+
+			try {
+				//
+				// 3- Initialize the laytout
+				//
+				_.forEach(provider.providers, function(providerName) {
+					var Provider = $injector.get(providerName);
+					var pro = new Provider();
+					layoutProviders.push(pro);
+				});
+				restorDockerState();
+				//loadDockerLayout();
+			} catch (ex) {
+				mbLog.error(ex);
+			}
 			return service;
 		}
 	};

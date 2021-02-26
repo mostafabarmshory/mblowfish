@@ -19,114 +19,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import mblowfish from '../../mblowfish';
+
+import mbTranslateDirective from './directives/mbTranslate';
+import mbTranslateAttrDirective from './directives/mbTranslateAttr';
+import mbTranslateCloakDirective from './directives/mbTranslateCloak';
+import mbTranslateLanguageDirective from './directives/mbTranslateLanguage';
+import mbTranslateNamespaceDirective from './directives/mbTranslateNamespace';
+
+import mblowfishTranslateConfig from './mblowfishTranslateConfig';
+import mblowfishPrepareTranslateRun from './mblowfishPrepareTranslateRun';
+
+import mbTranslate from './services/mbTranslate';
+import mbTranslateSanitization from './services/mbTranslateSanitization';
+
+// TODO: maso, 2021: add currency
+//import mbCurrencyFilter from './filters/mbCurrency';
+import mbDateFilter from './filters/mbDate';
+import mbDateTimeFilter from './filters/mbDateTime';
+import mbTranslateFilter from './filters/mbTranslate';
+
+import mbTranslateMissingTranslationHandlerLogFactory from './factories/mbTranslateMissingTranslationHandlerLog';
+import mbTranslateMissingTranslationHandlerStorageFactory from './factories/mbTranslateMissingTranslationHandlerStorage';
+import mbTranslateStaticFilesLoaderFactory from './factories/mbTranslateStaticFilesLoader';
+import mbTranslateDefaultInterpolationFactory from './factories/mbTranslateDefaultInterpolation';
+import translationCacheFactory from './factories/translationCache';
+
+import localPreference from './preferences/local';
 
 mblowfish
-	.config(function($mbPreferencesProvider, $mdDateLocaleProvider, $mbResourceProvider) {
-		// Format and parse dates based on moment's 'L'-format
-		// 'L'-format may later be changed
-		$mdDateLocaleProvider.parseDate = function(dateString) {
-			var m = moment(dateString, 'L', true);
-			return m.isValid() ? m.toDate() : new Date(NaN);
-		};
+	// directives
+	.directive('mbTranslate', mbTranslateDirective)
+	.directive('mbTranslateAttr', mbTranslateAttrDirective)
+	.directive('mbTranslateCloak', mbTranslateCloakDirective)
+	.directive('mbTranslateLanguage', mbTranslateLanguageDirective)
+	.directive('mbTranslateNamespace', mbTranslateNamespaceDirective)
+	
+	// services
+	.provider('$mbTranslate', mbTranslate)
+	.provider('$mbTranslateSanitization', mbTranslateSanitization)
+	
+	// Filters
+	.filter('mbDate', mbDateFilter)
+	.filter('mbDateTime', mbDateTimeFilter)
+	.filter('translate', mbTranslateFilter) // legecy
+	.filter('mbTranslate', mbTranslateFilter)
+	
+	// factories
+	.factory('$mbTranslateMissingTranslationHandlerLog', mbTranslateMissingTranslationHandlerLogFactory)
+	.factory('$mbTranslateMissingTranslationHandlerStorage', mbTranslateMissingTranslationHandlerStorageFactory)
+	.factory('$mbTranslateStaticFilesLoader', mbTranslateStaticFilesLoaderFactory)
+	.factory('$mbTranslateDefaultInterpolation', mbTranslateDefaultInterpolationFactory)
+	.factory('$translationCache', translationCacheFactory)
+	
+	.preference('local', localPreference)
+	
+	// Configurations
+	.config(mblowfishTranslateConfig)
+	.run(mblowfishPrepareTranslateRun);
 
-		$mdDateLocaleProvider.formatDate = function(date) {
-			var m = moment(date);
-			return m.isValid() ? m.format('L') : '';
-		};
-		///*
-		//		// Pages
-		//		$mbPreferencesProvider
-		//			.addPage('brand', {
-		//				title: 'Branding',
-		//				icon: 'copyright',
-		//				templateUrl: 'views/preferences/mb-brand.html',
-		//				// controller : 'settingsBrandCtrl',
-		//				controllerAs: 'ctrl'
-		//			});*/
-
-
-		$mbResourceProvider
-			.addPage('language', {
-				label: 'Custom',
-				templateUrl: 'views/resources/mb-language-custome.html',
-				controller: 'MbLocalResourceLanguageCustomCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.viraweb123', {
-				label: 'Common',
-				templateUrl: 'views/resources/mb-language-list.html',
-				controller: 'MbLocalResourceLanguageCommonCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			})
-			.addPage('language.upload', {
-				label: 'Upload',
-				templateUrl: 'views/resources/mb-language-upload.html',
-				controller: 'MbLocalResourceLanguageUploadCtrl',
-				controllerAs: 'resourceCtrl',
-				tags: ['/app/languages', 'language']
-			});
-	})
-	.run(function runTranslate($mbTranslate, $mbSettings) {
-
-		var key = $mbSettings.get(SETTING_LOCAL_LANGUAGE, $mbTranslate.storageKey()),
-			storage = $mbTranslate.storage();
-
-		var fallbackFromIncorrectStorageValue = function() {
-			var preferred = $mbTranslate.preferredLanguage();
-			if (angular.isString(preferred)) {
-				$mbTranslate.use(preferred);
-				// $mbTranslate.use() will also remember the language.
-				// So, we don't need to call storage.put() here.
-			} else {
-				storage.put(key, $mbTranslate.use());
-			}
-		};
-
-		fallbackFromIncorrectStorageValue.displayName = 'fallbackFromIncorrectStorageValue';
-
-		if (storage) {
-			if (!storage.get(key)) {
-				fallbackFromIncorrectStorageValue();
-			} else {
-				$mbTranslate.use(storage.get(key))['catch'](fallbackFromIncorrectStorageValue);
-			}
-		} else if (angular.isString($mbTranslate.preferredLanguage())) {
-			$mbTranslate.use($mbTranslate.preferredLanguage());
-		}
-	});
-
-
-
-/**
- * Returns the scope's namespace.
- * @private
- * @param scope
- * @returns {string}
- */
-function getTranslateNamespace(scope) {
-	'use strict';
-	if (scope.translateNamespace) {
-		return scope.translateNamespace;
-	}
-	if (scope.$parent) {
-		return getTranslateNamespace(scope.$parent);
-	}
-}
-
-function watchAttribute(scope, attribute, valueCallback, changeCallback) {
-	'use strict';
-	if (!attribute) {
-		return;
-	}
-	if (attribute.substr(0, 2) === '::') {
-		attribute = attribute.substr(2);
-	} else {
-		scope.$watch(attribute, function(newValue) {
-			valueCallback(newValue);
-			changeCallback();
-		}, true);
-	}
-	valueCallback(scope.$eval(attribute));
-}

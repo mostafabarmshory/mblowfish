@@ -105,7 +105,7 @@ function mbToolbar() {
 	function addToolbarGroup(toolbarGroupId, toolbarGroup) {
 		// TODO: maso, 2020: support lazy load of a toolbar
 		toolbarGroups[toolbarGroupId] = toolbarGroup;
-		toolbarGroupConfig = toolbarGroupsConfig[toolbarGroupId];
+		var toolbarGroupConfig = toolbarGroupsConfig[toolbarGroupId];
 		if (toolbarGroupConfig) {
 			_.forEach(toolbarGroupConfig, function(toolbar) {
 				toolbarGroup.addToolbar(toolbar);

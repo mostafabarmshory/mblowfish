@@ -5,8 +5,6 @@ var path = require('path');
 var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-//var CleanWebpackPlugin = require('clean-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
@@ -61,7 +59,7 @@ module.exports = (env, argv) => {
 
 		// Filename for non-entry points
 		// Only adds hash in build mode
-		chunkFilename:'[name].[hash].js'
+		chunkFilename: '[name].[hash].js'
 	};
 
 	/**
@@ -87,6 +85,16 @@ module.exports = (env, argv) => {
 	// Initialize module
 	config.module = {
 		rules: [{
+			// Expose loader
+			// Reference: https://github.com/webpack-contrib/expose-loader
+			// To load jquery in all part of project
+			test: require.resolve("jquery"),
+			loader: "expose-loader",
+			options: {
+				exposes: ["$", "jQuery"],
+			},
+		},
+		{
 			// JS LOADER
 			// Reference: https://github.com/babel/babel-loader
 			// Transpile .js files using babel-loader
@@ -130,10 +138,21 @@ module.exports = (env, argv) => {
 			use: ['file-loader']
 		}, {
 			// HTML LOADER
+			// Reference: https://github.com/WearyMonkey/ngtemplate-loader
 			// Reference: https://github.com/webpack/raw-loader
 			// Allow loading html through js
 			test: /\.html$/,
-			use: ['raw-loader']
+			exclude: path.resolve(__dirname, './src/index.html'),
+			use: [
+				{
+					loader: path.resolve('webpack/ngtemplate-loader.js'),
+					options: {
+						relativeTo: __dirname + '/src',
+						module: 'mblowfishApp',
+					}
+				},
+				{ loader: 'html-loader' }
+			]
 		}]
 	};
 
@@ -178,7 +197,7 @@ module.exports = (env, argv) => {
 					plugins: [autoprefixer]
 				}
 			}
-		})
+		}),
 	];
 
 	// Skip rendering index.html in test mode

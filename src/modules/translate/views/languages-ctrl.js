@@ -28,8 +28,9 @@
  * 
  * Manages list of languages
  * 
+@ngInject
  */
-mblowfish.controller('MbLanguagesCtrl', function(
+function MbLanguagesView(
 	$rootScope, $language, $mbNavigator, FileSaver,
 		/* AngularJS */ $window,
 		/* am-wb     */ $mbResource) {
@@ -138,5 +139,5 @@ mblowfish.controller('MbLanguagesCtrl', function(
 		});
 		return FileSaver.saveAs(data, 'language.json');
 	};
+}
 
-});

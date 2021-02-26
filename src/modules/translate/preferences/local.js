@@ -1,4 +1,6 @@
-mblowfish.addPreference('local', {
+
+
+export default {
 	title: 'local',
 	icon: 'language',
 	templateUrl: 'views/preferences/mb-local.html',
@@ -37,4 +39,4 @@ mblowfish.addPreference('local', {
 		load();
 	},
 	controllerAs: 'ctrl'
-})
+}
