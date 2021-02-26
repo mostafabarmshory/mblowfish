@@ -109,9 +109,7 @@ import MbWizardPageFactory from './factories/MbWizardPageFactory';
  ****************************************************************************/
 import lmGoldenlayout from './directives/lmGoldenlayout';
 import mbToolbarGroupDirective from './directives/mbToolbarGroup';
-//import mbUserToolbarDirective from './directives/mbUserToolbar';
 import mbViewDirectiveDirective from './directives/mbView';
-
 
 /****************************************************************************
  * Filters                                                                  *
@@ -136,7 +134,6 @@ mblowfish
 	// directives
 	.directive('lmGoldenlayout', lmGoldenlayout)
 	.directive('mbToolbarGroup', mbToolbarGroupDirective)
-	//	.directive('mbUserToolbar', mbUserToolbarDirective)
 	.directive('mbView', mbViewDirectiveDirective)
 
 	// factories

@@ -1,5 +1,9 @@
 
-mblowfish.factory('DemoMemoryAuthenticationProvider', function($q, MbAuthenticationProvider, MbAuthentication) {
+/**
+
+@ngInject
+ */
+export default function($q, MbAuthenticationProvider, MbAuthentication) {
 
 	var accounts = {
 		admin: {
@@ -49,6 +53,6 @@ mblowfish.factory('DemoMemoryAuthenticationProvider', function($q, MbAuthenticat
 
 
 	return DemoMemoryAuthenticationProvider;
+}
 
 
-})

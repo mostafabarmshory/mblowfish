@@ -20,6 +20,9 @@
  * SOFTWARE.
  */
 
+import alertTemplateUrl from './mbNotification-alert.html';
+import confirmTemplateUrl from './mbNotification-confirm.html';
+import promptTemplateUrl from './mbNotification-prompt.html';
 /**
  * @ngdoc Services
  * @name $mbNotification
@@ -30,7 +33,7 @@
 
 @ngInject
  */
-function mbNotification($mbNavigator, $mdToast) {
+function mbNotification($mbDialog, $mdToast, $rootElement) {
 
 	/**
 	 * The alert() method displays an alert box with a specified message and an
@@ -49,14 +52,23 @@ function mbNotification($mbNavigator, $mdToast) {
 	 *                alert box, or an object converted into a string and
 	 *                displayed
 	 */
-	function alert(message) {
-		return $mbNavigator.openDialog({
-			templateUrl: 'views/dialogs/mb-alert.html',
-			config: {
-				message: message
-			}
-		})
-			// return true even it the page is canceled
+	function alert(message, $event) {
+		return $mbDialog
+			.show({
+				controller: 'MbNavigatorDialogCtrl',
+				controllerAs: 'ctrl',
+				parent: angular.element($rootElement),
+				clickOutsideToClose: false,
+				fullscreen: true,
+				multiple: true,
+				templateUrl: alertTemplateUrl,
+				targetEvent: $event,
+				locals: {
+					config: {
+						message: message
+					}
+				}
+			})
 			.then(function() {
 				return true;
 			}, function() {
@@ -83,14 +95,23 @@ function mbNotification($mbNavigator, $mdToast) {
 	 *                message Optional. Specifies the text to display in the
 	 *                confirm box
 	 */
-	function confirm(message) {
-		// XXX: maso, 1395: wait for response (sync method)
-		return $mbNavigator.openDialog({
-			templateUrl: 'views/dialogs/mb-confirm.html',
-			config: {
-				message: message
-			}
-		});
+	function confirm(message, $event) {
+		return $mbDialog
+			.show({
+				controller: 'MbNavigatorDialogCtrl',
+				controllerAs: 'ctrl',
+				parent: angular.element($rootElement),
+				clickOutsideToClose: false,
+				fullscreen: true,
+				multiple: true,
+				templateUrl: confirmTemplateUrl,
+				targetEvent: $event,
+				locals: {
+					config: {
+						message: message
+					}
+				}
+			});
 	}
 
 	/**
@@ -113,15 +134,24 @@ function mbNotification($mbNavigator, $mdToast) {
 	 * @param String
 	 *                defaultText Optional. The default input text
 	 */
-	function prompt(text, defaultText) {
-		// XXX: maso, 1395: wait for response (sync method)
-		return $mbNavigator.openDialog({
-			templateUrl: 'views/dialogs/mb-prompt.html',
-			config: {
-				message: text,
-				model: defaultText
-			}
-		});
+	function prompt(text, defaultText, $event) {
+		return $mbDialog
+			.show({
+				controller: 'MbNavigatorDialogCtrl',
+				controllerAs: 'ctrl',
+				parent: angular.element($rootElement),
+				clickOutsideToClose: false,
+				fullscreen: true,
+				multiple: true,
+				templateUrl: promptTemplateUrl,
+				targetEvent: $event,
+				locals: {
+					config: {
+						message: text,
+						model: defaultText
+					}
+				}
+			});
 	}
 
 	/**
@@ -129,9 +159,10 @@ function mbNotification($mbNavigator, $mdToast) {
 	 * @param text
 	 * @returns
 	 */
-	function toast(text) {
+	function toast(text, $event) {
 		return $mdToast.show(
-			$mdToast.simple()
+			$mdToast
+				.simple()
 				.textContent(text)
 				.hideDelay(3000)
 		);

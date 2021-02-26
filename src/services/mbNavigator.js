@@ -147,7 +147,7 @@ function mbNavigator($q, $mdDialog, $location, $window) {
 	function openDialog(dialog) {
 		var dialogCnf = {};
 		angular.extend(dialogCnf, {
-			controller: dialog.controller || 'AmdNavigatorDialogCtrl',
+			controller: dialog.controller || 'MbNavigatorDialogCtrl',
 			controllerAs: dialog.ctrl || 'ctrl',
 			parent: angular.element(document.body),
 			clickOutsideToClose: false,

@@ -1,34 +1,15 @@
+// load test application
 import $ from 'jquery';
 import mblowfish from './index.js';
+
+/*
+Import modules
+*/
 import './modules/demo';
 
 import selectAccountTemplateUrl from './app-account-select.html';
 
-// TODO load test application
 
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
 /*
  * Application configuration
@@ -193,67 +174,8 @@ mblowfish
 		//
 		$mbActionsProvider
 			.setShortkeysEnabled(true);
-
-		//		$mbSidenavProvider
-		//			.addSidenav('/app/navigator', {
-		//				title: 'Navigator',
-		//				description: 'Navigate all path and routs of the pandel',
-		//				controller: 'MbNavigatorCtrl',
-		//				controllerAs: 'ctrl',
-		//				templateUrl: 'views/mb-navigator.html',
-		//				//		locked: '$mdMedia("min-width: 333px");',
-		//				position: 'start'
-		//			});
-		//
-		//  $mbView: manages all views of an application. you can add a new view 
-		// dynamically.
-		//
-//		$mbViewProvider
-//			.addView('/demo', {
-//				title: 'Demo&Tutorials',
-//				description: 'Demo explorer.',
-//				icon: 'wb_sunny',
-//				templateUrl: 'views/index.html',
-//				groups: ['Tutorials&Demo']
-//			})
-//			.addView('/demo/core', {
-//				title: 'Core Features',
-//				anchor: 'editors',
-//				templateUrl: 'views/core/index.html',
-//				groups: ['Tutorials&Demo']
-//			})
-//			.addView('/demo/ui', {
-//				title: 'UI',
-//				icon: 'layers_clear',
-//				anchor: 'editors',
-//				templateUrl: 'views/ui/index.html',
-//				groups: ['Tutorials&Demo']
-//			})
-//			.addView('/demo/components', {
-//				title: 'Components',
-//				icon: 'hotel',
-//				anchor: 'editors',
-//				templateUrl: 'views/components/index.html',
-//				groups: ['Tutorials&Demo']
-//			})
-//			.addView('/demo/core/resources/file', {
-//				title: 'File',
-//				icon: 'file',
-//				controller: 'TestResoucesCtrl',
-//				controllerAs: 'ctrl',
-//				templateUrl: 'views/core/resource-file.html',
-//				groups: ['Resources']
-//			})
-//			.addView('/demo/core/resources/image-url', {
-//				title: 'Image URL',
-//				icon: 'gollary',
-//				controller: 'TestResoucesCtrl',
-//				controllerAs: 'ctrl',
-//				templateUrl: 'views/core/resource-image-url.html',
-//				groups: ['Resources']
-//			});
 	})
-	.run(function($mbToolbar, $window, MbAction) {
+	.run(function($mbToolbar, MbAction) {
 		// Create and add action automatically
 		var action = new MbAction({
 			title: 'Auto action',
