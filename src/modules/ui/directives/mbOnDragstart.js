@@ -21,32 +21,24 @@
  */
 
 
-
 /**
- * @ngdoc Directives
- * @name mb-on-error
- * @description Call an action on error
- * 
- * This directive is used to run an action on error of an element
- * 
- * ```
- * <img
- * 	mb-on-error="toast('image is not loaded')"
- * 	href="image/path">
- * ```
+
+@ngInject
  */
-mblowfish.directive('mbOnError', function() {
+export default  function() {
 	return {
 		restrict: 'A',
 		link: function(scope, element, attrs) {
-			element.bind('error', function(e) {
+			element.on('dragstart', function(event, data) {
 				// call the function that was passed
-				if (attrs.mbOnError) {
-					scope.$eval(attrs.mbOnError, {
-						$event: e
+				if (attrs.mbOnDragstart) {
+					scope.$eval(attrs.mbOnDragstart, {
+						$event: event,
+						$element: element,
+						$data: data
 					});
 				}
 			});
 		}
 	};
-});
+}

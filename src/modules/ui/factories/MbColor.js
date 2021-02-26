@@ -1,4 +1,5 @@
-mblowfish.factory('MbColor', function() {
+
+export default function() {
 	var trimLeft = /^\s+/,
 		trimRight = /\s+$/,
 		tinyCounter = 0,
@@ -1174,4 +1175,4 @@ mblowfish.factory('MbColor', function() {
 	}
 
 	return tinycolor;
-});
+}

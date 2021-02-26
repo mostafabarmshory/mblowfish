@@ -36,9 +36,10 @@
  *   <md-card mb-colors="::{background: '{{theme}}-primary-700'}">
  *   </md-card>
  * </hljs>
- */
 
-mblowfish.directive('mbColors', function($mbColors, $mdUtil, $log, $parse) {
+@ngInject
+ */
+export default  function($mbColors, $mdUtil, $log, $parse) {
 	var STATIC_COLOR_EXPRESSION = /^{((\s|,)*?["'a-zA-Z-]+?\s*?:\s*?('|")[a-zA-Z0-9-.]*('|"))+\s*}$/;
 	return {
 		restrict: 'A',
@@ -171,5 +172,7 @@ mblowfish.directive('mbColors', function($mbColors, $mdUtil, $log, $parse) {
 			}
 		}
 	};
-});
+}
+
+
 

@@ -1,7 +1,5 @@
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
+/*
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,25 +21,37 @@
  */
 
 
+
 /**
  * @ngdoc Directives
- * @name mb-compare-to
- * @description Compare two attributes.
- */
-mblowfish.directive('mbCompareTo', function() {
-	return {
-		require: 'ngModel',
-		scope: {
-			otherModelValue: '=compareTo'
-		},
-		link: function(scope, element, attributes, ngModel) {
-			ngModel.$validators.compareTo = function(modelValue) {
-				return modelValue === scope.otherModelValue;
-			};
+ * @name mb-on-load
+ * @description Call an action on load
+ * 
+ * This directive is used to run an action on load of an element. For exmaple
+ * use to show alert on load of image:
+ * 
+ * ```
+ * <img
+ * 	mb-on-load="toast('image is loaded')"
+ * 	href="image/path">
+ * ```
 
-			scope.$watch('otherModelValue', function() {
-				ngModel.$validate();
+@ngInject
+ */
+export default  function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('load', function(event, data) {
+				// call the function that was passed
+				if (attrs.mbOnLoad) {
+					scope.$eval(attrs.mbOnLoad, {
+						$event: event,
+						$element: element,
+						$data: data
+					});
+				}
 			});
 		}
 	};
-});
+}

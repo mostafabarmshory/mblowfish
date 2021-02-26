@@ -1,4 +1,4 @@
-mblowfish.factory('MbColorGradientCanvas', function() {
+export default function() {
 
 	var canvasTypes = {
 		hue: {
@@ -331,4 +331,4 @@ mblowfish.factory('MbColorGradientCanvas', function() {
 			}
 		};
 	};
-});
+}

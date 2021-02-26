@@ -125,7 +125,8 @@ function mbAccount() {
 			}
 		}
 		return q.reject({
-			message: 'No suitable provider found'
+			providers: providers,
+			message: 'No suitable provider found for authentication',
 		});
 	}
 

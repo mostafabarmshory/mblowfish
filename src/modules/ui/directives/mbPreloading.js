@@ -21,7 +21,6 @@
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
@@ -47,9 +46,10 @@ angular.module('mblowfish-core')
  * <pre><code>
  *  	&lt;div mb-preload=&quot;preloadState&quot; mb-preload-class=&quot;my-class&quot;&gt; DIV content &lt;/div&gt;
  * </code></pre>
- * 
+
+@ngInject
  */
-.directive('mbPreloading', function(/*$animate*/) {
+export default  function(/*$animate*/) {
 	var PRELOAD_CLASS = 'mb-preload';
 	var PRELOAD_ANIMATION_CLASS = 'mb-preload-animate';
 
@@ -100,4 +100,6 @@ angular.module('mblowfish-core')
 		restrict : 'A',
 		link : postLink
 	};
-});
+}
+
+

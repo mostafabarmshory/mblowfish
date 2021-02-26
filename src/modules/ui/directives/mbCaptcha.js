@@ -23,7 +23,6 @@
  */
 
 
-angular.module('mblowfish-core')
 /**
  * @ngdoc Directives
  * @name mb-captcha
@@ -32,8 +31,10 @@ angular.module('mblowfish-core')
  * In some case, user must send captcha to the server fro auth. This a directive
  * to enablie captcha
  * 
+
+@ngInject
  */
-.directive('mbCaptcha', function() {
+export default function() {
 
     /**
      * Adding preloader.
@@ -84,4 +85,5 @@ angular.module('mblowfish-core')
         },
         link: postLink
     };
-});
+}
+

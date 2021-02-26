@@ -10,7 +10,7 @@
 //
 // - Open a new URL
 //
-mblowfish.editor('/mb/iframe/:url*', {
+export default {
 	title: 'Browser',
 	description: 'Open external page',
 	controllerAs: 'ctrl',
@@ -18,7 +18,9 @@ mblowfish.editor('/mb/iframe/:url*', {
 	groups: ['Utilities'],
 	controllerAs: 'ctrl',
 	controller: function($sce, $state) {
+		'ngInject';
 		// Load secure path
 		this.currentContenttUrl = $sce.trustAsResourceUrl($state.params.url);
 	}
-});
+}
+

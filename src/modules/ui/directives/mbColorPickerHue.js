@@ -1,3 +1,7 @@
-mblowfish.directive('mbColorPickerHue', function(MbColorGradientCanvas) {
+/**
+
+@ngInject
+ */
+export default  function(MbColorGradientCanvas) {
 	return new MbColorGradientCanvas('hue');
-});
+}

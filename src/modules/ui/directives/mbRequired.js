@@ -1,6 +1,8 @@
+/**
 
-// TODO:  maso, 2020: must replaced with ngRequried
-mblowfish.directive('mbRequired', function() {
+@ngInject
+ */
+export default  function() {
 	return {
 		restrict: "A",
 		require: "ngModel",
@@ -16,4 +18,4 @@ mblowfish.directive('mbRequired', function() {
 			};
 		}
 	}
-});
+}

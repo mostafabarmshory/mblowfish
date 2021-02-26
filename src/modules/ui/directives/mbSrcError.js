@@ -47,8 +47,10 @@
       ng-src="/api/v2/user/accounts/{{account.id}}/avatar"
       ng-src-error="https://www.gravatar.com/avatar/{{account.id}}?">
   ```
+
+@ngInject
  */
-mblowfish.directive('ngSrcError', function() {
+export default  function() {
 	return {
 		link: function(scope, element, attrs) {
 			element.bind('error', function() {
@@ -58,4 +60,6 @@ mblowfish.directive('ngSrcError', function() {
 			});
 		}
 	};
-});
+}
+
+

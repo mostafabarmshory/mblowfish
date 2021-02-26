@@ -1,4 +1,8 @@
-mblowfish.directive('mbFile', function() {
+/**
+
+@ngInject
+ */
+export default  function() {
 	return {
 		restrict: 'E',
 		scope: false,
@@ -49,7 +53,7 @@ mblowfish.directive('mbFile', function() {
 			ngModel.$render = render;
 		}
 	};
-});
+}
 
 
 

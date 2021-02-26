@@ -20,14 +20,14 @@
  * SOFTWARE.
  */
 
+import templateUrl from './mbInline.html';
 
 
 /**
- * @ngdoc Directives
- * @name mb-inline
- * @description Inline editing field
+
+@ngInject
  */
-mblowfish.directive('mbInline', function($q, $parse, $mbResource) {
+export default function($q, $parse, $mbResource) {
 
     /**
      * Link data and view
@@ -89,11 +89,11 @@ mblowfish.directive('mbInline', function($q, $parse, $mbResource) {
          * @ngInject
          */
 		controller: function($scope) {
-			
-			this.hasPageFor = function(){
+
+			this.hasPageFor = function() {
 				return $mbResource.hasPageFor($scope.mbInlineType);
 			};
-			this.setFromResource = function($event){
+			this.setFromResource = function($event) {
 				var ctrl = this;
 				return $mbResource.get($scope.mbInlineType, {
 					$style: {
@@ -106,7 +106,7 @@ mblowfish.directive('mbInline', function($q, $parse, $mbResource) {
 					ctrl.save($event);
 				});
 			};
-			
+
 			this.edit = function() {
 				this.editMode = true;
 			};
@@ -164,7 +164,7 @@ mblowfish.directive('mbInline', function($q, $parse, $mbResource) {
 			};
 		},
 		controllerAs: 'ctrlInline',
-		templateUrl: 'views/directives/mb-inline.html',
+		templateUrl: templateUrl,
 		link: postLink
 	};
-});
+}

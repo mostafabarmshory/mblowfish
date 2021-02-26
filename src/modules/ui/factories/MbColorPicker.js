@@ -1,5 +1,10 @@
 
-mblowfish.factory('MbColorPicker', function($mdDialog, MbColorPickerHistory, MbColor) {
+import templateUrl from './MbColorPicker.html';
+/**
+
+@ngInject
+ */
+export default function($mbDialog, MbColorPickerHistory, MbColor) {
 	var dialog;
 
 	return {
@@ -29,8 +34,8 @@ mblowfish.factory('MbColorPicker', function($mdDialog, MbColorPickerHistory, MbC
 			options.mbColorHex = ((options.mbColorHex === undefined) || (!options.mbColorRgb && !options.mbColorHsl)) ? true : options.mbColorHex;
 			options.mbColorAlphaChannel = (!options.mbColorRgb && !options.mbColorHsl) ? false : options.mbColorAlphaChannel;
 
-			dialog = $mdDialog.show({
-				templateUrl: 'scripts/module-ui/factories/MbColorPicker.html',
+			dialog = $mbDialog.show({
+				templateUrl: templateUrl,
 				hasBackdrop: options.hasBackdrop,
 				clickOutsideToClose: options.clickOutsideToClose,
 
@@ -93,4 +98,5 @@ mblowfish.factory('MbColorPicker', function($mdDialog, MbColorPickerHistory, MbC
 			return dialog.cancel();
 		}
 	};
-});
+}
+

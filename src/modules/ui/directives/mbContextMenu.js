@@ -4,7 +4,7 @@
  * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -13,7 +13,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -22,11 +22,25 @@
  * SOFTWARE.
  */
 
-mblowfish.directive('mbLocal', function($mbLocal) {
+
+/**
+ * @ngdoc Directives
+ * @name mb-context-menu
+ * @description Set internal md-menu as context menu
+
+@ngInject
+ */
+export default  function() {
 	return {
 		restrict: 'A',
-		link: function(scope, element) {
-			element.attr('dir', $mbLocal.getDirection());
+		require: 'mdMenu',
+		scope: true,
+		link: function(scope, element, attrs, menu) {
+			element.bind('contextmenu', function(event) {
+				scope.$apply(function() {
+					menu.open(event);
+				});
+			});
 		}
 	};
-});
+}

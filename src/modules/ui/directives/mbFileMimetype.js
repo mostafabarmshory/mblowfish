@@ -1,4 +1,8 @@
-mblowfish.directive('mbFileMimetype', function() {
+/**
+
+@ngInject
+ */
+export default  function() {
 	return {
 		restrict: "A",
 		require: "ngModel",
@@ -28,4 +32,4 @@ mblowfish.directive('mbFileMimetype', function() {
 			};
 		}
 	}
-});
+}

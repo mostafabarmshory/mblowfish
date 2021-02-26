@@ -22,15 +22,17 @@
  * SOFTWARE.
  */
 
-
+import templateUrl from './mbDynamicForm.html';
 /**
  * @ngdoc Directives
  * @name mbDynamicForm
  * @description Get a list of properties and fill them
  * 
  * Each property will be managed by an indevisual property editor.
+
+@ngInject
  */
-mblowfish.directive('mbDynamicForm', function($mbResource) {
+export default  function($mbResource) {
 	'ngInject';
 	/**
 	 * Adding preloader.
@@ -86,10 +88,11 @@ mblowfish.directive('mbDynamicForm', function($mbResource) {
 	return {
 		restrict: 'E',
 		require: ['ngModel'],
-		templateUrl: 'scripts/directives/mb-dynamic-form.html',
+		templateUrl: templateUrl,
 		scope: {
 			mbParameters: '='
 		},
 		link: postLink
 	};
-});
+}
+

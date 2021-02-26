@@ -1,4 +1,4 @@
-mblowfish.addAction(UI_URL_OPEN_ACTION, {
+export default {
 	group: 'UI',
 	title: 'Open URL',
 	description: 'Open a url',
@@ -20,4 +20,4 @@ mblowfish.addAction(UI_URL_OPEN_ACTION, {
 				});
 			});
 	}
-});
+}

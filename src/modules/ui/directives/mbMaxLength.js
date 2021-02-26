@@ -1,8 +1,10 @@
 /**
 
 Text model with array validation and transformation. Sets the size validation error if not a valid number.
+
+@ngInject
  */
-mblowfish.directive('mbMinLength', function() {
+export default  function() {
 	return {
 		restrict: "A",
 		require: "ngModel",
@@ -11,17 +13,17 @@ mblowfish.directive('mbMinLength', function() {
 				return;
 			}
 			var intMax = -1;
-			attrs.$observe('mbMinLength', function(value) {
+			attrs.$observe('mbMaxLength', function(value) {
 				var intVal = parseInt(value, 10);
 				intMax = isNaN(intVal) ? -1 : intVal;
 				ctrl.$validate();
 			});
-			ctrl.$validators.minlength = function(modelValue) {
+			ctrl.$validators.maxlength = function(modelValue, viewValue) {
 				if (!modelValue) {
 					return false;
 				}
-				return modelValue.length >= intMax;
+				return modelValue.length <= intMax;
 			};
 		}
 	}
-});
+}

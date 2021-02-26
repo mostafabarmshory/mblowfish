@@ -1,7 +1,9 @@
-mblowfish.resource('local-files', {
+import templateUrl from './files.html';
+
+export default {
 	icon: 'file_upload',
 	label: 'Local files',
-	templateUrl: 'scripts/module-ui/resources/files.html',
+	templateUrl: templateUrl,
 	controller: function($resource, $style) {
 		'ngInject';
 		var ctrl = this;
@@ -17,4 +19,4 @@ mblowfish.resource('local-files', {
 	controllerAs: 'ctrl',
 	priority: 1,
 	tags: ['files']
-});
+}

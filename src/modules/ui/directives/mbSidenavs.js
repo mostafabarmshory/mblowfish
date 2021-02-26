@@ -1,7 +1,5 @@
-/* 
- * The MIT License (MIT)
- * 
- * Copyright (c) 2016 weburger
+/*
+ * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +20,24 @@
  * SOFTWARE.
  */
 
-mblowfish.directive('mbTable', function($mdTheming) {
 
-	function postLink(scope, element, attributes) {
-		$mdTheming(element);
-		element.addClass('mb-table');
-	}
+/**
+@ngdoc Directive
+@name mb-sidenav
+@description Defines a place to add sidenaves
 
+
+
+@ngInject
+ */
+export default  function($mbSidenav) {
 	return {
-		restrict: 'AC',
+		restrict: 'AE',
 		replace: false,
-		transclude: false,
-		scope: false,
-		link: postLink,
+		link: function($scope, $element) {
+			$mbSidenav.setRootElement($element);
+		}
 	};
-});
+}
+
 

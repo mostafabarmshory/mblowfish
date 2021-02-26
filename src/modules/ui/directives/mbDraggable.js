@@ -21,52 +21,25 @@
  */
 
 
+/**
+ * @ngdoc Directives
+ * @name mb-draggable
+ * @description Call an action on dragstart
 
-angular.module('mblowfish-core')
-
-	/**
-	 * @ngdoc Directives
-	 * @name mb-navigation-path
-	 * @description Display current navigation path of system
-	 * 
-	 * Navigation path is a menu which is updated by the $navigation service. This menu
-	 * show a chain of menu items to show the current path of the system. It is very
-	 * usefull to show current path to the users.
-	 * 
-	 * 
-	 */
-	.directive('mbNavigationBar', function($mbActions, $mbNavigator) {
-
-
-		/**
-		 * Init the bar
-		 */
-		function postLink(scope) {
-			scope.isVisible = function(menu) {
-				// default value for visible is true
-				if (angular.isUndefined(menu.visible)) {
-					return true;
-				}
-				if (angular.isFunction(menu.visible)) {
-					return menu.visible();
-				}
-				return menu.visible;
-			};
-
-			scope.goToHome = function() {
-				$mbNavigator.openPage('');
-			};
-
-			/*
-			 * maso, 2017: Get navigation path menu. See $mbNavigator.scpoePath for more info
-			 */
-			scope.pathMenu = $mbActions.getGroup('navigationPathMenu');
+@ngInject
+ */
+export default  function() {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			var flag = true;
+			if (attrs.mbDraggable) {
+				flag = scope.$eval(attrs.mbDraggable, {
+					$event: {},
+					$element: element
+				});
+			}
+			element.attr('draggable', flag);
 		}
-
-		return {
-			restrict: 'E',
-			replace: false,
-			templateUrl: 'views/directives/mb-navigation-bar.html',
-			link: postLink
-		};
-	});
+	};
+}

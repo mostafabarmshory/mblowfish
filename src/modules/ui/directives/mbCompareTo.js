@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,22 +25,29 @@
 
 /**
  * @ngdoc Directives
- * @name mb-draggable
- * @description Call an action on dragstart
- * 
+ * @name mb-compare-to
+ * @description Compare two attributes.
+
+@ngInject
  */
-mblowfish.directive('mbDraggable', function() {
+export default  function() {
 	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			var flag = true;
-			if (attrs.mbDraggable) {
-				flag = scope.$eval(attrs.mbDraggable, {
-					$event: {},
-					$element: element
-				});
-			}
-			element.attr('draggable', flag);
+		require: 'ngModel',
+		scope: {
+			otherModelValue: '=compareTo'
+		},
+		link: function(scope, element, attributes, ngModel) {
+			ngModel.$validators.compareTo = function(modelValue) {
+				return modelValue === scope.otherModelValue;
+			};
+
+			scope.$watch('otherModelValue', function() {
+				ngModel.$validate();
+			});
 		}
 	};
-});
+}
+
+
+
+

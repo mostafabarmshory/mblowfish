@@ -20,9 +20,7 @@
  * SOFTWARE.
  */
 
-
-
-mblowfish
+import templateUrl from './mbDynamicTabs.html'
 
 /**
  * @ngdoc Directives
@@ -30,9 +28,10 @@ mblowfish
  * @description Display tabs dynamically
  * 
  * In some case, a dynamic tabs are required. This module add them dynamically.
- * 
+
+@ngInject
  */
-.directive('mbDynamicTabs', function($wbUtil, $q, $rootScope, $compile, $controller) {
+export default function($wbUtil, $q, $rootScope, $compile, $controller) {
 	var CHILDREN_AUNCHOR = 'mb-dynamic-tabs-select-resource-children';
 
 
@@ -54,12 +53,12 @@ mblowfish
 
 	function link($scope, $element) {
 		// Load pages in scope
-		function loadPage(index){
+		function loadPage(index) {
 			var jobs = [];
 			var pages2 = [];
-			
+
 			var mbTabs = $scope.mbTabs || [];
-			if(index > mbTabs.length || index < 0 || mbTabs.length == 0){
+			if (index > mbTabs.length || index < 0 || mbTabs.length == 0) {
 				return;
 			}
 			var page = mbTabs[index];
@@ -79,10 +78,10 @@ mblowfish
 					var scope = $rootScope.$new(false, $scope);
 					scope.page = page;
 					scope.value = $scope.value;
-					if (angular .isDefined(page.controller)) {
+					if (angular.isDefined(page.controller)) {
 						$controller(page.controller, {
-							$scope : scope,
-							$element : element
+							$scope: scope,
+							$element: element
 						});
 					}
 					$compile(element)(scope);
@@ -96,10 +95,10 @@ mblowfish
 				});
 			});
 		}
-		
+
 		// Index of selected page
-		$scope.$watch('pageIndex', function(value){
-			if(value >= 0){
+		$scope.$watch('pageIndex', function(value) {
+			if (value >= 0) {
 				loadPage(value);
 			}
 		});
@@ -113,7 +112,7 @@ mblowfish
 		scope: {
 			mbTabs: '='
 		},
-		templateUrl: 'views/directives/mb-dynamic-tabs.html',
+		templateUrl: templateUrl,
 		link: link
 	};
-});
+}

@@ -1,7 +1,9 @@
-mblowfish.resource('wb-url', {
+import templateUrl from './url.html';
+
+export default {
 	title: 'URL',
 	icon: 'link',
-	templateUrl: 'scripts/module-ui/resources/url.html',
+	templateUrl: templateUrl,
 	controller: function($scope, $resource, $style) {
 		'ngInject';
 		var ctrl = this;
@@ -27,4 +29,4 @@ mblowfish.resource('wb-url', {
 		'avatar-url',
 		'thumbnail-url'
 	]
-});
+}

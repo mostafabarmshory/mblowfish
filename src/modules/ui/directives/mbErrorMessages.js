@@ -21,14 +21,15 @@
  */
 
 
-angular.module('mblowfish-core')
 
 /**
  * @ngdoc Directives
  * @name mb-error-messages
  * @description An error message display
+
+@ngInject
  */
-.directive('mbErrorMessages', function($compile) {
+export default  function($compile) {
 
     /*
      * Link function
@@ -79,4 +80,6 @@ angular.module('mblowfish-core')
         },
         link: postLink
     };
-});
+}
+
+

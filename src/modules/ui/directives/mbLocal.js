@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
+/* 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2016 weburger
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,25 +22,15 @@
  * SOFTWARE.
  */
 
-
 /**
- * @ngdoc Directives
- * @name mb-on-enter
- * @description Call an action on ENTER
- * 
- * ```
- * <input
- *  mb-on-enter="toast('ESC')">
- * ```
+
+@ngInject
  */
-mblowfish.directive('mbOnEnter', function() {
-	return function(scope, elm, attr) {
-		elm.bind('keypress', function(e) {
-			if (e.keyCode === 13) {
-				scope.$eval(attr.mbOnEnter, {
-					$event: e
-				});
-			}
-		});
+export default  function($mbLocal) {
+	return {
+		restrict: 'A',
+		link: function(scope, element) {
+			element.attr('dir', $mbLocal.getDirection());
+		}
 	};
-});
+}

@@ -74,8 +74,10 @@
  *    <mb-icon mb-svg-icon="path/to/your.svg"></mb-icon>
  *  </mb-button>
  * </hljs>
+
+@ngInject
  */
-mblowfish.directive('mbButton', function($mdButtonInkRipple, $mdTheming, $mdAria, $mdInteraction) {
+export default  function($mdButtonInkRipple, $mdTheming, $mdAria, $mdInteraction) {
 
 	return {
 		restrict: 'EA',
@@ -141,7 +143,7 @@ mblowfish.directive('mbButton', function($mdButtonInkRipple, $mdTheming, $mdAria
 
 	}
 
-});
+}
 
 
 /**

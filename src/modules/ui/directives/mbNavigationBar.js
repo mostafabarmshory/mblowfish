@@ -22,25 +22,41 @@
 
 
 /**
- * @ngdoc Directives
- * @name mb-on-dragstart
- * @description Call an action on dragstart
- * 
+
+@ngInject
  */
-mblowfish.directive('mbOnDragstart', function() {
+export default function($mbActions, $mbNavigator) {
+
+
+	/**
+	 * Init the bar
+	 */
+	function postLink(scope) {
+		scope.isVisible = function(menu) {
+			// default value for visible is true
+			if (angular.isUndefined(menu.visible)) {
+				return true;
+			}
+			if (angular.isFunction(menu.visible)) {
+				return menu.visible();
+			}
+			return menu.visible;
+		};
+
+		scope.goToHome = function() {
+			$mbNavigator.openPage('');
+		};
+
+		/*
+		 * maso, 2017: Get navigation path menu. See $mbNavigator.scpoePath for more info
+		 */
+		scope.pathMenu = $mbActions.getGroup('navigationPathMenu');
+	}
+
 	return {
-		restrict: 'A',
-		link: function(scope, element, attrs) {
-			element.on('dragstart', function(event, data) {
-				// call the function that was passed
-				if (attrs.mbOnDragstart) {
-					scope.$eval(attrs.mbOnDragstart, {
-						$event: event,
-						$element: element,
-						$data: data
-					});
-				}
-			});
-		}
+		restrict: 'E',
+		replace: false,
+		templateUrl: 'views/directives/mb-navigation-bar.html',
+		link: postLink
 	};
-});
+}

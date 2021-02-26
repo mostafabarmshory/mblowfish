@@ -1,4 +1,5 @@
-mblowfish.factory('MbColorPickerHistory', function($injector, MbColor) {
+
+export default function($injector, MbColor) {
 
 	var history = [];
 	var strHistory = [];
@@ -58,5 +59,5 @@ mblowfish.factory('MbColorPickerHistory', function($injector, MbColor) {
 			}
 		}
 	};
-});
+}
 

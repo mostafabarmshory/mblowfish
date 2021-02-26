@@ -21,17 +21,11 @@
  */
 
 
-angular.module('mblowfish-core')
-
 /**
- * @ngdoc Directives
- * @name mb-infinate-scroll
- * @description Infinet scroll
- * 
- * 
- * Manage scroll of list
+
+@ngInject
  */
-.directive('mbInfinateScroll', function ($parse, $q, $timeout) {
+export default  function ($parse, $q, $timeout) {
     // FIXME: maso, 2017: tipo in diractive name (infinite)
     function postLink(scope, elem, attrs) {
         var raw = elem[0];
@@ -73,4 +67,4 @@ angular.module('mblowfish-core')
         restrict : 'A',
         link : postLink
     };
-});
+}

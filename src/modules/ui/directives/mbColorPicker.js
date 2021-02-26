@@ -1,7 +1,14 @@
-mblowfish.directive('mbColorPicker', function() {
+
+import templateUrl from './mbColorPicker.html';
+
+/**
+
+@ngInject
+ */
+export default  function() {
 
 	return {
-		templateUrl: 'scripts/module-ui/directives/mb-color-picker.html',
+		templateUrl: templateUrl,
 
 		// Added required controller ngModel
 		require: '^ngModel',
@@ -147,7 +154,7 @@ mblowfish.directive('mbColorPicker', function() {
 
 		}
 	};
-});
+}
 
 
 

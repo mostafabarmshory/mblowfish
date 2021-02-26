@@ -1,5 +1,12 @@
 
-mblowfish.directive('mbFileInput', function($q, $timeout) {
+import templateUrl from './mbFileInput.html';
+import './mbFileInput.css';
+
+/**
+
+@ngInject
+ */
+export default  function($q, $timeout) {
 
 	function genLfObjId() {
 		return 'mbobjyxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -68,7 +75,7 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 
 	return {
 		restrict: 'E',
-		templateUrl: 'scripts/module-ui/directives/mb-file-input.html',
+		templateUrl: templateUrl,
 		replace: true,
 		require: 'ngModel',
 		scope: {
@@ -415,7 +422,7 @@ mblowfish.directive('mbFileInput', function($q, $timeout) {
 			};
 		}
 	};
-});
+}
 
 
 

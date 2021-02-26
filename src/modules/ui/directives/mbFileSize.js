@@ -1,5 +1,8 @@
+/**
 
-mblowfish.directive('mbFileSizeTotal', function() {
+@ngInject
+ */
+export default  function() {
 	var sizes = ['Byte', 'KB', 'MB'];
 	return {
 		restrict: "A",
@@ -9,7 +12,7 @@ mblowfish.directive('mbFileSizeTotal', function() {
 				return;
 			}
 			var intMax = -1;
-			attrs.$observe('mbFileSizeTotal', function(value) {
+			attrs.$observe('mbFileSize', function(value) {
 				var reg = /^[1-9][0-9]*(Byte|KB|MB)$/;
 				if (!reg.test(value)) {
 					intMax = -1;
@@ -27,16 +30,21 @@ mblowfish.directive('mbFileSizeTotal', function() {
 				}
 				ctrl.$validate();
 			});
-			ctrl.$validators.filesizetotal = function(modelValue) {
+			ctrl.$validators.filesize = function(modelValue) {
 				if (!modelValue) {
 					return false;
 				}
-				var intTotal = 0;
-				angular.forEach(modelValue, function(obj) {
-					intTotal = intTotal + obj.size;
+				var boolValid = true;
+				modelValue.every(function(obj) {
+					if (obj.size > intMax) {
+						boolValid = false;
+						return false;
+					} else {
+						return true;
+					}
 				});
-				return intTotal < intMax;
+				return boolValid;
 			};
 		}
 	}
-});
+}

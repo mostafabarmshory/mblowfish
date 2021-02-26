@@ -1,6 +1,13 @@
-mblowfish.directive('mbColorPickerContainer', function($timeout, $mbColorPalette, MbColorPickerHistory, MbColor) {
+
+import templateUrl from './mbColorPickerContainer.html';
+
+/**
+
+@ngInject
+ */
+export default function($timeout, $mbColorPalette, MbColorPickerHistory, MbColor) {
 	return {
-		templateUrl: 'scripts/module-ui/directives/mb-color-picker-container.html',
+		templateUrl: templateUrl,
 		scope: {
 			value: '=?',
 			default: '@',
@@ -278,4 +285,4 @@ mblowfish.directive('mbColorPickerContainer', function($timeout, $mbColorPalette
 			});
 		}
 	};
-});
+}

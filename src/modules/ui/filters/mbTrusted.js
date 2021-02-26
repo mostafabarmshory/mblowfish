@@ -1,7 +1,7 @@
 
-mblowfish.filter('mbTrusted', function($sce) {
+export default function($sce) {
 	'ngInject';
 	return function(url) {
 		return $sce.trustAsResourceUrl(url);
 	};
-});
+}

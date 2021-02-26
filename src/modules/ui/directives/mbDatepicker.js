@@ -29,9 +29,10 @@
  * @descritpion Date picker
  * 
  * Select a date based on local.
- * 
+
+@ngInject
  */
-mblowfish.directive('mbDatepicker', function($mdUtil, $rootScope) {
+export default  function($mdUtil, $rootScope) {
 
 	// **********************************************************
 	// Private Methods
@@ -96,4 +97,5 @@ mblowfish.directive('mbDatepicker', function($mdUtil, $rootScope) {
 		priority: 210, // Run before ngAria
 		link: postLink
 	};
-});
+}
+

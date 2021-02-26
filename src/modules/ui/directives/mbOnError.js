@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Phoenix Scholars Co. (http://dpq.co.ir)
+ * Copyright (c) 2015-2025 Phoinex Scholars Co. http://dpq.co.ir
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,20 +21,34 @@
  */
 
 
+
 /**
-@ngdoc Directive
-@name mb-sidenav
-@description Defines a place to add sidenaves
+ * @ngdoc Directives
+ * @name mb-on-error
+ * @description Call an action on error
+ * 
+ * This directive is used to run an action on error of an element
+ * 
+ * ```
+ * <img
+ * 	mb-on-error="toast('image is not loaded')"
+ * 	href="image/path">
+ * ```
 
-
-
+@ngInject
  */
-mblowfish.directive('mbSidenavs', function($mbSidenav) {
+export default  function() {
 	return {
-		restrict: 'AE',
-		replace: false,
-		link: function($scope, $element) {
-			$mbSidenav.setRootElement($element);
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			element.bind('error', function(e) {
+				// call the function that was passed
+				if (attrs.mbOnError) {
+					scope.$eval(attrs.mbOnError, {
+						$event: e
+					});
+				}
+			});
 		}
 	};
-});
+}

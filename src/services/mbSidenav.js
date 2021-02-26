@@ -19,7 +19,8 @@ function mbSidenav() {
 	var configs = {};
 	var sidenavConfigs = {};
 	var sidenavs = {};
-	var rootElement = undefined;
+	var rootElement = undefined,
+		mdSidenav;
 
 	function addSidenavConfig(sidenavId, config) {
 		sidenavConfigs[sidenavId] = config;

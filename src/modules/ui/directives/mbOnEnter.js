@@ -21,26 +21,18 @@
  */
 
 
-
 /**
- * @ngdoc Directives
- * @name mb-on-esc
- * @description Call an action on ESC
- * 
- * ```
- * <input
- *  mb-on-esc="toast('ESC')">
- * ```
+
+@ngInject
  */
-mblowfish.directive('mbOnEsc', function() {
+export default  function() {
 	return function(scope, elm, attr) {
-		elm.bind('keydown', function(e) {
-			if (e.keyCode === 27) {
-				scope.$eval(attr.mbOnEsc, {
+		elm.bind('keypress', function(e) {
+			if (e.keyCode === 13) {
+				scope.$eval(attr.mbOnEnter, {
 					$event: e
 				});
 			}
 		});
 	};
-});
-
+}
