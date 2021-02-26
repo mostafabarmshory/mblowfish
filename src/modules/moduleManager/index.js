@@ -19,31 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+
 import mblowfish from '../../mblowfish';
+import moduleCreateAction from './actions/module-create';
+import moduleDeleteAction from './actions/module-delete';
+import moduleExportAction from './actions/module-export';
+import moduleImportAction from './actions/module-import';
 
+import manualModuleResource from './resources/module-manual';
 
+import modulesView from './views/modules';
+
+import Constants from './Constants';
 /**
  * Manages system moduels
  */
-mblowfish.constant({
-	MB_MODULE_RT: '/app/modules', // Resource Type
-	MB_MODULE_SP: '/app/modules', // Store Path
-	MB_MODULE_SK: 'mbModules', // Storage Key
-	MB_MODULE_MODULES_VIEW: '/app/modules',
-
-	MB_MODULE_CREATE_ACTION: 'mb.module.create',
-	MB_MODULE_DELETE_ACTION: 'mb.module.delete',
-	MB_MODULE_UPDATE_ACTION: 'mb.module.update',
-	MB_MODULE_IMPORT_ACTION: 'mb.module.import',
-	MB_MODULE_EXPORT_ACTION: 'mb.module.export'
-});
-
-mblowfish.run(function($mbToolbar) {
-	'ngInject';
-	$mbToolbar
-		.getToolbar(MB_MODULE_MODULES_VIEW)
-		.addAction(MB_MODULE_CREATE_ACTION)
-		.addAction(MB_MODULE_IMPORT_ACTION)
-		.addAction(MB_MODULE_EXPORT_ACTION);
-});
+mblowfish
+	.constant(Constants)
+	//>> action
+	.action(Constants.MB_MODULE_CREATE_ACTION, moduleCreateAction)
+	.action(Constants.MB_MODULE_DELETE_ACTION, moduleDeleteAction)
+	.action(Constants.MB_MODULE_EXPORT_ACTION, moduleExportAction)
+	.action(Constants.MB_MODULE_IMPORT_ACTION, moduleImportAction)
+	//>> resource
+	.resource('mb-module-manual', manualModuleResource)
+	//>> View
+	.view(Constants.MB_MODULE_MODULES_VIEW, modulesView)
+	//>> runs
+	.run(function($mbToolbar) {
+		'ngInject';
+		$mbToolbar
+			.getToolbar(Constants.MB_MODULE_MODULES_VIEW)
+			.addAction(Constants.MB_MODULE_CREATE_ACTION)
+			.addAction(Constants.MB_MODULE_IMPORT_ACTION)
+			.addAction(Constants.MB_MODULE_EXPORT_ACTION);
+	});
 

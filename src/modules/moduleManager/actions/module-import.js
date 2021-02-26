@@ -1,5 +1,5 @@
 
-mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
+export default {
 	group: 'Module',
 	title: 'Import',
 	descriptions: 'Imports modules into the local dashboard',
@@ -47,4 +47,5 @@ mblowfish.addAction(MB_MODULE_IMPORT_ACTION, {
 		document.body.appendChild(fileInput);
 		clickElem(fileInput);
 	}
-});
+}
+

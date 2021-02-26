@@ -19,12 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-mblowfish.view(MB_MODULE_MODULES_VIEW, {
+import templateUrl from './modules.html';
+export default {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
-	templateUrl: 'scripts/module-moduleManager/views/modules.html',
+	templateUrl: templateUrl,
 	groups: ['Utilities'],
 	controllerAs: 'ctrl',
 	controller: function(
@@ -63,4 +63,8 @@ mblowfish.view(MB_MODULE_MODULES_VIEW, {
 
 		ctrl.loadModules();
 	}
-});
+}
+
+
+
+

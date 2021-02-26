@@ -1,9 +1,10 @@
 
+import templateUrl from './local.html';
 
 export default {
 	title: 'local',
 	icon: 'language',
-	templateUrl: 'views/preferences/mb-local.html',
+	templateUrl: templateUrl,
 	/* @ngInject */
 	controller: function($scope, $mbSettings) {
 		var names = [

@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
+export default {
 	icon: 'add',
 	group: 'Module',
 	title: 'Add new module',
@@ -38,4 +38,4 @@ mblowfish.addAction(MB_MODULE_CREATE_ACTION, {
 				});
 			});
 	}
-})
+}

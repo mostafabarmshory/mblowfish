@@ -179,6 +179,7 @@ mblowfish
 	.directive('mbColors', mbColorsDirectives)
 	.directive('mbIcon', mbIconDirective)
 	.directive('mbIconFloat', mbIconFloat)
+	.directive('mdIconFloat', mbIconFloat) // Legecy views
 	.directive('mbPreloading', mbPreloading)
 	.directive('mbRequired', mbRequired)
 	.directive('mbSidenavs', mbSidenavs)

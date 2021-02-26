@@ -19,10 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import templateUrl from './module-manual.html';
+import Constants from '../Constants';
 
-mblowfish.resource('mb-module-manual', {
+export default {
 	label: 'Manual',
-	templateUrl: 'scripts/module-moduleManager/resources/module-manual.html',
+	templateUrl: templateUrl,
 	controller: function($scope, $resource) {
 		'ngInject';
 		$scope.$watch('module', function(value) {
@@ -31,5 +33,6 @@ mblowfish.resource('mb-module-manual', {
 		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
 	},
 	controllerAs: 'resourceCtrl',
-	tags: [MB_MODULE_RT]
-});
+	tags: [Constants.MB_MODULE_RT]
+}
+

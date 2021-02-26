@@ -1,4 +1,5 @@
-mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
+
+export default {
 	group: 'Module',
 	title: 'Export',
 	descriptions: 'Export modules from the local',
@@ -20,4 +21,4 @@ mblowfish.addAction(MB_MODULE_EXPORT_ACTION, {
 
 		document.body.removeChild(element);
 	}
-});
+}

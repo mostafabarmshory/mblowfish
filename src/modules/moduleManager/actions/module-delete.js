@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
+export default {
 	group: 'Module',
 	title: 'Delete local module',
 	icon: 'view_module',
@@ -28,11 +28,11 @@ mblowfish.addAction(MB_MODULE_DELETE_ACTION, {
 	action: function($window, $mbModules, $event) {
 		'ngInject';
 		return $window
-			.confirm('Delete modules?')
+			.confirm('Delete modules?', $event)
 			.then(function() {
 				_.forEach($event.modules, function(m) {
 					$mbModules.removeModule(m);
 				});
 			});
 	}
-});
+}

@@ -20,6 +20,28 @@
  * SOFTWARE.
  */
 
+
+//------------------------------------------------------------------------------
+// Services
+//------------------------------------------------------------------------------
+var mbDispatcher,
+	mbStorage,
+	mbApplication,
+	q;
+
+var provider;
+var service;
+
+//------------------------------------------------------------------------------
+// variables
+//------------------------------------------------------------------------------
+
+var modules = {};
+
+
+//------------------------------------------------------------------------------
+// Functions
+//------------------------------------------------------------------------------
 function moduleLoadLibrary(path) {
 	var defer = jQuery.Deferred();
 	var script = document.createElement('script');
@@ -80,89 +102,74 @@ function moduleLoad(module) {
 }
 
 
+function addModule(module) {
+	modules[module.url] = module;
+	saveModules();
+	//>> fire changes
+	mbDispatcher.dispatch(MB_MODULE_SP, {
+		type: 'create',
+		items: [module]
+	});
+}
+
+function removeModule(module) {
+	delete modules[module.url];
+	saveModules();
+	//>> fire changes
+	mbDispatcher.dispatch(MB_MODULE_SP, {
+		type: 'delete',
+		items: [module]
+	});
+}
+
+function getModules() {
+	return modules;
+}
+
+function saveModules() {
+	//>> Save changes
+	mbStorage[MB_MODULE_SK] = _.cloneDeep(modules);
+}
+
+function load() {
+	modules = mbStorage.mbModules || {};
+}
+
+/**
+
+@ngInject 
+*/
+function $get(
+	/* Angularjs */ $q,
+	/* am-wb     */ $mbApplication, $mbDispatcher, $mbStorage) {
+	q = $q;
+	mbApplication = $mbApplication;
+	mbDispatcher = $mbDispatcher;
+	mbStorage = $mbStorage;
+
+	load();
+
+	return service;
+}
+
+service = {
+	removeModule: removeModule,
+	addModule: addModule,
+	getModules: getModules,
+};
+
+provider = {
+	$get: $get,
+	enable: function(enable) {
+		moduleEnable = enable;
+	}
+};
+
 /**
  * Manages system moduels
  */
-function mbModules() {
-
-	//------------------------------------------------------------------------------
-	// Services
-	//------------------------------------------------------------------------------
-	var mbDispatcher;
-	var mbStorage;
-
-	var provider;
-	var service;
-
-	//------------------------------------------------------------------------------
-	// variables
-	//------------------------------------------------------------------------------
-	var modules = {};
-
-	function addModule(module) {
-		modules[module.url] = module;
-		saveModules();
-		//>> fire changes
-		mbDispatcher.dispatch(MB_MODULE_SP, {
-			type: 'create',
-			items: [module]
-		});
-	}
-
-	function removeModule(module) {
-		delete modules[module.url];
-		saveModules();
-		//>> fire changes
-		mbDispatcher.dispatch(MB_MODULE_SP, {
-			type: 'delete',
-			items: [module]
-		});
-	}
-
-	function getModules() {
-		return modules;
-	}
-
-	function saveModules() {
-		//>> Save changes
-		mbStorage[MB_MODULE_SK] =_.cloneDeep(modules);
-	}
-
-	function load() {
-		modules = mbStorage.mbModules || {};
-	}
-
-	//------------------------------------------------------------------------------
-	// End
-	//------------------------------------------------------------------------------
-
-	service = {
-		removeModule: removeModule,
-		addModule: addModule,
-		getModules: getModules,
-	};
-	provider = {
-		/* @ngInject */
-		$get: function(
-			/* Angularjs */ $window, $q,
-			/* am-wb     */ $mbApplication, $mbDispatcher, $mbStorage) {
-			q = $q;
-			window = $window;
-			mbApplication = $mbApplication;
-			mbDispatcher = $mbDispatcher;
-			mbStorage = $mbStorage;
-
-			load();
-
-			return service;
-		},
-		enable: function(enable) {
-			moduleEnable = enable;
-		}
-	};
+export default function() {
 	return provider;
-}
-
-export default mbModules;
+};
 
 

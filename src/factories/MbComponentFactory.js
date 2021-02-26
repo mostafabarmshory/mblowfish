@@ -128,7 +128,6 @@ function MbComponentFactory(
 			var controllerDef;
 
 			$element.html(template);
-			$mbTheming($element);
 			var link = $compile($element);
 			locals.$scope = $scope;
 			if ((controllerDef = cmp.controller)) {
@@ -151,6 +150,19 @@ function MbComponentFactory(
 					}
 				});
 			}
+			
+			// controller function required fro theming
+			// TODO: these parts are removed from new current angularjs but required in angular material
+			if (_.isUndefined($element.controller)) {
+				$element.controller = function() {};
+			}
+			if (_.isUndefined($element.scope)) {
+				$element.scope = function() { 
+					return $scope;
+				};
+			}
+			$mbTheming($element);
+
 			cmp.$binds.push({
 				$controller: $ctrl,
 				$element: $element,
