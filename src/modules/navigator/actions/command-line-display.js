@@ -1,5 +1,7 @@
 
-mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
+import templateUrl from './command-line-display.html';
+
+export default {
 	icon: 'call_to_action',
 	group: 'Navigator',
 	title: 'Open Command Line',
@@ -10,7 +12,7 @@ mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
 		'ngInject';
 
 		$mdBottomSheet.show({
-			templateUrl: 'scripts/module-navigator/actions/command-line-display.html',
+			templateUrl: templateUrl,
 			clickOutsideToClose: true,
 			/* @ngInject */
 			controller: function($scope, $mdBottomSheet) {
@@ -39,4 +41,4 @@ mblowfish.action(MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, {
 		$event.preventDefault();
 		$event.stopPropagation();
 	}
-});
+}

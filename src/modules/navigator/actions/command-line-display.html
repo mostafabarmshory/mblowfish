@@ -14,15 +14,13 @@
 				md-autofocus/>
 		</md-input-container>
 	</div>
-	<md-content 
-		flex>
+	<div style="overflow: auto;">
 		<md-list 
 			ng-cloak>
 			<md-list-item 
 				ng-repeat="action in actions"
 				ng-click="runAction(action, $event)" 
 				ng-show="!action.demon"
-				class="md-offset"
 				>
 				<mb-icon 
 					ng-if="action.icon"
@@ -35,5 +33,5 @@
 				</p>
 			</md-list-item>
 		</md-list>
-	</md-content>
+	</div>
 </md-bottom-sheet>

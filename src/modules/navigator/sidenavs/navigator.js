@@ -1,10 +1,12 @@
 
-mblowfish.addSidenav('/app/navigator', {
+import tempalteUrl from '../views/navigator.html';
+
+export default {
 	title: 'Navigator',
 	description: 'Navigate all path and routs of the pandel',
 	controller: 'MbNavigatorCtrl',
 	controllerAs: 'ctrl',
-	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	templateUrl: tempalteUrl,
 	locked: 'false',
 	position: 'start'
-});
+}

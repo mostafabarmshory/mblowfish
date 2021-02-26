@@ -1,11 +1,13 @@
 
-mblowfish.addView('/mb/ui/views/navigator/', {
+import templateUrl from './navigator.html';
+
+export default {
 	title: 'Navigator',
 	description: 'Navigate all path and routs of the pandel',
 	controller: 'MbNavigatorCtrl',
 	controllerAs: 'ctrl',
-	templateUrl: 'scripts/module-navigator/views/navigator.html',
+	templateUrl: templateUrl,
 	groups: ['Utilities']
-});
+}
 
 

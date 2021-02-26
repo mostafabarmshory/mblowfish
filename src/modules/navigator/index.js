@@ -21,8 +21,25 @@
  */
 import mblowfish from '../../mblowfish';
 
+import actionCmdAction from './actions/command-line-display';
+import toggleSideNavePageList from './actions/navigator-toggle';
+import MbNavigatorCtrl from './controllers/navigator';
+import navigatorSidenav from './sidenavs/navigator';
+import navigatorView from './views/navigator';
 
-mblowfish.addConstants({
+export const Constants = {
 	MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION: 'mb.navigator.sidenav.tiggle',
 	MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION: 'mb.navigator.cmdline.tiggle'
-});
+};
+
+mblowfish
+	.constant(Constants)
+	.controller('MbNavigatorCtrl', MbNavigatorCtrl)
+	.action(Constants.MB_NAVIGATOR_CMDLINE_TOGGLE_ACTION, actionCmdAction)
+	.action(Constants.MB_NAVIGATOR_SIDENAV_TOGGLE_ACTION, toggleSideNavePageList)
+	
+	.sidenav('/app/navigator', navigatorSidenav)
+	.view('/mb/ui/views/navigator/', navigatorView)
+	
+	//<< end
+	;

@@ -1,4 +1,4 @@
-mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
+export default function($scope, $mbView) {
 	var groups = {
 		'others': {
 			title: 'Others',
@@ -21,4 +21,4 @@ mblowfish.controller('MbNavigatorCtrl', function($scope, $mbView) {
 	});
 
 	$scope.groups = groups
-});
+}
