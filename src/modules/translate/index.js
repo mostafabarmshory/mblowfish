@@ -55,16 +55,6 @@ mblowfish
 	.directive('mbTranslateLanguage', mbTranslateLanguageDirective)
 	.directive('mbTranslateNamespace', mbTranslateNamespaceDirective)
 	
-	// services
-	.provider('$mbTranslate', mbTranslate)
-	.provider('$mbTranslateSanitization', mbTranslateSanitization)
-	
-	// Filters
-	.filter('mbDate', mbDateFilter)
-	.filter('mbDateTime', mbDateTimeFilter)
-	.filter('translate', mbTranslateFilter) // legecy
-	.filter('mbTranslate', mbTranslateFilter)
-	
 	// factories
 	.factory('$mbTranslateMissingTranslationHandlerLog', mbTranslateMissingTranslationHandlerLogFactory)
 	.factory('$mbTranslateMissingTranslationHandlerStorage', mbTranslateMissingTranslationHandlerStorageFactory)
@@ -72,7 +62,18 @@ mblowfish
 	.factory('$mbTranslateDefaultInterpolation', mbTranslateDefaultInterpolationFactory)
 	.factory('$translationCache', translationCacheFactory)
 	
+	// Filters
+	.filter('mbDate', mbDateFilter)
+	.filter('mbDateTime', mbDateTimeFilter)
+	.filter('translate', mbTranslateFilter) // legecy
+	.filter('mbTranslate', mbTranslateFilter)
+	
+	// Preferences
 	.preference('local', localPreference)
+	
+	// services
+	.provider('$mbTranslate', mbTranslate)
+	.provider('$mbTranslateSanitization', mbTranslateSanitization)
 	
 	// Configurations
 	.config(mblowfishTranslateConfig)

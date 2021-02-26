@@ -21,6 +21,22 @@
  */
 import mblowfish from '../../mblowfish';
 
-mblowfish.addConstants({
-	MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
-});
+import showPreferencesAction from './actions/preferences-show';
+import preferenceEditor from './editors/preference';
+import preferencesView from './views/preferences';
+
+mblowfish
+	.addConstants({
+		MB_PREFERENCES_SHOW_ACTION: 'mb.preferences.show',
+	})
+	//>> Actions 
+	.addAction(MB_PREFERENCES_SHOW_ACTION, showPreferencesAction)
+
+	//>> Editors 
+	.addEditor('/preferences/:preferenceId', preferenceEditor)
+
+	//>> Views
+	.addView('/preferences', preferencesView)
+
+	//<< end
+	;

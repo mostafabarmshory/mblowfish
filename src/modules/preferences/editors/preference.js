@@ -22,9 +22,12 @@
  * SOFTWARE.
  */
 
-mblowfish.addEditor('/preferences/:preferenceId', {
+import templateUrl from './preference.html';
+
+export default {
 	title: 'Preference',
-	templateUrl: 'views/mb-preference.html',
+	templateUrl: templateUrl,
+	controllerAs: 'ctrl',
 	/* @ngInject */
 	controller: function($scope, $element, $mbPreferences, $state, MbComponent, $editor) {
 		//------------------------------------------------
@@ -53,7 +56,6 @@ mblowfish.addEditor('/preferences/:preferenceId', {
 		//------------------------------------------------
 		renderPage();
 	},
-	controllerAs: 'ctrl',
-});
+}
 
 

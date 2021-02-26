@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+import tempalteUrl from './preferences.html';
+
 
 /**
  * @ngdoc Controllers
@@ -33,15 +35,15 @@
  */
 
 
-mblowfish.addView('/preferences', {
+export default {
 	title: 'Preferences',
-	templateUrl: 'views/mb-preferences.html',
+	templateUrl: tempalteUrl,
 	aunchor: 'editors',
+	controllerAs: 'ctrl',
 	/* @ngInject */
 	controller: function($scope, $mbPreferences) {
 		// Load settings
 		$scope.pages = $mbPreferences.getPages()//
 	},
-	controllerAs: 'ctrl',
 	groups: ['Utilities']
-});
+}

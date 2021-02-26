@@ -1,4 +1,4 @@
-mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
+export default {
 	group: 'Preferences',
 	title: 'Preferences list',
 	icon: 'settings',
@@ -6,4 +6,4 @@ mblowfish.addAction(MB_PREFERENCES_SHOW_ACTION, {
 	action: function($location) {
 		return $location.url('preferences');
 	}
-});//
+}
