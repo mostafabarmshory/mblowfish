@@ -1,5 +1,7 @@
-mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
-	templateUrl: 'scripts/module-layouts/components/layouts-toolbar.html',
+import templateUrl from './layouts-toolbar.html';
+
+export default {
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function($mbActions, $mbLayout) {
 		'ngInject';
@@ -21,4 +23,4 @@ mblowfish.addComponent(MB_LAYOUTS_TOOLBAR_COMPONENT, {
 			$mdMenu.open($event);
 		};
 	}
-});
+}

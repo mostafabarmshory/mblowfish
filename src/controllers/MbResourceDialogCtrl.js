@@ -1,5 +1,5 @@
-
-
+import _ from 'lodash';
+import {RESOURCE_CHILDREN_AUNCHOR} from '../services/mbResource';
 
 
 /**
@@ -27,7 +27,7 @@ resources required process.
  */
 export default function(
 	$scope, $value, $element, $pages, $style, $options,
-	$mdDialog, MbContainer) {
+	$mbDialog, MbContainer) {
 
 	var isFunction = _.isFunction;
 	//-------------------------------------------------------------
@@ -44,7 +44,7 @@ export default function(
 	// functions
 	//-------------------------------------------------------------
 	function cancel() {
-		return $mdDialog.cancel();
+		return $mbDialog.cancel();
 	}
 
 	/**
@@ -60,13 +60,13 @@ export default function(
 		if (isFunction(ctrl.process)) {
 			return ctrl.isBusy = ctrl.process()
 				.then(function() {
-					return $mdDialog.hide(value);
+					return $mbDialog.hide(value);
 				})
 				.finally(function() {
 					delete ctrl.isBusy;
 				});
 		}
-		return $mdDialog.hide(value);
+		return $mbDialog.hide(value);
 	}
 
 	function getValue() {

@@ -21,8 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import moment from 'moment-jalaali';
 
+//---------------------------------------
+// Services
+//---------------------------------------
+var provider;
+var service;
 
+var rootScope;
+var mbSettings;
+var mbDispatcher;
+var mdDateLocale;
+var mbTranslate;
+//---------------------------------------
+// variables
+//---------------------------------------
+var defaultCalendar = 'en';
+var defaultCurrency = 'USD';
+var defaultDateFormat = 'jYYYY-jMM-jDD';
+var defaultDateTimeFormat = 'jYYYY-jMM-jDD HH:mm:ss';
+var defaultDirection = 'ltr';
+var defaultLanguage = 'en';
+var defaultTimezone = 'UTC';
+
+var dateFormat;
+var dateTimeFormat;
+var language;
+var currency;
+var direction;
+var calendar;
+var timezone;
+
+var autoSave = false;
+var exrpressionsEnabled = true;
 
 /**
 @ngdoc Services
@@ -64,39 +96,7 @@ For example, to add security into a view or editor:
  */
 function mbLocal() {
 
-	//---------------------------------------
-	// Services
-	//---------------------------------------
-	var provider;
-	var service;
 
-	var rootScope;
-	var mbStorage;
-	var mbDispatcher;
-	var mdDateLocale;
-	var mbTranslate;
-
-	//---------------------------------------
-	// variables
-	//---------------------------------------
-	var defaultCalendar = 'en';
-	var defaultCurrency = 'USD';
-	var defaultDateFormat = 'jYYYY-jMM-jDD';
-	var defaultDateTimeFormat = 'jYYYY-jMM-jDD HH:mm:ss';
-	var defaultDirection = 'ltr';
-	var defaultLanguage = 'en';
-	var defaultTimezone = 'UTC';
-
-	var dateFormat;
-	var dateTimeFormat;
-	var language;
-	var currency;
-	var direction;
-	var calendar;
-	var timezone;
-
-	var autoSave = false;
-	var exrpressionsEnabled = true;
 
 
 	//---------------------------------------
@@ -417,9 +417,9 @@ function mbLocal() {
 	};
 
 	provider = {
-		/* @ngInject */
-		$get: function($mbStorage, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
-			mbStorage = $mbStorage;
+		$get: function($mbSettings, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
+			'ngInject';
+			mbSettings = $mbSettings;
 			mdDateLocale = $mdDateLocale;
 			mbDispatcher = $mbDispatcher;
 			rootScope = $rootScope;

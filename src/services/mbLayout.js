@@ -163,9 +163,7 @@ function mbLayout() {
 			return;
 		}
 		try {
-			docker.off('initialised', onDockerInitialised);
-			docker.off('stackCreated', dockerStackCreated);
-			docker.off('componentCreated', dockerComponentCreate);
+			docker.off('initialised', onDockerInit);
 			docker.off('stateChanged', onDockerStateChanged);
 			docker.off('activeContentItemChanged', dockerActiveContentItemChanged);
 		} catch (ex) {
@@ -179,6 +177,11 @@ function mbLayout() {
 		dockerBodyElement.empty();
 	}
 
+	function onDockerInit() {
+		var link = compile(docker.root.element);
+		link(rootScope);
+	}
+	
 	function onDockerStateChanged() {
 		currentLayout = docker.toConfig();
 		storeDockerState();
@@ -194,10 +197,6 @@ function mbLayout() {
 			mbLog.error(e);
 		}
 	}
-
-
-
-
 
 	function loadDockerLayout() {
 		// load element
@@ -215,15 +214,7 @@ function mbLayout() {
 		docker = new GoldenLayout(currentLayout, dockerViewElement);
 		docker.registerComponent('component', loadComponent);
 
-		docker.on('initialised', function() {
-			var link = compile(docker.root.element);
-			link(rootScope);
-		});
-		////		docker.on('componentCreated', onDockerInitialised);
-		////		docker.on('rowCreated', applyAngolar);
-		////		docker.on('columnCreated', applyAngolar);
-		////		docker.on('stackCreated', applyAngolar);
-		////		docker.on('tabCreated', decorateItem);
+		docker.on('initialised', onDockerInit);
 		try {
 			docker.init();
 		} catch (e) {
@@ -380,7 +371,7 @@ function mbLayout() {
 		$get: function(
 			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
 			/* MblowFish */ $mbStorage, $mbSettings, $mbLog
-			) {
+		) {
 			//
 			// 1- Init layouts
 			//

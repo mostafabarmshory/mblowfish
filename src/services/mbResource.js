@@ -22,7 +22,10 @@
  * SOFTWARE.
  */
 
-var RESOURCE_CHILDREN_AUNCHOR = 'wb-select-resource-children';
+import templateUrlMulti from './mbResource-multi.html';
+import templateUrlSingle from  './mbResource-single.html';
+
+export const RESOURCE_CHILDREN_AUNCHOR = 'wb-select-resource-children';
 
 /**
 @ngdoc Services
@@ -105,9 +108,9 @@ function mbResource() {
 			option = {};
 		}
 		var pages = getPages(tag);
-		var tmplUrl = pages.length > 1 ? 'scripts/services/resource-multi.html' : 'scripts/services/resource-single.html';
+		var tmplUrl = pages.length > 1 ? templateUrlMulti : templateUrlSingle;
 		return mbDialog.show({
-			controller: 'ResourceDialogCtrl',
+			controller: 'MbResourceDialogCtrl',
 			controllerAs: 'ctrl',
 			templateUrl: tmplUrl,
 			parent: rootElement,

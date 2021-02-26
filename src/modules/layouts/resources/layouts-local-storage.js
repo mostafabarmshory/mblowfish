@@ -1,7 +1,11 @@
-mblowfish.addResource('mb-layouts-local-storage', {
+import templateUrl from './layouts-local-storage.html';
+
+import Constants from '../Constants';
+
+export default {
 	title: 'Stored Layouts',
-	templateUrl: 'scripts/module-layouts/resources/layouts-local-storage.html',
-	tags: [MB_LAYOUTS_LAYOUTS_SP],
+	templateUrl: templateUrl,
+	tags: [Constants.MB_LAYOUTS_LAYOUTS_SP],
 	controllerAs: 'ctrl',
 	controller: function($resource, $mbLayoutsLocalStorage) {
 		'ngInject';
@@ -29,4 +33,4 @@ mblowfish.addResource('mb-layouts-local-storage', {
 			deleteLayout: deleteLayout,
 		});
 	}
-});
+}

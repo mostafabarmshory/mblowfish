@@ -1,4 +1,7 @@
-mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
+
+import Constants from '../Constants';
+
+export default {
 	group: 'Layout',
 	title: 'Load',
 	description: 'Loads a layout from the stored layouts',
@@ -12,7 +15,7 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 		var vals = $event.values;
 		if (_.isUndefined(vals) || vals.length < 0) {
 			$mbResource
-				.get(MB_LAYOUTS_LAYOUTS_SP, {
+				.get(Constants.MB_LAYOUTS_LAYOUTS_SP, {
 					title: 'Select layout',
 					$style: {
 						multi: false
@@ -26,4 +29,4 @@ mblowfish.addAction(MB_LAYOUTS_LOAD_ACTION, {
 			loadLayout(vals[0]);
 		}
 	}
-})
+}

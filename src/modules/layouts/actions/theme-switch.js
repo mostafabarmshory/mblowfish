@@ -1,4 +1,4 @@
-mblowfish.addAction(MB_LAYOUTS_THEME_SWITECH_ACTION, {
+export default {
 	group: 'Layout',
 	title: 'Switch darck mode',
 	description: 'Switch to the darck mode',
@@ -13,4 +13,4 @@ mblowfish.addAction(MB_LAYOUTS_THEME_SWITECH_ACTION, {
 		}
 		$mbSettings.set('theme', theme);
 	}
-})
+}
