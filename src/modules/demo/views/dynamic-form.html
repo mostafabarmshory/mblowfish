@@ -1,0 +1,26 @@
+<md-content
+	flex>
+	<mb-titled-block
+		layout-margin
+		mb-title="Simple dynamic form">
+		<mb-dynamic-form
+			ng-model="prop"
+			mb-parameters="ctrl.properties">
+		</mb-dynamic-form>
+		<textarea>{{prop}}</textarea>
+	</mb-titled-block>
+	
+	<mb-titled-block
+		layout-margin
+		mb-title="Advanced form">
+		<mb-dynamic-form
+			ng-model="prop2"
+			mb-parameters="ctrl.properties2">
+		</mb-dynamic-form>
+		<textarea>{{prop2}}</textarea>
+	</mb-titled-block>
+</md-content>
+
+
+
+ 

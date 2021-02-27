@@ -1,0 +1,20 @@
+/****************************************************************************************
+Theme: default
+Class: .md-default-theme
+
+Pallet:
+- Primary: rgb(63,81,181)
+*****************************************************************************************/
+mb-toolbar-group.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+mb-toolbar.md-default-theme {
+	background: rgb(63,81,181);
+	color: rgb(243, 243, 243);
+}
+
+
+
+

@@ -1,0 +1,20 @@
+/****************************************************************************************
+Theme: dark
+Class: .md-dark-theme
+
+
+Pallet:
+- Primary: rgb(0,0,0)
+*****************************************************************************************/
+mb-toolbar-group.md-dark-theme {
+	background: rgb(0, 0, 0);
+	color: rgba(255,255,255,0.87);
+}
+
+mb-toolbar.md-dark-theme {
+	background: rgb(46, 52, 54);
+	color: rgb(243, 243, 243);
+}
+
+
+
