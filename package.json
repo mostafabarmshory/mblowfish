@@ -1,12 +1,12 @@
 {
-	"name": "vw-dashboard",
-	"version": "6.0.6",
-	"description": "A modern dashboard",
+	"name": "mblowfish",
+	"version": "7.0.0",
+	"description": "A modern dashboard core",
 	"author": "Mostafa Barmshory",
 	"license": "MIT",
-	"homepage": "https://github.com/viraweb123/vw-dashboard",
+	"homepage": "https://github.com/viraweb123/mblowfish",
 	"bugs": {
-		"url": "https://github.com/viraweb123/vw-dashboard/issues"
+		"url": "https://github.com/viraweb123/mblowfish/issues"
 	},
 	"scripts": {
 		"build": "webpack --mode production --bail --progress --profile",
