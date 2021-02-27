@@ -1,3 +1,5 @@
+import './mbButton.css';
+
 /**
  * @ngdoc directive
  * @name mbButton
