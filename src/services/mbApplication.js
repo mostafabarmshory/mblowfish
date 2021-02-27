@@ -233,6 +233,14 @@ function mbApplicationProvider() {
 	}
 
 	function addAction(state, action) {
+		if (!actions[state]) {
+			throw {
+				message: 'Requested state `{{state}}` not supported by application processes.',
+				params: {
+					state: state
+				}
+			};
+		}
 		actions[state].push(action);
 		return provider;
 	}

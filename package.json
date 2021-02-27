@@ -59,6 +59,7 @@
 		"moment": "^2.24.0",
 		"moment-jalaali": "^0.9.2"
 	},
+	"main": "./src/index.js",
 	"peerDependencies": {},
 	"peerDependenciesMeta": {},
 	"optionalDependencies":{},

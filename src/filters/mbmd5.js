@@ -30,7 +30,7 @@
 
 @example 
 ```html 
-<span>{{ 'text to hash' | wbmd5 }}</span> 
+<span>{{ 'text to hash' | mbmd5 }}</span> 
 ```
 
 @ngInject
