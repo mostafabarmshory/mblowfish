@@ -19,44 +19,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-mblowfish.controller('DynamicFormCtrl', function($scope) {
-    $scope.properties = [{
-        name: 'x',
-        title: 'Latitude',
-        type: 'string',
-        visible: true,
-        editable: true,
-        description: 'Description'
-    },{
-        name: 'y',
-        title: 'Longitude',
-        type: 'string',
-        visible: true,
-        editable: true,
-        description: 'Description'
-    },{
-        name: 'z',
-        title: 'Longitude',
-        type: 'string',
-        visible: true,
-        editable: true,
-        description: 'Description'
-    }];
+import templateUrl from './dynamic-form.html';
+
+export default {
+	icon: 'list',
+	title: 'Dynamic form builder',
+	description: 'A dynamic form builder reads the json config and create a form dynamically',
+	groups: ['UI'],
+	templateUrl: templateUrl,
+	controllerAs: 'ctrl',
+	controller: function() {
+		this.properties = [{
+			name: 'x',
+			title: 'Latitude',
+			type: 'string',
+			visible: true,
+			editable: true,
+			description: 'Description'
+		}, {
+			name: 'y',
+			title: 'Longitude',
+			type: 'string',
+			visible: true,
+			editable: true,
+			description: 'Description'
+		}, {
+			name: 'z',
+			title: 'Longitude',
+			type: 'string',
+			visible: true,
+			editable: true,
+			description: 'Description'
+		}];
 
 
-    $scope.properties2 = [{
-        name: 'url',
-        title: 'URL',
-        type: 'string',
-        visible: true,
-        editable: true,
-        description: 'URL of an image'
-    },{
-        name: 'account_id',
-        title: 'Account',
-        type: 'long',
-        visible: true,
-        editable: true,
-        description: 'Account to do something'
-    }];
-});
+		this.properties2 = [{
+			name: 'url',
+			title: 'URL',
+			type: 'string',
+			visible: true,
+			editable: true,
+			description: 'URL of an image'
+		}, {
+			name: 'account_id',
+			title: 'Account',
+			type: 'long',
+			visible: true,
+			editable: true,
+			description: 'Account to do something'
+		}];
+	}
+}

@@ -17,6 +17,7 @@ import componentsView from './views/components';
 import uiColorView from './views/ui-color-view';
 import uiFileView from './views/ui-file-view';
 import infinateItemsView from './views/infinate-items';
+import dynamicFormView from './views/dynamic-form';
 
 import holidayCarPage from './wizards/holidayCarPage';
 import holidayFinalPage from './wizards/holidayFinalPage';
@@ -46,6 +47,7 @@ mblowfish
 	.view('/demo/ui/color-view', uiColorView)
 	.view('/demo/ui/file-view', uiFileView)
 	.view('/demo/ui/infinate-items', infinateItemsView)
+	.view('/demo/ui/dynamic-form', dynamicFormView)
 
 
 	.wizardPage('holidayCarPage', holidayCarPage)
