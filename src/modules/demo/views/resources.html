@@ -1,0 +1,25 @@
+<md-content>
+	<mb-titled-block layout-margin mb-title="Select modules">
+		<p>
+			You can select module with resource manager, because the module maanager addes some basic
+			resources into the $resource service. to add select a new list of modules click on the
+			button.
+		</p>
+		<div>
+			<md-button ng-click="ctrl.selectModules($event)">
+				Select modules
+			</md-button>
+		</div>
+		<md-list flex>
+			<md-list-item ng-repeat="module in ctrl.modules" class="md-3-line">
+				<mb-icon>{{::module.icon}}</mb-icon>
+				<div class="md-list-item-text" layout="column">
+					<h3>{{$index}}-{{::module.title}}</h3>
+					<h4>{{::module.subTitle}}</h4>
+					<p>{{::v.description}}</p>
+				</div>
+			</md-list-item>
+		</md-list>
+	</mb-titled-block>
+
+</md-content>
