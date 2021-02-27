@@ -1,7 +1,9 @@
-mblowfish.wizardPage('holidayPlanePage', {
+import templateUrl from './holidayPlanePage.html';
+
+export default  {
 	title: 'Plane your holiday',
 	description: 'Give us details of your holiday.',
-	templateUrl: 'scripts/wizards/holidayPlanePage.html',
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function($wizard) {
 		'ngInject';
@@ -19,4 +21,4 @@ mblowfish.wizardPage('holidayPlanePage', {
 		this.planeAgency = createSetterGetter('planeAgency');
 	},
 	nextPage: 'holidayFinalPage'
-});
+}

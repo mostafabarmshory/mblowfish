@@ -6,6 +6,7 @@ var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = (env, argv) => {
 
@@ -151,7 +152,7 @@ module.exports = (env, argv) => {
 						module: 'mblowfishApp',
 					}
 				},
-				{ loader: 'html-loader' }
+				{ loader: 'html-loader' },
 			]
 		}]
 	};
@@ -221,21 +222,21 @@ module.exports = (env, argv) => {
 
 	// Add build specific plugins
 	if (isProd) {
-		//		config.plugins.push(
-		//			// Reference: http://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
-		//			// Only emit files when there are no errors
-		////			new webpack.NoErrorsPlugin(),
-		//
-		//			// Reference: http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
-		//			// Minify all javascript, switch loaders to minimizing mode
-		////			new webpack.optimize.UglifyJsPlugin(),
-		//
-		//			// Copy assets from the public folder
-		//			// Reference: https://github.com/kevlened/copy-webpack-plugin
-		////			new CopyWebpackPlugin([{
-		////				from: __dirname + '/src/public'
-		////			}])
-		//		)
+		config.plugins.push(
+			//			// Reference: http://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
+			//			// Only emit files when there are no errors
+			////			new webpack.NoErrorsPlugin(),
+			//
+			//			// Reference: http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
+			//			// Minify all javascript, switch loaders to minimizing mode
+			////			new webpack.optimize.UglifyJsPlugin(),
+
+			// Copy assets from the public folder
+			// Reference: https://github.com/kevlened/copy-webpack-plugin
+//			new CopyPlugin([{
+//				from: __dirname + '/src/public'
+//			}])
+		)
 	}
 
 	//

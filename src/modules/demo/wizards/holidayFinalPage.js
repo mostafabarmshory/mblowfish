@@ -1,9 +1,11 @@
-mblowfish.wizardPage('holidayFinalPage', {
+import templateUrl from './holidayFianlPage.html';
+
+export default {
 	title: 'Car',
 	description: 'Your registration is finished.',
-	templateUrl: 'scripts/wizards/holidayFianlPage.html',
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function() {
 		'ngInject';
 	}
-});
+}

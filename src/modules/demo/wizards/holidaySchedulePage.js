@@ -1,7 +1,9 @@
-mblowfish.wizardPage('holidaySchedulePage', {
+import templateUrl from './holidaySchedulePage.html';
+
+export default  {
 	title: 'Schedule',
 	description: 'When your holiday start and end',
-	templateUrl: 'scripts/wizards/holidaySchedulePage.html',
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function($wizard) {
 		'ngInject';
@@ -22,4 +24,4 @@ mblowfish.wizardPage('holidaySchedulePage', {
 		'ngInject';
 		return $wizard.data.travelDate && $wizard.data.returnDate;
 	}
-});
+}

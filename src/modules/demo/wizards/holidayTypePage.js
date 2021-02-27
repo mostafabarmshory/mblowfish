@@ -1,7 +1,9 @@
-mblowfish.wizardPage('holidayTypePage', {
+import templateUrl from './holidayTypePage.html';
+
+export default  {
 	title: 'Vihicle',
 	description: 'How do you want to go and return from holiday?',
-	templateUrl: 'scripts/wizards/holidayTypePage.html',
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function($wizard) {
 		'ngInject';
@@ -32,4 +34,4 @@ mblowfish.wizardPage('holidayTypePage', {
 				return 'holidayCarPage';
 		}
 	}
-});
+}

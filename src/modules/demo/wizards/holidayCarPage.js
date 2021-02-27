@@ -1,7 +1,9 @@
-mblowfish.wizardPage('holidayCarPage', {
+import templateUrl from './holidayCarPage.html';
+
+export default {
 	title: 'Car',
 	description: 'Which car are you intrested to use.',
-	templateUrl: 'scripts/wizards/holidayCarPage.html',
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function($wizard) {
 		'ngInject';
@@ -18,4 +20,5 @@ mblowfish.wizardPage('holidayCarPage', {
 		this.carModel = createSetterGetter('carModel');
 	},
 	nextPage: 'holidayFinalPage'
-});
+}
+

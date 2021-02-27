@@ -18,6 +18,18 @@ import uiColorView from './views/ui-color-view';
 import uiFileView from './views/ui-file-view';
 
 
+import holidayCarPage from './wizards/holidayCarPage';
+import holidayFinalPage from './wizards/holidayFinalPage';
+import holidayLocationPage from './wizards/holidayLocationPage';
+import holidayPlanePage from './wizards/holidayPlanePage';
+import holidaySchedulePage from './wizards/holidaySchedulePage';
+import holidayTrainPage from './wizards/holidayTrainPage';
+import holidayTypePage from './wizards/holidayTypePage';
+
+
+import holidayWizard from './wizards/holidayWizard';
+
+
 
 mblowfish
 	.action('demo.alert', alertAction)
@@ -35,6 +47,16 @@ mblowfish
 	.view('/demo/ui', uiView)
 	.view('/demo/ui/color-view', uiColorView)
 	.view('/demo/ui/file-view', uiFileView)
+
+
+	.wizardPage('holidayCarPage', holidayCarPage)
+	.wizardPage('holidayFinalPage', holidayFinalPage)
+	.wizardPage('holidayLocationPage', holidayLocationPage)
+	.wizardPage('holidayPlanePage', holidayPlanePage)
+	.wizardPage('holidaySchedulePage', holidaySchedulePage)
+	.wizardPage('holidayTrainPage', holidayTrainPage)
+	.wizardPage('holidayTypePage', holidayTypePage)
+	.wizard('demo.travel.create', holidayWizard)
 	;
 
 

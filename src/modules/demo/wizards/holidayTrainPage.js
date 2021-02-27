@@ -1,7 +1,9 @@
-mblowfish.wizardPage('holidayTrainPage', {
+import templateUrl from './holidayTrainPage.html';
+
+export default  {
 	title: 'Train',
 	description: 'Which train are intrested to use',
-	templateUrl: 'scripts/wizards/holidayTrainPage.html',
+	templateUrl: templateUrl,
 	controllerAs: 'ctrl',
 	controller: function($wizard) {
 		'ngInject';
@@ -18,4 +20,4 @@ mblowfish.wizardPage('holidayTrainPage', {
 		this.trainClass = createSetterGetter('trainClass');
 	},
 	nextPage: 'holidayFinalPage'
-});
+}

@@ -1,6 +1,6 @@
 
 
-mblowfish.wizard('demo.travel.create', {
+export default {
 	title: 'Holiday',
 	description: 'Register your holiday travel info',
 	pages: [
@@ -69,6 +69,8 @@ mblowfish.wizard('demo.travel.create', {
 		};
 		return $mbActions.exec('demo.travel.create', $event);
 	},
-});
+}
+
+
 
 

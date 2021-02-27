@@ -1,3 +1,5 @@
+import mblowfish from '../mblowfish';
+import templateUrl from './MbWizardFactory.html';
 
 /**
 A regestred wizard
@@ -13,15 +15,15 @@ function MbWizardFactory(MbContainer, $injector, $q) {
 			description: '',
 			isWizard: true,
 			pages: [],
-			templateUrl: 'scripts/factories/wizard.html',
+			templateUrl: templateUrl,
 			controllerAs: 'ctrl',
 			controller: function($scope) {
 				'ngInject';
 				var ctrl = this;
-				this.getPageCount = function(){
+				this.getPageCount = function() {
 					return $wizard.pages.length;
 				};
-				
+
 				this.backPage = function($event) {
 					$wizard.flipToPreviousPage($event);
 				};

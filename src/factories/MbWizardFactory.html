@@ -13,10 +13,14 @@
 				<span>{{ctrl.errorMessage}}</span>
 			</div>
 		</div>
+		<mb-icon
+			id="image"
+			size="64"
+			ng-if="!ctrl.image">wizard</mb-icon>
 		<img
 			id="image"
-			ng-src="{{ctrl.image || 'images/logo.svg'}}"
-			ng-src-error="images/logo.svg">
+			ng-if="ctrl.image"
+			ng-src="{{ctrl.image}}">
 	</div>
 	<md-content 
 		id="body"></md-content>
