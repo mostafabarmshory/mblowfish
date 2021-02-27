@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+import templateUrl from './iframe.html';
 
 /**
 @ngdoc Controller
@@ -34,6 +34,13 @@ parameters. You can pass more option to an editor with query parameter whiel the
 parameters are fixed. Note that, path parameters are most important from query parameters.
 
  */
-mblowfish.controller('TestIframeEditorCtrl', function($scope/*, $mbRouteParam*/) {
-//	$scope.url = $mbRouteParam.url;
-});
+export default {
+	title: 'IFrame',
+	description: 'A web site explorer based on IFrame',
+	templateUrl: templateUrl,
+	controllerAs: 'ctrl',
+	controller: function($scope/*, $mbRouteParam*/) {
+		'ngInject';
+		//	$scope.url = $mbRouteParam.url;
+	}
+}

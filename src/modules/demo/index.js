@@ -9,14 +9,14 @@ import travelCreateAction from './actions/travel-create';
 import DemoLayoutProviderDefaultFactory from './factories/DemoLayoutProviderDefault';
 import DemoMemoryAuthenticationProviderFactory from './factories/DemoMemoryAuthenticationProvider';
 
-
+import iframeEditor from './editors/iframe';
 
 import explorerView from './views/explorer';
 import uiView from './views/ui';
 import componentsView from './views/components';
 import uiColorView from './views/ui-color-view';
 import uiFileView from './views/ui-file-view';
-
+import infinateItemsView from './views/infinate-items';
 
 import holidayCarPage from './wizards/holidayCarPage';
 import holidayFinalPage from './wizards/holidayFinalPage';
@@ -26,9 +26,7 @@ import holidaySchedulePage from './wizards/holidaySchedulePage';
 import holidayTrainPage from './wizards/holidayTrainPage';
 import holidayTypePage from './wizards/holidayTypePage';
 
-
 import holidayWizard from './wizards/holidayWizard';
-
 
 
 mblowfish
@@ -36,10 +34,10 @@ mblowfish
 	.action('mb.app.navigator.toggle.demo', navigatorToggleAction)
 	.action('demo.travel.create', travelCreateAction)
 
-
 	.factory('DemoLayoutProviderDefault', DemoLayoutProviderDefaultFactory)
 	.factory('DemoMemoryAuthenticationProvider', DemoMemoryAuthenticationProviderFactory)
 
+	.editor('/demo/editor/iframe', iframeEditor)
 
 	.view('/demo', explorerView)
 	.view('/demo/components', componentsView)
@@ -47,6 +45,7 @@ mblowfish
 	.view('/demo/ui', uiView)
 	.view('/demo/ui/color-view', uiColorView)
 	.view('/demo/ui/file-view', uiFileView)
+	.view('/demo/ui/infinate-items', infinateItemsView)
 
 
 	.wizardPage('holidayCarPage', holidayCarPage)

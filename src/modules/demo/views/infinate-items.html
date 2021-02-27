@@ -1,0 +1,20 @@
+<md-content
+	mb-infinate-scroll="ctrl.nextPage()"
+	mb-preloading="ctrl.isWorking()"
+	layout="column">
+	<md-list flex>
+		<md-list-item 
+			ng-repeat="object in ctrl.items"
+			class="md-3-line">
+			<mb-icon>{{::object.icon}}</mb-icon>
+			<div 
+				class="md-list-item-text" 
+				layout="column">
+				<h3>{{$index}}-{{::object.title}}</h3>
+				<h4>{{::object.subTitle}}</h4>
+				<p>{{::object.description}}</p>
+			</div>
+		</md-list-item>
+	</md-list>
+</md-content>
+
