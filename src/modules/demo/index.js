@@ -20,6 +20,7 @@ import infinateItemsView from './views/infinate-items';
 import dynamicFormView from './views/dynamic-form';
 import dialogsView from './views/dialogs';
 import resourcesView from './views/resources';
+import tablesView from './views/tables';
 
 import holidayCarPage from './wizards/holidayCarPage';
 import holidayFinalPage from './wizards/holidayFinalPage';
@@ -52,6 +53,7 @@ mblowfish
 	.view('/demo/ui/dynamic-form', dynamicFormView)
 	.view('/demo/ui/dialogs', dialogsView)
 	.view('/demo/ui/resources', resourcesView)
+	.view('/demo/ui/tables', tablesView)
 
 
 	.wizardPage('holidayCarPage', holidayCarPage)

@@ -19,28 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-mblowfish.controller('TablesClassTestCtrl', function($scope, $resource) {
-	$scope.items = [
-		{
-			title: 'Title',
-			value: 'value'
-		},
-		{
-			title: 'Title',
-			value: 'value'
-		},
-		{
-			title: 'Title',
-			value: 'value'
-		},
-		{
-			title: 'Title',
-			value: 'value'
-		},
-		{
-			title: 'Title',
-			value: 'value'
-		},
-	]
 
-});
+import templateUrl from './tables.html';
+
+export default {
+	icon: 'table',
+	title: 'Tables ',
+	description: 'Alow you to show a table',
+	anchor: 'editors',
+	groups: ['UI'],
+	templateUrl: templateUrl,
+	controllerAs: 'ctrl',
+	controller: function() {
+		'ngInject';
+		this.items = [
+			{
+				title: 'Title',
+				value: 'value'
+			},
+			{
+				title: 'Title',
+				value: 'value'
+			},
+			{
+				title: 'Title',
+				value: 'value'
+			},
+			{
+				title: 'Title',
+				value: 'value'
+			},
+			{
+				title: 'Title',
+				value: 'value'
+			},
+		]
+	}
+}
