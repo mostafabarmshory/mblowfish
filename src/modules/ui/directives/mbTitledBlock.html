@@ -23,7 +23,7 @@
 				<md-menu-item
 					ng-repeat="item in mbMoreActions">
 					<md-button
-						ng-click="$evalAction(item)"
+						ng-click="$evalAction(item, $event)"
 						aria-label="{{::item.title}}">
 						<mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
 						<span mb-translate="">{{::item.title}}</span>

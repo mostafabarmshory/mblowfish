@@ -21,6 +21,7 @@
  */
 
 import templateUrl from './mbTitledBlock.html';
+import './mbTitledBlock.css'
 
 
 /**
@@ -30,17 +31,20 @@ import templateUrl from './mbTitledBlock.html';
 
 @ngInject
  */
-export default  function($mbActions) {
+export default function($mbActions) {
 
 	function postLink(scope) {
-		scope.$evalAction = function(item) {
+		scope.$evalAction = function(item, $event) {
 			if (item.expression) {
-				return scope.$parent.$eval(item.expression);
+				return scope.$parent.$eval(item.expression, {
+					$event: $event
+				});
 			}
 			if (item.actionId) {
-				return $mbActions.exec(item.actionId);
+				return $mbActions.exec(item.actionId, targetEvent);
 			}
 			if (angular.isFunction(item.action)) {
+				// TODO: maso, 2021 Call function by injector
 				item.action();
 			}
 		}
