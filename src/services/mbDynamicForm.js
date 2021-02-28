@@ -1,24 +1,25 @@
+//-----------------------------------------------------------------------------------
+// Services and factories
+//-----------------------------------------------------------------------------------
+var service;
+var provider;
+var rootElement;
+var mbDialog,
+	sce,
+	q;
+
+
+var isFunction;
+var isDefined;
+
+
+//-----------------------------------------------------------------------------------
+// Variables
+//-----------------------------------------------------------------------------------
 
 
 function mbDynamicForm() {
 
-	//-----------------------------------------------------------------------------------
-	// Services and factories
-	//-----------------------------------------------------------------------------------
-	var service;
-	var provider;
-	var rootElement;
-	var mbDialog;
-	var sce;
-
-
-	var isFunction;
-	var isDefined;
-
-
-	//-----------------------------------------------------------------------------------
-	// Variables
-	//-----------------------------------------------------------------------------------
 
 
 	//-----------------------------------------------------------------------------------
@@ -80,12 +81,14 @@ function mbDynamicForm() {
 	};
 	provider = {
 		/* @ngInject */
-		$get: function($mbDialog, $sce, $mbUtil) {
+		$get: function($mbDialog, $sce, $mbUtil, $q) {
 			mbDialog = $mbDialog;
 			sce = $sce;
 
 			isDefined = $mbUtil.isDefined;
 			isFunction = $mbUtil.isFunction;
+
+			q = $q;
 
 			return service;
 		}
