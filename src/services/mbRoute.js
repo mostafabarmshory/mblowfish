@@ -226,7 +226,7 @@ function mbRoute(
 	/* angularjs */ $rootScope, $location, $q, $injector, $templateRequest, $sce, $browser,
 	/* MBlowfish */ $mbRouteParams, $mbUtil, $mbUiUtil
 ) {
-
+	"ngInject";
 	/***********************************************************************************
 	 * Variables
 	 ***********************************************************************************/

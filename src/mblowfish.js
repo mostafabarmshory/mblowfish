@@ -13,8 +13,6 @@ import 'angular-animate';
 import 'angular-material/angular-material.css'
 
 
-
-
 var MB_MODULE_SK = 'mbModules';
 
 var actions = {},
@@ -29,6 +27,65 @@ var actions = {},
 	wizardPages = {};
 var rootScopeConstants = {};
 
+/**
+
+@ngInject
+*/
+function configureMblowfish(
+	$mbActionsProvider, $mbViewProvider,
+	$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
+	$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider
+) {
+	"ngInject";
+
+	// Load actions
+	_.forEach(actions, function(action, actionId) {
+		$mbActionsProvider.addAction(actionId, action);
+	});
+
+	// Load views
+	_.forEach(views, function(view, viewId) {
+		$mbViewProvider.addView(viewId, view);
+	});
+
+	// Load editors
+	_.forEach(editors, function(editor, editorId) {
+		$mbEditorProvider.addEditor(editorId, editor);
+	});
+
+	// Load resources
+	_.forEach(resources, function(config, id) {
+		$mbResourceProvider.addPage(id, config);
+	});
+
+	// load components
+	_.forEach(components, function(config, id) {
+		$mbComponentProvider.addComponent(id, config);
+	});
+
+	// load processes
+	_.forEach(applicationProcesses, function(processList, id) {
+		_.forEach(processList, function(process) {
+			$mbApplicationProvider.addAction(id, process);
+		});
+	});
+
+	_.forEach(preferences, function(com, id) {
+		$mbPreferencesProvider.addPage(id, com);
+	});
+
+	_.forEach(sidnavs, function(com, id) {
+		$mbSidenavProvider.addSidenav(id, com);
+	});
+
+	_.forEach(wizardPages, function(wp, id) {
+		$mbWizardProvider.addWizardPage(id, wp);
+	});
+
+	_.forEach(wizards, function(w, id) {
+		$mbWizardProvider.addWizard(id, w);
+	});
+}
 
 /**
 @ngdoc action-group
@@ -56,61 +113,7 @@ var mbApplicationModule = angular
 		//		'ng-appcache',//
 		//		'angular-material-persian-datepicker',
 	])
-	.config(function(
-		$mbActionsProvider, $mbViewProvider,
-		$mbEditorProvider, $mbResourceProvider, $mbComponentProvider, $mbApplicationProvider,
-		$mbPreferencesProvider, $mbSidenavProvider, $mbWizardProvider
-	) {
-		'ngInject';
-
-		// Load actions
-		_.forEach(actions, function(action, actionId) {
-			$mbActionsProvider.addAction(actionId, action);
-		});
-
-		// Load views
-		_.forEach(views, function(view, viewId) {
-			$mbViewProvider.addView(viewId, view);
-		});
-
-		// Load editors
-		_.forEach(editors, function(editor, editorId) {
-			$mbEditorProvider.addEditor(editorId, editor);
-		});
-
-		// Load resources
-		_.forEach(resources, function(config, id) {
-			$mbResourceProvider.addPage(id, config);
-		});
-
-		// load components
-		_.forEach(components, function(config, id) {
-			$mbComponentProvider.addComponent(id, config);
-		});
-
-		// load processes
-		_.forEach(applicationProcesses, function(processList, id) {
-			_.forEach(processList, function(process) {
-				$mbApplicationProvider.addAction(id, process);
-			});
-		});
-
-		_.forEach(preferences, function(com, id) {
-			$mbPreferencesProvider.addPage(id, com);
-		});
-
-		_.forEach(sidnavs, function(com, id) {
-			$mbSidenavProvider.addSidenav(id, com);
-		});
-
-		_.forEach(wizardPages, function(wp, id) {
-			$mbWizardProvider.addWizardPage(id, wp);
-		});
-
-		_.forEach(wizards, function(w, id) {
-			$mbWizardProvider.addWizard(id, w);
-		});
-	})
+	.config(configureMblowfish)
 	.run(function instantiateRoute($rootScope, $injector, $mbEditor) {
 		'ngInject';
 		$mbEditor.registerEditor('/ui/notfound/:path*', {

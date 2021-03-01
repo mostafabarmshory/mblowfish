@@ -159,10 +159,10 @@ function mbActions() {
 	};
 
 	provider = {
-		/* @ngInject */
 		$get: function(
         /* angularjs */ $window, $injector, $q, $location,
         /* mb        */ $mbDispatcher, $mbComponent, MbAction, MbActionHotkeyMap) {
+			"ngInject";
 			dispatcher = $mbDispatcher;
 			mbComponent = $mbComponent;
 			window = $window;

@@ -3,6 +3,8 @@
 		"@babel/preset-env"
 	],
 	"plugins": [
-		"angularjs-annotate"
+		[
+			"angularjs-annotate"
+		]
 	]
 }

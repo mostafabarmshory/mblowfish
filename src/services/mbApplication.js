@@ -75,6 +75,7 @@ function mbApplicationProvider() {
 		title: 'Login',
 		/* @ngInject */
 		action: function(MbComponent, $rootElement, $mbAccount, $mbDispatcher) {
+			"ngInject";
 			loginComponent = new MbComponent(loginComponentConfig);
 			var renderJob;
 			function renderPanel() {
