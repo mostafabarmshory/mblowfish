@@ -52,6 +52,7 @@ export default function() {
 	};
 	provider = {
 		$get: function($mbStorage, $mbDispatcherUtil) {
+			'ngInject';
 			mbStorage = $mbStorage;
 			mbDispatcherUtil = $mbDispatcherUtil;
 
