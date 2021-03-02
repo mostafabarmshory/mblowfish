@@ -63,6 +63,10 @@ import mbUtil from './services/mbUtil';
 import mbView from './services/mbView';
 import mbWizard from './services/mbWizard';
 
+import mbHttp from './services/mbHttp';
+import mbLocation from './services/mbLocation';
+import mbQueue from './services/mbQueue';
+
 /****************************************************************************
  * Configuration&Runs                                                       *
  *                                                                          *
@@ -172,43 +176,49 @@ mblowfish
 	.filter('mbunsafe', mbunsafeFilter)
 
 	// Services
+	// UI
+	.provider('$mbComponent', mbComponent)
+	.provider('$mbDialog', mbDialog)
+	.provider('$mbDynamicForm', mbDynamicForm)
+	.provider('$mbEditor', mbEditor)
+	.provider('$mbHotkey', mbHotkey)
+	.provider('$mbLayout', mbLayout)
+	.service('$mbMenu', mbMenu)
+	.service('$mbNavigator', mbNavigator)
+	.service('$mbNotification', mbNotification)
+	.service('$mbRoute', mbRoute)
+	.service('$mbRouteParams', mbRouteParams)
+	.provider('$mbSidenav', mbSidenav)
+	.provider('$mbTheming', mbTheming)
+	.provider('$mbToolbar', mbToolbar)
+	.service('$mbUiUtil', mbUiUtil)
+	.provider('$mbView', mbView)
+	.provider('$mbWizard', mbWizard)
+
+	// Core services
 	.provider('$mbAccount', mbAccount)
 	.provider('$mbActions', mbActions)
 	.provider('$mbApplication', mbApplication)
 	.service('$mbClipboard', mbClipboard)
-	.provider('$mbComponent', mbComponent)
 	.service('$mbCrypto', mbCrypto)
-	.provider('$mbDialog', mbDialog)
 	.provider('$mbDispatcher', mbDispatcher)
 	.provider('$mbDispatcherUtil', mbDispatcherUtil)
-	.provider('$mbDynamicForm', mbDynamicForm)
-	.provider('$mbEditor', mbEditor)
-	.provider('$mbHotkey', mbHotkey)
 	.provider('$mbJobs', mbJobs)
-	.provider('$mbLayout', mbLayout)
 	.provider('$mbLocal', mbLocal)
-	.provider('$mbLog', mbLog)
-	.service('$mbMenu', mbMenu)
 	.provider('$mbMimetype', mbMimetype)
 	.provider('$mbModules', mbModules)
-	.service('$mbNavigator', mbNavigator)
-	.service('$mbNotification', mbNotification)
 	.provider('$mbPreferences', mbPreferences)
 	.provider('$mbResource', mbResource)
-	.service('$mbRoute', mbRoute)
-	.service('$mbRouteParams', mbRouteParams)
 	.service('$mbSelection', mbSelection)
 	.provider('$mbSettings', mbSettings)
-	.provider('$mbSidenav', mbSidenav)
 	.provider('$mbStorage', mbStorage)
-	.provider('$mbTheming', mbTheming)
-	.provider('$mbToolbar', mbToolbar)
-	.service('$mbUiUtil', mbUiUtil)
 	.service('$mbUtil', mbUtil)
-	.provider('$mbView', mbView)
-	.provider('$mbWizard', mbWizard)
+	.provider('$mbHttp', mbHttp)
+	.provider('$mbLocation', mbLocation)
+	.provider('$mbQueue', mbQueue)
 
 	// configs
+	.provider('$mbLog', mbLog)
 	.config(angularHackThemeConfigs)
 	.config(angularHackConfigs)
 	.config(angularHackIconsConfigs)
