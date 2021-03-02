@@ -1,0 +1,73 @@
+<div class="mb-wizard">
+	<div id="header">
+		<div id="text">
+			<h2
+				id="title">{{ctrl.title}}</h2>
+			<p
+				id="message">{{ctrl.description}}</p>
+			<div
+				id="error-message"
+				ng-if="ctrl.errorMessage"
+				mb-colors="{color: 'accent'}">
+				<mb-icon>error</mb-icon>
+				<span>{{ctrl.errorMessage}}</span>
+			</div>
+		</div>
+		<mb-icon
+			id="image"
+			size="64"
+			ng-if="!ctrl.image">wizard</mb-icon>
+		<img
+			id="image"
+			ng-if="ctrl.image"
+			ng-src="{{ctrl.image}}">
+	</div>
+	<md-content 
+		id="body"></md-content>
+	<div id="actions">
+		<md-button
+			class="md-icon-button"
+			id="help"
+			ng-show="!ctrl.helpDisabled"
+			ng-click="ctrl.openHelp($event)"
+			aria-disabled="Help">
+			<mb-icon>help</mb-icon>
+		</md-button>
+		<span id="spacer"></span>
+		
+		<md-button
+			class="md-raised"
+			id="back"
+			ng-show="ctrl.getPageCount() > 1"
+			ng-click="ctrl.backPage($event)"
+			ng-disabled="ctrl.backDisabled"
+			aria-label="Back">
+			<span translate>Back</span>
+		</md-button>
+		<md-button
+			class="md-raised"
+			id="next"
+			ng-show="ctrl.getPageCount() > 1"
+			ng-click="ctrl.nextPage($event)"
+			ng-disabled="ctrl.nextDisabled"
+			aria-label="Next">
+			<span translate>Next</span>
+		</md-button>
+		
+		<md-button
+			class="md-raised md-accent"
+			id="cancel"
+			ng-click="ctrl.cancelWizard($event)"
+			aria-label="Cancel">
+			<span translate>Cancel</span>
+		</md-button>
+		<md-button
+			class="md-raised md-primary"
+			id="finish"
+			ng-click="ctrl.finishWizard($event)"
+			ng-disabled="ctrl.finishDisabled"
+			aria-label="Finish">
+			<span translate>Finish</span>
+		</md-button>
+	</div>
+</div>

@@ -1,0 +1,19 @@
+<md-content flex>
+	<mb-titled-block layout-margin mb-title="Default JS dialogs">
+		<p>
+			There are three types of message in JS (alert, conferm, and prompt), which are
+			replaced with $navigator dialog:
+		</p>
+		<div>
+			<md-button ng-click="ctrl.showAlert($event)">
+				alert
+			</md-button>
+			<md-button ng-click="ctrl.showConfirm($event)">
+				Confirm
+			</md-button>
+			<md-button ng-click="ctrl.showPrompt($event)">
+				Prompt
+			</md-button>
+		</div>
+	</mb-titled-block>
+</md-content>

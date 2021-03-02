@@ -1,0 +1,43 @@
+<div class="md-whiteframe-2dp mb-titled-block">
+	<md-toolbar 
+		class="md-hue-1"
+		layout="row"
+		style="border-top-left-radius: 5px; border-top-right-radius: 5px; margin: 0px; padding: 0px">
+		<div
+			layout="row"
+			layout-align="start center"
+			class="md-toolbar-tools">
+			<mb-icon size="24px" style="margin: 0;padding: 0px" ng-if="mbIcon">{{::mbIcon}}</mb-icon>
+			<h3 mb-translate="" style="margin-left: 8px; margin-right: 8px">{{::mbTitle}}</h3>
+		</div>
+		<md-menu
+			layout-align="end center"
+			ng-show="mbMoreActions.length">
+			<mb-button
+				class="mb-icon-button"
+				aria-label="Menu"
+				ng-click="$mdMenu.open($event)">
+				<mb-icon>more_vert</mb-icon>
+			</mb-button>
+			<md-menu-content width="4">
+				<md-menu-item
+					ng-repeat="item in mbMoreActions">
+					<md-button
+						ng-click="$evalAction(item, $event)"
+						aria-label="{{::item.title}}">
+						<mb-icon ng-show="item.icon">{{::item.icon}}</mb-icon>
+						<span mb-translate="">{{::item.title}}</span>
+					</md-button>
+				</md-menu-item>
+			</md-menu-content>
+		</md-menu>
+	</md-toolbar>
+
+	<md-progress-linear
+		ng-style="{'visibility': mbProgress?'visible':'hidden'}"
+		md-mode="indeterminate"
+		class="md-primary">
+	</md-progress-linear>
+
+	<div flex ng-transclude style="padding: 16px"></div>
+</div>

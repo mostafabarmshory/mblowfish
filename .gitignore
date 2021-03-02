@@ -26,3 +26,5 @@
 
 #netbeans
 nbproject/private/
+/dist/
+/yarn.lock

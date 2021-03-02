@@ -1,0 +1,37 @@
+<md-bottom-sheet 
+	class="md-list md-has-header"
+	layout="column"
+	style="max-height: 100vh;">
+	<div ng-cloak>
+		<md-input-container
+			class="md-icon-float md-icon-left md-block">
+			<label mb-translate>Search</label>
+			<mb-icon>search</mb-icon>
+			<input 
+				ng-model="query"
+				ng-change="search(query)"
+				type="text" 
+				md-autofocus/>
+		</md-input-container>
+	</div>
+	<div style="overflow: auto;">
+		<md-list 
+			ng-cloak>
+			<md-list-item 
+				ng-repeat="action in actions"
+				ng-click="runAction(action, $event)" 
+				ng-show="!action.demon"
+				>
+				<mb-icon 
+					ng-if="action.icon"
+					class="md-avatar-icon">{{::action.icon}}</mb-icon>
+				<p>
+					<span ng-if="action.group">{{ ::action.group }} -</span>
+					<span 
+						md-highlight-text="query"
+						class="md-inline-list-icon-label">{{ ::action.title }}</span>
+				</p>
+			</md-list-item>
+		</md-list>
+	</div>
+</md-bottom-sheet>
