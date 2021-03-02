@@ -1,3 +1,5 @@
+import './MbActionFactory.css';
+
 /**
 @ngdoc Factories
 @name MbAction
@@ -13,8 +15,6 @@ system.
 @tutorial core-action-callById
 @ngInject
  */
-import './MbActionFactory.css';
-
 function MbActionFactory($injector, MbComponent, $q) {
 
 	var defaultActionController = function($element, $action) {

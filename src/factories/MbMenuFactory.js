@@ -26,6 +26,7 @@
  * @name MbMenu
  * @description An action item
  * 
+@ngInject
  */
 function MbMenuFactory() {
 

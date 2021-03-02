@@ -23,7 +23,7 @@ import mblowfish from '../../mblowfish';
 
 import actionCmdAction from './actions/command-line-display';
 import toggleSideNavePageList from './actions/navigator-toggle';
-import MbNavigatorCtrl from './controllers/navigator';
+import MbNavigatorCtrl from './controllers/MbNavigatorCtrl';
 import navigatorSidenav from './sidenavs/navigator';
 import navigatorView from './views/navigator';
 

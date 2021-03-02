@@ -1,9 +1,9 @@
 
 
 /**
- * @ngdoc Controllers
- * @name MbNavigatorDialogCtrl
- * @description # AccountCtrl Controller of the mblowfish
+@ngdoc Controllers
+@name MbNavigatorDialogCtrl
+@description # AccountCtrl Controller of the mblowfish
 
 @ngInject
  */

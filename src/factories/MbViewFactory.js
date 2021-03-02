@@ -29,6 +29,7 @@
 A view is consists fo a toolbar, menu and the main view. You are free to 
 contributes directly into them.
 
+@ngInject
  */
 function MbViewFactory(MbFrame) {
 

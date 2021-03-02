@@ -22,8 +22,10 @@
  */
 
 
-/*
- * TODO: maso, 2019: add filter document
+/** 
+TODO: maso, 2019: add filter document
+
+@ngInject
  */
 export default function mbCurrency(numberFilter, translateFilter) {
 

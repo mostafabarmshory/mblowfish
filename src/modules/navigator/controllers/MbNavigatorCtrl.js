@@ -1,3 +1,10 @@
+/**
+@ngdoc Controllers
+@name MbNavigatorCtrl
+@description # AccountCtrl Controller of the mblowfish
+
+@ngInject
+ */
 export default function($scope, $mbView) {
 	var groups = {
 		'others': {

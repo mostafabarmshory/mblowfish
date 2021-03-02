@@ -286,6 +286,7 @@ function mbTranslateSanitization() {
 	};
 	provider = {
 		$get: function($injector) {
+			'ngInject';
 			if ($injector.has('$sanitize')) {
 				$sanitize = $injector.get('$sanitize');
 			}

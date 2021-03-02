@@ -2283,6 +2283,7 @@ function mbTranslate() {
 	});
 	provider = {
 		$get: function($injector) {
+			'ngInject';
 			injector = $injector;
 			defaultInterpolator = injector.get($interpolationFactory || '$mbTranslateDefaultInterpolation');
 			$q = injector.get('$q');
