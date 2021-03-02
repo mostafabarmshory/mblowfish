@@ -47,6 +47,7 @@ import mbFile from './directives/mbFile';
 import mbFileInput from './directives/mbFileInput';
 import mbFileMimetype from './directives/mbFileMimetype';
 import mbFileSize from './directives/mbFileSize';
+import mbFileSizeParser from './directives/mbFileSizeParser';
 import mbFileSizeTotal from './directives/mbFileSizeTotal';
 import mbInfinateScroll from './directives/mbInfinateScroll';
 import mbInline from './directives/mbInline';
@@ -157,6 +158,7 @@ mblowfish
 	.directive('mbFileInput', mbFileInput)
 	.directive('mbFileMimetype', mbFileMimetype)
 	.directive('mbFileSize', mbFileSize)
+	.directive('mbFileSizeParser', mbFileSizeParser)
 	.directive('mbFileSizeTotal', mbFileSizeTotal)
 	.directive('mbInfinateScroll', mbInfinateScroll)
 	.directive('mbInline', mbInline)
