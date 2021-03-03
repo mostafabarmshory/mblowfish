@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-
+import moment from 'moment-jalaali';
 
 
 /**
@@ -32,7 +32,7 @@
 
 @ngInject
  */
-export default  function($mdUtil, $rootScope) {
+export default function($mdUtil, $rootScope) {
 
 	// **********************************************************
 	// Private Methods
