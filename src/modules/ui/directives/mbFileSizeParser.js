@@ -1,19 +1,23 @@
-
+import _ from 'lodash';
 /*
 JEDEC Standard
 
 SEE: https://en.wikipedia.org/wiki/JEDEC_memory_standards
 */
-const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-const regex = /^(0[\.[0-9]]?[0-9]*|[1-9][0-9]*[\.[0-9]]?[0-9]*)\W*(Byte|KB|MB|GB|TB|PB|EB|ZB|YB)?$/gi;
+const sizes = ['BYTE', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 const k = 1024;
 
 
-function parse(value) {
-	if (!value) {
-		return 0;
+export function parse(value) {
+	const regex = /^(\d+\.?\d*)\W*(Byte|KB|MB|GB|TB|PB|EB|ZB|YB)?$/gi;
+	if (!_.isInteger(value) && !_.isString(value)) {
+		return;
 	}
-	const found = regex.exec(value.trim());
+	if(Number.isInteger(value)){
+		return value;
+	}
+	value = value.trim();
+	const found = regex.exec(value);
 	if (!found) {
 		return;
 	}
@@ -21,12 +25,12 @@ function parse(value) {
 	if (found[2]) {
 		i = sizes.indexOf(found[2].toUpperCase());
 	}
-	return Number(found[1]) * Math.pow(k, i);
+	return Math.floor(Number(found[1]) * Math.pow(k, i));
 }
 
-function format(bytes, decimalPoint) {
-	if (!byte) {
-		return '0 Bytes';
+export function format(bytes, decimalPoint) {
+	if (!_.isInteger(value) || value < 0 ) {
+		return;
 	}
 	var dm = decimalPoint || 2,
 		i = Math.floor(Math.log(bytes) / Math.log(k));
