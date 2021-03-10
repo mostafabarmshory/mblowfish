@@ -142,9 +142,7 @@ function MbContainerFactory(
 			var link = $compile($element);
 			if ((controllerDef = cmp.controller)) {
 				$ctrl = $controller(controllerDef, locals);
-				if ((cmp.controllerAs)) {
-					$scope[cmp.controllerAs] = $ctrl;
-				}
+				$scope[cmp.controllerAs || 'ctrl'] = $ctrl;
 				$element.data('$ngControllerController', $ctrl);
 			}
 			$scope[cmp.resolveAs || '$resolve'] = locals;
@@ -152,15 +150,14 @@ function MbContainerFactory(
 			// controller function required fro theming
 			// TODO: these parts are removed from new current angularjs but required in angular material
 			if (_.isUndefined($element.controller)) {
-				$element.controller = function() {};
+				$element.controller = function() { };
 			}
 			if (_.isUndefined($element.scope)) {
-				$element.scope = function() { 
+				$element.scope = function() {
 					return $scope;
 				};
 			}
 			$mbTheming($element);
-
 
 			cmp.$handler = new MbUiHandler(_.assign(locals, {
 				$scope: $scope,
