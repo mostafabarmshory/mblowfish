@@ -9,7 +9,7 @@ const k = 1024;
 
 
 export function parse(value) {
-	const regex = /^(\d+\.?\d*)\W*(Byte|KB|MB|GB|TB|PB|EB|ZB|YB)?$/gi;
+	const regex = /^(\d+\.?\d*)\W*(BYTE|KB|MB|GB|TB|PB|EB|ZB|YB)?$/gi;
 	if (!_.isInteger(value) && !_.isString(value)) {
 		return;
 	}
@@ -29,7 +29,7 @@ export function parse(value) {
 }
 
 export function format(bytes, decimalPoint) {
-	if (!_.isInteger(value) || value < 0 ) {
+	if (!_.isInteger(bytes) || bytes < 0 ) {
 		return;
 	}
 	var dm = decimalPoint || 2,

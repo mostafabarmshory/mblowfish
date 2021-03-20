@@ -1,4 +1,4 @@
-import { parse, fromat } from './mbFileSizeParser';
+import { parse, format } from './mbFileSizeParser';
 
 
 
@@ -55,7 +55,7 @@ describe('File Size Parse', function() {
 describe('File Size formater', function() {
 	var testdata = [{
 		input: 1,
-		output: '1 Byte',
+		output: '1 BYTE',
 	}, {
 		input: 1024,
 		output: '1 KB',
@@ -77,8 +77,8 @@ describe('File Size formater', function() {
 	}];
 
 	testdata.forEach(item =>
-		it("should be able to pars string " + item.input + " to value " + item.output, function() {
-			expect(parse(item.input)).toBe(item.output);
+		it("should be able to format value " + item.input + " to string " + item.output, function() {
+			expect(format(item.input)).toBe(item.output);
 		})
 	)
 });
