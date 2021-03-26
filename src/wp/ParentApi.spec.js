@@ -24,11 +24,6 @@ describe('ParentApi class', () => {
 	})
 
 	it('should support parent api', () => {
-		//			model: { foo: 'bar' },
-		//			parent: document.body,
-		//			parentOrigin: 'https://parent.com',
-		//			child: document.body,
-		//			source: window,
 		const parentMock = new ParentApi(document.body, document.body, 'https://parent.com');
 		expect(typeof parentMock).toBe('object');
 	})
@@ -50,6 +45,7 @@ describe('ParentApi class', () => {
 			parent.postMessage({
 				command: 'handshake-reply',
 				type: messageType,
+				parentId: event.data.id,
 			}, event.origin);
 			done();
 			// send handshake
@@ -58,6 +54,9 @@ describe('ParentApi class', () => {
 		ParentApi
 			.connect(initModel, parent, child, parentOrigin)
 			.then((parentApi) => {
+				parentId = parentApi.id;
+				expect(parentApi.id).not.toBe(undefined);
+				expect(parentApi.id).not.toBe(null);
 				expect(typeof parentApi).toBe('object');
 			});
 	})
@@ -66,7 +65,7 @@ describe('ParentApi class', () => {
 	it('should create a parent api on handshake', (done) => {
 		const frame = document.createElement("iframe");
 		document.body.appendChild(frame);
-
+	
 		let parent = window;
 		let child = frame.contentWindow || frame.contentDocument.parentWindow;
 		let parentOrigin = '*';
@@ -78,6 +77,7 @@ describe('ParentApi class', () => {
 			parent.postMessage({
 				command: 'handshake-reply',
 				type: messageType,
+				parentApi: event.data.id,
 			}, event.origin);
 			// send handshake
 		});

@@ -20,26 +20,32 @@ export default class ParentApi {
 	Creates new instance of parent
 	
 	 */
-	constructor(parent, child, childOrigin) {
+	constructor(parent, child, childOrigin, id) {
 		this.parent = parent
-//		this.frame = frame
-		this.child = child
-		this.childOrigin = childOrigin
+		//		this.frame = frame
+		this.child = child;
+		this.childOrigin = childOrigin;
+		this.id = id;
+		this.events = {};
 
-		this.events = {}
+		log('Parent: Registering API', this.id);
+		log('Parent: Awaiting messages...');
 
-		log('Parent: Registering API')
-		log('Parent: Awaiting messages...')
-
-		this.listener = (e) => {
-			if (!sanitize(e, this.childOrigin)) return false
+		this.listener = (event) => {
+			if (!sanitize(event, this.childOrigin)){
+				return false;
+			} 
+			var eventData = event.data;
 
 			/**
 			 * the assignments below ensures that e, data, and value are all defined
 			 */
-			const { data, name } = (((e || {}).data || {}).value || {})
-
-			if (e.data.command === 'emit') {
+			const { data, name } = (((event || {}).data || {}).value || {})
+			if(eventData.parentId !== this.id){
+				log(`Parent: recived id is ${eventData.parentId} is not match with ${this.id}`);
+				return false;
+			}
+			if (eventData.command === 'emit') {
 				log(`Parent: Received event emission: ${name}`)
 
 				if (name in this.events) {
@@ -85,20 +91,20 @@ export default class ParentApi {
 			type: messageType,
 			property,
 			data,
-		}, this.childOrigin)
+		}, this.childOrigin);
+		return this;
 	}
 
 	on(eventName, callback) {
-		if (!this.events[eventName]) {
-			this.events[eventName] = []
-		}
+		this.events[eventName] = this.events[eventName] || [];
 		this.events[eventName].push(callback);
+		return this;
 	}
 
 	destroy() {
 		log('Parent: Destroying WP instance')
 		window.removeEventListener('message', this.listener, false);
-//		this.frame.parentNode.removeChild(this.frame)
+		//		this.frame.parentNode.removeChild(this.frame)
 	}
 
 
@@ -114,6 +120,7 @@ export default class ParentApi {
 
 		let attempt = 0;
 		let responseInterval;
+		let id = Math.random();
 		return new Promise((resolve, reject) => {
 			const reply = (event) => {
 				if (!sanitize(event, childOrigin)) {
@@ -127,7 +134,7 @@ export default class ParentApi {
 					childOrigin = event.origin;
 					log('Parent: Saving Child origin', childOrigin);
 
-					return resolve(new ParentApi(parent, child, childOrigin));
+					return resolve(new ParentApi(parent, child, childOrigin, id));
 				}
 
 				// Might need to remove since parent might be receiving different messages
@@ -144,6 +151,7 @@ export default class ParentApi {
 				child.postMessage({
 					command: 'handshake',
 					type: messageType,
+					id: id,
 					model: model,
 				}, childOrigin);
 

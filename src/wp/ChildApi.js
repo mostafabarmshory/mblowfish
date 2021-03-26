@@ -21,10 +21,11 @@ export default class ChildApi {
 	@param {string} parentOrigin the parent origin path
 	
 	 */
-	constructor(model, child, parent, parentOrigin) {
+	constructor(model, child, parent, parentOrigin, parentId) {
 		this.model = model;
 		this.child = child;
 		this.parent = parent;
+		this.parentId = parentId;
 		this.parentOrigin = parentOrigin;
 
 		log('Child: Registering API');
@@ -62,6 +63,7 @@ export default class ChildApi {
 		this.parent.postMessage({
 			command: 'emit',
 			type: messageType,
+			parentId: this.parentId,
 			value: {
 				name,
 				data,
@@ -110,7 +112,7 @@ export default class ChildApi {
 					}
 
 					log('Child: Saving Parent origin', parentOrigin)
-					return resolve(new ChildApi(model, child, parent, parentOrigin));
+					return resolve(new ChildApi(model, child, parent, parentOrigin, event.data.id));
 				}
 				return reject('Handshake Reply Failed')
 			}

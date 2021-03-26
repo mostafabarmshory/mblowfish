@@ -38,7 +38,8 @@ describe('ChildApi class', () => {
 		iframe.contentWindow.postMessage({
 			command: 'handshake',
 			type: messageType,
-			model: {}
+			model: {},
+			id: 1,
 		}, "*");
 	});
 
@@ -63,7 +64,8 @@ describe('ChildApi class', () => {
 		iframe.contentWindow.postMessage({
 			command: 'handshake-not support',
 			type: messageType,
-			model: {}
+			model: {},
+			id: 1
 		}, "*");
 	});
 

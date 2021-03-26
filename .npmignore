@@ -1,0 +1,14 @@
+.github
+.settings
+coverage
+dist
+docs
+test
+webpack
+.directory
+.gitattributes
+.gitignore
+.gitlab-ci.yml
+.project
+.tern-project
+node_modules
