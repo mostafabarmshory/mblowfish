@@ -259,8 +259,6 @@ function mbAccount() {
 			hasAnyRole: hasAnyRole,
 			principal: principal,
 			authentication: authentication,
-			permitAll: true,
-			denyAll: false,
 			isRememberMe: isRememberMe,
 			isAuthenticated: isAuthenticated,
 			isFullyAuthenticated: isFullyAuthenticated,
@@ -270,6 +268,7 @@ function mbAccount() {
 	//	Updates all global modules in root scope
 	function updateAuthentication(newAuthentication) {
 		authentication = newAuthentication;
+		principal = newAuthentication.principal;
 		if (exrpressionsEnabled) {
 			_.assign(rootScope, {
 				principal: principal,

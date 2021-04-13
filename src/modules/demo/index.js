@@ -21,6 +21,8 @@ import dynamicFormView from './views/dynamic-form';
 import dialogsView from './views/dialogs';
 import resourcesView from './views/resources';
 import tablesView from './views/tables';
+import denyAll from './views/denyAll';
+import hasRoleAdmin from './views/hasRoleAdmin';
 
 import holidayCarPage from './wizards/holidayCarPage';
 import holidayFinalPage from './wizards/holidayFinalPage';
@@ -54,6 +56,9 @@ mblowfish
 	.view('/demo/ui/dialogs', dialogsView)
 	.view('/demo/ui/resources', resourcesView)
 	.view('/demo/ui/tables', tablesView)
+	
+	.view('/demo/security/denyAll', denyAll)
+	.view('/demo/security/hasRoleAdmin', hasRoleAdmin)
 
 
 	.wizardPage('holidayCarPage', holidayCarPage)

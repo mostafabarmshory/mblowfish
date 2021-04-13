@@ -14,23 +14,25 @@ More custom scenarios will still need to access the full Authentication request 
 
 For these, more advanced scenarios, we'll need to define a custom Authentication Provider:
 
-	mblowfish.factory('CustomAuthenticationProvider', function($http, MblowfishAuthenticationProvider){
-		
-		function CustomAuthenticationProvider(configs) {
-			MblowfishAuthenticationProvider.call(this, configs);
-			return this;
-		};
-		CustomAuthenticationProvider.prototype = Object.create(MblowfishAuthenticationProvider.prototype);
+```javascript
+mblowfish.factory('CustomAuthenticationProvider', function($http, MblowfishAuthenticationProvider){
 	
-		CustomAuthenticationProvider.prototype.authenticate = function(authentication) {
-			return $http.post('/authentication/endpoint', authentication)
-				.then(function(result){
-					return result.data;
-				});
-		};
-	
-		return CustomAuthenticationProvider;
-	});
+	function CustomAuthenticationProvider(configs) {
+		MblowfishAuthenticationProvider.call(this, configs);
+		return this;
+	};
+	CustomAuthenticationProvider.prototype = Object.create(MblowfishAuthenticationProvider.prototype);
+
+	CustomAuthenticationProvider.prototype.authenticate = function(authentication) {
+		return $http.post('/authentication/endpoint', authentication)
+			.then(function(result){
+				return result.data;
+			});
+	};
+
+	return CustomAuthenticationProvider;
+});
+```
 
 Notice that the granted authorities set on the returned Authentication object are empty. This is because authorities are of course application specific.
 
@@ -38,11 +40,13 @@ Notice that the granted authorities set on the returned Authentication object ar
 
 Now that we've defined the Authentication Provider, we need to specify it in the application configuration:
 
-	mblowfish.config(function($mbAccountProvider){
-		$mbAccountProvider
-			...
-			.setAuthenticationProvider('CustomAuthenticationProvider');
-	});
+```javascript
+mblowfish.config(function($mbAccountProvider){
+	$mbAccountProvider
+		...
+		.setAuthenticationProvider('CustomAuthenticationProvider');
+});
+```
 
 ## Conclusion
 
