@@ -10,7 +10,7 @@ import 'angular-material';
 import 'angular-animate';
 
 import 'angular-material/angular-material.css';
-import moduleLoad from './services/mbModules';
+import {moduleLoad} from './services/mbModules';
 
 var MB_MODULE_SK = 'mbModules';
 
