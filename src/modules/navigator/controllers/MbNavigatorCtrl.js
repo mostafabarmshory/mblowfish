@@ -5,7 +5,7 @@
 
 @ngInject
  */
-export default function($scope, $mbView) {
+export default function($scope, $mbView, $mbSecurity) {
 	var groups = {
 		'others': {
 			title: 'Others',
@@ -27,5 +27,9 @@ export default function($scope, $mbView) {
 		});
 	});
 
-	$scope.groups = groups
+	$scope.groups = groups;
+	
+	this.isItemVisible = function (item){
+		return $mbSecurity.evaluate(item.access, $scope);	
+	}
 }

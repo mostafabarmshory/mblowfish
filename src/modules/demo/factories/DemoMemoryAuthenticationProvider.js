@@ -7,7 +7,11 @@ export default function($q, MbAuthenticationProvider, MbAuthentication) {
 
 	var accounts = {
 		admin: {
-			principal: ['tenant.owner', 'demo.manager'],
+			principal: {
+				'tenant.owner': true,
+				'demo.manager': true,
+				'admin': true
+			},
 			password: 'admin',
 			title: 'Demo Admin',
 			profile: {

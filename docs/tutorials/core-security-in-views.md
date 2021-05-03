@@ -15,34 +15,39 @@ ready to use if the current accoutn has role tenant.owner.
 
 We simple add an action:
 
-	mblowfish.addAction('test.alert', {
-		action: function(){
-			alert('hi');
-		}
-	});
+```javascript
+mblowfish.action('test.alert', {
+	action: function(){
+		alert('hi');
+	}
+});
+```
 
 ## Create View
 
 Then we create a view:
 
-	mblowfish.addView('/demo/security-test/security-expression-in-view', {
-		template:'<div><button ng-click="ctrl.callAction($event)">Call Action</button></div>',
-		controllerAs: 'ctrl',
-		controller: function($mbActions){
-			'ngInject';
-			this.callAction= function($event){
-				$mbActions.exec('test.alert', $event);
-			};
-		}
-	});
+```javascript
+mblowfish.view('/demo/security-test/security-expression-in-view', {
+	template:'<div><button ng-click="ctrl.callAction($event)">Call Action</button></div>',
+	controllerAs: 'ctrl',
+	controller: function($mbActions){
+		'ngInject';
+		this.callAction= function($event){
+			$mbActions.exec('test.alert', $event);
+		};
+	}
+});
+```
 	
 ## Adding Security Expression
 
 Adding expression to the button:
 
-
-	...
-	template:'<div><button ng-enable="hasRole(\'tenant.owner\')" ng-click="ctrl.callAction($event)">Call Action</button></div>',
-	...
+```javascript
+...
+template:'<div><button ng-enable="hasRole(\'tenant.owner\')" ng-click="ctrl.callAction($event)">Call Action</button></div>',
+...
+```
 	
 

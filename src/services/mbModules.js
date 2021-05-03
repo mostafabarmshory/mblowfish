@@ -88,7 +88,7 @@ function moduleLoadStyle(path) {
 	return defer;
 }
 
-function moduleLoad(module) {
+export function moduleLoad(module) {
 	var deferred;
 	switch (module.type) {
 		case 'js':

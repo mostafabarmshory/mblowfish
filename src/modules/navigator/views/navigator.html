@@ -5,7 +5,8 @@
 			class="md-no-sticky">{{::group.title}}</md-subheader>
 		<md-list-item 
 			ng-repeat="(url, item) in group.items"
-			ng-href="./{{::url}}">
+			ng-href="./{{::url}}"
+			ng-show="ctrl.isItemVisible(item)">
 			<mb-icon>{{::(item.icon || 'layers')}}</mb-icon>
 			<p mb-translate>{{::item.title}}</p>
 		</md-list-item>

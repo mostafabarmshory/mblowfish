@@ -13,7 +13,7 @@ import './index.css';
 
 
 /****************************************************************************
- * Controllers                                                                *
+ * Controllers                                                              *
  *                                                                          *
  *                                                                          *
  ****************************************************************************/
@@ -62,6 +62,7 @@ import mbUiUtil from './services/mbUiUtil';
 import mbUtil from './services/mbUtil';
 import mbView from './services/mbView';
 import mbWizard from './services/mbWizard';
+import mbSecurity from './services/mbSecurity';
 
 import mbHttp from './services/mbHttp';
 import mbLocation from './services/mbLocation';
@@ -216,6 +217,7 @@ mblowfish
 	.provider('$mbHttp', mbHttp)
 	.provider('$mbLocation', mbLocation)
 	.provider('$mbQueue', mbQueue)
+	.provider('$mbSecurity', mbSecurity)
 
 	// configs
 	.provider('$mbLog', mbLog)
