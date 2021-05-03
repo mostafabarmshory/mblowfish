@@ -57,7 +57,7 @@
 		"angular-material": "1.2.x",
 		"golden-layout": "^1.5.9",
 		"flux": "3.1.x",
-		"jquery": "3.4.x",
+		"jquery": "3.5.x",
 		"lodash": "4.x",
 		"mustache": "^2.3.x",
 		"moment": "^2.24.0",
