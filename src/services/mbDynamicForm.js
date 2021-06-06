@@ -1,3 +1,5 @@
+
+import dynamicFormTemplate from './mbDynamicForm.html';
 //-----------------------------------------------------------------------------------
 // Services and factories
 //-----------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ function mbDynamicForm() {
 		return getSchemaFor(formConfig)
 			.then(function(schema) {
 				return mbDialog.show({
-					templateUrl: 'views/dialogs/mb-dynamic-form.html',
+					templateUrl: dynamicFormTemplate,
 					controller: 'MbDynamicFormDialogCtrl',
 					controllerAs: 'ctrl',
 					parent: rootElement,
