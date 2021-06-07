@@ -170,8 +170,8 @@ function mbToolbar() {
 	// End
 	//-----------------------------------------------------------------------------------
 	return {
-		/* @ngInject */
 		$get: function(MbToolbar) {
+			"ngInject";
 			Toolbar = MbToolbar;
 
 			loadDefaultToolbars();

@@ -45,7 +45,7 @@ service = {
 
 provider = {
 	$get: function($rootScope) {
-		'ngInject';
+		"ngInject";
 		rootScope = $rootScope;
 		return service;
 	}

@@ -75,8 +75,8 @@ function mbSidenav() {
 	}
 
 	provider = {
-		/* @ngInject */
 		$get: function($mdSidenav, MbSidenav) {
+			"ngInject";
 			mdSidenav = $mdSidenav;
 			Sidenav = MbSidenav;
 

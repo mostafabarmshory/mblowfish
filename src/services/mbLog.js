@@ -53,7 +53,7 @@ function mbLog() {
 	//--------------------------------------------------------
 	provider = {
 		$get: function($log) {
-			'ngInject';
+			"ngInject";
 			return $log;
 		}
 	}

@@ -297,7 +297,6 @@ function mbAccount() {
 		getPrincipal: getPrincipal,
 	};
 	provider = {
-		/* @ngInject */
 		$get: function($q, $rootScope, $mbDispatcher, $injector, MbAuthentication) {
 			"ngInject";
 			//>> Services

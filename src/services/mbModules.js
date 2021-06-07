@@ -135,13 +135,10 @@ function load() {
 	modules = mbStorage.mbModules || {};
 }
 
-/**
-
-@ngInject 
-*/
 function $get(
 	/* Angularjs */ $q,
 	/* am-wb     */ $mbApplication, $mbDispatcher, $mbStorage) {
+	"ngInject";
 	q = $q;
 	mbApplication = $mbApplication;
 	mbDispatcher = $mbDispatcher;

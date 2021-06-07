@@ -38,8 +38,8 @@ function mbTheming() {
 	}
 
 	return {
-		/* @ngInject */
 		$get: function($mdTheming) {
+			"ngInject";
 			mdTheming = $mdTheming;
 			return applyTheme;
 		}

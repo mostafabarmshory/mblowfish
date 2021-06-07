@@ -19,18 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-mblowfish.filter('mbCurrency', function(numberFilter, translateFilter) {
-	return function(number, unit) {
-		var txt = '';
-		if (!number) {
-			return translateFilter('free');
-		}
-		if (unit === 'R') {
-			txt = 'rial';
-		} else if (unit === 'T') {
-			txt = 'tooman';
-		}
-		return numberFilter(number) + ' ' + translateFilter(txt);
-	};
-});
+//
+//mblowfish.filter('mbCurrency', function(numberFilter, translateFilter) {
+//	return function(number, unit) {
+//		var txt = '';
+//		if (!number) {
+//			return translateFilter('free');
+//		}
+//		if (unit === 'R') {
+//			txt = 'rial';
+//		} else if (unit === 'T') {
+//			txt = 'tooman';
+//		}
+//		return numberFilter(number) + ' ' + translateFilter(txt);
+//	};
+//});

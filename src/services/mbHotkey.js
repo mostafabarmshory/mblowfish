@@ -329,7 +329,7 @@ function mbHotkey() {
 	};
 	provider = {
 		$get: function() {
-			'ngInject';
+			"ngInject";
 			return service;
 		}
 	};

@@ -169,10 +169,10 @@ function mbView() {
 		getViews: getViews
 	};
 	provider = {
-		/* @ngInject */
 		$get: function(
 		/* AngularJS */ $rootScope,
 		/* Mblowfish */ $mbRoute, MbView) {
+			"ngInject";
 			// Service
 			rootScope = $rootScope;
 			mbRoute = $mbRoute;

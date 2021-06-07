@@ -82,8 +82,8 @@ function mbDynamicForm() {
 		openDialog: openDialog,
 	};
 	provider = {
-		/* @ngInject */
 		$get: function($mbDialog, $sce, $mbUtil, $q) {
+			"ngInject";
 			mbDialog = $mbDialog;
 			sce = $sce;
 

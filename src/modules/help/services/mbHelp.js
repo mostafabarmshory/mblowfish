@@ -172,6 +172,7 @@ export default function() {
 	//     */
 	return {
 		$get: function() {
+			"ngInject";
 			return helpService;
 		}
 		//        tip: tip,

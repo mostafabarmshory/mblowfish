@@ -123,8 +123,8 @@ function mbSettings() {
 	};
 
 	provider = {
-		/* @ngInject */
 		$get: function($rootScope, $mbStorage, $q, $mbDispatcherUtil) {
+			"ngInject";
 			rootScope = $rootScope;
 			mbStorage = $mbStorage;
 			q = $q;

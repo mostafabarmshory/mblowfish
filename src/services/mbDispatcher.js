@@ -138,6 +138,7 @@ function mbDispatcher() {
 	};
 	provider = {
 		$get: function() {
+			"ngInject";
 			return service;
 		}
 	};

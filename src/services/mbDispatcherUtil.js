@@ -157,8 +157,8 @@ function mbDispatcherUtil() {
 	};
 
 	provider = {
-		/* @ngInject */
 		$get: function($mbDispatcher, MbEvent) {
+			"ngInject";
 			mbDispatcher = $mbDispatcher;
 			Event = MbEvent;
 			return service;

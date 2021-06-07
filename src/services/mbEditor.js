@@ -229,10 +229,10 @@ export default function() {
 	};
 
 	provider = {
-		/* @ngInject */
 		$get: function(
 			/* AngularJS */ $rootScope,
 			/* Mblowfish */ $mbUiUtil, $mbRoute, MbEditor) {
+			"ngInject";
 			inherit = $mbUiUtil.inherit;
 			switchRouteMatcher = $mbUiUtil.switchRouteMatcher;
 

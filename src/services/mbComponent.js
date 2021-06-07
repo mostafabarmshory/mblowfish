@@ -77,8 +77,8 @@ function mbComponent() {
 		getComponent: getComponent,
 	};
 	provider = {
-		/* @ngInject */
 		$get: function(MbComponent) {
+			"ngInject";
 			Component = MbComponent;
 
 			loadItems();

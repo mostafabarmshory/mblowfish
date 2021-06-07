@@ -418,7 +418,7 @@ function mbLocal() {
 
 	provider = {
 		$get: function($mbSettings, $mdDateLocale, $mbDispatcher, $rootScope, $mbTranslate) {
-			'ngInject';
+			"ngInject";
 			mbSettings = $mbSettings;
 			mdDateLocale = $mdDateLocale;
 			mbDispatcher = $mbDispatcher;
