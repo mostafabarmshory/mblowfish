@@ -21,6 +21,115 @@
  */
 
 import Flux from 'flux';
+//---------------------------------------
+// service
+//---------------------------------------
+var service;
+var provider;
+
+
+
+
+//---------------------------------------
+// variables
+//---------------------------------------
+/*
+List of all dispatcher
+*/
+var dispatchers = {};
+
+//---------------------------------------
+// Function
+//---------------------------------------
+/*
+Finds dispatcher for the type
+*/
+function getDispatcherFor(type) {
+	if (!dispatchers[type]) {
+		dispatchers[type] = new Flux.Dispatcher();
+	}
+	return dispatchers[type];
+}
+
+/**
+Registers a callback to be invoked with every dispatched payload. Returns
+a token that can be used with `waitFor()`.
+	
+This payload is digested by both stores:
+	
+@example 
+dispatchToken = $ispatcher.register('action.type', function(payload) { 
+ if (payload.actionType === 'country-update') { 
+	 CountryStore.country = payload.selectedCountry; 
+ } 
+});
+	
+@param callback function to add 
+@memberof $mbDispatcher
+ */
+function on(type, callback) {
+	return getDispatcherFor(type).register(callback);
+}
+
+/** 
+Removes a callback based on its token. 
+
+@memberof $mbDispatcher
+ */
+function off(type, id) {
+	return getDispatcherFor(type).unregister(id);
+}
+
+/**
+Waits for the callbacks specified to be invoked before continuing
+execution of the current callback. This method should only be used by a
+callback in response to a dispatched payload.
+
+@memberof $mbDispatcher
+ */
+function waitFor(type, ids) {
+	return getDispatcherFor(type).waitFor(ids);
+}
+
+/**
+Dispatches a payload to all registered callbacks.
+	
+ Payload contains key and values. You may add extra values to the 
+payload.
+
+@memberof $mbDispatcher
+ */
+function dispatch(type, payload) {
+	return getDispatcherFor(type).dispatch(payload);
+};
+
+/**
+Is this Dispatcher currently dispatching.
+
+@memberof $mbDispatcher
+ */
+function isDispatching(type) {
+	return getDispatcherFor(type).isDispatching();
+};
+
+
+//---------------------------------------
+// end
+//---------------------------------------
+service = {
+	on: on,
+	off: off,
+	waitFor: waitFor,
+	dispatch: dispatch,
+	isDispatching: isDispatching,
+};
+
+provider = {
+	$get: function() {
+		"ngInject";
+		return service;
+	}
+};
 
 /**
 @ngdoc Services
@@ -35,116 +144,10 @@ different from generic pub-sub systems in two ways:
 
 @tutorial core-flux-dispatcher-hypotheticalFligh
  */
-function mbDispatcher() {
-
-	//---------------------------------------
-	// service
-	//---------------------------------------
-	var service;
-	var provider;
-
-	//---------------------------------------
-	// variables
-	//---------------------------------------
-    /*
-	List of all dispatcher
-	*/
-	var dispatchers = {};
-
-	//---------------------------------------
-	// Function
-	//---------------------------------------
-    /*
-	Finds dispatcher for the type
-	*/
-	function getDispatcherFor(type) {
-		if (!dispatchers[type]) {
-			dispatchers[type] = new Flux.Dispatcher();
-		}
-		return dispatchers[type];
-	}
-
-    /**
-	Registers a callback to be invoked with every dispatched payload. Returns
-	a token that can be used with `waitFor()`.
-	
-	This payload is digested by both stores:
-	
-	@example 
-	dispatchToken = $ispatcher.register('action.type', function(payload) { 
-	 if (payload.actionType === 'country-update') { 
-	     CountryStore.country = payload.selectedCountry; 
-	 } 
-	});
-	
-	@param callback function to add 
-	@memberof $mbDispatcher
-     */
-	function on(type, callback) {
-		return getDispatcherFor(type).register(callback);
-	}
-
-    /** 
-	Removes a callback based on its token. 
-
-	@memberof $mbDispatcher
-     */
-	function off(type, id) {
-		return getDispatcherFor(type).unregister(id);
-	}
-
-    /**
-	Waits for the callbacks specified to be invoked before continuing
-	execution of the current callback. This method should only be used by a
-	callback in response to a dispatched payload.
-
-	@memberof $mbDispatcher
-     */
-	function waitFor(type, ids) {
-		return getDispatcherFor(type).waitFor(ids);
-	}
-
-    /**
-	Dispatches a payload to all registered callbacks.
-	
-	 Payload contains key and values. You may add extra values to the 
-	payload.
-
-	@memberof $mbDispatcher
-     */
-	function dispatch(type, payload) {
-		return getDispatcherFor(type).dispatch(payload);
-	};
-
-    /**
-	Is this Dispatcher currently dispatching.
-
-	@memberof $mbDispatcher
-     */
-	function isDispatching(type) {
-		return getDispatcherFor(type).isDispatching();
-	};
-
-
-	//---------------------------------------
-	// end
-	//---------------------------------------
-	service = {
-		on: on,
-		off: off,
-		waitFor: waitFor,
-		dispatch: dispatch,
-		isDispatching: isDispatching,
-	};
-	provider = {
-		$get: function() {
-			"ngInject";
-			return service;
-		}
-	};
+export function mbDispatcherProviderConstructor() {
 	return provider;
-}
+};
 
-export default mbDispatcher;
+export default service;
 
 

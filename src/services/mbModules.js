@@ -20,14 +20,12 @@
  * SOFTWARE.
  */
 
+import $mbDispatcher from './mbDispatcher';
 
 //------------------------------------------------------------------------------
 // Services
 //------------------------------------------------------------------------------
-var mbDispatcher,
-	mbStorage,
-	mbApplication,
-	q;
+var mbStorage;
 
 var provider;
 var service;
@@ -106,7 +104,7 @@ function addModule(module) {
 	modules[module.url] = module;
 	saveModules();
 	//>> fire changes
-	mbDispatcher.dispatch(MB_MODULE_SP, {
+	$mbDispatcher.dispatch(MB_MODULE_SP, {
 		type: 'create',
 		items: [module]
 	});
@@ -116,7 +114,7 @@ function removeModule(module) {
 	delete modules[module.url];
 	saveModules();
 	//>> fire changes
-	mbDispatcher.dispatch(MB_MODULE_SP, {
+	$mbDispatcher.dispatch(MB_MODULE_SP, {
 		type: 'delete',
 		items: [module]
 	});
@@ -135,17 +133,13 @@ function load() {
 	modules = mbStorage.mbModules || {};
 }
 
-function $get(
-	/* Angularjs */ $q,
-	/* am-wb     */ $mbApplication, $mbDispatcher, $mbStorage) {
+function $get($mbStorage) {
 	"ngInject";
-	q = $q;
-	mbApplication = $mbApplication;
-	mbDispatcher = $mbDispatcher;
+	//	q = $q;
+	//	mbApplication = $mbApplication;
+	//	mbDispatcher = $mbDispatcher;
 	mbStorage = $mbStorage;
-
 	load();
-
 	return service;
 }
 
@@ -165,8 +159,8 @@ provider = {
 /**
  * Manages system moduels
  */
-export default function() {
+export function mbModulesProviderConstructor() {
 	return provider;
-};
-
+}
+export default service;
 

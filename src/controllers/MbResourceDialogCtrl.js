@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {RESOURCE_CHILDREN_AUNCHOR} from '../services/mbResource';
+import { RESOURCE_CHILDREN_AUNCHOR } from '../services/mbResource';
 
 
 /**
