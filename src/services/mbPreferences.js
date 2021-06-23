@@ -103,8 +103,8 @@ function mbPreferences() {
 		open: open
 	};
 	provider = {
-		/* @ngInject */
 		$get: function($location) {
+			"ngInject";
 			location = $location;
 
 			init();

@@ -20,6 +20,20 @@
  * SOFTWARE.
  */
 
+import $mbDispatcher from '../services/mbDispatcher';
+import $mbDispatcherUtil from '../services/mbDispatcherUtil';
+
+//--------------------------------------------------------
+// --Events--
+//--------------------------------------------------------
+class EventHandlerId {
+	constructor(type, id, callback) {
+		this.type = type;
+		this.id = id;
+		this.callback = callback;
+	}
+}
+
 /**
 @ngdoc Controllers
 @name MbAbstractCtrl
@@ -27,35 +41,43 @@
 
 @ngInject
  */
-export default function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
+export default class MbAbstractCtrl {
+	constructor($scope) {
+		'ngInject';
+		this._hids = [];
 
-	//--------------------------------------------------------
-	// --Events--
-	//--------------------------------------------------------
-	var EventHandlerId = function(type, id, callback) {
-		this.type = type;
-		this.id = id;
-		this.callback = callback;
-	};
+		/*
+		 * Remove all resources
+		 */
+		$scope.$on('$destroy', () => this.destroy());
+	}
+
+	destroy() {
+		this._hids.forEach((item) => $mbDispatcher.off(item.type, item.id));
+		this._hids = [];
+	}
 
 	/**
 	 * Add a callback for an specific type
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.addEventHandler = function(type, callback) {
+	addEventHandler(type, callback) {
 		var callbackId = $mbDispatcher.on(type, callback);
 		this._hids.push(new EventHandlerId(type, callbackId, callback));
-	};
+	}
+
 
 	/**
 	 * Remove a callback for an specific type
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.removeEventHandler = function(type, callback) {
+	removeEventHandler(/*type, callback*/) {
 		// XXX: maso, 2019: remove handler
-	};
+	}
+
+
 
 	/**
 	 * Fire an action is performed on items
@@ -83,8 +105,9 @@ export default function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 	 * 
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireEvent = $mbDispatcherUtil.fireEvent;
-
+	fireEvent(type, action, items) {
+		return $mbDispatcherUtil.fireEvent(type, action, items);
+	}
 
 	/**
 	 * Fires items read
@@ -92,7 +115,9 @@ export default function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireRead = $mbDispatcherUtil.fireRead;
+	fireRead(type, items) {
+		return $mbDispatcherUtil.fireRead(type, items);
+	}
 
 	/**
 	 * Fires items updated
@@ -100,7 +125,9 @@ export default function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireUpdated = $mbDispatcherUtil.fireUpdated;
+	fireUpdated(type, items) {
+		return $mbDispatcherUtil.fireUpdated(type, items);
+	}
 
 	/**
 	 * Fires items deleted
@@ -108,7 +135,9 @@ export default function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireDeleted = $mbDispatcherUtil.fireDeleted;
+	fireDeleted(type, items) {
+		return $mbDispatcherUtil.fireDeleted(type, items);
+	}
 
 	/**
 	 * Fires items created
@@ -116,26 +145,8 @@ export default function($scope, $mbDispatcher, MbEvent, $mbDispatcherUtil) {
 	 * @see MbAbstractCtrl#fireEvent
 	 * @memberof MbAbstractCtrl
 	 */
-	this.fireCreated = $mbDispatcherUtil.fireCreated;
+	fireCreated(type, items) {
+		return $mbDispatcherUtil.fireCreated(type, items);
+	}
 
-
-	this.destroy = function() {
-		for (var i = 0; i < ctrl._hids.length; i++) {
-			var handlerId = ctrl._hids[i];
-			$mbDispatcher.off(handlerId.type, handlerId.id);
-		}
-		ctrl._hids = [];
-	};
-
-	//--------------------------------------------------------
-	// --View--
-	//--------------------------------------------------------
-	/*
-	 * Remove all resources
-	 */
-	var ctrl = this;
-	ctrl._hids = [];
-	$scope.$on('$destroy', function() {
-		ctrl.destroy();
-	});
 }

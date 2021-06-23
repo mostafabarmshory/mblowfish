@@ -1,4 +1,86 @@
+import $mbDispatcher from './mbDispatcher';
+import MbEvent from '../factories/MbEventFactory';
 
+
+/**
+ * Fire an action is performed on items
+ * 
+ * Here is common list of action to dils with objects:
+ * 
+ * - created
+ * - read
+ * - updated
+ * - deleted
+ * 
+ * to fire an item is created:
+ * 
+ * this.fireEvent(type, 'created', item);
+ * 
+ * to fire items created:
+ * 
+ * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
+ * 
+ * to fire list of items created
+ * 
+ * var items = [];
+ * ...
+ * this.fireEvent(type, 'created', items);
+ * 
+ */
+function fireEvent(type, action, items) {
+	var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
+	return $mbDispatcher.dispatch(type, new MbEvent({
+		type: type,
+		key: action,
+		values: values
+	}));
+}
+
+
+/**
+ * Fires items read
+ * 
+ */
+function fireRead(type, items) {
+	var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+	return fireEvent(type, 'read', values);
+}
+
+/**
+ * Fires items updated
+ * 
+ */
+function fireUpdated(type, items) {
+	var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+	return fireEvent(type, 'update', values);
+}
+
+/**
+ * Fires items deleted
+ * 
+ */
+function fireDeleted(type, items) {
+	var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+	return fireEvent(type, 'delete', values);
+}
+
+/**
+ * Fires items created
+ * 
+ */
+function fireCreated(type, items) {
+	var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
+	return fireEvent(type, 'create', values);
+}
+
+// End
+const service = {
+	fireEvent: fireEvent,
+	fireCreated: fireCreated,
+	fireDeleted: fireDeleted,
+	fireUpdated: fireUpdated,
+	fireRead: fireRead,
+};
 
 
 /**
@@ -21,19 +103,19 @@ These base factories can be imported from dispatcher utils like this:
 import { ReduceStore } from 'flux/utils';
 class CounterStore extends ReduceStore<number> {
   getInitialState(): number {
-    return 0;
+	return 0;
   }
   reduce(state: number, action: Object): number {
-    switch (action.type) {
-      case 'increment':
-        return state + 1;
+	switch (action.type) {
+	  case 'increment':
+		return state + 1;
 
-      case 'square':
-        return state * state;
+	  case 'square':
+		return state * state;
 
-      default:
-        return state;
-    }
+	  default:
+		return state;
+	}
   }
 }
 
@@ -66,107 +148,14 @@ Describe a user's action, are not setters. (e.g. select-page not set-page-id)
 - Receive all information and callbacks as props
 
  */
-function mbDispatcherUtil() {
-	var service;
-	var provider;
-	var mbDispatcher;
-	var Event;
-	//-------------------------------------------------------------------
-	// Functions
-
-
-
-	/**
-	 * Fire an action is performed on items
-	 * 
-	 * Here is common list of action to dils with objects:
-	 * 
-	 * - created
-	 * - read
-	 * - updated
-	 * - deleted
-	 * 
-	 * to fire an item is created:
-	 * 
-	 * this.fireEvent(type, 'created', item);
-	 * 
-	 * to fire items created:
-	 * 
-	 * this.fireEvent(type, 'created', item_1, item_2, .. , item_n);
-	 * 
-	 * to fire list of items created
-	 * 
-	 * var items = [];
-	 * ...
-	 * this.fireEvent(type, 'created', items);
-	 * 
-	 */
-	function fireEvent(type, action, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 2);
-		return mbDispatcher.dispatch(type, new Event({
-			type: type,
-			key: action,
-			values: values
-		}));
-	};
-
-
-	/**
-	 * Fires items read
-	 * 
-	 */
-	function fireRead(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return fireEvent(type, 'read', values);
-	}
-
-	/**
-	 * Fires items updated
-	 * 
-	 */
-	function fireUpdated(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return fireEvent(type, 'update', values);
-	}
-
-	/**
-	 * Fires items deleted
-	 * 
-	 */
-	function fireDeleted(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return fireEvent(type, 'delete', values);
-	}
-
-	/**
-	 * Fires items created
-	 * 
-	 */
-	function fireCreated(type, items) {
-		var values = angular.isArray(items) ? items : Array.prototype.slice.call(arguments, 1);
-		return fireEvent(type, 'create', values);
-	}
-
-	// End
-	service = {
-		fireEvent: fireEvent,
-		fireCreated: fireCreated,
-		fireDeleted: fireDeleted,
-		fireUpdated: fireUpdated,
-		fireRead: fireRead,
-	};
-
-	provider = {
-		/* @ngInject */
-		$get: function($mbDispatcher, MbEvent) {
-			mbDispatcher = $mbDispatcher;
-			Event = MbEvent;
+export function mbDispatcherUtilProviderConstructor() {
+	return {
+		$get: function() {
 			return service;
 		}
-	}
-	return provider;
+	};
 }
 
 
-export default mbDispatcherUtil;
+export default service;
 

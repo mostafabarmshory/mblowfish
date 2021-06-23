@@ -19,50 +19,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import MbAbstractCtrl from '../../../controllers/MbAbstractCtrl';
+import $mbActions from '../../../services/mbActions';
 import templateUrl from './modules.html';
+import {
+	MB_MODULE_SP,
+	MB_MODULE_CREATE_ACTION,
+	MB_MODULE_DELETE_ACTION
+} from '../Constants';
+
+
+export class MbModulesCtrl extends MbAbstractCtrl {
+
+	constractor($scope, $mbModules) {
+		'ngInject';
+		supser($scope);
+		this.$mbModules = $mbModules;
+		this.loadModules();
+		this.addEventHandler(MB_MODULE_SP, () => this.loadModules());
+	}
+
+	loadModules() {
+		this.modules = $mbModules.getModules();
+	}
+
+	addModule($event) {
+		$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
+	}
+
+	deleteModule(item, $event) {
+		$event.modules = [item];
+		$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
+	}
+
+	openMenu($mdMenu, $event) {
+		return $mdMenu.open($event);
+	}
+}
+
+
+
 export default {
 	title: 'Modules',
 	icon: 'language',
 	description: 'Manage global modules to enable for all users.',
 	templateUrl: templateUrl,
 	groups: ['Utilities'],
-	controllerAs: 'ctrl',
-	controller: function(
-	/* angularjs */ $scope, $controller,
-	/* Mblowfish */ $mbModules, $mbActions
-	) {
-		'ngInject';
-		/*
-		 * Extends collection controller from MbAbstractCtrl 
-		 */
-		angular.extend(this, $controller('MbAbstractCtrl', {
-			$scope: $scope
-		}));
-
-		this.loadModules = function() {
-			this.modules = $mbModules.getModules();
-		}
-
-		this.addModule = function($event) {
-			$mbActions.exec(MB_MODULE_CREATE_ACTION, $event);
-		};
-
-		this.deleteModule = function(item, $event) {
-			$event.modules = [item];
-			$mbActions.exec(MB_MODULE_DELETE_ACTION, $event);
-		};
-
-		this.openMenu = function($mdMenu, $event) {
-			return $mdMenu.open($event);
-		};
-
-		var ctrl = this;
-		this.addEventHandler(MB_MODULE_SP, function() {
-			ctrl.loadModules();
-		});
-
-		ctrl.loadModules();
-	}
+	controller: MbModulesCtrl
 }
 
 

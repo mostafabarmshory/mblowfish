@@ -149,7 +149,7 @@ function mbMimetype() {
 	};
 	provider = {
 		$get: function(MbMimetype) {
-			'ngInject';
+			"ngInject";
 			Mimetype = MbMimetype;
 			return service;
 		}

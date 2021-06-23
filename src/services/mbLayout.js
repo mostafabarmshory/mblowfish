@@ -367,11 +367,11 @@ function mbLayout() {
 			defaultLayoutName = layoutName;
 			return provider;
 		},
-		/* @ngInject */
 		$get: function(
 			/* Angularjs */ $compile, $rootScope, $injector, $location, $mbTheming,
 			/* MblowFish */ $mbStorage, $mbSettings, $mbLog
 		) {
+			"ngInject";
 			//
 			// 1- Init layouts
 			//

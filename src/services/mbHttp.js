@@ -27,7 +27,7 @@ export default function() {
 	//--------------------------------------------------------
 	provider = {
 		$get: function($http) {
-			'ngInject';
+			"ngInject";
 			return $http;
 		}
 	}

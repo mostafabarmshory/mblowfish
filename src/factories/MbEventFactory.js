@@ -31,9 +31,8 @@ Events are used to propagate signals to the application. It is based on $mbDispa
 
 NOTE: All platform events (from mb or children) are instance of this factory.
 
-@ngInject
  */
-function MbEventFactory() {
+class MbEvent {
 
 	/**
 	Creates new instance of event
@@ -42,42 +41,39 @@ function MbEventFactory() {
 	@memberof MbEvent
 	@params {Objct} data To bind as initial data
 	 */
-	function mbEvent(data) {
-		if (!angular.isDefined(data)) {
-			data = {};
-		}
-		angular.extend(this, data);
-	};
+	constructor(data) {
+		data = data || {};
+		Object.assign(this, data);
+	}
 
-	mbEvent.prototype.getType = function() {
+	getType() {
 		return this.type || 'unknown';
-	};
+	}
 
-	mbEvent.prototype.getKey = function() {
+	getKey() {
 		return this.key || 'unknown';
-	};
+	}
 
-	mbEvent.prototype.getValues = function() {
+	getValues() {
 		return this.values || [];
-	};
+	}
 
-	mbEvent.prototype.isCreated = function() {
+	isCreated() {
 		return this.key === 'create';
-	};
+	}
 
-	mbEvent.prototype.isRead = function() {
+	isRead() {
 		return this.key === 'read';
-	};
+	}
 
-	mbEvent.prototype.isUpdated = function() {
+	isUpdated() {
 		return this.key === 'update';
-	};
+	}
 
-	mbEvent.prototype.isDeleted = function() {
+	isDeleted() {
 		return this.key === 'delete';
-	};
+	}
 
-	return mbEvent;
 }
 
-export default MbEventFactory;
+export default MbEvent;

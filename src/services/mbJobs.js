@@ -73,8 +73,8 @@ function mbJobs() {
 		removeJob: removeJob,
 	};
 	provider = {
-		/* @ngInject */
 		$get: function($injector) {
+			"ngInject";
 			//>> init services
 			injector = $injector;
 

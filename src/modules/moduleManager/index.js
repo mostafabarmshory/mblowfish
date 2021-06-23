@@ -31,7 +31,7 @@ import manualModuleResource from './resources/module-manual';
 
 import modulesView from './views/modules';
 
-import Constants from './Constants';
+import * as Constants from './Constants';
 /**
  * Manages system moduels
  */

@@ -321,8 +321,8 @@ function mbApplicationProvider() {
 		getState: getState,
 	};
 	provider = {
-		/* @ngInject */
 		$get: function($q, $mbSettings, MbJob, $mbDispatcher) {
+			"ngInject";
 			//>> Set services
 			mbSettings = $mbSettings;
 			q = $q;

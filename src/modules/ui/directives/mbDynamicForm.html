@@ -9,7 +9,7 @@
 		<input
 			ng-required="{{prop.validators && prop.validators.indexOf('NotNull')>-1}}"
 			ng-model="values[prop.name]"
-			ng-change="modelChanged(prop.name, values`[prop.name])">
+			ng-change="modelChanged(prop.name, values[prop.name])">
 		<mb-icon
 			ng-show="hasResource(prop)"
 			ng-click="setValueFor(prop, $event)">more_horiz</mb-icon>

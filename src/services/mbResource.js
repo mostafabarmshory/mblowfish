@@ -145,8 +145,8 @@ function mbResource() {
 		getPages: getPages,
 	};
 	provider = {
-		/* @ngInject */
 		$get: function($mbDialog, $rootElement) {
+			"ngInject";
 			mbDialog = $mbDialog;
 			rootElement = $rootElement;
 			return service;

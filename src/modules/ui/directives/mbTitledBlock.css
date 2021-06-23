@@ -1,3 +1,7 @@
 mb-titled-block {
 	margin: 8px;
 }
+
+mb-titled-block > * {
+	width: 100%;
+}

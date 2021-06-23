@@ -76,7 +76,7 @@ export default  function($mbResource) {
 		 */
 		scope.getTypeOf = function(prop) {
 			var type = 'input';
-			if (prop.type === 'String' && prop.name === 'description') {
+			if ((prop.type === 'String' || prop.type === 'Varchar') && prop.name === 'description') {
 				type = 'textarea';
 			} else if (prop.type === 'Datetime') {
 				type = 'datetime';

@@ -28,14 +28,14 @@ import MbResourceDialogCtrl from './controllers/MbResourceDialogCtrl';
  *                                                                          *
  ****************************************************************************/
 import mbAccount from './services/mbAccount';
-import mbActions from './services/mbActions';
+import { mbActionsProviderConstractor } from './services/mbActions';
 import mbApplication from './services/mbApplication';
 import mbClipboard from './services/mbClipboard';
 import mbComponent from './services/mbComponent';
 import mbCrypto from './services/mbCrypto';
 import mbDialog from './services/mbDialog';
-import mbDispatcher from './services/mbDispatcher';
-import mbDispatcherUtil from './services/mbDispatcherUtil';
+import { mbDispatcherProviderConstructor } from './services/mbDispatcher';
+import { mbDispatcherUtilProviderConstructor } from './services/mbDispatcherUtil';
 import mbDynamicForm from './services/mbDynamicForm';
 import mbEditor from './services/mbEditor';
 import mbHotkey from './services/mbHotkey';
@@ -45,7 +45,7 @@ import mbLocal from './services/mbLocal';
 import mbLog from './services/mbLog';
 import mbMenu from './services/mbMenu';
 import mbMimetype from './services/mbMimetype';
-import mbModules from './services/mbModules';
+import { mbModulesProviderConstructor } from './services/mbModules';
 import mbNavigator from './services/mbNavigator';
 import mbNotification from './services/mbNotification';
 import mbPreferences from './services/mbPreferences';
@@ -198,16 +198,16 @@ mblowfish
 
 	// Core services
 	.provider('$mbAccount', mbAccount)
-	.provider('$mbActions', mbActions)
+	.provider('$mbActions', mbActionsProviderConstractor)
 	.provider('$mbApplication', mbApplication)
 	.service('$mbClipboard', mbClipboard)
 	.service('$mbCrypto', mbCrypto)
-	.provider('$mbDispatcher', mbDispatcher)
-	.provider('$mbDispatcherUtil', mbDispatcherUtil)
+	.provider('$mbDispatcher', mbDispatcherProviderConstructor)
+	.provider('$mbDispatcherUtil', mbDispatcherUtilProviderConstructor)
 	.provider('$mbJobs', mbJobs)
 	.provider('$mbLocal', mbLocal)
 	.provider('$mbMimetype', mbMimetype)
-	.provider('$mbModules', mbModules)
+	.provider('$mbModules', mbModulesProviderConstructor)
 	.provider('$mbPreferences', mbPreferences)
 	.provider('$mbResource', mbResource)
 	.service('$mbSelection', mbSelection)

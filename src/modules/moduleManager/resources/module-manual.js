@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 import templateUrl from './module-manual.html';
-import Constants from '../Constants';
+import { MB_MODULE_RT } from '../Constants';
 
 export default {
 	label: 'Manual',
@@ -33,6 +33,6 @@ export default {
 		$scope.module = _.isArray($scope.value) ? $scope.value[0] : $scope.value;
 	},
 	controllerAs: 'resourceCtrl',
-	tags: [Constants.MB_MODULE_RT]
+	tags: [MB_MODULE_RT]
 }
 

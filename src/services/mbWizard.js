@@ -199,7 +199,7 @@ function mbWizard() {
 	};
 	provider = {
 		$get: function(MbWizard, MbWizardPage, $mbDialog, $rootScope, $mbSettings) {
-			'ngInject';
+			"ngInject";
 			Wizard = MbWizard;
 			WizardPage = MbWizardPage;
 			mbDialog = $mbDialog;
