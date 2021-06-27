@@ -32,7 +32,7 @@ import { mbActionsProviderConstractor } from './services/mbActions';
 import mbApplication from './services/mbApplication';
 import mbClipboard from './services/mbClipboard';
 import mbComponent from './services/mbComponent';
-import mbCrypto from './services/mbCrypto';
+import {mbCryptoProviderConstractor} from './services/mbCrypto';
 import mbDialog from './services/mbDialog';
 import { mbDispatcherProviderConstructor } from './services/mbDispatcher';
 import { mbDispatcherUtilProviderConstructor } from './services/mbDispatcherUtil';
@@ -201,7 +201,7 @@ mblowfish
 	.provider('$mbActions', mbActionsProviderConstractor)
 	.provider('$mbApplication', mbApplication)
 	.service('$mbClipboard', mbClipboard)
-	.service('$mbCrypto', mbCrypto)
+	.provider('$mbCrypto', mbCryptoProviderConstractor)
 	.provider('$mbDispatcher', mbDispatcherProviderConstructor)
 	.provider('$mbDispatcherUtil', mbDispatcherUtilProviderConstructor)
 	.provider('$mbJobs', mbJobs)
