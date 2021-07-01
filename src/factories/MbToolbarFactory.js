@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import $mbActions from '../services/mbActions';
 
 
 /**
@@ -40,7 +41,7 @@ You can add a toolbar into a toolbar, however, do not add them more than two lev
 
 @ngInject
  */
-function MbToolbarFactory(MbContainer, $mbActions, $mbComponent) {
+function MbToolbarFactory(MbContainer, $mbComponent) {
 
 	function MbToolbar(configs) {
 		MbContainer.call(this, configs);
