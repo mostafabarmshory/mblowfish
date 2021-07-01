@@ -96,7 +96,7 @@ function MbToolbarFactory(MbContainer, $mbActions, $mbComponent) {
 			this.components.push(component);
 		} else {
 			if (_.isString(component)) {
-				action = $mbComponent.getComponent(action);
+				component = $mbComponent.getComponent(component);
 			}
 			// keep action handler
 			var toolbar = this;
