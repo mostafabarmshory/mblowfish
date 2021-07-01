@@ -21,80 +21,81 @@
  */
 
 
+
+var
+	Component,
+	service,
+	provider;
+
+var
+	configs = {
+		items: {}
+	},
+	components = {};
+
+
+function addComponent(componentId, component) {
+	if (!(component instanceof Component)) {
+		component = new Component(component);
+	}
+	components[componentId] = component;
+	return service;
+}
+
+function getComponent(componentId) {
+	return components[componentId];
+}
+
+function removeComponent(componentId) {
+	var component = components[componentId];
+	if (!component) {
+		component.destroy();
+		delete components[componentId];
+	}
+	return service;
+}
+
+function loadItems() {
+	var items = configs.items || {};
+	_.forEach(items, function(config, componentId) {
+		var component = new Component(config);
+		addComponent(componentId, component);
+	});
+}
+
+service = {
+	addComponent: addComponent,
+	removeComponent: removeComponent,
+	getComponent: getComponent,
+};
+
+provider = {
+	$get: function(MbComponent) {
+		"ngInject";
+		Component = MbComponent;
+
+		loadItems();
+
+		return service;
+	},
+	init: function(moduleConfigs) {
+		configs = moduleConfigs;
+		return provider;
+	},
+	addComponent: function(id, config) {
+		configs.items[id] = config;
+		return provider;
+	}
+};
+
+export default service;
+
 /**
 @ngdoc Serivces
 @name $mbComponent
 @description Manages list of all global component to share with containers 
-
-
  */
-function mbComponent() {
-
-	var
-		Component,
-		service,
-		provider;
-
-
-	var
-		configs = {
-			items: {}
-		},
-		components = {};
-
-	function addComponent(componentId, component) {
-		if (!(component instanceof Component)) {
-			component = new Component(component);
-		}
-		components[componentId] = component;
-		return service;
-	}
-
-	function getComponent(componentId) {
-		return components[componentId];
-	}
-
-	function removeComponent(componentId) {
-		var component = components[componentId];
-		if (!component) {
-			component.destroy();
-			delete components[componentId];
-		}
-		return service;
-	}
-
-	function loadItems() {
-		var items = configs.items || {};
-		_.forEach(items, function(config, componentId) {
-			var component = new Component(config);
-			addComponent(componentId, component);
-		});
-	}
-
-	service = {
-		addComponent: addComponent,
-		removeComponent: removeComponent,
-		getComponent: getComponent,
-	};
-	provider = {
-		$get: function(MbComponent) {
-			"ngInject";
-			Component = MbComponent;
-
-			loadItems();
-
-			return service;
-		},
-		init: function(moduleConfigs) {
-			configs = moduleConfigs;
-			return provider;
-		},
-		addComponent: function(id, config) {
-			configs.items[id] = config;
-			return provider;
-		}
-	};
+export function mbComponentProviderConstructor() {
 	return provider;
 }
 
-export default mbComponent;

@@ -31,8 +31,8 @@ import mbAccount from './services/mbAccount';
 import { mbActionsProviderConstractor } from './services/mbActions';
 import mbApplication from './services/mbApplication';
 import mbClipboard from './services/mbClipboard';
-import mbComponent from './services/mbComponent';
-import {mbCryptoProviderConstractor} from './services/mbCrypto';
+import { mbComponentProviderConstructor } from './services/mbComponent';
+import { mbCryptoProviderConstractor } from './services/mbCrypto';
 import mbDialog from './services/mbDialog';
 import { mbDispatcherProviderConstructor } from './services/mbDispatcher';
 import { mbDispatcherUtilProviderConstructor } from './services/mbDispatcherUtil';
@@ -178,7 +178,7 @@ mblowfish
 
 	// Services
 	// UI
-	.provider('$mbComponent', mbComponent)
+	.provider('$mbComponent', mbComponentProviderConstructor)
 	.provider('$mbDialog', mbDialog)
 	.provider('$mbDynamicForm', mbDynamicForm)
 	.provider('$mbEditor', mbEditor)
